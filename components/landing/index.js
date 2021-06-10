@@ -1,5 +1,0 @@
-export * from './Navbar'
-export * from './Banner'
-export * from './Stats'
-export * from './Products'
-export * from './Footer'
