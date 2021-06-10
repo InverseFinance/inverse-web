@@ -1,6 +1,11 @@
 import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import Button from '@inverse/components/landing/Button'
 
+const background = {
+  bgImage: '/assets/landing/wall.png',
+  bgPosition: 'center center',
+}
+
 const INVERSE_PRODUCTS = [
   {
     name: 'Anchor',
@@ -33,9 +38,9 @@ const INVERSE_PRODUCTS = [
 const Product = ({ product }) => {
   const { name, description, logo, buttonLabel } = product
   return (
-    <Stack width={64} align="center" textAlign="center">
-      <Image src={logo} height={48} width={48} />
-      <Text fontWeight={800} fontSize="3xl" lineHeight={1}>
+    <Stack h="full" p={8} w={80} align="center" textAlign="center">
+      <Image src={logo} w={48} h={48} />
+      <Text fontWeight="extrabold" fontSize="3xl" lineHeight={1}>
         {name}
       </Text>
       <Text>{description}</Text>
@@ -46,25 +51,21 @@ const Product = ({ product }) => {
 }
 
 export const Products = () => (
-  <Flex
-    direction="column"
-    bgImage="/assets/home/main3.png"
-    bgPosition="center center"
-    width="full"
-    align="center"
-    justify="center">
-    <Flex
-      width="full"
+  <Flex w="full" direction="column" {...background}>
+    <Stack
+      direction="row"
+      spacing={0}
+      w="full"
+      p={16}
+      pt={{ base: 16, md: 40 }}
       justify="space-around"
-      p={32}
-      pt={48}
-      fontSize="md"
-      color="white"
-      bgGradient="linear(to-b, darkestSlateBlue, transparent,  transparent,  transparent,  transparent)">
+      bgGradient="linear(to-b, purple.900, transparent,  transparent,  transparent)"
+      wrap="wrap"
+      shouldWrapChildren>
       {INVERSE_PRODUCTS.map((product) => (
         <Product product={product} />
       ))}
-    </Flex>
+    </Stack>
   </Flex>
 )
 

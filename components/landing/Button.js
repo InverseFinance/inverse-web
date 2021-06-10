@@ -2,15 +2,14 @@ import { Flex, Text } from '@chakra-ui/react'
 
 export const Button = ({ children }) => (
   <Flex
-    bgColor="darkSlateBlue"
-    p={2}
-    pl={6}
-    pr={6}
-    borderRadius={32}
+    w="full"
+    justify="center"
+    bgColor="purple.600"
     cursor="pointer"
-    transition="color 500ms ease-out"
-    _hover={{ bgColor: 'darkerSlateBlue' }}>
-    <Text fontSize="sm" fontWeight={600}>
+    borderRadius={32}
+    p={2}
+    _hover={{ bgColor: 'purple.500' }}>
+    <Text fontSize="md" fontWeight="semibold">
       {children}
     </Text>
   </Flex>

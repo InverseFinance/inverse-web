@@ -1,4 +1,5 @@
 import { Flex, Image, Link, Stack, Text } from '@chakra-ui/react'
+import Logo from '@inverse/components/landing/Logo'
 
 const INVERSE_SOCIALS = [
   {
@@ -29,21 +30,18 @@ const INVERSE_SOCIALS = [
 
 export const Footer = () => (
   <Flex
-    width="full"
-    borderTop="2px solid #211c42"
-    backgroundColor="darkestSlateBlue"
+    w="full"
+    backgroundColor="purple.900"
+    borderColor="purple.700"
+    borderTopWidth={2}
     justify="space-between"
     p={2}
-    pl={6}
-    pr={6}
-    color="white"
-    align="center"
-    fontWeight={700}>
+    align="center">
     <Stack direction="row" align="center">
-      <Image src="/assets/inverse.png" width={7} height={7} filter="brightness(0) invert(1)" />
-      <Text>Inverse</Text>
+      <Logo boxSize={7} />
+      <Text fontWeight="semibold">Inverse</Text>
     </Stack>
-    <Stack direction="row" spacing={4} align="center">
+    <Stack direction="row" spacing={3} align="center">
       {INVERSE_SOCIALS.map(({ href, image }) => (
         <Link href={href}>
           <Image src={image} />
