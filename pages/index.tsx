@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import Footer from '@inverse/components/Footer'
-import { Banner, Products, Stats } from '@inverse/components/landing'
+import { Banner, Products, Stats } from '@inverse/components/Landing'
 import Navbar from '@inverse/components/Navigation'
 
 export const Landing = () => (

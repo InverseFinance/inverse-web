@@ -88,3 +88,6 @@ $RECYCLE.BIN/
 
 # application
 .next
+
+# environment
+.env*
