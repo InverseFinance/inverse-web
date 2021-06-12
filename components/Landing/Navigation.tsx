@@ -9,7 +9,7 @@ type NavItem = {
   href: string
 }
 
-const INVERSE_NAV = [
+const INVERSE_NAV: NavItem[] = [
   {
     label: 'Docs',
     href: 'https://docs.inverse.finance/',
@@ -41,7 +41,7 @@ export const Navbar = () => {
             </NextLink>
           ))}
           <Flex w={28}>
-            <ButtonLink href="#">Enter App</ButtonLink>
+            <ButtonLink href="/anchor">Enter App</ButtonLink>
           </Flex>
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} onClick={() => setShowMobileNav(!showMobileNav)}>
@@ -67,7 +67,11 @@ export const Navbar = () => {
               </Link>
             </NextLink>
           ))}
-          <Text>Enter App</Text>
+          <NextLink href="/anchor" passHref>
+            <Link color="#fff" _hover={{ color: 'purple.100' }} _focus={{}}>
+              Enter App
+            </Link>
+          </NextLink>
         </Stack>
       </Flex>
     </>

@@ -28,7 +28,7 @@ export const Banner = () => (
       </Text>
       <Stack direction="row" spacing={4}>
         <Flex width={{ base: 'full', xl: 32 }}>
-          <ButtonLink href="#">Enter App</ButtonLink>
+          <ButtonLink href="/anchor">Enter App</ButtonLink>
         </Flex>
         <Flex width={{ base: 'full', xl: 32 }}>
           <ButtonLink href="https://docs.inverse.finance/">Learn More</ButtonLink>
