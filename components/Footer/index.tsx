@@ -1,5 +1,6 @@
-import { Image, Link, Stack, Text } from '@chakra-ui/react'
+import { Image, Stack, Text } from '@chakra-ui/react'
 import Logo from '@inverse/components/Logo'
+import Link from '../Link'
 
 const INVERSE_SOCIALS = [
   {
@@ -28,6 +29,60 @@ const INVERSE_SOCIALS = [
   },
 ]
 
+const LINK_GROUPS = [
+  {
+    groupLabel: 'Products',
+    items: [
+      {
+        label: 'Anchor',
+        href: '/anchor',
+      },
+      {
+        label: 'Vaults',
+        href: '/vaults',
+      },
+      {
+        label: 'DOLA',
+        href: '/stabilizer',
+      },
+    ],
+  },
+  {
+    groupLabel: 'Governance',
+    items: [
+      {
+        label: 'Voting',
+        href: '/governance',
+      },
+      {
+        label: 'Snapshot',
+        href: 'https://snapshot.org/#/inversefinance.eth',
+      },
+      {
+        label: 'Tally',
+        href: 'https://www.withtally.com/governance/inverse',
+      },
+    ],
+  },
+  {
+    groupLabel: 'Support',
+    items: [
+      {
+        label: 'Docs',
+        href: 'https://docs.inverse.finance/',
+      },
+      {
+        label: 'Discord',
+        href: 'https://discord.gg/YpYJC7R5nv',
+      },
+      {
+        label: 'Telegram',
+        href: 'https://t.me/InverseFinance',
+      },
+    ],
+  },
+]
+
 export const Footer = () => (
   <Stack
     w="full"
@@ -36,10 +91,10 @@ export const Footer = () => (
     borderColor="purple.800"
     borderTopWidth={1}
     spacing={8}
-    p={4}
-    pl={{ base: 4, lg: 16 }}
-    pr={{ base: 4, lg: 16 }}
-    justify="space-around"
+    p={8}
+    pl={{ base: 8, lg: 16 }}
+    pr={{ base: 8, lg: 16 }}
+    justify="space-between"
     color="#fff"
   >
     <Stack width={{ base: 'full', lg: 72 }} spacing={4}>
@@ -66,42 +121,16 @@ export const Footer = () => (
       wrap="wrap"
       shouldWrapChildren
     >
-      <Stack w={32} mb={4}>
-        <Text fontWeight="bold">Products</Text>
-        <Link fontSize="13px" href="#">
-          Anchor
-        </Link>
-        <Link fontSize="13px" href="#">
-          Vaults
-        </Link>
-        <Link fontSize="13px" href="#">
-          DOLA
-        </Link>
-      </Stack>
-      <Stack w={32} mb={4}>
-        <Text fontWeight="bold">Support</Text>
-        <Link fontSize="13px" href="#">
-          Docs
-        </Link>
-        <Link fontSize="13px" href="#">
-          Discord
-        </Link>
-        <Link fontSize="13px" href="#">
-          Telegram
-        </Link>
-      </Stack>
-      <Stack w={32} mb={4}>
-        <Text fontWeight="bold">Governance</Text>
-        <Link fontSize="13px" href="#">
-          Voting
-        </Link>
-        <Link fontSize="13px" href="#">
-          Snapshot
-        </Link>
-        <Link fontSize="13px" href="#">
-          Tally
-        </Link>
-      </Stack>
+      {LINK_GROUPS.map(({ groupLabel, items }) => (
+        <Stack key={groupLabel} w={32} mb={4}>
+          <Text fontWeight="bold">{groupLabel}</Text>
+          {items.map(({ label, href }) => (
+            <Link href={href} fontSize="13px">
+              {label}
+            </Link>
+          ))}
+        </Stack>
+      ))}
     </Stack>
   </Stack>
 )

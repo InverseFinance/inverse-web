@@ -1,15 +1,10 @@
-import { Flex, Image, Link, Stack, Text } from '@chakra-ui/react'
-import ButtonLink from '@inverse/components/Button'
+import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import LinkButton from '@inverse/components/Button'
 import Logo from '@inverse/components/Logo'
 import { useState } from 'react'
-import NextLink from 'next/link'
+import Link from '../Link'
 
-type NavItem = {
-  label: string
-  href: string
-}
-
-const INVERSE_NAV: NavItem[] = [
+const INVERSE_NAV = [
   {
     label: 'Docs',
     href: 'https://docs.inverse.finance/',
@@ -20,12 +15,12 @@ const INVERSE_NAV: NavItem[] = [
   },
 ]
 
-export const Navbar = () => {
+export const LandingNav = () => {
   const [showMobileNav, setShowMobileNav] = useState(false)
 
   return (
     <>
-      <Flex width="full" justify="space-between" align="center" p={6} zIndex={10}>
+      <Flex width="full" justify="space-between" align="center" p={4} zIndex={10}>
         <Stack direction="row" align="center">
           <Logo boxSize={10} />
           <Text fontWeight="bold" fontSize="lg">
@@ -34,14 +29,12 @@ export const Navbar = () => {
         </Stack>
         <Stack direction="row" spacing={12} fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
           {INVERSE_NAV.map(({ label, href }) => (
-            <NextLink key={label} href={href} passHref>
-              <Link color="#fff" _hover={{ color: 'purple.100' }} _focus={{}}>
-                {label}
-              </Link>
-            </NextLink>
+            <Link fontWeight="medium" href={href}>
+              {label}
+            </Link>
           ))}
           <Flex w={28}>
-            <ButtonLink href="/anchor">Enter App</ButtonLink>
+            <LinkButton href="/anchor">Enter App</LinkButton>
           </Flex>
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} onClick={() => setShowMobileNav(!showMobileNav)}>
@@ -60,22 +53,14 @@ export const Navbar = () => {
         transitionTimingFunction="ease"
       >
         <Stack w="full" bgColor="purple.700" m={2} borderRadius={8} fontWeight="semibold" spacing={6} p={4} pt={16}>
-          {INVERSE_NAV.map(({ label, href }: NavItem) => (
-            <NextLink key={label} href={href} passHref>
-              <Link color="#fff" _hover={{ color: 'purple.100' }} _focus={{}}>
-                {label}
-              </Link>
-            </NextLink>
+          {INVERSE_NAV.map(({ label, href }) => (
+            <Link href={href}>{label}</Link>
           ))}
-          <NextLink href="/anchor" passHref>
-            <Link color="#fff" _hover={{ color: 'purple.100' }} _focus={{}}>
-              Enter App
-            </Link>
-          </NextLink>
+          <Link href="/anchor">Enter App</Link>
         </Stack>
       </Flex>
     </>
   )
 }
 
-export default Navbar
+export default LandingNav

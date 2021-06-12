@@ -1,12 +1,7 @@
 import { Flex, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-type ButtonProps = {
-  href: string
-  children: React.ReactNode
-}
-
-export const ButtonLink = ({ children, href }: ButtonProps) => (
+export const LinkButton = ({ children, href }: { href: string; children: React.ReactNode }) => (
   <Flex
     w="full"
     justify="center"
@@ -24,4 +19,21 @@ export const ButtonLink = ({ children, href }: ButtonProps) => (
   </Flex>
 )
 
-export default ButtonLink
+export const ConnectButton = () => (
+  <Flex
+    w={24}
+    justify="center"
+    bgColor="purple.700"
+    cursor="pointer"
+    fontSize="15px"
+    align="center"
+    borderRadius={8}
+    fontWeight="medium"
+    p={2}
+    _hover={{ bgColor: 'purple.600' }}
+  >
+    Connect
+  </Flex>
+)
+
+export default LinkButton

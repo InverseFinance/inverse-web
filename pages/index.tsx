@@ -1,15 +1,14 @@
-import { Flex } from '@chakra-ui/react'
-import Footer from '@inverse/components/Footer'
-import { Navbar, Banner, Products, Stats } from '@inverse/components/Landing'
+import { Banner, Products, Stats } from '@inverse/components/Landing'
+import Layout from '@inverse/components/Layout'
+import { LandingNav } from '@inverse/components/Navbar'
 
 export const Landing = () => (
-  <Flex w="full" bgColor="purple.900" direction="column" align="center">
-    <Navbar />
+  <Layout>
+    <LandingNav />
     <Banner />
     <Stats />
     <Products />
-    <Footer />
-  </Flex>
+  </Layout>
 )
 
 export default Landing

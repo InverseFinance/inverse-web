@@ -4,7 +4,7 @@ import { AppNav } from '@inverse/components/Navbar'
 
 export const Landing = () => (
   <Layout>
-    <AppNav active="Anchor" />
+    <AppNav active="Stake" />
     <Flex></Flex>
   </Layout>
 )

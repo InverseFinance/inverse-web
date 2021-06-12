@@ -1,5 +1,5 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import ButtonLink from '@inverse/components/Button'
+import LinkButton from '@inverse/components/Button'
 
 export const Banner = () => (
   <Flex
@@ -28,10 +28,10 @@ export const Banner = () => (
       </Text>
       <Stack direction="row" spacing={4}>
         <Flex width={{ base: 'full', xl: 32 }}>
-          <ButtonLink href="/anchor">Enter App</ButtonLink>
+          <LinkButton href="/anchor">Enter App</LinkButton>
         </Flex>
         <Flex width={{ base: 'full', xl: 32 }}>
-          <ButtonLink href="https://docs.inverse.finance/">Learn More</ButtonLink>
+          <LinkButton href="https://docs.inverse.finance/">Learn More</LinkButton>
         </Flex>
       </Stack>
     </Stack>

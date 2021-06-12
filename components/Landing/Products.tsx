@@ -1,5 +1,5 @@
 import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
-import ButtonLink from '@inverse/components/Button'
+import LinkButton from '@inverse/components/Button'
 
 type Product = {
   name: string
@@ -14,26 +14,26 @@ const INVERSE_PRODUCTS: Product[] = [
     description:
       'A money-market protocol that facilitates capital efficient L&B via the issuance of synthetic tokens and non-synthetic credit',
     image: '/assets/products/anchor.png',
-    button: <ButtonLink href="#">Go to Anchor</ButtonLink>,
+    button: <LinkButton href="/anchor">Go to Anchor</LinkButton>,
   },
   {
     name: 'DOLA',
     description:
       'A capital-efficient debt-based USD stablecoin that can also be used as collateral within the Anchor protocol',
     image: '/assets/products/dola.png',
-    button: <ButtonLink href="#">Go to Stabilizer</ButtonLink>,
+    button: <LinkButton href="/stabilizer">Go to Stabilizer</LinkButton>,
   },
   {
     name: 'Vaults',
     description: 'Generate yield on your stablecoins and DCA it into a target token of your choice',
     image: '/assets/products/vaults.png',
-    button: <ButtonLink href="#">Go to Vaults</ButtonLink>,
+    button: <LinkButton href="/vaults">Go to Vaults</LinkButton>,
   },
   {
     name: 'Govern',
     description: 'Become a part of the DAO and help us govern the direction of Inverse products',
     image: '/assets/products/vote.png',
-    button: <ButtonLink href="#">Go to Governance</ButtonLink>,
+    button: <LinkButton href="/governance">Go to Governance</LinkButton>,
   },
 ]
 
