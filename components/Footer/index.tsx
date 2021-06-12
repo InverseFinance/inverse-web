@@ -84,19 +84,7 @@ const LINK_GROUPS = [
 ]
 
 export const Footer = () => (
-  <Stack
-    w="full"
-    direction={{ base: 'column', lg: 'row' }}
-    backgroundColor="purple.900"
-    borderColor="purple.800"
-    borderTopWidth={1}
-    spacing={8}
-    p={8}
-    pl={{ base: 8, lg: 16 }}
-    pr={{ base: 8, lg: 16 }}
-    justify="space-between"
-    color="#fff"
-  >
+  <Stack w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="#fff">
     <Stack width={{ base: 'full', lg: 72 }} spacing={4}>
       <Stack direction="row" align="center">
         <Logo boxSize={7} />

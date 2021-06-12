@@ -33,44 +33,49 @@ export const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 export const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
 export type Token = {
+  symbol: string
   coingeckoId: string
   decimals: number
-  stablecoin?: boolean
 }
 
 export const TOKENS: { [key: string]: Token } = {
   '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68': {
+    symbol: 'INV',
     coingeckoId: 'inverse-finance',
     decimals: 18,
   },
   '0x865377367054516e17014ccded1e7d814edc9ce4': {
+    symbol: 'DOLA',
     coingeckoId: 'dola',
     decimals: 18,
-    stablecoin: true,
   },
   '0x6B175474E89094C44Da98b954EedeAC495271d0F': {
+    symbol: 'DAI',
     coingeckoId: 'dai',
     decimals: 18,
-    stablecoin: true,
   },
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48': {
+    symbol: 'USDC',
     coingeckoId: 'usd-coin',
     decimals: 6,
-    stablecoin: true,
   },
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': {
+    symbol: 'WETH',
     coingeckoId: 'weth',
     decimals: 18,
   },
   '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e': {
+    symbol: 'YFI',
     coingeckoId: 'yearn-finance',
     decimals: 18,
   },
   '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272': {
+    symbol: 'XSUSHI',
     coingeckoId: 'xsushi',
     decimals: 18,
   },
   '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599': {
+    symbol: 'WBTC',
     coingeckoId: 'wrapped-bitcoin',
     decimals: 8,
   },

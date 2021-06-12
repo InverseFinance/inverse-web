@@ -19,20 +19,22 @@ export const LinkButton = ({ children, href }: { href: string; children: React.R
   </Flex>
 )
 
-export const ConnectButton = () => (
+export const ConnectButton = ({ onClick, children }: { onClick: any; children: React.ReactNode }) => (
   <Flex
-    w={24}
     justify="center"
     bgColor="purple.700"
     cursor="pointer"
     fontSize="15px"
     align="center"
     borderRadius={8}
-    fontWeight="medium"
+    fontWeight="semibold"
     p={2}
+    pl={4}
+    pr={4}
+    onClick={onClick}
     _hover={{ bgColor: 'purple.600' }}
   >
-    Connect
+    {children}
   </Flex>
 )
 

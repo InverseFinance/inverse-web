@@ -12,12 +12,7 @@ import '@fontsource/inter/800.css'
 import '@fontsource/inter/900.css'
 import { Web3ReactProvider } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
-
-const getLibrary = (provider: any): Web3Provider => {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
-}
+import { getLibrary } from '@inverse/util/web3'
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (

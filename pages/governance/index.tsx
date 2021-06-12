@@ -2,11 +2,11 @@ import { Flex } from '@chakra-ui/react'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 
-export const Landing = () => (
+export const Governance = () => (
   <Layout>
-    <AppNav active="Governance" />
+    <AppNav activeNav="Governance" />
     <Flex></Flex>
   </Layout>
 )
 
-export default Landing
+export default Governance

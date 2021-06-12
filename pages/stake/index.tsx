@@ -2,11 +2,11 @@ import { Flex } from '@chakra-ui/react'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 
-export const Landing = () => (
+export const Stake = () => (
   <Layout>
-    <AppNav active="Stake" />
+    <AppNav activeNav="Stake" />
     <Flex></Flex>
   </Layout>
 )
 
-export default Landing
+export default Stake
