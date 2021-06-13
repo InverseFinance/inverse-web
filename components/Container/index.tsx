@@ -26,7 +26,7 @@ export const Container = ({
         </Link>
       </Flex>
     )}
-    <Flex w="full" bgColor="#211e36" borderRadius={8} p={6}>
+    <Flex w="full" bgColor="#211e36" borderRadius={8} p={4}>
       {children}
     </Flex>
   </Flex>

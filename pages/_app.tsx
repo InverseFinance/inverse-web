@@ -11,7 +11,6 @@ import '@fontsource/inter/700.css'
 import '@fontsource/inter/800.css'
 import '@fontsource/inter/900.css'
 import { Web3ReactProvider } from '@web3-react/core'
-import { Web3Provider } from '@ethersproject/providers'
 import { getLibrary } from '@inverse/util/web3'
 
 const App = ({ Component, pageProps }: AppProps) => {

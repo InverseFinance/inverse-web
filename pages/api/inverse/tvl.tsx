@@ -1,5 +1,5 @@
 import { TOKENS } from '@inverse/constants'
-import { baseURL, getUSDPrices } from '@inverse/util/api'
+import { baseURL, getUSDPrices } from '@inverse/util/coingecko'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {

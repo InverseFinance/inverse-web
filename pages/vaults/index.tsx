@@ -4,7 +4,7 @@ import { AppNav } from '@inverse/components/Navbar'
 
 export const Vaults = () => (
   <Layout>
-    <AppNav activeNav="Vaults" />
+    <AppNav active="Vaults" />
     <Flex></Flex>
   </Layout>
 )

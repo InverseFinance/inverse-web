@@ -1,22 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {
-  getAnchorContracts,
-  getComptrollerContract,
-  getNewMulticallProvider,
-  getNewProvider,
-} from '@inverse/util/contracts'
-import { ANCHOR_DOLA, ANCHOR_ETH, TOKENS, WETH } from '@inverse/constants'
+import { getAnchorContracts, getNewMulticallProvider, getNewProvider, getXINVContract } from '@inverse/util/contracts'
+import { ANCHOR_DOLA, ANCHOR_ETH, TOKENS, WETH, XINV } from '@inverse/constants'
 import { BigNumber, Contract, utils } from 'ethers'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const provider = getNewMulticallProvider(getNewProvider())
-  const comptrollerContract = getComptrollerContract(provider)
-
-  const allMarkets = await comptrollerContract.getAllMarkets()
-  const anchorContracts = getAnchorContracts(
-    allMarkets.filter((address: string) => address !== ANCHOR_DOLA),
-    provider
-  )
+  const anchorContracts = getAnchorContracts(provider).filter(({ address }) => address !== ANCHOR_DOLA)
+  anchorContracts.push(getXINVContract(provider))
 
   const allCash = await Promise.all(anchorContracts.map((contract: Contract) => contract.getCash()))
   const allUnderlying = await Promise.all(

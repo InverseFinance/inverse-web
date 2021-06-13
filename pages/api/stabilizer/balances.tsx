@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getNewProvider, getStabilizerContract } from '@inverse/util/contracts'
-import { BigNumber, utils } from 'ethers'
+import { utils } from 'ethers'
 import { DAI, TOKENS } from '@inverse/constants'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {

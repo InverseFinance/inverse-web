@@ -1,10 +1,14 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import Logo from '@inverse/components/Logo'
 import Link from '@inverse/components/Link'
-import { ConnectButton } from '../Button'
+import { ConnectButton, OutlineButton } from '../Button'
 import { injectedConnector } from '@inverse/util/web3'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
+import { formatEther, formatUnits } from 'ethers/lib/utils'
+import useEtherSWR, { EthSWRConfig } from 'ether-swr'
+import { ETH_MANTISSA, INV, XINV } from '@inverse/constants'
+import { CTOKEN_ABI, XINV_ABI } from '@inverse/abis'
 
 const NAV_ITEMS = [
   {
@@ -29,8 +33,63 @@ const NAV_ITEMS = [
   },
 ]
 
-export const AppNav = ({ activeNav }: { activeNav?: string }) => {
-  const { account, activate, active } = useWeb3React<Web3Provider>()
+const INVBalance = ({ address }: { address: string }) => {
+  const { data, error } = useEtherSWR([
+    [INV, 'balanceOf', address],
+    [XINV, 'balanceOf', address],
+    [XINV, 'exchangeRateStored'],
+  ])
+
+  console.log(error)
+
+  if (!data) {
+    return <></>
+  }
+
+  const [invBalance, xinvBalance, exchangeRate] = data
+  const inv = invBalance / ETH_MANTISSA
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
+
+  return <OutlineButton>{`${(inv + xinv).toFixed(4)} INV`}</OutlineButton>
+}
+
+const ETHBalance = ({ address }: { address: string }) => {
+  const { data: balance } = useEtherSWR(['getBalance', address, 'latest'])
+
+  if (!balance) {
+    return <></>
+  }
+  return <OutlineButton>{`${(balance / ETH_MANTISSA).toFixed(4)} ETH`}</OutlineButton>
+}
+
+const AppNavConnect = () => {
+  const { account, library, activate, active } = useWeb3React<Web3Provider>()
+
+  return (
+    <Stack direction="row" align="center">
+      {active && account && (
+        <EthSWRConfig
+          value={{
+            provider: library,
+            ABIs: new Map([
+              [XINV, XINV_ABI],
+              [INV, CTOKEN_ABI],
+            ]),
+            refreshInterval: 30000,
+          }}
+        >
+          <INVBalance address={account} />
+          <ETHBalance address={account} />
+        </EthSWRConfig>
+      )}
+      <ConnectButton onClick={() => activate(injectedConnector)}>
+        {active && account ? `${account.substr(0, 6)}...${account.substr(account.length - 4)}` : 'Connect'}
+      </ConnectButton>
+    </Stack>
+  )
+}
+
+export const AppNav = ({ active }: { active?: string }) => {
   return (
     <Flex
       w="full"
@@ -47,16 +106,14 @@ export const AppNav = ({ activeNav }: { activeNav?: string }) => {
           <Link
             href={href}
             fontWeight="medium"
-            color={activeNav === label ? '#fff' : 'purple.200'}
+            color={active === label ? '#fff' : 'purple.200'}
             _hover={{ color: '#fff' }}
           >
             {label}
           </Link>
         ))}
       </Stack>
-      <ConnectButton onClick={() => activate(injectedConnector)}>
-        {active && account ? `${account.substr(0, 6)}...${account.substr(account.length - 4)}` : 'Connect'}
-      </ConnectButton>
+      <AppNavConnect />
     </Flex>
   )
 }

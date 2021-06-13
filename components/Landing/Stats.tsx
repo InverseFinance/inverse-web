@@ -1,5 +1,5 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { baseURL, getUSDPrice } from '@inverse/util/api'
+import { baseURL, getUSDPrice } from '@inverse/util/coingecko'
 import { useEffect, useState } from 'react'
 
 type Stat = {

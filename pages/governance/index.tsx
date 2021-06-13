@@ -4,7 +4,7 @@ import { AppNav } from '@inverse/components/Navbar'
 
 export const Governance = () => (
   <Layout>
-    <AppNav activeNav="Governance" />
+    <AppNav active="Governance" />
     <Flex></Flex>
   </Layout>
 )

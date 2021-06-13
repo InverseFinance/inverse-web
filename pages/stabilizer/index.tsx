@@ -4,7 +4,7 @@ import { AppNav } from '@inverse/components/Navbar'
 
 export const Stabilizer = () => (
   <Layout>
-    <AppNav activeNav="Stabilizer" />
+    <AppNav active="Stabilizer" />
     <Flex></Flex>
   </Layout>
 )

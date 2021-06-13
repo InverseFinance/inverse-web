@@ -1,4 +1,5 @@
-import { Token, TOKENS } from '@inverse/constants'
+import { TOKENS } from '@inverse/constants'
+import { Token } from '@inverse/types'
 
 const dev = process.env.NODE_ENV !== 'production'
 
