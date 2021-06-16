@@ -5,10 +5,9 @@ import { ConnectButton, OutlineButton } from '../Button'
 import { injectedConnector } from '@inverse/util/web3'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
-import { formatEther, formatUnits } from 'ethers/lib/utils'
-import useEtherSWR, { EthSWRConfig } from 'ether-swr'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/constants'
 import { CTOKEN_ABI, XINV_ABI } from '@inverse/abis'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
 
 const NAV_ITEMS = [
   {
@@ -33,14 +32,13 @@ const NAV_ITEMS = [
   },
 ]
 
-const INVBalance = ({ address }: { address: string }) => {
-  const { data, error } = useEtherSWR([
-    [INV, 'balanceOf', address],
-    [XINV, 'balanceOf', address],
+const INVBalance = () => {
+  const { account } = useWeb3React<Web3Provider>()
+  const { data } = useEtherSWR([
+    [INV, 'balanceOf', account],
+    [XINV, 'balanceOf', account],
     [XINV, 'exchangeRateStored'],
   ])
-
-  console.log(error)
 
   if (!data) {
     return <></>
@@ -50,11 +48,12 @@ const INVBalance = ({ address }: { address: string }) => {
   const inv = invBalance / ETH_MANTISSA
   const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
 
-  return <OutlineButton>{`${(inv + xinv).toFixed(4)} INV`}</OutlineButton>
+  return <OutlineButton>{`${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`}</OutlineButton>
 }
 
-const ETHBalance = ({ address }: { address: string }) => {
-  const { data: balance } = useEtherSWR(['getBalance', address, 'latest'])
+const ETHBalance = () => {
+  const { account } = useWeb3React<Web3Provider>()
+  const { data: balance } = useEtherSWR(['getBalance', account, 'latest'])
 
   if (!balance) {
     return <></>
@@ -67,21 +66,8 @@ const AppNavConnect = () => {
 
   return (
     <Stack direction="row" align="center">
-      {active && account && (
-        <EthSWRConfig
-          value={{
-            provider: library,
-            ABIs: new Map([
-              [XINV, XINV_ABI],
-              [INV, CTOKEN_ABI],
-            ]),
-            refreshInterval: 30000,
-          }}
-        >
-          <INVBalance address={account} />
-          <ETHBalance address={account} />
-        </EthSWRConfig>
-      )}
+      <INVBalance />
+      <ETHBalance />
       <ConnectButton onClick={() => activate(injectedConnector)}>
         {active && account ? `${account.substr(0, 6)}...${account.substr(account.length - 4)}` : 'Connect'}
       </ConnectButton>
@@ -101,9 +87,12 @@ export const AppNav = ({ active }: { active?: string }) => {
       color="#fff"
     >
       <Stack direction="row" align="center" spacing={8}>
-        <Logo boxSize={10} />
-        {NAV_ITEMS.map(({ label, href }) => (
+        <Link href="/">
+          <Logo boxSize={10} />
+        </Link>
+        {NAV_ITEMS.map(({ label, href }, i) => (
           <Link
+            key={i}
             href={href}
             fontWeight="medium"
             color={active === label ? '#fff' : 'purple.200'}

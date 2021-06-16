@@ -2,7 +2,7 @@ import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import { VAULT_ABI, COMPTROLLER_ABI, CTOKEN_ABI, STABILIZER_ABI, GOVERNANCE_ABI, XINV_ABI } from '@inverse/abis'
 import { providers } from '@0xsequence/multicall'
-import { ANCHOR, ANCHOR_STABILIZER, COMPTROLLER, GOVERNANCE, VAULTS, XINV } from '@inverse/constants'
+import { ANCHOR_TOKENS, ANCHOR_STABILIZER, COMPTROLLER, GOVERNANCE, VAULT_TOKENS, XINV } from '@inverse/constants'
 
 export const getNewProvider = () => new InfuraProvider(process.env.NETWORK, process.env.INFURA_ID)
 
@@ -12,13 +12,14 @@ export const getNewContract = (address: string, abi: string[], provider: any) =>
 
 export const getVaultContract = (address: string, provider: any) => getNewContract(address, VAULT_ABI, provider)
 
-export const getVaultContracts = (provider: any) => VAULTS.map((address) => getVaultContract(address, provider))
+export const getVaultContracts = (provider: any) => VAULT_TOKENS.map((address) => getVaultContract(address, provider))
 
 export const getComptrollerContract = (provider: any) => getNewContract(COMPTROLLER, COMPTROLLER_ABI, provider)
 
 export const getAnchorContract = (address: string, provider: any) => getNewContract(address, CTOKEN_ABI, provider)
 
-export const getAnchorContracts = (provider: any) => ANCHOR.map((address) => getAnchorContract(address, provider))
+export const getAnchorContracts = (provider: any) =>
+  ANCHOR_TOKENS.map((address) => getAnchorContract(address, provider))
 
 export const getStabilizerContract = (provider: any) => getNewContract(ANCHOR_STABILIZER, STABILIZER_ABI, provider)
 

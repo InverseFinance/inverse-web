@@ -1,0 +1,134 @@
+//@ts-nocheck
+import { useEffect } from 'react'
+import useSWR, { cache, mutate } from 'swr'
+import { isAddress } from '@ethersproject/address'
+import { useWeb3React } from '@web3-react/core'
+import { Web3Provider } from '@ethersproject/providers'
+import { ABIs } from '@inverse/abis'
+import etherJsFetcher from '@inverse/util/fetcher'
+import { Contract } from 'ethers'
+
+export { cache } from 'swr'
+export type etherKeyFuncInterface = () => ethKeyInterface | ethKeysInterface
+export type ethKeyInterface = [string, any?, any?, any?, any?]
+export type ethKeysInterface = string[][]
+
+export const contracts = new Map<string, Contract>()
+export function getContract(address, abi, signer) {
+  let contract = contracts.get(address)
+  if (contract) {
+    return contract
+  }
+  contract = new Contract(address, abi, signer)
+  contracts.set(address, contract)
+  return contract
+}
+
+function useEtherSWR(...args) {
+  const { library } = useWeb3React<Web3Provider>()
+  let _key: ethKeyInterface
+  let fn: any
+  let config = { subscribe: [] }
+  let isMulticall = false
+  if (args.length >= 1) {
+    _key = args[0]
+    isMulticall = Array.isArray(_key[0])
+  }
+  if (args.length > 2) {
+    fn = args[1]
+    config = args[2]
+  } else {
+    if (typeof args[1] === 'function') {
+      fn = args[1]
+    } else if (typeof args[1] === 'object') {
+      config = args[1]
+    }
+  }
+
+  if (fn === undefined) {
+    fn = etherJsFetcher(library, library?.getSigner(), ABIs)
+  }
+
+  const [target] = isMulticall ? [_key[0][0]] : _key
+
+  const serializedKey = isMulticall ? JSON.stringify(_key) : cache.serializeKey(_key)[0]
+
+  useEffect(() => {
+    if (!library || !config.subscribe || isAddress(target) || Array.isArray(target)) {
+      return () => ({})
+    }
+
+    const subscribers = Array.isArray(config.subscribe) ? config.subscribe : [config.subscribe]
+
+    subscribers.forEach((subscribe) => {
+      let filter
+      const joinKey = serializedKey
+      if (typeof subscribe === 'string') {
+        filter = subscribe
+        library.on(filter, () => {
+          mutate(joinKey, undefined, true)
+        })
+      } else if (typeof subscribe === 'object' && !Array.isArray(subscribe)) {
+        const { name, on } = subscribe
+        filter = name
+        library.on(filter, (...args) => {
+          if (on) {
+            on(cache.get(joinKey), ...args)
+          } else {
+            mutate(joinKey, undefined, true)
+          }
+        })
+      }
+    })
+
+    return () => {
+      subscribers.forEach((filter) => {
+        library.removeAllListeners(filter)
+      })
+    }
+  }, [serializedKey, target])
+
+  useEffect(() => {
+    if (!library || !library.getSigner() || !config.subscribe || !isAddress(target)) {
+      return () => ({})
+    }
+
+    const abi = ABIs.get(target)
+
+    const contract = getContract(target, abi, library.getSigner())
+
+    const subscribers = Array.isArray(config.subscribe) ? config.subscribe : [config.subscribe]
+
+    subscribers.forEach((subscribe) => {
+      let filter
+      if (typeof subscribe === 'string') {
+        filter = contract.filters[subscribe]()
+        contract.on(filter, (value) => {
+          mutate(serializedKey, undefined, true)
+        })
+      } else if (typeof subscribe === 'object' && !Array.isArray(subscribe)) {
+        const { name, topics, on } = subscribe
+        const args = topics || []
+        filter = contract.filters[name](...args)
+        contract.on(filter, (...args) => {
+          if (on) {
+            on(cache.get(serializedKey), ...args)
+          } else {
+            mutate(_key, undefined, true)
+          }
+        })
+      }
+    })
+
+    return () => {
+      subscribers.forEach((filter) => {
+        contract.removeAllListeners(filter)
+      })
+      contracts.delete(target)
+    }
+  }, [serializedKey, target])
+
+  return useSWR(isMulticall ? serializedKey : _key, fn, config)
+}
+
+export default useEtherSWR

@@ -1,5 +1,4 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { baseURL, getUSDPrice } from '@inverse/util/coingecko'
 import { useEffect, useState } from 'react'
 
 type Stat = {
@@ -41,10 +40,10 @@ export const Stats = () => {
   useEffect(() => {
     const init = async () => {
       const [_balances, _markets, _proposals, _price] = await Promise.all([
-        fetch(`${baseURL}/api/inverse/tvl`),
-        fetch(`${baseURL}/api/anchor/markets`),
-        fetch(`${baseURL}/api/inverse/proposals`),
-        getUSDPrice('inverse-finance'),
+        fetch(`${process.env.API_URL}/inverse/tvl`),
+        fetch(`${process.env.API_URL}/anchor/markets`),
+        fetch(`${process.env.API_URL}/inverse/proposals`),
+        fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=inverse-finance`),
       ])
 
       const [balances, markets, proposals, price] = await Promise.all([

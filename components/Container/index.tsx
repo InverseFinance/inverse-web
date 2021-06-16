@@ -15,15 +15,24 @@ export const Container = ({
   href?: string
   children?: React.ReactNode
 }) => (
-  <Flex w={w} direction="column" m={4} color="#fff">
+  <Flex w={w} direction="column" p={6} color="#fff">
     {label && (
-      <Flex direction="column" mb={4}>
-        <Text fontSize="xl" fontWeight="bold">
-          {label}
-        </Text>
-        <Link href={href} fontSize="sm" isExternal>
-          {description} <ExternalLinkIcon />
-        </Link>
+      <Flex w="full" direction="column" mb={4}>
+        {typeof label === 'string' ? (
+          <Text fontSize="xl" fontWeight="bold">
+            {label}
+          </Text>
+        ) : (
+          label
+        )}
+        {description &&
+          (href ? (
+            <Link href={href} fontSize="sm" isExternal>
+              {description} <ExternalLinkIcon />
+            </Link>
+          ) : (
+            <Text fontSize="sm">{description}</Text>
+          ))}
       </Flex>
     )}
     <Flex w="full" bgColor="#211e36" borderRadius={8} p={4}>

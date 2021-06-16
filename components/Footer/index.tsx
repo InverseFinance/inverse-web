@@ -95,8 +95,8 @@ export const Footer = () => (
         participate in the decision-making process. Join us!
       </Text>
       <Stack direction="row" spacing={5} align="center">
-        {INVERSE_SOCIALS.map(({ href, image }) => (
-          <Link href={href}>
+        {INVERSE_SOCIALS.map(({ href, image }, i) => (
+          <Link key={i} href={href}>
             <Image src={image} />
           </Link>
         ))}
@@ -112,8 +112,8 @@ export const Footer = () => (
       {LINK_GROUPS.map(({ groupLabel, items }) => (
         <Stack key={groupLabel} w={32} mb={4}>
           <Text fontWeight="bold">{groupLabel}</Text>
-          {items.map(({ label, href }) => (
-            <Link href={href} fontSize="13px">
+          {items.map(({ label, href }, i) => (
+            <Link key={i} href={href} fontSize="13px">
               {label}
             </Link>
           ))}

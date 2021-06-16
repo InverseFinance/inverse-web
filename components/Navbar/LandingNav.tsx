@@ -28,8 +28,8 @@ export const LandingNav = () => {
           </Text>
         </Stack>
         <Stack direction="row" spacing={12} fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
-          {INVERSE_NAV.map(({ label, href }) => (
-            <Link fontWeight="medium" href={href}>
+          {INVERSE_NAV.map(({ label, href }, i) => (
+            <Link key={i} fontWeight="medium" href={href}>
               {label}
             </Link>
           ))}
@@ -53,8 +53,10 @@ export const LandingNav = () => {
         transitionTimingFunction="ease"
       >
         <Stack w="full" bgColor="purple.700" m={2} borderRadius={8} fontWeight="semibold" spacing={6} p={4} pt={16}>
-          {INVERSE_NAV.map(({ label, href }) => (
-            <Link href={href}>{label}</Link>
+          {INVERSE_NAV.map(({ label, href }, i) => (
+            <Link key={i} href={href}>
+              {label}
+            </Link>
           ))}
           <Link href="/anchor">Enter App</Link>
         </Stack>
