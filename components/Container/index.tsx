@@ -9,7 +9,7 @@ export const Container = ({
   href,
   children,
 }: {
-  w?: string | number
+  w?: any
   label?: React.ReactNode
   description?: React.ReactNode
   href?: string

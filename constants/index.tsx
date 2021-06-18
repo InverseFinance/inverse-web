@@ -4,6 +4,7 @@ export const START_BLOCK = 11915867
 export const ETH_MANTISSA = 1e18
 export const BLOCKS_PER_DAY = 6500
 export const DAYS_PER_YEAR = 365
+export const COLLATERAL_FACTOR = 0.55
 
 // Vaults
 export const VAULT_USDC_ETH = '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357'
@@ -41,6 +42,7 @@ export const XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE'
 export const TOKENS: { [key: string]: Token } = {
   ETH: {
     address: '',
+    name: 'Ethereum',
     symbol: 'ETH',
     coingeckoId: 'ethereum',
     image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
@@ -48,6 +50,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [INV]: {
     address: INV,
+    name: 'Inverse',
     symbol: 'INV',
     coingeckoId: 'inverse-finance',
     image: '/assets/favicon.png',
@@ -55,6 +58,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [DOLA]: {
     address: DOLA,
+    name: 'Dola',
     symbol: 'DOLA',
     coingeckoId: 'dola-usd',
     image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
@@ -62,6 +66,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [DAI]: {
     address: DAI,
+    name: 'Dai',
     symbol: 'DAI',
     coingeckoId: 'dai',
     image: 'https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png',
@@ -69,6 +74,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [USDC]: {
     address: USDC,
+    name: 'USD Coin',
     symbol: 'USDC',
     coingeckoId: 'usd-coin',
     image: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
@@ -76,6 +82,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [WETH]: {
     address: WETH,
+    name: 'Wrapped Ethereum',
     symbol: 'WETH',
     coingeckoId: 'weth',
     image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
@@ -83,6 +90,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [YFI]: {
     address: YFI,
+    name: 'Yearn',
     symbol: 'YFI',
     coingeckoId: 'yearn-finance',
     image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
@@ -90,6 +98,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [XSUSHI]: {
     address: XSUSHI,
+    name: 'xSUSHI',
     symbol: 'XSUSHI',
     coingeckoId: 'xsushi',
     image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
@@ -97,6 +106,7 @@ export const TOKENS: { [key: string]: Token } = {
   },
   [WBTC]: {
     address: WBTC,
+    name: 'Wrapped Bitcoin',
     symbol: 'WBTC',
     coingeckoId: 'wrapped-bitcoin',
     image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',

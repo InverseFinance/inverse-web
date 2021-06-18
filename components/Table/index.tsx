@@ -13,7 +13,7 @@ type TableProps = {
 }
 
 export const Table = ({ columns, items, onClick }: TableProps) => (
-  <Stack w="full" spacing={1}>
+  <Stack w="full" spacing={1} overflowX="scroll">
     <Flex
       w="full"
       fontSize="11px"

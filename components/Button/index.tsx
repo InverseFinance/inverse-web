@@ -1,4 +1,4 @@
-import { Flex, Link } from '@chakra-ui/react'
+import { Button, Flex, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 export const LinkButton = ({ children, href }: { href: string; children: React.ReactNode }) => (
@@ -19,43 +19,54 @@ export const LinkButton = ({ children, href }: { href: string; children: React.R
   </Flex>
 )
 
-export const ConnectButton = ({ onClick, children }: { onClick?: any; children: React.ReactNode }) => (
+export const ConnectButton = (props: any) => (
   <Flex
     justify="center"
-    bgColor="purple.700"
-    cursor={onClick ? 'pointer' : ''}
+    bgColor="purple.600"
+    cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
     borderRadius={8}
     fontWeight="semibold"
+    color="#fff"
     p={2}
     pl={4}
     pr={4}
-    onClick={onClick}
-    _hover={{ bgColor: 'purple.600' }}
-  >
-    {children}
-  </Flex>
+    _hover={{ bgColor: 'purple.700' }}
+    {...props}
+  />
 )
 
-export const OutlineButton = ({ onClick, children }: { onClick?: any; children: React.ReactNode }) => (
+export const OutlineButton = (props: any) => (
   <Flex
     justify="center"
-    cursor={onClick ? 'pointer' : ''}
+    cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
     borderRadius={8}
     borderWidth={1}
     borderColor="purple.700"
     fontWeight="semibold"
+    color="#fff"
     p={2}
     pl={4}
     pr={4}
-    onClick={onClick}
     _hover={{ bgColor: 'purple.900' }}
-  >
-    {children}
-  </Flex>
+    {...props}
+  />
+)
+
+export const ModalButton = (props: any) => (
+  <Button
+    w="full"
+    bgColor="purple.600"
+    fontSize="13px"
+    fontWeight="semibold"
+    textTransform="uppercase"
+    _focus={{}}
+    _hover={{ bgColor: 'purple.700' }}
+    {...props}
+  />
 )
 
 export default LinkButton

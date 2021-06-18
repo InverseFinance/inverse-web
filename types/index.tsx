@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 
 export type Token = {
   address: string
+  name: string
   symbol: string
   coingeckoId: string
   image: string
@@ -14,6 +15,7 @@ export type Market = {
   supplyApy?: number
   borrowApy?: number
   liquidity?: number
+  collateralFactor?: number
 }
 
 export type Prices = {

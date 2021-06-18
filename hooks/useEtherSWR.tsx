@@ -1,4 +1,5 @@
 //@ts-nocheck
+// TODO: Refactor this entire mess
 import { useEffect } from 'react'
 import useSWR, { cache, mutate } from 'swr'
 import { isAddress } from '@ethersproject/address'
@@ -26,6 +27,7 @@ export function getContract(address, abi, signer) {
 
 function useEtherSWR(...args) {
   const { library } = useWeb3React<Web3Provider>()
+
   let _key: ethKeyInterface
   let fn: any
   let config = { subscribe: [] }
@@ -127,6 +129,10 @@ function useEtherSWR(...args) {
       contracts.delete(target)
     }
   }, [serializedKey, target])
+
+  if (!library) {
+    return useSWR(null)
+  }
 
   return useSWR(isMulticall ? serializedKey : _key, fn, config)
 }

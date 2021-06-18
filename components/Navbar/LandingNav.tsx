@@ -20,7 +20,7 @@ export const LandingNav = () => {
 
   return (
     <>
-      <Flex width="full" justify="space-between" align="center" p={4} zIndex={10}>
+      <Flex width="full" justify="space-between" align="center" p={4} zIndex="docked">
         <Stack direction="row" align="center">
           <Logo boxSize={10} />
           <Text fontWeight="bold" fontSize="lg">
@@ -37,7 +37,7 @@ export const LandingNav = () => {
             <LinkButton href="/anchor">Enter App</LinkButton>
           </Flex>
         </Stack>
-        <Flex display={{ base: 'flex', md: 'none' }} onClick={() => setShowMobileNav(!showMobileNav)}>
+        <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
             <Image w={4} h={4} src="/assets/cancel.svg" />
           ) : (

@@ -3,6 +3,8 @@ import { ANCHOR_TOKENS, COMPTROLLER, TOKENS, XINV } from '@inverse/constants'
 export const COMPTROLLER_ABI = [
   'function getAllMarkets() public view returns (address[])',
   'function getAccountLiquidity(address) external view returns (uint256, uint256, uint256)',
+  'function getHypotheticalAccountLiquidity(address, address, uint256, uint256) external view returns (uint256, uint256, uint256)',
+  'function markets(address) external view returns (bool, uint256, bool)',
 ]
 
 export const CTOKEN_ABI = [
