@@ -11,19 +11,15 @@ import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils'
 import { ModalButton } from '../Button'
 import { AnchorOperations } from './AnchorModals'
 
-export const AnchorButton = ({ operation, asset, amount }: any) => {
+export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
   const { account, active, library } = useWeb3React<Web3Provider>()
   const { markets } = useAccountMarkets()
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
 
-  if (!amount || !active) {
-    return <ModalButton isDisabled={true}>{operation}</ModalButton>
-  }
-
   const contract = new Contract(asset.token, asset.token === ANCHOR_ETH ? CETHER_ABI : CTOKEN_ABI, library?.getSigner())
-  const parsedAmount = parseUnits(amount, asset.underlying.decimals)
+  const parsedAmount = amount ? parseUnits(amount, asset.underlying.decimals) : 0
 
   switch (operation) {
     case AnchorOperations.supply:
@@ -35,12 +31,14 @@ export const AnchorButton = ({ operation, asset, amount }: any) => {
               constants.MaxUint256
             )
           }
+          isDisabled={isDisabled}
         >
           Approve
         </ModalButton>
       ) : (
         <ModalButton
           onClick={() => contract.mint(asset.token === ANCHOR_ETH ? { value: parseEther(amount) } : parsedAmount)}
+          isDisabled={isDisabled}
         >
           Supply
         </ModalButton>
@@ -49,8 +47,8 @@ export const AnchorButton = ({ operation, asset, amount }: any) => {
     case AnchorOperations.withdraw:
       return (
         <ModalButton
-          isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
           onClick={() => contract.redeemUnderlying(parsedAmount)}
+          isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
         >
           Withdraw
         </ModalButton>
@@ -60,11 +58,14 @@ export const AnchorButton = ({ operation, asset, amount }: any) => {
       return !markets.find(({ token }: Market) => token === asset.token) ? (
         <ModalButton
           onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).enterMarkets([asset.token])}
+          isDisabled={isDisabled}
         >
           Enable
         </ModalButton>
       ) : (
-        <ModalButton onClick={() => contract.borrow(parsedAmount)}>Borrow</ModalButton>
+        <ModalButton onClick={() => contract.borrow(parsedAmount)} isDisabled={isDisabled}>
+          Borrow
+        </ModalButton>
       )
 
     case AnchorOperations.repay:
@@ -76,12 +77,13 @@ export const AnchorButton = ({ operation, asset, amount }: any) => {
               constants.MaxUint256
             )
           }
+          isDisabled={isDisabled}
         >
           Approve
         </ModalButton>
       ) : (
         <ModalButton
-          isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+          isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
           onClick={() =>
             contract.repayBorrow(asset.token === ANCHOR_ETH ? { value: parseEther(amount) } : parsedAmount)
           }

@@ -8,6 +8,7 @@ import { AnchorStats } from './AnchorStats'
 import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { AnchorButton } from './AnchorButton'
+import { useWeb3React } from '@web3-react/core'
 
 export enum AnchorOperations {
   supply = 'Supply',
@@ -51,9 +52,9 @@ const Option = ({ isActive, onClick, children }: any) => (
 export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
   const [operation, setOperation] = useState(operations[0])
   const [amount, setAmount] = useState<any>('')
+  const { active } = useWeb3React()
   const { balances } = useAccountBalances()
   const { balances: supplyBalances } = useSupplyBalances()
-  const { balances: borrowBalances } = useBorrowBalances()
   const { prices } = usePrices()
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
@@ -114,7 +115,14 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
           <Text>{asset.underlying.name}</Text>
         </Stack>
       }
-      footer={<AnchorButton operation={operation} asset={asset} amount={amount} />}
+      footer={
+        <AnchorButton
+          operation={operation}
+          asset={asset}
+          amount={amount}
+          isDisabled={!amount || !active || parseFloat(amount) > max()}
+        />
+      }
     >
       <Stack>
         <Stack align="center" p={6} spacing={1}>
@@ -129,7 +137,7 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
             </Stack>
           </Flex>
           <Flex w="full" align="center">
-            <MaxButton onClick={() => setAmount(max().toFixed(8))}>MAX</MaxButton>
+            <MaxButton onClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}>MAX</MaxButton>
             <Input value={amount} onChange={(e: any) => setAmount(e.target.value)} />
             <Flex fontSize="lg" fontWeight="semibold" ml={2} color="purple.100">
               {asset.underlying.symbol}

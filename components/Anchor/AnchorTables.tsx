@@ -19,11 +19,12 @@ type AnchorProps = {
 
 export const AnchorSupplied = ({ onClick }: AnchorProps) => {
   const { library } = useWeb3React<Web3Provider>()
-  const { markets } = useMarkets()
-  const { usdSupply } = useAccountLiquidity()
-  const { balances } = useSupplyBalances()
+  const { markets, isLoading: marketsLoading } = useMarkets()
+  const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
+  const { balances, isLoading: balancesLoading } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
   const { markets: accountMarkets } = useAccountMarkets()
+  const { active } = useWeb3React()
 
   const columns = [
     {
@@ -91,7 +92,11 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
     },
   ]
 
-  return balances && usdSupply ? (
+  if (!active || marketsLoading || accountLiquidityLoading || balancesLoading || !balances || !usdSupply) {
+    return <></>
+  }
+
+  return (
     <Container
       w={{ base: 'full', xl: '2xl' }}
       label={`$${commify(usdSupply.toFixed(2))}`}
@@ -103,15 +108,14 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
         onClick={onClick}
       />
     </Container>
-  ) : (
-    <></>
   )
 }
 
 export const AnchorBorrowed = ({ onClick }: AnchorProps) => {
-  const { markets } = useMarkets()
-  const { usdBorrow } = useAccountLiquidity()
-  const { balances } = useBorrowBalances()
+  const { active } = useWeb3React()
+  const { markets, isLoading: marketsLoading } = useMarkets()
+  const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
+  const { balances, isLoading: balancesLoading } = useBorrowBalances()
 
   const columns = [
     {
@@ -149,20 +153,28 @@ export const AnchorBorrowed = ({ onClick }: AnchorProps) => {
     },
   ]
 
-  return balances && usdBorrow ? (
+  if (!active || marketsLoading || accountLiquidityLoading || balancesLoading || !balances || !usdSupply) {
+    return <></>
+  }
+
+  return (
     <Container
       w={{ base: 'full', xl: '2xl' }}
-      label={`$${commify(usdBorrow.toFixed(2))}`}
+      label={`$${usdBorrow ? commify(usdBorrow.toFixed(2)) : usdBorrow.toFixed(2)}`}
       description="Your borrowed assets"
     >
-      <Table
-        columns={columns}
-        items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
-        onClick={onClick}
-      />
+      {usdBorrow ? (
+        <Table
+          columns={columns}
+          items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
+          onClick={onClick}
+        />
+      ) : (
+        <Flex w="full" justify="center" color="purple.200" fontSize="sm">
+          You don't have any borrowed assets.
+        </Flex>
+      )}
     </Container>
-  ) : (
-    <></>
   )
 }
 

@@ -29,6 +29,9 @@ export const Anchor = () => {
     supplyOnOpen()
   }
 
+  const supplyDisplay = { base: showSupply ? 'flex' : 'none', lg: 'flex' }
+  const borrowDisplay = { base: !showSupply ? 'flex' : 'none', lg: 'flex' }
+
   return (
     <Layout>
       <AppNav active="Anchor" />
@@ -40,18 +43,18 @@ export const Anchor = () => {
           <ConnectButton onClick={toggleMarkets}>Toggle</ConnectButton>
         </Flex>
         <Flex w="full" justify="center">
-          <Flex w="full" justify="flex-end" display={{ base: showSupply ? 'flex' : 'none', lg: 'flex' }}>
+          <Flex w="full" justify="flex-end" display={supplyDisplay}>
             <AnchorSupplied onClick={handleSupply} />
           </Flex>
-          <Flex w="full" display={{ base: !showSupply ? 'flex' : 'none', lg: 'flex' }}>
+          <Flex w="full" display={borrowDisplay}>
             <AnchorBorrowed onClick={handleBorrow} />
           </Flex>
         </Flex>
         <Flex w="full" justify="center">
-          <Flex w="full" justify="flex-end" display={{ base: showSupply ? 'flex' : 'none', lg: 'flex' }}>
+          <Flex w="full" justify="flex-end" display={supplyDisplay}>
             <AnchorSupply onClick={handleSupply} />
           </Flex>
-          <Flex w="full" display={{ base: !showSupply ? 'flex' : 'none', lg: 'flex' }}>
+          <Flex w="full" display={borrowDisplay}>
             <AnchorBorrow onClick={handleBorrow} />
           </Flex>
         </Flex>
