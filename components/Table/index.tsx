@@ -41,7 +41,7 @@ export const Table = ({ columns, items, onClick }: TableProps) => (
         pl={4}
         pr={4}
         borderRadius={8}
-        onClick={onClick ? () => onClick(token) : undefined}
+        onClick={onClick ? (e) => onClick(token) : undefined}
         _hover={{ bgColor: 'purple.900' }}
       >
         {columns.map(({ value }, i) => (

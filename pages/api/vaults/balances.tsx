@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getNewMulticallProvider, getNewProvider, getVaultContracts } from '@inverse/util/contracts'
 import { BigNumber, Contract, utils } from 'ethers'
-import { TOKENS, UNDERLYING } from '@inverse/constants'
+import { TOKENS, UNDERLYING } from '@inverse/config'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const provider = getNewMulticallProvider(getNewProvider())

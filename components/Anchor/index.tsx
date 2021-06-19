@@ -1,3 +1,3 @@
-export * from './Overview'
-export * from './Tables'
-export * from './Modals'
+export * from './AnchorOverview'
+export * from './AnchorTables'
+export * from './AnchorModals'

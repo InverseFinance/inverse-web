@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getNewProvider, getStabilizerContract } from '@inverse/util/contracts'
 import { utils } from 'ethers'
-import { DAI, TOKENS } from '@inverse/constants'
+import { DAI, TOKENS } from '@inverse/config'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const provider = getNewProvider()

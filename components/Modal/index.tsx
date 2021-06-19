@@ -11,7 +11,7 @@ import {
 export const Modal = ({ isOpen, onClose, header, children, footer }: any) => (
   <ChakraModal onClose={onClose} isOpen={isOpen}>
     <ModalOverlay />
-    <ModalContent m={4} backgroundColor="#211e36" color="#fff">
+    <ModalContent m={{ base: 4, sm: 32 }} backgroundColor="#211e36" color="#fff">
       <ModalHeader borderBottomWidth={2} borderBottomColor="purple.900">
         {header}
       </ModalHeader>

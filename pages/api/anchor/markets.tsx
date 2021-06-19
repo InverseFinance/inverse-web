@@ -6,7 +6,7 @@ import {
   getNewProvider,
   getXINVContract,
 } from '@inverse/util/contracts'
-import { ANCHOR_ETH, INV, TOKENS, ETH_MANTISSA, BLOCKS_PER_DAY, DAYS_PER_YEAR, UNDERLYING } from '@inverse/constants'
+import { ANCHOR_ETH, INV, TOKENS, ETH_MANTISSA, BLOCKS_PER_DAY, DAYS_PER_YEAR, UNDERLYING } from '@inverse/config'
 import { Market } from '@inverse/types'
 import { formatUnits } from 'ethers/lib/utils'
 

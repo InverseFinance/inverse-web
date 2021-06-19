@@ -1,23 +1,29 @@
 import { Flex, Image, Stack, Switch, Text } from '@chakra-ui/react'
 import Container from '@inverse/components/Container'
-import { XINV } from '@inverse/constants'
+import { COMPTROLLER, XINV } from '@inverse/config'
 import { Market } from '@inverse/types'
 import { commify, formatUnits } from 'ethers/lib/utils'
-import { useMarkets } from '@inverse/hooks/useMarkets'
+import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import Table from '@inverse/components/Table'
 import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { useWeb3React } from '@web3-react/core'
+import { Web3Provider } from '@ethersproject/providers'
+import { Contract } from 'ethers'
+import { COMPTROLLER_ABI } from '@inverse/abis'
 
 type AnchorProps = {
   onClick: any
 }
 
 export const AnchorSupplied = ({ onClick }: AnchorProps) => {
+  const { library } = useWeb3React<Web3Provider>()
   const { markets } = useMarkets()
   const { usdSupply } = useAccountLiquidity()
   const { balances } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
+  const { markets: accountMarkets } = useAccountMarkets()
 
   const columns = [
     {
@@ -62,13 +68,26 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
           Collateral
         </Flex>
       ),
-      value: () => (
-        <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }}>
-          <Flex onClick={(e) => e.stopPropagation()}>
-            <Switch size="sm" colorScheme="purple" onClick={(e) => e.stopPropagation()} />
+      value: ({ token }: Market) => {
+        const isEnabled = accountMarkets.find((market: Market) => market.token === token)
+        return (
+          <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }}>
+            <Flex
+              onClick={(e) => {
+                e.stopPropagation()
+                const contract = new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner())
+                if (isEnabled) {
+                  contract.exitMarket(token)
+                } else {
+                  contract.enterMarkets([token])
+                }
+              }}
+            >
+              <Switch size="sm" colorScheme="purple" isChecked={isEnabled} />
+            </Flex>
           </Flex>
-        </Flex>
-      ),
+        )
+      },
     },
   ]
 
@@ -78,7 +97,11 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
       label={`$${commify(usdSupply.toFixed(2))}`}
       description="Your supplied assets"
     >
-      <Table columns={columns} items={markets.filter(({ token }: Market) => balances[token])} onClick={onClick} />
+      <Table
+        columns={columns}
+        items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
+        onClick={onClick}
+      />
     </Container>
   ) : (
     <></>
@@ -132,7 +155,11 @@ export const AnchorBorrowed = ({ onClick }: AnchorProps) => {
       label={`$${commify(usdBorrow.toFixed(2))}`}
       description="Your borrowed assets"
     >
-      <Table columns={columns} items={markets.filter(({ token }: Market) => balances[token])} onClick={onClick} />
+      <Table
+        columns={columns}
+        items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
+        onClick={onClick}
+      />
     </Container>
   ) : (
     <></>

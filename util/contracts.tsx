@@ -2,7 +2,7 @@ import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import { VAULT_ABI, COMPTROLLER_ABI, CTOKEN_ABI, STABILIZER_ABI, GOVERNANCE_ABI, XINV_ABI } from '@inverse/abis'
 import { providers } from '@0xsequence/multicall'
-import { ANCHOR_TOKENS, ANCHOR_STABILIZER, COMPTROLLER, GOVERNANCE, VAULT_TOKENS, XINV } from '@inverse/constants'
+import { ANCHOR_TOKENS, ANCHOR_STABILIZER, COMPTROLLER, GOVERNANCE, VAULT_TOKENS, XINV } from '@inverse/config'
 
 export const getNewProvider = () => new InfuraProvider(process.env.NETWORK, process.env.INFURA_ID)
 

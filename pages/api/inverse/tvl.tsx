@@ -1,4 +1,4 @@
-import { TOKENS } from '@inverse/constants'
+import { TOKENS } from '@inverse/config'
 import { Token } from '@inverse/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
 

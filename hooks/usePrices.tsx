@@ -1,6 +1,6 @@
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
-import { TOKENS } from '@inverse/constants'
+import { TOKENS } from '@inverse/config'
 import { Token } from '@inverse/types'
 
 export const usePrice = (coingeckoId: string) => {
