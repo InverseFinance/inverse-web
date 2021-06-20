@@ -3,6 +3,7 @@ import { LENS_ABI } from '@inverse/abis'
 import { COMPTROLLER, INV, LENS } from '@inverse/config'
 import { useWeb3React } from '@web3-react/core'
 import { Contract } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import useSWR from 'swr'
 
 // TODO: Create generic static fetcher
@@ -16,15 +17,8 @@ export const useRewards = () => {
     return undefined
   })
 
-  if (!data) {
-    return {
-      isLoading: !error,
-      isError: error,
-    }
-  }
-
   return {
-    rewards: data[3],
+    rewards: data ? parseFloat(formatUnits(data[3])) : 0,
     isLoading: !error && !data,
     isError: error,
   }

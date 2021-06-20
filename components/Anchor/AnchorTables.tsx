@@ -314,7 +314,7 @@ export const AnchorBorrow = ({ onClick }: AnchorProps) => {
       description="Borrow against your supplied collateral"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
     >
-      <Table columns={columns} items={markets.filter(({ token }: Market) => token !== XINV)} onClick={onClick} />
+      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={onClick} />
     </Container>
   ) : (
     <></>

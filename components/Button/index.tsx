@@ -38,7 +38,7 @@ export const ConnectButton = (props: any) => (
 )
 
 export const ClaimButton = (props: any) => (
-  <Flex
+  <Button
     justify="center"
     bgColor="purple.600"
     cursor={props.onClick ? 'pointer' : ''}
@@ -47,9 +47,9 @@ export const ClaimButton = (props: any) => (
     borderRadius={8}
     fontWeight="semibold"
     color="#fff"
-    p={1.5}
-    pl={2.5}
-    pr={2.5}
+    height={8}
+    pl={3}
+    pr={3}
     _hover={{ bgColor: 'purple.700' }}
     {...props}
   />

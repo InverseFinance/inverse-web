@@ -22,8 +22,9 @@ export const AnchorOverview = () => {
         <Flex direction={{ base: 'column', sm: 'row' }} justify="space-between" align="center">
           <Text fontSize="xl" fontWeight="bold">{`Net APY: ${netApy.toFixed(2)}%`}</Text>
           <Stack direction="row" align="center">
-            <Text fontWeight="bold">{`${(rewards ? parseFloat(formatEther(rewards)) : 0).toFixed(4)} INV`}</Text>
+            <Text fontWeight="bold">{`${rewards.toFixed(4)} INV`}</Text>
             <ClaimButton
+              isDisabled={!rewards}
               onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).claimComp(account)}
             >
               Claim

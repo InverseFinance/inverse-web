@@ -7,6 +7,7 @@ export const YFI = '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e'
 export const XSUSHI = '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272'
 export const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
 export const XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE'
+export const STETH = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
 
 export const mainnetConfig = {
   INV,
@@ -18,6 +19,7 @@ export const mainnetConfig = {
   XSUSHI,
   WBTC,
   XINV,
+  STETH,
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
     vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
@@ -35,13 +37,14 @@ export const mainnetConfig = {
       xsushi: '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
       wbtc: '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
       yfi: '0xde2af899040536884e062D3a334F2dD36F34b4a4',
+      steth: '0xA978D807614c3BFB0f90bC282019B2898c617880',
     },
   },
   governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
   tokens: {
     ETH: {
       address: '',
-      name: 'Ethereum',
+      name: 'Ether',
       symbol: 'ETH',
       coingeckoId: 'ethereum',
       image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
@@ -98,7 +101,7 @@ export const mainnetConfig = {
     [XSUSHI]: {
       address: XSUSHI,
       name: 'xSUSHI',
-      symbol: 'XSUSHI',
+      symbol: 'xSUSHI',
       coingeckoId: 'xsushi',
       image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
       decimals: 18,
@@ -110,6 +113,14 @@ export const mainnetConfig = {
       coingeckoId: 'wrapped-bitcoin',
       image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
       decimals: 8,
+    },
+    [STETH]: {
+      address: STETH,
+      name: 'Lido Staked Ether',
+      symbol: 'stETH',
+      coingeckoId: 'staked-ether',
+      image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
+      decimals: 18,
     },
   },
 }

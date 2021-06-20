@@ -1,4 +1,3 @@
-import { Token } from '@inverse/types'
 import { mainnetConfig } from './mainnet'
 
 const config = mainnetConfig
@@ -25,7 +24,8 @@ export const ANCHOR_DOLA = config.anchor.markets.dola
 export const ANCHOR_XSUSHI = config.anchor.markets.xsushi
 export const ANCHOR_WBTC = config.anchor.markets.wbtc
 export const ANCHOR_YFI = config.anchor.markets.yfi
-export const ANCHOR_TOKENS = [ANCHOR_ETH, ANCHOR_DOLA, ANCHOR_XSUSHI, ANCHOR_WBTC, ANCHOR_YFI]
+export const ANCHOR_STETH = config.anchor.markets.steth
+export const ANCHOR_TOKENS = [ANCHOR_ETH, ANCHOR_DOLA, ANCHOR_XSUSHI, ANCHOR_WBTC, ANCHOR_YFI, ANCHOR_STETH]
 
 // Governance
 export const GOVERNANCE = config.governance
@@ -40,6 +40,7 @@ export const YFI = config.YFI
 export const XSUSHI = config.XSUSHI
 export const WBTC = config.WBTC
 export const XINV = config.XINV
+export const STETH = config.STETH
 
 export const TOKENS: any = config.tokens
 
@@ -49,6 +50,7 @@ export const UNDERLYING: any = {
   [ANCHOR_XSUSHI]: TOKENS[XSUSHI],
   [ANCHOR_WBTC]: TOKENS[WBTC],
   [ANCHOR_YFI]: TOKENS[YFI],
+  [ANCHOR_STETH]: TOKENS[STETH],
   [XINV]: TOKENS[INV],
   [VAULT_USDC_ETH]: TOKENS[USDC],
   [VAULT_DAI_ETH]: TOKENS[DAI],

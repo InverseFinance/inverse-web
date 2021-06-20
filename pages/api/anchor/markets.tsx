@@ -25,6 +25,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     speeds,
     totalSupplies,
     exchangeRates,
+    borrowState,
     prices,
   ] = await Promise.all([
     Promise.all(anchorContracts.map((contract) => contract.supplyRatePerBlock())),
@@ -34,6 +35,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     Promise.all(anchorContracts.map((contract) => comptrollerContract.compSpeeds(contract.address))),
     Promise.all(anchorContracts.map((contract) => contract.totalSupply())),
     Promise.all(anchorContracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
+    Promise.all(anchorContracts.map((contract) => comptrollerContract.compBorrowState(contract.address))),
     (
       await fetch(
         `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${Object.values(TOKENS).map(
@@ -61,6 +63,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     supplyApy: supplyApys[i],
     borrowApy: borrowApys[i],
     rewardApy: rewardApys[i],
+    borrowable: borrowState[i][1] > 0,
     liquidity: parseFloat(formatUnits(cashes[i], UNDERLYING[address].decimals)),
     collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
   }))

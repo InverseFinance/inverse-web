@@ -17,6 +17,7 @@ export type Market = {
   rewardApy?: number
   liquidity?: number
   collateralFactor?: number
+  borrowable?: boolean
 }
 
 export type Prices = {
