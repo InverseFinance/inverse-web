@@ -1,9 +1,8 @@
 import { TOKENS } from '@inverse/config'
-import { Token } from '@inverse/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }: Token) => coingeckoId)
+  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }: any) => coingeckoId)
   const [_vaults, _anchor, _stabilizer, _prices] = await Promise.all([
     fetch(`${process.env.API_URL}/vaults/balances`),
     fetch(`${process.env.API_URL}/anchor/balances`),

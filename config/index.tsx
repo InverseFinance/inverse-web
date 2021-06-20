@@ -15,6 +15,7 @@ export const VAULT_DAI_ETH = config.vaults.vaultDaiEth
 export const VAULT_TOKENS = [VAULT_USDC_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_DAI_ETH]
 
 // Anchor
+export const LENS = config.anchor.lens
 export const COMPTROLLER = config.anchor.comptroller
 export const ANCHOR_STABILIZER = config.anchor.stabilizer
 export const ANCHOR_TREASURY = config.anchor.treasury

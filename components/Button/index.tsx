@@ -37,6 +37,24 @@ export const ConnectButton = (props: any) => (
   />
 )
 
+export const ClaimButton = (props: any) => (
+  <Flex
+    justify="center"
+    bgColor="purple.600"
+    cursor={props.onClick ? 'pointer' : ''}
+    fontSize="sm"
+    align="center"
+    borderRadius={8}
+    fontWeight="semibold"
+    color="#fff"
+    p={1.5}
+    pl={2.5}
+    pr={2.5}
+    _hover={{ bgColor: 'purple.700' }}
+    {...props}
+  />
+)
+
 export const OutlineButton = (props: any) => (
   <Flex
     justify="center"
@@ -67,6 +85,30 @@ export const ModalButton = (props: any) => (
     _hover={{ bgColor: 'purple.700' }}
     {...props}
   />
+)
+
+export const ToggleButton = ({ onClick, active, options }: any) => (
+  <Flex w="full" cursor="pointer" justify="center" align="center" m={4}>
+    {options.map((option: any) => (
+      <Flex
+        key={option}
+        justify="center"
+        cursor="pointer"
+        align="center"
+        borderWidth={1}
+        borderColor="purple.700"
+        fontWeight="semibold"
+        color="#fff"
+        bgColor={active === option ? 'purple.600' : 'purple.800'}
+        p={2}
+        pl={6}
+        pr={6}
+        onClick={() => onClick(option)}
+      >
+        {option}
+      </Flex>
+    ))}
+  </Flex>
 )
 
 export default LinkButton

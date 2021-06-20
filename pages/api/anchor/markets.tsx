@@ -17,21 +17,50 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const comptrollerContract = getComptrollerContract(provider)
   const anchorContracts = getAnchorContracts(provider)
 
-  const supplyRates = await Promise.all(anchorContracts.map((contract) => contract.supplyRatePerBlock()))
-  const borrowRates = await Promise.all(anchorContracts.map((contract) => contract.borrowRatePerBlock()))
-  const cashes = await Promise.all(anchorContracts.map((contract) => contract.getCash()))
-  const collateralFactors = await Promise.all(
-    anchorContracts.map((contract) => comptrollerContract.markets(contract.address))
-  )
+  const [
+    supplyRates,
+    borrowRates,
+    cashes,
+    collateralFactors,
+    speeds,
+    totalSupplies,
+    exchangeRates,
+    prices,
+  ] = await Promise.all([
+    Promise.all(anchorContracts.map((contract) => contract.supplyRatePerBlock())),
+    Promise.all(anchorContracts.map((contract) => contract.borrowRatePerBlock())),
+    Promise.all(anchorContracts.map((contract) => contract.getCash())),
+    Promise.all(anchorContracts.map((contract) => comptrollerContract.markets(contract.address))),
+    Promise.all(anchorContracts.map((contract) => comptrollerContract.compSpeeds(contract.address))),
+    Promise.all(anchorContracts.map((contract) => contract.totalSupply())),
+    Promise.all(anchorContracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
+    (
+      await fetch(
+        `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${Object.values(TOKENS).map(
+          ({ coingeckoId }: any) => coingeckoId
+        )}`
+      )
+    ).json(),
+  ])
 
   const supplyApys = supplyRates.map((rate) => toApy(rate))
   const borrowApys = borrowRates.map((rate) => toApy(rate))
+  const rewardApys = speeds.map((speed, i) => {
+    const underlying = UNDERLYING[anchorContracts[i].address]
+    return toApy(
+      (speed * prices[TOKENS[INV].coingeckoId].usd) /
+        (parseFloat(formatUnits(totalSupplies[i].toString(), underlying.decimals)) *
+          parseFloat(formatUnits(exchangeRates[i])) *
+          prices[underlying.coingeckoId].usd)
+    )
+  })
 
   const markets: Market[] = anchorContracts.map(({ address }, i) => ({
     token: address,
     underlying: address !== ANCHOR_ETH ? UNDERLYING[address] : TOKENS.ETH,
     supplyApy: supplyApys[i],
     borrowApy: borrowApys[i],
+    rewardApy: rewardApys[i],
     liquidity: parseFloat(formatUnits(cashes[i], UNDERLYING[address].decimals)),
     collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
   }))

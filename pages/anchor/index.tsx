@@ -2,7 +2,7 @@ import { Flex, useDisclosure } from '@chakra-ui/react'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 import { useState } from 'react'
-import { ConnectButton } from '@inverse/components/Button'
+import { ToggleButton } from '@inverse/components/Button'
 import {
   AnchorBorrow,
   AnchorBorrowed,
@@ -14,7 +14,7 @@ import {
 } from '@inverse/components/Anchor'
 
 export const Anchor = () => {
-  const { isOpen: showSupply, onToggle: toggleMarkets } = useDisclosure()
+  const [active, setActive] = useState('Supply')
   const { isOpen: supplyIsOpen, onOpen: supplyOnOpen, onClose: supplyOnClose } = useDisclosure()
   const { isOpen: borrowIsOpen, onOpen: borrowOnOpen, onClose: borrowOnClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<any>()
@@ -29,8 +29,8 @@ export const Anchor = () => {
     supplyOnOpen()
   }
 
-  const supplyDisplay = { base: showSupply ? 'flex' : 'none', lg: 'flex' }
-  const borrowDisplay = { base: !showSupply ? 'flex' : 'none', lg: 'flex' }
+  const supplyDisplay = { base: active === 'Supply' ? 'flex' : 'none', lg: 'flex' }
+  const borrowDisplay = { base: active === 'Borrow' ? 'flex' : 'none', lg: 'flex' }
 
   return (
     <Layout>
@@ -40,7 +40,7 @@ export const Anchor = () => {
       </Flex>
       <Flex w="full" direction="column" justify="center">
         <Flex w="full" justify="center" display={{ base: 'flex', lg: 'none' }}>
-          <ConnectButton onClick={toggleMarkets}>Toggle</ConnectButton>
+          <ToggleButton active={active} onClick={setActive} options={['Supply', 'Borrow']} />
         </Flex>
         <Flex w="full" justify="center">
           <Flex w="full" justify="flex-end" display={supplyDisplay}>

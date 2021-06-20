@@ -25,6 +25,7 @@ export const mainnetConfig = {
     vaultDaiEth: '0x2dCdCA085af2E258654e47204e483127E0D8b277',
   },
   anchor: {
+    lens: '0xd513d22422a3062Bd342Ae374b4b9c20E0a9a074',
     comptroller: '0x4dcf7407ae5c07f8681e1659f626e114a7667339',
     stabilizer: '0x7eC0D931AFFBa01b77711C2cD07c76B970795CDd',
     treasury: '0x926df14a23be491164dcf93f4c468a50ef659d5b',

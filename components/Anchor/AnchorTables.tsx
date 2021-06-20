@@ -20,7 +20,7 @@ type AnchorProps = {
 export const AnchorSupplied = ({ onClick }: AnchorProps) => {
   const { library } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
-  const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
+  const { usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
   const { markets: accountMarkets } = useAccountMarkets()
@@ -45,6 +45,18 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
       value: ({ supplyApy }: Market) => (
         <Text textAlign="center" minWidth={24}>
           {supplyApy ? `${supplyApy.toFixed(2)}%` : '-'}
+        </Text>
+      ),
+    },
+    {
+      header: (
+        <Flex justify="center" minWidth={24}>
+          Reward APY
+        </Flex>
+      ),
+      value: ({ rewardApy }: Market) => (
+        <Text textAlign="center" minWidth={24}>
+          {rewardApy ? `${rewardApy.toFixed(2)}%` : '-'}
         </Text>
       ),
     },
@@ -201,6 +213,18 @@ export const AnchorSupply = ({ onClick }: AnchorProps) => {
       value: ({ supplyApy }: Market) => (
         <Text minWidth={24} textAlign="center">
           {supplyApy ? `${supplyApy.toFixed(2)}%` : '-'}
+        </Text>
+      ),
+    },
+    {
+      header: (
+        <Flex justify="center" minWidth={24}>
+          Reward APY
+        </Flex>
+      ),
+      value: ({ rewardApy }: Market) => (
+        <Text textAlign="center" minWidth={24}>
+          {rewardApy ? `${rewardApy.toFixed(2)}%` : '-'}
         </Text>
       ),
     },
