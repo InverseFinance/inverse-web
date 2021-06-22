@@ -1,3 +1,4 @@
+import { COMPTROLLER_ABI } from '@inverse/abis'
 import { mainnetConfig } from './mainnet'
 
 const config = mainnetConfig
@@ -17,6 +18,7 @@ export const VAULT_TOKENS = [VAULT_USDC_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAUL
 // Anchor
 export const LENS = config.anchor.lens
 export const COMPTROLLER = config.anchor.comptroller
+export const ORACLE = config.anchor.oracle
 export const ANCHOR_STABILIZER = config.anchor.stabilizer
 export const ANCHOR_TREASURY = config.anchor.treasury
 
@@ -57,4 +59,9 @@ export const UNDERLYING: any = {
   [VAULT_DAI_ETH]: TOKENS[DAI],
   [VAULT_DAI_WBTC]: TOKENS[DAI],
   [VAULT_DAI_YFI]: TOKENS[DAI],
+}
+
+export const CONTRACTS: any = {
+  [COMPTROLLER]: 'Comptroller',
+  [ORACLE]: 'Oracle',
 }

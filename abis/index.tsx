@@ -1,4 +1,4 @@
-import { ANCHOR_TOKENS, COMPTROLLER, LENS, TOKENS, XINV } from '@inverse/config'
+import { ANCHOR_TOKENS, COMPTROLLER, INV, LENS, TOKENS, XINV } from '@inverse/config'
 
 export const COMPTROLLER_ABI = [
   'function claimComp(address) public',
@@ -46,6 +46,7 @@ export const INV_ABI = [
   'function allowance(address, address) external view returns (uint256)',
   'function approve(address, uint256)',
   'function balanceOf(address) external view returns (uint256)',
+  'function getCurrentVotes(address) external view returns (uint96)',
   'event Transfer(address indexed from, address indexed to, uint256 amount)',
   'event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate)',
   'event DelegateVotesChanged(address indexed delegate, uint previousBalance, uint newBalance)',
@@ -88,6 +89,6 @@ export const ABIs = new Map<string, any>(
       [COMPTROLLER, COMPTROLLER_ABI],
       [LENS, LENS_ABI],
     ],
-    Object.keys(TOKENS).map((address) => [address, ERC20_ABI])
+    Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
   )
 )

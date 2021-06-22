@@ -16,7 +16,7 @@ export const Container = ({
   children?: React.ReactNode
 }) => (
   <Flex w={w} direction="column" p={6} pb={0} color="#fff">
-    <Flex h={14} w="full" direction="column" justify="flex-end">
+    <Flex minH={14} w="full" direction="column" justify="flex-end">
       {label ? (
         typeof label === 'string' ? (
           <Text fontSize="xl" fontWeight="bold">
@@ -35,8 +35,10 @@ export const Container = ({
               {description} <ExternalLinkIcon />
             </Link>
           </Flex>
-        ) : (
+        ) : typeof label === 'string' ? (
           <Text fontSize="sm">{description}</Text>
+        ) : (
+          description
         )
       ) : (
         <></>

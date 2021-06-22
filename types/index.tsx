@@ -19,6 +19,7 @@ export type Market = {
   collateralFactor?: number
   borrowable?: boolean
 }
+
 export type Proposal = {
   id: number
   title: string
