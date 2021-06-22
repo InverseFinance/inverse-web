@@ -49,6 +49,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             callData: args.calldatas[i],
           })),
           voters: votes.map((vote: any) => ({
+            id: vote.args[1].toNumber(),
             voter: vote.args[0],
             support: vote.args[2],
             votes: parseFloat(formatUnits(vote.args[3])),

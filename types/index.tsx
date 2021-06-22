@@ -56,9 +56,17 @@ export type ProposalFunction = {
 }
 
 export type ProposalVote = {
+  id: number
   voter: string
   support: boolean
   votes: number
+}
+
+export type Delegate = {
+  address: string
+  balance: number
+  delegators: string[]
+  votes: ProposalVote[]
 }
 
 export type Prices = {

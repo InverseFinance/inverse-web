@@ -49,11 +49,11 @@ const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
       </Flex>
       <Flex direction="column" align="flex-end">
         <Stack direction="row" w={56} align="center" justify="flex-end">
-          <Text w={16} fontSize="xs" fontWeight="bold" color="fail" textAlign="end">
+          <Text w={16} fontSize="xs" fontWeight="bold" color="purple.300" textAlign="end">
             {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
           </Text>
           <Flex w="full">
-            <Flex w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="fail" />
+            <Flex w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="purple.300" />
             <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
           </Flex>
           <Text w={16} fontSize="xs" fontWeight="bold" color="success">

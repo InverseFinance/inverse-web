@@ -42,6 +42,15 @@ export const ERC20_ABI = [
   'event Transfer(address indexed from, address indexed to, uint256 amount)',
 ]
 
+export const INV_ABI = [
+  'function allowance(address, address) external view returns (uint256)',
+  'function approve(address, uint256)',
+  'function balanceOf(address) external view returns (uint256)',
+  'event Transfer(address indexed from, address indexed to, uint256 amount)',
+  'event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate)',
+  'event DelegateVotesChanged(address indexed delegate, uint previousBalance, uint newBalance)',
+]
+
 export const GOVERNANCE_ABI = [
   'function proposalCount() public view returns (uint256)',
   'function proposals(uint256) public view returns (uint256 id, address proposer, uint256 eta, uint256 startBlock, uint256 endBlock, uint256 forVotes, uint256 againstVotes, bool canceled, bool executed)',

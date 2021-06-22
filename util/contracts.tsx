@@ -8,6 +8,7 @@ import {
   GOVERNANCE_ABI,
   XINV_ABI,
   ERC20_ABI,
+  INV_ABI,
 } from '@inverse/abis'
 import { providers } from '@0xsequence/multicall'
 import { ANCHOR_TOKENS, ANCHOR_STABILIZER, COMPTROLLER, GOVERNANCE, VAULT_TOKENS, XINV, INV } from '@inverse/config'
@@ -33,6 +34,6 @@ export const getStabilizerContract = (provider: any) => getNewContract(ANCHOR_ST
 
 export const getGovernanceContract = (provider: any) => getNewContract(GOVERNANCE, GOVERNANCE_ABI, provider)
 
-export const getINVContract = (provider: any) => getNewContract(INV, ERC20_ABI, provider)
+export const getINVContract = (provider: any) => getNewContract(INV, INV_ABI, provider)
 
 export const getXINVContract = (provider: any) => getNewContract(XINV, XINV_ABI, provider)

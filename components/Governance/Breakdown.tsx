@@ -28,7 +28,7 @@ export const Breakdown = () => {
       <Flex direction="row" align="center" justify="space-around">
         <Flex w="full" align="center" justify="center">
           <VictoryPie
-            colorScale={['#b3addc', '#25C9A1', '#F44061']}
+            colorScale={['#fff', '#25C9A1', '#928acc']}
             data={[
               { x: 'Active', y: active },
               { x: 'Passed', y: passed },
@@ -46,7 +46,7 @@ export const Breakdown = () => {
             <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
               {active}
             </Text>
-            <Text color="#b3addc" fontWeight="bold" whiteSpace="nowrap">
+            <Text color="#fff" fontWeight="bold" whiteSpace="nowrap">
               Active
             </Text>
           </Stack>
@@ -62,7 +62,7 @@ export const Breakdown = () => {
             <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
               {failed}
             </Text>
-            <Text color="#F44061" fontWeight="bold" whiteSpace="nowrap">
+            <Text color="#928acc" fontWeight="bold" whiteSpace="nowrap">
               Failed
             </Text>
           </Stack>

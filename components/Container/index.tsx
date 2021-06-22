@@ -30,9 +30,11 @@ export const Container = ({
       )}
       {description ? (
         href ? (
-          <Link href={href} fontSize="sm" isExternal>
-            {description} <ExternalLinkIcon />
-          </Link>
+          <Flex>
+            <Link href={href} fontSize="sm" isExternal>
+              {description} <ExternalLinkIcon />
+            </Link>
+          </Flex>
         ) : (
           <Text fontSize="sm">{description}</Text>
         )
