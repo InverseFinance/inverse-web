@@ -19,6 +19,47 @@ export type Market = {
   collateralFactor?: number
   borrowable?: boolean
 }
+export type Proposal = {
+  id: number
+  title: string
+  description: string
+  proposer: string
+  etaTimestamp: number
+  startTimestamp: number
+  endTimestamp: number
+  startBlock: number
+  endBlock: number
+  forVotes: number
+  againstVotes: number
+  canceled: boolean
+  executed: boolean
+  status: ProposalStatus
+  functions: ProposalFunction[]
+  voters: ProposalVote[]
+}
+
+export enum ProposalStatus {
+  pending = 'Pending',
+  active = 'Active',
+  canceled = 'Canceled',
+  defeated = 'Defeated',
+  succeeded = 'Succeeded',
+  queued = 'Queued',
+  expired = 'Expired',
+  executed = 'Executed',
+}
+
+export type ProposalFunction = {
+  target: string
+  signature: string
+  callData: string
+}
+
+export type ProposalVote = {
+  voter: string
+  support: boolean
+  votes: number
+}
 
 export type Prices = {
   [key: string]: {

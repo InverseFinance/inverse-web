@@ -1,0 +1,75 @@
+import { useProposals } from '@inverse/hooks/useProposals'
+import Container from '../Container'
+import { VictoryPie } from 'victory'
+import { Proposal, ProposalStatus } from '@inverse/types'
+import { Flex, Stack, Text } from '@chakra-ui/react'
+
+export const Breakdown = () => {
+  const { proposals } = useProposals()
+
+  const active = proposals?.reduce(
+    (prev: number, curr: Proposal) =>
+      prev + ([ProposalStatus.pending, ProposalStatus.active].includes(curr.status) ? 1 : 0),
+    0
+  )
+  const passed = proposals?.reduce(
+    (prev: number, curr: Proposal) =>
+      prev + ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(curr.status) ? 1 : 0),
+    0
+  )
+  const failed = proposals?.reduce(
+    (prev: number, curr: Proposal) =>
+      prev + ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(curr.status) ? 1 : 0),
+    0
+  )
+
+  return proposals ? (
+    <Container w="sm">
+      <Flex direction="row" align="center" justify="space-around">
+        <Flex w="full" align="center" justify="center">
+          <VictoryPie
+            colorScale={['#b3addc', '#25C9A1', '#F44061']}
+            data={[
+              { x: 'Active', y: active },
+              { x: 'Passed', y: passed },
+              { x: 'Failed', y: failed },
+            ]}
+            innerRadius={130}
+            style={{ labels: { display: 'none' } }}
+          />
+          <Text position="absolute" color="#fff" fontSize="4xl" fontWeight="semibold">
+            {active + passed + failed}
+          </Text>
+        </Flex>
+        <Stack w={48}>
+          <Stack direction="row">
+            <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
+              {active}
+            </Text>
+            <Text color="#b3addc" fontWeight="bold" whiteSpace="nowrap">
+              Active
+            </Text>
+          </Stack>
+          <Stack direction="row">
+            <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
+              {passed}
+            </Text>
+            <Text color="#25C9A1" fontWeight="bold" whiteSpace="nowrap">
+              Passed
+            </Text>
+          </Stack>
+          <Stack direction="row">
+            <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
+              {failed}
+            </Text>
+            <Text color="#F44061" fontWeight="bold" whiteSpace="nowrap">
+              Failed
+            </Text>
+          </Stack>
+        </Stack>
+      </Flex>
+    </Container>
+  ) : (
+    <></>
+  )
+}

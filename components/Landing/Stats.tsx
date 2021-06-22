@@ -1,4 +1,5 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Proposal } from '@inverse/types'
 import { useEffect, useState } from 'react'
 
 type Stat = {
@@ -69,11 +70,11 @@ export const Stats = () => {
         },
         {
           label: 'Passed Proposals',
-          value: proposals.passed,
+          value: proposals.filter(({ forVotes, againstVotes }: Proposal) => forVotes > againstVotes).length,
         },
         {
           label: 'Votes Casted',
-          value: proposals.forVotes,
+          value: proposals.reduce((prev: any, curr: any) => prev + curr.forVotes + curr.againstVotes, 0),
         },
       ])
     }

@@ -2,6 +2,7 @@ import { mainnetConfig } from './mainnet'
 
 const config = mainnetConfig
 
+export const START_BLOCK = 11498340
 export const ETH_MANTISSA = 1e18
 export const BLOCKS_PER_DAY = 6500
 export const DAYS_PER_YEAR = 365

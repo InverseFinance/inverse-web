@@ -39,11 +39,16 @@ export const ERC20_ABI = [
   'function allowance(address, address) external view returns (uint256)',
   'function approve(address, uint256)',
   'function balanceOf(address) external view returns (uint256)',
+  'event Transfer(address indexed from, address indexed to, uint256 amount)',
 ]
 
 export const GOVERNANCE_ABI = [
   'function proposalCount() public view returns (uint256)',
   'function proposals(uint256) public view returns (uint256 id, address proposer, uint256 eta, uint256 startBlock, uint256 endBlock, uint256 forVotes, uint256 againstVotes, bool canceled, bool executed)',
+  'function quorumVotes() public view returns (uint256)',
+  'function state(uint256) public view returns (uint256)',
+  'event ProposalCreated (uint256 id, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)',
+  'event VoteCast (address voter, uint256 proposalId, bool support, uint256 votes)',
 ]
 
 export const LENS_ABI = [

@@ -9,6 +9,7 @@ import { ETH_MANTISSA, INV, XINV } from '@inverse/config'
 import { CTOKEN_ABI, XINV_ABI } from '@inverse/abis'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useState } from 'react'
+import { smallAddress } from '@inverse/util'
 
 const NAV_ITEMS = [
   {
@@ -63,11 +64,11 @@ const ETHBalance = () => {
 }
 
 const AppNavConnect = () => {
-  const { account, library, activate, active } = useWeb3React<Web3Provider>()
+  const { account, activate, active } = useWeb3React<Web3Provider>()
 
   return (
     <ConnectButton onClick={() => activate(injectedConnector)}>
-      {active && account ? `${account.substr(0, 6)}...${account.substr(account.length - 4)}` : 'Connect'}
+      {active && account ? `${smallAddress(account)}` : 'Connect'}
     </ConnectButton>
   )
 }

@@ -20,10 +20,12 @@
     "@web3-react/injected-connector": "^6.0.7",
     "ethers": "^5.3.1",
     "framer-motion": "^4.1.17",
+    "moment": "^2.29.1",
     "next": "10.2.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "swr": "^0.5.6"
+    "swr": "^0.5.6",
+    "victory": "^35.8.6"
   },
   "devDependencies": {
     "@types/node": "^15.12.1",

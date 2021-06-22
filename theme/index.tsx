@@ -24,6 +24,8 @@ const theme = extendTheme({
       800: '#211c42',
       900: '#100e21',
     },
+    success: '#25C9A1',
+    fail: '#F44061',
   },
   fonts: {
     body: 'Inter',

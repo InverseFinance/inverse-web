@@ -2,6 +2,7 @@ import { Contract, Wallet } from 'ethers'
 import { isAddress } from '@ethersproject/address'
 import { JsonRpcSigner, Provider, Web3Provider } from '@ethersproject/providers'
 
+// TODO: clean up this mess
 export const etherJsFetcher = (
   provider: Provider | Web3Provider,
   signer: Wallet | JsonRpcSigner,
