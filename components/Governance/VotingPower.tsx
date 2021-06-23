@@ -25,7 +25,6 @@ export const VotingPower = () => {
 
   return (
     <Container
-      w="sm"
       label={(votingPower ? parseFloat(formatUnits(votingPower)) : 0).toFixed(4)}
       description="Your Voting Power"
     >

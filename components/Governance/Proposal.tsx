@@ -34,13 +34,13 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
         align="center"
         cursor="pointer"
         p={2.5}
-        pl={4}
-        pr={4}
+        pl={2}
+        pr={2}
         borderRadius={8}
         _hover={{ bgColor: 'purple.900' }}
       >
-        <Flex w="md" direction="column">
-          <Text w="full" fontWeight="semibold" fontSize="lg" isTruncated>
+        <Flex direction="column" overflowX="auto">
+          <Text fontWeight="semibold" fontSize="lg">
             {title}
           </Text>
           <Stack direction="row" align="center">
@@ -55,7 +55,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
               .padStart(3, '0')} - ${moment(etaTimestamp || endTimestamp, 'x').format('MMM Do, YYYY')}`}</Text>
           </Stack>
         </Flex>
-        <Flex direction="column" align="flex-end">
+        <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
           <Stack direction="row" w={56} align="center" justify="flex-end">
             <Text w={16} fontSize="xs" fontWeight="bold" color="purple.300" textAlign="end">
               {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
@@ -144,7 +144,7 @@ export const ProposalActions = ({ id }: { id: number }) => {
             .split(',')
 
           return (
-            <Stack w={56} m={2}>
+            <Stack w={56} m={2} key={i}>
               <Stack spacing={1} w="full">
                 <Flex fontSize="xs" fontWeight="semibold" textTransform="uppercase" color="purple.200">{`Action ${
                   i + 1
@@ -161,7 +161,7 @@ export const ProposalActions = ({ id }: { id: number }) => {
                       isAddress(data) ? (
                         <Flex>
                           <Link key={i} href={`https://etherscan.io/address/${data}`}>
-                            {data}
+                            {CONTRACTS[data] || data}
                             {i + 1 !== callDatas.length ? ',' : ''}
                           </Link>
                         </Flex>

@@ -4,10 +4,16 @@ import Link from 'next/link'
 
 export const Breadcrumbs = ({ breadcrumbs }: any) => (
   <Flex w="full" justify="center">
-    <Flex w="77rem" mt={6}>
-      <Breadcrumb color="#fff" fontSize="sm" fontWeight="medium" separator={<ChevronRightIcon color="purple.100" />}>
+    <Flex w="80rem" pl={6} pt={6}>
+      <Breadcrumb
+        color="#fff"
+        fontSize="sm"
+        fontWeight="medium"
+        separator={<ChevronRightIcon color="purple.100" />}
+        spacing="1"
+      >
         {breadcrumbs.map(({ href, label }: any) => (
-          <BreadcrumbItem>
+          <BreadcrumbItem key={label}>
             <Link href={href} passHref>
               <BreadcrumbLink _hover={{ color: 'purple.100' }}>{label}</BreadcrumbLink>
             </Link>

@@ -24,7 +24,7 @@ export const Breakdown = () => {
   )
 
   return proposals ? (
-    <Container w="sm">
+    <Container>
       <Flex direction="row" align="center" justify="space-around">
         <Flex w="full" align="center" justify="center">
           <VictoryPie

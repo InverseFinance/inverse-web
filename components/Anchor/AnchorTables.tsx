@@ -1,4 +1,4 @@
-import { Flex, Image, Stack, Switch, Text } from '@chakra-ui/react'
+import { Flex, Image, Stack, Switch, Text, useDisclosure } from '@chakra-ui/react'
 import Container from '@inverse/components/Container'
 import { COMPTROLLER, XINV } from '@inverse/config'
 import { Market } from '@inverse/types'
@@ -12,12 +12,10 @@ import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import { Contract } from 'ethers'
 import { COMPTROLLER_ABI } from '@inverse/abis'
+import { useState } from 'react'
+import { AnchorBorrowModal, AnchorSupplyModal } from './AnchorModals'
 
-type AnchorProps = {
-  onClick: any
-}
-
-export const AnchorSupplied = ({ onClick }: AnchorProps) => {
+export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
@@ -25,6 +23,13 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
   const { exchangeRates } = useExchangeRates()
   const { markets: accountMarkets } = useAccountMarkets()
   const { active } = useWeb3React()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [modalAsset, setModalAsset] = useState<any>()
+
+  const handleSupply = (asset: any) => {
+    setModalAsset(asset)
+    onOpen()
+  }
 
   const columns = [
     {
@@ -109,25 +114,29 @@ export const AnchorSupplied = ({ onClick }: AnchorProps) => {
   }
 
   return (
-    <Container
-      w={{ base: 'full', xl: '2xl' }}
-      label={`$${commify(usdSupply.toFixed(2))}`}
-      description="Your supplied assets"
-    >
+    <Container label={`$${commify(usdSupply.toFixed(2))}`} description="Your supplied assets">
       <Table
         columns={columns}
         items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
-        onClick={onClick}
+        onClick={handleSupply}
       />
+      <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
   )
 }
 
-export const AnchorBorrowed = ({ onClick }: AnchorProps) => {
+export const AnchorBorrowed = () => {
   const { active } = useWeb3React()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useBorrowBalances()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [modalAsset, setModalAsset] = useState<any>()
+
+  const handleBorrow = (asset: any) => {
+    setModalAsset(asset)
+    onOpen()
+  }
 
   const columns = [
     {
@@ -171,7 +180,6 @@ export const AnchorBorrowed = ({ onClick }: AnchorProps) => {
 
   return (
     <Container
-      w={{ base: 'full', xl: '2xl' }}
       label={`$${usdBorrow ? commify(usdBorrow.toFixed(2)) : usdBorrow.toFixed(2)}`}
       description="Your borrowed assets"
     >
@@ -179,20 +187,28 @@ export const AnchorBorrowed = ({ onClick }: AnchorProps) => {
         <Table
           columns={columns}
           items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
-          onClick={onClick}
+          onClick={handleBorrow}
         />
       ) : (
         <Flex w="full" justify="center" color="purple.200" fontSize="sm">
           You don't have any borrowed assets.
         </Flex>
       )}
+      <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
   )
 }
 
-export const AnchorSupply = ({ onClick }: AnchorProps) => {
+export const AnchorSupply = () => {
   const { markets } = useMarkets()
   const { balances } = useAccountBalances()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [modalAsset, setModalAsset] = useState<any>()
+
+  const handleSupply = (asset: any) => {
+    setModalAsset(asset)
+    onOpen()
+  }
 
   const columns = [
     {
@@ -255,21 +271,28 @@ export const AnchorSupply = ({ onClick }: AnchorProps) => {
 
   return markets ? (
     <Container
-      w={{ base: 'full', xl: '2xl' }}
       label="Supply"
       description="Earn interest on your deposits"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
     >
-      <Table columns={columns} items={markets} onClick={onClick} />
+      <Table columns={columns} items={markets} onClick={handleSupply} />
+      <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
   ) : (
     <></>
   )
 }
 
-export const AnchorBorrow = ({ onClick }: AnchorProps) => {
+export const AnchorBorrow = () => {
   const { markets } = useMarkets()
   const { prices } = usePrices()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [modalAsset, setModalAsset] = useState<any>()
+
+  const handleBorrow = (asset: any) => {
+    setModalAsset(asset)
+    onOpen()
+  }
 
   const columns = [
     {
@@ -309,12 +332,12 @@ export const AnchorBorrow = ({ onClick }: AnchorProps) => {
 
   return markets ? (
     <Container
-      w={{ base: 'full', xl: '2xl' }}
       label="Borrow"
       description="Borrow against your supplied collateral"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
     >
-      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={onClick} />
+      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} />
+      <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
   ) : (
     <></>

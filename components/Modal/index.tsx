@@ -17,7 +17,7 @@ export const Modal = ({ isOpen, onClose, header, children, footer }: any) => (
       </ModalHeader>
       <ModalCloseButton />
       <ModalBody p={0}>{children}</ModalBody>
-      <ModalFooter>{footer}</ModalFooter>
+      {footer && <ModalFooter>{footer}</ModalFooter>}
     </ModalContent>
   </ChakraModal>
 )

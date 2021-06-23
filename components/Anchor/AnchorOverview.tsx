@@ -17,7 +17,6 @@ export const AnchorOverview = () => {
 
   return usdBorrow || usdBorrowable ? (
     <Container
-      w="84rem"
       label={
         <Flex direction={{ base: 'column', sm: 'row' }} justify="space-between" align="center">
           <Text fontSize="xl" fontWeight="bold">{`Net APY: ${netApy.toFixed(2)}%`}</Text>

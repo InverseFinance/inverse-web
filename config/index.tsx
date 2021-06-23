@@ -19,8 +19,8 @@ export const VAULT_TOKENS = [VAULT_USDC_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAUL
 export const LENS = config.anchor.lens
 export const COMPTROLLER = config.anchor.comptroller
 export const ORACLE = config.anchor.oracle
-export const ANCHOR_STABILIZER = config.anchor.stabilizer
-export const ANCHOR_TREASURY = config.anchor.treasury
+export const STABILIZER = config.anchor.stabilizer
+export const TREASURY = config.anchor.treasury
 
 export const ANCHOR_ETH = config.anchor.markets.eth
 export const ANCHOR_DOLA = config.anchor.markets.dola
@@ -62,6 +62,23 @@ export const UNDERLYING: any = {
 }
 
 export const CONTRACTS: any = {
+  [ANCHOR_ETH]: 'anETH',
+  [ANCHOR_DOLA]: 'anDOLA',
+  [ANCHOR_XSUSHI]: 'anXSUSHI',
+  [ANCHOR_WBTC]: 'anWBTC',
+  [ANCHOR_YFI]: 'anYFI',
+  [ANCHOR_STETH]: 'anStETH',
   [COMPTROLLER]: 'Comptroller',
+  [DAI]: 'Dai',
+  [DOLA]: 'DOLA',
+  [INV]: 'INV',
   [ORACLE]: 'Oracle',
+  [STABILIZER]: 'Stabilizer',
+  [VAULT_USDC_ETH]: 'vaultUsdcEth',
+  [VAULT_DAI_ETH]: 'vaultDaiEth',
+  [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
+  [VAULT_DAI_YFI]: 'vaultDaiYfi',
+  [XINV]: 'xINV',
+  '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
+  '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
 }

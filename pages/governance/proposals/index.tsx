@@ -13,11 +13,19 @@ export const Governance = () => (
         { label: 'Proposals', href: '#' },
       ]}
     />
-    <Flex w="full" justify="center">
-      <Proposals />
+    <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
       <Flex direction="column">
-        <Breakdown />
-        <DelegatesPreview />
+        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+          <Proposals />
+        </Flex>
+      </Flex>
+      <Flex direction="column">
+        <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          <Breakdown />
+        </Flex>
+        <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          <DelegatesPreview />
+        </Flex>
       </Flex>
     </Flex>
   </Layout>

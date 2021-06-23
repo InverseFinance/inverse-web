@@ -1,17 +1,17 @@
 import Container from '../Container'
 import { useDelegates } from '@inverse/hooks/useDelegates'
-import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { Flex, Image, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { Avatar } from '../Avatar'
+import { DelegatesModal } from './GovernanceModals'
 
 export const DelegatesPreview = () => {
   const { delegates } = useDelegates()
-
-  console.log(delegates)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return delegates ? (
-    <Container w="sm" label="Top Delegates">
+    <Container label="Top Delegates">
       <Stack w="full">
         {delegates.slice(0, 5).map(({ address, balance, delegators, votes }: Delegate) => (
           <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
@@ -46,11 +46,13 @@ export const DelegatesPreview = () => {
           borderRadius={8}
           textTransform="uppercase"
           color="purple.100"
+          onClick={onOpen}
           _hover={{ bgColor: 'purple.900' }}
         >
           View All
         </Flex>
       </Stack>
+      <DelegatesModal isOpen={isOpen} onClose={onClose} />
     </Container>
   ) : (
     <></>

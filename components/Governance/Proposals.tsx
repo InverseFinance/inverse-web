@@ -10,7 +10,6 @@ export const Proposals = () => {
 
   return proposals ? (
     <Container
-      w="4xl"
       label="Governance Proposals"
       description="Participate in governance of the DAO"
       href="https://docs.inverse.finance/governance"
@@ -37,7 +36,6 @@ export const ActiveProposals = () => {
 
   return proposals ? (
     <Container
-      w="4xl"
       label="Active Proposals"
       description="Participate in governance of the DAO"
       href="https://docs.inverse.finance/governance"
@@ -66,7 +64,7 @@ export const RecentProposals = () => {
     .slice(0, 7)
 
   return proposals ? (
-    <Container w="4xl" label="Recent Proposals">
+    <Container label="Recent Proposals">
       <Stack w="full" spacing={1}>
         {recent.map((proposal: Proposal) => (
           <ProposalPreview key={proposal.id} proposal={proposal} />

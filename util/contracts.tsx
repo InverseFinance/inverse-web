@@ -11,7 +11,7 @@ import {
   INV_ABI,
 } from '@inverse/abis'
 import { providers } from '@0xsequence/multicall'
-import { ANCHOR_TOKENS, ANCHOR_STABILIZER, COMPTROLLER, GOVERNANCE, VAULT_TOKENS, XINV, INV } from '@inverse/config'
+import { ANCHOR_TOKENS, STABILIZER, COMPTROLLER, GOVERNANCE, VAULT_TOKENS, XINV, INV } from '@inverse/config'
 
 export const getNewProvider = () => new InfuraProvider(process.env.NETWORK, process.env.INFURA_ID)
 
@@ -30,7 +30,7 @@ export const getAnchorContract = (address: string, provider: any) => getNewContr
 export const getAnchorContracts = (provider: any) =>
   ANCHOR_TOKENS.map((address) => getAnchorContract(address, provider))
 
-export const getStabilizerContract = (provider: any) => getNewContract(ANCHOR_STABILIZER, STABILIZER_ABI, provider)
+export const getStabilizerContract = (provider: any) => getNewContract(STABILIZER, STABILIZER_ABI, provider)
 
 export const getGovernanceContract = (provider: any) => getNewContract(GOVERNANCE, GOVERNANCE_ABI, provider)
 

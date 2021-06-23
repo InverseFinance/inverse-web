@@ -3,19 +3,17 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import Link from '@inverse/components/Link'
 
 export const Container = ({
-  w,
   label,
   description,
   href,
   children,
 }: {
-  w?: any
   label?: React.ReactNode
   description?: React.ReactNode
   href?: string
   children?: React.ReactNode
 }) => (
-  <Flex w={w} direction="column" p={6} pb={0} color="#fff">
+  <Flex w="full" direction="column" p={6} pb={0} color="#fff">
     <Flex minH={14} w="full" direction="column" justify="flex-end">
       {label ? (
         typeof label === 'string' ? (

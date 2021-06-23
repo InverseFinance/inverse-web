@@ -1,9 +1,10 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { useProposals } from '@inverse/hooks/useProposals'
 import { ProposalStatus, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { Avatar } from '../Avatar'
 import Container from '../Container'
+import { AgainstVotesModal, ForVotesModal } from './GovernanceModals'
 
 const Votes = ({
   votes,
@@ -58,8 +59,9 @@ const Votes = ({
   </Stack>
 )
 
-export const ForVotes = ({ id, onViewAll }: any) => {
+export const ForVotes = ({ id }: any) => {
   const { proposals, quorumVotes } = useProposals()
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   if (!proposals || !proposals[id - 1]) {
     return <></>
@@ -72,14 +74,16 @@ export const ForVotes = ({ id, onViewAll }: any) => {
     .sort((a: ProposalVote, b: ProposalVote) => b.votes - a.votes)
 
   return (
-    <Container w="sm" label="For Votes">
-      <Votes votes={forVotes} quorumVotes={quorumVotes} voters={forVoters} status={status} onViewAll={onViewAll} />
+    <Container label="For Votes">
+      <Votes votes={forVotes} quorumVotes={quorumVotes} voters={forVoters} status={status} onViewAll={onOpen} />
+      <ForVotesModal isOpen={isOpen} onClose={onClose} id={id} />
     </Container>
   )
 }
 
-export const AgainstVotes = ({ id, onViewAll }: any) => {
+export const AgainstVotes = ({ id }: any) => {
   const { proposals, quorumVotes } = useProposals()
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   if (!proposals || !proposals[id - 1]) {
     return <></>
@@ -92,14 +96,9 @@ export const AgainstVotes = ({ id, onViewAll }: any) => {
     .sort((a: ProposalVote, b: ProposalVote) => b.votes - a.votes)
 
   return (
-    <Container w="sm" label="Against Votes">
-      <Votes
-        votes={againstVotes}
-        quorumVotes={quorumVotes}
-        voters={againstVoters}
-        status={status}
-        onViewAll={onViewAll}
-      />
+    <Container label="Against Votes">
+      <Votes votes={againstVotes} quorumVotes={quorumVotes} voters={againstVoters} status={status} onViewAll={onOpen} />
+      <AgainstVotesModal isOpen={isOpen} onClose={onClose} id={id} />
     </Container>
   )
 }
