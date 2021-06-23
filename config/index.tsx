@@ -1,6 +1,6 @@
-import { COMPTROLLER_ABI } from '@inverse/abis'
 import { mainnetConfig } from './mainnet'
 
+// TODO: Clean-up config
 const config = mainnetConfig
 
 export const START_BLOCK = 11498340

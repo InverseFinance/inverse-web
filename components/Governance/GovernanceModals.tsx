@@ -1,11 +1,22 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Web3Provider } from '@ethersproject/providers'
+import { GOVERNANCE_ABI, INV_ABI } from '@inverse/abis'
+import { GOVERNANCE, INV } from '@inverse/config'
 import { useDelegates } from '@inverse/hooks/useDelegates'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposals } from '@inverse/hooks/useProposals'
 import { Delegate, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
-import { commify } from 'ethers/lib/utils'
+import { useWeb3React } from '@web3-react/core'
+import { Contract } from 'ethers'
+import { commify, isAddress } from 'ethers/lib/utils'
+import { useState } from 'react'
 import { Avatar } from '../Avatar'
-import { Modal } from '../Modal'
+import { ModalButton } from '../Button'
+import { Input } from '../Input'
+import Link from '../Link'
+import { Modal, ModalTabs } from '../Modal'
 
 enum VoteType {
   for = 'For',
@@ -119,6 +130,123 @@ export const DelegatesModal = ({ isOpen, onClose }: any) => {
             </Flex>
           </Flex>
         ))}
+      </Stack>
+    </Modal>
+  )
+}
+
+export const VoteModal = ({ isOpen, onClose, id }: any) => {
+  const { library } = useWeb3React<Web3Provider>()
+  const [support, setSupport] = useState(true)
+  const { proposals } = useProposals()
+
+  if (!proposals || !proposals[id - 1]) {
+    return <></>
+  }
+
+  return (
+    <Modal
+      onClose={onClose}
+      isOpen={isOpen}
+      header={
+        <Stack minWidth={24} direction="row" align="center">
+          <Text>Voting</Text>
+        </Stack>
+      }
+      footer={
+        <ModalButton
+          onClick={() => new Contract(GOVERNANCE, GOVERNANCE_ABI, library?.getSigner()).castVote(id, support)}
+        >
+          {support ? 'Vote For' : 'Vote Against'}
+        </ModalButton>
+      }
+    >
+      <Stack>
+        <ModalTabs
+          tabs={['For', 'Against']}
+          active={support ? 'For' : 'Against'}
+          onChange={(selected: string) => setSupport(selected === 'For')}
+        />
+      </Stack>
+    </Modal>
+  )
+}
+
+export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
+  const { account, library } = useWeb3React<Web3Provider>()
+  const [delegationType, setDelegationType] = useState('Self')
+  const [delegate, setDelegate] = useState('')
+  const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
+
+  if (!currentDelegate) {
+    return <></>
+  }
+
+  const handleSelfDelegate = () => {
+    new Contract(INV, INV_ABI, library?.getSigner()).delegate(account)
+  }
+
+  const handleDelegate = () => {}
+
+  return (
+    <Modal
+      onClose={onClose}
+      isOpen={isOpen}
+      header={
+        <Stack minWidth={24} direction="row" align="center">
+          <Text>Change Delegate Type</Text>
+        </Stack>
+      }
+      footer={
+        delegationType === 'Self' ? (
+          <ModalButton onClick={handleSelfDelegate} isDisabled={currentDelegate === account}>
+            Self-Delegate
+          </ModalButton>
+        ) : (
+          <ModalButton onClick={handleDelegate} isDisabled={!isAddress(delegate)}>
+            Change Delegate
+          </ModalButton>
+        )
+      }
+    >
+      <Stack>
+        <ModalTabs tabs={['Self', 'Delegate']} active={delegationType} onChange={setDelegationType} />
+        {delegationType === 'Self' ? (
+          <Flex></Flex>
+        ) : (
+          <Stack p={4} pt={2} direction="column" spacing={4}>
+            <Stack spacing={1}>
+              <Text fontWeight="semibold">Select Delegate</Text>
+              <Text fontSize="sm">
+                You can delegate your votes to another Ethereum address. By selecting this process, you will not send
+                your INV, only your voting rights. This process does not cost any gas.
+              </Text>
+              <Flex>
+                <Link
+                  href="https://docs.inverse.finance/governance/delegating-delegates-proposals-and-voting.-what-does-it-all-mean"
+                  fontSize="xs"
+                  color="purple.200"
+                  fontWeight="semibold"
+                  isExternal
+                >
+                  Learn More <ExternalLinkIcon />
+                </Link>
+              </Flex>
+            </Stack>
+            <Flex direction="column">
+              <Text fontSize="xs" fontWeight="semibold" color="purple.100">
+                Delegate Address
+              </Text>
+              <Input
+                value={delegate}
+                onChange={(e: any) => setDelegate(e.currentTarget.value)}
+                placeholder={currentDelegate}
+                fontSize="sm"
+                p={1.5}
+              />
+            </Flex>
+          </Stack>
+        )}
       </Stack>
     </Modal>
   )

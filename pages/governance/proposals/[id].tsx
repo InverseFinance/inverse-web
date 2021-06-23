@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
-import { AgainstVotes, ForVotes, ProposalActions, ProposalDetails } from '@inverse/components/Governance'
+import { AgainstVotes, ForVotes, ProposalActions, ProposalDetails, VoteButton } from '@inverse/components/Governance'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 import { useRouter } from 'next/dist/client/router'
@@ -30,6 +30,9 @@ export const Governance = () => {
           </Flex>
         </Flex>
         <Flex direction="column">
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <VoteButton id={id} />
+          </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <ForVotes id={id} />
           </Flex>

@@ -1,5 +1,6 @@
-import { ANCHOR_TOKENS, COMPTROLLER, INV, LENS, TOKENS, XINV } from '@inverse/config'
+import { ANCHOR_TOKENS, COMPTROLLER, GOVERNANCE, INV, LENS, TOKENS, XINV } from '@inverse/config'
 
+// TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
   'function claimComp(address) public',
   'function compBorrowerIndex(address, address) public view returns (uint256)',
@@ -46,6 +47,8 @@ export const INV_ABI = [
   'function allowance(address, address) external view returns (uint256)',
   'function approve(address, uint256)',
   'function balanceOf(address) external view returns (uint256)',
+  'function delegate(address)',
+  'function delegates(address) external view returns (address)',
   'function getCurrentVotes(address) external view returns (uint96)',
   'event Transfer(address indexed from, address indexed to, uint256 amount)',
   'event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate)',
@@ -53,6 +56,8 @@ export const INV_ABI = [
 ]
 
 export const GOVERNANCE_ABI = [
+  'function castVote(uint256, bool)',
+  'function getReceipt(uint256, address) public view returns (bool, bool, uint256)',
   'function proposalCount() public view returns (uint256)',
   'function proposals(uint256) public view returns (uint256 id, address proposer, uint256 eta, uint256 startBlock, uint256 endBlock, uint256 forVotes, uint256 againstVotes, bool canceled, bool executed)',
   'function quorumVotes() public view returns (uint256)',
@@ -87,6 +92,7 @@ export const ABIs = new Map<string, any>(
     [
       [XINV, XINV_ABI],
       [COMPTROLLER, COMPTROLLER_ABI],
+      [GOVERNANCE, GOVERNANCE_ABI],
       [LENS, LENS_ABI],
     ],
     Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])

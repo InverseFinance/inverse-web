@@ -88,7 +88,6 @@ export const ProposalDetails = ({ id }: { id: number }) => {
 
   return (
     <Container
-      w="4xl"
       label={title}
       description={
         <Stack direction="row" align="center" spacing={1}>
@@ -117,7 +116,10 @@ export const ProposalDetails = ({ id }: { id: number }) => {
         </Flex>
         <Flex w="full">
           <ReactMarkdown className="markdown-body">
-            {description.replace(/(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+/, '[(Link)]($1)')}
+            {description.replace(
+              /(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+/,
+              (m: string) => `[(Link)](${m})`
+            )}
           </ReactMarkdown>
         </Flex>
       </Stack>
@@ -135,7 +137,7 @@ export const ProposalActions = ({ id }: { id: number }) => {
   const { functions } = proposals[id - 1]
 
   return (
-    <Container w="4xl" label="Actions">
+    <Container label="Actions">
       <Stack w="full" overflowX="auto" spacing={0} direction="column" wrap="wrap" shouldWrapChildren>
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
           const callDatas = new AbiCoder()

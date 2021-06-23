@@ -1,9 +1,9 @@
 import { Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { Input } from '../Input'
-import { Modal } from '../Modal'
+import { Modal, ModalTabs } from '../Modal'
 import { AnchorStats } from './AnchorStats'
 import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
 import { usePrices } from '@inverse/hooks/usePrices'
@@ -138,19 +138,13 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
           </Flex>
           <Flex w="full" align="center">
             <MaxButton onClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}>MAX</MaxButton>
-            <Input value={amount} onChange={(e: any) => setAmount(e.target.value)} />
+            <Input value={amount} onChange={(e: any) => setAmount(e.target.value)} placeholder="0" />
             <Flex fontSize="lg" fontWeight="semibold" ml={2} color="purple.100">
               {asset.underlying.symbol}
             </Flex>
           </Flex>
         </Stack>
-        <Flex w="full" cursor="pointer" borderBottomColor="purple.900" borderBottomWidth={2}>
-          {operations.map((op: any) => (
-            <Option key={op} isActive={operation === op} onClick={() => setOperation(op)}>
-              {op}
-            </Option>
-          ))}
-        </Flex>
+        <ModalTabs tabs={operations} active={operation} onChange={setOperation} />
         <AnchorStats operation={operation} asset={asset} amount={amount} />
       </Stack>
     </Modal>

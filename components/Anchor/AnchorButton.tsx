@@ -12,7 +12,7 @@ import { ModalButton } from '../Button'
 import { AnchorOperations } from './AnchorModals'
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
-  const { account, active, library } = useWeb3React<Web3Provider>()
+  const { account, library } = useWeb3React<Web3Provider>()
   const { markets } = useAccountMarkets()
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()

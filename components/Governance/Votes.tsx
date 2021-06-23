@@ -6,6 +6,8 @@ import { Avatar } from '../Avatar'
 import Container from '../Container'
 import { AgainstVotesModal, ForVotesModal } from './GovernanceModals'
 
+const MAX_PREVIEW = 5
+
 const Votes = ({
   votes,
   quorumVotes,
@@ -28,7 +30,7 @@ const Votes = ({
           : `${votes >= 1000 ? `${(votes / 1000).toFixed(2)}k` : votes.toFixed(0)} votes`}
       </Text>
     </Flex>
-    {voters.slice(0, 5).map(({ voter, votes }: ProposalVote) => (
+    {voters.slice(0, MAX_PREVIEW).map(({ voter, votes }: ProposalVote) => (
       <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
         <Stack direction="row" align="center">
           <Avatar address={voter} boxSize={7} />
@@ -41,21 +43,23 @@ const Votes = ({
         </Text>
       </Flex>
     ))}
-    <Flex
-      cursor="pointer"
-      w="full"
-      p={2}
-      justify="center"
-      fontSize="xs"
-      fontWeight="semibold"
-      borderRadius={8}
-      textTransform="uppercase"
-      color="purple.100"
-      onClick={onViewAll}
-      _hover={{ bgColor: 'purple.900' }}
-    >
-      View All
-    </Flex>
+    {voters.length > MAX_PREVIEW && (
+      <Flex
+        cursor="pointer"
+        w="full"
+        p={2}
+        justify="center"
+        fontSize="xs"
+        fontWeight="semibold"
+        borderRadius={8}
+        textTransform="uppercase"
+        color="purple.100"
+        onClick={onViewAll}
+        _hover={{ bgColor: 'purple.900' }}
+      >
+        View All
+      </Flex>
+    )}
   </Stack>
 )
 
