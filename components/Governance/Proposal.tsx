@@ -39,7 +39,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
         borderRadius={8}
         _hover={{ bgColor: 'purple.900' }}
       >
-        <Flex w="lg" direction="column">
+        <Flex w="md" direction="column">
           <Text w="full" fontWeight="semibold" fontSize="lg" isTruncated>
             {title}
           </Text>
@@ -97,9 +97,9 @@ export const ProposalDetails = ({ id }: { id: number }) => {
               {status}
             </Flex>
           </Badge>
-          <Text fontSize="sm">{`Proposal #${id.toString().padStart(3, '0')}`}</Text>
-          <Text>-</Text>
-          <Text>{moment(startTimestamp, 'x').format('MMM Do, YYYY')}</Text>
+          <Text fontSize="sm">{`#${id.toString().padStart(3, '0')} - ${moment(startTimestamp, 'x').format(
+            'MMM Do, YYYY'
+          )}`}</Text>
         </Stack>
       }
     >
@@ -136,54 +136,46 @@ export const ProposalActions = ({ id }: { id: number }) => {
 
   return (
     <Container w="4xl" label="Actions">
-      <Stack
-        w="full"
-        spacing={0}
-        direction={{ base: 'column', md: 'row' }}
-        wrap="wrap"
-        shouldWrapChildren
-        overflowX="auto"
-      >
+      <Stack w="full" overflowX="auto" spacing={0} direction="column" wrap="wrap" shouldWrapChildren>
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
           const callDatas = new AbiCoder()
             .decode(FunctionFragment.from(signature).inputs, callData)
             .toString()
             .split(',')
 
-          const sigTypes = signature.match(/\(([^)]+)\)/)
-          const types = sigTypes ? sigTypes[1].split(',') : []
-
           return (
-            <Stack w={{ base: 56, md: 'sm' }} m={2} spacing={1}>
-              <Flex
-                overflowX="auto"
-                fontSize="xs"
-                fontWeight="semibold"
-                textTransform="uppercase"
-                color="purple.200"
-              >{`Action ${i + 1}`}</Flex>
-              <Flex direction={{ base: 'column', sm: 'row' }}>
-                <Link href={`https://etherscan.io/address/${target}`} fontSize="15px" fontWeight="semibold">
-                  {CONTRACTS[target] || smallAddress(target)}
-                </Link>
-                <Flex w="full" fontSize="sm" fontWeight="medium" wrap="wrap">{`.${signature}`}</Flex>
-              </Flex>
-              <Flex w="full" direction="column">
-                {callDatas.map((data: any, i: number) => (
-                  <Stack w="full" direction="row" align="center">
-                    <Text fontSize="xs" textTransform="uppercase" color="purple.200">
-                      {types[i]}
-                    </Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {isAddress(data) ? (
-                        <Link href={`https://etherscan.io/address/${data}`}>{smallAddress(data)}</Link>
+            <Stack w={56} m={2}>
+              <Stack spacing={1} w="full">
+                <Flex fontSize="xs" fontWeight="semibold" textTransform="uppercase" color="purple.200">{`Action ${
+                  i + 1
+                }`}</Flex>
+                <Flex direction="column">
+                  <Flex w="full" fontSize="15px">
+                    <Link href={`https://etherscan.io/address/${target}`} color="purple.100" fontWeight="semibold">
+                      {CONTRACTS[target] || target}
+                    </Link>
+                    <Flex fontWeight="medium">{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>
+                  </Flex>
+                  <Flex w="full" direction="column" fontSize="sm" fontWeight="medium" paddingLeft={4}>
+                    {callDatas.map((data: string, i) =>
+                      isAddress(data) ? (
+                        <Flex>
+                          <Link key={i} href={`https://etherscan.io/address/${data}`}>
+                            {data}
+                            {i + 1 !== callDatas.length ? ',' : ''}
+                          </Link>
+                        </Flex>
                       ) : (
-                        <Text>{data}</Text>
-                      )}
-                    </Text>
-                  </Stack>
-                ))}
-              </Flex>
+                        <Text key={i}>
+                          {data}
+                          {i + 1 !== callDatas.length ? ',' : ''}
+                        </Text>
+                      )
+                    )}
+                  </Flex>
+                  {callDatas[0] && <Text>)</Text>}
+                </Flex>
+              </Stack>
             </Stack>
           )
         })}

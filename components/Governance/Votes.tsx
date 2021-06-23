@@ -10,11 +10,13 @@ const Votes = ({
   quorumVotes,
   status,
   voters,
+  onViewAll,
 }: {
   votes: number
   quorumVotes: number
   status: ProposalStatus
   voters: ProposalVote[]
+  onViewAll: any
 }) => (
   <Stack w="full">
     <Flex justify="space-between" p={2}>
@@ -48,6 +50,7 @@ const Votes = ({
       borderRadius={8}
       textTransform="uppercase"
       color="purple.100"
+      onClick={onViewAll}
       _hover={{ bgColor: 'purple.900' }}
     >
       View All
@@ -55,7 +58,7 @@ const Votes = ({
   </Stack>
 )
 
-export const ForVotes = ({ id }: { id: number }) => {
+export const ForVotes = ({ id, onViewAll }: any) => {
   const { proposals, quorumVotes } = useProposals()
 
   if (!proposals || !proposals[id - 1]) {
@@ -70,12 +73,12 @@ export const ForVotes = ({ id }: { id: number }) => {
 
   return (
     <Container w="sm" label="For Votes">
-      <Votes votes={forVotes} quorumVotes={quorumVotes} voters={forVoters} status={status} />
+      <Votes votes={forVotes} quorumVotes={quorumVotes} voters={forVoters} status={status} onViewAll={onViewAll} />
     </Container>
   )
 }
 
-export const AgainstVotes = ({ id }: { id: number }) => {
+export const AgainstVotes = ({ id, onViewAll }: any) => {
   const { proposals, quorumVotes } = useProposals()
 
   if (!proposals || !proposals[id - 1]) {
@@ -90,7 +93,13 @@ export const AgainstVotes = ({ id }: { id: number }) => {
 
   return (
     <Container w="sm" label="Against Votes">
-      <Votes votes={againstVotes} quorumVotes={quorumVotes} voters={againstVoters} status={status} />
+      <Votes
+        votes={againstVotes}
+        quorumVotes={quorumVotes}
+        voters={againstVoters}
+        status={status}
+        onViewAll={onViewAll}
+      />
     </Container>
   )
 }

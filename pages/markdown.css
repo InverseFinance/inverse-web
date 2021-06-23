@@ -246,7 +246,7 @@
 }
 
 .markdown-body p {
-  word-break: break-all;
+  word-break: break-word;
   margin-top: 0;
   margin-bottom: 10px;
 }
