@@ -6,9 +6,8 @@ import { injectedConnector } from '@inverse/util/web3'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config'
-import { CTOKEN_ABI, XINV_ABI } from '@inverse/abis'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { smallAddress } from '@inverse/util'
 
 const NAV_ITEMS = [
@@ -75,6 +74,11 @@ const AppNavConnect = () => {
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
+  const { activate } = useWeb3React<Web3Provider>()
+
+  useEffect(() => {
+    activate(injectedConnector)
+  }, [])
 
   return (
     <>
