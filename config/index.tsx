@@ -44,6 +44,10 @@ export const XSUSHI = config.XSUSHI
 export const WBTC = config.WBTC
 export const XINV = config.XINV
 export const STETH = config.STETH
+export const THREECRV = config.THREECRV
+
+// Rewards
+export const DOLA3CRV = config.staking.dola3crv
 
 export const TOKENS: any = config.tokens
 

@@ -8,6 +8,7 @@ export const XSUSHI = '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272'
 export const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
 export const XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE'
 export const STETH = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
+export const THREECRV = '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490'
 
 export const mainnetConfig = {
   INV,
@@ -20,6 +21,7 @@ export const mainnetConfig = {
   WBTC,
   XINV,
   STETH,
+  THREECRV,
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
     vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
@@ -40,6 +42,9 @@ export const mainnetConfig = {
       yfi: '0xde2af899040536884e062D3a334F2dD36F34b4a4',
       steth: '0xA978D807614c3BFB0f90bC282019B2898c617880',
     },
+  },
+  staking: {
+    dola3crv: '0xA88948217f21175337226d94f1A47b7A01EEd197',
   },
   governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
   tokens: {
@@ -121,6 +126,14 @@ export const mainnetConfig = {
       symbol: 'stETH',
       coingeckoId: 'staked-ether',
       image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
+      decimals: 18,
+    },
+    [THREECRV]: {
+      address: THREECRV,
+      name: 'lp-3pool-curve',
+      symbol: '3CRV',
+      coingeckoId: 'lp-3pool-curve',
+      image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
     },
   },

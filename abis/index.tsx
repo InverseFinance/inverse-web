@@ -1,4 +1,4 @@
-import { ANCHOR_TOKENS, COMPTROLLER, GOVERNANCE, INV, LENS, TOKENS, XINV } from '@inverse/config'
+import { ANCHOR_TOKENS, COMPTROLLER, DOLA3CRV, GOVERNANCE, INV, LENS, TOKENS, XINV } from '@inverse/config'
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -70,11 +70,18 @@ export const GOVERNANCE_ABI = [
 export const LENS_ABI = [
   'function getCompBalanceMetadataExt(address, address, address) returns (uint256, uint256, uint256, uint256)',
 ]
-
 export const STABILIZER_ABI = [
   'function buy(uint256)',
   'function sell(uint256)',
   'function supply() external view returns (uint256)',
+]
+
+export const STAKING_ABI = [
+  'function balanceOf() external view returns (uint256)',
+  'function earned() external view returns (uint256)',
+  'function getReward()',
+  'function stake(uint256)',
+  'function withdraw(uint256)',
 ]
 
 export const VAULT_ABI = [
@@ -99,6 +106,7 @@ export const ABIs = new Map<string, any>(
       [COMPTROLLER, COMPTROLLER_ABI],
       [GOVERNANCE, GOVERNANCE_ABI],
       [LENS, LENS_ABI],
+      [DOLA3CRV, STAKING_ABI],
     ],
     Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
   )

@@ -2,7 +2,7 @@ import { Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { Input } from '../Input'
+import { BalanceInput, Input } from '../Input'
 import { Modal, ModalTabs } from '../Modal'
 import { AnchorStats } from './AnchorStats'
 import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
@@ -16,38 +16,6 @@ export enum AnchorOperations {
   borrow = 'Borrow',
   repay = 'Repay',
 }
-
-const MaxButton = (props: any) => (
-  <Flex
-    cursor="pointer"
-    position="absolute"
-    left={0}
-    fontWeight="extrabold"
-    fontSize="sm"
-    ml={10}
-    color="purple.100"
-    zIndex="docked"
-    _hover={{ color: '#fff' }}
-    {...props}
-  />
-)
-
-const Option = ({ isActive, onClick, children }: any) => (
-  <Flex
-    w="full"
-    justify="center"
-    borderBottomColor="#fff"
-    borderBottomWidth={isActive ? 3 : 0}
-    color={isActive ? '#fff' : 'purple.100'}
-    pb={2}
-    fontSize="13px"
-    fontWeight="bold"
-    textTransform="uppercase"
-    onClick={onClick}
-  >
-    {children}
-  </Flex>
-)
 
 export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
   const [operation, setOperation] = useState(operations[0])
@@ -136,13 +104,12 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
               </Text>
             </Stack>
           </Flex>
-          <Flex w="full" align="center">
-            <MaxButton onClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}>MAX</MaxButton>
-            <Input value={amount} onChange={(e: any) => setAmount(e.target.value)} placeholder="0" />
-            <Flex fontSize="lg" fontWeight="semibold" ml={2} color="purple.100">
-              {asset.underlying.symbol}
-            </Flex>
-          </Flex>
+          <BalanceInput
+            value={amount}
+            onChange={(e: any) => setAmount(e.currentTarget.value)}
+            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
+            label={asset.underlying.symbol}
+          />
         </Stack>
         <ModalTabs tabs={operations} active={operation} onChange={setOperation} />
         <AnchorStats operation={operation} asset={asset} amount={amount} />

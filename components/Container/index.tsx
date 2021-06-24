@@ -35,7 +35,7 @@ export const Container = ({
               {description} <ExternalLinkIcon />
             </Link>
           </Flex>
-        ) : typeof label === 'string' ? (
+        ) : typeof description === 'string' ? (
           <Text fontSize="sm">{description}</Text>
         ) : (
           description

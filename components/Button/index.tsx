@@ -111,4 +111,25 @@ export const ToggleButton = ({ onClick, active, options }: any) => (
   </Flex>
 )
 
+export const NavButtons = ({ width, options, active, onClick }: any) => (
+  <Flex bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
+    {options.map((option: string) => (
+      <Flex
+        w={width}
+        justify="center"
+        pt={1}
+        pb={1}
+        borderRadius={8}
+        fontWeight="semibold"
+        fontSize="sm"
+        color="purple.100"
+        onClick={() => onClick(option)}
+        bgColor={option === active ? 'purple.700' : 'purple.900'}
+      >
+        {option}
+      </Flex>
+    ))}
+  </Flex>
+)
+
 export default LinkButton

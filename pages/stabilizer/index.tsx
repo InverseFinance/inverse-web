@@ -2,9 +2,9 @@ import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { STABILIZER_ABI } from '@inverse/abis'
-import { SubmitButton } from '@inverse/components/Button'
+import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
-import { Input } from '@inverse/components/Input'
+import { BalanceInput, Input } from '@inverse/components/Input'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 import { DAI, DOLA, STABILIZER, TOKENS } from '@inverse/config'
@@ -13,6 +13,11 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber, Contract } from 'ethers'
 import { commify, formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
+
+enum StabilizerOptions {
+  buy = 'Buy',
+  sell = 'Sell',
+}
 
 const StabilizerOverviewField = ({ label, children }: any) => (
   <Flex justify="space-between">
@@ -30,7 +35,7 @@ const StabilizerDescription = () => {
 
   return (
     <Container noPadding>
-      <Stack spacing={6}>
+      <Stack spacing={4}>
         <Stack>
           <Text fontWeight="semibold">What is the Stabilizer?</Text>
           <Text fontSize="sm">
@@ -49,12 +54,20 @@ const StabilizerDescription = () => {
 }
 
 const StabilizerBuySell = () => {
-  const [selectedOption, setSelectedOption] = useState<string>('Buy')
+  const [selectedOption, setSelectedOption] = useState<string>(StabilizerOptions.buy)
   const { active, library } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
   const [amount, setAmount] = useState<any>('')
 
   const parsedAmount = amount && !isNaN(amount) ? parseUnits(amount) : BigNumber.from(0)
+
+  const label = selectedOption === StabilizerOptions.buy ? 'DAI' : 'DOLA'
+
+  const max = !balances
+    ? 0
+    : selectedOption === StabilizerOptions.buy
+    ? parseFloat(formatUnits(balances[DAI]))
+    : parseFloat(formatUnits(balances[DOLA]))
 
   return (
     <Container
@@ -64,30 +77,24 @@ const StabilizerBuySell = () => {
     >
       <Stack w="full">
         <Flex justify="space-between">
-          <Flex w={40} bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
-            {['Buy', 'Sell'].map((option: string) => (
-              <Flex
-                w="full"
-                justify="center"
-                pt={1}
-                pb={1}
-                borderRadius={8}
-                fontWeight="medium"
-                color="purple.100"
-                onClick={() => setSelectedOption(option)}
-                bgColor={option === selectedOption ? 'purple.700' : 'purple.900'}
-              >
-                {option}
-              </Flex>
-            ))}
-          </Flex>
-          <Stack direction={selectedOption === 'Buy' ? 'row' : 'row-reverse'} spacing={1} align="center" ml={2}>
+          <NavButtons
+            width={16}
+            options={[StabilizerOptions.buy, StabilizerOptions.sell]}
+            active={selectedOption}
+            onClick={setSelectedOption}
+          />
+          <Stack
+            direction={selectedOption === StabilizerOptions.buy ? 'row-reverse' : 'row'}
+            spacing={1}
+            align="center"
+            ml={2}
+          >
             <Image w={6} h={6} src={TOKENS[DOLA].image} />
             <ChevronRightIcon boxSize={5} />
             <Image w={5} h={5} src={TOKENS[DAI].image} />
           </Stack>
         </Flex>
-        <Flex direction="column" pt={4} pb={2}>
+        <Flex direction="column" pt={2} pb={2}>
           <Flex justify="space-between">
             <Text fontSize="13px" fontWeight="semibold" color="purple.100">
               Amount
@@ -98,12 +105,17 @@ const StabilizerBuySell = () => {
                   Wallet:
                 </Text>
                 <Text fontSize="13px" fontWeight="semibold">
-                  {`${parseFloat(formatUnits(balances[DOLA])).toFixed(2)} DOLA`}
+                  {`${max.toFixed(2)} ${label}`}
                 </Text>
               </Stack>
             )}
           </Flex>
-          <Input placeholder="0" value={amount} onChange={(e: any) => setAmount(e.currentTarget.value)} />
+          <BalanceInput
+            value={amount}
+            onChange={(e: any) => setAmount(e.currentTarget.value)}
+            onMaxClick={() => setAmount((Math.floor(max * 1e8) / 1e8).toString())}
+            label={label}
+          />
         </Flex>
         <SubmitButton
           isDisabled={!active || !amount || parsedAmount.isZero()}
