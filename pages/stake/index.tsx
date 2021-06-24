@@ -126,7 +126,10 @@ const Stake = () => {
             />
           </Flex>
         )}
-        <SubmitButton isDisabled={!active || !amount || parsedAmount.isZero()} onClick={handleSubmit}>
+        <SubmitButton
+          isDisabled={!active || !amount || parsedAmount.isZero() || parseFloat(amount) > max()}
+          onClick={handleSubmit}
+        >
           {selectedOption}
         </SubmitButton>
       </Stack>

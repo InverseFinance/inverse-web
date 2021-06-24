@@ -118,7 +118,7 @@ const StabilizerBuySell = () => {
           />
         </Flex>
         <SubmitButton
-          isDisabled={!active || !amount || parsedAmount.isZero()}
+          isDisabled={!active || !amount || parsedAmount.isZero() || parseFloat(amount) > max}
           onClick={() => new Contract(STABILIZER, STABILIZER_ABI, library?.getSigner()).buy(parsedAmount)}
         >
           {`${selectedOption} DOLA`}
