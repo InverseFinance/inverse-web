@@ -1,5 +1,5 @@
 import { Badge, Flex, Stack, Text } from '@chakra-ui/react'
-import { useProposals } from '@inverse/hooks/useProposals'
+import { useProposal, useProposals } from '@inverse/hooks/useProposals'
 import Container from '../Container'
 import { Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import moment from 'moment'
@@ -22,7 +22,9 @@ const badgeColors: any = {
 }
 
 export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
-  const { title, id, etaTimestamp, endTimestamp, forVotes, againstVotes, status, voters } = proposal
+  const { title, id, etaTimestamp, endTimestamp, forVotes, againstVotes, status } = proposal
+
+  console.log(id)
 
   const totalVotes = forVotes + againstVotes
 
@@ -68,7 +70,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
               {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
             </Text>
           </Stack>
-          <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${voters?.length || 0} voters - ${
+          <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${
             totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
           } votes`}</Text>
         </Flex>
@@ -78,13 +80,13 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
 }
 
 export const ProposalDetails = ({ id }: { id: number }) => {
-  const { proposals } = useProposals()
+  const { proposal } = useProposal(id)
 
-  if (!proposals || !proposals[id - 1]) {
+  if (!proposal) {
     return <></>
   }
 
-  const { title, description, proposer, status, startTimestamp } = proposals[id - 1]
+  const { title, description, proposer, status, startTimestamp } = proposal
 
   return (
     <Container
@@ -128,13 +130,13 @@ export const ProposalDetails = ({ id }: { id: number }) => {
 }
 
 export const ProposalActions = ({ id }: { id: number }) => {
-  const { proposals } = useProposals()
+  const { proposal } = useProposal(id)
 
-  if (!proposals || !proposals[id - 1]) {
+  if (!proposal) {
     return <></>
   }
 
-  const { functions } = proposals[id - 1]
+  const { functions } = proposal
 
   return (
     <Container label="Actions">

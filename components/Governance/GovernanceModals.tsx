@@ -5,7 +5,8 @@ import { GOVERNANCE_ABI, INV_ABI } from '@inverse/abis'
 import { GOVERNANCE, INV } from '@inverse/config'
 import { useDelegates } from '@inverse/hooks/useDelegates'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { useProposals } from '@inverse/hooks/useProposals'
+import { useProposal, useProposals } from '@inverse/hooks/useProposals'
+import { useVoters } from '@inverse/hooks/useVoters'
 import { Delegate, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
@@ -24,13 +25,10 @@ enum VoteType {
 }
 
 export const VoteCountModal = ({ isOpen, onClose, id, voteType }: any) => {
-  const { proposals } = useProposals()
+  const { proposal } = useProposal(id)
+  const { voters } = useVoters(id)
 
-  if (!proposals || !proposals[id - 1]) {
-    return <></>
-  }
-
-  const { voters, forVotes, againstVotes } = proposals[id - 1]
+  const { forVotes, againstVotes } = proposal
 
   const votes = voters
     .filter(({ support }: ProposalVote) => (voteType === VoteType.for ? support : !support))
@@ -114,9 +112,6 @@ export const DelegatesModal = ({ isOpen, onClose }: any) => {
               <Flex direction="column">
                 <Text fontSize="sm" fontWeight="semibold">
                   {smallAddress(address)}
-                </Text>
-                <Text fontSize="sm" color="purple.100">
-                  {`${votes.length} votes`}
                 </Text>
               </Flex>
             </Stack>

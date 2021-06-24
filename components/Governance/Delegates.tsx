@@ -21,9 +21,6 @@ export const DelegatesPreview = () => {
                 <Text fontSize="sm" fontWeight="semibold">
                   {smallAddress(address)}
                 </Text>
-                <Text fontSize="sm" color="purple.100">
-                  {`${votes.length} votes`}
-                </Text>
               </Flex>
             </Stack>
             <Flex direction="column" align="flex-end">

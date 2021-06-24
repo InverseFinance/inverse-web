@@ -1,5 +1,6 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
-import { useProposals } from '@inverse/hooks/useProposals'
+import { useProposal, useProposals } from '@inverse/hooks/useProposals'
+import { useVoters } from '@inverse/hooks/useVoters'
 import { ProposalStatus, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { Avatar } from '../Avatar'
@@ -64,14 +65,16 @@ const Votes = ({
 )
 
 export const ForVotes = ({ id }: any) => {
-  const { proposals, quorumVotes } = useProposals()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { quorumVotes } = useProposals()
+  const { proposal } = useProposal(id)
+  const { voters } = useVoters(id)
 
-  if (!proposals || !proposals[id - 1]) {
+  if (!proposal || !voters) {
     return <></>
   }
 
-  const { voters, forVotes, status } = proposals[id - 1]
+  const { forVotes, status } = proposal
 
   const forVoters = voters
     .filter(({ support }: ProposalVote) => support)
@@ -86,14 +89,16 @@ export const ForVotes = ({ id }: any) => {
 }
 
 export const AgainstVotes = ({ id }: any) => {
-  const { proposals, quorumVotes } = useProposals()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { quorumVotes } = useProposals()
+  const { proposal } = useProposal(id)
+  const { voters } = useVoters(id)
 
-  if (!proposals || !proposals[id - 1]) {
+  if (!proposal || !voters) {
     return <></>
   }
 
-  const { voters, againstVotes, status } = proposals[id - 1]
+  const { againstVotes, status } = proposal
 
   const againstVoters = voters
     .filter(({ support }: ProposalVote) => !support)

@@ -3,31 +3,61 @@ import { getGovernanceContract, getNewMulticallProvider, getNewProvider } from '
 import { formatUnits } from 'ethers/lib/utils'
 import { ProposalStatus } from '@inverse/types'
 
+const GRACE_PERIOD = 1209600
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const provider = getNewMulticallProvider(getNewProvider())
   const governanceContract = getGovernanceContract(provider)
 
-  const [count, quorumVotes] = await Promise.all([governanceContract.proposalCount(), governanceContract.quorumVotes()])
+  const [blockNumber, count, quorumVotes] = await Promise.all([
+    provider.getBlockNumber(),
+    governanceContract.proposalCount(),
+    governanceContract.quorumVotes(),
+  ])
 
   const proposals = await Promise.all(
     [...Array(count.toNumber()).keys()].map((i) => governanceContract.proposals(i + 1))
   )
 
-  const [startBlocks, endBlocks, statuses, proposalEvents, voteEvents] = await Promise.all([
-    await Promise.all(proposals.map(({ startBlock }) => provider.getBlock(startBlock.toNumber()))),
-    await Promise.all(proposals.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))),
-    await Promise.all(proposals.map(({ id }) => governanceContract.state(id))),
-    await governanceContract.queryFilter(governanceContract.filters.ProposalCreated(null)),
-    await governanceContract.queryFilter(governanceContract.filters.VoteCast()),
-  ])
+  console.log(proposals)
+
+  const startBlockPromises: any[] = proposals.map(({ startBlock }) => provider.getBlock(startBlock.toNumber()))
+  const endBlockPromises: any[] = proposals.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))
+
+  const promises: any = [governanceContract.queryFilter(governanceContract.filters.ProposalCreated())].concat(
+    startBlockPromises,
+    endBlockPromises
+  )
+
+  const data = await Promise.all(promises)
+
+  const proposalEvents: any = data[0]
+  const startBlocks: any[] = data.slice(1, count.toNumber() + 1)
+  const endBlocks: any[] = data.slice(1 + count.toNumber(), 2 * count.toNumber() + 1)
 
   res.status(200).json({
     quorumVotes: parseFloat(formatUnits(quorumVotes)),
     proposals: proposals.map(
       ({ id, proposer, eta, startBlock, endBlock, forVotes, againstVotes, canceled, executed }, i) => {
         const { args }: any = proposalEvents.find(({ args }: any) => args.id.eq(id))
-        const votes = voteEvents.filter(({ args }: any) => args.proposalId.eq(id))
-        const status: number = statuses[i].toNumber()
+
+        let status = ProposalStatus.queued
+        if (canceled) {
+          status = ProposalStatus.canceled
+        } else if (executed) {
+          status = ProposalStatus.executed
+        } else if (blockNumber <= startBlock.toNumber()) {
+          status = ProposalStatus.pending
+        } else if (blockNumber <= endBlock.toNumber()) {
+          status = ProposalStatus.active
+        } else if (forVotes.lte(againstVotes) || forVotes.lte(quorumVotes)) {
+          status = ProposalStatus.defeated
+        } else if (eta.isZero()) {
+          status = ProposalStatus.succeeded
+        } else if (Date.now() >= eta.toNumber() + GRACE_PERIOD) {
+          status = ProposalStatus.expired
+        }
+
         return {
           id: id.toNumber(),
           proposer: proposer,
@@ -42,17 +72,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           executed: executed,
           title: args.description.split('\n')[0].split('# ')[1],
           description: args.description.split('\n').slice(1).join('\n'),
-          status: Object.values(ProposalStatus)[status],
+          status,
           functions: args.targets.map((target: any, i: number) => ({
             target,
             signature: args.signatures[i],
             callData: args.calldatas[i],
-          })),
-          voters: votes.map((vote: any) => ({
-            id: vote.args[1].toNumber(),
-            voter: vote.args[0],
-            support: vote.args[2],
-            votes: parseFloat(formatUnits(vote.args[3])),
           })),
         }
       }

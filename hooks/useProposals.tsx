@@ -1,4 +1,4 @@
-import { Proposal, ProposalVote } from '@inverse/types'
+import { Proposal } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 
@@ -10,5 +10,17 @@ export const useProposals = () => {
     proposals: data?.proposals,
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useProposal = (id: number) => {
+  const { proposals, isLoading, isError } = useProposals()
+
+  const proposal = proposals?.find((proposal: Proposal) => id === proposal.id)
+
+  return {
+    proposal,
+    isLoading,
+    isError,
   }
 }
