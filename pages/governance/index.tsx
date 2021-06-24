@@ -1,5 +1,11 @@
 import { Flex } from '@chakra-ui/react'
-import { ActiveProposals, RecentProposals, DelegatesPreview, VotingWallet } from '@inverse/components/Governance'
+import {
+  ActiveProposals,
+  RecentProposals,
+  DelegatesPreview,
+  VotingWallet,
+  Breakdown,
+} from '@inverse/components/Governance'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 
@@ -18,6 +24,9 @@ export const Governance = () => (
       <Flex direction="column">
         <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
           <VotingWallet />
+        </Flex>
+        <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          <Breakdown />
         </Flex>
         <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
           <DelegatesPreview />

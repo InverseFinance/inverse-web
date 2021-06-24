@@ -120,7 +120,7 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
           operation={operation}
           asset={asset}
           amount={amount}
-          isDisabled={!amount || !active || parseFloat(amount) > max()}
+          isDisabled={!amount || !active || isNaN(amount) || parseFloat(amount) > max()}
         />
       }
     >

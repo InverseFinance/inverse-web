@@ -1,7 +1,9 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ANCHOR_TOKENS, UNDERLYING, XINV } from '@inverse/config'
 import { Balances } from '@inverse/types'
+import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
+import useSWR from 'swr'
 import useEtherSWR from './useEtherSWR'
 
 export const useAccountBalances = () => {
@@ -71,6 +73,16 @@ export const useBorrowBalances = () => {
 
   return {
     balances,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useStabilizerBalance = () => {
+  const { data, error } = useSWR(`${process.env.API_URL}/stabilizer/balances`, fetcher)
+
+  return {
+    balance: data?.balances?.length && data.balances[0].balance,
     isLoading: !error && !data,
     isError: error,
   }

@@ -24,8 +24,6 @@ const badgeColors: any = {
 export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
   const { title, id, etaTimestamp, endTimestamp, forVotes, againstVotes, status } = proposal
 
-  console.log(id)
-
   const totalVotes = forVotes + againstVotes
 
   return (

@@ -74,7 +74,7 @@ export const OutlineButton = (props: any) => (
   />
 )
 
-export const ModalButton = (props: any) => (
+export const SubmitButton = (props: any) => (
   <Button
     w="full"
     bgColor="purple.600"

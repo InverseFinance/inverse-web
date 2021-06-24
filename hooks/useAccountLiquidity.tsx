@@ -39,7 +39,7 @@ export const useAccountLiquidity = () => {
   const { balances: borrowBalances } = useBorrowBalances()
   const { exchangeRates } = useExchangeRates()
 
-  if (!data || !prices || !supplyBalances || !borrowBalances || !exchangeRates) {
+  if (!data || !prices || !supplyBalances || !borrowBalances || !exchangeRates || !markets) {
     return {
       netApy: 0,
       usdSupply: 0,

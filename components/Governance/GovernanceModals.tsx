@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, Stack, Text, useClipboard } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { GOVERNANCE_ABI, INV_ABI } from '@inverse/abis'
 import { GOVERNANCE, INV } from '@inverse/config'
@@ -10,12 +10,13 @@ import { useVoters } from '@inverse/hooks/useVoters'
 import { Delegate, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
+import { Signer } from 'crypto'
 import { Contract } from 'ethers'
 import { commify, isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { Avatar } from '../Avatar'
-import { ModalButton } from '../Button'
-import { Input } from '../Input'
+import { SubmitButton } from '../Button'
+import { Input, Textarea } from '../Input'
 import Link from '../Link'
 import { Modal, ModalTabs } from '../Modal'
 
@@ -149,11 +150,11 @@ export const VoteModal = ({ isOpen, onClose, id }: any) => {
         </Stack>
       }
       footer={
-        <ModalButton
+        <SubmitButton
           onClick={() => new Contract(GOVERNANCE, GOVERNANCE_ABI, library?.getSigner()).castVote(id, support)}
         >
           {support ? 'Vote For' : 'Vote Against'}
-        </ModalButton>
+        </SubmitButton>
       }
     >
       <Stack>
@@ -168,10 +169,12 @@ export const VoteModal = ({ isOpen, onClose, id }: any) => {
 }
 
 export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
-  const { account, library } = useWeb3React<Web3Provider>()
-  const [delegationType, setDelegationType] = useState('Self')
+  const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const [delegationType, setDelegationType] = useState('Delegate')
   const [delegate, setDelegate] = useState('')
+  const [signature, setSignature] = useState('')
   const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
+  const { hasCopied, onCopy } = useClipboard(signature)
 
   if (!currentDelegate) {
     return <></>
@@ -181,7 +184,37 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
     new Contract(INV, INV_ABI, library?.getSigner()).delegate(account)
   }
 
-  const handleDelegate = () => {}
+  const handleDelegate = async () => {
+    const invContract = new Contract(INV, INV_ABI, library?.getSigner())
+
+    const domain = { name: 'Inverse DAO', chainId, verifyingContract: INV }
+
+    const types = {
+      Delegation: [
+        { name: 'delegatee', type: 'address' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'expiry', type: 'uint256' },
+      ],
+    }
+
+    const value = {
+      delegatee: delegate,
+      nonce: (await invContract.nonces(account)).toString(),
+      expiry: 10e9,
+    }
+
+    const signature = await library?.getSigner()._signTypedData(domain, types, value)
+
+    setSignature(
+      JSON.stringify({
+        sig: signature,
+        nonce: value.nonce,
+        expiry: value.expiry,
+        chainId,
+        signer: account,
+      })
+    )
+  }
 
   return (
     <Modal
@@ -194,21 +227,23 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
       }
       footer={
         delegationType === 'Self' ? (
-          <ModalButton onClick={handleSelfDelegate} isDisabled={currentDelegate === account}>
+          <SubmitButton onClick={handleSelfDelegate} isDisabled={currentDelegate === account}>
             Self-Delegate
-          </ModalButton>
-        ) : (
-          <ModalButton onClick={handleDelegate} isDisabled={!isAddress(delegate)}>
+          </SubmitButton>
+        ) : !signature ? (
+          <SubmitButton onClick={handleDelegate} isDisabled={!isAddress(delegate)}>
             Change Delegate
-          </ModalButton>
+          </SubmitButton>
+        ) : (
+          <SubmitButton onClick={onCopy}>{hasCopied ? 'Copied' : 'Copy'}</SubmitButton>
         )
       }
     >
       <Stack>
-        <ModalTabs tabs={['Self', 'Delegate']} active={delegationType} onChange={setDelegationType} />
+        <ModalTabs tabs={['Delegate', 'Self']} active={delegationType} onChange={setDelegationType} />
         {delegationType === 'Self' ? (
           <Flex></Flex>
-        ) : (
+        ) : !signature ? (
           <Stack p={4} pt={2} direction="column" spacing={4}>
             <Stack spacing={1}>
               <Text fontWeight="semibold">Select Delegate</Text>
@@ -239,6 +274,30 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
                 fontSize="sm"
                 p={1.5}
               />
+            </Flex>
+          </Stack>
+        ) : (
+          <Stack p={4} pt={2} direction="column" spacing={4}>
+            <Stack spacing={1}>
+              <Text fontWeight="semibold">Send to Delegate</Text>
+              <Text fontSize="sm">
+                To finalize your delegation, you need to copy the below data to your delegate. Your votes will not be
+                counted unless this is done.
+              </Text>
+              <Flex>
+                <Link
+                  href="https://docs.inverse.finance/governance/delegating-delegates-proposals-and-voting.-what-does-it-all-mean"
+                  fontSize="xs"
+                  color="purple.200"
+                  fontWeight="semibold"
+                  isExternal
+                >
+                  Learn More <ExternalLinkIcon />
+                </Link>
+              </Flex>
+            </Stack>
+            <Flex direction="column">
+              <Textarea value={signature} fontSize="sm" p={1.5} />
             </Flex>
           </Stack>
         )}

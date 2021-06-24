@@ -6,15 +6,17 @@ export const Container = ({
   label,
   description,
   href,
+  noPadding,
   children,
 }: {
   label?: React.ReactNode
   description?: React.ReactNode
   href?: string
+  noPadding?: boolean
   children?: React.ReactNode
 }) => (
   <Flex w="full" direction="column" p={6} pb={0} color="#fff">
-    <Flex minH={14} w="full" direction="column" justify="flex-end">
+    <Flex minH={noPadding ? '' : 14} w="full" direction="column" justify="flex-end">
       {label ? (
         typeof label === 'string' ? (
           <Text fontSize="xl" fontWeight="bold">

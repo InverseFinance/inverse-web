@@ -19,8 +19,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     [...Array(count.toNumber()).keys()].map((i) => governanceContract.proposals(i + 1))
   )
 
-  console.log(proposals)
-
   const startBlockPromises: any[] = proposals.map(({ startBlock }) => provider.getBlock(startBlock.toNumber()))
   const endBlockPromises: any[] = proposals.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))
 

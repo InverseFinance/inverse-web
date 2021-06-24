@@ -6,7 +6,7 @@ import { useProposals } from '@inverse/hooks/useProposals'
 import { ProposalStatus } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
-import { ModalButton } from '../Button'
+import { SubmitButton } from '../Button'
 import { VoteModal } from './GovernanceModals'
 
 export const VoteButton = ({ id }: { id: number }) => {
@@ -28,13 +28,13 @@ export const VoteButton = ({ id }: { id: number }) => {
   return (
     <Flex w="full" m={6} mt={9} mb={0}>
       {status !== ProposalStatus.active ? (
-        <ModalButton color="#fff" isDisabled={true}>
+        <SubmitButton color="#fff" isDisabled={true}>
           {hasVoted ? `Voted ${support ? 'for' : 'against'} with ${votes} INV` : 'Did not vote'}
-        </ModalButton>
+        </SubmitButton>
       ) : (
-        <ModalButton color="#fff" onClick={onOpen}>
+        <SubmitButton color="#fff" onClick={onOpen}>
           Cast Vote
-        </ModalButton>
+        </SubmitButton>
       )}
       <VoteModal isOpen={isOpen} onClose={onClose} id={id} />
     </Flex>

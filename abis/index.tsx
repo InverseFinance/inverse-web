@@ -50,6 +50,7 @@ export const INV_ABI = [
   'function delegate(address)',
   'function delegates(address) external view returns (address)',
   'function getCurrentVotes(address) external view returns (uint96)',
+  'function nonces(address) external view returns (uint256)',
   'event Transfer(address indexed from, address indexed to, uint256 amount)',
   'event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate)',
   'event DelegateVotesChanged(address indexed delegate, uint previousBalance, uint newBalance)',
@@ -70,7 +71,11 @@ export const LENS_ABI = [
   'function getCompBalanceMetadataExt(address, address, address) returns (uint256, uint256, uint256, uint256)',
 ]
 
-export const STABILIZER_ABI = ['function supply() external view returns (uint256)']
+export const STABILIZER_ABI = [
+  'function buy(uint256)',
+  'function sell(uint256)',
+  'function supply() external view returns (uint256)',
+]
 
 export const VAULT_ABI = [
   'function totalSupply() external view returns (uint256)',
