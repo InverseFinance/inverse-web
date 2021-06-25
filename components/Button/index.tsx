@@ -115,6 +115,7 @@ export const NavButtons = ({ width, options, active, onClick }: any) => (
   <Flex bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
     {options.map((option: string) => (
       <Flex
+        key={option}
         w={width}
         justify="center"
         pt={1}

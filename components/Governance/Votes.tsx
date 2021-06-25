@@ -5,6 +5,7 @@ import { ProposalStatus, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { Avatar } from '../Avatar'
 import Container from '../Container'
+import { SkeletonList, SkeletonTitle } from '../Skeleton'
 import { AgainstVotesModal, ForVotesModal } from './GovernanceModals'
 
 const MAX_PREVIEW = 5
@@ -71,7 +72,11 @@ export const ForVotes = ({ id }: any) => {
   const { voters } = useVoters(id)
 
   if (!proposal || !voters) {
-    return <></>
+    return (
+      <Container label="For Votes">
+        <SkeletonList />
+      </Container>
+    )
   }
 
   const { forVotes, status } = proposal
@@ -95,7 +100,11 @@ export const AgainstVotes = ({ id }: any) => {
   const { voters } = useVoters(id)
 
   if (!proposal || !voters) {
-    return <></>
+    return (
+      <Container label="Against Votes">
+        <SkeletonList />
+      </Container>
+    )
   }
 
   const { againstVotes, status } = proposal

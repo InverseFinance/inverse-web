@@ -3,9 +3,18 @@ import Container from '../Container'
 import { VictoryPie } from 'victory'
 import { Proposal, ProposalStatus } from '@inverse/types'
 import { Flex, Stack, Text } from '@chakra-ui/react'
+import { SkeletonList } from '../Skeleton'
 
 export const Breakdown = () => {
   const { proposals } = useProposals()
+
+  if (!proposals) {
+    return (
+      <Container>
+        <SkeletonList />
+      </Container>
+    )
+  }
 
   const active = proposals?.reduce(
     (prev: number, curr: Proposal) =>

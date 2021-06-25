@@ -1,14 +1,27 @@
-import { Flex, Stack } from '@chakra-ui/react'
+import { Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { useProposals } from '@inverse/hooks/useProposals'
 import Container from '../Container'
 import { Proposal, ProposalStatus } from '@inverse/types'
 import NextLink from 'next/link'
 import { ProposalPreview } from './Proposal'
+import { SkeletonBlob } from '../Skeleton'
 
 export const Proposals = () => {
   const { proposals } = useProposals()
 
-  return proposals ? (
+  if (!proposals) {
+    return (
+      <Container
+        label="Governance Proposals"
+        description="Participate in governance of the DAO"
+        href="https://docs.inverse.finance/governance"
+      >
+        <SkeletonBlob skeletonHeight={16} noOfLines={4} />
+      </Container>
+    )
+  }
+
+  return (
     <Container
       label="Governance Proposals"
       description="Participate in governance of the DAO"
@@ -22,19 +35,29 @@ export const Proposals = () => {
           ))}
       </Stack>
     </Container>
-  ) : (
-    <></>
   )
 }
 
 export const ActiveProposals = () => {
   const { proposals } = useProposals()
 
+  if (!proposals) {
+    return (
+      <Container
+        label="Active Proposals"
+        description="Participate in governance of the DAO"
+        href="https://docs.inverse.finance/governance"
+      >
+        <SkeletonBlob skeletonHeight={16} noOfLines={1} />
+      </Container>
+    )
+  }
+
   const active = proposals
     ?.filter((proposal: Proposal) => proposal.status === ProposalStatus.active)
     .sort((a: Proposal, b: Proposal) => b.id - a.id)
 
-  return proposals ? (
+  return (
     <Container
       label="Active Proposals"
       description="Participate in governance of the DAO"
@@ -50,20 +73,26 @@ export const ActiveProposals = () => {
         )}
       </Stack>
     </Container>
-  ) : (
-    <></>
   )
 }
 
 export const RecentProposals = () => {
   const { proposals } = useProposals()
 
+  if (!proposals) {
+    return (
+      <Container label="Recent Proposals">
+        <SkeletonBlob skeletonHeight={16} noOfLines={4} />
+      </Container>
+    )
+  }
+
   const recent = proposals
     ?.filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
     .sort((a: Proposal, b: Proposal) => b.id - a.id)
     .slice(0, 7)
 
-  return proposals ? (
+  return (
     <Container label="Recent Proposals">
       <Stack w="full" spacing={1}>
         {recent.map((proposal: Proposal) => (
@@ -87,7 +116,5 @@ export const RecentProposals = () => {
         </NextLink>
       </Stack>
     </Container>
-  ) : (
-    <></>
   )
 }

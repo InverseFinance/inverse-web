@@ -77,7 +77,22 @@ export const AppNav = ({ active }: { active?: string }) => {
   const { activate } = useWeb3React<Web3Provider>()
 
   useEffect(() => {
-    activate(injectedConnector)
+    const checkConnection = async () => {
+      // Check if browser is running Metamask
+      let web3: any
+      if (window.ethereum) {
+        web3 = new Web3Provider(window.ethereum)
+      } else if (window.web3) {
+        web3 = new Web3Provider(window.web3.currentProvider)
+      }
+
+      // Check if User is already connected by retrieving the accounts
+      web3?.eth?.getAccounts().then(async (addr: string) => {
+        // Set User account into state
+        activate(injectedConnector)
+      })
+    }
+    checkConnection()
   }, [])
 
   return (

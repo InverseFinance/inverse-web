@@ -14,6 +14,7 @@ import { Contract } from 'ethers'
 import { COMPTROLLER_ABI } from '@inverse/abis'
 import { useState } from 'react'
 import { AnchorBorrowModal, AnchorSupplyModal } from './AnchorModals'
+import { SkeletonBlob } from '../Skeleton'
 
 export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
@@ -109,8 +110,16 @@ export const AnchorSupplied = () => {
     },
   ]
 
-  if (!active || marketsLoading || accountLiquidityLoading || balancesLoading || !balances || !usdSupply) {
+  if (!active || !usdSupply) {
     return <></>
+  }
+
+  if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances) {
+    return (
+      <Container description="Your supplied assets">
+        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+      </Container>
+    )
   }
 
   return (
@@ -174,8 +183,16 @@ export const AnchorBorrowed = () => {
     },
   ]
 
-  if (!active || marketsLoading || accountLiquidityLoading || balancesLoading || !balances || !usdSupply) {
+  if (!active || !usdSupply) {
     return <></>
+  }
+
+  if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances) {
+    return (
+      <Container description="Your borrowed assets">
+        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+      </Container>
+    )
   }
 
   return (
@@ -269,7 +286,19 @@ export const AnchorSupply = () => {
     },
   ]
 
-  return markets ? (
+  if (!markets) {
+    return (
+      <Container
+        label="Supply"
+        description="Earn interest on your deposits"
+        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
+      >
+        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+      </Container>
+    )
+  }
+
+  return (
     <Container
       label="Supply"
       description="Earn interest on your deposits"
@@ -278,8 +307,6 @@ export const AnchorSupply = () => {
       <Table columns={columns} items={markets} onClick={handleSupply} />
       <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
-  ) : (
-    <></>
   )
 }
 
@@ -330,7 +357,19 @@ export const AnchorBorrow = () => {
     },
   ]
 
-  return markets ? (
+  if (!markets) {
+    return (
+      <Container
+        label="Borrow"
+        description="Borrow against your supplied collateral"
+        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
+      >
+        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+      </Container>
+    )
+  }
+
+  return (
     <Container
       label="Borrow"
       description="Borrow against your supplied collateral"
@@ -339,7 +378,5 @@ export const AnchorBorrow = () => {
       <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} />
       <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
-  ) : (
-    <></>
   )
 }

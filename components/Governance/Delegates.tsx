@@ -5,12 +5,21 @@ import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { Avatar } from '../Avatar'
 import { DelegatesModal } from './GovernanceModals'
+import { SkeletonList } from '../Skeleton'
 
 export const DelegatesPreview = () => {
   const { delegates } = useDelegates()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  return delegates ? (
+  if (!delegates) {
+    return (
+      <Container label="Top Delegates">
+        <SkeletonList />
+      </Container>
+    )
+  }
+
+  return (
     <Container label="Top Delegates">
       <Stack w="full">
         {delegates.slice(0, 5).map(({ address, balance, delegators, votes }: Delegate) => (
@@ -51,7 +60,5 @@ export const DelegatesPreview = () => {
       </Stack>
       <DelegatesModal isOpen={isOpen} onClose={onClose} />
     </Container>
-  ) : (
-    <></>
   )
 }

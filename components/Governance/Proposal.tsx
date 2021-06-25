@@ -1,5 +1,5 @@
-import { Badge, Flex, Stack, Text } from '@chakra-ui/react'
-import { useProposal, useProposals } from '@inverse/hooks/useProposals'
+import { Badge, Flex, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { useProposal } from '@inverse/hooks/useProposals'
 import Container from '../Container'
 import { Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import moment from 'moment'
@@ -10,6 +10,7 @@ import Link from '../Link'
 import { smallAddress } from '@inverse/util'
 import { CONTRACTS } from '@inverse/config'
 import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
+import { SkeletonBlob, SkeletonTitle } from '../Skeleton'
 
 const badgeColors: any = {
   [ProposalStatus.active]: 'gray',
@@ -81,7 +82,11 @@ export const ProposalDetails = ({ id }: { id: number }) => {
   const { proposal } = useProposal(id)
 
   if (!proposal) {
-    return <></>
+    return (
+      <Container label={<SkeletonTitle />}>
+        <SkeletonBlob />
+      </Container>
+    )
   }
 
   const { title, description, proposer, status, startTimestamp } = proposal
