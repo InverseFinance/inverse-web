@@ -1,4 +1,5 @@
 import { START_BLOCK } from '@inverse/config'
+import { Delegate } from '@inverse/types'
 import { getINVContract, getNewMulticallProvider, getNewProvider } from '@inverse/util/contracts'
 import { formatUnits } from 'ethers/lib/utils'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -12,16 +13,22 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     invContract.queryFilter(invContract.filters.DelegateChanged(), START_BLOCK),
   ])
 
-  const delegates = delegateVotesChangedEvents.reduce((delegates: any, { args }: any) => {
-    delegates[args.delegate] = {
-      address: args.delegate,
-      balance: parseFloat(formatUnits(args.newBalance)),
-      delegators: [],
+  const delegates = delegateVotesChangedEvents.reduce((delegates: { [key: string]: Delegate }, { args }) => {
+    if (args) {
+      delegates[args.delegate] = {
+        address: args.delegate,
+        balance: parseFloat(formatUnits(args.newBalance)),
+        delegators: [],
+      }
     }
     return delegates
   }, {})
 
-  delegateChangedEvents.forEach(({ args }: any) => {
+  delegateChangedEvents.forEach(({ args }) => {
+    if (!args) {
+      return
+    }
+
     if (delegates[args.fromDelegate]) {
       delegates[args.fromDelegate].delegators.filter((address: string) => address !== args.delegator)
     }
@@ -35,7 +42,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   res.status(200).json({
     delegates: Object.values(delegates)
-      .filter(({ balance }: any) => balance > 0)
-      .sort((a: any, b: any) => b.balance - a.balance),
+      .filter(({ balance }) => balance > 0)
+      .sort((a, b) => b.balance - a.balance),
   })
 }

@@ -23,7 +23,7 @@ export const StakeView = () => {
   const [operation, setOperation] = useState<string>(StakeOperations.deposit)
   const { active, account, library } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
-  const [amount, setAmount] = useState<any>('')
+  const [amount, setAmount] = useState<string>('')
   const { data } = useEtherSWR([
     [DOLA3CRV, 'balanceOf', account],
     [DOLA3CRV, 'earned', account],
@@ -90,14 +90,14 @@ export const StakeView = () => {
             )}
             <BalanceInput
               value={amount}
-              onChange={(e: any) => setAmount(e.currentTarget.value)}
+              onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
               onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
               label="DOLA-3CRV"
             />
           </Stack>
         )}
         <SubmitButton
-          isDisabled={!active || !amount || isNaN(amount) || parseFloat(amount) > max()}
+          isDisabled={!active || !amount || Number.isNaN(amount) || parseFloat(amount) > max()}
           onClick={handleSubmit}
         >
           {operation}

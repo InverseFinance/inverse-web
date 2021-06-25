@@ -8,10 +8,17 @@ import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances
 import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import { Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
-import { constants, Contract } from 'ethers'
-import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils'
+import { BigNumber, constants, Contract } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 
-export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
+type AnchorButtonProps = {
+  operation: AnchorOperations
+  asset: Market
+  amount: BigNumber
+  isDisabled: boolean
+}
+
+export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
   const { account, library } = useWeb3React<Web3Provider>()
   const { markets } = useAccountMarkets()
   const { approvals } = useApprovals()
@@ -19,7 +26,6 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
   const { balances: borrowBalances } = useBorrowBalances()
 
   const contract = new Contract(asset.token, asset.token === ANCHOR_ETH ? CETHER_ABI : CTOKEN_ABI, library?.getSigner())
-  const parsedAmount = amount && !isNaN(amount) ? parseUnits(amount, asset.underlying.decimals) : 0
 
   switch (operation) {
     case AnchorOperations.supply:
@@ -37,7 +43,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
         </SubmitButton>
       ) : (
         <SubmitButton
-          onClick={() => contract.mint(asset.token === ANCHOR_ETH ? { value: parseEther(amount) } : parsedAmount)}
+          onClick={() => contract.mint(asset.token === ANCHOR_ETH ? { value: amount } : amount)}
           isDisabled={isDisabled}
         >
           Supply
@@ -47,7 +53,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
     case AnchorOperations.withdraw:
       return (
         <SubmitButton
-          onClick={() => contract.redeemUnderlying(parsedAmount)}
+          onClick={() => contract.redeemUnderlying(amount)}
           isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
         >
           Withdraw
@@ -63,7 +69,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
           Enable
         </SubmitButton>
       ) : (
-        <SubmitButton onClick={() => contract.borrow(parsedAmount)} isDisabled={isDisabled}>
+        <SubmitButton onClick={() => contract.borrow(amount)} isDisabled={isDisabled}>
           Borrow
         </SubmitButton>
       )
@@ -84,9 +90,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
       ) : (
         <SubmitButton
           isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
-          onClick={() =>
-            contract.repayBorrow(asset.token === ANCHOR_ETH ? { value: parseEther(amount) } : parsedAmount)
-          }
+          onClick={() => contract.repayBorrow(asset.token === ANCHOR_ETH ? { value: amount } : amount)}
         >
           Repay
         </SubmitButton>

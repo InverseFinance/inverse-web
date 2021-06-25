@@ -1,8 +1,18 @@
-import { Proposal } from '@inverse/types'
+import { Proposal, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
+import { BigNumber } from 'ethers'
 import useSWR from 'swr'
 
-export const useProposals = () => {
+type Proposals = {
+  quorumVotes: BigNumber
+  proposals: Proposal[]
+}
+
+type SingleProposal = {
+  proposal: Proposal
+}
+
+export const useProposals = (): SWR & Proposals => {
   const { data, error } = useSWR(`${process.env.API_URL}/inverse/proposals`, fetcher)
 
   return {
@@ -13,13 +23,11 @@ export const useProposals = () => {
   }
 }
 
-export const useProposal = (id: number) => {
+export const useProposal = (id: number): SWR & SingleProposal => {
   const { proposals, isLoading, isError } = useProposals()
 
-  const proposal = proposals?.find((proposal: Proposal) => id === proposal.id)
-
   return {
-    proposal,
+    proposal: proposals?.find((proposal: Proposal) => id === proposal.id) || ({} as Proposal),
     isLoading,
     isError,
   }

@@ -19,17 +19,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     [...Array(count.toNumber()).keys()].map((i) => governanceContract.proposals(i + 1))
   )
 
-  const startBlockPromises: any[] = proposals.map(({ startBlock }) => provider.getBlock(startBlock.toNumber()))
-  const endBlockPromises: any[] = proposals.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))
+  const startBlockPromises: Promise<any>[] = proposals.map(({ startBlock }) => provider.getBlock(startBlock.toNumber()))
+  const endBlockPromises: Promise<any>[] = proposals.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))
 
-  const promises: any = [governanceContract.queryFilter(governanceContract.filters.ProposalCreated())].concat(
-    startBlockPromises,
-    endBlockPromises
-  )
+  const promises: Promise<any>[] = [
+    governanceContract.queryFilter(governanceContract.filters.ProposalCreated()),
+  ].concat(startBlockPromises, endBlockPromises)
 
   const data = await Promise.all(promises)
 
-  const proposalEvents: any = data[0]
+  const proposalEvents: any[] = data[0]
   const startBlocks: any[] = data.slice(1, count.toNumber() + 1)
   const endBlocks: any[] = data.slice(1 + count.toNumber(), 2 * count.toNumber() + 1)
 
@@ -37,7 +36,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     quorumVotes: parseFloat(formatUnits(quorumVotes)),
     proposals: proposals.map(
       ({ id, proposer, eta, startBlock, endBlock, forVotes, againstVotes, canceled, executed }, i) => {
-        const { args }: any = proposalEvents.find(({ args }: any) => args.id.eq(id))
+        const { args } = proposalEvents.find(({ args }) => args.id.eq(id))
 
         let status = ProposalStatus.queued
         if (canceled) {

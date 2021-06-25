@@ -1,27 +1,35 @@
 import { TOKENS } from '@inverse/config'
-import { Token } from '@inverse/types'
+import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 
-export const usePrice = (coingeckoId: string) => {
+type Prices = {
+  prices: {
+    [key: string]: {
+      usd: number
+    }
+  }
+}
+
+export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
 
   return {
-    prices: data,
+    prices: data || {},
     isLoading: !error && !data,
     isError: error,
   }
 }
 
-export const usePrices = () => {
-  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }: any) => coingeckoId)
+export const usePrices = (): SWR & Prices => {
+  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId)
   const { data, error } = useSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
     fetcher
   )
 
   return {
-    prices: data,
+    prices: data || {},
     isLoading: !error && !data,
     isError: error,
   }

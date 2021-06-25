@@ -74,7 +74,7 @@ export const Stats = () => {
         },
         {
           label: 'Votes Casted',
-          value: proposals.reduce((prev: any, curr: any) => prev + curr.forVotes + curr.againstVotes, 0),
+          value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.forVotes + curr.againstVotes, 0),
         },
       ])
     }

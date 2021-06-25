@@ -21,7 +21,7 @@ export const StabilizerView = () => {
   const [operation, setOperation] = useState<string>(StabilizerOperations.buy)
   const { active, library } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
-  const [amount, setAmount] = useState<any>('')
+  const [amount, setAmount] = useState<string>('')
 
   const max = () =>
     !balances
@@ -63,7 +63,6 @@ export const StabilizerView = () => {
     >
       <Stack w="full">
         <NavButtons
-          width={16}
           options={[StabilizerOperations.buy, StabilizerOperations.sell]}
           active={operation}
           onClick={setOperation}
@@ -84,13 +83,13 @@ export const StabilizerView = () => {
           )}
           <BalanceInput
             value={amount}
-            onChange={(e: any) => setAmount(e.currentTarget.value)}
+            onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
             asset={operation === StabilizerOperations.buy ? TOKENS[DAI] : TOKENS[DOLA]}
           />
         </Stack>
         <SubmitButton
-          isDisabled={!active || !amount || !balances || isNaN(amount) || parseFloat(amount) > max()}
+          isDisabled={!active || !amount || !balances || Number.isNaN(amount) || parseFloat(amount) > max()}
           onClick={handleSubmit}
         >
           {`${operation} DOLA`}

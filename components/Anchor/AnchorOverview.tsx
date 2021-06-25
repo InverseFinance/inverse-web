@@ -5,15 +5,17 @@ import { ClaimButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { COMPTROLLER } from '@inverse/config'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useRewards } from '@inverse/hooks/useRewards'
+import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
 import { useWeb3React } from '@web3-react/core'
 import { Contract } from 'ethers'
-import { commify } from 'ethers/lib/utils'
+import { commify, formatUnits } from 'ethers/lib/utils'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()
   const { usdBorrow, usdBorrowable, netApy } = useAccountLiquidity()
-  const { rewards } = useRewards()
+  const { rewards } = useAnchorRewards()
+
+  const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
 
   return usdBorrow || usdBorrowable ? (
     <Container
@@ -21,9 +23,9 @@ export const AnchorOverview = () => {
       description={`${netApy.toFixed(2)}% Net APY`}
       right={
         <Stack direction="row" align="center" textAlign="end">
-          <Text fontWeight="bold">{`${rewards.toFixed(4)} INV`}</Text>
+          <Text fontWeight="bold">{`${rewardAmount.toFixed(4)} INV`}</Text>
           <ClaimButton
-            isDisabled={!rewards}
+            isDisabled={!rewardAmount}
             onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).claimComp(account)}
           >
             Claim

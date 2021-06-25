@@ -1,16 +1,39 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
 import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
-import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { usePrices } from '@inverse/hooks/usePrices'
+import { Market } from '@inverse/types'
 import { formatUnits } from 'ethers/lib/utils'
 
-const StatBlock = ({ label, stats }: any) => (
+type Stat = {
+  label: string
+  value: string
+}
+
+type StatBlockProps = {
+  label: string
+  stats: Stat[]
+}
+
+type AnchorStatBlockProps = {
+  asset: Market
+  amount?: number
+}
+
+type AnchorStatsProps = {
+  asset: Market
+  amount: string
+  operation: AnchorOperations
+}
+
+const StatBlock = ({ label, stats }: StatBlockProps) => (
   <Stack w="full" pt={2} spacing={1}>
     <Text fontSize="xs" fontWeight="semibold" color="purple.100" textTransform="uppercase">
       {label}
     </Text>
-    {stats.map(({ label, value }: any) => (
+    {stats.map(({ label, value }) => (
       <Flex key={label} justify="space-between" fontSize="sm" fontWeight="medium" pl={2}>
         <Text>{label}</Text>
         <Text textAlign="end">{value}</Text>
@@ -19,7 +42,7 @@ const StatBlock = ({ label, stats }: any) => (
   </Stack>
 )
 
-const SupplyDetails = ({ asset }: any) => {
+const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
   const { balances: supplyBalances } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
 
@@ -46,7 +69,7 @@ const SupplyDetails = ({ asset }: any) => {
   )
 }
 
-const BorrowDetails = ({ asset }: any) => {
+const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
   const { balances: borrowBalances } = useBorrowBalances()
 
   const borrowBalance =
@@ -71,11 +94,11 @@ const BorrowDetails = ({ asset }: any) => {
   )
 }
 
-const BorrowLimit = ({ asset, amount }: any) => {
+const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = usePrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
 
-  const change = prices ? asset.collateralFactor * amount * prices[asset.underlying.coingeckoId].usd : 0
+  const change = prices && amount ? asset.collateralFactor * amount * prices[asset.underlying.coingeckoId].usd : 0
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + change
 
@@ -99,15 +122,15 @@ const BorrowLimit = ({ asset, amount }: any) => {
   )
 }
 
-const BorrowLimitRemaining = ({ asset, amount }: any) => {
+const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = usePrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
 
-  const change = prices ? amount * prices[asset.underlying.coingeckoId].usd : 0
+  const change = prices && amount ? amount * prices[asset.underlying.coingeckoId].usd : 0
   const borrow = usdBorrow
-  const newBorrow = borrow - (amount > 0 ? change : 0)
+  const newBorrow = borrow - (change > 0 ? change : 0)
   const borrowable = usdBorrow + usdBorrowable
-  const newBorrowable = borrowable + (amount < 0 ? change : 0)
+  const newBorrowable = borrowable + (change < 0 ? change : 0)
 
   return (
     <StatBlock
@@ -129,34 +152,35 @@ const BorrowLimitRemaining = ({ asset, amount }: any) => {
   )
 }
 
-export const AnchorStats = ({ operation, asset, amount }: any) => {
+export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
+  const parsedAmount = amount && !Number.isNaN(amount) ? parseFloat(amount) : 0
   switch (operation) {
     case AnchorOperations.supply:
       return (
         <>
           <SupplyDetails asset={asset} />
-          <BorrowLimit asset={asset} amount={amount && !isNaN(amount) ? parseFloat(amount) : 0} />
+          <BorrowLimit asset={asset} amount={parsedAmount} />
         </>
       )
     case AnchorOperations.withdraw:
       return (
         <>
           <SupplyDetails asset={asset} />
-          <BorrowLimit asset={asset} amount={amount && !isNaN(amount) ? -1 * parseFloat(amount) : 0} />
+          <BorrowLimit asset={asset} amount={-1 * parsedAmount} />
         </>
       )
     case AnchorOperations.borrow:
       return (
         <>
           <BorrowDetails asset={asset} />
-          <BorrowLimitRemaining asset={asset} amount={amount && !isNaN(amount) ? -1 * parseFloat(amount) : 0} />
+          <BorrowLimitRemaining asset={asset} amount={-1 * parsedAmount} />
         </>
       )
     case AnchorOperations.repay:
       return (
         <>
           <BorrowDetails asset={asset} />
-          <BorrowLimitRemaining asset={asset} amount={amount && !isNaN(amount) ? parseFloat(amount) : 0} />
+          <BorrowLimitRemaining asset={asset} amount={parsedAmount} />
         </>
       )
   }

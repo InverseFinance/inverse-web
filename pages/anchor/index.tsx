@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { AnchorBorrow, AnchorBorrowed, AnchorOverview, AnchorSupplied, AnchorSupply } from '@inverse/components/Anchor'
-import { NavButtons, ToggleButton } from '@inverse/components/Button'
+import { NavButtons } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'

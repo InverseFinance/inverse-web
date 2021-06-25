@@ -1,30 +1,27 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { UNDERLYING } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber } from 'ethers'
 
-export const useApprovals = () => {
+type Approvals = {
+  approvals: { [key: string]: BigNumber }
+}
+
+export const useApprovals = (): SWR & Approvals => {
+  const tokens = Object.entries(UNDERLYING).filter(([_, { address }]) => address)
+
   const { account } = useWeb3React<Web3Provider>()
-
-  const tokens = Object.entries(UNDERLYING).filter(([_, underlying]: any) => underlying.address)
   const { data, error } = useEtherSWR(
-    tokens.map(([address, underlying]: any) => [underlying.address, 'allowance', account, address])
+    tokens.map(([address, underlying]) => [underlying.address, 'allowance', account, address])
   )
 
-  if (!data) {
-    return {
-      isLoading: !error,
-      isError: error,
-    }
-  }
-
-  const approvals: any = {}
-  tokens.forEach(([address], i) => {
-    approvals[address] = data[i]
-  })
-
   return {
-    approvals,
+    approvals: data?.reduce((approvals: { [key: string]: BigNumber }, approval: BigNumber, i: number) => {
+      approvals[tokens[i][0]] = approval
+      return approvals
+    }, {}),
     isLoading: !error && !data,
     isError: error,
   }

@@ -6,7 +6,7 @@ import { Avatar } from '@inverse/components/Avatar'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import { Input, Textarea } from '@inverse/components/Input'
 import Link from '@inverse/components/Link'
-import { Modal, ModalTabs } from '@inverse/components/Modal'
+import { Modal, ModalProps } from '@inverse/components/Modal'
 import { GOVERNANCE, INV } from '@inverse/config'
 import { useDelegates } from '@inverse/hooks/useDelegates'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
@@ -24,7 +24,12 @@ enum VoteType {
   against = 'Against',
 }
 
-export const VoteCountModal = ({ isOpen, onClose, id, voteType }: any) => {
+type VoteCountModalProps = ModalProps & {
+  id: number
+  voteType?: VoteType
+}
+
+export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModalProps) => {
   const { proposal } = useProposal(id)
   const { voters } = useVoters(id)
 
@@ -72,15 +77,15 @@ export const VoteCountModal = ({ isOpen, onClose, id, voteType }: any) => {
   )
 }
 
-export const ForVotesModal = ({ isOpen, onClose, id }: any) => {
+export const ForVotesModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
   return <VoteCountModal isOpen={isOpen} onClose={onClose} id={id} voteType={VoteType.for} />
 }
 
-export const AgainstVotesModal = ({ isOpen, onClose, id }: any) => {
+export const AgainstVotesModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
   return <VoteCountModal isOpen={isOpen} onClose={onClose} id={id} voteType={VoteType.against} />
 }
 
-export const DelegatesModal = ({ isOpen, onClose }: any) => {
+export const DelegatesModal = ({ isOpen, onClose }: ModalProps) => {
   const { delegates } = useDelegates()
 
   if (!delegates) {
@@ -130,7 +135,7 @@ export const DelegatesModal = ({ isOpen, onClose }: any) => {
   )
 }
 
-export const VoteModal = ({ isOpen, onClose, id }: any) => {
+export const VoteModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
   const { library } = useWeb3React<Web3Provider>()
   const [support, setSupport] = useState(true)
   const { proposals } = useProposals()
@@ -167,7 +172,7 @@ export const VoteModal = ({ isOpen, onClose, id }: any) => {
   )
 }
 
-export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
+export const ChangeDelegatesModal = ({ isOpen, onClose }: ModalProps) => {
   const { account, library, chainId } = useWeb3React<Web3Provider>()
   const [delegationType, setDelegationType] = useState('Delegate')
   const [delegate, setDelegate] = useState('')
@@ -268,7 +273,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
               </Text>
               <Input
                 value={delegate}
-                onChange={(e: any) => setDelegate(e.currentTarget.value)}
+                onChange={(e: React.MouseEvent<HTMLInputElement>) => setDelegate(e.currentTarget.value)}
                 placeholder={currentDelegate}
                 fontSize="sm"
                 p={1.5}

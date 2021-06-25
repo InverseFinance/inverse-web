@@ -12,7 +12,7 @@ import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
 
-const badgeColors: any = {
+const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
   [ProposalStatus.canceled]: 'black',
   [ProposalStatus.defeated]: 'red',
@@ -79,9 +79,9 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
 }
 
 export const ProposalDetails = ({ id }: { id: number }) => {
-  const { proposal } = useProposal(id)
+  const { proposal, isLoading } = useProposal(id)
 
-  if (!proposal) {
+  if (isLoading) {
     return (
       <Container label={<SkeletonTitle />}>
         <SkeletonBlob />
@@ -133,9 +133,9 @@ export const ProposalDetails = ({ id }: { id: number }) => {
 }
 
 export const ProposalActions = ({ id }: { id: number }) => {
-  const { proposal } = useProposal(id)
+  const { proposal, isLoading } = useProposal(id)
 
-  if (!proposal) {
+  if (isLoading) {
     return <></>
   }
 

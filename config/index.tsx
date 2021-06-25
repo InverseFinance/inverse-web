@@ -1,4 +1,5 @@
 import { mainnetConfig } from '@inverse/config/mainnet'
+import { Token } from '@inverse/types'
 
 // TODO: Clean-up config
 const config = mainnetConfig
@@ -49,9 +50,9 @@ export const THREECRV = config.THREECRV
 // Rewards
 export const DOLA3CRV = config.staking.dola3crv
 
-export const TOKENS: any = config.tokens
+export const TOKENS: { [key: string]: Token } = config.tokens
 
-export const UNDERLYING: any = {
+export const UNDERLYING: { [key: string]: Token } = {
   [ANCHOR_ETH]: TOKENS.ETH,
   [ANCHOR_DOLA]: TOKENS[DOLA],
   [ANCHOR_XSUSHI]: TOKENS[XSUSHI],
@@ -65,7 +66,7 @@ export const UNDERLYING: any = {
   [VAULT_DAI_YFI]: TOKENS[DAI],
 }
 
-export const CONTRACTS: any = {
+export const CONTRACTS: { [key: string]: string } = {
   [ANCHOR_ETH]: 'anETH',
   [ANCHOR_DOLA]: 'anDOLA',
   [ANCHOR_XSUSHI]: 'anXSUSHI',

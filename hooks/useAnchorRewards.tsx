@@ -1,13 +1,16 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { LENS_ABI } from '@inverse/abis'
 import { COMPTROLLER, INV, LENS } from '@inverse/config'
+import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
+import { BigNumber, Contract } from 'ethers'
 import useSWR from 'swr'
 
-// TODO: Create generic static fetcher
-export const useRewards = () => {
+type AnchorRewards = {
+  rewards: BigNumber
+}
+
+export const useAnchorRewards = (): SWR & AnchorRewards => {
   const { account, library } = useWeb3React<Web3Provider>()
   const { data, error } = useSWR(['getCompBalanceMetadataExt', INV, COMPTROLLER, account], (...args) => {
     const [method, ...otherParams] = args
@@ -18,7 +21,7 @@ export const useRewards = () => {
   })
 
   return {
-    rewards: data ? parseFloat(formatUnits(data[3])) : 0,
+    rewards: data?.length ? data[3] : BigNumber.from(0),
     isLoading: !error && !data,
     isError: error,
   }

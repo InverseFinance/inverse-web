@@ -1,17 +1,14 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
 import Container from '@inverse/components/Container'
 import { SkeletonList } from '@inverse/components/Skeleton'
 import { useProposals } from '@inverse/hooks/useProposals'
 import { Proposal, ProposalStatus } from '@inverse/types'
-import { useWeb3React } from '@web3-react/core'
 import { VictoryPie } from 'victory'
 
 export const Breakdown = () => {
-  const { active: noPadding } = useWeb3React<Web3Provider>()
-  const { proposals } = useProposals()
+  const { proposals, isLoading } = useProposals()
 
-  if (!proposals) {
+  if (isLoading) {
     return (
       <Container>
         <SkeletonList />

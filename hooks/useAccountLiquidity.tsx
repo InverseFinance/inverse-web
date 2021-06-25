@@ -1,45 +1,39 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ANCHOR_TOKENS, COMPTROLLER, UNDERLYING, XINV } from '@inverse/config'
+import { COMPTROLLER, UNDERLYING } from '@inverse/config'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
-import { Balances, Market } from '@inverse/types'
+import { Market, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 
-export const useExchangeRates = () => {
-  const tokens = ANCHOR_TOKENS.concat([XINV])
-  const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'exchangeRateStored']))
-
-  if (!data) {
-    return {
-      isLoading: !error,
-      isError: error,
-    }
-  }
-
-  const exchangeRates: Balances = {}
-  tokens.forEach((address, i) => (exchangeRates[address] = data[i]))
-
-  return {
-    exchangeRates,
-    isLoading: !error && !data,
-    isError: error,
-  }
+type AccountLiquidity = {
+  netApy: number
+  usdSupply: number
+  usdBorrow: number
+  usdBorrowable: number
 }
 
-export const useAccountLiquidity = () => {
+export const useAccountLiquidity = (): SWR & AccountLiquidity => {
   const { account } = useWeb3React<Web3Provider>()
   const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', account])
+  const { markets, isLoading: marketsIsLoading } = useMarkets()
+  const { prices, isLoading: pricesIsLoading } = usePrices()
+  const { balances: supplyBalances, isLoading: supplyBalancesIsLoading } = useSupplyBalances()
+  const { balances: borrowBalances, isLoading: borrowBalancesIsLoading } = useBorrowBalances()
+  const { exchangeRates, isLoading: exchangeRatesIsLoading } = useExchangeRates()
 
-  const { markets } = useMarkets()
-  const { prices } = usePrices()
-  const { balances: supplyBalances } = useSupplyBalances()
-  const { balances: borrowBalances } = useBorrowBalances()
-  const { exchangeRates } = useExchangeRates()
-
-  if (!data || !prices || !supplyBalances || !borrowBalances || !exchangeRates || !markets) {
+  if (
+    !account ||
+    !data ||
+    marketsIsLoading ||
+    pricesIsLoading ||
+    supplyBalancesIsLoading ||
+    borrowBalancesIsLoading ||
+    exchangeRatesIsLoading
+  ) {
     return {
       netApy: 0,
       usdSupply: 0,
@@ -100,7 +94,6 @@ export const useAccountLiquidity = () => {
     usdSupply,
     usdBorrow,
     usdBorrowable: parseFloat(formatUnits(data[1])),
-
     isLoading: !error && !data,
     isError: error,
   }

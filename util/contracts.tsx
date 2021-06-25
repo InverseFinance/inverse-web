@@ -1,4 +1,4 @@
-import { InfuraProvider } from '@ethersproject/providers'
+import { InfuraProvider, Web3Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   VAULT_ABI,
@@ -17,23 +17,27 @@ export const getNewProvider = () => new InfuraProvider(process.env.NETWORK, proc
 
 export const getNewMulticallProvider = (provider: InfuraProvider) => new providers.MulticallProvider(provider)
 
-export const getNewContract = (address: string, abi: string[], provider: any) => new Contract(address, abi, provider)
+export const getNewContract = (address: string, abi: string[], provider: Web3Provider) =>
+  new Contract(address, abi, provider)
 
-export const getVaultContract = (address: string, provider: any) => getNewContract(address, VAULT_ABI, provider)
+export const getVaultContract = (address: string, provider: Web3Provider) =>
+  getNewContract(address, VAULT_ABI, provider)
 
-export const getVaultContracts = (provider: any) => VAULT_TOKENS.map((address) => getVaultContract(address, provider))
+export const getVaultContracts = (provider: Web3Provider) =>
+  VAULT_TOKENS.map((address) => getVaultContract(address, provider))
 
-export const getComptrollerContract = (provider: any) => getNewContract(COMPTROLLER, COMPTROLLER_ABI, provider)
+export const getComptrollerContract = (provider: Web3Provider) => getNewContract(COMPTROLLER, COMPTROLLER_ABI, provider)
 
-export const getAnchorContract = (address: string, provider: any) => getNewContract(address, CTOKEN_ABI, provider)
+export const getAnchorContract = (address: string, provider: Web3Provider) =>
+  getNewContract(address, CTOKEN_ABI, provider)
 
-export const getAnchorContracts = (provider: any) =>
+export const getAnchorContracts = (provider: Web3Provider) =>
   ANCHOR_TOKENS.map((address) => getAnchorContract(address, provider))
 
-export const getStabilizerContract = (provider: any) => getNewContract(STABILIZER, STABILIZER_ABI, provider)
+export const getStabilizerContract = (provider: Web3Provider) => getNewContract(STABILIZER, STABILIZER_ABI, provider)
 
-export const getGovernanceContract = (provider: any) => getNewContract(GOVERNANCE, GOVERNANCE_ABI, provider)
+export const getGovernanceContract = (provider: Web3Provider) => getNewContract(GOVERNANCE, GOVERNANCE_ABI, provider)
 
-export const getINVContract = (provider: any) => getNewContract(INV, INV_ABI, provider)
+export const getINVContract = (provider: Web3Provider) => getNewContract(INV, INV_ABI, provider)
 
-export const getXINVContract = (provider: any) => getNewContract(XINV, XINV_ABI, provider)
+export const getXINVContract = (provider: Web3Provider) => getNewContract(XINV, XINV_ABI, provider)

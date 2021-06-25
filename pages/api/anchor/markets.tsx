@@ -39,7 +39,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     (
       await fetch(
         `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${Object.values(TOKENS).map(
-          ({ coingeckoId }: any) => coingeckoId
+          ({ coingeckoId }) => coingeckoId
         )}`
       )
     ).json(),
@@ -85,7 +85,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) *
       100,
     collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
-  })
+  } as Market)
 
   res.status(200).json({
     markets,

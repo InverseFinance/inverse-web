@@ -8,10 +8,10 @@ import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 
 export const DelegatesPreview = () => {
-  const { delegates } = useDelegates()
+  const { delegates, isLoading } = useDelegates()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  if (!delegates) {
+  if (isLoading) {
     return (
       <Container label="Top Delegates">
         <SkeletonList />

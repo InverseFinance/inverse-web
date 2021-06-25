@@ -87,31 +87,13 @@ export const SubmitButton = (props: any) => (
   />
 )
 
-export const ToggleButton = ({ onClick, active, options }: any) => (
-  <Flex w="full" cursor="pointer" justify="center" align="center" m={4}>
-    {options.map((option: any) => (
-      <Flex
-        key={option}
-        justify="center"
-        cursor="pointer"
-        align="center"
-        borderWidth={1}
-        borderColor="purple.700"
-        fontWeight="semibold"
-        color="#fff"
-        bgColor={active === option ? 'purple.600' : 'purple.800'}
-        p={2}
-        pl={6}
-        pr={6}
-        onClick={() => onClick(option)}
-      >
-        {option}
-      </Flex>
-    ))}
-  </Flex>
-)
+type NavButtonProps = {
+  onClick: (s: any) => void
+  active: string
+  options: string[]
+}
 
-export const NavButtons = ({ options, active, onClick }: any) => (
+export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
   <Flex w="full" bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
     {options.map((option: string) => (
       <Flex

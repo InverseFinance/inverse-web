@@ -3,7 +3,12 @@ import Container from '@inverse/components/Container'
 import { useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { commify } from 'ethers/lib/utils'
 
-const StabilizerOverviewField = ({ label, children }: any) => (
+type StabilizerOverviewFieldProps = {
+  label: string
+  children: React.ReactNode
+}
+
+const StabilizerOverviewField = ({ label, children }: StabilizerOverviewFieldProps) => (
   <Flex justify="space-between">
     <Text fontSize="sm" fontWeight="semibold" color="purple.100">
       {label}

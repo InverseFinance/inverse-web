@@ -6,8 +6,9 @@ import Container from '@inverse/components/Container'
 import { SkeletonBlob } from '@inverse/components/Skeleton'
 import Table from '@inverse/components/Table'
 import { ANCHOR_STETH, ANCHOR_TOKENS, COMPTROLLER, UNDERLYING, XINV } from '@inverse/config'
-import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
@@ -25,9 +26,9 @@ export const AnchorSupplied = () => {
   const { markets: accountMarkets } = useAccountMarkets()
   const { active } = useWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [modalAsset, setModalAsset] = useState<any>()
+  const [modalAsset, setModalAsset] = useState<Market>()
 
-  const handleSupply = (asset: any) => {
+  const handleSupply = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
@@ -92,7 +93,7 @@ export const AnchorSupplied = () => {
         return (
           <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }}>
             <Flex
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation()
                 const contract = new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner())
                 if (isEnabled) {
@@ -102,7 +103,7 @@ export const AnchorSupplied = () => {
                 }
               }}
             >
-              <Switch size="sm" colorScheme="purple" isChecked={isEnabled} />
+              <Switch size="sm" colorScheme="purple" isChecked={!!isEnabled} />
             </Flex>
           </Flex>
         )
@@ -129,7 +130,7 @@ export const AnchorSupplied = () => {
         items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
         onClick={handleSupply}
       />
-      <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
+      {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
 }
@@ -140,9 +141,9 @@ export const AnchorBorrowed = () => {
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useBorrowBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [modalAsset, setModalAsset] = useState<any>()
+  const [modalAsset, setModalAsset] = useState<Market>()
 
-  const handleBorrow = (asset: any) => {
+  const handleBorrow = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
@@ -211,7 +212,7 @@ export const AnchorBorrowed = () => {
           You don't have any borrowed assets.
         </Flex>
       )}
-      <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
+      {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
 }
@@ -220,9 +221,9 @@ export const AnchorSupply = () => {
   const { markets } = useMarkets()
   const { balances } = useAccountBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [modalAsset, setModalAsset] = useState<any>()
+  const [modalAsset, setModalAsset] = useState<Market>()
 
-  const handleSupply = (asset: any) => {
+  const handleSupply = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
@@ -295,7 +296,7 @@ export const AnchorSupply = () => {
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
     >
       <Table columns={columns} items={items} onClick={handleSupply} />
-      <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
+      {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
 }
@@ -304,9 +305,9 @@ export const AnchorBorrow = () => {
   const { markets } = useMarkets()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [modalAsset, setModalAsset] = useState<any>()
+  const [modalAsset, setModalAsset] = useState<Market>()
 
-  const handleBorrow = (asset: any) => {
+  const handleBorrow = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
@@ -362,7 +363,7 @@ export const AnchorBorrow = () => {
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
     >
       <Table columns={columns} items={items} onClick={handleBorrow} />
-      <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
+      {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
 }

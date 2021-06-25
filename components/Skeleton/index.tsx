@@ -17,7 +17,7 @@ export const SkeletonBlob = (props: any) => (
   />
 )
 
-export const SkeletonList = (props: any) => (
+export const SkeletonList = () => (
   <Flex w="full" direction="column">
     <Skeleton w="full" startColor="purple.100" endColor="purple.300" height={8} mb={4} />
     <SkeletonText

@@ -9,7 +9,7 @@ type Column = {
 type TableProps = {
   columns: Column[]
   items: any[]
-  onClick?: any
+  onClick?: (e: any) => void
 }
 
 export const Table = ({ columns, items, onClick }: TableProps) => (
@@ -28,7 +28,7 @@ export const Table = ({ columns, items, onClick }: TableProps) => (
         <Fragment key={i}>{header}</Fragment>
       ))}
     </Flex>
-    {items?.map((token, i) => (
+    {items?.map((item, i) => (
       <Flex
         key={i}
         w="full"
@@ -41,11 +41,11 @@ export const Table = ({ columns, items, onClick }: TableProps) => (
         pl={4}
         pr={4}
         borderRadius={8}
-        onClick={onClick ? (e) => onClick(token) : undefined}
+        onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => onClick(item) : undefined}
         _hover={{ bgColor: 'purple.900' }}
       >
         {columns.map(({ value }, i) => (
-          <Fragment key={i}>{value(token)}</Fragment>
+          <Fragment key={i}>{value(item)}</Fragment>
         ))}
       </Flex>
     ))}

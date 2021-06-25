@@ -98,7 +98,7 @@ export const XINV_ABI = [
   'function underlying() external view returns (address)',
 ]
 
-export const ABIs = new Map<string, any>(
+export const ABIs = new Map<string, string[]>(
   // @ts-ignore
   ANCHOR_TOKENS.map((address) => [address, CTOKEN_ABI]).concat(
     [

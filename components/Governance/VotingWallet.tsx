@@ -10,7 +10,12 @@ import { smallAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 
-const VotingWalletField = ({ label, children }: any) => (
+type VotingWalletFieldProps = {
+  label: string
+  children: React.ReactNode
+}
+
+const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   <Flex justify="space-between">
     <Text fontSize="sm" fontWeight="medium" color="purple.100">
       {label}

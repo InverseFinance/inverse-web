@@ -1,5 +1,3 @@
-import { BigNumber } from 'ethers'
-
 export type Token = {
   address: string
   name: string
@@ -12,12 +10,12 @@ export type Token = {
 export type Market = {
   token: string
   underlying: Token
-  supplyApy?: number
-  borrowApy?: number
-  rewardApy?: number
-  liquidity?: number
-  collateralFactor?: number
-  borrowable?: boolean
+  supplyApy: number
+  borrowApy: number
+  rewardApy: number
+  liquidity: number
+  collateralFactor: number
+  borrowable: boolean
 }
 
 export type Proposal = {
@@ -67,19 +65,10 @@ export type Delegate = {
   address: string
   balance: number
   delegators: string[]
-  votes: ProposalVote[]
+  votes?: ProposalVote[]
 }
 
-export type Prices = {
-  [key: string]: {
-    [key: string]: number
-  }
-}
-
-export type Balances = {
-  [key: string]: BigNumber
-}
-
-export type Rates = {
-  [key: string]: number
+export type SWR = {
+  isLoading: boolean
+  isError: any
 }

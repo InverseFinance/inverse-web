@@ -2,12 +2,15 @@ import { Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { AnchorButton } from '@inverse/components/Anchor/AnchorButton'
 import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
 import { BalanceInput } from '@inverse/components/Input'
-import { Modal, ModalTabs } from '@inverse/components/Modal'
-import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { Modal, ModalProps } from '@inverse/components/Modal'
+import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { usePrices } from '@inverse/hooks/usePrices'
+import { Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
-import { formatUnits } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { NavButtons } from '../Button'
 
@@ -18,9 +21,18 @@ export enum AnchorOperations {
   repay = 'Repay',
 }
 
-export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
+type AnchorModalProps = ModalProps & {
+  asset: Market
+}
+
+export const AnchorModal = ({
+  isOpen,
+  onClose,
+  asset,
+  operations,
+}: AnchorModalProps & { operations: AnchorOperations[] }) => {
   const [operation, setOperation] = useState(operations[0])
-  const [amount, setAmount] = useState<any>('')
+  const [amount, setAmount] = useState<string>('')
   const { active } = useWeb3React()
   const { balances } = useAccountBalances()
   const { balances: supplyBalances } = useSupplyBalances()
@@ -50,8 +62,6 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
           ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
           : 0
     }
-
-    return 0
   }
 
   const maxLabel = () => {
@@ -65,8 +75,6 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
       case AnchorOperations.repay:
         return 'Wallet'
     }
-
-    return ''
   }
 
   const handleClose = () => {
@@ -88,8 +96,8 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
         <AnchorButton
           operation={operation}
           asset={asset}
-          amount={amount}
-          isDisabled={!amount || !active || isNaN(amount) || parseFloat(amount) > max()}
+          amount={amount && !Number.isNaN(amount) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+          isDisabled={!amount || !active || Number.isNaN(amount) || parseFloat(amount) > max()}
         />
       }
     >
@@ -107,7 +115,7 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
           </Flex>
           <BalanceInput
             value={amount}
-            onChange={(e: any) => setAmount(e.currentTarget.value)}
+            onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
             asset={asset.underlying}
           />
@@ -119,32 +127,20 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
   )
 }
 
-export const AnchorSupplyModal = ({ isOpen, onClose, asset }: any) => {
-  if (!asset) {
-    return <></>
-  }
+export const AnchorSupplyModal = ({ isOpen, onClose, asset }: AnchorModalProps) => (
+  <AnchorModal
+    isOpen={isOpen}
+    onClose={onClose}
+    asset={asset}
+    operations={[AnchorOperations.supply, AnchorOperations.withdraw]}
+  />
+)
 
-  return (
-    <AnchorModal
-      isOpen={isOpen}
-      onClose={onClose}
-      asset={asset}
-      operations={[AnchorOperations.supply, AnchorOperations.withdraw]}
-    />
-  )
-}
-
-export const AnchorBorrowModal = ({ isOpen, onClose, asset }: any) => {
-  if (!asset) {
-    return <></>
-  }
-
-  return (
-    <AnchorModal
-      isOpen={isOpen}
-      onClose={onClose}
-      asset={asset}
-      operations={[AnchorOperations.borrow, AnchorOperations.repay]}
-    />
-  )
-}
+export const AnchorBorrowModal = ({ isOpen, onClose, asset }: AnchorModalProps) => (
+  <AnchorModal
+    isOpen={isOpen}
+    onClose={onClose}
+    asset={asset}
+    operations={[AnchorOperations.borrow, AnchorOperations.repay]}
+  />
+)

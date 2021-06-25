@@ -1,4 +1,5 @@
 import { Flex, Image, Input as ChakraInput, Stack, Textarea as ChakraTextarea } from '@chakra-ui/react'
+import { Token } from '@inverse/types'
 
 export const Input = (props: any) => (
   <ChakraInput
@@ -31,8 +32,16 @@ export const Textarea = (props: any) => (
   />
 )
 
-export const BalanceInput = ({ value, onChange, onMaxClick, label, asset }: any) => (
-  <Flex position="relative" w="full" align="center">
+type BalanceInputProps = {
+  value: string
+  label?: React.ReactNode
+  asset?: Token
+  onChange: (e: React.MouseEvent<HTMLInputElement>) => void
+  onMaxClick: (e: any) => void
+}
+
+export const BalanceInput = ({ value, onChange, onMaxClick, label, asset }: BalanceInputProps) => (
+  <Flex w="full" position="relative" align="center">
     <Flex
       cursor="pointer"
       position="absolute"
@@ -47,14 +56,16 @@ export const BalanceInput = ({ value, onChange, onMaxClick, label, asset }: any)
     >
       MAX
     </Flex>
-    <Input value={value} onChange={onChange} placeholder="0" />
+    <Flex w="full">
+      <Input value={value} onChange={onChange} placeholder="0" />
+    </Flex>
     {asset && (
-      <Stack direction="row" ml={2} mr={2}>
-        <Image w={6} h={6} src={asset.image} />
-        <Flex whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="purple.100">
+      <>
+        <Image ml={2} mr={2} w={6} h={6} src={asset.image} />
+        <Flex fontSize="lg" fontWeight="semibold" color="purple.100">
           {asset.symbol}
         </Flex>
-      </Stack>
+      </>
     )}
     {label && (
       <Flex whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="purple.100" ml={2}>

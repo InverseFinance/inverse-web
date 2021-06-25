@@ -7,9 +7,9 @@ import { Proposal, ProposalStatus } from '@inverse/types'
 import NextLink from 'next/link'
 
 export const Proposals = () => {
-  const { proposals } = useProposals()
+  const { proposals, isLoading } = useProposals()
 
-  if (!proposals) {
+  if (isLoading) {
     return (
       <Container
         label="Governance Proposals"
@@ -65,9 +65,9 @@ export const ActiveProposals = () => {
 }
 
 export const RecentProposals = () => {
-  const { proposals } = useProposals()
+  const { proposals, isLoading } = useProposals()
 
-  if (!proposals) {
+  if (isLoading) {
     return (
       <Container label="Recent Proposals">
         <SkeletonBlob skeletonHeight={16} noOfLines={4} />
