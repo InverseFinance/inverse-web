@@ -117,7 +117,7 @@ export const AnchorSupplied = () => {
   if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances) {
     return (
       <Container description="Your supplied assets">
-        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+        <SkeletonBlob skeletonHeight={6} noOfLines={5} />
       </Container>
     )
   }
@@ -190,7 +190,7 @@ export const AnchorBorrowed = () => {
   if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances) {
     return (
       <Container description="Your borrowed assets">
-        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+        <SkeletonBlob skeletonHeight={6} noOfLines={5} />
       </Container>
     )
   }
@@ -293,7 +293,7 @@ export const AnchorSupply = () => {
         description="Earn interest on your deposits"
         href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
       >
-        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+        <SkeletonBlob skeletonHeight={6} noOfLines={5} />
       </Container>
     )
   }
@@ -364,7 +364,7 @@ export const AnchorBorrow = () => {
         description="Borrow against your supplied collateral"
         href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
       >
-        <SkeletonBlob skeletonHeight={8} noOfLines={5} />
+        <SkeletonBlob skeletonHeight={6} noOfLines={5} />
       </Container>
     )
   }

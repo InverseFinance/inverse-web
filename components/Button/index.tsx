@@ -111,12 +111,12 @@ export const ToggleButton = ({ onClick, active, options }: any) => (
   </Flex>
 )
 
-export const NavButtons = ({ width, options, active, onClick }: any) => (
-  <Flex bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
+export const NavButtons = ({ options, active, onClick }: any) => (
+  <Flex w="full" bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
     {options.map((option: string) => (
       <Flex
         key={option}
-        w={width}
+        w="full"
         justify="center"
         pt={1}
         pb={1}
