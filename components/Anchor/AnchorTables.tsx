@@ -1,20 +1,20 @@
 import { Flex, Image, Stack, Switch, Text, useDisclosure } from '@chakra-ui/react'
+import { Web3Provider } from '@ethersproject/providers'
+import { COMPTROLLER_ABI } from '@inverse/abis'
+import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
 import Container from '@inverse/components/Container'
-import { COMPTROLLER, XINV } from '@inverse/config'
-import { Market } from '@inverse/types'
-import { commify, formatUnits } from 'ethers/lib/utils'
+import { SkeletonBlob } from '@inverse/components/Skeleton'
+import Table from '@inverse/components/Table'
+import { ANCHOR_STETH, ANCHOR_TOKENS, COMPTROLLER, UNDERLYING, XINV } from '@inverse/config'
+import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
-import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import Table from '@inverse/components/Table'
-import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
-import { Web3Provider } from '@ethersproject/providers'
 import { Contract } from 'ethers'
-import { COMPTROLLER_ABI } from '@inverse/abis'
+import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { AnchorBorrowModal, AnchorSupplyModal } from './AnchorModals'
-import { SkeletonBlob } from '../Skeleton'
 
 export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
@@ -286,17 +286,7 @@ export const AnchorSupply = () => {
     },
   ]
 
-  if (!markets) {
-    return (
-      <Container
-        label="Supply"
-        description="Earn interest on your deposits"
-        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
-      >
-        <SkeletonBlob skeletonHeight={6} noOfLines={5} />
-      </Container>
-    )
-  }
+  const items = markets || ANCHOR_TOKENS.concat([XINV]).map((address: string) => ({ underlying: UNDERLYING[address] }))
 
   return (
     <Container
@@ -304,7 +294,7 @@ export const AnchorSupply = () => {
       description="Earn interest on your deposits"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
     >
-      <Table columns={columns} items={markets} onClick={handleSupply} />
+      <Table columns={columns} items={items} onClick={handleSupply} />
       <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
   )
@@ -350,24 +340,20 @@ export const AnchorBorrow = () => {
         </Flex>
       ),
       value: ({ underlying, liquidity }: Market) => (
-        <Text textAlign="end" minWidth={24}>{`$${
-          liquidity ? commify(((liquidity * (prices ? prices[underlying.coingeckoId]?.usd : 1)) / 1e6).toFixed(2)) : 0
-        }M`}</Text>
+        <Text textAlign="end" minWidth={24}>
+          {liquidity
+            ? `$${commify(((liquidity * (prices ? prices[underlying.coingeckoId]?.usd : 1)) / 1e6).toFixed(2))}M`
+            : '-'}
+        </Text>
       ),
     },
   ]
 
-  if (!markets) {
-    return (
-      <Container
-        label="Borrow"
-        description="Borrow against your supplied collateral"
-        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
-      >
-        <SkeletonBlob skeletonHeight={6} noOfLines={5} />
-      </Container>
-    )
-  }
+  const items =
+    markets?.filter(({ borrowable }: Market) => borrowable) ||
+    ANCHOR_TOKENS.filter((address: string) => address !== ANCHOR_STETH).map((address: string) => ({
+      underlying: UNDERLYING[address],
+    }))
 
   return (
     <Container
@@ -375,7 +361,7 @@ export const AnchorBorrow = () => {
       description="Borrow against your supplied collateral"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
     >
-      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} />
+      <Table columns={columns} items={items} onClick={handleBorrow} />
       <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />
     </Container>
   )

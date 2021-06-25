@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { UNDERLYING } from '@inverse/config'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useWeb3React } from '@web3-react/core'
-import useEtherSWR from './useEtherSWR'
 
 export const useApprovals = () => {
   const { account } = useWeb3React<Web3Provider>()

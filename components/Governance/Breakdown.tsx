@@ -1,11 +1,14 @@
-import { useProposals } from '@inverse/hooks/useProposals'
-import Container from '../Container'
-import { VictoryPie } from 'victory'
-import { Proposal, ProposalStatus } from '@inverse/types'
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { SkeletonList } from '../Skeleton'
+import { Web3Provider } from '@ethersproject/providers'
+import Container from '@inverse/components/Container'
+import { SkeletonList } from '@inverse/components/Skeleton'
+import { useProposals } from '@inverse/hooks/useProposals'
+import { Proposal, ProposalStatus } from '@inverse/types'
+import { useWeb3React } from '@web3-react/core'
+import { VictoryPie } from 'victory'
 
 export const Breakdown = () => {
+  const { active: noPadding } = useWeb3React<Web3Provider>()
   const { proposals } = useProposals()
 
   if (!proposals) {
@@ -33,7 +36,7 @@ export const Breakdown = () => {
   )
 
   return proposals ? (
-    <Container>
+    <Container label="Voting Results">
       <Flex direction="row" align="center" justify="space-around">
         <Flex w="full" align="center" justify="center">
           <VictoryPie

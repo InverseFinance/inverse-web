@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { ProposalStatus } from '@inverse/types'
 import { getGovernanceContract, getNewMulticallProvider, getNewProvider } from '@inverse/util/contracts'
 import { formatUnits } from 'ethers/lib/utils'
-import { ProposalStatus } from '@inverse/types'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const GRACE_PERIOD = 1209600
 

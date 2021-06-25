@@ -1,14 +1,14 @@
 import { Flex, Image, Stack } from '@chakra-ui/react'
-import Logo from '@inverse/components/Logo'
-import Link from '@inverse/components/Link'
-import { ConnectButton, OutlineButton } from '../Button'
-import { injectedConnector } from '@inverse/util/web3'
 import { Web3Provider } from '@ethersproject/providers'
-import { useWeb3React } from '@web3-react/core'
+import { ConnectButton, OutlineButton } from '@inverse/components/Button'
+import Link from '@inverse/components/Link'
+import Logo from '@inverse/components/Logo'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { useEffect, useState } from 'react'
 import { smallAddress } from '@inverse/util'
+import { injectedConnector } from '@inverse/util/web3'
+import { useWeb3React } from '@web3-react/core'
+import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
   {

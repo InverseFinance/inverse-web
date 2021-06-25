@@ -1,14 +1,15 @@
 import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { AnchorButton } from '@inverse/components/Anchor/AnchorButton'
+import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
+import { BalanceInput } from '@inverse/components/Input'
+import { Modal, ModalTabs } from '@inverse/components/Modal'
+import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
+import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { usePrices } from '@inverse/hooks/usePrices'
+import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { BalanceInput, Input } from '../Input'
-import { Modal, ModalTabs } from '../Modal'
-import { AnchorStats } from './AnchorStats'
-import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
-import { usePrices } from '@inverse/hooks/usePrices'
-import { AnchorButton } from './AnchorButton'
-import { useWeb3React } from '@web3-react/core'
+import { NavButtons } from '../Button'
 
 export enum AnchorOperations {
   supply = 'Supply',
@@ -92,8 +93,8 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
         />
       }
     >
-      <Stack>
-        <Stack align="center" p={6} spacing={1}>
+      <Stack p={4} w="full" spacing={4}>
+        <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
               <Text fontSize="13px" fontWeight="semibold" color="purple.100">
@@ -108,10 +109,10 @@ export const AnchorModal = ({ isOpen, onClose, asset, operations }: any) => {
             value={amount}
             onChange={(e: any) => setAmount(e.currentTarget.value)}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
-            label={asset.underlying.symbol}
+            asset={asset.underlying}
           />
         </Stack>
-        <ModalTabs tabs={operations} active={operation} onChange={setOperation} />
+        <NavButtons options={operations} active={operation} onClick={setOperation} />
         <AnchorStats operation={operation} asset={asset} amount={amount} />
       </Stack>
     </Modal>

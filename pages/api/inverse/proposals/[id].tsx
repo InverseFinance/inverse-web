@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { getGovernanceContract, getNewMulticallProvider, getNewProvider } from '@inverse/util/contracts'
 import { formatUnits } from 'ethers/lib/utils'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query

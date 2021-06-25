@@ -1,10 +1,10 @@
-import { Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { Flex, Stack } from '@chakra-ui/react'
+import Container from '@inverse/components/Container'
+import { ProposalPreview } from '@inverse/components/Governance/Proposal'
+import { SkeletonBlob } from '@inverse/components/Skeleton'
 import { useProposals } from '@inverse/hooks/useProposals'
-import Container from '../Container'
 import { Proposal, ProposalStatus } from '@inverse/types'
 import NextLink from 'next/link'
-import { ProposalPreview } from './Proposal'
-import { SkeletonBlob } from '../Skeleton'
 
 export const Proposals = () => {
   const { proposals } = useProposals()
@@ -40,18 +40,6 @@ export const Proposals = () => {
 
 export const ActiveProposals = () => {
   const { proposals } = useProposals()
-
-  if (!proposals) {
-    return (
-      <Container
-        label="Active Proposals"
-        description="Participate in governance of the DAO"
-        href="https://docs.inverse.finance/governance"
-      >
-        <SkeletonBlob skeletonHeight={16} noOfLines={1} />
-      </Container>
-    )
-  }
 
   const active = proposals
     ?.filter((proposal: Proposal) => proposal.status === ProposalStatus.active)
@@ -90,7 +78,7 @@ export const RecentProposals = () => {
   const recent = proposals
     ?.filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
     .sort((a: Proposal, b: Proposal) => b.id - a.id)
-    .slice(0, 7)
+    .slice(0, 10)
 
   return (
     <Container label="Recent Proposals">

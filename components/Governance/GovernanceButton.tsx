@@ -1,13 +1,13 @@
 import { Flex, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
+import { SubmitButton } from '@inverse/components/Button'
+import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
 import { GOVERNANCE } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposals } from '@inverse/hooks/useProposals'
 import { ProposalStatus } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
-import { SubmitButton } from '../Button'
-import { VoteModal } from './GovernanceModals'
 
 export const VoteButton = ({ id }: { id: number }) => {
   const { active, account } = useWeb3React<Web3Provider>()

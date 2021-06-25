@@ -1,4 +1,4 @@
-import { mainnetConfig } from './mainnet'
+import { mainnetConfig } from '@inverse/config/mainnet'
 
 // TODO: Clean-up config
 const config = mainnetConfig

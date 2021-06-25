@@ -1,6 +1,6 @@
 import { Image, Stack, Text } from '@chakra-ui/react'
+import Link from '@inverse/components/Link'
 import Logo from '@inverse/components/Logo'
-import Link from '../Link'
 
 const INVERSE_SOCIALS = [
   {

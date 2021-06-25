@@ -1,11 +1,10 @@
-import { ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { STABILIZER_ABI } from '@inverse/abis'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
-import Link from '@inverse/components/Link'
 import { DAI, DOLA, STABILIZER, TOKENS } from '@inverse/config'
 import { useAccountBalances } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
@@ -43,28 +42,25 @@ export const StabilizerView = () => {
     }
   }
 
-  const Header = () => (
-    <Flex minH={14} w="full" justify="space-between" align="flex-end">
-      <Flex direction="column" justify="flex-end">
-        <Text fontSize="xl" fontWeight="bold">
-          Stabilizer
-        </Text>
-        <Flex>
-          <Link href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer" fontSize="sm" isExternal>
-            Help DOLA maintain it's peg to USD <ExternalLinkIcon />
-          </Link>
-        </Flex>
-      </Flex>
-      <Stack direction={operation === StabilizerOperations.buy ? 'row-reverse' : 'row'} spacing={1} align="center">
-        <Image w={8} h={8} src={TOKENS[DOLA].image} />
-        <ChevronRightIcon boxSize={7} />
-        <Image w={7} h={7} src={TOKENS[DAI].image} />
-      </Stack>
-    </Flex>
-  )
-
   return (
-    <Container label={<Header />}>
+    <Container
+      label="Stabilizer"
+      description="Help DOLA maintain it's peg to USD"
+      href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
+      right={
+        <Stack
+          w={32}
+          direction={operation === StabilizerOperations.buy ? 'row-reverse' : 'row'}
+          spacing={1}
+          justify={operation === StabilizerOperations.buy ? '' : 'flex-end'}
+          align="center"
+        >
+          <Image w={8} h={8} src={TOKENS[DOLA].image} />
+          <ChevronRightIcon boxSize={7} />
+          <Image w={7} h={7} src={TOKENS[DAI].image} />
+        </Stack>
+      }
+    >
       <Stack w="full">
         <NavButtons
           width={16}
@@ -72,32 +68,27 @@ export const StabilizerView = () => {
           active={operation}
           onClick={setOperation}
         />
-        <Flex direction="column" pt={2} pb={2}>
-          <Flex justify="space-between">
-            <Text fontSize="13px" fontWeight="semibold" color="purple.100">
-              Amount
-            </Text>
-            {balances && (
-              <Stack direction="row" align="flex-end" justify="flex-end" spacing={1}>
-                <Text fontSize="13px" fontWeight="semibold" color="purple.100">
-                  Wallet:
-                </Text>
-                <Text fontSize="13px" fontWeight="semibold">
-                  {`${(operation === StabilizerOperations.buy
-                    ? parseFloat(formatUnits(balances[DAI]))
-                    : parseFloat(formatUnits(balances[DOLA]))
-                  ).toFixed(2)} ${operation === StabilizerOperations.buy ? 'DAI' : 'DOLA'}`}
-                </Text>
-              </Stack>
-            )}
-          </Flex>
+        <Stack spacing={1} pt={2} pb={2}>
+          {balances && (
+            <Stack direction="row" align="flex-end" justify="flex-end" spacing={1}>
+              <Text fontSize="13px" fontWeight="semibold" color="purple.100">
+                Wallet:
+              </Text>
+              <Text fontSize="13px" fontWeight="semibold">
+                {`${(operation === StabilizerOperations.buy
+                  ? parseFloat(formatUnits(balances[DAI]))
+                  : parseFloat(formatUnits(balances[DOLA]))
+                ).toFixed(2)} ${operation === StabilizerOperations.buy ? 'DAI' : 'DOLA'}`}
+              </Text>
+            </Stack>
+          )}
           <BalanceInput
             value={amount}
             onChange={(e: any) => setAmount(e.currentTarget.value)}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
-            label={operation === StabilizerOperations.buy ? 'DAI' : 'DOLA'}
+            asset={operation === StabilizerOperations.buy ? TOKENS[DAI] : TOKENS[DOLA]}
           />
-        </Flex>
+        </Stack>
         <SubmitButton
           isDisabled={!active || !amount || !balances || isNaN(amount) || parseFloat(amount) > max()}
           onClick={handleSubmit}

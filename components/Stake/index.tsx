@@ -9,7 +9,7 @@ import { DOLA } from '@inverse/config/mainnet'
 import { useAccountBalances } from '@inverse/hooks/useBalances'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber, Contract } from 'ethers'
+import { Contract } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -54,16 +54,14 @@ export const StakeView = () => {
 
   return (
     <Container
-      label={
-        <Stack direction="row" align="center">
-          <Text fontSize="xl" fontWeight="bold">
-            DOLA-3CRV
-          </Text>
+      label="DOLA-3CRV"
+      description="Stake DOLA-3CRV LP tokens to earn INV"
+      right={
+        <Stack w={32} justify="flex-end" direction="row">
           <Image w={6} h={6} src={TOKENS[DOLA].image} />
           <Image w={5} h={5} src={TOKENS[THREECRV].image} />
         </Stack>
       }
-      description="Stake your DOLA-3CRV Curve LP tokens to earn INV"
     >
       <Stack w="full">
         <NavButtons
@@ -72,36 +70,31 @@ export const StakeView = () => {
           onClick={setOperation}
         />
         {operation === StakeOperations.claim ? (
-          <Stack direction="row" justify="center" align="center">
+          <Stack direction="row" justify="center" align="center" p={6}>
             <Text fontWeight="medium" color="purple.100" fontSize="xl">
               Claimable:
             </Text>
             <Text fontWeight="semibold" fontSize="xl">{`${max().toFixed(2)} INV`}</Text>
           </Stack>
         ) : (
-          <Flex direction="column" pt={2} pb={2}>
-            <Flex justify="space-between">
-              <Text fontSize="13px" fontWeight="semibold" color="purple.100">
-                Amount
-              </Text>
-              {balances && (
-                <Stack direction="row" align="flex-end" justify="flex-end" spacing={1}>
-                  <Text fontSize="13px" fontWeight="semibold" color="purple.100">
-                    Available:
-                  </Text>
-                  <Text fontSize="13px" fontWeight="semibold">
-                    {`${max().toFixed(2)} DOLA-3CRV`}
-                  </Text>
-                </Stack>
-              )}
-            </Flex>
+          <Stack spacing={1} pt={2} pb={2}>
+            {balances && (
+              <Stack direction="row" align="flex-end" justify="flex-end" spacing={1}>
+                <Text fontSize="13px" fontWeight="semibold" color="purple.100">
+                  Available:
+                </Text>
+                <Text fontSize="13px" fontWeight="semibold">
+                  {`${max().toFixed(2)} DOLA-3CRV`}
+                </Text>
+              </Stack>
+            )}
             <BalanceInput
               value={amount}
               onChange={(e: any) => setAmount(e.currentTarget.value)}
               onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
               label="DOLA-3CRV"
             />
-          </Flex>
+          </Stack>
         )}
         <SubmitButton
           isDisabled={!active || !amount || isNaN(amount) || parseFloat(amount) > max()}

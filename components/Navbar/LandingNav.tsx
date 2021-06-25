@@ -1,8 +1,8 @@
 import { Flex, Image, Stack, Text } from '@chakra-ui/react'
 import LinkButton from '@inverse/components/Button'
+import Link from '@inverse/components/Link'
 import Logo from '@inverse/components/Logo'
 import { useState } from 'react'
-import Link from '../Link'
 
 const INVERSE_NAV = [
   {

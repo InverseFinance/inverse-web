@@ -1,10 +1,10 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ANCHOR_TOKENS, UNDERLYING, XINV } from '@inverse/config'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { Balances } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import useSWR from 'swr'
-import useEtherSWR from './useEtherSWR'
 
 export const useAccountBalances = () => {
   const { account } = useWeb3React<Web3Provider>()

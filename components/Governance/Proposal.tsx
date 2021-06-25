@@ -1,16 +1,16 @@
-import { Badge, Flex, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { Badge, Flex, Stack, Text } from '@chakra-ui/react'
+import { Avatar } from '@inverse/components/Avatar'
+import Container from '@inverse/components/Container'
+import Link from '@inverse/components/Link'
+import { SkeletonBlob, SkeletonTitle } from '@inverse/components/Skeleton'
+import { CONTRACTS } from '@inverse/config'
 import { useProposal } from '@inverse/hooks/useProposals'
-import Container from '../Container'
 import { Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
+import { smallAddress } from '@inverse/util'
+import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
 import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import { Avatar } from '../Avatar'
-import Link from '../Link'
-import { smallAddress } from '@inverse/util'
-import { CONTRACTS } from '@inverse/config'
-import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
-import { SkeletonBlob, SkeletonTitle } from '../Skeleton'
 
 const badgeColors: any = {
   [ProposalStatus.active]: 'gray',
@@ -143,7 +143,7 @@ export const ProposalActions = ({ id }: { id: number }) => {
 
   return (
     <Container label="Actions">
-      <Stack w="full" overflowX="auto" spacing={0} direction="column" wrap="wrap" shouldWrapChildren>
+      <Stack w="full" spacing={6} p={2}>
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
           const callDatas = new AbiCoder()
             .decode(FunctionFragment.from(signature).inputs, callData)
@@ -151,38 +151,34 @@ export const ProposalActions = ({ id }: { id: number }) => {
             .split(',')
 
           return (
-            <Stack w={56} m={2} key={i}>
-              <Stack spacing={1} w="full">
-                <Flex fontSize="xs" fontWeight="semibold" textTransform="uppercase" color="purple.200">{`Action ${
-                  i + 1
-                }`}</Flex>
-                <Flex direction="column">
-                  <Flex w="full" fontSize="15px">
-                    <Link href={`https://etherscan.io/address/${target}`} color="purple.100" fontWeight="semibold">
-                      {CONTRACTS[target] || target}
-                    </Link>
-                    <Flex fontWeight="medium">{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>
-                  </Flex>
-                  <Flex w="full" direction="column" fontSize="sm" fontWeight="medium" paddingLeft={4}>
-                    {callDatas.map((data: string, i) =>
-                      isAddress(data) ? (
-                        <Flex>
-                          <Link key={i} href={`https://etherscan.io/address/${data}`}>
-                            {CONTRACTS[data] || data}
-                            {i + 1 !== callDatas.length ? ',' : ''}
-                          </Link>
-                        </Flex>
-                      ) : (
-                        <Text key={i}>
-                          {data}
-                          {i + 1 !== callDatas.length ? ',' : ''}
-                        </Text>
-                      )
-                    )}
-                  </Flex>
-                  {callDatas[0] && <Text>)</Text>}
+            <Stack w="full" key={i} spacing={1}>
+              <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="purple.200">{`Action ${
+                i + 1
+              }`}</Flex>
+              <Flex w="full" overflowX="auto" direction="column" bgColor="purple.900" borderRadius={8} p={3}>
+                <Flex fontSize="15px">
+                  <Link href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">
+                    {CONTRACTS[target] || target}
+                  </Link>
+                  <Flex>{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>
                 </Flex>
-              </Stack>
+                <Flex direction="column" fontSize="sm" pl={4} pr={4}>
+                  {callDatas.map((data: string, i) =>
+                    isAddress(data) ? (
+                      <Link key={i} href={`https://etherscan.io/address/${data}`} whiteSpace="nowrap">
+                        {CONTRACTS[data] || data}
+                        {i + 1 !== callDatas.length ? ',' : ''}
+                      </Link>
+                    ) : (
+                      <Text key={i}>
+                        {data}
+                        {i + 1 !== callDatas.length ? ',' : ''}
+                      </Text>
+                    )
+                  )}
+                </Flex>
+                {callDatas[0] && <Text>)</Text>}
+              </Flex>
             </Stack>
           )
         })}

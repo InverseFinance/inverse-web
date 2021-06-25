@@ -1,12 +1,12 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { formatUnits } from 'ethers/lib/utils'
-import { usePrices } from '@inverse/hooks/usePrices'
-import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
 import { useAccountLiquidity, useExchangeRates } from '@inverse/hooks/useAccountLiquidity'
-import { AnchorOperations } from './AnchorModals'
+import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { usePrices } from '@inverse/hooks/usePrices'
+import { formatUnits } from 'ethers/lib/utils'
 
 const StatBlock = ({ label, stats }: any) => (
-  <Stack w="full" p={4} pt={2} spacing={1}>
+  <Stack w="full" pt={2} spacing={1}>
     <Text fontSize="xs" fontWeight="semibold" color="purple.100" textTransform="uppercase">
       {label}
     </Text>
@@ -81,7 +81,7 @@ const BorrowLimit = ({ asset, amount }: any) => {
 
   return (
     <StatBlock
-      label="Borrow Limit"
+      label="Borrow Stats"
       stats={[
         {
           label: 'Borrow Limit',
@@ -111,7 +111,7 @@ const BorrowLimitRemaining = ({ asset, amount }: any) => {
 
   return (
     <StatBlock
-      label="Borrow Limit"
+      label="Borrow Stats"
       stats={[
         {
           label: 'Borrow Limit Remaining',

@@ -1,10 +1,10 @@
 import { Flex } from '@chakra-ui/react'
 import {
   ActiveProposals,
-  RecentProposals,
-  DelegatesPreview,
-  VotingWallet,
   Breakdown,
+  DelegatesPreview,
+  RecentProposals,
+  VotingWallet,
 } from '@inverse/components/Governance'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'

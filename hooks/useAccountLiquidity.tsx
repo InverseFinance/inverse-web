@@ -1,12 +1,12 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ANCHOR_TOKENS, COMPTROLLER, UNDERLYING, XINV } from '@inverse/config'
+import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { useMarkets } from '@inverse/hooks/useMarkets'
+import { usePrices } from '@inverse/hooks/usePrices'
 import { Balances, Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
-import { useBorrowBalances, useSupplyBalances } from './useBalances'
-import useEtherSWR from './useEtherSWR'
-import { useMarkets } from './useMarkets'
-import { usePrices } from './usePrices'
 
 export const useExchangeRates = () => {
   const tokens = ANCHOR_TOKENS.concat([XINV])

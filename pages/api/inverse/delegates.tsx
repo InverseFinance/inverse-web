@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getINVContract, getNewMulticallProvider, getNewProvider } from '@inverse/util/contracts'
 import { START_BLOCK } from '@inverse/config'
+import { getINVContract, getNewMulticallProvider, getNewProvider } from '@inverse/util/contracts'
 import { formatUnits } from 'ethers/lib/utils'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const provider = getNewMulticallProvider(getNewProvider())

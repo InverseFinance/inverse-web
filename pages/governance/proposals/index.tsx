@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
-import { Proposals, Breakdown, DelegatesPreview, VotingWallet } from '@inverse/components/Governance'
+import { Breakdown, DelegatesPreview, Proposals, VotingWallet } from '@inverse/components/Governance'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 

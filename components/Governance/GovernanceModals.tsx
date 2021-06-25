@@ -2,6 +2,11 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Text, useClipboard } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { GOVERNANCE_ABI, INV_ABI } from '@inverse/abis'
+import { Avatar } from '@inverse/components/Avatar'
+import { NavButtons, SubmitButton } from '@inverse/components/Button'
+import { Input, Textarea } from '@inverse/components/Input'
+import Link from '@inverse/components/Link'
+import { Modal, ModalTabs } from '@inverse/components/Modal'
 import { GOVERNANCE, INV } from '@inverse/config'
 import { useDelegates } from '@inverse/hooks/useDelegates'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
@@ -10,15 +15,9 @@ import { useVoters } from '@inverse/hooks/useVoters'
 import { Delegate, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
-import { Signer } from 'crypto'
 import { Contract } from 'ethers'
 import { commify, isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { Avatar } from '../Avatar'
-import { SubmitButton } from '../Button'
-import { Input, Textarea } from '../Input'
-import Link from '../Link'
-import { Modal, ModalTabs } from '../Modal'
 
 enum VoteType {
   for = 'For',
@@ -94,12 +93,12 @@ export const DelegatesModal = ({ isOpen, onClose }: any) => {
       isOpen={isOpen}
       header={
         <Stack minWidth={24} direction="row" align="center">
-          <Text>Delegates</Text>
+          <Text>{`${delegates.length} Delegates`}</Text>
         </Stack>
       }
     >
       <Stack m={3} height={400} overflowY="auto">
-        {delegates.map(({ address, balance, delegators, votes }: Delegate) => (
+        {delegates.map(({ address, balance, delegators }: Delegate) => (
           <Flex
             cursor="pointer"
             justify="space-between"
@@ -157,11 +156,11 @@ export const VoteModal = ({ isOpen, onClose, id }: any) => {
         </SubmitButton>
       }
     >
-      <Stack>
-        <ModalTabs
-          tabs={['For', 'Against']}
+      <Stack p={4}>
+        <NavButtons
+          options={['For', 'Against']}
           active={support ? 'For' : 'Against'}
-          onChange={(selected: string) => setSupport(selected === 'For')}
+          onClick={(selected: string) => setSupport(selected === 'For')}
         />
       </Stack>
     </Modal>
@@ -239,12 +238,12 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: any) => {
         )
       }
     >
-      <Stack>
-        <ModalTabs tabs={['Delegate', 'Self']} active={delegationType} onChange={setDelegationType} />
+      <Stack p={4}>
+        <NavButtons options={['Delegate', 'Self']} active={delegationType} onClick={setDelegationType} />
         {delegationType === 'Self' ? (
           <Flex></Flex>
         ) : !signature ? (
-          <Stack p={4} pt={2} direction="column" spacing={4}>
+          <Stack direction="column" spacing={4}>
             <Stack spacing={1}>
               <Text fontWeight="semibold">Select Delegate</Text>
               <Text fontSize="sm">

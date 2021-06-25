@@ -1,13 +1,13 @@
-//@ts-nocheck
+// @ts-nocheck
 // TODO: Refactor this entire mess
-import { useEffect } from 'react'
-import useSWR, { cache, mutate } from 'swr'
 import { isAddress } from '@ethersproject/address'
-import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import { ABIs } from '@inverse/abis'
 import etherJsFetcher from '@inverse/util/fetcher'
+import { useWeb3React } from '@web3-react/core'
 import { Contract } from 'ethers'
+import { useEffect } from 'react'
+import useSWR, { cache, mutate } from 'swr'
 
 export { cache } from 'swr'
 export type etherKeyFuncInterface = () => ethKeyInterface | ethKeysInterface

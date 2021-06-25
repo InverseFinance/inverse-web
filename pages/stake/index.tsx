@@ -7,7 +7,7 @@ export const Stake = () => (
   <Layout>
     <AppNav active="Stake" />
     <Flex justify="center" direction="column">
-      <Flex w={{ base: 'full', xl: 'lg' }}>
+      <Flex w={{ base: 'full', xl: 'xl' }}>
         <StakeView />
       </Flex>
     </Flex>

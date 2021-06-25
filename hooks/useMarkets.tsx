@@ -1,9 +1,9 @@
 import { COMPTROLLER } from '@inverse/config'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { Market } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import useSWR from 'swr'
-import useEtherSWR from './useEtherSWR'
 
 export const useMarkets = () => {
   const { data, error } = useSWR(`${process.env.API_URL}/anchor/markets`, fetcher)

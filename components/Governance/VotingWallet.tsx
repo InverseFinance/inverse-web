@@ -1,14 +1,14 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { AddressZero } from '@ethersproject/constants'
 import { Web3Provider } from '@ethersproject/providers'
+import { Avatar } from '@inverse/components/Avatar'
+import Container from '@inverse/components/Container'
+import { ChangeDelegatesModal } from '@inverse/components/Governance'
 import { INV, XINV } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { smallAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
-import { Avatar } from '../Avatar'
-import Container from '../Container'
-import { AddressZero } from '@ethersproject/constants'
-import { ChangeDelegatesModal } from '@inverse/components/Governance'
 
 const VotingWalletField = ({ label, children }: any) => (
   <Flex justify="space-between">
@@ -43,7 +43,7 @@ export const VotingWallet = () => {
   return (
     <Container label="Your Voting Wallet">
       <Stack w="full">
-        <Stack justify="center" align="center">
+        <Stack w="full" direction="row" justify="center" align="center">
           <Avatar address={account} boxSize={5} />
           <Text mt={1} fontSize="sm" fontWeight="medium" color="purple.100">
             {smallAddress(account)}

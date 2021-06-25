@@ -1,4 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { ANCHOR_ETH, BLOCKS_PER_DAY, DAYS_PER_YEAR, ETH_MANTISSA, INV, TOKENS, UNDERLYING } from '@inverse/config'
+import { Market } from '@inverse/types'
 import {
   getAnchorContracts,
   getComptrollerContract,
@@ -6,9 +7,8 @@ import {
   getNewProvider,
   getXINVContract,
 } from '@inverse/util/contracts'
-import { ANCHOR_ETH, INV, TOKENS, ETH_MANTISSA, BLOCKS_PER_DAY, DAYS_PER_YEAR, UNDERLYING } from '@inverse/config'
-import { Market } from '@inverse/types'
 import { formatUnits } from 'ethers/lib/utils'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const toApy = (rate: number) => (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) * 100
 

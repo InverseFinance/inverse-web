@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { ANCHOR_DOLA, ANCHOR_ETH, TOKENS, UNDERLYING, WETH } from '@inverse/config'
 import { getAnchorContracts, getNewMulticallProvider, getNewProvider, getXINVContract } from '@inverse/util/contracts'
-import { ANCHOR_DOLA, ANCHOR_ETH, TOKENS, UNDERLYING, WETH, XINV } from '@inverse/config'
 import { BigNumber, Contract, utils } from 'ethers'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const provider = getNewMulticallProvider(getNewProvider())

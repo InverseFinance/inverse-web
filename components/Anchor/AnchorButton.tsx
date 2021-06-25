@@ -1,5 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { CETHER_ABI, COMPTROLLER_ABI, CTOKEN_ABI, ERC20_ABI } from '@inverse/abis'
+import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
+import { SubmitButton } from '@inverse/components/Button'
 import { ANCHOR_ETH, COMPTROLLER } from '@inverse/config'
 import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
@@ -8,8 +10,6 @@ import { Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { constants, Contract } from 'ethers'
 import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils'
-import { SubmitButton } from '../Button'
-import { AnchorOperations } from './AnchorModals'
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: any) => {
   const { account, library } = useWeb3React<Web3Provider>()

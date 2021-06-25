@@ -1,17 +1,10 @@
-import { Flex, useDisclosure } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
+import { AnchorBorrow, AnchorBorrowed, AnchorOverview, AnchorSupplied, AnchorSupply } from '@inverse/components/Anchor'
+import { NavButtons, ToggleButton } from '@inverse/components/Button'
+import Container from '@inverse/components/Container'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 import { useState } from 'react'
-import { ToggleButton } from '@inverse/components/Button'
-import {
-  AnchorBorrow,
-  AnchorBorrowed,
-  AnchorBorrowModal,
-  AnchorOverview,
-  AnchorSupplied,
-  AnchorSupply,
-  AnchorSupplyModal,
-} from '@inverse/components/Anchor'
 
 export const Anchor = () => {
   const [active, setActive] = useState('Supply')
@@ -27,7 +20,9 @@ export const Anchor = () => {
       </Flex>
       <Flex w="full" direction="column" justify="center">
         <Flex w="full" justify="center" display={{ base: 'flex', lg: 'none' }}>
-          <ToggleButton active={active} onClick={setActive} options={['Supply', 'Borrow']} />
+          <Container noPadding>
+            <NavButtons options={['Supply', 'Borrow']} active={active} onClick={setActive} />
+          </Container>
         </Flex>
         <Flex w="full" justify="center">
           <Flex w={{ base: 'full', xl: '2xl' }} justify="flex-end" display={supplyDisplay}>

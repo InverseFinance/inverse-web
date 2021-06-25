@@ -1,12 +1,12 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Avatar } from '@inverse/components/Avatar'
+import Container from '@inverse/components/Container'
+import { AgainstVotesModal, ForVotesModal } from '@inverse/components/Governance/GovernanceModals'
+import { SkeletonList } from '@inverse/components/Skeleton'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
 import { useVoters } from '@inverse/hooks/useVoters'
 import { ProposalStatus, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
-import { Avatar } from '../Avatar'
-import Container from '../Container'
-import { SkeletonList, SkeletonTitle } from '../Skeleton'
-import { AgainstVotesModal, ForVotesModal } from './GovernanceModals'
 
 const MAX_PREVIEW = 5
 

@@ -1,14 +1,14 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import Container from '@inverse/components/Container'
-import { commify, formatEther } from 'ethers/lib/utils'
-import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useRewards } from '@inverse/hooks/useRewards'
-import { ClaimButton } from '../Button'
-import { Contract } from 'ethers'
-import { COMPTROLLER } from '@inverse/config'
 import { Web3Provider } from '@ethersproject/providers'
 import { COMPTROLLER_ABI } from '@inverse/abis'
+import { ClaimButton } from '@inverse/components/Button'
+import Container from '@inverse/components/Container'
+import { COMPTROLLER } from '@inverse/config'
+import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
+import { useRewards } from '@inverse/hooks/useRewards'
 import { useWeb3React } from '@web3-react/core'
+import { Contract } from 'ethers'
+import { commify } from 'ethers/lib/utils'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()
@@ -17,19 +17,18 @@ export const AnchorOverview = () => {
 
   return usdBorrow || usdBorrowable ? (
     <Container
-      label={
-        <Flex direction={{ base: 'column', sm: 'row' }} justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold">{`Net APY: ${netApy.toFixed(2)}%`}</Text>
-          <Stack direction="row" align="center">
-            <Text fontWeight="bold">{`${rewards.toFixed(4)} INV`}</Text>
-            <ClaimButton
-              isDisabled={!rewards}
-              onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).claimComp(account)}
-            >
-              Claim
-            </ClaimButton>
-          </Stack>
-        </Flex>
+      label="Anchor Banking"
+      description={`${netApy.toFixed(2)}% Net APY`}
+      right={
+        <Stack direction="row" align="center" textAlign="end">
+          <Text fontWeight="bold">{`${rewards.toFixed(4)} INV`}</Text>
+          <ClaimButton
+            isDisabled={!rewards}
+            onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).claimComp(account)}
+          >
+            Claim
+          </ClaimButton>
+        </Stack>
       }
     >
       <Flex w="full" justify="center">

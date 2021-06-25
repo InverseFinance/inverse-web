@@ -1,8 +1,9 @@
-import { Contract, Wallet } from 'ethers'
+// @ts-nocheck
+// TODO: clean up this mess
 import { isAddress } from '@ethersproject/address'
 import { JsonRpcSigner, Provider, Web3Provider } from '@ethersproject/providers'
+import { Contract, Wallet } from 'ethers'
 
-// TODO: clean up this mess
 export const etherJsFetcher = (
   provider: Provider | Web3Provider,
   signer: Wallet | JsonRpcSigner,

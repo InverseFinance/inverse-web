@@ -1,4 +1,4 @@
-import { Flex, Skeleton, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
+import { Flex, Skeleton, SkeletonText } from '@chakra-ui/react'
 
 export const SkeletonTitle = (props: any) => (
   <Skeleton w={80} startColor="purple.100" endColor="purple.300" height={8} {...props} />

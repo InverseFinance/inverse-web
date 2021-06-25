@@ -118,8 +118,7 @@ export const NavButtons = ({ options, active, onClick }: any) => (
         key={option}
         w="full"
         justify="center"
-        pt={1}
-        pb={1}
+        p={2}
         borderRadius={8}
         fontWeight="semibold"
         fontSize="sm"

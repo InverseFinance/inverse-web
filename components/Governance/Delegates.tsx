@@ -1,11 +1,11 @@
-import Container from '../Container'
+import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Avatar } from '@inverse/components/Avatar'
+import Container from '@inverse/components/Container'
+import { DelegatesModal } from '@inverse/components/Governance/GovernanceModals'
+import { SkeletonList } from '@inverse/components/Skeleton'
 import { useDelegates } from '@inverse/hooks/useDelegates'
-import { Flex, Image, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
-import { Avatar } from '../Avatar'
-import { DelegatesModal } from './GovernanceModals'
-import { SkeletonList } from '../Skeleton'
 
 export const DelegatesPreview = () => {
   const { delegates } = useDelegates()
