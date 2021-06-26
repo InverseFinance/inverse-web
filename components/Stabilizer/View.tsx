@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { STABILIZER_ABI } from '@inverse/abis'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
@@ -45,7 +45,7 @@ export const StabilizerView = () => {
   return (
     <Container
       label="Stabilizer"
-      description="Help DOLA maintain it's peg to USD"
+      description="Swap Between DOLA & DAI"
       href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
       right={
         <Stack
@@ -85,11 +85,10 @@ export const StabilizerView = () => {
             value={amount}
             onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
-            asset={operation === StabilizerOperations.buy ? TOKENS[DAI] : TOKENS[DOLA]}
           />
         </Stack>
         <SubmitButton
-          isDisabled={!active || !amount || !balances || Number.isNaN(amount) || parseFloat(amount) > max()}
+          isDisabled={!active || !amount || !balances || isNaN(amount as any) || parseFloat(amount) > max()}
           onClick={handleSubmit}
         >
           {`${operation} DOLA`}

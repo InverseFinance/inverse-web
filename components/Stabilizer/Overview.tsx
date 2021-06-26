@@ -36,6 +36,7 @@ export const StabilizerOverview = () => {
         <Stack>
           <StabilizerOverviewField label="Supply">{`$${commify((balance || 0).toFixed(2))}`}</StabilizerOverviewField>
           <StabilizerOverviewField label="Fee">0.4%</StabilizerOverviewField>
+          <StabilizerOverviewField label="Rate">1 DOLA = 1 DAI</StabilizerOverviewField>
         </Stack>
       </Stack>
     </Container>

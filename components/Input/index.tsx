@@ -1,5 +1,4 @@
-import { Flex, Image, Input as ChakraInput, Stack, Textarea as ChakraTextarea } from '@chakra-ui/react'
-import { Token } from '@inverse/types'
+import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
   <ChakraInput
@@ -9,7 +8,7 @@ export const Input = (props: any) => (
     borderWidth={0}
     bgColor="purple.900"
     p={6}
-    pr={3}
+    pr={2}
     borderRadius={8}
     _focus={{}}
     {...props}
@@ -35,42 +34,35 @@ export const Textarea = (props: any) => (
 type BalanceInputProps = {
   value: string
   label?: React.ReactNode
-  asset?: Token
   onChange: (e: React.MouseEvent<HTMLInputElement>) => void
   onMaxClick: (e: any) => void
 }
 
-export const BalanceInput = ({ value, onChange, onMaxClick, label, asset }: BalanceInputProps) => (
-  <Flex w="full" position="relative" align="center">
-    <Flex
-      cursor="pointer"
-      position="absolute"
-      left={0}
-      fontWeight="extrabold"
-      fontSize="sm"
-      ml={4}
-      color="purple.100"
-      zIndex="docked"
-      onClick={onMaxClick}
-      _hover={{ color: '#fff' }}
-    >
-      MAX
-    </Flex>
-    <Flex w="full">
+export const BalanceInput = ({ value, label, onChange, onMaxClick }: BalanceInputProps) => (
+  <Flex w="full" bgColor="purple.900" borderRadius={8} align="center">
+    <Flex w="full" position="relative" align="center">
+      <Flex
+        cursor="pointer"
+        position="absolute"
+        left={0}
+        fontWeight="extrabold"
+        fontSize="sm"
+        ml={4}
+        color="purple.100"
+        zIndex="docked"
+        onClick={onMaxClick}
+        _hover={{ color: '#fff' }}
+      >
+        MAX
+      </Flex>
       <Input value={value} onChange={onChange} placeholder="0" />
     </Flex>
-    {asset && (
-      <>
-        <Image ml={2} mr={2} w={6} h={6} src={asset.image} />
-        <Flex fontSize="lg" fontWeight="semibold" color="purple.100">
-          {asset.symbol}
-        </Flex>
-      </>
-    )}
-    {label && (
-      <Flex whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="purple.100" ml={2}>
+    {typeof label === 'string' ? (
+      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="purple.100" align="center" pl={2} pr={4}>
         {label}
-      </Flex>
+      </Text>
+    ) : (
+      label
     )}
   </Flex>
 )

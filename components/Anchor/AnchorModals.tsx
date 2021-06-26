@@ -1,4 +1,4 @@
-import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { AnchorButton } from '@inverse/components/Anchor/AnchorButton'
 import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
 import { BalanceInput } from '@inverse/components/Input'
@@ -96,8 +96,8 @@ export const AnchorModal = ({
         <AnchorButton
           operation={operation}
           asset={asset}
-          amount={amount && !Number.isNaN(amount) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
-          isDisabled={!amount || !active || Number.isNaN(amount) || parseFloat(amount) > max()}
+          amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+          isDisabled={!amount || !active || isNaN(amount as any) || parseFloat(amount) > max()}
         />
       }
     >
@@ -117,7 +117,16 @@ export const AnchorModal = ({
             value={amount}
             onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
-            asset={asset.underlying}
+            label={
+              <Stack direction="row" align="center" pl={2} pr={4}>
+                <Flex w={5}>
+                  <Image w={5} h={5} src={asset.underlying.image} />
+                </Flex>
+                <Text fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+                  {asset.underlying.symbol}
+                </Text>
+              </Stack>
+            }
           />
         </Stack>
         <NavButtons options={operations} active={operation} onClick={setOperation} />

@@ -287,7 +287,9 @@ export const AnchorSupply = () => {
     },
   ]
 
-  const items = markets || ANCHOR_TOKENS.concat([XINV]).map((address: string) => ({ underlying: UNDERLYING[address] }))
+  const items = markets?.length
+    ? markets
+    : ANCHOR_TOKENS.concat([XINV]).map((address: string) => ({ underlying: UNDERLYING[address] }))
 
   return (
     <Container
@@ -342,19 +344,19 @@ export const AnchorBorrow = () => {
       ),
       value: ({ underlying, liquidity }: Market) => (
         <Text textAlign="end" minWidth={24}>
-          {liquidity
-            ? `$${commify(((liquidity * (prices ? prices[underlying.coingeckoId]?.usd : 1)) / 1e6).toFixed(2))}M`
+          {liquidity && prices
+            ? `$${commify(((liquidity * (prices[underlying.coingeckoId]?.usd || 1)) / 1e6).toFixed(2))}M`
             : '-'}
         </Text>
       ),
     },
   ]
 
-  const items =
-    markets?.filter(({ borrowable }: Market) => borrowable) ||
-    ANCHOR_TOKENS.filter((address: string) => address !== ANCHOR_STETH).map((address: string) => ({
-      underlying: UNDERLYING[address],
-    }))
+  const items = markets?.length
+    ? markets.filter(({ borrowable }: Market) => borrowable)
+    : ANCHOR_TOKENS.filter((address: string) => address !== ANCHOR_STETH).map((address: string) => ({
+        underlying: UNDERLYING[address],
+      }))
 
   return (
     <Container

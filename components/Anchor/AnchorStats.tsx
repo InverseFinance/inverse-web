@@ -104,7 +104,7 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
 
   return (
     <StatBlock
-      label="Borrow Stats"
+      label="Borrow Limit Stats"
       stats={[
         {
           label: 'Borrow Limit',
@@ -134,7 +134,7 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
 
   return (
     <StatBlock
-      label="Borrow Stats"
+      label="Borrow Limit Stats"
       stats={[
         {
           label: 'Borrow Limit Remaining',
@@ -153,7 +153,7 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
 }
 
 export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
-  const parsedAmount = amount && !Number.isNaN(amount) ? parseFloat(amount) : 0
+  const parsedAmount = amount && !isNaN(amount as any) ? parseFloat(amount) : 0
   switch (operation) {
     case AnchorOperations.supply:
       return (

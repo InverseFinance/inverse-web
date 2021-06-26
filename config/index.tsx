@@ -87,3 +87,14 @@ export const CONTRACTS: { [key: string]: string } = {
   '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
   '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
 }
+
+export const VAULTS: { [key: string]: { [key: string]: string } } = {
+  [DAI]: {
+    ETH: VAULT_DAI_ETH,
+    [WBTC]: VAULT_DAI_WBTC,
+    [YFI]: VAULT_DAI_YFI,
+  },
+  [USDC]: {
+    ETH: VAULT_USDC_ETH,
+  },
+}

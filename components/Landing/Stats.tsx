@@ -1,4 +1,8 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
+import { useMarkets } from '@inverse/hooks/useMarkets'
+import { usePrices } from '@inverse/hooks/usePrices'
+import { useProposals } from '@inverse/hooks/useProposals'
+import { useTVL } from '@inverse/hooks/useTVL'
 import { Proposal } from '@inverse/types'
 import { useEffect, useState } from 'react'
 
@@ -10,83 +14,65 @@ type Stat = {
 }
 
 const formatStat = ({ value, showDollar, showPercentage }: Stat): string => {
+  const _value = value || 0
+
   if (showPercentage) {
-    return `${(value * 100).toFixed(0)}%`
+    return `${(_value * 100).toFixed(0)}%`
   }
 
-  let display = value.toLocaleString()
-  if (value >= Math.pow(10, 9)) {
-    display = `${(value / Math.pow(10, 9)).toFixed(2)}b`
-  } else if (value >= Math.pow(10, 6)) {
-    display = `${(value / Math.pow(10, 6)).toFixed(2)}m`
-  } else if (value >= Math.pow(10, 4)) {
-    display = `${(value / Math.pow(10, 3)).toFixed(0)}k`
+  let display = _value.toLocaleString()
+  if (_value >= Math.pow(10, 9)) {
+    display = `${(_value / Math.pow(10, 9)).toFixed(2)}b`
+  } else if (_value >= Math.pow(10, 6)) {
+    display = `${(_value / Math.pow(10, 6)).toFixed(2)}m`
+  } else if (_value >= Math.pow(10, 4)) {
+    display = `${(_value / Math.pow(10, 3)).toFixed(0)}k`
   }
 
   return `${showDollar ? '$' : ''}${display}`
 }
 
-const StatDisplay = ({ stat }: { stat: Stat }) => (
-  <Stack align="center" p={8} m={4} w={60} borderRadius={8} bgColor="purple.800">
-    <Text fontSize="4xl" fontWeight="bold" lineHeight={1}>
-      {formatStat(stat)}
-    </Text>
-    <Text>{stat.label}</Text>
-  </Stack>
-)
-
 export const Stats = () => {
-  const [stats, setStats] = useState<Stat[]>([])
+  const { proposals } = useProposals()
+  const { markets } = useMarkets()
+  const { prices } = usePrices()
+  const { tvl } = useTVL()
 
-  useEffect(() => {
-    const init = async () => {
-      const [_balances, _markets, _proposals, _price] = await Promise.all([
-        fetch(`${process.env.API_URL}/inverse/tvl`),
-        fetch(`${process.env.API_URL}/anchor/markets`),
-        fetch(`${process.env.API_URL}/inverse/proposals`),
-        fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=inverse-finance`),
-      ])
-
-      const [balances, markets, proposals, price] = await Promise.all([
-        _balances.json(),
-        _markets.json(),
-        _proposals.json(),
-        _price.json(),
-      ])
-      setStats([
-        {
-          label: 'TVL',
-          value: balances.tvl,
-          showDollar: true,
-        },
-        {
-          label: '$INV Price',
-          value: price['inverse-finance'].usd,
-          showDollar: true,
-        },
-        {
-          label: 'Markets',
-          value: markets.markets.length,
-        },
-        {
-          label: 'Passed Proposals',
-          value: proposals.filter(({ forVotes, againstVotes }: Proposal) => forVotes > againstVotes).length,
-        },
-        {
-          label: 'Votes Casted',
-          value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.forVotes + curr.againstVotes, 0),
-        },
-      ])
-    }
-
-    init()
-  }, [])
+  const stats = [
+    {
+      label: 'TVL',
+      value: tvl,
+      showDollar: true,
+    },
+    {
+      label: '$INV Price',
+      value: prices['inverse-finance'] ? prices['inverse-finance'].usd : 0,
+      showDollar: true,
+    },
+    {
+      label: 'Markets',
+      value: markets.length,
+    },
+    {
+      label: 'Passed Proposals',
+      value: proposals.filter(({ forVotes, againstVotes }: Proposal) => forVotes > againstVotes).length,
+    },
+    {
+      label: 'Votes Casted',
+      value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.forVotes + curr.againstVotes, 0),
+    },
+  ]
 
   return (
     <Flex w="full" direction="column" align="center" pb={16} pl={8} pr={8} maxW="120rem">
       <Stack direction="row" spacing={0} w="full" justify="space-around" wrap="wrap" shouldWrapChildren>
         {stats.map((stat) => (
-          <StatDisplay stat={stat} />
+          <Stack align="center" p={8} m={4} w={60} borderRadius={8} bgColor="purple.800">
+            <Text fontSize="4xl" fontWeight="bold" lineHeight={1}>
+              {formatStat(stat)}
+            </Text>
+            <Text>{stat.label}</Text>
+          </Stack>
         ))}
       </Stack>
       <Text w="full" fontSize="4xl" fontWeight="semibold" textAlign="center" mt={24}>

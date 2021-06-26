@@ -17,7 +17,7 @@ export const useProposals = (): SWR & Proposals => {
 
   return {
     quorumVotes: data?.quorumVotes,
-    proposals: data?.proposals,
+    proposals: data?.proposals || [],
     isLoading: !error && !data,
     isError: error,
   }

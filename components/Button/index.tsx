@@ -103,8 +103,8 @@ export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
         p={2}
         borderRadius={8}
         fontWeight="semibold"
-        fontSize="sm"
-        color="purple.100"
+        fontSize="15px"
+        color={option === active ? '#fff' : 'purple.100'}
         onClick={() => onClick(option)}
         bgColor={option === active ? 'purple.700' : 'purple.900'}
       >

@@ -97,7 +97,7 @@ export const StakeView = () => {
           </Stack>
         )}
         <SubmitButton
-          isDisabled={!active || !amount || Number.isNaN(amount) || parseFloat(amount) > max()}
+          isDisabled={!active || !amount || isNaN(amount as any) || parseFloat(amount) > max()}
           onClick={handleSubmit}
         >
           {operation}
