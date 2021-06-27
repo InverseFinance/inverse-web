@@ -11,20 +11,18 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { VAULT_ABI } from '@inverse/abis'
-import { TOKENS, VAULTS, VAULT_DAI_ETH, VAULT_TOKENS, VAULT_TREE } from '@inverse/config'
-import { useAccountBalances } from '@inverse/hooks/useBalances'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { useVaultRates, useVaultRewards } from '@inverse/hooks/useVaults'
-import { Token } from '@inverse/types'
-import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import moment from 'moment'
-import { useState } from 'react'
 import { ClaimButton, NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
+import { TOKENS, VAULTS, VAULT_DAI_ETH, VAULT_TREE } from '@inverse/config'
+import { useAccountBalances } from '@inverse/hooks/useBalances'
+import { useVaultRates, useVaultRewards } from '@inverse/hooks/useVaults'
+import { Token } from '@inverse/types'
+import { getVaultContract } from '@inverse/util/contracts'
+import { useWeb3React } from '@web3-react/core'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import moment from 'moment'
+import { useState } from 'react'
 
 enum VaultOperations {
   deposit = 'Deposit',
@@ -207,8 +205,8 @@ export const VaultsClaim = () => {
             <ClaimButton
               onClick={() =>
                 vault.to.address
-                  ? new Contract(address, VAULT_ABI, library?.getSigner()).claim()
-                  : new Contract(address, VAULT_ABI, library?.getSigner()).claimETH()
+                  ? getVaultContract(address, library?.getSigner()).claim()
+                  : getVaultContract(address, library?.getSigner()).claimETH()
               }
             >
               Claim
@@ -241,12 +239,13 @@ export const VaultsView = () => {
   }
 
   const handleSubmit = () => {
+    const contract = getVaultContract(vault, library?.getSigner())
     switch (operation) {
       case VaultOperations.deposit:
-        new Contract(vault, VAULT_ABI, library?.getSigner()).deposit(parseUnits(amount))
+        contract.deposit(parseUnits(amount))
         break
       case VaultOperations.withdraw:
-        new Contract(vault, VAULT_ABI, library?.getSigner()).withdraw(parseUnits(amount))
+        contract.withdraw(parseUnits(amount))
         break
       default:
     }

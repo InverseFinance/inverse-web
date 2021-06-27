@@ -45,7 +45,12 @@ export const CTOKEN_ABI = [
   'function underlying() external view returns (address)',
 ]
 
-export const CETHER_ABI = ['function mint() payable', 'function repayBorrow() payable']
+export const CETHER_ABI = [
+  'function borrow(uint256) returns (uint256)',
+  'function mint() payable',
+  'function redeemUnderlying(uint256) returns (uint256)',
+  'function repayBorrow() payable',
+]
 
 export const ERC20_ABI = [
   'function allowance(address, address) external view returns (uint256)',

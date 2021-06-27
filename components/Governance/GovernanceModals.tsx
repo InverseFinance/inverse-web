@@ -1,21 +1,20 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Text, useClipboard } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { GOVERNANCE_ABI, INV_ABI } from '@inverse/abis'
 import { Avatar } from '@inverse/components/Avatar'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import { Input, Textarea } from '@inverse/components/Input'
 import Link from '@inverse/components/Link'
 import { Modal, ModalProps } from '@inverse/components/Modal'
-import { GOVERNANCE, INV } from '@inverse/config'
+import { INV } from '@inverse/config'
 import { useDelegates } from '@inverse/hooks/useDelegates'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
 import { useVoters } from '@inverse/hooks/useVoters'
 import { Delegate, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
+import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
 import { commify, isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -154,9 +153,7 @@ export const VoteModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
         </Stack>
       }
       footer={
-        <SubmitButton
-          onClick={() => new Contract(GOVERNANCE, GOVERNANCE_ABI, library?.getSigner()).castVote(id, support)}
-        >
+        <SubmitButton onClick={() => getGovernanceContract(library?.getSigner()).castVote(id, support)}>
           {support ? 'Vote For' : 'Vote Against'}
         </SubmitButton>
       }
@@ -185,11 +182,11 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: ModalProps) => {
   }
 
   const handleSelfDelegate = () => {
-    new Contract(INV, INV_ABI, library?.getSigner()).delegate(account)
+    getINVContract(library?.getSigner()).delegate(account)
   }
 
   const handleDelegate = async () => {
-    const invContract = new Contract(INV, INV_ABI, library?.getSigner())
+    const invContract = getINVContract(library?.getSigner())
 
     const domain = { name: 'Inverse DAO', chainId, verifyingContract: INV }
 

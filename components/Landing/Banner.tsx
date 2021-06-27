@@ -14,13 +14,13 @@ export const Banner = () => (
     <Stack
       p={{ base: 4, xl: 0 }}
       mt={{ base: 4, xl: 32 }}
-      ml={{ base: 0, xl: '32rem' }}
+      ml={{ base: 0, xl: '28rem' }}
       textAlign={{ base: 'center', xl: 'start' }}
-      maxWidth="2xl"
+      maxWidth="xl"
       spacing={4}
     >
       <Text lineHeight={1} fontSize={{ base: '5xl', md: '6xl' }} fontWeight="extrabold">
-        Invade Traditional Finance with DeFi
+        Invert The System
       </Text>
       <Text fontSize={{ base: 'lg', md: 'xl' }}>
         Inverse is building a suite of DeFi tools, governed by one of the most active DAO in the space. From a

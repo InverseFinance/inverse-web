@@ -1,14 +1,13 @@
-import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { STAKING_ABI } from '@inverse/abis'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
 import { DOLA, DOLA3CRV, THREECRV, TOKENS } from '@inverse/config'
 import { useAccountBalances } from '@inverse/hooks/useBalances'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { getStakingContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -37,15 +36,16 @@ export const StakeView = () => {
   }
 
   const handleSubmit = () => {
+    const contract = getStakingContract(DOLA3CRV, library?.getSigner())
     switch (operation) {
       case StakeOperations.deposit:
-        new Contract(DOLA3CRV, STAKING_ABI, library?.getSigner()).stake(parseUnits(amount))
+        contract.stake(parseUnits(amount))
         break
       case StakeOperations.withdraw:
-        new Contract(DOLA3CRV, STAKING_ABI, library?.getSigner()).withdraw(parseUnits(amount))
+        contract.withdraw(parseUnits(amount))
         break
       case StakeOperations.claim:
-        new Contract(DOLA3CRV, STAKING_ABI, library?.getSigner()).getReward()
+        contract.getReward()
         break
       default:
     }

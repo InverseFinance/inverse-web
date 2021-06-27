@@ -1,9 +1,9 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { LENS_ABI } from '@inverse/abis'
-import { COMPTROLLER, INV, LENS } from '@inverse/config'
+import { COMPTROLLER, INV } from '@inverse/config'
 import { SWR } from '@inverse/types'
+import { getLensContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import useSWR from 'swr'
 
 type AnchorRewards = {
@@ -15,7 +15,7 @@ export const useAnchorRewards = (): SWR & AnchorRewards => {
   const { data, error } = useSWR(['getCompBalanceMetadataExt', INV, COMPTROLLER, account], (...args) => {
     const [method, ...otherParams] = args
     if (library) {
-      return new Contract(LENS, LENS_ABI, library?.getSigner()).callStatic[method](...otherParams)
+      return getLensContract(library?.getSigner()).callStatic[method](...otherParams)
     }
     return undefined
   })

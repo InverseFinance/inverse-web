@@ -74,7 +74,7 @@ const AppNavConnect = () => {
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
-  const { activate } = useWeb3React<Web3Provider>()
+  // const { activate } = useWeb3React<Web3Provider>()
 
   // useEffect(() => {
   //   injectedConnector.isAuthorized().then((isAuthorized) => {
@@ -87,6 +87,9 @@ export const AppNav = ({ active }: { active?: string }) => {
 
   return (
     <>
+      <Flex justify="center" bgColor="purple.800" color="purple.100" fontWeight="semibold" w="full" fontSize="xs" p={1}>
+        Interface is still WIP, use contracts with caution
+      </Flex>
       <Flex
         w="full"
         backgroundColor="purple.900"

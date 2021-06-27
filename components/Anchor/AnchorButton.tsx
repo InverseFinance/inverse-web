@@ -1,14 +1,13 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { CETHER_ABI, COMPTROLLER_ABI, CTOKEN_ABI, ERC20_ABI } from '@inverse/abis'
 import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
 import { SubmitButton } from '@inverse/components/Button'
-import { ANCHOR_ETH, COMPTROLLER } from '@inverse/config'
+import { ANCHOR_ETH } from '@inverse/config'
 import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import { Market } from '@inverse/types'
+import { getAnchorContract, getCEtherContract, getERC20Contract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber, constants, Contract } from 'ethers'
+import { BigNumber, constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 type AnchorButtonProps = {
@@ -20,22 +19,21 @@ type AnchorButtonProps = {
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
   const { account, library } = useWeb3React<Web3Provider>()
-  const { markets } = useAccountMarkets()
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
 
-  const contract = new Contract(asset.token, asset.token === ANCHOR_ETH ? CETHER_ABI : CTOKEN_ABI, library?.getSigner())
+  const contract =
+    asset.token === ANCHOR_ETH
+      ? getCEtherContract(asset.token, library?.getSigner())
+      : getAnchorContract(asset.token, library?.getSigner())
 
   switch (operation) {
     case AnchorOperations.supply:
       return asset.token !== ANCHOR_ETH && (!approvals || !parseFloat(formatUnits(approvals[asset.token]))) ? (
         <SubmitButton
           onClick={() =>
-            new Contract(asset.underlying.address, ERC20_ABI, library?.getSigner()).approve(
-              account,
-              constants.MaxUint256
-            )
+            getERC20Contract(asset.underlying.address, library?.getSigner()).approve(account, constants.MaxUint256)
           }
           isDisabled={isDisabled}
         >
@@ -61,14 +59,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
       )
 
     case AnchorOperations.borrow:
-      return !markets.find(({ token }: Market) => token === asset.token) ? (
-        <SubmitButton
-          onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).enterMarkets([asset.token])}
-          isDisabled={isDisabled}
-        >
-          Enable
-        </SubmitButton>
-      ) : (
+      return (
         <SubmitButton onClick={() => contract.borrow(amount)} isDisabled={isDisabled}>
           Borrow
         </SubmitButton>
@@ -78,10 +69,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
       return asset.token !== ANCHOR_ETH && (!approvals || !parseFloat(formatUnits(approvals[asset.token]))) ? (
         <SubmitButton
           onClick={() =>
-            new Contract(asset.underlying.address, ERC20_ABI, library?.getSigner()).approve(
-              account,
-              constants.MaxUint256
-            )
+            getERC20Contract(asset.underlying.address, library?.getSigner()).approve(account, constants.MaxUint256)
           }
           isDisabled={isDisabled}
         >

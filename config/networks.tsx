@@ -1,4 +1,4 @@
-export const mainnetConfig = {
+export const mainnet = {
   INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
   DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',

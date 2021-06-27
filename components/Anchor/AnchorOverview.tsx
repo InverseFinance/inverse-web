@@ -1,13 +1,11 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { COMPTROLLER_ABI } from '@inverse/abis'
 import { ClaimButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
-import { COMPTROLLER } from '@inverse/config'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
+import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 
 export const AnchorOverview = () => {
@@ -26,7 +24,7 @@ export const AnchorOverview = () => {
           <Text fontWeight="bold">{`${rewardAmount.toFixed(4)} INV`}</Text>
           <ClaimButton
             isDisabled={!rewardAmount}
-            onClick={() => new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner()).claimComp(account)}
+            onClick={() => getComptrollerContract(library?.getSigner()).claimComp(account)}
           >
             Claim
           </ClaimButton>

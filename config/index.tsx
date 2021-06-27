@@ -1,8 +1,8 @@
-import { mainnetConfig } from '@inverse/config/mainnet'
+import { mainnet } from '@inverse/config/networks'
 import { Token } from '@inverse/types'
 
 // TODO: Clean-up config
-const config = mainnetConfig
+const config = mainnet
 
 export const START_BLOCK = 11498340
 export const ETH_MANTISSA = 1e18

@@ -1,19 +1,18 @@
 import { Flex, Image, Stack, Switch, Text, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { COMPTROLLER_ABI } from '@inverse/abis'
 import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
 import Container from '@inverse/components/Container'
 import { SkeletonBlob } from '@inverse/components/Skeleton'
 import Table from '@inverse/components/Table'
-import { ANCHOR_STETH, ANCHOR_TOKENS, COMPTROLLER, UNDERLYING, XINV } from '@inverse/config'
+import { ANCHOR_STETH, ANCHOR_TOKENS, UNDERLYING, XINV } from '@inverse/config'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
+import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -95,7 +94,7 @@ export const AnchorSupplied = () => {
             <Flex
               onClick={(e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation()
-                const contract = new Contract(COMPTROLLER, COMPTROLLER_ABI, library?.getSigner())
+                const contract = getComptrollerContract(library?.getSigner())
                 if (isEnabled) {
                   contract.exitMarket(token)
                 } else {

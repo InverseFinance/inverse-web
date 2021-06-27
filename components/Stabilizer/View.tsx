@@ -1,14 +1,13 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { STABILIZER_ABI } from '@inverse/abis'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
-import { DAI, DOLA, STABILIZER, TOKENS } from '@inverse/config'
+import { DAI, DOLA, TOKENS } from '@inverse/config'
 import { useAccountBalances } from '@inverse/hooks/useBalances'
+import { getStabilizerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { Contract } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -31,12 +30,13 @@ export const StabilizerView = () => {
       : parseFloat(formatUnits(balances[DOLA]))
 
   const handleSubmit = () => {
+    const contract = getStabilizerContract(library?.getSigner())
     switch (operation) {
       case StabilizerOperations.buy:
-        new Contract(STABILIZER, STABILIZER_ABI, library?.getSigner()).buy(parseUnits(amount))
+        contract.buy(parseUnits(amount))
         break
       case StabilizerOperations.sell:
-        new Contract(STABILIZER, STABILIZER_ABI, library?.getSigner()).sell(parseUnits(amount))
+        contract.sell(parseUnits(amount))
         break
       default:
     }
