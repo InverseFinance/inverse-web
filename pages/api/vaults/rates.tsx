@@ -1,4 +1,4 @@
-import { VAULTS, VAULT_DAI_ETH, VAULT_TOKENS } from '@inverse/config'
+import { SECONDS_PER_DAY, VAULTS, VAULT_DAI_ETH, VAULT_TOKENS } from '@inverse/config'
 import {
   getHarvesterContract,
   getNewMulticallProvider,
@@ -25,7 +25,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     rates: rates.reduce((res: { [key: string]: number }, rate: BigNumber, i: number) => {
       res[VAULT_TOKENS[i]] =
         parseFloat(
-          formatUnits(rate.mul(DAYS_PER_YEAR), BigNumber.from(31).sub(VAULTS[VAULT_TOKENS[i]].from.decimals))
+          formatUnits(
+            rate.mul(DAYS_PER_YEAR * SECONDS_PER_DAY),
+            BigNumber.from(36).sub(VAULTS[VAULT_TOKENS[i]].from.decimals)
+          )
         ) * 100
       return res
     }, {}),

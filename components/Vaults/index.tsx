@@ -41,6 +41,7 @@ const AssetsDropdown = ({ children, asset, isOpen, onOpen, onClose, noPadding }:
           borderRadius={8}
           p={noPadding ? 0 : 2}
           bgColor="purple.900"
+          cursor="pointer"
         >
           <Flex w={5}>
             <Image w={5} h={5} src={asset.image} />
