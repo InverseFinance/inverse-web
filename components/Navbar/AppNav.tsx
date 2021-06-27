@@ -76,14 +76,14 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
   const { activate } = useWeb3React<Web3Provider>()
 
-  useEffect(() => {
-    injectedConnector.isAuthorized().then((isAuthorized) => {
-      // @ts-ignore
-      if (isAuthorized || window.ethereum) {
-        activate(injectedConnector, undefined, true)
-      }
-    })
-  }, [])
+  // useEffect(() => {
+  //   injectedConnector.isAuthorized().then((isAuthorized) => {
+  //     // @ts-ignore
+  //     if (isAuthorized || window.ethereum) {
+  //       activate(injectedConnector, undefined, true)
+  //     }
+  //   })
+  // }, [])
 
   return (
     <>
