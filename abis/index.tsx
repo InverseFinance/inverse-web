@@ -1,4 +1,15 @@
-import { ANCHOR_TOKENS, COMPTROLLER, DOLA3CRV, GOVERNANCE, INV, LENS, TOKENS, XINV } from '@inverse/config'
+import {
+  ANCHOR_TOKENS,
+  COMPTROLLER,
+  DOLA3CRV,
+  GOVERNANCE,
+  HARVESTER,
+  INV,
+  LENS,
+  TOKENS,
+  VAULT_TOKENS,
+  XINV,
+} from '@inverse/config'
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -43,6 +54,8 @@ export const ERC20_ABI = [
   'event Transfer(address indexed from, address indexed to, uint256 amount)',
 ]
 
+export const HARVESTER_ABI = ['function ratePerToken(address) external view returns (uint256)']
+
 export const INV_ABI = [
   'function allowance(address, address) external view returns (uint256)',
   'function approve(address, uint256)',
@@ -78,15 +91,22 @@ export const STABILIZER_ABI = [
 
 export const STAKING_ABI = [
   'function balanceOf() external view returns (uint256)',
-  'function earned() external view returns (uint256)',
+  'function earned(address) external view returns (uint256)',
   'function getReward()',
   'function stake(uint256)',
   'function withdraw(uint256)',
 ]
 
 export const VAULT_ABI = [
+  'function balanceOf(address) external view returns (uint256)',
+  'function claim()',
+  'function claimETH()',
+  'function deposit(uint256)',
+  'function lastDistribution() external view returns (uint256)',
   'function totalSupply() external view returns (uint256)',
+  'function unclaimedProfit(address) external view returns (uint256)',
   'function underlying() external view returns (address)',
+  'function withdrraw(uint256)',
 ]
 
 export const XINV_ABI = [
@@ -104,9 +124,11 @@ export const ABIs = new Map<string, string[]>(
     [
       [XINV, XINV_ABI],
       [COMPTROLLER, COMPTROLLER_ABI],
+      [HARVESTER, HARVESTER_ABI],
       [GOVERNANCE, GOVERNANCE_ABI],
       [LENS, LENS_ABI],
       [DOLA3CRV, STAKING_ABI],
+      ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
     ],
     Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
   )

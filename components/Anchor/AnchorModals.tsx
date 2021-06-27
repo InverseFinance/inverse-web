@@ -12,7 +12,7 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { NavButtons } from '../Button'
+import { NavButtons } from '@inverse/components/Button'
 
 export enum AnchorOperations {
   supply = 'Supply',

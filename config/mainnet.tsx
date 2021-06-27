@@ -1,27 +1,15 @@
-export const INV = '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68'
-export const DOLA = '0x865377367054516e17014CcdED1e7d814EDC9ce4'
-export const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-export const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
-export const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-export const YFI = '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e'
-export const XSUSHI = '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272'
-export const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'
-export const XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE'
-export const STETH = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
-export const THREECRV = '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490'
-
 export const mainnetConfig = {
-  INV,
-  DOLA,
-  DAI,
-  USDC,
-  WETH,
-  YFI,
-  XSUSHI,
-  WBTC,
-  XINV,
-  STETH,
-  THREECRV,
+  INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
+  DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
+  DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
+  XSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
+  WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+  XINV: '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE',
+  STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+  THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
     vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
@@ -46,95 +34,6 @@ export const mainnetConfig = {
   staking: {
     dola3crv: '0xA88948217f21175337226d94f1A47b7A01EEd197',
   },
+  harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
   governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
-  tokens: {
-    ETH: {
-      address: '',
-      name: 'Ether',
-      symbol: 'ETH',
-      coingeckoId: 'ethereum',
-      image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
-      decimals: 18,
-    },
-    [INV]: {
-      address: INV,
-      name: 'Inverse',
-      symbol: 'INV',
-      coingeckoId: 'inverse-finance',
-      image: '/assets/favicon.png',
-      decimals: 18,
-    },
-    [DOLA]: {
-      address: DOLA,
-      name: 'Dola',
-      symbol: 'DOLA',
-      coingeckoId: 'dola-usd',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
-      decimals: 18,
-    },
-    [DAI]: {
-      address: DAI,
-      name: 'Dai',
-      symbol: 'DAI',
-      coingeckoId: 'dai',
-      image: 'https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png',
-      decimals: 18,
-    },
-    [USDC]: {
-      address: USDC,
-      name: 'USD Coin',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      image: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
-      decimals: 6,
-    },
-    [WETH]: {
-      address: WETH,
-      name: 'Wrapped Ethereum',
-      symbol: 'WETH',
-      coingeckoId: 'weth',
-      image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
-      decimals: 18,
-    },
-    [YFI]: {
-      address: YFI,
-      name: 'Yearn',
-      symbol: 'YFI',
-      coingeckoId: 'yearn-finance',
-      image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
-      decimals: 18,
-    },
-    [XSUSHI]: {
-      address: XSUSHI,
-      name: 'xSUSHI',
-      symbol: 'xSUSHI',
-      coingeckoId: 'xsushi',
-      image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
-      decimals: 18,
-    },
-    [WBTC]: {
-      address: WBTC,
-      name: 'Wrapped Bitcoin',
-      symbol: 'WBTC',
-      coingeckoId: 'wrapped-bitcoin',
-      image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
-      decimals: 8,
-    },
-    [STETH]: {
-      address: STETH,
-      name: 'Lido Staked Ether',
-      symbol: 'stETH',
-      coingeckoId: 'staked-ether',
-      image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
-      decimals: 18,
-    },
-    [THREECRV]: {
-      address: THREECRV,
-      name: 'lp-3pool-curve',
-      symbol: '3CRV',
-      coingeckoId: 'lp-3pool-curve',
-      image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
-      decimals: 18,
-    },
-  },
 }

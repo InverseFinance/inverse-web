@@ -6,15 +6,18 @@ const config = mainnetConfig
 
 export const START_BLOCK = 11498340
 export const ETH_MANTISSA = 1e18
-export const BLOCKS_PER_DAY = 6500
-export const DAYS_PER_YEAR = 365
+export const SECONDS_PER_BLOCK = 13.5
+export const BLOCKS_PER_SECOND = 1 / SECONDS_PER_BLOCK
+export const BLOCKS_PER_DAY = BLOCKS_PER_SECOND * 24 * 60 * 60
+export const DAYS_PER_YEAR = 365.25
+export const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR
 
 // Vaults
 export const VAULT_USDC_ETH = config.vaults.vaultUsdcEth
 export const VAULT_DAI_WBTC = config.vaults.vaultDaiWbtc
 export const VAULT_DAI_YFI = config.vaults.vaultDaiYfi
 export const VAULT_DAI_ETH = config.vaults.vaultDaiEth
-export const VAULT_TOKENS = [VAULT_USDC_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_DAI_ETH]
+export const VAULT_TOKENS = Object.values(config.vaults)
 
 // Anchor
 export const LENS = config.anchor.lens
@@ -29,10 +32,13 @@ export const ANCHOR_XSUSHI = config.anchor.markets.xsushi
 export const ANCHOR_WBTC = config.anchor.markets.wbtc
 export const ANCHOR_YFI = config.anchor.markets.yfi
 export const ANCHOR_STETH = config.anchor.markets.steth
-export const ANCHOR_TOKENS = [ANCHOR_ETH, ANCHOR_DOLA, ANCHOR_XSUSHI, ANCHOR_WBTC, ANCHOR_YFI, ANCHOR_STETH]
+export const ANCHOR_TOKENS = Object.values(config.anchor.markets)
 
 // Governance
 export const GOVERNANCE = config.governance
+
+// Harvester
+export const HARVESTER = config.harvester
 
 // Tokens
 export const INV = config.INV
@@ -50,7 +56,96 @@ export const THREECRV = config.THREECRV
 // Rewards
 export const DOLA3CRV = config.staking.dola3crv
 
-export const TOKENS: { [key: string]: Token } = config.tokens
+export const TOKENS: { [key: string]: Token } = {
+  ETH: {
+    address: '',
+    name: 'Ether',
+    symbol: 'ETH',
+    coingeckoId: 'ethereum',
+    image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    decimals: 18,
+  },
+  [INV]: {
+    address: INV,
+    name: 'Inverse',
+    symbol: 'INV',
+    coingeckoId: 'inverse-finance',
+    image: '/assets/favicon.png',
+    decimals: 18,
+  },
+  [DOLA]: {
+    address: DOLA,
+    name: 'Dola',
+    symbol: 'DOLA',
+    coingeckoId: 'dola-usd',
+    image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+    decimals: 18,
+  },
+  [DAI]: {
+    address: DAI,
+    name: 'Dai',
+    symbol: 'DAI',
+    coingeckoId: 'dai',
+    image: 'https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png',
+    decimals: 18,
+  },
+  [USDC]: {
+    address: USDC,
+    name: 'USD Coin',
+    symbol: 'USDC',
+    coingeckoId: 'usd-coin',
+    image: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
+    decimals: 6,
+  },
+  [WETH]: {
+    address: WETH,
+    name: 'Wrapped Ethereum',
+    symbol: 'WETH',
+    coingeckoId: 'weth',
+    image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
+    decimals: 18,
+  },
+  [YFI]: {
+    address: YFI,
+    name: 'Yearn',
+    symbol: 'YFI',
+    coingeckoId: 'yearn-finance',
+    image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+    decimals: 18,
+  },
+  [XSUSHI]: {
+    address: XSUSHI,
+    name: 'xSUSHI',
+    symbol: 'xSUSHI',
+    coingeckoId: 'xsushi',
+    image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
+    decimals: 18,
+  },
+  [WBTC]: {
+    address: WBTC,
+    name: 'Wrapped Bitcoin',
+    symbol: 'WBTC',
+    coingeckoId: 'wrapped-bitcoin',
+    image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
+    decimals: 8,
+  },
+  [STETH]: {
+    address: STETH,
+    name: 'Lido Staked Ether',
+    symbol: 'stETH',
+    coingeckoId: 'staked-ether',
+    image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
+    decimals: 18,
+  },
+  [THREECRV]: {
+    address: THREECRV,
+    name: 'lp-3pool-curve',
+    symbol: '3CRV',
+    coingeckoId: 'lp-3pool-curve',
+    image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+    decimals: 18,
+  },
+}
 
 export const UNDERLYING: { [key: string]: Token } = {
   [ANCHOR_ETH]: TOKENS.ETH,
@@ -88,7 +183,7 @@ export const CONTRACTS: { [key: string]: string } = {
   '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
 }
 
-export const VAULTS: { [key: string]: { [key: string]: string } } = {
+export const VAULT_TREE: { [key: string]: { [key: string]: string } } = {
   [DAI]: {
     ETH: VAULT_DAI_ETH,
     [WBTC]: VAULT_DAI_WBTC,
@@ -96,5 +191,24 @@ export const VAULTS: { [key: string]: { [key: string]: string } } = {
   },
   [USDC]: {
     ETH: VAULT_USDC_ETH,
+  },
+}
+
+export const VAULTS: { [key: string]: { from: Token; to: Token } } = {
+  [VAULT_DAI_ETH]: {
+    from: TOKENS[DAI],
+    to: TOKENS.ETH,
+  },
+  [VAULT_DAI_WBTC]: {
+    from: TOKENS[DAI],
+    to: TOKENS[WBTC],
+  },
+  [VAULT_DAI_YFI]: {
+    from: TOKENS[DAI],
+    to: TOKENS[YFI],
+  },
+  [VAULT_USDC_ETH]: {
+    from: TOKENS[USDC],
+    to: TOKENS.ETH,
   },
 }
