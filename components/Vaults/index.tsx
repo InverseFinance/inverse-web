@@ -32,7 +32,7 @@ enum VaultOperations {
 
 const AssetsDropdown = ({ children, asset, isOpen, onOpen, onClose, noPadding }: any) => {
   return (
-    <Popover isOpen={isOpen} onClose={onClose} closeOnBlur={true}>
+    <Popover placement="bottom" isOpen={isOpen} onClose={onClose} closeOnBlur={true} isLazy>
       <PopoverTrigger>
         <Stack
           direction="row"
@@ -179,7 +179,7 @@ export const VaultsClaim = () => {
       </Stack>
       {Object.entries(VAULTS).map(([address, vault]: [string, { from: Token; to: Token }]) => (
         <Stack direction="row" align="center" justify="space-between" p={2}>
-          <Stack direction="row" align="center">
+          <Stack direction="row" align="center" display={{ base: 'none', sm: 'flex' }}>
             <Stack direction="row" align="center" w={20} justify="flex-end">
               <Flex w={5}>
                 <Image w={5} h={5} src={vault.from.image} />
@@ -198,7 +198,13 @@ export const VaultsClaim = () => {
               </Text>
             </Stack>
           </Stack>
-          <Stack direction="row" align="center" spacing={4}>
+          <Stack
+            w="full"
+            direction="row"
+            align="center"
+            justify={{ base: 'space-between', sm: 'flex-end' }}
+            spacing={4}
+          >
             <Flex fontSize="lg" fontWeight="semibold">{`${(rewards && rewards[address]
               ? parseFloat(formatUnits(rewards[address]))
               : 0
@@ -303,9 +309,19 @@ export const VaultsView = () => {
               />
             </Stack>
             {operation === VaultOperations.deposit && (
-              <Stack direction="row" align="center" fontSize="lg" fontWeight="medium" justify="flex-end">
+              <Stack
+                direction="row"
+                align="center"
+                fontSize={{ base: 'md', sm: 'lg' }}
+                fontWeight="medium"
+                justify="flex-end"
+                spacing={1}
+              >
                 <Text color="purple.100">Earn</Text>
-                <Text fontWeight="semibold">{`${(rates ? rates[vault] : 0).toFixed(2)}% APY`}</Text>
+                <Text fontWeight="semibold">{`${(rates ? rates[vault] : 0).toFixed(2)}%`}</Text>
+                <Text fontWeight="semibold" display={{ base: 'none', sm: 'flex' }}>
+                  APY
+                </Text>
                 <Text color="purple.100">with</Text>
                 <ToAssetDropdown
                   isOpen={toIsOpen}

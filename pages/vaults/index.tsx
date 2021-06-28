@@ -6,7 +6,7 @@ import { VaultsView } from '@inverse/components/Vaults'
 export const Vaults = () => (
   <Layout>
     <AppNav active="Vaults" />
-    <Flex w="full" align="center" direction="column">
+    <Flex justify="center" direction="column">
       <Flex w={{ base: 'full', xl: 'xl' }}>
         <VaultsView />
       </Flex>
