@@ -3,15 +3,16 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex } from '@chakra-ui/rea
 import Link from 'next/link'
 
 type BreadcrumbsProps = {
+  w: string | number
   breadcrumbs: {
     href: string
     label: string
   }[]
 }
 
-export const Breadcrumbs = ({ breadcrumbs }: BreadcrumbsProps) => (
+export const Breadcrumbs = ({ w, breadcrumbs }: BreadcrumbsProps) => (
   <Flex w="full" justify="center">
-    <Flex w="80rem" pl={6} pt={6}>
+    <Flex w={w} pl={6} pt={6}>
       <Breadcrumb fontSize="sm" separator={<ChevronRightIcon color="purple.100" />} spacing="1">
         {breadcrumbs.map(({ href, label }, i) => (
           <BreadcrumbItem key={label}>

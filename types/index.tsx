@@ -65,7 +65,7 @@ export type Delegate = {
   address: string
   balance: number
   delegators: string[]
-  votes?: ProposalVote[]
+  votes: ProposalVote[]
 }
 
 export type SWR = {

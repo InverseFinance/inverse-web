@@ -1,11 +1,11 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/Avatar'
 import Container from '@inverse/components/Container'
-import { DelegatesModal } from '@inverse/components/Governance/GovernanceModals'
 import { SkeletonList } from '@inverse/components/Skeleton'
 import { useDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
+import NextLink from 'next/link'
 
 export const DelegatesPreview = () => {
   const { delegates, isLoading } = useDelegates()
@@ -42,23 +42,23 @@ export const DelegatesPreview = () => {
             </Flex>
           </Flex>
         ))}
-        <Flex
-          cursor="pointer"
-          w="full"
-          p={2}
-          justify="center"
-          fontSize="xs"
-          fontWeight="semibold"
-          borderRadius={8}
-          textTransform="uppercase"
-          color="purple.100"
-          onClick={onOpen}
-          _hover={{ bgColor: 'purple.900' }}
-        >
-          View All
-        </Flex>
+        <NextLink href="/governance/delegates" passHref>
+          <Flex
+            cursor="pointer"
+            w="full"
+            p={2}
+            justify="center"
+            fontSize="xs"
+            fontWeight="semibold"
+            borderRadius={8}
+            textTransform="uppercase"
+            color="purple.100"
+            _hover={{ bgColor: 'purple.900' }}
+          >
+            View All
+          </Flex>
+        </NextLink>
       </Stack>
-      <DelegatesModal isOpen={isOpen} onClose={onClose} />
     </Container>
   )
 }

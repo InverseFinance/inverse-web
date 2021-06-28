@@ -19,6 +19,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         address: args.delegate,
         balance: parseFloat(formatUnits(args.newBalance)),
         delegators: [],
+        votes: [],
       }
     }
     return delegates

@@ -4,7 +4,6 @@ import Container from '@inverse/components/Container'
 import { AgainstVotesModal, ForVotesModal } from '@inverse/components/Governance/GovernanceModals'
 import { SkeletonList } from '@inverse/components/Skeleton'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
-import { useVoters } from '@inverse/hooks/useVoters'
 import { ProposalStatus, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import { formatUnits } from 'ethers/lib/utils'
@@ -66,9 +65,8 @@ export const ForVotes = ({ id }: { id: number }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { quorumVotes } = useProposals()
   const { proposal, isLoading: proposalIsLoading } = useProposal(id)
-  const { voters, isLoading: votersIsLoading } = useVoters(id)
 
-  if (proposalIsLoading || votersIsLoading) {
+  if (proposalIsLoading) {
     return (
       <Container label="For Votes">
         <SkeletonList />
@@ -76,7 +74,7 @@ export const ForVotes = ({ id }: { id: number }) => {
     )
   }
 
-  const { forVotes, status } = proposal
+  const { forVotes, status, voters } = proposal
 
   const forVoters = voters
     .filter(({ support }: ProposalVote) => support)
@@ -100,9 +98,8 @@ export const AgainstVotes = ({ id }: { id: number }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { quorumVotes } = useProposals()
   const { proposal, isLoading: proposalIsLoading } = useProposal(id)
-  const { voters, isLoading: votersIsLoading } = useVoters(id)
 
-  if (proposalIsLoading || votersIsLoading) {
+  if (proposalIsLoading) {
     return (
       <Container label="Against Votes">
         <SkeletonList />
@@ -110,7 +107,7 @@ export const AgainstVotes = ({ id }: { id: number }) => {
     )
   }
 
-  const { againstVotes, status } = proposal
+  const { againstVotes, status, voters } = proposal
 
   const againstVoters = voters
     .filter(({ support }: ProposalVote) => !support)

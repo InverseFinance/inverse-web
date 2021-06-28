@@ -44,8 +44,8 @@ export const Table = ({ columns, items, onClick }: TableProps) => (
         onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => onClick(item) : undefined}
         _hover={{ bgColor: 'purple.900' }}
       >
-        {columns.map(({ value }, i) => (
-          <Fragment key={i}>{value(item)}</Fragment>
+        {columns.map(({ value }, j) => (
+          <Fragment key={j}>{value(item, i)}</Fragment>
         ))}
       </Flex>
     ))}

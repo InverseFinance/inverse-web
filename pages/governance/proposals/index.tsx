@@ -8,6 +8,7 @@ export const Governance = () => (
   <Layout>
     <AppNav active="Governance" />
     <Breadcrumbs
+      w="7xl"
       breadcrumbs={[
         { label: 'Governance', href: '/governance' },
         { label: 'Proposals', href: '#' },
