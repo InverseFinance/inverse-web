@@ -2,17 +2,6 @@ import { extendTheme } from '@chakra-ui/react'
 
 const theme = extendTheme({
   colors: {
-    turqouise: {
-      100: '#d0f7f8',
-      200: '#a3eff2',
-      300: '#77e7eb',
-      400: '#4adfe5',
-      500: '#20d5dc',
-      600: '#1aaaaf',
-      700: '#137f83',
-      800: '#0d5456',
-      900: '#06292a',
-    },
     purple: {
       100: '#d4d1eb',
       200: '#b3addc',
@@ -24,6 +13,8 @@ const theme = extendTheme({
       800: '#211c42',
       900: '#100e21',
     },
+    primary: '#5E17EB',
+    secondary: '#34E795',
     success: '#25C9A1',
     fail: '#F44061',
   },

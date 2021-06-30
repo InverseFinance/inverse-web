@@ -5,11 +5,29 @@ export const LinkButton = ({ children, href }: { href: string; children: React.R
   <Flex
     w="full"
     justify="center"
-    bgColor="purple.600"
+    bgColor="primary"
     cursor="pointer"
-    borderRadius={32}
+    borderRadius={4}
     p={2}
-    _hover={{ bgColor: 'purple.500' }}
+    _hover={{ bgColor: '#4500D2' }}
+  >
+    <NextLink href={href} passHref>
+      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} _focus={{}}>
+        {children}
+      </Link>
+    </NextLink>
+  </Flex>
+)
+export const LinkOutlineButton = ({ children, href }: { href: string; children: React.ReactNode }) => (
+  <Flex
+    w="full"
+    justify="center"
+    borderColor="primary"
+    borderWidth={1}
+    cursor="pointer"
+    borderRadius={4}
+    p={2}
+    _hover={{ bgColor: '#4500D2' }}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} _focus={{}}>
@@ -26,7 +44,7 @@ export const ConnectButton = (props: any) => (
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
-    borderRadius={8}
+    borderRadius={4}
     fontWeight="semibold"
     color="#fff"
     p={2}
@@ -61,7 +79,7 @@ export const OutlineButton = (props: any) => (
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
-    borderRadius={8}
+    borderRadius={4}
     borderWidth={1}
     borderColor="purple.700"
     fontWeight="semibold"
@@ -94,14 +112,14 @@ type NavButtonProps = {
 }
 
 export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
-  <Flex w="full" bgColor="purple.900" p={1} borderRadius={8} cursor="pointer">
+  <Flex w="full" bgColor="purple.900" p={1} borderRadius={4} cursor="pointer">
     {options.map((option: string) => (
       <Flex
         key={option}
         w="full"
         justify="center"
         p={2}
-        borderRadius={8}
+        borderRadius={4}
         fontWeight="semibold"
         fontSize="15px"
         color={option === active ? '#fff' : 'purple.100'}

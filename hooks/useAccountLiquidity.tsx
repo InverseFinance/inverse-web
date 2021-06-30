@@ -32,7 +32,9 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
     pricesIsLoading ||
     supplyBalancesIsLoading ||
     borrowBalancesIsLoading ||
-    exchangeRatesIsLoading
+    exchangeRatesIsLoading ||
+    !supplyBalances ||
+    !borrowBalances
   ) {
     return {
       netApy: 0,

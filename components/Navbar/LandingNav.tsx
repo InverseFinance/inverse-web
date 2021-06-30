@@ -20,15 +20,18 @@ export const LandingNav = () => {
 
   return (
     <>
-      <Flex justify="center" bgColor="purple.800" color="purple.100" fontWeight="semibold" w="full" fontSize="xs" p={1}>
-        Landing page is a work in progress
-      </Flex>
-      <Flex width="full" justify="space-between" align="center" p={4} zIndex="docked">
+      <Flex
+        width="full"
+        bgColor="purple.900"
+        borderBottomColor="purple.800"
+        borderBottomWidth={1}
+        justify="space-between"
+        align="center"
+        p={4}
+        zIndex="docked"
+      >
         <Stack direction="row" align="center">
           <Logo boxSize={10} />
-          <Text fontWeight="bold" fontSize="lg">
-            Inverse
-          </Text>
         </Stack>
         <Stack direction="row" spacing={12} fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
           {INVERSE_NAV.map(({ label, href }, i) => (
