@@ -4,7 +4,6 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { useProposals } from '@inverse/hooks/useProposals'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { Proposal } from '@inverse/types'
-import { useEffect, useState } from 'react'
 
 type Stat = {
   value: number
@@ -67,7 +66,7 @@ export const Stats = () => {
     <Flex w="full" direction="column" align="center" pb={16} pl={8} pr={8} maxW="120rem">
       <Stack direction="row" spacing={0} w="full" justify="space-around" wrap="wrap" shouldWrapChildren>
         {stats.map((stat) => (
-          <Stack align="center" p={8} m={4} w={60} borderRadius={8} bgColor="purple.800">
+          <Stack key={stat.label} align="center" p={8} m={4} w={60} borderRadius={8} bgColor="purple.800">
             <Text fontSize="4xl" fontWeight="bold" lineHeight={1}>
               {formatStat(stat)}
             </Text>

@@ -28,7 +28,11 @@ type VoteCountModalProps = ModalProps & {
 }
 
 export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModalProps) => {
-  const { proposal } = useProposal(id)
+  const { proposal, isLoading } = useProposal(id)
+
+  if (isLoading) {
+    return <></>
+  }
 
   const { forVotes, againstVotes, voters } = proposal
 

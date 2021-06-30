@@ -36,6 +36,7 @@ export const ANCHOR_STETH = config.anchor.markets.steth
 export const ANCHOR_TOKENS = Object.values(config.anchor.markets)
 
 // Governance
+export const QUORUM_VOTES = 4000
 export const GOVERNANCE = config.governance
 
 // Harvester

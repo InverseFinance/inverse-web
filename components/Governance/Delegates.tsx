@@ -1,15 +1,14 @@
-import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, Text } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/Avatar'
 import Container from '@inverse/components/Container'
 import { SkeletonList } from '@inverse/components/Skeleton'
-import { useDelegates } from '@inverse/hooks/useDelegates'
+import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 import NextLink from 'next/link'
 
 export const DelegatesPreview = () => {
-  const { delegates, isLoading } = useDelegates()
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { delegates, isLoading } = useTopDelegates()
 
   if (isLoading) {
     return (
@@ -22,7 +21,7 @@ export const DelegatesPreview = () => {
   return (
     <Container label="Top Delegates">
       <Stack w="full">
-        {delegates.slice(0, 5).map(({ address, balance, delegators, votes }: Delegate) => (
+        {delegates.slice(0, 5).map(({ address, votingPower, delegators, votes }: Delegate) => (
           <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
             <Stack direction="row" align="center">
               <Avatar address={address} boxSize={7} />
@@ -34,7 +33,7 @@ export const DelegatesPreview = () => {
             </Stack>
             <Flex direction="column" align="flex-end">
               <Text fontSize="sm" fontWeight="semibold">
-                {balance.toFixed(2)}
+                {votingPower.toFixed(2)}
               </Text>
               <Text fontSize="sm" color="purple.100">
                 {`${delegators.length} delegators`}

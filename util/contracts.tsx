@@ -28,7 +28,7 @@ import {
 } from '@inverse/config'
 import { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers'
 
-export const getNewProvider = () => new InfuraProvider(process.env.NETWORK, process.env.INFURA_ID)
+export const getNewProvider = () => new InfuraProvider('homestead', process.env.INFURA_ID)
 
 export const getNewMulticallProvider = (provider: InfuraProvider) => new providers.MulticallProvider(provider)
 

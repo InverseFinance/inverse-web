@@ -82,7 +82,7 @@ export const StakeView = () => {
         ) : (
           <Stack spacing={1} pt={2} pb={2}>
             <Flex justify="space-between">
-              {rates && prices && (
+              {rates && prices && prices[TOKENS[INV].coingeckoId] && (
                 <Stack direction="row" align="flex-end" spacing={1}>
                   <Text fontSize="13px" fontWeight="semibold">
                     {`${(rates[DOLA3CRV] * prices[TOKENS[INV].coingeckoId].usd).toFixed(2)}%`}

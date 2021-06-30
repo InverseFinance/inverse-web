@@ -4,15 +4,16 @@ import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
 import Container from '@inverse/components/Container'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
+import { SkeletonBlob } from '@inverse/components/Skeleton'
 import Table from '@inverse/components/Table'
-import { useDelegates } from '@inverse/hooks/useDelegates'
+import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
 
 const DelegatesTable = () => {
-  const { delegates } = useDelegates()
+  const { delegates, isLoading } = useTopDelegates()
 
-  const totalVotes = delegates.reduce((totalVotes: number, { balance }: Delegate) => (totalVotes += balance), 0)
+  const totalVotes = delegates.reduce((totalVotes: number, { votingPower }: Delegate) => (totalVotes += votingPower), 0)
 
   const columns = [
     {
@@ -51,7 +52,7 @@ const DelegatesTable = () => {
           Votes
         </Flex>
       ),
-      value: ({ balance }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${balance.toFixed(2)}`}</Flex>,
+      value: ({ votingPower }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${votingPower.toFixed(2)}`}</Flex>,
     },
     {
       header: (
@@ -59,11 +60,19 @@ const DelegatesTable = () => {
           Vote Weight
         </Flex>
       ),
-      value: ({ balance }: Delegate) => (
-        <Flex justify="flex-end" minWidth={32}>{`${((balance / totalVotes) * 100).toFixed(2)}%`}</Flex>
+      value: ({ votingPower }: Delegate) => (
+        <Flex justify="flex-end" minWidth={32}>{`${((votingPower / totalVotes) * 100).toFixed(2)}%`}</Flex>
       ),
     },
   ]
+
+  if (isLoading) {
+    return (
+      <Container label="Delegate Leaderboard" description="Top delegates by voting weight">
+        <SkeletonBlob skeletonHeight={6} noOfLines={4} />
+      </Container>
+    )
+  }
 
   return (
     <Container label="Delegate Leaderboard" description="Top delegates by voting weight">
@@ -74,7 +83,7 @@ const DelegatesTable = () => {
 
 export const Stake = () => (
   <Layout>
-    <AppNav active="Stake" />
+    <AppNav active="Governance" />
     <Breadcrumbs
       w="7xl"
       breadcrumbs={[
@@ -82,7 +91,7 @@ export const Stake = () => (
         { label: 'Delegates', href: '#' },
       ]}
     />
-    <Flex w="full" justify="center" direction="column">
+    <Flex w="full" align="center" direction="column">
       <Flex w={{ base: 'full', xl: '7xl' }} align="center">
         <DelegatesTable />
       </Flex>

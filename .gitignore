@@ -91,3 +91,4 @@ $RECYCLE.BIN/
 
 # environment
 .env*
+out

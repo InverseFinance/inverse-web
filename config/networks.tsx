@@ -23,10 +23,10 @@ export const mainnet = {
     stabilizer: '0x7eC0D931AFFBa01b77711C2cD07c76B970795CDd',
     treasury: '0x926df14a23be491164dcf93f4c468a50ef659d5b',
     markets: {
-      eth: '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
       dola: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
-      xsushi: '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
+      eth: '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
       wbtc: '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
+      xsushi: '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
       yfi: '0xde2af899040536884e062D3a334F2dD36F34b4a4',
       steth: '0xA978D807614c3BFB0f90bC282019B2898c617880',
     },

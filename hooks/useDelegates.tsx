@@ -1,32 +1,38 @@
-import { Delegate, Proposal, ProposalVote, SWR } from '@inverse/types'
+import { Delegate, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
-import { useProposals } from './useProposals'
 
 type Delegates = {
+  delegates?: { [key: string]: Delegate }
+}
+
+type TopDelegates = {
   delegates: Delegate[]
 }
 
 export const useDelegates = (): SWR & Delegates => {
-  const { proposals } = useProposals()
-  const { data, error } = useSWR(`${process.env.API_URL}/inverse/delegates`, fetcher)
+  const { data, error } = useSWR(`${process.env.API_URL}/delegates`, fetcher)
 
-  if (!proposals || !data) {
+  return {
+    delegates: data?.delegates,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useTopDelegates = (): SWR & TopDelegates => {
+  const { delegates, isLoading } = useDelegates()
+
+  if (!delegates || isLoading) {
     return {
       delegates: [],
-      isLoading: !error,
-      isError: error,
+      isLoading,
     }
   }
 
   return {
-    delegates: data.delegates.map((delegate: Delegate) => ({
-      ...delegate,
-      votes: proposals.filter(({ voters }: Proposal) =>
-        voters?.find(({ voter }: ProposalVote) => voter === delegate.address)
-      ),
-    })),
-    isLoading: !error,
-    isError: error,
+    delegates: Object.values(delegates)
+      .filter(({ votingPower }) => votingPower)
+      .sort((a, b) => b.votingPower - a.votingPower),
   }
 }

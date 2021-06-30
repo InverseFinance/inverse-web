@@ -62,10 +62,10 @@ export const useBorrowBalances = (): SWR & Balances => {
 }
 
 export const useStabilizerBalance = () => {
-  const { data, error } = useSWR(`${process.env.API_URL}/stabilizer/balances`, fetcher)
+  const { data, error } = useSWR(`${process.env.API_URL}/tvl`, fetcher)
 
   return {
-    balance: data?.balances?.length && data.balances[0].balance,
+    balance: data?.stabilizer.tvl,
     isLoading: !error && !data,
     isError: error,
   }

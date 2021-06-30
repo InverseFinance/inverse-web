@@ -5,7 +5,7 @@ module.exports = (phase) => {
     case PHASE_DEVELOPMENT_SERVER:
       return {
         env: {
-          API_URL: 'http://localhost:3000/api',
+          API_URL: 'https://inverse-api.slokh.gg',
           COINGECKO_PRICE_API: 'https://api.coingecko.com/api/v3/simple/price',
         },
       }
@@ -15,7 +15,7 @@ module.exports = (phase) => {
           ignoreBuildErrors: true,
         },
         env: {
-          API_URL: 'https://inverse-web.vercel.app/api',
+          API_URL: 'https://inverse-api.slokh.gg',
           COINGECKO_PRICE_API: 'https://api.coingecko.com/api/v3/simple/price',
         },
       }

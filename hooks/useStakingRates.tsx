@@ -7,7 +7,7 @@ type Rates = {
 }
 
 export const useStakingRates = (): SWR & Rates => {
-  const { data, error } = useSWR(`${process.env.API_URL}/staking/rates`, fetcher)
+  const { data, error } = useSWR(`${process.env.API_URL}/staking`, fetcher)
 
   return {
     rates: data?.rates,

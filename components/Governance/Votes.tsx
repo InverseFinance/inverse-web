@@ -3,6 +3,7 @@ import { Avatar } from '@inverse/components/Avatar'
 import Container from '@inverse/components/Container'
 import { AgainstVotesModal, ForVotesModal } from '@inverse/components/Governance/GovernanceModals'
 import { SkeletonList } from '@inverse/components/Skeleton'
+import { QUORUM_VOTES } from '@inverse/config'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
 import { ProposalStatus, ProposalVote } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
@@ -12,19 +13,18 @@ const MAX_PREVIEW = 5
 
 type VotesProps = {
   votes: number
-  quorumVotes: number
   status: ProposalStatus
   voters: ProposalVote[]
   onViewAll: () => void
 }
 
-const Votes = ({ votes, quorumVotes, status, voters, onViewAll }: VotesProps) => (
+const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => (
   <Stack w="full">
     <Flex justify="space-between" p={2}>
       <Text fontSize="sm" fontWeight="medium">{`${voters.length} voters`}</Text>
       <Text fontSize="sm" fontWeight="medium">
         {status === ProposalStatus.active
-          ? `${votes.toFixed(0)} / ${quorumVotes.toFixed(0)} votes`
+          ? `${votes.toFixed(0)} / ${QUORUM_VOTES.toFixed(0)} votes`
           : `${votes >= 1000 ? `${(votes / 1000).toFixed(2)}k` : votes.toFixed(0)} votes`}
       </Text>
     </Flex>
@@ -63,7 +63,6 @@ const Votes = ({ votes, quorumVotes, status, voters, onViewAll }: VotesProps) =>
 
 export const ForVotes = ({ id }: { id: number }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { quorumVotes } = useProposals()
   const { proposal, isLoading: proposalIsLoading } = useProposal(id)
 
   if (proposalIsLoading) {
@@ -82,13 +81,7 @@ export const ForVotes = ({ id }: { id: number }) => {
 
   return (
     <Container label="For Votes">
-      <Votes
-        votes={forVotes}
-        quorumVotes={parseFloat(formatUnits(quorumVotes))}
-        voters={forVoters}
-        status={status}
-        onViewAll={onOpen}
-      />
+      <Votes votes={forVotes} voters={forVoters} status={status} onViewAll={onOpen} />
       <ForVotesModal isOpen={isOpen} onClose={onClose} id={id} />
     </Container>
   )
@@ -96,7 +89,6 @@ export const ForVotes = ({ id }: { id: number }) => {
 
 export const AgainstVotes = ({ id }: { id: number }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { quorumVotes } = useProposals()
   const { proposal, isLoading: proposalIsLoading } = useProposal(id)
 
   if (proposalIsLoading) {
@@ -115,13 +107,7 @@ export const AgainstVotes = ({ id }: { id: number }) => {
 
   return (
     <Container label="Against Votes">
-      <Votes
-        votes={againstVotes}
-        quorumVotes={parseFloat(formatUnits(quorumVotes))}
-        voters={againstVoters}
-        status={status}
-        onViewAll={onOpen}
-      />
+      <Votes votes={againstVotes} voters={againstVoters} status={status} onViewAll={onOpen} />
       <AgainstVotesModal isOpen={isOpen} onClose={onClose} id={id} />
     </Container>
   )

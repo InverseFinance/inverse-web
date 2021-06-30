@@ -8,7 +8,7 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { smallAddress } from '@inverse/util'
 import { injectedConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const NAV_ITEMS = [
   {
@@ -74,16 +74,6 @@ const AppNavConnect = () => {
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
-  // const { activate } = useWeb3React<Web3Provider>()
-
-  // useEffect(() => {
-  //   injectedConnector.isAuthorized().then((isAuthorized) => {
-  //     // @ts-ignore
-  //     if (isAuthorized || window.ethereum) {
-  //       activate(injectedConnector, undefined, true)
-  //     }
-  //   })
-  // }, [])
 
   return (
     <>

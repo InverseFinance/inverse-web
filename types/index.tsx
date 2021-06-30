@@ -63,12 +63,12 @@ export type ProposalVote = {
 
 export type Delegate = {
   address: string
-  balance: number
+  votingPower: number
   delegators: string[]
   votes: ProposalVote[]
 }
 
 export type SWR = {
-  isLoading: boolean
-  isError: any
+  isLoading?: boolean
+  isError?: any
 }

@@ -1,4 +1,4 @@
-import { COMPTROLLER } from '@inverse/config'
+import { COMPTROLLER, TOKENS, UNDERLYING } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { Market, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
@@ -10,7 +10,7 @@ type Markets = {
 }
 
 export const useMarkets = (): SWR & Markets => {
-  const { data, error } = useSWR(`${process.env.API_URL}/anchor/markets`, fetcher)
+  const { data, error } = useSWR(`${process.env.API_URL}/markets`, fetcher)
 
   return {
     markets: data?.markets || [],
