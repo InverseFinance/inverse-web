@@ -1,3 +1,4 @@
+// TODO: Clean up the landing page, this was rushed in a few hours
 import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@inverse/components/Button'
 import Layout from '@inverse/components/Layout'
@@ -89,7 +90,7 @@ export const Landing = () => {
       value: proposals.filter(({ forVotes, againstVotes }: Proposal) => forVotes > againstVotes).length,
     },
     {
-      label: 'Votes Casted',
+      label: 'Votes Cast',
       value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.forVotes + curr.againstVotes, 0),
     },
   ]
@@ -139,7 +140,7 @@ export const Landing = () => {
           <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
             Inverse is proudly partnered with leading cryptocurrency & DeFi protocols
           </Text>
-          <Stack direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
+          <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
               <Flex w={16} h={16} m={6}>
                 <Image w={16} h={16} src={project} />
@@ -149,7 +150,7 @@ export const Landing = () => {
         </Stack>
       </Flex>
       <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 40 }} p={8}>
-        <Text pb={8} fontSize="2xl" fontWeight="bold">
+        <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
           A suite of banking tools for the DeFi generation
         </Text>
         <Stack
@@ -161,26 +162,15 @@ export const Landing = () => {
           shouldWrapChildren
         >
           {cards.map(({ title, description, label, image, href }) => (
-            <Stack
-              maxW={{ base: 64, lg: 72 }}
-              p={10}
-              m={4}
-              textAlign="center"
-              borderRadius={16}
-              bgColor="#211e36"
-              align="center"
-            >
+            <Stack p={8} m={4} textAlign="center" borderRadius={16} bgColor="#211e36" align="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
-              <Text h={12} fontSize="sm" fontWeight="medium">
+              <Text w={{ base: 56, lg: 64 }} h={12} fontSize="sm" fontWeight="medium">
                 {description}
               </Text>
               <Spacer />
-              <Flex h={48} p={6} align="center" justify="center">
-                <Image w={32} h={32} src={image} />
-              </Flex>
-              <Flex w={40}>
+              <Flex w={40} pt={6}>
                 <LinkButton href={href}>{label}</LinkButton>
               </Flex>
             </Stack>
@@ -196,8 +186,8 @@ export const Landing = () => {
         pt={{ base: 8, lg: 64 }}
         pb={{ base: 8, lg: 48 }}
       >
-        <Flex w={{ base: 'full', xl: 'container.xl' }} p={8}>
-          <Stack w="3xl" spacing={6}>
+        <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} textAlign={{ base: 'center', lg: 'start' }}>
+          <Stack w="3xl" spacing={6} align={{ base: 'center', lg: 'flex-start' }}>
             <Text fontSize="2xl" fontWeight="bold">
               Join the Inverse DAO - governance by the people
             </Text>
@@ -245,7 +235,7 @@ export const Landing = () => {
           pl={{ base: 8, lg: 64 }}
           pr={{ base: 8, lg: 64 }}
           pb={0}
-          direction="row"
+          direction={{ base: 'column', md: 'row' }}
           spacing={0}
           wrap="wrap"
           shouldWrapChildren
