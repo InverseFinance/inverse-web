@@ -58,7 +58,18 @@ export const LandingNav = () => {
         transitionDuration="0.1s"
         transitionTimingFunction="ease"
       >
-        <Stack w="full" bgColor="purple.700" m={2} borderRadius={8} fontWeight="semibold" spacing={6} p={4} pt={16}>
+        <Stack
+          w="full"
+          bgColor="purple.900"
+          mt={8}
+          borderRadius={8}
+          fontWeight="semibold"
+          spacing={6}
+          p={4}
+          pt={16}
+          borderBottomColor="purple.800"
+          borderBottomWidth={1}
+        >
           {INVERSE_NAV.map(({ label, href }, i) => (
             <Link key={i} href={href}>
               {label}
