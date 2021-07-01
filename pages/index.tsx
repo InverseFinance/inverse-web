@@ -114,7 +114,7 @@ export const Landing = () => {
               <Text>Borrow, Lend & Earn</Text>
               <Stack direction="row">
                 <Text>with</Text>
-                <Text color="primary">Inverse Finance</Text>
+                <Text color="purple.400">Inverse Finance</Text>
               </Stack>
             </Flex>
           </Flex>

@@ -5,11 +5,11 @@ export const LinkButton = ({ children, href }: { href: string; children: React.R
   <Flex
     w="full"
     justify="center"
-    bgColor="primary"
+    bgColor="purple.500"
     cursor="pointer"
     borderRadius={4}
     p={2}
-    _hover={{ bgColor: '#4500D2' }}
+    _hover={{ bgColor: 'purple.600' }}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} _focus={{}}>
@@ -22,12 +22,12 @@ export const LinkOutlineButton = ({ children, href }: { href: string; children: 
   <Flex
     w="full"
     justify="center"
-    borderColor="primary"
+    borderColor="purple.400"
     borderWidth={1}
     cursor="pointer"
     borderRadius={4}
     p={2}
-    _hover={{ bgColor: '#4500D2' }}
+    _hover={{ bgColor: 'purple.600' }}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} _focus={{}}>
@@ -40,7 +40,7 @@ export const LinkOutlineButton = ({ children, href }: { href: string; children: 
 export const ConnectButton = (props: any) => (
   <Flex
     justify="center"
-    bgColor="purple.600"
+    bgColor="purple.500"
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
@@ -50,7 +50,7 @@ export const ConnectButton = (props: any) => (
     p={2}
     pl={4}
     pr={4}
-    _hover={{ bgColor: 'purple.700' }}
+    _hover={{ bgColor: 'purple.600' }}
     {...props}
   />
 )
@@ -58,7 +58,7 @@ export const ConnectButton = (props: any) => (
 export const ClaimButton = (props: any) => (
   <Button
     justify="center"
-    bgColor="purple.600"
+    bgColor="purple.500"
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
@@ -68,7 +68,7 @@ export const ClaimButton = (props: any) => (
     height={8}
     pl={3}
     pr={3}
-    _hover={{ bgColor: 'purple.700' }}
+    _hover={{ bgColor: 'purple.600' }}
     {...props}
   />
 )
@@ -124,7 +124,7 @@ export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
         fontSize="15px"
         color={option === active ? '#fff' : 'purple.100'}
         onClick={() => onClick(option)}
-        bgColor={option === active ? 'purple.700' : 'purple.900'}
+        bgColor={option === active ? 'purple.600' : 'purple.900'}
       >
         {option}
       </Flex>
