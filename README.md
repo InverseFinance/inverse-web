@@ -1,6 +1,6 @@
 # inverse-web
 
-Interface for https://inverse.finance
+Interface for https://inverse.slokh.gg
 
 Built using TypeScript, Next.js, React, Chakra UI, and Ethers.js.
 
