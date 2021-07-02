@@ -1,11 +1,22 @@
-import { Text } from '@chakra-ui/react'
+import { Text, Link as ChakraLink } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 export const Link = (props: any) => {
-  const { href, ...otherProps } = props
+  const { href, isExternal, ...otherProps } = props
   return (
     <NextLink href={href} passHref>
-      <Text color="#fff" cursor="pointer" _hover={{ color: 'purple.200' }} _focus={{}} {...otherProps} />
+      {isExternal ? (
+        <ChakraLink
+          color="#fff"
+          cursor="pointer"
+          _hover={{ color: 'purple.200' }}
+          _focus={{}}
+          isExternal
+          {...otherProps}
+        />
+      ) : (
+        <Text color="#fff" cursor="pointer" _hover={{ color: 'purple.200' }} _focus={{}} {...otherProps} />
+      )}
     </NextLink>
   )
 }

@@ -121,10 +121,10 @@ export const VoteModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
   )
 }
 
-export const ChangeDelegatesModal = ({ isOpen, onClose }: ModalProps) => {
+export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & { address?: string }) => {
   const { account, library, chainId } = useWeb3React<Web3Provider>()
   const [delegationType, setDelegationType] = useState('Delegate')
-  const [delegate, setDelegate] = useState('')
+  const [delegate, setDelegate] = useState(address || '')
   const [signature, setSignature] = useState('')
   const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
   const { hasCopied, onCopy } = useClipboard(signature)
@@ -171,7 +171,10 @@ export const ChangeDelegatesModal = ({ isOpen, onClose }: ModalProps) => {
 
   return (
     <Modal
-      onClose={onClose}
+      onClose={() => {
+        onClose()
+        setDelegate(address || '')
+      }}
       isOpen={isOpen}
       header={
         <Stack minWidth={24} direction="row" align="center">

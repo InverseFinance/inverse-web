@@ -22,24 +22,29 @@ export const DelegatesPreview = () => {
     <Container label="Top Delegates">
       <Stack w="full">
         {delegates.slice(0, 5).map(({ address, votingPower, delegators, votes }: Delegate) => (
-          <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
-            <Stack direction="row" align="center">
-              <Avatar address={address} boxSize={7} />
-              <Flex direction="column">
+          <NextLink href={`/governance/delegates/${address}`}>
+            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
+              <Stack direction="row" align="center">
+                <Avatar address={address} boxSize={7} />
+                <Flex direction="column">
+                  <Text fontSize="sm" fontWeight="semibold">
+                    {smallAddress(address)}
+                  </Text>
+                  <Text fontSize="sm" color="purple.100">
+                    {`${votes.length} votes`}
+                  </Text>
+                </Flex>
+              </Stack>
+              <Flex direction="column" align="flex-end">
                 <Text fontSize="sm" fontWeight="semibold">
-                  {smallAddress(address)}
+                  {votingPower.toFixed(2)}
+                </Text>
+                <Text fontSize="sm" color="purple.100">
+                  {`${delegators.length} delegators`}
                 </Text>
               </Flex>
-            </Stack>
-            <Flex direction="column" align="flex-end">
-              <Text fontSize="sm" fontWeight="semibold">
-                {votingPower.toFixed(2)}
-              </Text>
-              <Text fontSize="sm" color="purple.100">
-                {`${delegators.length} delegators`}
-              </Text>
             </Flex>
-          </Flex>
+          </NextLink>
         ))}
         <NextLink href="/governance/delegates" passHref>
           <Flex
