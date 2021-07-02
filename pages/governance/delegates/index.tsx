@@ -9,9 +9,11 @@ import Table from '@inverse/components/Table'
 import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
 import { smallAddress } from '@inverse/util'
+import { useRouter } from 'next/dist/client/router'
 
 const DelegatesTable = () => {
   const { delegates, isLoading } = useTopDelegates()
+  const router = useRouter()
 
   const totalVotes = delegates.reduce((totalVotes: number, { votingPower }: Delegate) => (totalVotes += votingPower), 0)
 
@@ -76,7 +78,11 @@ const DelegatesTable = () => {
 
   return (
     <Container label="Delegate Leaderboard" description="Top delegates by voting weight">
-      <Table columns={columns} items={delegates.slice(0, 100)} />
+      <Table
+        columns={columns}
+        items={delegates.slice(0, 100)}
+        onClick={({ address }: Delegate) => router.push(`/governance/delegates/${address}`)}
+      />
     </Container>
   )
 }

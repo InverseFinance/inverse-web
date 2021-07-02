@@ -6,7 +6,7 @@ import { Modal, ModalProps } from '@inverse/components/Modal'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { usePrices } from '@inverse/hooks/usePrices'
+import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
@@ -36,7 +36,7 @@ export const AnchorModal = ({
   const { active } = useWeb3React()
   const { balances } = useAccountBalances()
   const { balances: supplyBalances } = useSupplyBalances()
-  const { prices } = usePrices()
+  const { prices } = useAnchorPrices()
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
 
@@ -52,11 +52,11 @@ export const AnchorModal = ({
             ? parseFloat(formatUnits(supplyBalances[asset.token])) * parseFloat(formatUnits(exchangeRates[asset.token]))
             : 0
         const withdrawable = prices
-          ? usdBorrowable / (asset.collateralFactor * prices[asset.underlying.coingeckoId].usd)
+          ? usdBorrowable / (asset.collateralFactor * parseFloat(formatUnits(prices[asset.token])))
           : 0
         return withdrawable > supply ? supply : withdrawable
       case AnchorOperations.borrow:
-        return prices && usdBorrowable ? usdBorrowable / prices[asset.underlying.coingeckoId].usd : 0
+        return prices && usdBorrowable ? usdBorrowable / parseFloat(formatUnits(prices[asset.token])) : 0
       case AnchorOperations.repay:
         return balances
           ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))

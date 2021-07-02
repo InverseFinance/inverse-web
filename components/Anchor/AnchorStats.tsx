@@ -3,7 +3,7 @@ import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { usePrices } from '@inverse/hooks/usePrices'
+import { useAnchorPrices, usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { formatUnits } from 'ethers/lib/utils'
 
@@ -95,10 +95,10 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
 }
 
 const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
-  const { prices } = usePrices()
+  const { prices } = useAnchorPrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
 
-  const change = prices && amount ? asset.collateralFactor * amount * prices[asset.underlying.coingeckoId].usd : 0
+  const change = prices && amount ? asset.collateralFactor * amount * parseFloat(formatUnits(prices[asset.token])) : 0
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + change
 
@@ -123,10 +123,10 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
 }
 
 const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
-  const { prices } = usePrices()
+  const { prices } = useAnchorPrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
 
-  const change = prices && amount ? amount * prices[asset.underlying.coingeckoId].usd : 0
+  const change = prices && amount ? amount * parseFloat(formatUnits(prices[asset.token])) : 0
   const borrow = usdBorrow
   const newBorrow = borrow - (change > 0 ? change : 0)
   const borrowable = usdBorrow + usdBorrowable

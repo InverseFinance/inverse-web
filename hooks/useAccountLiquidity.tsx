@@ -4,7 +4,7 @@ import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useMarkets } from '@inverse/hooks/useMarkets'
-import { usePrices } from '@inverse/hooks/usePrices'
+import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
@@ -20,7 +20,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
   const { account } = useWeb3React<Web3Provider>()
   const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', account])
   const { markets, isLoading: marketsIsLoading } = useMarkets()
-  const { prices, isLoading: pricesIsLoading } = usePrices()
+  const { prices, isLoading: pricesIsLoading } = useAnchorPrices()
   const { balances: supplyBalances, isLoading: supplyBalancesIsLoading } = useSupplyBalances()
   const { balances: borrowBalances, isLoading: borrowBalancesIsLoading } = useBorrowBalances()
   const { exchangeRates, isLoading: exchangeRatesIsLoading } = useExchangeRates()
@@ -52,13 +52,13 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       prev +
       parseFloat(formatUnits(balance, underlying.decimals)) *
         parseFloat(formatUnits(exchangeRates[address])) *
-        prices[underlying.coingeckoId].usd
+        parseFloat(formatUnits(prices[address]))
     )
   }, 0)
 
   const usdBorrow = Object.entries(borrowBalances).reduce((prev, [address, balance]) => {
     const underlying = UNDERLYING[address]
-    return prev + parseFloat(formatUnits(balance, underlying.decimals)) * prices[underlying.coingeckoId].usd
+    return prev + parseFloat(formatUnits(balance, underlying.decimals)) * parseFloat(formatUnits(prices[address]))
   }, 0)
 
   const supplyApy = markets.reduce(
@@ -67,7 +67,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       (supplyBalances[token]
         ? parseFloat(formatUnits(supplyBalances[token], underlying.decimals)) *
           parseFloat(formatUnits(exchangeRates[token])) *
-          prices[underlying.coingeckoId].usd *
+          parseFloat(formatUnits(prices[token])) *
           (supplyApy || 1)
         : 0),
     0
@@ -78,7 +78,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       prev +
       (borrowBalances[token]
         ? parseFloat(formatUnits(borrowBalances[token], underlying.decimals)) *
-          prices[underlying.coingeckoId].usd *
+          parseFloat(formatUnits(prices[token])) *
           (supplyApy || 1)
         : 0),
     0

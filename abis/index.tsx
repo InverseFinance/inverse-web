@@ -6,6 +6,7 @@ import {
   HARVESTER,
   INV,
   LENS,
+  ORACLE,
   TOKENS,
   VAULT_TOKENS,
   XINV,
@@ -88,6 +89,9 @@ export const GOVERNANCE_ABI = [
 export const LENS_ABI = [
   'function getCompBalanceMetadataExt(address, address, address) returns (uint256, uint256, uint256, uint256)',
 ]
+
+export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
+
 export const STABILIZER_ABI = [
   'function buy(uint256)',
   'function sell(uint256)',
@@ -134,6 +138,7 @@ export const ABIs = new Map<string, string[]>(
       [HARVESTER, HARVESTER_ABI],
       [GOVERNANCE, GOVERNANCE_ABI],
       [LENS, LENS_ABI],
+      [ORACLE, ORACLE_ABI],
       [DOLA3CRV, STAKING_ABI],
       ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
     ],
