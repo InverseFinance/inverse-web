@@ -1,15 +1,20 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
+import { ERC20_ABI } from '@inverse/abis'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
-import { DAI, DOLA, TOKENS } from '@inverse/config'
+import { DAI, DOLA, STABILIZER, TOKENS } from '@inverse/config'
+import { useStabilizerApprovals } from '@inverse/hooks/useApprovals'
 import { useAccountBalances } from '@inverse/hooks/useBalances'
-import { getStabilizerContract } from '@inverse/util/contracts'
+import { getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
+import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
+
+const FEE = 0.004
 
 enum StabilizerOperations {
   buy = 'Buy',
@@ -18,29 +23,49 @@ enum StabilizerOperations {
 
 export const StabilizerView = () => {
   const [operation, setOperation] = useState<string>(StabilizerOperations.buy)
-  const { active, library } = useWeb3React<Web3Provider>()
+  const { active, account, library } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
   const [amount, setAmount] = useState<string>('')
+  const { approvals } = useStabilizerApprovals()
+
+  console.log(approvals)
 
   const max = () =>
     !balances
       ? 0
       : operation === StabilizerOperations.buy
-      ? parseFloat(formatUnits(balances[DAI]))
-      : parseFloat(formatUnits(balances[DOLA]))
+      ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
+      : parseFloat(formatUnits(balances[DOLA])) * (1 - FEE)
 
   const handleSubmit = () => {
     const contract = getStabilizerContract(library?.getSigner())
     switch (operation) {
       case StabilizerOperations.buy:
-        contract.buy(parseUnits(amount))
+        if (!approvals || !approvals[DAI] || !parseFloat(formatUnits(approvals[DAI]))) {
+          getERC20Contract(DAI, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
+        } else {
+          contract.buy(parseUnits(amount))
+        }
         break
       case StabilizerOperations.sell:
-        contract.sell(parseUnits(amount))
+        if (!approvals || !approvals[DOLA] || !parseFloat(formatUnits(approvals[DOLA]))) {
+          getERC20Contract(DOLA, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
+        } else {
+          contract.sell(parseUnits(amount))
+        }
         break
       default:
     }
   }
+
+  const buttonText =
+    operation === StabilizerOperations.buy
+      ? !approvals || !approvals[DAI] || !parseFloat(formatUnits(approvals[DAI]))
+        ? 'Approve'
+        : 'Buy DOLA'
+      : !approvals || !approvals[DOLA] || !parseFloat(formatUnits(approvals[DOLA]))
+      ? 'Approve'
+      : 'Sell DOLA'
 
   return (
     <Container
@@ -91,7 +116,7 @@ export const StabilizerView = () => {
           isDisabled={!active || !amount || !balances || isNaN(amount as any) || parseFloat(amount) > max()}
           onClick={handleSubmit}
         >
-          {`${operation} DOLA`}
+          {buttonText}
         </SubmitButton>
       </Stack>
     </Container>
