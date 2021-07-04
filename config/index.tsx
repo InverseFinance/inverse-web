@@ -42,6 +42,9 @@ export const GOVERNANCE = config.governance
 // Harvester
 export const HARVESTER = config.harvester
 
+// Escrow
+export const ESCROW = config.escrow
+
 // Tokens
 export const INV = config.INV
 export const DOLA = config.DOLA

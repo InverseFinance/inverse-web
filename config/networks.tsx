@@ -34,6 +34,7 @@ export const mainnet = {
   staking: {
     dola3crv: '0xA88948217f21175337226d94f1A47b7A01EEd197',
   },
+  escrow: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
   harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
   governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
   namedAddresses: {

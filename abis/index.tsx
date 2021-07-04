@@ -2,6 +2,7 @@ import {
   ANCHOR_TOKENS,
   COMPTROLLER,
   DOLA3CRV,
+  ESCROW,
   GOVERNANCE,
   HARVESTER,
   INV,
@@ -58,6 +59,11 @@ export const ERC20_ABI = [
   'function approve(address, uint256)',
   'function balanceOf(address) external view returns (uint256)',
   'event Transfer(address indexed from, address indexed to, uint256 amount)',
+]
+
+export const ESCROW_ABI = [
+  'function pendingWithdrawals(address user) public view returns (uint withdrawalTimestamp, uint amount)',
+  'function withdraw() public',
 ]
 
 export const HARVESTER_ABI = ['function ratePerToken(address) external view returns (uint256)']
@@ -135,6 +141,7 @@ export const ABIs = new Map<string, string[]>(
     [
       [XINV, XINV_ABI],
       [COMPTROLLER, COMPTROLLER_ABI],
+      [ESCROW, ESCROW_ABI],
       [HARVESTER, HARVESTER_ABI],
       [GOVERNANCE, GOVERNANCE_ABI],
       [LENS, LENS_ABI],

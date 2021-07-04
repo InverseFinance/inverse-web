@@ -26,8 +26,8 @@ export const DelegatesPreview = () => {
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} boxSize={7} />
-                <Flex direction="column">
-                  <Text fontSize="sm" fontWeight="semibold">
+                <Flex direction="column" w={40}>
+                  <Text fontSize="sm" fontWeight="semibold" isTruncated>
                     {namedAddress(address, ensName)}
                   </Text>
                   <Text fontSize="sm" color="purple.100">
