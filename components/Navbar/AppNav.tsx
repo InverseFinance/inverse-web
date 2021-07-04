@@ -5,7 +5,7 @@ import Link from '@inverse/components/Link'
 import Logo from '@inverse/components/Logo'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { injectedConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
@@ -67,7 +67,7 @@ const AppNavConnect = () => {
 
   return (
     <ConnectButton onClick={() => activate(injectedConnector)}>
-      {active && account ? `${smallAddress(account)}` : 'Connect'}
+      {active && account ? `${namedAddress(account)}` : 'Connect'}
     </ConnectButton>
   )
 }

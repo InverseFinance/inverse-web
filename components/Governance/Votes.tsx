@@ -4,10 +4,10 @@ import Container from '@inverse/components/Container'
 import { AgainstVotesModal, ForVotesModal } from '@inverse/components/Governance/GovernanceModals'
 import { SkeletonList } from '@inverse/components/Skeleton'
 import { QUORUM_VOTES } from '@inverse/config'
-import { useProposal, useProposals } from '@inverse/hooks/useProposals'
+import { useProposal } from '@inverse/hooks/useProposals'
 import { ProposalStatus, ProposalVote } from '@inverse/types'
-import { smallAddress } from '@inverse/util'
-import { formatUnits } from 'ethers/lib/utils'
+import { namedAddress } from '@inverse/util'
+import NextLink from 'next/link'
 
 const MAX_PREVIEW = 5
 
@@ -29,17 +29,19 @@ const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => (
       </Text>
     </Flex>
     {voters.slice(0, MAX_PREVIEW).map(({ voter, votes }: ProposalVote) => (
-      <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
-        <Stack direction="row" align="center">
-          <Avatar address={voter} boxSize={7} />
+      <NextLink href={`/governance/delegates/${voter}`} passHref>
+        <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
+          <Stack direction="row" align="center">
+            <Avatar address={voter} boxSize={7} />
+            <Text fontSize="sm" fontWeight="semibold">
+              {namedAddress(voter)}
+            </Text>
+          </Stack>
           <Text fontSize="sm" fontWeight="semibold">
-            {smallAddress(voter)}
+            {votes >= 1000 ? `${(votes / 1000).toFixed(2)}k` : votes.toFixed(2)}
           </Text>
-        </Stack>
-        <Text fontSize="sm" fontWeight="semibold">
-          {votes >= 1000 ? `${(votes / 1000).toFixed(2)}k` : votes.toFixed(2)}
-        </Text>
-      </Flex>
+        </Flex>
+      </NextLink>
     ))}
     {voters.length > MAX_PREVIEW && (
       <Flex

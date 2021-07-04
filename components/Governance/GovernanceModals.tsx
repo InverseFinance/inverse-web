@@ -11,7 +11,7 @@ import { useDelegates } from '@inverse/hooks/useDelegates'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
 import { Delegate, ProposalVote } from '@inverse/types'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, isAddress } from 'ethers/lib/utils'
@@ -65,7 +65,7 @@ export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModal
             <Stack direction="row" align="center">
               <Avatar address={voter} boxSize={7} />
               <Text fontSize="sm" fontWeight="semibold">
-                {smallAddress(voter)}
+                {namedAddress(voter)}
               </Text>
             </Stack>
             <Text fontSize="sm" fontWeight="semibold">

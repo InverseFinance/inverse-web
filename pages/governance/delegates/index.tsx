@@ -8,7 +8,7 @@ import { SkeletonBlob } from '@inverse/components/Skeleton'
 import Table from '@inverse/components/Table'
 import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { useRouter } from 'next/dist/client/router'
 
 const DelegatesTable = () => {
@@ -19,15 +19,15 @@ const DelegatesTable = () => {
 
   const columns = [
     {
-      header: <Flex minWidth={48}>Rank</Flex>,
-      value: ({ address }: Delegate, i: number) => (
-        <Stack direction="row" align="center" spacing={4} minWidth={48}>
+      header: <Flex minWidth={64}>Rank</Flex>,
+      value: ({ address, ensName }: Delegate, i: number) => (
+        <Stack direction="row" align="center" spacing={4} minWidth={64}>
           <Flex w={4} justify="center">
             {i + 1}
           </Flex>
           <Stack direction="row" align="center">
             <Avatar address={address} boxSize={6} />
-            <Flex>{smallAddress(address)}</Flex>
+            <Flex>{namedAddress(address, ensName)}</Flex>
           </Stack>
         </Stack>
       ),

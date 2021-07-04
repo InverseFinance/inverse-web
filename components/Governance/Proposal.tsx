@@ -6,7 +6,7 @@ import { SkeletonBlob, SkeletonTitle } from '@inverse/components/Skeleton'
 import { CONTRACTS } from '@inverse/config'
 import { useProposal } from '@inverse/hooks/useProposals'
 import { Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
 import moment from 'moment'
 import NextLink from 'next/link'
@@ -115,7 +115,7 @@ export const ProposalDetails = ({ id }: { id: number }) => {
           <Stack direction="row" align="center">
             <Avatar address={proposer} boxSize={5} />
             <Link fontSize="sm" href={`https://etherscan.io/address/${proposer}`}>
-              {smallAddress(proposer)}
+              {namedAddress(proposer)}
             </Link>
           </Stack>
         </Flex>

@@ -58,6 +58,8 @@ export const THREECRV = config.THREECRV
 // Rewards
 export const DOLA3CRV = config.staking.dola3crv
 
+export const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
+
 export const TOKENS: { [key: string]: Token } = {
   ETH: {
     address: '',

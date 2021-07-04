@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Flex, Text, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Avatar } from '@inverse/components/Avatar'
 import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
@@ -9,7 +9,7 @@ import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/Skeleton'
 import { useDelegates } from '@inverse/hooks/useDelegates'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
@@ -29,11 +29,11 @@ const DelegateOverview = () => {
   }
 
   const address = query.address as string
-  // const delegate = delegates[query.address]
+  const { ensName } = delegates[address]
 
   return (
     <Container
-      label={smallAddress(address)}
+      label={namedAddress(address, ensName)}
       description={address}
       image={<Avatar boxSize={12} address={address} />}
       right={active && <ClaimButton onClick={onOpen}>Delegate</ClaimButton>}
@@ -50,7 +50,7 @@ export const Delegate = () => {
   const { query } = useRouter()
 
   // @ts-ignore
-  const title = isAddress(query.address) ? smallAddress(query.address) : (query.address as string)
+  const title = isAddress(query.address) ? namedAddress(query.address) : (query.address as string)
 
   return (
     <Layout>

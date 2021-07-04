@@ -4,7 +4,7 @@ import Container from '@inverse/components/Container'
 import { SkeletonList } from '@inverse/components/Skeleton'
 import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import NextLink from 'next/link'
 
 export const DelegatesPreview = () => {
@@ -21,14 +21,14 @@ export const DelegatesPreview = () => {
   return (
     <Container label="Top Delegates">
       <Stack w="full">
-        {delegates.slice(0, 5).map(({ address, votingPower, delegators, votes }: Delegate) => (
+        {delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => (
           <NextLink href={`/governance/delegates/${address}`}>
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} boxSize={7} />
                 <Flex direction="column">
                   <Text fontSize="sm" fontWeight="semibold">
-                    {smallAddress(address)}
+                    {namedAddress(address, ensName)}
                   </Text>
                   <Text fontSize="sm" color="purple.100">
                     {`${votes.length} votes`}

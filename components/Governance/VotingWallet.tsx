@@ -6,7 +6,7 @@ import Container from '@inverse/components/Container'
 import { ChangeDelegatesModal } from '@inverse/components/Governance'
 import { INV, XINV } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 
@@ -51,7 +51,7 @@ export const VotingWallet = () => {
         <Stack w="full" direction="row" justify="center" align="center">
           <Avatar address={account} boxSize={5} />
           <Text mt={1} fontSize="sm" fontWeight="medium" color="purple.100">
-            {smallAddress(account)}
+            {namedAddress(account)}
           </Text>
         </Stack>
         <VotingWalletField label="INV">
@@ -69,7 +69,7 @@ export const VotingWallet = () => {
           ) : (
             <Stack direction="row" align="center">
               <Avatar address={delegate} boxSize={5} />
-              <Text>{smallAddress(delegate)}</Text>
+              <Text>{namedAddress(delegate)}</Text>
             </Stack>
           )}
         </VotingWalletField>
