@@ -67,7 +67,7 @@ export const StabilizerView = () => {
   return (
     <Container
       label="Stabilizer"
-      description="Swap Between DOLA & DAI"
+      description="Swap between DOLA & DAI"
       href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
       right={
         <Stack

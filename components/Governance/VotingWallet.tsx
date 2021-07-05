@@ -26,7 +26,7 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   </Flex>
 )
 
-export const VotingWallet = () => {
+export const VotingWallet = ({ address }: { address?: string }) => {
   const { account } = useWeb3React<Web3Provider>()
   const { data } = useEtherSWR([
     [INV, 'balanceOf', account],
@@ -82,14 +82,19 @@ export const VotingWallet = () => {
           fontWeight="semibold"
           borderRadius={8}
           textTransform="uppercase"
+          bgColor={delegate === address ? 'purple.900' : ''}
           color="purple.100"
-          onClick={onOpen}
-          _hover={{ bgColor: 'purple.900' }}
+          onClick={delegate !== address ? onOpen : () => {}}
+          _hover={{ bgColor: delegate !== address ? 'purple.900' : '' }}
         >
-          Change Delegate
+          {address
+            ? address === delegate
+              ? `Already delegated to ${namedAddress(address)}`
+              : `Delegate to ${namedAddress(address)}`
+            : 'Change Delegate'}
         </Flex>
       </Stack>
-      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} />
+      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} address={address} />
     </Container>
   )
 }
