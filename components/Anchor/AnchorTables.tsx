@@ -4,7 +4,6 @@ import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor
 import Container from '@inverse/components/Container'
 import { SkeletonBlob, SkeletonList } from '@inverse/components/Skeleton'
 import Table from '@inverse/components/Table'
-import { ANCHOR_STETH, ANCHOR_TOKENS, UNDERLYING, XINV } from '@inverse/config'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'

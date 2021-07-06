@@ -58,7 +58,10 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           {asset.token !== ANCHOR_ETH && (!approvals || !parseFloat(formatUnits(approvals[asset.token]))) ? (
             <SubmitButton
               onClick={() =>
-                getERC20Contract(asset.underlying.address, library?.getSigner()).approve(account, constants.MaxUint256)
+                getERC20Contract(asset.underlying.address, library?.getSigner()).approve(
+                  asset.token,
+                  constants.MaxUint256
+                )
               }
               isDisabled={isDisabled}
             >
@@ -107,7 +110,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
       return asset.token !== ANCHOR_ETH && (!approvals || !parseFloat(formatUnits(approvals[asset.token]))) ? (
         <SubmitButton
           onClick={() =>
-            getERC20Contract(asset.underlying.address, library?.getSigner()).approve(account, constants.MaxUint256)
+            getERC20Contract(asset.underlying.address, library?.getSigner()).approve(asset.token, constants.MaxUint256)
           }
           isDisabled={isDisabled}
         >

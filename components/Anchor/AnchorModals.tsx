@@ -49,14 +49,20 @@ export const AnchorModal = ({
       case AnchorOperations.withdraw:
         const supply =
           supplyBalances && exchangeRates
-            ? parseFloat(formatUnits(supplyBalances[asset.token])) * parseFloat(formatUnits(exchangeRates[asset.token]))
+            ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
+              parseFloat(formatUnits(exchangeRates[asset.token]))
             : 0
         const withdrawable = prices
-          ? usdBorrowable / (asset.collateralFactor * parseFloat(formatUnits(prices[asset.token])))
+          ? usdBorrowable /
+            (asset.collateralFactor *
+              parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
         return withdrawable > supply ? supply : withdrawable
       case AnchorOperations.borrow:
-        return prices && usdBorrowable ? usdBorrowable / parseFloat(formatUnits(prices[asset.token])) : 0
+        return prices && usdBorrowable
+          ? usdBorrowable /
+              parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+          : 0
       case AnchorOperations.repay:
         return balances
           ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
