@@ -56,10 +56,10 @@ export const XSUSHI = config.XSUSHI
 export const WBTC = config.WBTC
 export const XINV = config.XINV
 export const STETH = config.STETH
-export const THREECRV = config.THREECRV
+export const DOLA3CRV = config.DOLA3CRV
 
 // Rewards
-export const DOLA3CRV = config.staking.dola3crv
+export const STAKING_DOLA3CRV = config.staking.dola3crv
 
 export const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
 
@@ -144,8 +144,8 @@ export const TOKENS: { [key: string]: Token } = {
     image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
     decimals: 18,
   },
-  [THREECRV]: {
-    address: THREECRV,
+  [DOLA3CRV]: {
+    address: DOLA3CRV,
     name: 'lp-3pool-curve',
     symbol: '3CRV',
     coingeckoId: 'lp-3pool-curve',
@@ -166,6 +166,7 @@ export const UNDERLYING: { [key: string]: Token } = {
   [VAULT_DAI_ETH]: TOKENS[DAI],
   [VAULT_DAI_WBTC]: TOKENS[DAI],
   [VAULT_DAI_YFI]: TOKENS[DAI],
+  [DOLA3CRV]: TOKENS[DOLA3CRV],
 }
 
 export const CONTRACTS: { [key: string]: string } = {

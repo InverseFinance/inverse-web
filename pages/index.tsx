@@ -83,7 +83,7 @@ export const Landing = () => {
     },
     {
       label: 'Markets',
-      value: markets.length,
+      value: markets?.length || 0,
     },
     {
       label: 'Passed Proposals',
@@ -232,8 +232,8 @@ export const Landing = () => {
         <Stack
           w="full"
           pt={20}
-          pl={{ base: 8, lg: 64 }}
-          pr={{ base: 8, lg: 64 }}
+          pl={{ base: 8, lg: 16, xl: 32 }}
+          pr={{ base: 8, lg: 16, xl: 32 }}
           pb={0}
           direction={{ base: 'column', md: 'row' }}
           spacing={0}

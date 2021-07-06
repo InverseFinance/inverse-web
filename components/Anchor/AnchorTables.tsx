@@ -2,7 +2,7 @@ import { Flex, Image, Stack, Switch, Text, useDisclosure } from '@chakra-ui/reac
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
 import Container from '@inverse/components/Container'
-import { SkeletonBlob } from '@inverse/components/Skeleton'
+import { SkeletonBlob, SkeletonList } from '@inverse/components/Skeleton'
 import Table from '@inverse/components/Table'
 import { ANCHOR_STETH, ANCHOR_TOKENS, UNDERLYING, XINV } from '@inverse/config'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
@@ -217,7 +217,7 @@ export const AnchorBorrowed = () => {
 }
 
 export const AnchorSupply = () => {
-  const { markets } = useMarkets()
+  const { markets, isLoading } = useMarkets()
   const { balances } = useAccountBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
@@ -286,9 +286,17 @@ export const AnchorSupply = () => {
     },
   ]
 
-  const items = markets?.length
-    ? markets
-    : ANCHOR_TOKENS.concat([XINV]).map((address: string) => ({ underlying: UNDERLYING[address] }))
+  if (isLoading || !markets) {
+    return (
+      <Container
+        label="Supply"
+        description="Earn interest on your deposits"
+        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
+      >
+        <SkeletonList />
+      </Container>
+    )
+  }
 
   return (
     <Container
@@ -296,14 +304,14 @@ export const AnchorSupply = () => {
       description="Earn interest on your deposits"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
     >
-      <Table columns={columns} items={items} onClick={handleSupply} />
+      <Table columns={columns} items={markets} onClick={handleSupply} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
 }
 
 export const AnchorBorrow = () => {
-  const { markets } = useMarkets()
+  const { markets, isLoading } = useMarkets()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
@@ -351,11 +359,17 @@ export const AnchorBorrow = () => {
     },
   ]
 
-  const items = markets?.length
-    ? markets.filter(({ borrowable }: Market) => borrowable)
-    : ANCHOR_TOKENS.filter((address: string) => address !== ANCHOR_STETH).map((address: string) => ({
-        underlying: UNDERLYING[address],
-      }))
+  if (isLoading || !markets) {
+    return (
+      <Container
+        label="Borrow"
+        description="Borrow against your supplied collateral"
+        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
+      >
+        <SkeletonList />
+      </Container>
+    )
+  }
 
   return (
     <Container
@@ -363,7 +377,7 @@ export const AnchorBorrow = () => {
       description="Borrow against your supplied collateral"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
     >
-      <Table columns={columns} items={items} onClick={handleBorrow} />
+      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )

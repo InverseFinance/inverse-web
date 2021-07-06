@@ -13,7 +13,7 @@ export const useMarkets = (): SWR & Markets => {
   const { data, error } = useSWR(`${process.env.API_URL}/markets`, fetcher)
 
   return {
-    markets: data?.markets || [],
+    markets: data?.markets,
     isLoading: !error && !data,
     isError: error,
   }

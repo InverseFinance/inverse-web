@@ -1,13 +1,13 @@
 import {
   ANCHOR_TOKENS,
   COMPTROLLER,
-  DOLA3CRV,
   ESCROW,
   GOVERNANCE,
   HARVESTER,
   INV,
   LENS,
   ORACLE,
+  STAKING_DOLA3CRV,
   TOKENS,
   VAULT_TOKENS,
   XINV,
@@ -105,7 +105,7 @@ export const STABILIZER_ABI = [
 ]
 
 export const STAKING_ABI = [
-  'function balanceOf() external view returns (uint256)',
+  'function balanceOf(address) external view returns (uint256)',
   'function earned(address) external view returns (uint256)',
   'function getReward()',
   'function rewardRate() external view returns (uint256)',
@@ -146,7 +146,7 @@ export const ABIs = new Map<string, string[]>(
       [GOVERNANCE, GOVERNANCE_ABI],
       [LENS, LENS_ABI],
       [ORACLE, ORACLE_ABI],
-      [DOLA3CRV, STAKING_ABI],
+      [STAKING_DOLA3CRV, STAKING_ABI],
       ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
     ],
     Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
