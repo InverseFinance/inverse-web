@@ -3,13 +3,15 @@ import { Web3Provider } from '@ethersproject/providers'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
-import { DOLA, DOLA3CRV, INV, THREECRV, TOKENS } from '@inverse/config'
+import { DOLA, DOLA3CRV, INV, STAKING_DOLA3CRV, TOKENS } from '@inverse/config'
+import { useStakingApprovals } from '@inverse/hooks/useApprovals'
 import { useAccountBalances } from '@inverse/hooks/useBalances'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useStakingRates } from '@inverse/hooks/useStakingRates'
-import { getStakingContract } from '@inverse/util/contracts'
+import { getERC20Contract, getStakingContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
+import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -26,21 +28,23 @@ export const StakeView = () => {
   const { rates } = useStakingRates()
   const { prices } = usePrices()
   const [amount, setAmount] = useState<string>('')
+  const { approvals } = useStakingApprovals()
   const { data } = useEtherSWR([
-    [DOLA3CRV, 'balanceOf', account],
-    [DOLA3CRV, 'earned', account],
+    [STAKING_DOLA3CRV, 'balanceOf', account],
+    [STAKING_DOLA3CRV, 'earned', account],
   ])
 
   const max = () => {
     if (operation === StakeOperations.deposit) {
-      return balances && balances[THREECRV] ? parseFloat(formatUnits(balances[THREECRV])) : 0
+      console.log(balances)
+      return balances && balances[DOLA3CRV] ? parseFloat(formatUnits(balances[DOLA3CRV])) : 0
     }
 
-    return data ? parseFloat(formatUnits(operation === StakeOperations.deposit ? data[0] : data[1])) : 0
+    return data ? parseFloat(formatUnits(operation === StakeOperations.withdraw ? data[0] : data[1])) : 0
   }
 
   const handleSubmit = () => {
-    const contract = getStakingContract(DOLA3CRV, library?.getSigner())
+    const contract = getStakingContract(STAKING_DOLA3CRV, library?.getSigner())
     switch (operation) {
       case StakeOperations.deposit:
         contract.stake(parseUnits(amount))
@@ -59,10 +63,11 @@ export const StakeView = () => {
     <Container
       label="DOLA-3CRV"
       description="Stake DOLA-3CRV LP tokens to earn INV"
+      href="https://crv.to/pool"
       right={
         <Stack w={32} justify="flex-end" direction="row">
           <Image w={6} h={6} src={TOKENS[DOLA].image} />
-          <Image w={5} h={5} src={TOKENS[THREECRV].image} />
+          <Image w={5} h={5} src={TOKENS[DOLA3CRV].image} />
         </Stack>
       }
     >
@@ -85,7 +90,7 @@ export const StakeView = () => {
               {rates && prices && prices[TOKENS[INV].coingeckoId] && (
                 <Stack direction="row" align="flex-end" spacing={1}>
                   <Text fontSize="13px" fontWeight="semibold">
-                    {`${(rates[DOLA3CRV] * prices[TOKENS[INV].coingeckoId].usd).toFixed(2)}%`}
+                    {`${(rates[STAKING_DOLA3CRV] * prices[TOKENS[INV].coingeckoId].usd).toFixed(2)}%`}
                   </Text>
                   <Text fontSize="13px" fontWeight="semibold" color="purple.100">
                     APY
@@ -111,12 +116,24 @@ export const StakeView = () => {
             />
           </Stack>
         )}
-        <SubmitButton
-          isDisabled={!active || !amount || isNaN(amount as any) || parseFloat(amount) > max()}
-          onClick={handleSubmit}
-        >
-          {operation}
-        </SubmitButton>
+        {operation === StakeOperations.deposit &&
+        (!approvals || !approvals[DOLA3CRV] || !parseFloat(formatUnits(approvals[DOLA3CRV]))) ? (
+          <SubmitButton
+            isDisabled={!active}
+            onClick={() =>
+              getERC20Contract(DOLA3CRV, library?.getSigner()).approve(STAKING_DOLA3CRV, constants.MaxUint256)
+            }
+          >
+            Approve
+          </SubmitButton>
+        ) : (
+          <SubmitButton
+            isDisabled={!active || !amount || isNaN(amount as any) || parseFloat(amount) > max()}
+            onClick={handleSubmit}
+          >
+            {operation}
+          </SubmitButton>
+        )}
       </Stack>
     </Container>
   )

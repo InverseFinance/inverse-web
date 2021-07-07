@@ -6,7 +6,7 @@ import Container from '@inverse/components/Container'
 import { ChangeDelegatesModal } from '@inverse/components/Governance'
 import { INV, XINV } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { smallAddress } from '@inverse/util'
+import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 
@@ -26,7 +26,7 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   </Flex>
 )
 
-export const VotingWallet = () => {
+export const VotingWallet = ({ address }: { address?: string }) => {
   const { account } = useWeb3React<Web3Provider>()
   const { data } = useEtherSWR([
     [INV, 'balanceOf', account],
@@ -51,7 +51,7 @@ export const VotingWallet = () => {
         <Stack w="full" direction="row" justify="center" align="center">
           <Avatar address={account} boxSize={5} />
           <Text mt={1} fontSize="sm" fontWeight="medium" color="purple.100">
-            {smallAddress(account)}
+            {namedAddress(account)}
           </Text>
         </Stack>
         <VotingWalletField label="INV">
@@ -69,7 +69,7 @@ export const VotingWallet = () => {
           ) : (
             <Stack direction="row" align="center">
               <Avatar address={delegate} boxSize={5} />
-              <Text>{smallAddress(delegate)}</Text>
+              <Text>{namedAddress(delegate)}</Text>
             </Stack>
           )}
         </VotingWalletField>
@@ -82,14 +82,19 @@ export const VotingWallet = () => {
           fontWeight="semibold"
           borderRadius={8}
           textTransform="uppercase"
+          bgColor={delegate === address ? 'purple.900' : ''}
           color="purple.100"
-          onClick={onOpen}
-          _hover={{ bgColor: 'purple.900' }}
+          onClick={delegate !== address ? onOpen : () => {}}
+          _hover={{ bgColor: delegate !== address ? 'purple.900' : '' }}
         >
-          Change Delegate
+          {address
+            ? address === delegate
+              ? `Already delegated to ${namedAddress(address)}`
+              : `Delegate to ${namedAddress(address)}`
+            : 'Change Delegate'}
         </Flex>
       </Stack>
-      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} />
+      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} address={address} />
     </Container>
   )
 }

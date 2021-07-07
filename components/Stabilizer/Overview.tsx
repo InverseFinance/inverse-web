@@ -10,7 +10,7 @@ type StabilizerOverviewFieldProps = {
 
 const StabilizerOverviewField = ({ label, children }: StabilizerOverviewFieldProps) => (
   <Flex justify="space-between">
-    <Text fontSize="sm" fontWeight="semibold" color="purple.100">
+    <Text fontSize="sm" fontWeight="semibold" color="purple.200">
       {label}
     </Text>
     <Flex fontWeight="semibold" fontSize="sm">

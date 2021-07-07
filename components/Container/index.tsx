@@ -18,48 +18,52 @@ export const Container = ({
   image?: React.ReactNode
   noPadding?: boolean
   children?: React.ReactNode
-}) => (
-  <Flex w="full" direction="column" p={6} pb={0} color="#fff">
-    <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end">
-      <Stack direction="row" align="center">
-        {image}
-        <Flex direction="column" justify="flex-end">
-          {label ? (
-            typeof label === 'string' ? (
-              <Text fontSize="xl" fontWeight="bold">
-                {label}
-              </Text>
-            ) : (
-              label
-            )
-          ) : (
-            <></>
-          )}
-          {description ? (
-            href ? (
-              <Flex>
-                <Link href={href} fontSize="sm" fontWeight="medium" color="purple.100" isExternal>
-                  {description} <ExternalLinkIcon />
-                </Link>
-              </Flex>
-            ) : typeof description === 'string' ? (
-              <Text fontSize="sm" fontWeight="medium" color="purple.100">
-                {description}
-              </Text>
-            ) : (
-              description
-            )
-          ) : (
-            <></>
-          )}
-        </Flex>
-      </Stack>
-      {right}
+}) => {
+  const title = (
+    <Flex>
+      {typeof label === 'string' ? (
+        <Text fontSize="xl" fontWeight="bold">
+          {label}
+        </Text>
+      ) : (
+        label
+      )}
     </Flex>
-    <Flex w="full" bgColor="#211e36" borderRadius={8} mt={4} p={4}>
-      {children}
+  )
+
+  const desc = (
+    <Flex>
+      {href ? (
+        <Link href={href} fontSize="sm" fontWeight="medium" isExternal>
+          {description} <ExternalLinkIcon />
+        </Link>
+      ) : typeof description === 'string' ? (
+        <Text fontSize="sm" fontWeight="medium" color="purple.200">
+          {description}
+        </Text>
+      ) : (
+        description
+      )}
     </Flex>
-  </Flex>
-)
+  )
+
+  return (
+    <Flex w="full" direction="column" p={6} pb={0} color="#fff">
+      <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end">
+        <Stack direction="row" align="center">
+          {image}
+          <Flex direction="column" justify="flex-end">
+            {title}
+            {desc}
+          </Flex>
+        </Stack>
+        {right}
+      </Flex>
+      <Flex w="full" bgColor="#211e36" borderRadius={8} mt={4} p={4}>
+        {children}
+      </Flex>
+    </Flex>
+  )
+}
 
 export default Container

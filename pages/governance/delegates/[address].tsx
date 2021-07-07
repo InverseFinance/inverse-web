@@ -1,26 +1,23 @@
-import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
+import { Flex, Text } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/Avatar'
 import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
-import { ClaimButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
-import { ChangeDelegatesModal } from '@inverse/components/Governance'
+import { DelegatorsPreview, VotingWallet } from '@inverse/components/Governance'
 import Layout from '@inverse/components/Layout'
 import { AppNav } from '@inverse/components/Navbar'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/Skeleton'
-import { useDelegates } from '@inverse/hooks/useDelegates'
-import { smallAddress } from '@inverse/util'
-import { useWeb3React } from '@web3-react/core'
+import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
+import { namedAddress } from '@inverse/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
 
 const DelegateOverview = () => {
-  const { active } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const { isOpen, onOpen, onClose } = useDisclosure()
   const { delegates, isLoading } = useDelegates()
+  const { delegates: topDelegates } = useTopDelegates()
 
-  if (!query.address || isLoading || !delegates) {
+  const address = query.address as string
+  if (!address || isLoading || !delegates || !delegates[address]) {
     return (
       <Container label={<SkeletonTitle />}>
         <SkeletonBlob />
@@ -28,29 +25,29 @@ const DelegateOverview = () => {
     )
   }
 
-  const address = query.address as string
-  // const delegate = delegates[query.address]
+  const { ensName } = delegates[address]
+  const rank = topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1
 
   return (
     <Container
-      label={smallAddress(address)}
+      label={namedAddress(address, ensName)}
       description={address}
+      href={`https://etherscan.io/address/${address}`}
       image={<Avatar boxSize={12} address={address} />}
-      right={active && <ClaimButton onClick={onOpen}>Delegate</ClaimButton>}
+      right={rank && <Text fontWeight="medium" fontSize="sm" color="purple.200">{`Rank ${rank}`}</Text>}
     >
       <Text color="purple.200" fontSize="sm">
         Coming soon...
       </Text>
-      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} address={query.address as string} />
     </Container>
   )
 }
 
-export const Delegate = () => {
+export const DelegateView = () => {
   const { query } = useRouter()
 
-  // @ts-ignore
-  const title = isAddress(query.address) ? smallAddress(query.address) : (query.address as string)
+  const address = query.address as string
+  const title = isAddress(address) ? namedAddress(address) : address
 
   return (
     <Layout>
@@ -63,13 +60,23 @@ export const Delegate = () => {
           { label: title, href: '#' },
         ]}
       />
-      <Flex w="full" align="center" direction="column">
-        <Flex w={{ base: 'full', xl: '7xl' }} align="center">
-          <DelegateOverview />
+      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
+        <Flex direction="column">
+          <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+            <DelegateOverview />
+          </Flex>
+        </Flex>
+        <Flex direction="column">
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <VotingWallet address={address} />
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <DelegatorsPreview address={address} />
+          </Flex>
         </Flex>
       </Flex>
     </Layout>
   )
 }
 
-export default Delegate
+export default DelegateView

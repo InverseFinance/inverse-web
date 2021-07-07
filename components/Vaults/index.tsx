@@ -19,9 +19,9 @@ import { useAccountBalances } from '@inverse/hooks/useBalances'
 import { useVaultRates, useVaultRewards } from '@inverse/hooks/useVaults'
 import { Token } from '@inverse/types'
 import { getVaultContract } from '@inverse/util/contracts'
+import { timeSince } from '@inverse/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import moment from 'moment'
 import { useState } from 'react'
 
 enum VaultOperations {
@@ -145,28 +145,6 @@ export const VaultsClaim = () => {
   const { lastDistribution } = useVaultRates()
   const { rewards } = useVaultRewards()
 
-  const timeSince = () => {
-    if (!lastDistribution) {
-      return ''
-    }
-
-    const minutes = Math.abs(moment().diff(moment(lastDistribution), 'minutes'))
-    if (minutes < 60) {
-      return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`
-    }
-    if (minutes < 60 * 24) {
-      const hours = Math.floor(minutes / 60)
-      return `${hours} hour${hours !== 1 ? 's' : ''} ago`
-    }
-
-    if (minutes < 60 * 24 * 7) {
-      const days = Math.floor(minutes / 60 / 24)
-      return `${days} day${days !== 1 ? 's' : ''} ago`
-    }
-
-    return moment(lastDistribution).format('MMM D, YYYY')
-  }
-
   return (
     <Stack>
       <Stack direction="row" justify="center" spacing={1}>
@@ -174,7 +152,7 @@ export const VaultsClaim = () => {
           Last Distribution
         </Text>
         <Text fontSize="xs" fontWeight="semibold">
-          {timeSince()}
+          {timeSince(lastDistribution)}
         </Text>
       </Stack>
       {Object.entries(VAULTS).map(([address, vault]: [string, { from: Token; to: Token }]) => (

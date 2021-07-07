@@ -13,6 +13,7 @@ import {
   ERC20_ABI,
   STAKING_ABI,
   LENS_ABI,
+  ESCROW_ABI,
 } from '@inverse/abis'
 import { providers } from '@0xsequence/multicall'
 import {
@@ -25,6 +26,7 @@ import {
   INV,
   HARVESTER,
   LENS,
+  ESCROW,
 } from '@inverse/config'
 import { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers'
 
@@ -65,6 +67,9 @@ export const getGovernanceContract = (provider: Web3Provider | MulticallProvider
 
 export const getHarvesterContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
   getNewContract(HARVESTER, HARVESTER_ABI, provider)
+
+export const getEscrowContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
+  getNewContract(ESCROW, ESCROW_ABI, provider)
 
 export const getINVContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
   getNewContract(INV, INV_ABI, provider)

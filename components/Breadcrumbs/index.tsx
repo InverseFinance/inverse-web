@@ -20,7 +20,7 @@ export const Breadcrumbs = ({ w, breadcrumbs }: BreadcrumbsProps) => (
               <BreadcrumbLink
                 fontWeight={i + 1 !== breadcrumbs.length ? 'medium' : 'semibold'}
                 color={i + 1 !== breadcrumbs.length ? 'purple.100' : '#fff'}
-                _hover={{ color: 'purple.100' }}
+                _hover={{ color: '#fff' }}
               >
                 {label}
               </BreadcrumbLink>

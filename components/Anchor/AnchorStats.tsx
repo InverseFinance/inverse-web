@@ -5,6 +5,7 @@ import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAnchorPrices, usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
+import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 type Stat = {
@@ -98,7 +99,12 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
 
-  const change = prices && amount ? asset.collateralFactor * amount * parseFloat(formatUnits(prices[asset.token])) : 0
+  const change =
+    prices && amount
+      ? asset.collateralFactor *
+        amount *
+        parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+      : 0
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + change
 
@@ -125,8 +131,10 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
 const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
-
-  const change = prices && amount ? amount * parseFloat(formatUnits(prices[asset.token])) : 0
+  const change =
+    prices && amount
+      ? amount * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+      : 0
   const borrow = usdBorrow
   const newBorrow = borrow - (change > 0 ? change : 0)
   const borrowable = usdBorrow + usdBorrowable

@@ -1,7 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { ERC20_ABI } from '@inverse/abis'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
@@ -23,19 +22,17 @@ enum StabilizerOperations {
 
 export const StabilizerView = () => {
   const [operation, setOperation] = useState<string>(StabilizerOperations.buy)
-  const { active, account, library } = useWeb3React<Web3Provider>()
+  const { active, library } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
   const [amount, setAmount] = useState<string>('')
   const { approvals } = useStabilizerApprovals()
-
-  console.log(approvals)
 
   const max = () =>
     !balances
       ? 0
       : operation === StabilizerOperations.buy
       ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
-      : parseFloat(formatUnits(balances[DOLA])) * (1 - FEE)
+      : parseFloat(formatUnits(balances[DOLA]))
 
   const handleSubmit = () => {
     const contract = getStabilizerContract(library?.getSigner())
@@ -70,7 +67,7 @@ export const StabilizerView = () => {
   return (
     <Container
       label="Stabilizer"
-      description="Swap Between DOLA & DAI"
+      description="Swap between DOLA & DAI"
       href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
       right={
         <Stack

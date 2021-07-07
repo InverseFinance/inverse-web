@@ -7,6 +7,7 @@ import { useMarkets } from '@inverse/hooks/useMarkets'
 import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 type AccountLiquidity = {
@@ -34,7 +35,8 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
     borrowBalancesIsLoading ||
     exchangeRatesIsLoading ||
     !supplyBalances ||
-    !borrowBalances
+    !borrowBalances ||
+    !exchangeRates
   ) {
     return {
       netApy: 0,
@@ -52,13 +54,17 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       prev +
       parseFloat(formatUnits(balance, underlying.decimals)) *
         parseFloat(formatUnits(exchangeRates[address])) *
-        parseFloat(formatUnits(prices[address]))
+        parseFloat(formatUnits(prices[address], BigNumber.from(36).sub(underlying.decimals)))
     )
   }, 0)
 
   const usdBorrow = Object.entries(borrowBalances).reduce((prev, [address, balance]) => {
     const underlying = UNDERLYING[address]
-    return prev + parseFloat(formatUnits(balance, underlying.decimals)) * parseFloat(formatUnits(prices[address]))
+    return (
+      prev +
+      parseFloat(formatUnits(balance, underlying.decimals)) *
+        parseFloat(formatUnits(prices[address], BigNumber.from(36).sub(underlying.decimals)))
+    )
   }, 0)
 
   const supplyApy = markets.reduce(
@@ -67,7 +73,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       (supplyBalances[token]
         ? parseFloat(formatUnits(supplyBalances[token], underlying.decimals)) *
           parseFloat(formatUnits(exchangeRates[token])) *
-          parseFloat(formatUnits(prices[token])) *
+          parseFloat(formatUnits(prices[token], BigNumber.from(36).sub(underlying.decimals))) *
           (supplyApy || 1)
         : 0),
     0
@@ -78,7 +84,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       prev +
       (borrowBalances[token]
         ? parseFloat(formatUnits(borrowBalances[token], underlying.decimals)) *
-          parseFloat(formatUnits(prices[token])) *
+          parseFloat(formatUnits(prices[token], BigNumber.from(36).sub(underlying.decimals))) *
           (supplyApy || 1)
         : 0),
     0
