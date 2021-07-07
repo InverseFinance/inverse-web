@@ -22,7 +22,7 @@ import { Token } from '@inverse/types'
 import { getERC20Contract, getVaultContract } from '@inverse/util/contracts'
 import { timeSince } from '@inverse/util/time'
 import { useWeb3React } from '@web3-react/core'
-import { constants } from 'ethers'
+import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -125,7 +125,7 @@ const WithdrawAssetDropdown = ({ isOpen, onClose, onOpen, vault, handleChange }:
               </Stack>
             </Stack>
             <Text fontWeight="semibold" color="purple.100">
-              {parseFloat(formatUnits(balance)).toFixed(2)}
+              {parseFloat(formatUnits(balance, from.decimals)).toFixed(2)}
             </Text>
           </Flex>
         )
@@ -177,7 +177,7 @@ const FromAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChan
               </Flex>
             </Stack>
             <Text fontWeight="semibold" color="purple.100">
-              {balances ? parseFloat(formatUnits(balances[asset.address])).toFixed(2) : '0.00'}
+              {balances ? parseFloat(formatUnits(balances[fromToken.address], fromToken.decimals)).toFixed(2) : '0.00'}
             </Text>
           </Flex>
         )
@@ -316,20 +316,20 @@ export const VaultsView = () => {
       if (!balances || !balances[VAULTS[vault].from.address]) {
         return 0
       }
-      return parseFloat(formatUnits(balances[VAULTS[vault].from.address]))
+      return parseFloat(formatUnits(balances[VAULTS[vault].from.address], VAULTS[vault].from.decimals))
     }
 
-    return parseFloat(formatUnits(vaultBalances[vault]))
+    return parseFloat(formatUnits(vaultBalances[vault], VAULTS[vault].from.decimals))
   }
 
   const handleSubmit = () => {
     const contract = getVaultContract(vault, library?.getSigner())
     switch (operation) {
       case VaultOperations.deposit:
-        contract.deposit(parseUnits(amount))
+        contract.deposit(parseUnits(amount, VAULTS[vault].from.decimals))
         break
       case VaultOperations.withdraw:
-        contract.withdraw(parseUnits(amount))
+        contract.withdraw(parseUnits(amount, VAULTS[vault].from.decimals))
         break
       default:
     }
