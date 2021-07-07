@@ -15,12 +15,14 @@ import { ClaimButton, NavButtons, SubmitButton } from '@inverse/components/Butto
 import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
 import { TOKENS, VAULTS, VAULT_DAI_ETH, VAULT_TREE } from '@inverse/config'
-import { useAccountBalances } from '@inverse/hooks/useBalances'
+import { useVaultApprovals } from '@inverse/hooks/useApprovals'
+import { useAccountBalances, useVaultBalances } from '@inverse/hooks/useBalances'
 import { useVaultRates, useVaultRewards } from '@inverse/hooks/useVaults'
 import { Token } from '@inverse/types'
-import { getVaultContract } from '@inverse/util/contracts'
+import { getERC20Contract, getVaultContract } from '@inverse/util/contracts'
 import { timeSince } from '@inverse/util/time'
 import { useWeb3React } from '@web3-react/core'
+import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -30,7 +32,7 @@ enum VaultOperations {
   claim = 'Claim',
 }
 
-const AssetsDropdown = ({ children, asset, isOpen, onOpen, onClose, noPadding }: any) => {
+const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPadding }: any) => {
   return (
     <Popover placement="bottom" isOpen={isOpen} onClose={onClose} closeOnBlur={true} isLazy>
       <PopoverTrigger>
@@ -43,12 +45,7 @@ const AssetsDropdown = ({ children, asset, isOpen, onOpen, onClose, noPadding }:
           bgColor="purple.900"
           cursor="pointer"
         >
-          <Flex w={5}>
-            <Image w={5} h={5} src={asset.image} />
-          </Flex>
-          <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
-            {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
-          </Flex>
+          {label}
         </Stack>
       </PopoverTrigger>
       <PopoverContent _focus={{ outline: 'none' }} borderWidth={0} bgColor="transparent">
@@ -69,11 +66,95 @@ const AssetsDropdown = ({ children, asset, isOpen, onOpen, onClose, noPadding }:
   )
 }
 
+const WithdrawAssetDropdown = ({ isOpen, onClose, onOpen, vault, handleChange }: any) => {
+  const { balances } = useVaultBalances()
+
+  return (
+    <AssetsDropdown
+      isOpen={isOpen}
+      onClose={onClose}
+      onOpen={onOpen}
+      label={
+        <Stack direction="row" align="center" spacing={1}>
+          <Stack direction="row" align="center" justify="flex-end">
+            <Flex w={5}>
+              <Image w={5} h={5} src={VAULTS[vault].from.image} />
+            </Flex>
+          </Stack>
+          <ChevronRightIcon boxSize={6} />
+          <Stack direction="row" align="center">
+            <Flex w={5}>
+              <Image w={5} h={5} src={VAULTS[vault].to.image} />
+            </Flex>
+          </Stack>
+          <ChevronDownIcon boxSize={6} mt={0.5} />
+        </Stack>
+      }
+      noPadding
+    >
+      {Object.entries(balances).map(([vault, balance]: any) => {
+        const from = VAULTS[vault].from
+        const to = VAULTS[vault].to
+
+        return (
+          <Flex
+            p={2}
+            justify="space-between"
+            borderRadius={8}
+            _hover={{ bgColor: 'purple.900' }}
+            onClick={() => handleChange(vault)}
+            cursor="pointer"
+          >
+            <Stack direction="row" align="center">
+              <Stack direction="row" align="center" w={20} justify="flex-end">
+                <Flex w={5}>
+                  <Image w={5} h={5} src={from.image} />
+                </Flex>
+                <Text fontWeight="semibold" color="purple.100">
+                  {from.symbol}
+                </Text>
+              </Stack>
+              <ChevronRightIcon boxSize={6} />
+              <Stack direction="row" align="center" w={20}>
+                <Flex w={5}>
+                  <Image w={5} h={5} src={to.image} />
+                </Flex>
+                <Text fontWeight="semibold" color="purple.100">
+                  {to.symbol}
+                </Text>
+              </Stack>
+            </Stack>
+            <Text fontWeight="semibold" color="purple.100">
+              {parseFloat(formatUnits(balance)).toFixed(2)}
+            </Text>
+          </Flex>
+        )
+      })}
+    </AssetsDropdown>
+  )
+}
+
 const FromAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChange }: any) => {
   const { balances } = useAccountBalances()
 
   return (
-    <AssetsDropdown isOpen={isOpen} onClose={onClose} onOpen={onOpen} asset={asset} noPadding>
+    <AssetsDropdown
+      isOpen={isOpen}
+      onClose={onClose}
+      onOpen={onOpen}
+      asset={asset}
+      label={
+        <>
+          <Flex w={5}>
+            <Image w={5} h={5} src={asset.image} />
+          </Flex>
+          <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+            {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
+          </Flex>
+        </>
+      }
+      noPadding
+    >
       {options.map((from: string) => {
         const fromToken = TOKENS[from]
         const toToken = TOKENS[Object.keys(VAULT_TREE[from])[0]]
@@ -109,7 +190,22 @@ const ToAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChange
   const { rates } = useVaultRates()
 
   return (
-    <AssetsDropdown isOpen={isOpen} onClose={onClose} onOpen={onOpen} asset={asset}>
+    <AssetsDropdown
+      isOpen={isOpen}
+      onClose={onClose}
+      onOpen={onOpen}
+      asset={asset}
+      label={
+        <>
+          <Flex w={5}>
+            <Image w={5} h={5} src={asset.image} />
+          </Flex>
+          <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+            {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
+          </Flex>
+        </>
+      }
+    >
       {options.map(([to, vault]: [string, string]) => {
         const toToken = TOKENS[to]
 
@@ -212,15 +308,18 @@ export const VaultsView = () => {
   const { isOpen: toIsOpen, onOpen: toOnOpen, onClose: toOnClose } = useDisclosure()
   const { balances } = useAccountBalances()
   const { rates } = useVaultRates()
+  const { approvals } = useVaultApprovals()
+  const { balances: vaultBalances } = useVaultBalances()
 
   const max = () => {
-    const token = operation === VaultOperations.deposit ? VAULTS[vault].from.address : vault
-
-    if (!balances || !balances[token]) {
-      return 0
+    if (operation === VaultOperations.deposit) {
+      if (!balances || !balances[VAULTS[vault].from.address]) {
+        return 0
+      }
+      return parseFloat(formatUnits(balances[VAULTS[vault].from.address]))
     }
 
-    return parseFloat(formatUnits(balances[token]))
+    return parseFloat(formatUnits(vaultBalances[vault]))
   }
 
   const handleSubmit = () => {
@@ -264,25 +363,46 @@ export const VaultsView = () => {
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
                 onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
                 label={
-                  <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
-                    <Flex w={0.5} h={8}>
-                      <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
-                    </Flex>
-                    <FromAssetDropdown
-                      isOpen={fromIsOpen}
-                      onClose={fromOnClose}
-                      onOpen={() => {
-                        fromOnOpen()
-                        toOnClose()
-                      }}
-                      asset={VAULTS[vault].from}
-                      options={Object.keys(VAULT_TREE)}
-                      handleChange={(from: string, to: string) => {
-                        setVault(VAULT_TREE[from][to])
-                        fromOnClose()
-                      }}
-                    />
-                  </Stack>
+                  operation === VaultOperations.deposit ? (
+                    <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
+                      <Flex w={0.5} h={8}>
+                        <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
+                      </Flex>
+                      <FromAssetDropdown
+                        isOpen={fromIsOpen}
+                        onClose={fromOnClose}
+                        onOpen={() => {
+                          fromOnOpen()
+                          toOnClose()
+                        }}
+                        asset={VAULTS[vault].from}
+                        options={Object.keys(VAULT_TREE)}
+                        handleChange={(from: string, to: string) => {
+                          setVault(VAULT_TREE[from][to])
+                          fromOnClose()
+                        }}
+                      />
+                    </Stack>
+                  ) : (
+                    <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
+                      <Flex w={0.5} h={8}>
+                        <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
+                      </Flex>
+                      <WithdrawAssetDropdown
+                        isOpen={fromIsOpen}
+                        onClose={fromOnClose}
+                        onOpen={() => {
+                          fromOnOpen()
+                          toOnClose()
+                        }}
+                        vault={vault}
+                        handleChange={(vault: string) => {
+                          setVault(vault)
+                          fromOnClose()
+                        }}
+                      />
+                    </Stack>
+                  )
                 }
               />
             </Stack>
@@ -317,12 +437,27 @@ export const VaultsView = () => {
                 />
               </Stack>
             )}
-            <SubmitButton
-              isDisabled={!active || !amount || isNaN(amount as any) || parseFloat(amount) > max()}
-              onClick={handleSubmit}
-            >
-              {operation}
-            </SubmitButton>
+            {operation === VaultOperations.deposit &&
+            (!approvals || !approvals[vault] || !parseFloat(formatUnits(approvals[vault]))) ? (
+              <SubmitButton
+                onClick={() =>
+                  getERC20Contract(VAULTS[vault].from.address, library?.getSigner()).approve(
+                    vault,
+                    constants.MaxUint256
+                  )
+                }
+                isDisabled={!active}
+              >
+                Approve
+              </SubmitButton>
+            ) : (
+              <SubmitButton
+                isDisabled={!active || !amount || isNaN(amount as any) || parseFloat(amount) > max()}
+                onClick={handleSubmit}
+              >
+                {operation}
+              </SubmitButton>
+            )}
           </Stack>
         )}
       </Stack>

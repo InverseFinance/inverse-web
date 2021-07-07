@@ -121,7 +121,9 @@ export const AnchorModal = ({
           </Flex>
           <BalanceInput
             value={amount}
-            onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
+            onChange={(e: React.MouseEvent<HTMLInputElement>) => {
+              if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
+            }}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
             label={
               <Stack direction="row" align="center" pl={2} pr={4}>

@@ -12,6 +12,7 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
@@ -74,7 +75,8 @@ export const AnchorSupplied = () => {
       value: ({ token, underlying }: Market) => {
         const balance =
           balances && exchangeRates
-            ? parseFloat(formatUnits(balances[token])) * parseFloat(formatUnits(exchangeRates[token]))
+            ? parseFloat(formatUnits(balances[token], underlying.decimals)) *
+              parseFloat(formatUnits(exchangeRates[token]))
             : 0
 
         return <Text textAlign="center" minWidth={24}>{`${balance.toFixed(2)} ${underlying.symbol}`}</Text>
@@ -113,7 +115,7 @@ export const AnchorSupplied = () => {
     return <></>
   }
 
-  if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances) {
+  if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances || !exchangeRates) {
     return (
       <Container description="Your supplied assets">
         <SkeletonBlob skeletonHeight={6} noOfLines={5} />
@@ -125,7 +127,13 @@ export const AnchorSupplied = () => {
     <Container label={`$${commify(usdSupply.toFixed(2))}`} description="Your supplied assets">
       <Table
         columns={columns}
-        items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
+        items={markets.filter(
+          ({ token, underlying }: Market) =>
+            balances[token] &&
+            parseFloat(formatUnits(balances[token], underlying.decimals)) *
+              parseFloat(formatUnits(exchangeRates[token])) >=
+              0.01
+        )}
         onClick={handleSupply}
       />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
@@ -138,6 +146,7 @@ export const AnchorBorrowed = () => {
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useBorrowBalances()
+  const { exchangeRates } = useExchangeRates()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
 
@@ -186,7 +195,7 @@ export const AnchorBorrowed = () => {
     return <></>
   }
 
-  if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances) {
+  if (marketsLoading || accountLiquidityLoading || balancesLoading || !balances || !exchangeRates) {
     return (
       <Container description="Your borrowed assets">
         <SkeletonBlob skeletonHeight={6} noOfLines={5} />
@@ -202,7 +211,13 @@ export const AnchorBorrowed = () => {
       {usdBorrow ? (
         <Table
           columns={columns}
-          items={markets.filter(({ token }: Market) => balances[token] && balances[token].gt(0))}
+          items={markets.filter(
+            ({ token, underlying }: Market) =>
+              balances[token] &&
+              parseFloat(formatUnits(balances[token], underlying.decimals)) *
+                parseFloat(formatUnits(exchangeRates[token])) >=
+                0.01
+          )}
           onClick={handleBorrow}
         />
       ) : (
