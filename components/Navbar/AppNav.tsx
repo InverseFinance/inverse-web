@@ -77,9 +77,6 @@ export const AppNav = ({ active }: { active?: string }) => {
 
   return (
     <>
-      <Flex justify="center" bgColor="purple.800" color="purple.100" fontWeight="semibold" w="full" fontSize="xs" p={1}>
-        This is an experimental interface for Inverse Finance.
-      </Flex>
       <Flex
         w="full"
         backgroundColor="purple.900"
