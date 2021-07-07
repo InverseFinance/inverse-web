@@ -82,7 +82,7 @@ export const StakeView = () => {
             <Text fontWeight="medium" color="purple.100" fontSize="xl">
               Claimable:
             </Text>
-            <Text fontWeight="semibold" fontSize="xl">{`${max().toFixed(2)} INV`}</Text>
+            <Text fontWeight="semibold" fontSize="xl">{`${max().toFixed(4)} INV`}</Text>
           </Stack>
         ) : (
           <Stack spacing={1} pt={2} pb={2}>
@@ -128,7 +128,10 @@ export const StakeView = () => {
           </SubmitButton>
         ) : (
           <SubmitButton
-            isDisabled={!active || !amount || isNaN(amount as any) || parseFloat(amount) > max()}
+            isDisabled={
+              !active ||
+              (operation !== StakeOperations.claim && (!amount || isNaN(amount as any) || parseFloat(amount) > max()))
+            }
             onClick={handleSubmit}
           >
             {operation}

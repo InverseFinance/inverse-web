@@ -1,5 +1,13 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ANCHOR_TOKENS, UNDERLYING, XINV } from '@inverse/config'
+import {
+  ANCHOR_TOKENS,
+  UNDERLYING,
+  VAULT_DAI_ETH,
+  VAULT_DAI_WBTC,
+  VAULT_DAI_YFI,
+  VAULT_USDC_ETH,
+  XINV,
+} from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
@@ -68,5 +76,24 @@ export const useStabilizerBalance = () => {
     balance: data?.stabilizer.tvl,
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useVaultBalances = () => {
+  const { account } = useWeb3React()
+  const { data } = useEtherSWR([
+    [VAULT_DAI_ETH, 'balanceOf', account],
+    [VAULT_DAI_WBTC, 'balanceOf', account],
+    [VAULT_DAI_YFI, 'balanceOf', account],
+    [VAULT_USDC_ETH, 'balanceOf', account],
+  ])
+
+  return {
+    balances: {
+      [VAULT_DAI_ETH]: data ? data[0] : BigNumber.from(0),
+      [VAULT_DAI_WBTC]: data ? data[1] : BigNumber.from(0),
+      [VAULT_DAI_YFI]: data ? data[2] : BigNumber.from(0),
+      [VAULT_USDC_ETH]: data ? data[3] : BigNumber.from(0),
+    },
   }
 }

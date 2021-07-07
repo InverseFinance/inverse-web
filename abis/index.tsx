@@ -123,7 +123,7 @@ export const VAULT_ABI = [
   'function totalSupply() external view returns (uint256)',
   'function unclaimedProfit(address) external view returns (uint256)',
   'function underlying() external view returns (address)',
-  'function withdrraw(uint256)',
+  'function withdraw(uint256)',
 ]
 
 export const XINV_ABI = [
