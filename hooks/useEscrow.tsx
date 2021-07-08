@@ -12,7 +12,7 @@ type Escrow = {
 
 export const useEscrow = (): SWR & Escrow => {
   const { account } = useWeb3React<Web3Provider>()
-  const { data, error } = useEtherSWR([[ESCROW, 'pendingWithdrawals', account]])
+  const { data, error } = useEtherSWR([ESCROW, 'pendingWithdrawals', account])
 
   if (!data) {
     return {
@@ -22,7 +22,7 @@ export const useEscrow = (): SWR & Escrow => {
   }
 
   return {
-    withdrawalTime: new Date(data[0]),
+    withdrawalTime: new Date(data[0].toNumber() * 1000),
     withdrawalAmount: data[1],
     isLoading: !error && !data,
     isError: error,

@@ -12,7 +12,6 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
