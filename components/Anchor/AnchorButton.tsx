@@ -44,6 +44,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { withdrawalTime, withdrawalAmount } = useEscrow()
+  console.log(withdrawalTime, withdrawalAmount)
 
   const contract =
     asset.token === ANCHOR_ETH
@@ -87,7 +88,9 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               onClick={() => getEscrowContract(library?.getSigner()).withdraw()}
               isDisabled={moment(withdrawalTime).isAfter(moment())}
             >
-              {moment(withdrawalTime).isAfter(moment()) ? `Unlocks ${timeUntil(withdrawalTime)}` : 'Claim'}
+              {moment(withdrawalTime).isAfter(moment())
+                ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime)}`
+                : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV`}
             </SubmitButton>
           )}
           <SubmitButton

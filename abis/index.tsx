@@ -128,6 +128,7 @@ export const VAULT_ABI = [
 
 export const XINV_ABI = [
   'function balanceOf(address) external view returns (uint256)',
+  'function balanceOfUnderlying(address) external returns (uint)',
   'function exchangeRateStored() public view returns (uint256)',
   'function getCash() external view returns (uint256)',
   'function rewardPerBlock() external view returns (uint256)',

@@ -53,6 +53,38 @@ export const useSupplyBalances = (): SWR & Balances => {
   }
 }
 
+// export const useSupplyBalances = (): SWR & Balances => {
+//   const { account, library } = useWeb3React<Web3Provider>()
+//   const [xinvBalance, setXinvBalance] = useState()
+
+//   const { data, error } = useEtherSWR(ANCHOR_TOKENS.map((address: string) => [address, 'balanceOf', account]))
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setXinvBalance(await getXINVContract(library?.getSigner()).callStatic.balanceOfUnderlying(account))
+//     }
+
+//     if (library) {
+//       fetchData()
+//     }
+//   }, [library])
+
+//   const balances = data?.reduce((balances: { [key: string]: BigNumber }, balance: BigNumber, i: number) => {
+//     balances[ANCHOR_TOKENS[i]] = balance
+//     return balances
+//   }, {})
+
+//   if (balances && xinvBalance) {
+//     balances[XINV] = xinvBalance
+//   }
+
+//   return {
+//     balances,
+//     isLoading: !error && !data,
+//     isError: error,
+//   }
+// }
+
 export const useBorrowBalances = (): SWR & Balances => {
   const tokens = ANCHOR_TOKENS
 
