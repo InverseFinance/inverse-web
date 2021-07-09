@@ -279,10 +279,10 @@ export const VaultsClaim = () => {
             justify={{ base: 'space-between', sm: 'flex-end' }}
             spacing={4}
           >
-            <Flex fontSize="lg" fontWeight="semibold">{`${(rewards && rewards[address]
-              ? parseFloat(formatUnits(rewards[address]))
+            <Flex fontWeight="semibold">{`${(rewards && rewards[address]
+              ? parseFloat(formatUnits(rewards[address], vault.to.decimals))
               : 0
-            ).toFixed(2)} ${vault.to.symbol}`}</Flex>
+            ).toFixed(10)} ${vault.to.symbol}`}</Flex>
             <ClaimButton
               onClick={() =>
                 vault.to.address
