@@ -57,7 +57,7 @@ export const AnchorModal = ({
             (asset.collateralFactor *
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
-        return withdrawable > supply ? supply : withdrawable
+        return !usdBorrowable || withdrawable > supply ? supply : withdrawable
       case AnchorOperations.borrow:
         return prices && usdBorrowable
           ? usdBorrowable /
