@@ -354,7 +354,7 @@ export const VaultsView = () => {
                     Available:
                   </Text>
                   <Text fontSize="13px" fontWeight="semibold">
-                    {`${max().toFixed(2)} ${VAULTS[vault].from.symbol}`}
+                    {`${max().toFixed(8)} ${VAULTS[vault].from.symbol}`}
                   </Text>
                 </Stack>
               )}

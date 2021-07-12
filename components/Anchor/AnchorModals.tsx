@@ -115,7 +115,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${max().toFixed(2)} ${asset.underlying.symbol}`}
+                {`${Math.floor(max() * 1e8) / 1e8} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>

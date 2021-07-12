@@ -99,7 +99,7 @@ export const StabilizerView = () => {
                 {`${(operation === StabilizerOperations.buy
                   ? parseFloat(formatUnits(balances[DAI]))
                   : parseFloat(formatUnits(balances[DOLA]))
-                ).toFixed(2)} ${operation === StabilizerOperations.buy ? 'DAI' : 'DOLA'}`}
+                ).toFixed(8)} ${operation === StabilizerOperations.buy ? 'DAI' : 'DOLA'}`}
               </Text>
             </Stack>
           )}
