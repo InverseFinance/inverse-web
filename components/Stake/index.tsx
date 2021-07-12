@@ -86,7 +86,7 @@ export const StakeView = () => {
           </Stack>
         ) : (
           <Stack spacing={1} pt={2} pb={2}>
-            <Flex justify="space-between">
+            <Flex justify="space-between" direction={{ base: 'column', sm: 'row' }}>
               {rates && prices && prices[TOKENS[INV].coingeckoId] && (
                 <Stack direction="row" align="flex-end" spacing={1}>
                   <Text fontSize="13px" fontWeight="semibold">
@@ -103,7 +103,7 @@ export const StakeView = () => {
                     Available:
                   </Text>
                   <Text fontSize="13px" fontWeight="semibold">
-                    {`${max().toFixed(2)} DOLA-3CRV`}
+                    {`${max().toFixed(8)} DOLA-3CRV`}
                   </Text>
                 </Stack>
               )}

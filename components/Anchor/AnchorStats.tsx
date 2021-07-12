@@ -63,7 +63,7 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
         },
         {
           label: 'Supply Balance',
-          value: `${supplyBalance.toFixed(2)} ${asset.underlying.symbol}`,
+          value: `${Math.floor(supplyBalance * 1e8) / 1e8} ${asset.underlying.symbol}`,
         },
       ]}
     />
