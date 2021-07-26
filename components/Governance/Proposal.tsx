@@ -23,7 +23,7 @@ const badgeColors: { [key: string]: string } = {
 }
 
 export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
-  const { title, id, etaTimestamp, endTimestamp, forVotes, againstVotes, status } = proposal
+  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status } = proposal
 
   const totalVotes = forVotes + againstVotes
 
@@ -53,26 +53,34 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
             )
             <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`#${id
               .toString()
-              .padStart(3, '0')} - ${moment(etaTimestamp || endTimestamp, 'x').format('MMM Do, YYYY')}`}</Text>
+              .padStart(3, '0')} - ${moment(etaTimestamp || endTimestamp || startTimestamp, 'x').format(
+              'MMM Do, YYYY'
+            )}`}</Text>
           </Stack>
         </Flex>
-        <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
-          <Stack direction="row" w={56} align="center" justify="flex-end">
-            <Text w={16} fontSize="xs" fontWeight="bold" color="purple.300" textAlign="end">
-              {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
-            </Text>
-            <Flex w="full">
-              <Flex w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="purple.300" />
-              <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
-            </Flex>
-            <Text w={16} fontSize="xs" fontWeight="bold" color="success">
-              {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
-            </Text>
-          </Stack>
-          <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${
-            totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
-          } votes`}</Text>
-        </Flex>
+        {(forVotes > 0 || againstVotes > 0) && (
+          <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
+            <Stack direction="row" w={56} align="center" justify="flex-end">
+              <Text w={16} fontSize="xs" fontWeight="bold" color="purple.300" textAlign="end">
+                {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
+              </Text>
+              <Flex w="full">
+                <Flex
+                  w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`}
+                  h={1}
+                  bgColor="purple.300"
+                />
+                <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
+              </Flex>
+              <Text w={16} fontSize="xs" fontWeight="bold" color="success">
+                {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
+              </Text>
+            </Stack>
+            <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${
+              totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
+            } votes`}</Text>
+          </Flex>
+        )}
       </Flex>
     </NextLink>
   )
