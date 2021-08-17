@@ -192,7 +192,7 @@ export const Landing = () => {
               Join the Inverse DAO - governance by the people
             </Text>
             <Text fontSize="lg">
-              Inverse.finance was created by Nour Haridy in December 2020, and since then has grown to include hundreds
+              Inverse.finance was created by a sole developer in December 2020, and since then has grown to include hundreds
               of active DAO members voting on the direction of the organization.
             </Text>
             <Text fontSize="lg">
