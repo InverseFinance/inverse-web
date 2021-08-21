@@ -44,7 +44,6 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { withdrawalTime, withdrawalAmount } = useEscrow()
-  console.log(withdrawalTime, withdrawalAmount)
 
   const contract =
     asset.token === ANCHOR_ETH

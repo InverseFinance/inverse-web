@@ -36,7 +36,6 @@ export const StakeView = () => {
 
   const max = () => {
     if (operation === StakeOperations.deposit) {
-      console.log(balances)
       return balances && balances[DOLA3CRV] ? parseFloat(formatUnits(balances[DOLA3CRV])) : 0
     }
 
