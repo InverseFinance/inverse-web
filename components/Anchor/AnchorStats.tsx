@@ -70,6 +70,21 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
   )
 }
 
+const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
+
+  return (
+    <StatBlock
+      label="Market Stats"
+      stats={[
+        {
+          label: 'Collateral Factor',
+          value: `${asset.collateralFactor*100}%`,
+        }
+      ]}
+    />
+  )
+}
+
 const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
   const { balances: borrowBalances } = useBorrowBalances()
 
@@ -168,6 +183,7 @@ export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
         <>
           <SupplyDetails asset={asset} />
           <BorrowLimit asset={asset} amount={parsedAmount} />
+          <MarketDetails asset={asset} />
         </>
       )
     case AnchorOperations.withdraw:
@@ -175,6 +191,7 @@ export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
         <>
           <SupplyDetails asset={asset} />
           <BorrowLimit asset={asset} amount={-1 * parsedAmount} />
+          <MarketDetails asset={asset} />
         </>
       )
     case AnchorOperations.borrow:
