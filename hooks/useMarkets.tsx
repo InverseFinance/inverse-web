@@ -10,7 +10,7 @@ type Markets = {
 }
 
 export const useMarkets = (): SWR & Markets => {
-  const { data, error } = useSWR(`${process.env.API_URL}/markets`, fetcher)
+  const { data, error } = useSWR("/api/markets", fetcher)
 
   return {
     markets: data?.markets,

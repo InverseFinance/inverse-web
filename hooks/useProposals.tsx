@@ -12,7 +12,7 @@ type SingleProposal = {
 }
 
 export const useProposals = (): SWR & Proposals => {
-  const { data, error } = useSWR(`${process.env.API_URL}/proposals`, fetcher)
+  const { data, error } = useSWR("/api/proposals", fetcher)
 
   return {
     proposals: data?.proposals || [],
