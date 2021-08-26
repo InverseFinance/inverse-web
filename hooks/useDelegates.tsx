@@ -11,7 +11,7 @@ type TopDelegates = {
 }
 
 export const useDelegates = (): SWR & Delegates => {
-  const { data, error } = useSWR(`${process.env.API_URL}/delegates`, fetcher)
+  const { data, error } = useSWR("/api/delegates", fetcher)
 
   return {
     delegates: data?.delegates,

@@ -98,6 +98,7 @@ const WithdrawAssetDropdown = ({ isOpen, onClose, onOpen, vault, handleChange }:
 
         return (
           <Flex
+            key={vault}
             p={2}
             justify="space-between"
             borderRadius={8}
@@ -161,6 +162,7 @@ const FromAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChan
 
         return (
           <Flex
+            key={from}
             p={2}
             justify="space-between"
             borderRadius={8}
@@ -211,6 +213,7 @@ const ToAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChange
 
         return (
           <Flex
+            key={to}
             p={2}
             justify="space-between"
             borderRadius={8}
@@ -252,7 +255,7 @@ export const VaultsClaim = () => {
         </Text>
       </Stack>
       {Object.entries(VAULTS).map(([address, vault]: [string, { from: Token; to: Token }]) => (
-        <Stack direction="row" align="center" justify="space-between" p={2}>
+        <Stack key={address} direction="row" align="center" justify="space-between" p={2}>
           <Stack direction="row" align="center" display={{ base: 'none', sm: 'flex' }}>
             <Stack direction="row" align="center" w={20} justify="flex-end">
               <Flex w={5}>

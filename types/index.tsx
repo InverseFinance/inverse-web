@@ -69,10 +69,7 @@ export type Delegate = {
   votes: ProposalVote[]
 }
 
-export type Delegator = {
-  address: string
-  ensName: string
-}
+export type Delegator = string
 
 export type SWR = {
   isLoading?: boolean

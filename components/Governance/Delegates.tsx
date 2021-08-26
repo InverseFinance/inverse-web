@@ -22,7 +22,7 @@ export const DelegatesPreview = () => {
     <Container label="Top Delegates">
       <Stack w="full">
         {delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => (
-          <NextLink href={`/governance/delegates/${address}`}>
+          <NextLink key={address} href={`/governance/delegates/${address}`}>
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} boxSize={7} />
@@ -77,19 +77,20 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
       </Container>
     )
   }
+
   const { delegators } = delegates[address]
 
   return (
     <Container label="Delegators">
       <Stack w="full">
-        {delegators.slice(0, 5).map(({ address, ensName }: Delegator) => (
-          <NextLink href={`/governance/delegates/${address}`}>
+        {delegators.slice(0, 5).map((address: Delegator) => (
+          <NextLink key={address} href={`/governance/delegates/${address}`}>
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} boxSize={7} />
                 <Flex direction="column">
                   <Text fontSize="sm" fontWeight="semibold" isTruncated>
-                    {namedAddress(address, ensName)}
+                    {namedAddress(address)}
                   </Text>
                 </Flex>
               </Stack>

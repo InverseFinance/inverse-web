@@ -7,7 +7,7 @@ type TVL = {
 }
 
 export const useTVL = (): SWR & TVL => {
-  const { data, error } = useSWR(`${process.env.API_URL}/tvl`, fetcher)
+  const { data, error } = useSWR("/api/tvl", fetcher)
 
   return {
     tvl: data?.tvl,
