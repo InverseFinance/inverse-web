@@ -142,7 +142,7 @@ export const Landing = () => {
           </Text>
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
-              <Flex w={16} h={16} m={6}>
+              <Flex key={project} w={16} h={16} m={6}>
                 <Image w={16} h={16} src={project} />
               </Flex>
             ))}
@@ -162,7 +162,7 @@ export const Landing = () => {
           shouldWrapChildren
         >
           {cards.map(({ title, description, label, image, href }) => (
-            <Stack p={8} m={4} textAlign="center" borderRadius={16} bgColor="#211e36" align="center">
+            <Stack key={title} p={8} m={4} textAlign="center" borderRadius={16} bgColor="#211e36" align="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
