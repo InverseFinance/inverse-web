@@ -8,6 +8,6 @@ jobs:
     steps:
       - name: Call our cron API
         run: |
-          curl --request POST \
+          curl -v --request POST \
           --url 'https://inverse.finance/api/cron' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
