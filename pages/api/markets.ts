@@ -12,7 +12,7 @@ import {
   XINV,
 } from "./config/constants";
 import { InfuraProvider } from "@ethersproject/providers";
-import { Contract } from "ethers";
+import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import * as fetch from "node-fetch";
@@ -90,26 +90,29 @@ export default async function handler(req, res) {
       );
     });
 
-    const markets = contracts.map(({ address }, i) => ({
-      token: address,
-      underlying: address !== ANCHOR_ETH ? UNDERLYING[address] : TOKENS.ETH,
-      supplyApy: supplyApys[i],
-      borrowApy: borrowApys[i],
-      rewardApy: rewardApys[i],
-      borrowable: borrowState[i][1] > 0,
-      liquidity: parseFloat(
-        formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
-      ),
-      totalReserves: parseFloat(
-        formatUnits(totalReserves[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
-      ),
-      totalBorrows: parseFloat(
-        formatUnits(totalBorrows[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
-      ),
-      collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
-      reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
-      supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i]))
-    }));
+    const markets = contracts.map(({ address }, i) => {
+      const underlying = address !== ANCHOR_ETH ? UNDERLYING[address] : TOKENS.ETH
+      return {
+        token: address,
+        underlying,
+        supplyApy: supplyApys[i],
+        borrowApy: borrowApys[i],
+        rewardApy: rewardApys[i],
+        borrowable: borrowState[i][1] > 0,
+        liquidity: parseFloat(
+          formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+        ),
+        totalReserves: parseFloat(
+          formatUnits(totalReserves[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+        ),
+        totalBorrows: parseFloat(
+          formatUnits(totalBorrows[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+        ),
+        collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
+        reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
+        supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals))
+      }
+  });
 
     const xINV = new Contract(XINV, XINV_ABI, provider);
 
