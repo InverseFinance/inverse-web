@@ -6,7 +6,7 @@ import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAnchorPrices, usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
+import { commify, formatUnits } from 'ethers/lib/utils'
 
 type Stat = {
   label: string
@@ -71,6 +71,20 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
 }
 
 const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
+  const { prices } = useAnchorPrices()
+  const totalBorrowsUsd =
+  prices && asset.totalBorrows
+    ? `$${commify((asset.totalBorrows * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))).toFixed(2))}`
+    : "-";
+  const totalReservesUsd =
+  prices && asset.totalReserves
+    ? `$${commify((asset.totalReserves * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))).toFixed(2))}`
+    : "-";
+  const totalSuppliedUsd =
+  prices && asset.supplied
+    ? `$${commify((asset.supplied * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))).toFixed(2))}`
+    : "-";
+  const reserveFactor = asset.reserveFactor? `${asset.reserveFactor*100}%`: "-"
 
   return (
     <StatBlock
@@ -79,7 +93,23 @@ const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
         {
           label: 'Collateral Factor',
           value: `${asset.collateralFactor*100}%`,
-        }
+        },
+        {
+          label: 'Reserve Factor',
+          value: reserveFactor,
+        },
+        {
+          label: 'Total Supplied',
+          value: totalSuppliedUsd,
+        },
+        {
+          label: 'Total Borrows',
+          value: totalBorrowsUsd,
+        },
+        {
+          label: 'Total Reserves',
+          value: totalReservesUsd,
+        },
       ]}
     />
   )

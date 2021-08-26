@@ -28,7 +28,10 @@ export const CTOKEN_ABI = [
   "function repayBorrow(uint256) returns (uint256)",
   "function supplyRatePerBlock() external view returns (uint256)",
   "function totalBorrowsCurrent() external view returns (uint256)",
-  "function totalSupply() external view returns (uint256)",
+  "function totalBorrows() external view returns (uint256)",
+  "function totalReserves() external view returns (uint256)",
+  'function totalSupply() external view returns (uint256)',
+  "function reserveFactorMantissa() external view returns (uint256)",
   "function underlying() external view returns (address)",
 ];
 

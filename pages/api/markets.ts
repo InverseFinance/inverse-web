@@ -31,6 +31,9 @@ export default async function handler(req, res) {
       .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
     const [
+      reserveFactors,
+      totalReserves,
+      totalBorrows,
       supplyRates,
       borrowRates,
       cashes,
@@ -41,6 +44,9 @@ export default async function handler(req, res) {
       borrowState,
       prices,
     ]: any = await Promise.all([
+      Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
+      Promise.all(contracts.map((contract) => contract.totalReserves())),
+      Promise.all(contracts.map((contract) => contract.totalBorrows())),
       Promise.all(contracts.map((contract) => contract.supplyRatePerBlock())),
       Promise.all(contracts.map((contract) => contract.borrowRatePerBlock())),
       Promise.all(contracts.map((contract) => contract.getCash())),
@@ -94,7 +100,15 @@ export default async function handler(req, res) {
       liquidity: parseFloat(
         formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
       ),
+      totalReserves: parseFloat(
+        formatUnits(totalReserves[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+      ),
+      totalBorrows: parseFloat(
+        formatUnits(totalBorrows[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+      ),
       collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
+      reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
+      supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i]))
     }));
 
     const xINV = new Contract(XINV, XINV_ABI, provider);
@@ -119,6 +133,7 @@ export default async function handler(req, res) {
           ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) *
         100,
       collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
+      supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply))
     });
 
     res.status(200).json( {

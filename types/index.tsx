@@ -15,6 +15,10 @@ export type Market = {
   rewardApy: number
   liquidity: number
   collateralFactor: number
+  reserveFactor: number
+  totalBorrows: number
+  totalReserves: number
+  supplied: number
   borrowable: boolean
 }
 
