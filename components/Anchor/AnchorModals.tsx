@@ -108,6 +108,7 @@ export const AnchorModal = ({
       }
     >
       <Stack p={4} w="full" spacing={4}>
+        <NavButtons options={operations} active={operation} onClick={setOperation} />
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
@@ -137,7 +138,6 @@ export const AnchorModal = ({
             }
           />
         </Stack>
-        <NavButtons options={operations} active={operation} onClick={setOperation} />
         <AnchorStats operation={operation} asset={asset} amount={amount} />
       </Stack>
     </Modal>
