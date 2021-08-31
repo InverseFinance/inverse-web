@@ -2,8 +2,8 @@ import "source-map-support";
 
 import { InfuraProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
-import { GOVERNANCE, INV } from "./config/constants";
-import { GOVERNANCE_ABI, INV_ABI } from "./config/abis";
+import { GOVERNANCE, INV, NETWORK, GUARD } from "./config/constants";
+import { GOVERNANCE_ABI, INV_ABI, GUARD_ABI } from "./config/abis";
 import { formatUnits } from "ethers/lib/utils";
 import { createNodeRedisClient } from 'handy-redis';
 
@@ -24,6 +24,33 @@ const client = createNodeRedisClient({
     url: process.env.REDIS_URL
 });
 
+async function guardCron(provider, blockNumber) {
+  const guard = new Contract(GUARD, GUARD_ABI, provider);
+  const plansLength = await guard.plansLength();
+  let plans = await Promise.all(
+    [...Array(plansLength.toNumber())].map((_,i) => guard.plans(i))
+  )
+  plans = plans.map(plan => {
+    return {
+      title: plan.title,
+      conditions: plan.conditions,
+      oracle: plan.oracle,
+      paused: plan.paused,
+      ceiling: parseFloat(formatUnits(plan.ceiling)),
+      usage: parseFloat(formatUnits(plan.usage)),
+      minCovered: parseFloat(formatUnits(plan.minCovered)),
+      minDuration: plan.minDuration.toNumber(),
+      maxDuration: plan.maxDuration.toNumber()
+    }
+  })
+
+  await client.set("guard", JSON.stringify({
+    blockNumber,
+    timestamp: Date.now(),
+    data: plans   
+  }))
+}
+
 export default async function handler(req, res) {
     // authenticate cron job
     if (req.method !== 'POST') res.status(405).json({success: false});
@@ -31,10 +58,10 @@ export default async function handler(req, res) {
     else {
     // run delegates cron job
     try {
-        const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+        const provider = new InfuraProvider(NETWORK, process.env.INFURA_ID);
+        const blockNumber = await provider.getBlockNumber();
         const inv = new Contract(INV, INV_ABI, provider);
         const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
-        const blockNumber = await provider.getBlockNumber();
     
         // fetch chain data
         const [
@@ -50,7 +77,7 @@ export default async function handler(req, res) {
           governance.queryFilter(governance.filters.VoteCast()),
           governance.proposalCount(),
           governance.quorumVotes(),
-          governance.queryFilter(governance.filters.ProposalCreated()),
+          governance.queryFilter(governance.filters.ProposalCreated())
         ]);
     
         const delegates = delegateVotesChanged.reduce(
@@ -186,6 +213,8 @@ export default async function handler(req, res) {
             timestamp: Date.now(),
             data: proposals   
         }))
+
+        await guardCron(provider, blockNumber)
     
         res.status(200).json({success:true});
       } catch (err) {

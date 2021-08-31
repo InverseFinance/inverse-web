@@ -1,6 +1,7 @@
 export const mainnet = {
+  NETWORK:"rinkeby", // TODO: Change to homestead
   INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
-  DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
+  DOLA: '0x6aD54830912d2dDe3249C1D709E8822cbA4032Ac', // TODO: Change to mainnet address
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -37,6 +38,8 @@ export const mainnet = {
   escrow: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
   harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
   governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
+  guard:"0xEa2c01BD3db085449411d08c25Fa73c11F6ea99B", // TODO: Change to mainnet address
+  premiumModel:"0x56a405d47C8144D7E658DA73DAeE9bE3C212355d", // TODO: Change to mainnet address
   namedAddresses: {
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'GovTimelock',
     '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68': 'INV',

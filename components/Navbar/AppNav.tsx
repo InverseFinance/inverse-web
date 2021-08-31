@@ -28,6 +28,10 @@ const NAV_ITEMS = [
     href: '/stake',
   },
   {
+    label: 'Guard',
+    href: '/guard',
+  },
+  {
     label: 'Governance',
     href: '/governance',
   },

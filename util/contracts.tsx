@@ -14,6 +14,7 @@ import {
   STAKING_ABI,
   LENS_ABI,
   ESCROW_ABI,
+  GUARD_ABI
 } from '@inverse/abis'
 import { providers } from '@0xsequence/multicall'
 import {
@@ -27,10 +28,12 @@ import {
   HARVESTER,
   LENS,
   ESCROW,
+  NETWORK,
+  GUARD
 } from '@inverse/config'
 import { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers'
 
-export const getNewProvider = () => new InfuraProvider('homestead', process.env.INFURA_ID)
+export const getNewProvider = () => new InfuraProvider(NETWORK, process.env.INFURA_ID)
 
 export const getNewMulticallProvider = (provider: InfuraProvider) => new providers.MulticallProvider(provider)
 
@@ -94,3 +97,6 @@ export const getStakingContract = (
 
 export const getLensContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
   getNewContract(LENS, LENS_ABI, provider)
+
+export const getGuardContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
+  getNewContract(GUARD, GUARD_ABI, provider)

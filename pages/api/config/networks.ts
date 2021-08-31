@@ -1,4 +1,5 @@
 export const mainnet = {
+  NETWORK:"rinkeby", // TODO: Change to homestead
   INV: "0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68",
   DOLA: "0x865377367054516e17014CcdED1e7d814EDC9ce4",
   DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
@@ -36,4 +37,5 @@ export const mainnet = {
   },
   harvester: "0xb677e5c5cbc42c25bff9578dda2959adb7eecc96",
   governance: "0x35d9f4953748b318f18c30634bA299b237eeDfff",
+  guard:"0xEa2c01BD3db085449411d08c25Fa73c11F6ea99B" // TODO: Change to mainnet address
 };

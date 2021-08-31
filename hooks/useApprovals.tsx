@@ -11,6 +11,7 @@ import {
   VAULT_DAI_WBTC,
   VAULT_DAI_YFI,
   VAULT_USDC_ETH,
+  GUARD
 } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
@@ -51,6 +52,21 @@ export const useStabilizerApprovals = (): SWR & Approvals => {
       ? {
           [DAI]: data[0],
           [DOLA]: data[1],
+        }
+      : {},
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useGuardApprovals = (): SWR & Approvals => {
+  const { account } = useWeb3React<Web3Provider>()
+  const { data, error } = useEtherSWR([DOLA, 'allowance', account, GUARD])
+
+  return {
+    approvals: data
+      ? {
+          [DOLA]: data,
         }
       : {},
     isLoading: !error && !data,

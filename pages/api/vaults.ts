@@ -4,6 +4,7 @@ import {
   HARVESTER,
   SECONDS_PER_DAY,
   VAULT_TOKENS,
+  NETWORK
 } from "./config/constants";
 import { InfuraProvider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -12,7 +13,7 @@ import "source-map-support";
 
 export default async function handler(req, res) {
   try {
-    const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+    const provider = new InfuraProvider(NETWORK, process.env.INFURA_ID);
     const harvester = new Contract(HARVESTER, HARVESTER_ABI, provider);
 
     const rates = await Promise.all(

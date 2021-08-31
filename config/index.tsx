@@ -4,6 +4,8 @@ import { Token } from '@inverse/types'
 // TODO: Clean-up config
 const config = mainnet
 
+export const NETWORK = config.NETWORK
+
 export const START_BLOCK = 11498340
 export const ETH_MANTISSA = 1e18
 export const SECONDS_PER_BLOCK = 13.5
@@ -34,6 +36,10 @@ export const ANCHOR_WBTC = config.anchor.markets.wbtc
 export const ANCHOR_YFI = config.anchor.markets.yfi
 export const ANCHOR_STETH = config.anchor.markets.steth
 export const ANCHOR_TOKENS = Object.values(config.anchor.markets)
+
+// GUARD
+export const GUARD = config.guard
+export const PREMIUM_MODEL = config.premiumModel
 
 // Governance
 export const QUORUM_VOTES = 4000

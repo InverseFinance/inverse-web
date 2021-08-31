@@ -10,6 +10,7 @@ import {
   VAULT_TOKENS,
   WETH,
   XINV,
+  NETWORK
 } from "./config/constants";
 import { InfuraProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
@@ -20,7 +21,7 @@ import * as fetch from "node-fetch";
 
 export default async function handler(req, res) {
   try {
-    const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+    const provider = new InfuraProvider(NETWORK, process.env.INFURA_ID);
 
     const prices = await (
       await fetch(

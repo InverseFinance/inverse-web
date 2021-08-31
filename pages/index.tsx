@@ -43,6 +43,12 @@ const cards = [
     image: '/assets/products/dola.png',
     href: '/stabilizer',
   },
+  {
+    title: 'Guard',
+    description: 'Protect your funds across DeFi protocols using affordable smart contract risk cover',
+    label: 'Get Cover',
+    href: '/guard',
+  },
 ]
 
 const formatStat = ({ value, showDollar, showPercentage }: any): string => {
@@ -161,12 +167,12 @@ export const Landing = () => {
           wrap="wrap"
           shouldWrapChildren
         >
-          {cards.map(({ title, description, label, image, href }) => (
-            <Stack key={title} p={8} m={4} textAlign="center" borderRadius={16} bgColor="#211e36" align="center">
+          {cards.map(({ title, description, label, href }) => (
+            <Stack key={title} p={10} m={4} textAlign="center" borderRadius={16} bgColor="#211e36" align="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
-              <Text w={{ base: 56, lg: 64 }} h={12} fontSize="sm" fontWeight="medium">
+              <Text w={{ base: 56, lg: 32 }} h={24} fontSize="sm" fontWeight="medium">
                 {description}
               </Text>
               <Spacer />

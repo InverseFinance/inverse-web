@@ -7,6 +7,18 @@ export type Token = {
   decimals: number
 }
 
+export type Plan = {
+  title: string
+  conditions: string
+  oracle: string
+  paused: boolean
+  usage: number
+  ceiling: number
+  minCovered: number
+  minDuration: number
+  maxDuration: number
+}
+
 export type Market = {
   token: string
   underlying: Token

@@ -11,6 +11,8 @@ import {
   TOKENS,
   VAULT_TOKENS,
   XINV,
+  GUARD,
+  PREMIUM_MODEL
 } from '@inverse/config'
 
 // TODO: Clean-up ABIs
@@ -136,10 +138,20 @@ export const XINV_ABI = [
   'function underlying() external view returns (address)',
 ]
 
+export const GUARD_ABI = [
+  "function premiumModel() external view returns (address)",
+  "function openPosition(uint planID, uint amount, uint duration) external"
+]
+export const PREMIUM_MODEL_ABI = [
+  "function getPremium(uint planID, uint amount, uint duration, address user) external view returns (uint)"
+]
+
 export const ABIs = new Map<string, string[]>(
   // @ts-ignore
   ANCHOR_TOKENS.map((address) => [address, CTOKEN_ABI]).concat(
     [
+      [GUARD, GUARD_ABI],
+      [PREMIUM_MODEL, PREMIUM_MODEL_ABI],
       [XINV, XINV_ABI],
       [COMPTROLLER, COMPTROLLER_ABI],
       [ESCROW, ESCROW_ABI],

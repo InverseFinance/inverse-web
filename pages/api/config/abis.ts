@@ -116,3 +116,8 @@ export const XINV_ABI = [
   "function totalSupply() external view returns (uint256)",
   "function underlying() external view returns (address)",
 ];
+
+export const GUARD_ABI = [
+  "function plansLength() external view returns (uint256)",
+  "function plans(uint256) external view returns (string title, string conditions, address oracle, bool paused, uint256 ceiling, uint256 usage, uint256 minCovered, uint256 minDuration, uint256 maxDuration)"
+];

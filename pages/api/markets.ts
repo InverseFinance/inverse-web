@@ -10,6 +10,7 @@ import {
   TOKENS,
   UNDERLYING,
   XINV,
+  NETWORK
 } from "./config/constants";
 import { InfuraProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
@@ -23,7 +24,7 @@ const toApy = (rate) =>
 
 export default async function handler(req, res) {
   try {
-    const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+    const provider = new InfuraProvider(NETWORK, process.env.INFURA_ID);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const addresses = await comptroller.getAllMarkets();
     const contracts = addresses

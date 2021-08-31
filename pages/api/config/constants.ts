@@ -2,6 +2,8 @@ import { mainnet } from "./networks";
 
 const config = mainnet;
 
+export const NETWORK = config.NETWORK;
+
 export const START_BLOCK = 11498340;
 export const ETH_MANTISSA = 1e18;
 export const SECONDS_PER_BLOCK = 13.5;
@@ -39,6 +41,9 @@ export const GOVERNANCE = config.governance;
 
 // Harvester
 export const HARVESTER = config.harvester;
+
+// Guard
+export const GUARD = config.guard;
 
 // Tokens
 export const INV = config.INV;
