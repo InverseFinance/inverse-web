@@ -8,6 +8,7 @@ import { formatUnits } from "ethers/lib/utils";
 import { createNodeRedisClient } from 'handy-redis';
 
 const GRACE_PERIOD = 1209600;
+const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
 
 enum ProposalStatus {
   pending = "Pending",
@@ -156,7 +157,7 @@ export default async function handler(req, res) {
               proposer: proposer,
               etaTimestamp: eta.toNumber() * 1000,
               startTimestamp: startBlocks[i].timestamp * 1000,
-              endTimestamp: endBlocks[i].timestamp * 1000,
+              endTimestamp: blockNumber > endBlock.toNumber()? endBlocks[i].timestamp * 1000: (startBlocks[i].timestamp * 1000) + PROPOSAL_DURATION,
               startBlock: startBlock.toNumber(),
               endBlock: endBlock.toNumber(),
               forVotes: parseFloat(formatUnits(forVotes)),
