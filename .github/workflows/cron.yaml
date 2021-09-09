@@ -1,7 +1,7 @@
 name: 15-minute-cron
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/60 * * * *'
 jobs:
   cron:
     runs-on: ubuntu-latest
@@ -9,5 +9,5 @@ jobs:
       - name: Call our cron API
         run: |
           curl -v --request POST \
-          --url 'https://inverse.finance/api/cron' \
+          --url 'https://www.inverse.finance/api/cron' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
