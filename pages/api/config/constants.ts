@@ -31,6 +31,8 @@ export const ANCHOR_XSUSHI = config.anchor.markets.xsushi;
 export const ANCHOR_WBTC = config.anchor.markets.wbtc;
 export const ANCHOR_YFI = config.anchor.markets.yfi;
 export const ANCHOR_STETH = config.anchor.markets.steth;
+export const ANCHOR_INVDOLASLP = config.anchor.markets.invdolaslp
+export const ANCHOR_DOLA3POOLCRV = config.anchor.markets.dola3poolcrv
 export const ANCHOR_TOKENS = Object.values(config.anchor.markets);
 
 // Governance
@@ -51,6 +53,8 @@ export const XSUSHI = config.XSUSHI;
 export const WBTC = config.WBTC;
 export const XINV = config.XINV;
 export const STETH = config.STETH;
+export const INVDOLASLP = config.INVDOLASLP
+export const DOLA3POOLCRV = config.DOLA3POOLCRV
 export const THREECRV = config.THREECRV;
 
 // Rewards
@@ -143,6 +147,22 @@ export const TOKENS = {
       "https://assets.coingecko.com/coins/images/13442/small/steth_logo.png",
     decimals: 18,
   },
+  [INVDOLASLP]: {
+    address: INVDOLASLP,
+    name: 'INV-DOLA SLP',
+    symbol: 'INV-DOLA-SLP',
+    //coingeckoId: 'staked-ether',
+    image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
+    decimals: 18,
+  },
+  [DOLA3POOLCRV]: {
+    address: DOLA3POOLCRV,
+    name: 'Dola-3pool CRV LP',
+    symbol: 'DOLA-3POOL-CRV',
+    coingeckoId: 'lp-3pool-curve',
+    image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+    decimals: 18,
+  },
   [THREECRV]: {
     address: THREECRV,
     name: "lp-3pool-curve",
@@ -161,6 +181,8 @@ export const UNDERLYING = {
   [ANCHOR_WBTC]: TOKENS[WBTC],
   [ANCHOR_YFI]: TOKENS[YFI],
   [ANCHOR_STETH]: TOKENS[STETH],
+  [ANCHOR_INVDOLASLP]: TOKENS[INVDOLASLP],
+  [ANCHOR_DOLA3POOLCRV]: TOKENS[DOLA3POOLCRV],
   [XINV]: TOKENS[INV],
   [VAULT_USDC_ETH]: TOKENS[USDC],
   [VAULT_DAI_ETH]: TOKENS[DAI],
@@ -175,6 +197,8 @@ export const CONTRACTS = {
   [ANCHOR_WBTC]: "anWBTC",
   [ANCHOR_YFI]: "anYFI",
   [ANCHOR_STETH]: "anStETH",
+  [ANCHOR_INVDOLASLP]: 'INV-DOLA SLP',
+  [ANCHOR_DOLA3POOLCRV]: 'Dola-3pool LP',
   [COMPTROLLER]: "Comptroller",
   [DAI]: "Dai",
   [DOLA]: "DOLA",

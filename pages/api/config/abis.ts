@@ -14,6 +14,8 @@ export const COMPTROLLER_ABI = [
   "function markets(address) external view returns (bool, uint256, bool)",
 ];
 
+export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
+
 export const CTOKEN_ABI = [
   "function balanceOf(address) external view returns (uint256)",
   "function borrow(uint256) returns (uint256)",

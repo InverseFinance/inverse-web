@@ -1,4 +1,4 @@
-import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI } from "./config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "./config/abis";
 import {
   ANCHOR_ETH,
   ANCHOR_WBTC,
@@ -10,6 +10,7 @@ import {
   TOKENS,
   UNDERLYING,
   XINV,
+  ORACLE
 } from "./config/constants";
 import { InfuraProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
@@ -25,6 +26,7 @@ export default async function handler(req, res) {
   try {
     const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
+    const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const addresses = await comptroller.getAllMarkets();
     const contracts = addresses
       .filter((address: string) => address !== XINV)
@@ -42,7 +44,7 @@ export default async function handler(req, res) {
       totalSupplies,
       exchangeRates,
       borrowState,
-      prices,
+      oraclePrices,
     ]: any = await Promise.all([
       Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
       Promise.all(contracts.map((contract) => contract.totalReserves())),
@@ -65,28 +67,22 @@ export default async function handler(req, res) {
           comptroller.compBorrowState(contract.address)
         )
       ),
-      (
-        await fetch(
-          `${
-            process.env.COINGECKO_PRICE_API
-          }?vs_currencies=usd&ids=${Object.values(TOKENS).map(
-            ({ coingeckoId }) => coingeckoId
-          )}`
-        )
-      ).json(),
+      await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
     ]);
-
+    const prices = oraclePrices
+      .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {})
     const supplyApys = supplyRates.map((rate) => toApy(rate));
     const borrowApys = borrowRates.map((rate) => toApy(rate));
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
       return toApy(
-        (speed * prices[TOKENS[INV].coingeckoId].usd) /
+        (speed * prices[XINV]) /
           (parseFloat(
             formatUnits(totalSupplies[i].toString(), underlying.decimals)
           ) *
             parseFloat(formatUnits(exchangeRates[i])) *
-            prices[underlying.coingeckoId].usd)
+            prices[contracts[i].address])
       );
     });
 

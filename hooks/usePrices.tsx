@@ -40,7 +40,6 @@ export const usePrices = (): SWR & Prices => {
 export const useAnchorPrices = (): any => {
   const tokens = ANCHOR_TOKENS.concat([XINV])
   const { data, error } = useEtherSWR(tokens.map((address: string) => [ORACLE, 'getUnderlyingPrice', address]))
-
   return {
     prices: data?.reduce((prices: { [key: string]: BigNumber }, price: BigNumber, i: number) => {
       prices[tokens[i]] = price

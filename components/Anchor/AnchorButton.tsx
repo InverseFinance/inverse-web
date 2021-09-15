@@ -26,7 +26,7 @@ const XINVEscrowAlert = ({ showDescription }: any) => (
     <Flex w="full" align="center">
       <AlertIcon color="purple.600" />
       <AlertTitle ml={-1} fontSize="sm">
-        xINV withdrawals are subject to a 14-day escrow
+        xINV withdrawals are subject to a 10-day escrow
       </AlertTitle>
     </Flex>
     {showDescription && (
