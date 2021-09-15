@@ -1,6 +1,6 @@
 import "source-map-support";
 
-import { InfuraProvider } from "@ethersproject/providers";
+import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
 import { GOVERNANCE, INV } from "./config/constants";
 import { GOVERNANCE_ABI, INV_ABI } from "./config/abis";
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     else {
     // run delegates cron job
     try {
-        const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+        const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
         const inv = new Contract(INV, INV_ABI, provider);
         const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
         const blockNumber = await provider.getBlockNumber();

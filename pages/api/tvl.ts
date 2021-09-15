@@ -11,7 +11,7 @@ import {
   WETH,
   XINV,
 } from "./config/constants";
-import { InfuraProvider } from "@ethersproject/providers";
+import { ALCHEMY_API } from "@ethersproject/providers";
 import { Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
@@ -20,7 +20,7 @@ import * as fetch from "node-fetch";
 
 export default async function handler(req, res) {
   try {
-    const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+    const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
 
     const prices = await (
       await fetch(

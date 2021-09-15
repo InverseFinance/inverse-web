@@ -5,14 +5,14 @@ import {
   SECONDS_PER_DAY,
   VAULT_TOKENS,
 } from "./config/constants";
-import { InfuraProvider } from "@ethersproject/providers";
+import { AlchemyProvider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 
 export default async function handler(req, res) {
   try {
-    const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+    const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
     const harvester = new Contract(HARVESTER, HARVESTER_ABI, provider);
 
     const rates = await Promise.all(

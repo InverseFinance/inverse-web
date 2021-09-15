@@ -1,13 +1,13 @@
 import { STAKING_ABI } from "./config/abis";
 import { DAYS_PER_YEAR, DOLA3CRV, SECONDS_PER_DAY } from "./config/constants";
-import { InfuraProvider } from "@ethersproject/providers";
+import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 
 export default async function handler(req, res) {
   try {
-    const provider = new InfuraProvider("homestead", process.env.INFURA_ID);
+    const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
     const contract = new Contract(DOLA3CRV, STAKING_ABI, provider);
 
     const rewardRate = await contract.rewardRate();
