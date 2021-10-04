@@ -1,4 +1,4 @@
-import { Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { Flex, Image, Stack, Text, Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { NavButtons, SubmitButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
@@ -15,14 +15,30 @@ import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 
+const DEPOSITS_DISABLED = true;
+
 enum StakeOperations {
   deposit = 'Deposit',
   withdraw = 'Withdraw',
   claim = 'Claim',
 }
 
+const DepositsDisabledAlert = () => (
+  <Alert borderRadius={8} flexDirection="column" color="purple.600" bgColor="purple.200" p={3}>
+    <Flex w="full" align="center">
+      <AlertIcon color="purple.600" />
+      <AlertTitle ml={-1} fontSize="sm">
+        Staking deposits are disabled
+      </AlertTitle>
+    </Flex>
+    <AlertDescription fontWeight="medium" fontSize="sm">
+      The staking program has been discontinued. Please visit the <a href="/anchor">Anchor page</a> for alternative reward opportunities.
+    </AlertDescription>
+  </Alert>
+)
+
 export const StakeView = () => {
-  const [operation, setOperation] = useState<string>(StakeOperations.deposit)
+  const [operation, setOperation] = useState<string>(DEPOSITS_DISABLED? StakeOperations.withdraw: StakeOperations.deposit)
   const { active, account, library } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
   const { rates } = useStakingRates()
@@ -71,8 +87,11 @@ export const StakeView = () => {
       }
     >
       <Stack w="full">
+        ({DEPOSITS_DISABLED &&
+          <DepositsDisabledAlert/>
+        })
         <NavButtons
-          options={[StakeOperations.deposit, StakeOperations.withdraw, StakeOperations.claim]}
+          options={DEPOSITS_DISABLED? [StakeOperations.withdraw, StakeOperations.claim]: [StakeOperations.deposit, StakeOperations.withdraw, StakeOperations.claim]}
           active={operation}
           onClick={setOperation}
         />
@@ -86,7 +105,7 @@ export const StakeView = () => {
         ) : (
           <Stack spacing={1} pt={2} pb={2}>
             <Flex justify="space-between" direction={{ base: 'column', sm: 'row' }}>
-              {rates && prices && prices[TOKENS[INV].coingeckoId] && (
+              {!DEPOSITS_DISABLED && rates && prices && prices[TOKENS[INV].coingeckoId] && (
                 <Stack direction="row" align="flex-end" spacing={1}>
                   <Text fontSize="13px" fontWeight="semibold">
                     {`${(rates[STAKING_DOLA3CRV] * prices[TOKENS[INV].coingeckoId].usd).toFixed(2)}%`}
