@@ -67,7 +67,7 @@ export default async function handler(req, res) {
           comptroller.compBorrowState(contract.address)
         )
       ),
-      await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
+      Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
     ]);
     const prices = oraclePrices
       .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))

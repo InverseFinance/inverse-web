@@ -4,33 +4,35 @@ import {
   ANCHOR_ETH,
   ANCHOR_TOKENS,
   DAI,
+  USDC,
   STABILIZER,
   TOKENS,
   UNDERLYING,
   VAULT_TOKENS,
   WETH,
   XINV,
+  COMPTROLLER,
+  ORACLE
 } from "./config/constants";
-import { ALCHEMY_API } from "@ethersproject/providers";
-import { Contract } from "ethers";
+import { AlchemyProvider } from "@ethersproject/providers";
+import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { STABILIZER_ABI } from "./config/abis";
+import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "./config/abis";
 import * as fetch from "node-fetch";
 
 export default async function handler(req, res) {
   try {
     const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
-
-    const prices = await (
-      await fetch(
-        `${
-          process.env.COINGECKO_PRICE_API
-        }?vs_currencies=usd&ids=${Object.values(TOKENS).map(
-          ({ coingeckoId }) => coingeckoId
-        )}`
-      )
-    ).json();
+    const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
+    const addresses = await comptroller.getAllMarkets();
+    const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
+    const oraclePrices = await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))) 
+    let prices = oraclePrices
+      .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {});
+    prices[DAI] = 1
+    prices[USDC] = 1
 
     const [
       vaultBalances,
@@ -98,7 +100,7 @@ const vaultsTVL = async (prices, provider) => {
     return {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[token.coingeckoId].usd,
+      usdBalance: amount * prices[token.address],
     };
   });
 };
@@ -120,18 +122,16 @@ const anchorTVL = async (prices, provider) => {
         ? UNDERLYING[anchorContracts[i].address]
         : TOKENS[WETH];
 
-    balances[token.address] =
-      (balances[token.address] || 0) +
+    balances[anchorContracts[i].address] =
+      (balances[anchorContracts[i].address] || 0) +
       parseFloat(formatUnits(cash, token.decimals));
   });
-
   return Object.entries(balances).map(([address, amount]: any) => {
     const token = TOKENS[address];
-
     return {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[token.coingeckoId].usd,
+      usdBalance: amount * prices[address],
     };
   });
 };
@@ -147,7 +147,7 @@ const stabilizerTVL = async (prices, provider) => {
     {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[token.coingeckoId].usd,
+      usdBalance: amount * prices[token.address],
     },
   ];
 };
