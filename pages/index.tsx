@@ -91,7 +91,7 @@ export const Landing = () => {
     },
     {
       label: 'Votes Cast',
-      value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.forVotes + curr.againstVotes, 0),
+      value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.voters.length, 0),
     },
   ]
 
