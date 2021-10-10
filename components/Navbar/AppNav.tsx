@@ -65,8 +65,15 @@ const ETHBalance = () => {
 const AppNavConnect = () => {
   const { account, activate, active } = useWeb3React<Web3Provider>()
 
+  const connect = () => {
+    activate(injectedConnector);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem('previouslyConnected', JSON.stringify(true))
+    }
+  }
+
   return (
-    <ConnectButton onClick={() => activate(injectedConnector)}>
+    <ConnectButton onClick={() => connect()}>
       {active && account ? `${namedAddress(account)}` : 'Connect'}
     </ConnectButton>
   )
@@ -74,6 +81,14 @@ const AppNavConnect = () => {
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
+  const { activate } = useWeb3React<Web3Provider>()
+  
+  if (typeof window !== "undefined") {
+    const previouslyConnected = window.localStorage.getItem('previouslyConnected');
+    if(previouslyConnected) {
+      activate(injectedConnector);
+    }
+  }
 
   return (
     <>
