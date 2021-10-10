@@ -4,7 +4,7 @@ import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
 import { BalanceInput } from '@inverse/components/Input'
 import { Modal, ModalProps } from '@inverse/components/Modal'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useAccountBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
@@ -36,6 +36,7 @@ export const AnchorModal = ({
   const { active } = useWeb3React()
   const { balances } = useAccountBalances()
   const { balances: supplyBalances } = useSupplyBalances()
+  const { balances: borrowBalances } = useBorrowBalances()
   const { prices } = useAnchorPrices()
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
@@ -64,9 +65,15 @@ export const AnchorModal = ({
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
           : 0
       case AnchorOperations.repay:
-        return balances
-          ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
-          : 0
+        const balance = balances
+        ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
+        : 0
+
+        const borrowed = borrowBalances
+        ? parseFloat(formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
+        : 0
+
+        return Math.min(balance, borrowed)
     }
   }
 
