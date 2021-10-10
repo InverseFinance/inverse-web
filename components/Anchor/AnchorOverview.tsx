@@ -15,7 +15,7 @@ export const AnchorOverview = () => {
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
 
-  return usdBorrow || usdBorrowable ? (
+  return (
     <Container
       label="Anchor Banking"
       description={`${netApy.toFixed(2)}% Net APY`}
@@ -49,7 +49,5 @@ export const AnchorOverview = () => {
         </Stack>
       </Flex>
     </Container>
-  ) : (
-    <></>
   )
 }
