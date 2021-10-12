@@ -6,9 +6,11 @@ import { useMarkets } from '@inverse/hooks/useMarkets'
 export const AnchorHeader = () => {
   const { markets, isLoading } = useMarkets()
 
-  const DOLA = markets.find(v => v.underlying.name === "Dola")
-  const apy = DOLA.supplyApy.toFixed(2);
+
   if(!isLoading) {
+    const DOLA = markets.find(v => v.underlying.name === "Dola")
+    const apy = DOLA.supplyApy.toFixed(2);
+    
     return (
       <Stack p={8} m={4} spacing={6} direction="row" w="full" borderRadius={16} borderWidth="1px" borderColor="#211e36">
       <Image boxSize="200px" src="/assets/products/anchor.png" alt="DOLA" />
