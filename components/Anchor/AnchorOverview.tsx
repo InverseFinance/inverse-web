@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, Stack, Text, Badge } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { ClaimButton } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
@@ -15,7 +15,19 @@ export const AnchorOverview = () => {
   const { rewards } = useAnchorRewards()
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
-
+  const borrowLimitPercent = Math.floor((usdBorrow / (usdBorrowable + usdBorrow)) * 100);
+  let badgeColorScheme;
+  let health;
+  if(borrowLimitPercent <= 25) {
+    badgeColorScheme = "green"
+    health = "Healthy"
+  } else if(borrowLimitPercent <= 75) {
+    badgeColorScheme = "blue"
+    health = "Moderate"
+  } else {
+    badgeColorScheme = "red"
+    health = "Dangerous"
+  }
   return (
     <Container
       label="Anchor Banking"
@@ -39,16 +51,22 @@ export const AnchorOverview = () => {
             Borrow Limit
           </Flex>
           <InfoTooltip message="Your borrow limit represents the maximum amount that you're allowed to borrow across all tokens. If you reach 100% of your borrow limit, you will get liquidated."/>
-          <Text>{`${usdBorrowable ? Math.floor((usdBorrow / (usdBorrowable + usdBorrow)) * 100) : 0}%`}</Text>
+          <Text>{`${usdBorrowable ? borrowLimitPercent : 0}%`}</Text>
           <Flex w="full" h={1} borderRadius={8} bgColor="purple.900">
             <Flex
-              w={`${Math.floor((usdBorrow / (usdBorrowable + usdBorrow)) * 100)}%`}
+              w={`${borrowLimitPercent}%`}
               h="full"
               borderRadius={8}
               bgColor="purple.400"
             ></Flex>
           </Flex>
           <Text>{`$${usdBorrowable ? commify((usdBorrowable + usdBorrow).toFixed(2)) : '0.00'}`}</Text>
+          {borrowLimitPercent > 0 &&
+            <>
+              <Badge variant="outline" colorScheme={badgeColorScheme}>{health}</Badge>
+              <InfoTooltip message="This badge indicates your current loan health. If your loan health shows as 'Dangerous' then your current debt is too close to your borrow limit. In this case, you should repay some loans or add more collateral to reduce your liquidation risk."/>
+            </>
+          }
         </Stack>
       </Flex>
     </Container>
