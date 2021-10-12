@@ -1,7 +1,7 @@
 import { Button, Flex, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-export const LinkButton = ({ children, href }: { href: string; children: React.ReactNode }) => (
+export const LinkButton = ({ children, href, target = "_self" }: { href: string; children: React.ReactNode, target: string }) => (
   <Flex
     w="full"
     justify="center"
@@ -12,13 +12,13 @@ export const LinkButton = ({ children, href }: { href: string; children: React.R
     _hover={{ bgColor: 'purple.600' }}
   >
     <NextLink href={href} passHref>
-      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} _focus={{}}>
+      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
         {children}
       </Link>
     </NextLink>
   </Flex>
 )
-export const LinkOutlineButton = ({ children, href }: { href: string; children: React.ReactNode }) => (
+export const LinkOutlineButton = ({ children, href, target = "_self" }: { href: string; children: React.ReactNode, target: string }) => (
   <Flex
     w="full"
     justify="center"
@@ -30,7 +30,7 @@ export const LinkOutlineButton = ({ children, href }: { href: string; children: 
     _hover={{ bgColor: 'purple.600' }}
   >
     <NextLink href={href} passHref>
-      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} _focus={{}}>
+      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
         {children}
       </Link>
     </NextLink>
