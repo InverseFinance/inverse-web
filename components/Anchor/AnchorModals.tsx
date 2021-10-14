@@ -40,7 +40,7 @@ export const AnchorModal = ({
   const { prices } = useAnchorPrices()
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
-
+  console.log(asset)
   const max = () => {
     switch (operation) {
       case AnchorOperations.supply:
@@ -58,12 +58,14 @@ export const AnchorModal = ({
             (asset.collateralFactor *
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
-        return !usdBorrowable || withdrawable > supply ? supply : withdrawable
+        const userWithdrawable =  !usdBorrowable || withdrawable > supply ? supply : withdrawable
+        return Math.min(userWithdrawable, asset.liquidity)
       case AnchorOperations.borrow:
-        return prices && usdBorrowable
+        const borrowable = prices && usdBorrowable
           ? usdBorrowable /
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
           : 0
+        return Math.min(borrowable, asset.liquidity);
       case AnchorOperations.repay:
         const balance = balances
         ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))

@@ -3,7 +3,7 @@ import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { useAnchorPrices, usePrices } from '@inverse/hooks/usePrices'
+import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
@@ -64,6 +64,21 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
         {
           label: 'Supply Balance',
           value: `${Math.floor(supplyBalance * 1e8) / 1e8} ${asset.underlying.symbol}`,
+        },
+      ]}
+    />
+  )
+}
+
+const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
+
+  return (
+    <StatBlock
+      label="Withdrawal Stats"
+      stats={[
+        {
+          label: 'Available Liquidity',
+          value: `${asset.liquidity.toFixed(2)} ${asset.underlying.symbol}`,
         },
       ]}
     />
@@ -134,6 +149,10 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
         {
           label: 'Borrow Balance',
           value: `${borrowBalance.toFixed(2)} ${asset.underlying.symbol}`,
+        },
+        {
+          label: 'Available Liquidity',
+          value: `${asset.liquidity.toFixed(2)} ${asset.underlying.symbol}`,
         },
       ]}
     />
@@ -219,6 +238,7 @@ export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
     case AnchorOperations.withdraw:
       return (
         <>
+          <WithdrawDetails asset={asset} />
           <SupplyDetails asset={asset} />
           <BorrowLimit asset={asset} amount={-1 * parsedAmount} />
           <MarketDetails asset={asset} />
