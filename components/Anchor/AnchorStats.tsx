@@ -71,7 +71,6 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
 }
 
 const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
-
   return (
     <StatBlock
       label="Withdrawal Stats"
@@ -238,7 +237,7 @@ export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
     case AnchorOperations.withdraw:
       return (
         <>
-          <WithdrawDetails asset={asset} />
+          {asset.underlying.symbol !== 'INV' && <WithdrawDetails asset={asset} />}
           <SupplyDetails asset={asset} />
           <BorrowLimit asset={asset} amount={-1 * parsedAmount} />
           <MarketDetails asset={asset} />
