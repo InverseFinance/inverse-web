@@ -6,7 +6,7 @@ import Container from '@inverse/components/Container'
 import { BalanceInput } from '@inverse/components/Input'
 import { DAI, DOLA, STABILIZER, TOKENS } from '@inverse/config'
 import { useStabilizerApprovals } from '@inverse/hooks/useApprovals'
-import { useAccountBalances } from '@inverse/hooks/useBalances'
+import { useAccountBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { constants } from 'ethers'
@@ -26,13 +26,14 @@ export const StabilizerView = () => {
   const { balances } = useAccountBalances()
   const [amount, setAmount] = useState<string>('')
   const { approvals } = useStabilizerApprovals()
+  const { balance: stabilizerBalance } = useStabilizerBalance()
 
   const max = () =>
     !balances
       ? 0
       : operation === StabilizerOperations.buy
       ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
-      : parseFloat(formatUnits(balances[DOLA]))
+      : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
 
   const handleSubmit = () => {
     const contract = getStabilizerContract(library?.getSigner())
