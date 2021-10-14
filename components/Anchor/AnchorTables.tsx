@@ -293,7 +293,7 @@ export const AnchorSupply = () => {
             minWidth={24}
             justify="flex-end"
             color={balance ? '' : 'purple.200'}
-          >{`${balance.toFixed(2)} ${underlying.symbol}`}</Text>
+          >{`${balance.toFixed(2)}`}</Text>
         )
       },
     },
