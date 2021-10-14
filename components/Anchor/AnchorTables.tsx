@@ -14,8 +14,6 @@ import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { InfoTooltip } from '@inverse/components/Tooltip'
-import { info } from 'console'
 
 export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
@@ -35,9 +33,9 @@ export const AnchorSupplied = () => {
 
   const columns = [
     {
-      header: <Flex minWidth={24}>Asset</Flex>,
+      header: <Flex minWidth={40}>Asset</Flex>,
       value: ({ underlying }: Market) => (
-        <Stack minWidth={24} direction="row" align="center">
+        <Stack minWidth={40} direction="row" align="center">
           <Image src={underlying.image} w={5} h={5} />
           <Text>{underlying.symbol}</Text>
         </Stack>
@@ -45,10 +43,9 @@ export const AnchorSupplied = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">APY</Flex>
-          <InfoTooltip message="APY refers to compounded yearly lending interest rate that can be accrued by depositing a token. In this case, the APY is denominated in the same token you're depositing." />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          APY
+        </Flex>
       ),
       value: ({ supplyApy }: Market) => (
         <Text textAlign="center" minWidth={24}>
@@ -58,10 +55,9 @@ export const AnchorSupplied = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Reward APY</Flex>
-          <InfoTooltip message="Reward APY refers to the yearly INV rewards that can be accrued by from depositing a token" />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          Reward APY
+        </Flex>
       ),
       value: ({ rewardApy }: Market) => (
         <Text textAlign="center" minWidth={24}>
@@ -71,10 +67,9 @@ export const AnchorSupplied = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Balance</Flex>
-          <InfoTooltip message="This refers to your supplied token balance within Anchor" />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          Balance
+        </Flex>
       ),
       value: ({ token, underlying }: Market) => {
         const balance =
@@ -83,15 +78,14 @@ export const AnchorSupplied = () => {
               parseFloat(formatUnits(exchangeRates[token]))
             : 0
 
-        return <Text textAlign="center" minWidth={24}>{`${balance.toFixed(2)} ${underlying.symbol}`}</Text>
+        return <Text textAlign="center" minWidth={24}>{`${balance.toFixed(2)}`}</Text>
       },
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Collateral</Flex>
-          <InfoTooltip message="Assets that are enabled as collateral will increase your borrow limit but may be subject to liquidation in the future. Assets that are disabled are not used as collateral and can never be liquidated." />
-        </Stack>
+        <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }}>
+          Collateral
+        </Flex>
       ),
       value: ({ token }: Market) => {
         const isEnabled = accountMarkets.find((market: Market) => market.token === token)
@@ -172,10 +166,9 @@ export const AnchorBorrowed = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end" minWidth={24}>
-          <Flex justify="center">APR</Flex>
-          <InfoTooltip message="APR is the yearly borrowing interest rate paid by borrowers to lenders. Interest is automatically accrued within your debt over time." />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          APR
+        </Flex>
       ),
       value: ({ borrowApy }: Market) => (
         <Text textAlign="center" minWidth={24}>
@@ -185,15 +178,14 @@ export const AnchorBorrowed = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Debt</Flex>
-          <InfoTooltip message="Debt is your current outstanding loans + accrued interest." />
-        </Stack>
+        <Flex justify="flex-end" minWidth={24}>
+          Balance
+        </Flex>
       ),
       value: ({ token, underlying }: Market) => {
         const balance = balances ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0
 
-        return <Text textAlign="end" minWidth={24}>{`${balance.toFixed(2)} ${underlying.symbol}`}</Text>
+        return <Text textAlign="end" minWidth={24}>{`${balance.toFixed(2)}`}</Text>
       },
     },
   ]
@@ -250,9 +242,9 @@ export const AnchorSupply = () => {
 
   const columns = [
     {
-      header: <Flex minWidth={40}>Asset</Flex>,
+      header: <Flex minWidth={24}>Asset</Flex>,
       value: ({ underlying }: Market) => (
-        <Stack minWidth={40} direction="row" align="center">
+        <Stack minWidth={24} direction="row" align="center">
           <Image src={underlying.image} w={5} h={5} />
           <Text>{underlying.symbol}</Text>
         </Stack>
@@ -260,10 +252,9 @@ export const AnchorSupply = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">APY</Flex>
-          <InfoTooltip message="APY refers to compounded yearly lending interest rate that can be accrued by from depositing a token. In this case, the APY is denominated in the same token you're depositing." />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          APY
+        </Flex>
       ),
       value: ({ supplyApy }: Market) => (
         <Text minWidth={24} textAlign="center">
@@ -273,10 +264,9 @@ export const AnchorSupply = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Reward APY</Flex>
-          <InfoTooltip message="Reward APY refers to the INV rewards that can be accrued by from depositing a token" />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          Reward APY
+        </Flex>
       ),
       value: ({ rewardApy }: Market) => (
         <Text textAlign="center" minWidth={24}>
@@ -286,10 +276,9 @@ export const AnchorSupply = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Wallet</Flex>
-          <InfoTooltip message="This refers to your token balance in your personal wallet" />
-        </Stack>
+        <Flex justify="flex-end" minWidth={24}>
+          Wallet
+        </Flex>
       ),
       value: ({ underlying }: Market) => {
         const balance = balances
@@ -299,9 +288,12 @@ export const AnchorSupply = () => {
           : 0
 
         return (
-          <Text textAlign="end" minWidth={24} justify="flex-end" color={balance ? '' : 'purple.200'}>
-            {balance.toFixed(2)}
-          </Text>
+          <Text
+            textAlign="end"
+            minWidth={24}
+            justify="flex-end"
+            color={balance ? '' : 'purple.200'}
+          >{`${balance.toFixed(2)} ${underlying.symbol}`}</Text>
         )
       },
     },
@@ -354,10 +346,9 @@ export const AnchorBorrow = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end" minWidth={16}>
-          <Flex justify="center">APR</Flex>
-          <InfoTooltip message="APR is the yearly borrowing interest rate paid by borrowers to lenders. Interest is automatically accrued within your debt over time." />
-        </Stack>
+        <Flex justify="center" minWidth={24}>
+          APR
+        </Flex>
       ),
       value: ({ borrowApy }: Market) => (
         <Text textAlign="center" minWidth={24}>
@@ -367,10 +358,9 @@ export const AnchorBorrow = () => {
     },
     {
       header: (
-        <Stack direction="row" align="center" textAlign="end">
-          <Flex justify="center">Liquidity</Flex>
-          <InfoTooltip message="Liquidity is the maximum amount of tokens available to be borrowed." />
-        </Stack>
+        <Flex justify="flex-end" minWidth={24}>
+          Liquidity
+        </Flex>
       ),
       value: ({ underlying, liquidity }: Market) => (
         <Text textAlign="end" minWidth={24}>

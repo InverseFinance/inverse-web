@@ -159,7 +159,7 @@ export const TOKENS: { [key: string]: Token } = {
   [DOLA3POOLCRV]: {
     address: DOLA3POOLCRV,
     name: 'Dola-3pool CRV LP',
-    symbol: 'DOLA-3POOL-CRV',
+    symbol: 'DOLA-3POOL',
     coingeckoId: 'lp-3pool-curve',
     image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
     decimals: 18,
