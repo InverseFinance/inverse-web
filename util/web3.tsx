@@ -1,5 +1,6 @@
 import { ExternalProvider, JsonRpcFetchFunc, Web3Provider } from '@ethersproject/providers'
 import { InjectedConnector } from '@web3-react/injected-connector'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -15,6 +16,12 @@ export const injectedConnector = new InjectedConnector({
     5, // Goerli
     42, // Kovan
   ],
+})
+
+export const walletConnectConnector = new WalletConnectConnector({
+  rpc: {
+    1:"https://cloudflare-eth.com"
+  }
 })
 
 export const fetcher = async (input: RequestInfo, init: RequestInit) => {

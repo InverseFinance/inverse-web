@@ -37,24 +37,6 @@ export const LinkOutlineButton = ({ children, href, target = "_self" }: { href: 
   </Flex>
 )
 
-export const ConnectButton = (props: any) => (
-  <Flex
-    justify="center"
-    bgColor="purple.500"
-    cursor={props.onClick ? 'pointer' : ''}
-    fontSize="sm"
-    align="center"
-    borderRadius={4}
-    fontWeight="semibold"
-    color="#fff"
-    p={2}
-    pl={4}
-    pr={4}
-    _hover={{ bgColor: 'purple.600' }}
-    {...props}
-  />
-)
-
 export const ClaimButton = (props: any) => (
   <Button
     justify="center"

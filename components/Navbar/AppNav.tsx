@@ -1,12 +1,12 @@
-import { Flex, Image, Stack } from '@chakra-ui/react'
+import { Flex, Image, Stack, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverHeader, PopoverBody, Button } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { ConnectButton, OutlineButton } from '@inverse/components/Button'
+import { OutlineButton } from '@inverse/components/Button'
 import Link from '@inverse/components/Link'
 import Logo from '@inverse/components/Logo'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
-import { injectedConnector } from '@inverse/util/web3'
+import { injectedConnector, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useState } from 'react'
 
@@ -63,28 +63,134 @@ const ETHBalance = () => {
 }
 
 const AppNavConnect = () => {
-  const { account, activate, active } = useWeb3React<Web3Provider>()
+  const { account, activate, active, deactivate, connector } = useWeb3React<Web3Provider>()
+  const [isOpen, setIsOpen] = useState(false)
+  const open = () => setIsOpen(!isOpen)
+  const close = () => setIsOpen(false)
 
-  const connect = () => {
+  const connectMetamask = () => {
     activate(injectedConnector);
     if (typeof window !== "undefined") {
       window.localStorage.setItem('previouslyConnected', JSON.stringify(true))
     }
+    close()
+  }
+
+  const connectWalletConnect = () => {
+    activate(walletConnectConnector);
+    close()
+  }
+
+  const disconnect = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem('previouslyConnected', JSON.stringify(false))
+    }
+    deactivate()
+    close()
+  }
+
+  let connectorName;
+  if(connector) {
+    const name = connector.constructor.name
+    if(name === "InjectedConnector") connectorName = "Metamask"
+    if(name === "WalletConnectConnector") connectorName = "Wallet Connect"
   }
 
   return (
-    <ConnectButton onClick={() => connect()}>
+    <Popover
+    placement="bottom-end"
+    onClose={close}
+    isOpen={isOpen}>
+      <PopoverTrigger>
+      <Button
+        onClick={open}
+        justify="center"
+        bgColor="purple.500"
+        cursor='pointer'
+        fontSize="sm"
+        align="center"
+        borderRadius={4}
+        fontWeight="semibold"
+        color="#fff"
+        p={2}
+        pl={4}
+        pr={4}
+        _hover={{ bgColor: 'purple.600' }}
+      >
       {active && account ? `${namedAddress(account)}` : 'Connect'}
-    </ConnectButton>
+      </Button>
+      </PopoverTrigger>
+      <PopoverContent bgColor="#211e36" color="#fff" border={0}>
+        <PopoverArrow bg="#211e36"/>
+        <PopoverCloseButton />
+        <PopoverHeader>{active? connectorName: 'Connect Wallet'}</PopoverHeader>
+        {!active && <PopoverBody>
+          <Button
+          justify="center"
+          bgColor="purple.500"
+          cursor='pointer'
+          fontSize="sm"
+          align="center"
+          borderRadius={4}
+          fontWeight="semibold"
+          color="#fff"
+          p={2}
+          pl={4}
+          pr={4}
+          _hover={{ bgColor: 'purple.600' }}
+          onClick={connectMetamask}
+          >
+            Metamask
+          </Button>
+          <Button
+          marginLeft={3}
+          justify="center"
+          bgColor="purple.500"
+          cursor='pointer'
+          fontSize="sm"
+          align="center"
+          borderRadius={4}
+          fontWeight="semibold"
+          color="#fff"
+          p={2}
+          pl={4}
+          pr={4}
+          _hover={{ bgColor: 'purple.600' }}
+          onClick={connectWalletConnect}
+          >
+            Wallet Connect
+          </Button>
+        </PopoverBody>}
+        {active && <PopoverBody>
+          <Button
+          marginLeft={3}
+          justify="center"
+          bgColor="red.500"
+          cursor='pointer'
+          fontSize="sm"
+          align="center"
+          borderRadius={4}
+          fontWeight="semibold"
+          color="#fff"
+          p={2}
+          pl={4}
+          pr={4}
+          _hover={{ bgColor: 'red.600' }}
+          onClick={disconnect}
+          >
+            Disconnect
+          </Button>
+        </PopoverBody>}
+      </PopoverContent>
+    </Popover>
   )
 }
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
-  const { activate } = useWeb3React<Web3Provider>()
-  
-  if (typeof window !== "undefined") {
-    const previouslyConnected = window.localStorage.getItem('previouslyConnected');
+  const { activate, active: walletActive } = useWeb3React<Web3Provider>()
+  if (typeof window !== "undefined" && !walletActive) {
+    const previouslyConnected = JSON.parse(window.localStorage.getItem('previouslyConnected'));
     if(previouslyConnected) {
       activate(injectedConnector);
     }
