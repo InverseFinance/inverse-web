@@ -59,7 +59,7 @@ export const AnchorModal = ({
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
         const userWithdrawable =  !usdBorrowable || withdrawable > supply ? supply : withdrawable
-        return Math.min(userWithdrawable, asset.liquidity)
+        return Math.min(userWithdrawable, asset.liquidity? asset.liquidity: userWithdrawable)
       case AnchorOperations.borrow:
         const borrowable = prices && usdBorrowable
           ? usdBorrowable /
