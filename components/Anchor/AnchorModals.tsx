@@ -88,7 +88,7 @@ export const AnchorModal = ({
       case AnchorOperations.borrow:
         return 'Borrowable'
       case AnchorOperations.repay:
-        return 'Wallet'
+        return 'Repayable'
     }
   }
 
