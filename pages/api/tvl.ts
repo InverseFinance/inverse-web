@@ -106,9 +106,7 @@ const vaultsTVL = async (prices, provider) => {
 };
 
 const anchorTVL = async (prices, provider) => {
-  const anchorContracts = ANCHOR_TOKENS.filter(
-    (address) => address !== ANCHOR_DOLA
-  ).map((address) => new Contract(address, CTOKEN_ABI, provider));
+  const anchorContracts = ANCHOR_TOKENS.map((address) => new Contract(address, CTOKEN_ABI, provider));
   anchorContracts.push(new Contract(XINV, XINV_ABI, provider));
 
   const allCash = await Promise.all(
