@@ -1,7 +1,15 @@
 import { Button, Flex, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
-export const LinkButton = ({ children, href, target = "_self" }: { href: string; children: React.ReactNode, target: string }) => (
+export const LinkButton = ({
+  children,
+  href,
+  target = '_self',
+}: {
+  href: string
+  children: React.ReactNode
+  target: string
+}) => (
   <Flex
     w="full"
     justify="center"
@@ -9,7 +17,7 @@ export const LinkButton = ({ children, href, target = "_self" }: { href: string;
     cursor="pointer"
     borderRadius={4}
     p={2}
-    _hover={{ bgColor: 'purple.600' }}
+    _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
@@ -18,16 +26,24 @@ export const LinkButton = ({ children, href, target = "_self" }: { href: string;
     </NextLink>
   </Flex>
 )
-export const LinkOutlineButton = ({ children, href, target = "_self" }: { href: string; children: React.ReactNode, target: string }) => (
+export const LinkOutlineButton = ({
+  children,
+  href,
+  target = '_self',
+}: {
+  href: string
+  children: React.ReactNode
+  target: string
+}) => (
   <Flex
     w="full"
     justify="center"
-    borderColor="purple.400"
+    borderColor="purple.600"
     borderWidth={1}
     cursor="pointer"
     borderRadius={4}
     p={2}
-    _hover={{ bgColor: 'purple.600' }}
+    _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
@@ -61,6 +77,7 @@ export const OutlineButton = (props: any) => (
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
+    bgColor="purple.800"
     borderRadius={4}
     borderWidth={1}
     borderColor="purple.700"

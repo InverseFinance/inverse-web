@@ -3,6 +3,7 @@ import LinkButton from '@inverse/components/Button'
 import Link from '@inverse/components/Link'
 import Logo from '@inverse/components/Logo'
 import { useState } from 'react'
+import { Announcement } from '../Announcement'
 
 const INVERSE_NAV = [
   {
@@ -35,7 +36,7 @@ export const LandingNav = () => {
         </Stack>
         <Stack direction="row" spacing={12} fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
           {INVERSE_NAV.map(({ label, href }, i) => (
-            <Link key={i} fontWeight="medium" href={href}>
+            <Link key={i} fontWeight="medium" href={href} isExternal>
               {label}
             </Link>
           ))}
@@ -69,15 +70,17 @@ export const LandingNav = () => {
           pt={16}
           borderBottomColor="purple.800"
           borderBottomWidth={1}
+          display={showMobileNav ? 'flex' : 'none'}
         >
           {INVERSE_NAV.map(({ label, href }, i) => (
-            <Link key={i} href={href}>
+            <Link key={i} href={href} isExternal>
               {label}
             </Link>
           ))}
           <Link href="/anchor">Enter App</Link>
         </Stack>
       </Flex>
+      {!showMobileNav && <Announcement />}
     </>
   )
 }

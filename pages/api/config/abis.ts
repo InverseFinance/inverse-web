@@ -48,6 +48,7 @@ export const ERC20_ABI = [
   "function allowance(address, address) external view returns (uint256)",
   "function approve(address, uint256)",
   "function balanceOf(address) external view returns (uint256)",
+  "function totalSupply() external view returns (uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
 ];
 

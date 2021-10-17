@@ -242,9 +242,9 @@ export const AnchorSupply = () => {
 
   const columns = [
     {
-      header: <Flex minWidth={24}>Asset</Flex>,
+      header: <Flex minWidth={36}>Asset</Flex>,
       value: ({ underlying }: Market) => (
-        <Stack minWidth={24} direction="row" align="center">
+        <Stack minWidth={36} direction="row" align="center">
           <Image src={underlying.image} w={5} h={5} />
           <Text>{underlying.symbol}</Text>
         </Stack>
@@ -252,24 +252,24 @@ export const AnchorSupply = () => {
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="center" minWidth={20}>
           APY
         </Flex>
       ),
       value: ({ supplyApy }: Market) => (
-        <Text minWidth={24} textAlign="center">
+        <Text minWidth={20} textAlign="center">
           {supplyApy ? `${supplyApy.toFixed(2)}%` : '-'}
         </Text>
       ),
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="center" minWidth={20}>
           Reward APY
         </Flex>
       ),
       value: ({ rewardApy }: Market) => (
-        <Text textAlign="center" minWidth={24}>
+        <Text textAlign="center" minWidth={20}>
           {rewardApy ? `${rewardApy.toFixed(2)}%` : '-'}
         </Text>
       ),

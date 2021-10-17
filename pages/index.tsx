@@ -3,6 +3,7 @@ import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@inverse/components/Button'
 import Layout from '@inverse/components/Layout'
 import { LandingNav } from '@inverse/components/Navbar'
+import { useDOLA } from '@inverse/hooks/useDOLA'
 import { useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useProposals } from '@inverse/hooks/useProposals'
@@ -10,24 +11,23 @@ import { useTVL } from '@inverse/hooks/useTVL'
 import { Proposal } from '@inverse/types'
 
 const projects = [
+  '/assets/projects/Scream.webp',
+  '/assets/projects/Fantom.png',
+  '/assets/projects/Olympus.png',
+  '/assets/projects/Ether.png',
   '/assets/projects/YFI.svg',
   '/assets/projects/Sushiswap.png',
   '/assets/projects/Lido.png',
   '/assets/projects/Anyswap.png',
-  '/assets/projects/Ether.png',
-  '/assets/projects/Indexed.png',
-  '/assets/projects/Olympus.png',
-  '/assets/projects/USDC.png',
-  '/assets/projects/DAI.png',
 ]
 
 const cards = [
   {
-    title: 'DCA Vaults',
-    description: ' DCA your stablecoin yield into your favorite crypto, including BTC, ETH & YFI.',
-    label: 'Open Vaults',
-    image: '/assets/products/vaults.png',
-    href: '/vaults',
+    title: 'DOLA',
+    description: 'Debt-based USD stablecoin for high capital efficiency, leverage and native yield',
+    label: 'Swap DOLA',
+    image: '/assets/products/dola.png',
+    href: '/stabilizer',
   },
   {
     title: 'Anchor',
@@ -37,11 +37,11 @@ const cards = [
     href: '/anchor',
   },
   {
-    title: 'DOLA',
-    description: 'Debt-based USD stablecoin for high capital efficiency, leverage and native yield',
-    label: 'Swap DOLA',
-    image: '/assets/products/dola.png',
-    href: '/stabilizer',
+    title: 'DCA Vaults',
+    description: ' DCA your stablecoin yield into your favorite crypto, including BTC, ETH & YFI.',
+    label: 'Open Vaults',
+    image: '/assets/products/vaults.png',
+    href: '/vaults',
   },
 ]
 
@@ -65,8 +65,7 @@ const formatStat = ({ value, showDollar, showPercentage }: any): string => {
 }
 
 export const Landing = () => {
-  const { proposals } = useProposals()
-  const { markets } = useMarkets()
+  const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { tvl } = useTVL()
 
@@ -77,21 +76,14 @@ export const Landing = () => {
       showDollar: true,
     },
     {
-      label: '$INV Price',
-      value: prices['inverse-finance'] ? prices['inverse-finance'].usd : 0,
+      label: 'DOLA Supply',
+      value: totalSupply,
       showDollar: true,
     },
     {
-      label: 'Markets',
-      value: markets?.length || 0,
-    },
-    {
-      label: 'Passed Proposals',
-      value: proposals.filter(({ forVotes, againstVotes }: Proposal) => forVotes > againstVotes).length,
-    },
-    {
-      label: 'Votes Cast',
-      value: proposals.reduce((prev: number, curr: Proposal) => prev + curr.voters.length, 0),
+      label: '$INV Price',
+      value: prices['inverse-finance'] ? prices['inverse-finance'].usd : 0,
+      showDollar: true,
     },
   ]
 
@@ -114,7 +106,7 @@ export const Landing = () => {
               <Text>Borrow, Lend & Earn</Text>
               <Stack direction="row">
                 <Text>with</Text>
-                <Text color="purple.400">Inverse Finance</Text>
+                <Text color="secondary">Inverse Finance</Text>
               </Stack>
             </Flex>
           </Flex>
@@ -126,8 +118,12 @@ export const Landing = () => {
             fontWeight="medium"
           >
             <Text>Welcome to Inverse, part of the new wave of decentralized banking & finance.</Text>
-            <Text>From a capital-efficient money market, to tokenized synthetic assets,</Text>
-            <Text>our mission is to grow your wealth. Start earning with Inverse.</Text>
+            <Text display={{ base: 'none', sm: 'inline' }}>
+              From a capital-efficient money market, to tokenized synthetic assets,
+            </Text>
+            <Text display={{ base: 'none', sm: 'inline' }}>
+              our mission is to grow your wealth. Start earning with Inverse.
+            </Text>
           </Flex>
           <Flex>
             <Flex w={32} m={2}>
@@ -149,7 +145,7 @@ export const Landing = () => {
           </Stack>
         </Stack>
       </Flex>
-      <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 40 }} p={8}>
+      <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 24 }} p={8}>
         <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
           A suite of banking tools for the DeFi generation
         </Text>
@@ -162,7 +158,7 @@ export const Landing = () => {
           shouldWrapChildren
         >
           {cards.map(({ title, description, label, image, href }) => (
-            <Stack key={title} p={8} m={4} textAlign="center" borderRadius={16} bgColor="#211e36" align="center">
+            <Stack key={title} p={8} m={4} textAlign="center" borderRadius={16} bgColor="purple.800" align="center">
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
@@ -183,8 +179,8 @@ export const Landing = () => {
         bgRepeat="no-repeat"
         bgPosition="right top"
         justify="center"
-        pt={{ base: 8, lg: 64 }}
-        pb={{ base: 8, lg: 48 }}
+        pt={{ base: 8, lg: 32 }}
+        pb={{ base: 8, lg: 32 }}
       >
         <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} textAlign={{ base: 'center', lg: 'start' }}>
           <Stack w="3xl" spacing={6} align={{ base: 'center', lg: 'flex-start' }}>
@@ -192,8 +188,8 @@ export const Landing = () => {
               Join the Inverse DAO - governance by the people
             </Text>
             <Text fontSize="lg">
-              Inverse.finance was created by a sole developer in December 2020, and since then has grown to include hundreds
-              of active DAO members voting on the direction of the organization.
+              Inverse.finance was created by a sole developer in December 2020, and since then has grown to include
+              hundreds of active DAO members voting on the direction of the organization.
             </Text>
             <Text fontSize="lg">
               Our vision is to establish one of DeFi’s major financial ecosystems giving users of all levels inclusive
@@ -209,7 +205,7 @@ export const Landing = () => {
       <Flex
         position="relative"
         w="full"
-        bg="linear-gradient(270deg, #2D002E 0%, rgba(85, 0, 255, 0.7) 50.27%, rgba(99, 26, 247, 0.26) 100%);"
+        bg="linear-gradient(270deg, #4f45a3 0%, #201c42 100%);"
         align="center"
         direction="column"
         pt={{ base: 16, lg: 32 }}
@@ -226,12 +222,8 @@ export const Landing = () => {
           top={0}
           left={0}
         ></Flex>
-        <Text fontSize="2xl" fontWeight="semibold">
-          Strength in Numbers
-        </Text>
         <Stack
           w="full"
-          pt={20}
           pl={{ base: 8, lg: 16, xl: 32 }}
           pr={{ base: 8, lg: 16, xl: 32 }}
           pb={0}
@@ -246,7 +238,9 @@ export const Landing = () => {
               <Text fontSize="5xl" fontWeight="bold" lineHeight={1}>
                 {formatStat(stat)}
               </Text>
-              <Text fontSize="lg">{stat.label}</Text>
+              <Text fontSize="lg" fontWeight="bold" color="purple.100">
+                {stat.label}
+              </Text>
             </Stack>
           ))}
         </Stack>

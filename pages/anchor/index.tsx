@@ -1,5 +1,12 @@
 import { Flex } from '@chakra-ui/react'
-import { AnchorBorrow, AnchorBorrowed, AnchorOverview, AnchorSupplied, AnchorSupply, AnchorHeader } from '@inverse/components/Anchor'
+import {
+  AnchorBorrow,
+  AnchorBorrowed,
+  AnchorOverview,
+  AnchorSupplied,
+  AnchorSupply,
+  AnchorHeader,
+} from '@inverse/components/Anchor'
 import { NavButtons } from '@inverse/components/Button'
 import Container from '@inverse/components/Container'
 import Layout from '@inverse/components/Layout'
@@ -15,7 +22,7 @@ export const Anchor = () => {
   return (
     <Layout>
       <AppNav active="Anchor" />
-      <Flex w={{ base: 'full', xl: '84rem' }} justify="center">
+      <Flex w={{ base: 'full', xl: '84rem' }} justify="flex-start">
         <AnchorHeader />
       </Flex>
       <Flex w={{ base: 'full', xl: '84rem' }} justify="center">
