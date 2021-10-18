@@ -13,6 +13,7 @@ import {
   Button,
   Text,
 } from '@chakra-ui/react'
+import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
 import { OutlineButton } from '@inverse/components/Button'
 import Link from '@inverse/components/Link'
@@ -112,7 +113,7 @@ const AppNavConnect = () => {
   }
 
   return (
-    <Popover placement="bottom" trigger="hover">
+    <Popover placement="bottom" trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
       <PopoverTrigger>
         <Button
           justify="center"
@@ -131,7 +132,7 @@ const AppNavConnect = () => {
           {active && account ? `${namedAddress(account)}` : 'Connect'}
         </Button>
       </PopoverTrigger>
-      <PopoverContent bgColor="#211e36" color="#fff" border={0} _focus={{}} zIndex="sticky">
+      <PopoverContent w="full" bgColor="#211e36" color="#fff" border={0} _focus={{}} zIndex="sticky">
         <PopoverHeader fontWeight="semibold" borderBottomWidth={2} p={3} borderBottomColor="purple.900">
           {active ? connectorName : 'Connect Wallet'}
         </PopoverHeader>
