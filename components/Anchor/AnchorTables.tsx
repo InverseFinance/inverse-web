@@ -25,6 +25,7 @@ export const AnchorSupplied = () => {
   const { active } = useWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
+  const [double, setDouble] = useState(false);
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
@@ -92,13 +93,20 @@ export const AnchorSupplied = () => {
         return (
           <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }}>
             <Flex
-              onClick={(e: React.MouseEvent<HTMLElement>) => {
+              onClick={async (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation()
-                const contract = getComptrollerContract(library?.getSigner())
-                if (isEnabled) {
-                  contract.exitMarket(token)
-                } else {
-                  contract.enterMarkets([token])
+                if(!double) {
+                  setDouble(true)
+                  try {
+                    const contract = getComptrollerContract(library?.getSigner())
+                    if (isEnabled) {
+                      await contract.exitMarket(token)
+                    } else {
+                      await contract.enterMarkets([token])
+                    }
+                  } finally {
+                    setDouble(false)
+                  }
                 }
               }}
             >

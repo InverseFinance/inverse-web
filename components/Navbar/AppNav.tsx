@@ -107,7 +107,6 @@ const AppNavConnect = () => {
 
   let connectorName
   if (connector) {
-    console.log(connector)
     if (connector.walletConnectProvider) connectorName = 'Wallet Connect'
     else connectorName = 'Metamask'
   }
