@@ -18,8 +18,8 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => (
     <Flex
       zIndex={0}
       position="absolute"
-      w="3xl"
-      h="3xl"
+      w={{ base: '0', md: '3xl' }}
+      h={{ base: '0', md: '3xl' }}
       left="50%"
       top="50%"
       transform="translate(-50%, -50%)"
