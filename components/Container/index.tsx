@@ -59,7 +59,7 @@ export const Container = ({
         </Stack>
         {right}
       </Flex>
-      <Flex w="full" bgColor="#211e36" borderRadius={8} mt={4} p={4}>
+      <Flex w="full" bgColor="purple.800" borderRadius={8} mt={4} p={4} shadow="dark-lg">
         {children}
       </Flex>
     </Flex>

@@ -158,7 +158,16 @@ export const Landing = () => {
           shouldWrapChildren
         >
           {cards.map(({ title, description, label, image, href }) => (
-            <Stack key={title} p={8} m={4} textAlign="center" borderRadius={16} bgColor="purple.800" align="center">
+            <Stack
+              key={title}
+              p={8}
+              m={4}
+              textAlign="center"
+              borderRadius={16}
+              bgColor="purple.800"
+              align="center"
+              shadow="dark-lg"
+            >
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
