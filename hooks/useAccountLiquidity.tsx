@@ -11,7 +11,6 @@ import { formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 type AccountLiquidity = {
-  netApy: number
   usdSupply: number
   usdBorrow: number
   usdBorrowable: number
@@ -40,7 +39,6 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
     !exchangeRates
   ) {
     return {
-      netApy: 0,
       usdSupply: 0,
       usdBorrow: 0,
       usdBorrowable: 0,
@@ -74,38 +72,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
     return prev + parseFloat(formatUnits(balance, underlying.decimals)) * prices[address]
   }, 0)
 
-  const supplyApy = markets.reduce(
-    (prev: number, { token, underlying, supplyApy }: Market) =>
-      prev +
-      (supplyBalances[token]
-        ? parseFloat(formatUnits(supplyBalances[token], underlying.decimals)) *
-          parseFloat(formatUnits(exchangeRates[token])) *
-          prices[token] *
-          (supplyApy || 1)
-        : 0),
-    0
-  )
-
-  const borrowApy = markets.reduce(
-    (prev: number, { token, underlying, supplyApy }: Market) =>
-      prev +
-      (borrowBalances[token]
-        ? parseFloat(formatUnits(borrowBalances[token], underlying.decimals)) *
-          prices[token] *
-          (supplyApy || 1)
-        : 0),
-    0
-  )
-
-  const netApy =
-    supplyApy > borrowApy
-      ? (supplyApy - borrowApy) / usdSupply
-      : borrowApy > supplyApy
-      ? (supplyApy - borrowApy) / usdBorrow
-      : 0
-
   return {
-    netApy,
     usdSupply,
     usdBorrow,
     usdBorrowable: parseFloat(formatUnits(data[1])),

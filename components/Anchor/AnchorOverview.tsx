@@ -11,7 +11,7 @@ import { InfoTooltip } from '@inverse/components/Tooltip'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()
-  const { usdBorrow, usdBorrowable, netApy } = useAccountLiquidity()
+  const { usdBorrow, usdBorrowable } = useAccountLiquidity()
   const { rewards } = useAnchorRewards()
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
@@ -31,7 +31,6 @@ export const AnchorOverview = () => {
   return (
     <Container
       label="Anchor Banking"
-      description={`${netApy.toFixed(2)}% Net APY`}
       right={
         <Stack direction="row" align="center" textAlign="end">
           <Text fontWeight="bold">{`${rewardAmount.toFixed(4)} INV`}</Text>

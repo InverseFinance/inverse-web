@@ -40,7 +40,7 @@ export const AnchorModal = ({
   const { prices } = useAnchorPrices()
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
-  console.log(asset)
+
   const max = () => {
     switch (operation) {
       case AnchorOperations.supply:
