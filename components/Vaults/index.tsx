@@ -42,7 +42,7 @@ const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPadding }:
           onClick={onOpen}
           borderRadius={8}
           p={noPadding ? 0 : 2}
-          bgColor="purple.900"
+          bgColor="purple.850"
           cursor="pointer"
         >
           {label}
@@ -52,8 +52,8 @@ const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPadding }:
         <PopoverBody
           p={2}
           mt={-1}
-          bgColor="#211e36"
-          borderColor="purple.700"
+          bgColor="purple.800"
+          borderColor="purple.850"
           borderWidth={2}
           borderRadius={8}
           boxShadow="rgba(0, 0, 0, 0.75) 0px 5px 15px"
@@ -102,7 +102,7 @@ const WithdrawAssetDropdown = ({ isOpen, onClose, onOpen, vault, handleChange }:
             p={2}
             justify="space-between"
             borderRadius={8}
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
             onClick={() => handleChange(vault)}
             cursor="pointer"
           >
@@ -166,7 +166,7 @@ const FromAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChan
             p={2}
             justify="space-between"
             borderRadius={8}
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
             onClick={() => handleChange(from, toToken.address || 'ETH')}
             cursor="pointer"
           >
@@ -217,7 +217,7 @@ const ToAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChange
             p={2}
             justify="space-between"
             borderRadius={8}
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
             onClick={() => handleChange(to)}
             cursor="pointer"
           >

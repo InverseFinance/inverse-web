@@ -6,6 +6,7 @@ import { useDOLA } from '@inverse/hooks/useDOLA'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { commify } from '@ethersproject/units'
+import { chakra } from '@chakra-ui/system'
 
 export const AnchorHeader = () => {
   const { markets, isLoading } = useMarkets()
@@ -31,17 +32,17 @@ export const AnchorHeader = () => {
       <Stack spacing={4} p={4}>
         <Flex direction="column">
           <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(tvl.toFixed(2))}
+            ${commify(tvl?.toFixed(2) || 0)}
           </Text>
-          <Text color="purple.100" fontSize="sm">
+          <Text color="secondary" fontSize="sm" fontWeight="semibold">
             Total Value Locked
           </Text>
         </Flex>
         <Flex direction="column">
           <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(totalSupply.toFixed(2))}
+            ${commify(totalSupply?.toFixed(2) || 0)}
           </Text>
-          <Text color="purple.100" fontSize="sm">
+          <Text color="secondary" fontSize="sm" fontWeight="semibold">
             DOLA Supply
           </Text>
         </Flex>
@@ -49,20 +50,19 @@ export const AnchorHeader = () => {
           <Text fontWeight="semibold" fontSize="2xl">
             ${commify(prices['inverse-finance']?.usd)}
           </Text>
-          <Text color="purple.100" fontSize="sm">
+          <Text color="secondary" fontSize="sm" fontWeight="semibold">
             INV Price
           </Text>
         </Flex>
       </Stack>
       <Stack spacing={4} p={4}>
         <Stack direction="row" align="center">
-          <Image boxSize={8} src="/assets/products/anchor.png" alt="DOLA" />
-          <Flex color="#fff" fontSize="2xl" fontWeight="semibold">
+          <Text color="#fff" fontSize="2xl" fontWeight="semibold">
             Supply DOLA and earn
-            <Text pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
+            <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
               {apy}% APY
-            </Text>
-          </Flex>
+            </chakra.span>
+          </Text>
         </Stack>
         <Stack w="full" spacing={1} pl={4}>
           <Text color="secondary">

@@ -59,7 +59,7 @@ export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModal
             justify="space-between"
             p={2}
             borderRadius={8}
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
             key={voter}
           >
             <Stack direction="row" align="center">

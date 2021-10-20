@@ -31,7 +31,7 @@ type AnchorStatsProps = {
 
 const StatBlock = ({ label, stats }: StatBlockProps) => (
   <Stack w="full" pt={2} spacing={1}>
-    <Text fontSize="xs" fontWeight="semibold" color="purple.100" textTransform="uppercase">
+    <Text fontSize="xs" fontWeight="semibold" color="purple.300" textTransform="uppercase">
       {label}
     </Text>
     {stats.map(({ label, value }) => (
@@ -87,18 +87,33 @@ const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
 const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
   const totalBorrowsUsd =
-  prices && asset.totalBorrows
-    ? `$${commify((asset.totalBorrows * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))).toFixed(2))}`
-    : "-";
+    prices && asset.totalBorrows
+      ? `$${commify(
+          (
+            asset.totalBorrows *
+            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+          ).toFixed(2)
+        )}`
+      : '-'
   const totalReservesUsd =
-  prices && asset.totalReserves
-    ? `$${commify((asset.totalReserves * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))).toFixed(2))}`
-    : "-";
+    prices && asset.totalReserves
+      ? `$${commify(
+          (
+            asset.totalReserves *
+            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+          ).toFixed(2)
+        )}`
+      : '-'
   const totalSuppliedUsd =
-  prices && asset.supplied
-    ? `$${commify((asset.supplied * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))).toFixed(2))}`
-    : "-";
-  const reserveFactor = asset.reserveFactor? `${asset.reserveFactor*100}%`: "-"
+    prices && asset.supplied
+      ? `$${commify(
+          (
+            asset.supplied *
+            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+          ).toFixed(2)
+        )}`
+      : '-'
+  const reserveFactor = asset.reserveFactor ? `${asset.reserveFactor * 100}%` : '-'
 
   return (
     <StatBlock
@@ -106,7 +121,7 @@ const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
       stats={[
         {
           label: 'Collateral Factor',
-          value: `${asset.collateralFactor*100}%`,
+          value: `${asset.collateralFactor * 100}%`,
         },
         {
           label: 'Reserve Factor',

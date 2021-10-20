@@ -38,7 +38,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
         pl={2}
         pr={2}
         borderRadius={8}
-        _hover={{ bgColor: 'purple.900' }}
+        _hover={{ bgColor: 'purple.850' }}
       >
         <Flex direction="column" overflowX="auto">
           <Text fontWeight="semibold" fontSize="lg">
@@ -163,7 +163,7 @@ export const ProposalActions = ({ id }: { id: number }) => {
               <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="purple.200">{`Action ${
                 i + 1
               }`}</Flex>
-              <Flex w="full" overflowX="auto" direction="column" bgColor="purple.900" borderRadius={8} p={3}>
+              <Flex w="full" overflowX="auto" direction="column" bgColor="purple.850" borderRadius={8} p={3}>
                 <Flex fontSize="15px">
                   <Link href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">
                     {CONTRACTS[target] || target}

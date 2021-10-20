@@ -97,7 +97,7 @@ export const RecentProposals = () => {
             borderRadius={8}
             textTransform="uppercase"
             color="purple.100"
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
           >
             View All
           </Flex>

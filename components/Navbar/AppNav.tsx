@@ -65,7 +65,22 @@ const INVBalance = () => {
   const inv = invBalance / ETH_MANTISSA
   const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
 
-  return <OutlineButton>{`${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`}</OutlineButton>
+  return (
+    <Flex
+      justify="center"
+      fontSize="sm"
+      align="center"
+      bgColor="purple.800"
+      borderRadius={4}
+      borderWidth={1}
+      borderColor="purple.700"
+      fontWeight="semibold"
+      color="#fff"
+      p={2}
+      pl={4}
+      pr={4}
+    >{`${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`}</Flex>
+  )
 }
 
 const ETHBalance = () => {
@@ -75,7 +90,22 @@ const ETHBalance = () => {
   if (!balance) {
     return <></>
   }
-  return <OutlineButton>{`${(balance / ETH_MANTISSA).toFixed(4)} ETH`}</OutlineButton>
+  return (
+    <Flex
+      justify="center"
+      fontSize="sm"
+      align="center"
+      bgColor="purple.800"
+      borderRadius={4}
+      borderWidth={1}
+      borderColor="purple.700"
+      fontWeight="semibold"
+      color="#fff"
+      p={2}
+      pl={4}
+      pr={4}
+    >{`${(balance / ETH_MANTISSA).toFixed(4)} ETH`}</Flex>
+  )
 }
 
 const AppNavConnect = () => {
@@ -107,74 +137,79 @@ const AppNavConnect = () => {
 
   let connectorName
   if (connector) {
-    if (connector.walletConnectProvider) connectorName = 'Wallet Connect'
+    if (connector.walletConnectProvider) connectorName = 'WalletConnect'
     else connectorName = 'Metamask'
   }
 
   return (
     <Popover placement="bottom" trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
       <PopoverTrigger>
-        <Button
+        <Flex
           justify="center"
-          bgColor="purple.500"
+          bgColor="purple.600"
           cursor="pointer"
           fontSize="sm"
           align="center"
           borderRadius={4}
           fontWeight="semibold"
           color="#fff"
-          p={2}
+          p={2.5}
           pl={4}
           pr={4}
           _hover={{ bgColor: 'purple.600' }}
         >
           {active && account ? `${namedAddress(account)}` : 'Connect'}
-        </Button>
+        </Flex>
       </PopoverTrigger>
-      <PopoverContent w="full" bgColor="#211e36" color="#fff" border={0} _focus={{}} zIndex="sticky">
-        <PopoverHeader fontWeight="semibold" borderBottomWidth={2} p={3} borderBottomColor="purple.900">
-          {active ? connectorName : 'Connect Wallet'}
-        </PopoverHeader>
+      <PopoverContent
+        cursor="pointer"
+        w="full"
+        bgColor="purple.800"
+        color="#fff"
+        border={0}
+        _focus={{}}
+        zIndex="sticky"
+      >
         {!active && (
-          <PopoverBody p={2}>
-            <Stack w="full" cursor="pointer">
+          <PopoverBody p={0}>
+            <Stack w="full">
               <Stack
                 direction="row"
                 align="center"
-                p={1}
-                borderRadius={8}
+                p={4}
+                pt={2}
+                pb={2}
                 onClick={connectMetamask}
-                _hover={{ bgColor: 'purple.900' }}
+                _hover={{ bgColor: 'purple.850' }}
               >
-                <Image w={8} h={8} src="/assets/wallets/Metamask.png" />
+                <Image w={6} h={6} src="/assets/wallets/Metamask.png" />
                 <Text fontWeight="semibold">Metamask</Text>
               </Stack>
               <Stack
                 direction="row"
                 align="center"
-                pl={2}
-                p={1}
-                borderRadius={8}
+                p={4}
+                pt={2}
+                pb={2}
                 onClick={connectWalletConnect}
-                _hover={{ bgColor: 'purple.900' }}
+                _hover={{ bgColor: 'purple.850' }}
               >
-                <Image w={8} h={8} src="/assets/wallets/WalletConnect.svg" />
+                <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
                 <Text fontWeight="semibold">WalletConnect</Text>
               </Stack>
             </Stack>
           </PopoverBody>
         )}
         {active && (
-          <PopoverBody>
+          <PopoverBody p={0}>
             <Stack
-              cursor="pointer"
               direction="row"
               align="center"
-              p={1}
-              pl={2}
-              borderRadius={8}
+              p={4}
+              pt={2}
+              pb={2}
               onClick={disconnect}
-              _hover={{ bgColor: 'purple.900' }}
+              _hover={{ bgColor: 'purple.850' }}
             >
               <CloseIcon color="red" boxSize={3} />
               <Text fontWeight="semibold">Disconnect</Text>

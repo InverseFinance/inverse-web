@@ -38,6 +38,7 @@ export const LinkOutlineButton = ({
   <Flex
     w="full"
     justify="center"
+    bgColor="purple.850"
     borderColor="purple.600"
     borderWidth={1}
     cursor="pointer"
@@ -86,7 +87,7 @@ export const OutlineButton = (props: any) => (
     p={2}
     pl={4}
     pr={4}
-    _hover={{ bgColor: 'purple.900' }}
+    _hover={{ bgColor: 'purple.850' }}
     {...props}
   />
 )
@@ -111,7 +112,7 @@ type NavButtonProps = {
 }
 
 export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
-  <Flex w="full" bgColor="purple.900" p={1} borderRadius={4} cursor="pointer">
+  <Flex w="full" bgColor="purple.850" p={1} borderRadius={4} cursor="pointer">
     {options.map((option: string) => (
       <Flex
         key={option}
@@ -121,9 +122,9 @@ export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
         borderRadius={4}
         fontWeight="semibold"
         fontSize="15px"
-        color={option === active ? '#fff' : 'purple.100'}
+        color={option === active ? '#fff' : 'purple.200'}
         onClick={() => onClick(option)}
-        bgColor={option === active ? 'purple.600' : 'purple.900'}
+        bgColor={option === active ? 'purple.650' : 'purple.850'}
       >
         {option}
       </Flex>

@@ -30,7 +30,7 @@ const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => (
     </Flex>
     {voters.slice(0, MAX_PREVIEW).map(({ voter, votes }: ProposalVote) => (
       <NextLink key={voter} href={`/governance/delegates/${voter}`} passHref>
-        <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
+        <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
           <Stack direction="row" align="center">
             <Avatar address={voter} boxSize={7} />
             <Text fontSize="sm" fontWeight="semibold">
@@ -55,7 +55,7 @@ const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => (
         textTransform="uppercase"
         color="purple.100"
         onClick={onViewAll}
-        _hover={{ bgColor: 'purple.900' }}
+        _hover={{ bgColor: 'purple.850' }}
       >
         View All
       </Flex>

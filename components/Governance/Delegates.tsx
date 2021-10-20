@@ -23,7 +23,7 @@ export const DelegatesPreview = () => {
       <Stack w="full">
         {delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => (
           <NextLink key={address} href={`/governance/delegates/${address}`}>
-            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
+            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} boxSize={7} />
                 <Flex direction="column" w={40}>
@@ -57,7 +57,7 @@ export const DelegatesPreview = () => {
             borderRadius={8}
             textTransform="uppercase"
             color="purple.100"
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
           >
             View All
           </Flex>
@@ -85,7 +85,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
       <Stack w="full">
         {delegators.slice(0, 5).map((address: Delegator) => (
           <NextLink key={address} href={`/governance/delegates/${address}`}>
-            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.900' }}>
+            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} boxSize={7} />
                 <Flex direction="column">
@@ -108,7 +108,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
             borderRadius={8}
             textTransform="uppercase"
             color="purple.100"
-            _hover={{ bgColor: 'purple.900' }}
+            _hover={{ bgColor: 'purple.850' }}
           >
             View All
           </Flex>

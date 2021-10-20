@@ -25,7 +25,7 @@ export const AnchorSupplied = () => {
   const { active } = useWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
-  const [double, setDouble] = useState(false);
+  const [double, setDouble] = useState(false)
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
@@ -44,31 +44,31 @@ export const AnchorSupplied = () => {
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="end" minWidth={24}>
           APY
         </Flex>
       ),
       value: ({ supplyApy }: Market) => (
-        <Text textAlign="center" minWidth={24}>
-          {supplyApy ? `${supplyApy.toFixed(2)}%` : '-'}
+        <Text textAlign="end" minWidth={24}>
+          {supplyApy ? `${supplyApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="end" minWidth={24}>
           Reward APY
         </Flex>
       ),
       value: ({ rewardApy }: Market) => (
-        <Text textAlign="center" minWidth={24}>
-          {rewardApy ? `${rewardApy.toFixed(2)}%` : '-'}
+        <Text textAlign="end" minWidth={24}>
+          {rewardApy ? `${rewardApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="end" minWidth={24}>
           Balance
         </Flex>
       ),
@@ -79,7 +79,7 @@ export const AnchorSupplied = () => {
               parseFloat(formatUnits(exchangeRates[token]))
             : 0
 
-        return <Text textAlign="center" minWidth={24}>{`${balance.toFixed(2)}`}</Text>
+        return <Text textAlign="end" minWidth={24}>{`${balance.toFixed(2)}`}</Text>
       },
     },
     {
@@ -91,11 +91,11 @@ export const AnchorSupplied = () => {
       value: ({ token }: Market) => {
         const isEnabled = accountMarkets.find((market: Market) => market.token === token)
         return (
-          <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }}>
+          <Flex justify="flex-end" minWidth={24} display={{ base: 'none', md: 'flex' }}>
             <Flex
               onClick={async (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation()
-                if(!double) {
+                if (!double) {
                   setDouble(true)
                   try {
                     const contract = getComptrollerContract(library?.getSigner())
@@ -174,13 +174,13 @@ export const AnchorBorrowed = () => {
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="end" minWidth={24}>
           APR
         </Flex>
       ),
       value: ({ borrowApy }: Market) => (
-        <Text textAlign="center" minWidth={24}>
-          {borrowApy ? `${borrowApy.toFixed(2)}%` : '-'}
+        <Text textAlign="end" minWidth={24}>
+          {borrowApy ? `${borrowApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
     },
@@ -260,25 +260,25 @@ export const AnchorSupply = () => {
     },
     {
       header: (
-        <Flex justify="center" minWidth={20}>
+        <Flex justify="end" minWidth={20}>
           APY
         </Flex>
       ),
       value: ({ supplyApy }: Market) => (
-        <Text minWidth={20} textAlign="center">
-          {supplyApy ? `${supplyApy.toFixed(2)}%` : '-'}
+        <Text minWidth={20} textAlign="end">
+          {supplyApy ? `${supplyApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
     },
     {
       header: (
-        <Flex justify="center" minWidth={20}>
+        <Flex justify="end" minWidth={20}>
           Reward APY
         </Flex>
       ),
       value: ({ rewardApy }: Market) => (
-        <Text textAlign="center" minWidth={20}>
-          {rewardApy ? `${rewardApy.toFixed(2)}%` : '-'}
+        <Text textAlign="end" minWidth={20}>
+          {rewardApy ? `${rewardApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
     },
@@ -300,7 +300,7 @@ export const AnchorSupply = () => {
             textAlign="end"
             minWidth={24}
             justify="flex-end"
-            color={balance ? '' : 'purple.200'}
+            color={balance ? '' : 'purple.300'}
           >{`${balance.toFixed(2)}`}</Text>
         )
       },
@@ -354,13 +354,13 @@ export const AnchorBorrow = () => {
     },
     {
       header: (
-        <Flex justify="center" minWidth={24}>
+        <Flex justify="end" minWidth={24}>
           APR
         </Flex>
       ),
       value: ({ borrowApy }: Market) => (
-        <Text textAlign="center" minWidth={24}>
-          {borrowApy ? `${borrowApy.toFixed(2)}%` : '-'}
+        <Text textAlign="end" minWidth={24}>
+          {borrowApy ? `${borrowApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
     },

@@ -206,7 +206,7 @@ export const Landing = () => {
               an empowered INV community.
             </Text>
             <Flex w={32}>
-              <LinkButton href="/governance">Join the DAO</LinkButton>
+              <LinkButton href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
             </Flex>
           </Stack>
         </Flex>
@@ -214,7 +214,7 @@ export const Landing = () => {
       <Flex
         position="relative"
         w="full"
-        bg="linear-gradient(270deg, #4f45a3 0%, #201c42 100%);"
+        bgGradient="linear(to-bl, #2a2557 0%, #191633 100%);"
         align="center"
         direction="column"
         pt={{ base: 16, lg: 32 }}

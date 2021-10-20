@@ -58,22 +58,23 @@ export const AnchorModal = ({
             (asset.collateralFactor *
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
-        const userWithdrawable =  !usdBorrowable || withdrawable > supply ? supply : withdrawable
-        return Math.min(userWithdrawable, asset.liquidity? asset.liquidity: userWithdrawable)
+        const userWithdrawable = !usdBorrowable || withdrawable > supply ? supply : withdrawable
+        return Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable)
       case AnchorOperations.borrow:
-        const borrowable = prices && usdBorrowable
-          ? usdBorrowable /
+        const borrowable =
+          prices && usdBorrowable
+            ? usdBorrowable /
               parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
-          : 0
-        return Math.min(borrowable, asset.liquidity);
+            : 0
+        return Math.min(borrowable, asset.liquidity)
       case AnchorOperations.repay:
         const balance = balances
-        ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
-        : 0
+          ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
+          : 0
 
         const borrowed = borrowBalances
-        ? parseFloat(formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
-        : 0
+          ? parseFloat(formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
+          : 0
 
         return Math.min(balance, borrowed)
     }
@@ -121,7 +122,7 @@ export const AnchorModal = ({
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
-              <Text fontSize="13px" fontWeight="semibold" color="purple.100">
+              <Text fontSize="13px" fontWeight="semibold" color="purple.250">
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">

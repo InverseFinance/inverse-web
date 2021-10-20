@@ -82,10 +82,10 @@ export const VotingWallet = ({ address }: { address?: string }) => {
           fontWeight="semibold"
           borderRadius={8}
           textTransform="uppercase"
-          bgColor={delegate === address ? 'purple.900' : ''}
+          bgColor={delegate === address ? 'purple.850' : ''}
           color="purple.100"
           onClick={delegate !== address ? onOpen : () => {}}
-          _hover={{ bgColor: delegate !== address ? 'purple.900' : '' }}
+          _hover={{ bgColor: delegate !== address ? 'purple.850' : '' }}
         >
           {address
             ? address === delegate

@@ -4,7 +4,7 @@ import Link from '../Link'
 
 export const Announcement = () => (
   <Flex
-    bgColor="purple.500"
+    bgColor="purple.600"
     w="full"
     p={1}
     fontSize="sm"
