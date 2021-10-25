@@ -17,10 +17,10 @@ export const Announcement = () => (
       pl={1}
       color="#fff"
       isExternal
-      href="https://twitter.com/InverseFinance/status/1449403645322215426"
+      href="https://t.me/InverseCompanionBot"
       _hover={{ color: 'purple.100' }}
     >
-      Inverse is looking for trusted DeFi community members to join its Cross-Chain Fed Oversight Board{' '}
+      Track your Anchor position and receive liquidation risk alerts on Telegram using Inverse Companion Bot{' '}
       <ExternalLinkIcon />
     </Link>
   </Flex>
