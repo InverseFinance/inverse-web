@@ -41,6 +41,10 @@ export const AnchorModal = ({
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
 
+  if(!operations.includes(operation)) {
+    setOperation(operations[0])
+  }
+
   const max = () => {
     switch (operation) {
       case AnchorOperations.supply:
@@ -168,6 +172,6 @@ export const AnchorBorrowModal = ({ isOpen, onClose, asset }: AnchorModalProps) 
     isOpen={isOpen}
     onClose={onClose}
     asset={asset}
-    operations={[AnchorOperations.borrow, AnchorOperations.repay]}
+    operations={asset.borrowable? [AnchorOperations.borrow, AnchorOperations.repay]: [AnchorOperations.repay]}
   />
 )

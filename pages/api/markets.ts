@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       speeds,
       totalSupplies,
       exchangeRates,
-      borrowState,
+      borrowPaused,
       oraclePrices,
     ]: any = await Promise.all([
       Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         contracts.map((contract) =>
-          comptroller.compBorrowState(contract.address)
+          comptroller.borrowGuardianPaused(contract.address)
         )
       ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
         supplyApy: supplyApys[i],
         borrowApy: borrowApys[i],
         rewardApy: rewardApys[i],
-        borrowable: borrowState[i][1] > 0,
+        borrowable: !borrowPaused[i],
         liquidity: parseFloat(
           formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
         ),
