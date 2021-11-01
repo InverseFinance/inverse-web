@@ -1,4 +1,4 @@
-import { ANCHOR_TOKENS, ORACLE, TOKENS, XINV } from '@inverse/config'
+import { ANCHOR_TOKENS, ORACLE, TOKENS, XINV } from '@inverse/config/constants'
 import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { BigNumber } from 'ethers'

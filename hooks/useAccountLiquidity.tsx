@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { COMPTROLLER, UNDERLYING } from '@inverse/config'
+import { COMPTROLLER, UNDERLYING } from '@inverse/config/constants'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'

@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { VAULT_TOKENS } from '@inverse/config'
+import { VAULT_TOKENS } from '@inverse/config/constants'
 import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'

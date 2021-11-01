@@ -7,7 +7,7 @@ import {
   VAULT_DAI_YFI,
   VAULT_USDC_ETH,
   XINV,
-} from '@inverse/config'
+} from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'

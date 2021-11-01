@@ -2,9 +2,9 @@ export type Token = {
   address: string
   name: string
   symbol: string
-  coingeckoId: string
   image: string
   decimals: number
+  coingeckoId?: string
 }
 
 export type Market = {
@@ -78,4 +78,26 @@ export type Delegator = string
 export type SWR = {
   isLoading?: boolean
   isError?: any
+}
+
+export enum SupportedNetworks {
+  mainnet = '1',
+  rinkeby = '4',
+}
+
+export type KeyString = { [key: string]: string };
+
+export type NetworkConfig = {
+  vaults: KeyString;
+  anchor: {
+    lens: string,
+    comptroller: string,
+    oracle: string,
+    stabilizer: string,
+    treasury: string,
+    markets: KeyString;
+  }
+  staking: KeyString;
+  namedAddresses: KeyString;
+  [key: string]: string | any;
 }

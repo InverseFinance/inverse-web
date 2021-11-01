@@ -11,7 +11,7 @@ import {
   VAULT_DAI_WBTC,
   VAULT_DAI_YFI,
   VAULT_USDC_ETH,
-} from '@inverse/config'
+} from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'

@@ -11,7 +11,7 @@ import {
   TOKENS,
   VAULT_TOKENS,
   XINV,
-} from '@inverse/config'
+} from '@inverse/config/constants'
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [

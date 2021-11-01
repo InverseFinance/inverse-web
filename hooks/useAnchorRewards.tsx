@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { COMPTROLLER, INV } from '@inverse/config'
+import { COMPTROLLER, INV } from '@inverse/config/constants'
 import { SWR } from '@inverse/types'
 import { getLensContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'

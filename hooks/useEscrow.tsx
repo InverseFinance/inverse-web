@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ESCROW } from '@inverse/config'
+import { ESCROW } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'

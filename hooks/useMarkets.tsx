@@ -1,4 +1,4 @@
-import { COMPTROLLER, TOKENS, UNDERLYING } from '@inverse/config'
+import { COMPTROLLER, TOKENS, UNDERLYING } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { Market, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'

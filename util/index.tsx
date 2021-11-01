@@ -1,4 +1,4 @@
-import { NAMED_ADDRESSES } from '@inverse/config'
+import { NAMED_ADDRESSES } from '@inverse/config/constants'
 
 export const namedAddress = (address: string, ensName?: string) => {
   if (NAMED_ADDRESSES[address]) {

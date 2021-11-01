@@ -27,7 +27,7 @@ import {
   HARVESTER,
   LENS,
   ESCROW,
-} from '@inverse/config'
+} from '@inverse/config/constants'
 import { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers'
 
 export const getNewProvider = () => new InfuraProvider('homestead', process.env.INFURA_ID)

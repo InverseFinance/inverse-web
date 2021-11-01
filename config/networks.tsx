@@ -1,4 +1,6 @@
-export const mainnet = {
+import { NetworkConfig, SupportedNetworks } from '@inverse/types'
+
+const mainnet: NetworkConfig = {
   INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
   DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -67,4 +69,29 @@ export const mainnet = {
     '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'Oracle',
     '0x4dCf7407AE5C07f8681e1659f626E114A7667339': 'Comptroller',
   },
+}
+
+// TODO: fill in all values
+const rinkeby: NetworkConfig = {
+  vaults: {},
+  anchor: {
+    lens: '',
+    comptroller: '',
+    oracle: '',
+    stabilizer: '',
+    treasury: '',
+    markets: {},
+  },
+  staking: {},
+  namedAddresses: {},
+}
+
+const networks: { [key: string]: NetworkConfig } = {
+  '1': mainnet,
+  '4': rinkeby,
+}
+
+export const getNetworkConfig = (chainId: SupportedNetworks = SupportedNetworks.mainnet): NetworkConfig => {
+  const netConfig = networks[chainId];
+  return netConfig;
 }

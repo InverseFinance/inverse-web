@@ -1,4 +1,4 @@
-import { ANCHOR_TOKENS, XINV } from '@inverse/config'
+import { ANCHOR_TOKENS, XINV } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { BigNumber } from 'ethers'

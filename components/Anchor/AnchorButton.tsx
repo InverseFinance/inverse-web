@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Stack } from '@ch
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
 import { SubmitButton } from '@inverse/components/Button'
-import { ANCHOR_ETH, XINV } from '@inverse/config'
+import { ANCHOR_ETH, XINV } from '@inverse/config/constants'
 import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useEscrow } from '@inverse/hooks/useEscrow'
