@@ -2,10 +2,10 @@ import "source-map-support";
 
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
-import { GOVERNANCE, INV } from "@inverse/config/constants";
 import { GOVERNANCE_ABI, INV_ABI } from "@inverse/config/abis";
 import { formatUnits } from "ethers/lib/utils";
 import { createNodeRedisClient } from 'handy-redis';
+import { getNetworkConfig } from '@inverse/config/networks';
 
 const GRACE_PERIOD = 1209600;
 const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
@@ -32,7 +32,13 @@ export default async function handler(req, res) {
     else {
     // run delegates cron job
     try {
-        const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
+        const { chainId = '1' } = req.query;
+        const networkConfig = getNetworkConfig(chainId);
+        if(!networkConfig?.governance) {
+          res.status(403).json({ success: false, message: `No Governance support on ${chainId} network` });
+        }
+        const { INV, governance: GOVERNANCE } = networkConfig;
+        const provider = new AlchemyProvider(Number(chainId), process.env.ALCHEMY_API);
         const inv = new Contract(INV, INV_ABI, provider);
         const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
         const blockNumber = await provider.getBlockNumber();
@@ -95,7 +101,7 @@ export default async function handler(req, res) {
           };
         });
 
-        await client.set("delegates", JSON.stringify({
+        await client.set(`${chainId}-delegates`, JSON.stringify({
             blockNumber,
             timestamp: Date.now(),
             data: delegates,
@@ -182,7 +188,7 @@ export default async function handler(req, res) {
           }
         );
 
-        await client.set("proposals", JSON.stringify({
+        await client.set(`${chainId}-proposals`, JSON.stringify({
             blockNumber,
             timestamp: Date.now(),
             data: proposals   

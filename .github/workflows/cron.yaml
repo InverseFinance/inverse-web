@@ -6,8 +6,13 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Call our cron API
+      - name: Call our cron API - Mainnet
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron' \
+          --url 'https://www.inverse.finance/api/cron?chainId=1' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Call our cron API - Testnet
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron?chainId=4' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
