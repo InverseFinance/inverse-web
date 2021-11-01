@@ -1,5 +1,6 @@
 import "source-map-support";
 import { createNodeRedisClient } from 'handy-redis';
+import { getNetworkConfig } from '@inverse/config/networks';
 
 const client = createNodeRedisClient({
   url: process.env.REDIS_URL
@@ -7,7 +8,12 @@ const client = createNodeRedisClient({
 
 export default async function handler(req, res) {
   try {
-    let data: any = await client.get("delegates");
+    const { chainId = '1' } = req.query;
+    const networkConfig = getNetworkConfig(chainId);
+    if(!networkConfig?.governance) {
+      res.status(403).json({ success: false, message: `No Governance support on ${chainId} network` });
+    }
+    let data: any = await client.get(`${chainId}-delegates`);
 
     if (!data) {
       res.status(404).json({success:false});
