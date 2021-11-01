@@ -1,6 +1,6 @@
-import { NetworkConfig, SupportedNetworks } from '@inverse/types'
+import { NetworkConfig, Network } from '@inverse/types'
 
-const mainnet: NetworkConfig = {
+const mainnetConfig: NetworkConfig = {
   INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
   DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -73,7 +73,7 @@ const mainnet: NetworkConfig = {
 }
 
 // TODO: fill in all values
-const rinkeby: NetworkConfig = {
+const rinkebyConfig: NetworkConfig = {
   vaults: {},
   anchor: {
     lens: '',
@@ -87,12 +87,35 @@ const rinkeby: NetworkConfig = {
   namedAddresses: {},
 }
 
-const networks: { [key: string]: NetworkConfig } = {
-  '1': mainnet,
-  '4': rinkeby,
+export const NETWORKS: Network[] = [
+  {
+    id: '1',
+    label: 'Ethereum',
+    isTestnet: false,
+    isSupported: true,
+    config: mainnetConfig,
+  },
+  {
+    id: '4',
+    label: 'Rinkeby',
+    isTestnet: true,
+    isSupported: true,
+    config: rinkebyConfig,
+  }
+]
+
+export const isSupportedNetwork = (chainId: string | number): boolean => {
+  return getNetwork(chainId)?.isSupported;
 }
 
-export const getNetworkConfig = (chainId: SupportedNetworks = SupportedNetworks.mainnet): NetworkConfig => {
-  const netConfig = networks[chainId];
-  return netConfig;
+export const getNetwork = (chainId: string | number): Network => {
+  return NETWORKS.find(network => network.id === chainId.toString())!;
 }
+
+export const getNetworkConfig = (chainId: string | number): NetworkConfig => {
+  const network = getNetwork(chainId);
+  return network?.config!;
+}
+
+export const getNetworks = (): Network[] => NETWORKS;
+export const getSupportedNetworks = (): Network[] => NETWORKS.filter(network => network.isSupported);

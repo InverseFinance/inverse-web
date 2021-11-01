@@ -6,16 +6,11 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverArrow,
-  PopoverCloseButton,
-  PopoverHeader,
   PopoverBody,
-  Button,
   Text,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
-import { OutlineButton } from '@inverse/components/Button'
 import Link from '@inverse/components/Link'
 import Logo from '@inverse/components/Logo'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config/constants'
@@ -23,8 +18,10 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
 import { injectedConnector, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
+import WrongNetworkModal from '../Modal/WrongNetworkModal'
+import { isSupportedNetwork } from '@inverse/config/networks'
 
 const NAV_ITEMS = [
   {
@@ -223,7 +220,9 @@ const AppNavConnect = () => {
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
-  const { activate, active: walletActive } = useWeb3React<Web3Provider>()
+  const [showWronNetModal, setShowWrongNetModal] = useState(false)
+  const { activate, active: walletActive, chainId } = useWeb3React<Web3Provider>()
+
   if (typeof window !== 'undefined' && !walletActive) {
     const previouslyConnected = JSON.parse(window.localStorage.getItem('previouslyConnected'))
     if (previouslyConnected) {
@@ -231,8 +230,18 @@ export const AppNav = ({ active }: { active?: string }) => {
     }
   }
 
+  useEffect(() => {
+    if(!chainId) { return }
+    const isSupported = isSupportedNetwork(chainId);
+    setShowWrongNetModal(!isSupported);
+  }, [chainId]);
+
   return (
     <>
+      <WrongNetworkModal
+        isOpen={showWronNetModal}
+        onClose={() => setShowWrongNetModal(false)}
+      />
       <Flex
         w="full"
         backgroundColor="purple.900"

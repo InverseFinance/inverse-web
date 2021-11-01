@@ -1,7 +1,7 @@
-import { SupportedNetworks, Token } from '@inverse/types';
+import { NetworkIds, Token } from '@inverse/types';
 import { getNetworkConfig } from '@inverse/config/networks';
 
-const config = getNetworkConfig(SupportedNetworks.mainnet);
+const config = getNetworkConfig(NetworkIds.mainnet);
 
 export const START_BLOCK = 11498340;
 export const ETH_MANTISSA = 1e18;

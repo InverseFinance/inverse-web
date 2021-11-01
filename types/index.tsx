@@ -80,7 +80,7 @@ export type SWR = {
   isError?: any
 }
 
-export enum SupportedNetworks {
+export enum NetworkIds {
   mainnet = '1',
   rinkeby = '4',
 }
@@ -100,4 +100,12 @@ export type NetworkConfig = {
   staking: KeyString;
   namedAddresses: KeyString;
   [key: string]: string | any;
+}
+
+export type Network = {
+  id: string;
+  label: string;
+  isTestnet: boolean;
+  isSupported: boolean;
+  config: NetworkConfig;
 }
