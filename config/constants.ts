@@ -1,4 +1,4 @@
-import { mainnet } from "./networks";
+import { mainnet } from "@inverse/config/networks";
 
 const config = mainnet;
 

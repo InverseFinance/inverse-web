@@ -1,4 +1,4 @@
-import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "./config/abis";
+import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@inverse/config/abis";
 import {
   ANCHOR_DOLA,
   ANCHOR_ETH,
@@ -13,12 +13,12 @@ import {
   XINV,
   COMPTROLLER,
   ORACLE
-} from "./config/constants";
+} from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "./config/abis";
+import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abis";
 import * as fetch from "node-fetch";
 
 export default async function handler(req, res) {

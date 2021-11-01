@@ -2,8 +2,8 @@ import { AlchemyProvider } from '@ethersproject/providers'
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { ERC20_ABI } from './config/abis'
-import { DOLA } from './config/constants'
+import { ERC20_ABI } from '@inverse/config/abis'
+import { DOLA } from '@inverse/config/constants'
 
 export default async function handler(req, res) {
   try {

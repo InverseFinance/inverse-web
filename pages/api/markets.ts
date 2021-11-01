@@ -1,4 +1,4 @@
-import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "./config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "@inverse/config/abis";
 import {
   ANCHOR_ETH,
   ANCHOR_WBTC,
@@ -11,7 +11,7 @@ import {
   UNDERLYING,
   XINV,
   ORACLE
-} from "./config/constants";
+} from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";

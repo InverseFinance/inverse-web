@@ -1,5 +1,5 @@
-import { STAKING_ABI } from "./config/abis";
-import { DAYS_PER_YEAR, DOLA3CRV, SECONDS_PER_DAY } from "./config/constants";
+import { STAKING_ABI } from "@inverse/config/abis";
+import { DAYS_PER_YEAR, DOLA3CRV, SECONDS_PER_DAY } from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
 import { formatEther, formatUnits } from "ethers/lib/utils";

@@ -1,10 +1,10 @@
-import { HARVESTER_ABI, VAULT_ABI } from "./config/abis";
+import { HARVESTER_ABI, VAULT_ABI } from "@inverse/config/abis";
 import {
   DAYS_PER_YEAR,
   HARVESTER,
   SECONDS_PER_DAY,
   VAULT_TOKENS,
-} from "./config/constants";
+} from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";

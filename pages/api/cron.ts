@@ -2,8 +2,8 @@ import "source-map-support";
 
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
-import { GOVERNANCE, INV } from "./config/constants";
-import { GOVERNANCE_ABI, INV_ABI } from "./config/abis";
+import { GOVERNANCE, INV } from "@inverse/config/constants";
+import { GOVERNANCE_ABI, INV_ABI } from "@inverse/config/abis";
 import { formatUnits } from "ethers/lib/utils";
 import { createNodeRedisClient } from 'handy-redis';
 
