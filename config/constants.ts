@@ -59,8 +59,9 @@ export const XINV = config.XINV;
 export const STETH = config.STETH;
 export const INVDOLASLP = config.INVDOLASLP
 export const DOLA3POOLCRV = config.DOLA3POOLCRV
+export const THREECRV = config.THREECRV;
+// old LP that was in staking page
 export const DOLA3CRV = config.DOLA3CRV;
-// export const THREECRV = config.THREECRV;
 
 // Rewards
 export const STAKING_DOLA3CRV = config.staking.dola3crv;
@@ -164,6 +165,15 @@ export const TOKENS = {
     image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
     decimals: 18,
   },
+  [THREECRV]: {
+    address: THREECRV,
+    name: 'lp-3pool-curve',
+    symbol: '3CRV',
+    coingeckoId: 'lp-3pool-curve',
+    image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+    decimals: 18,
+  },
+  // old dola3crv lp
   [DOLA3CRV]: {
     address: DOLA3CRV,
     name: 'lp-3pool-curve',
@@ -172,14 +182,6 @@ export const TOKENS = {
     image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
     decimals: 18,
   },
-  // [THREECRV]: {
-  //   address: THREECRV,
-  //   name: 'lp-3pool-curve',
-  //   symbol: '3CRV',
-  //   coingeckoId: 'lp-3pool-curve',
-  //   image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
-  //   decimals: 18,
-  // },
 };
 
 export const UNDERLYING: { [key: string]: Token } = {
@@ -196,6 +198,7 @@ export const UNDERLYING: { [key: string]: Token } = {
   [VAULT_DAI_ETH]: TOKENS[DAI],
   [VAULT_DAI_WBTC]: TOKENS[DAI],
   [VAULT_DAI_YFI]: TOKENS[DAI],
+  [THREECRV]: TOKENS[THREECRV],
   [DOLA3CRV]: TOKENS[DOLA3CRV],
 }
 
