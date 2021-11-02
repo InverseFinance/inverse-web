@@ -16,12 +16,13 @@ import Logo from '@inverse/components/Logo'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
-import { injectedConnector, walletConnectConnector } from '@inverse/util/web3'
+import { injectedConnector, setIsPreviouslyConnected, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
 import WrongNetworkModal from '../Modal/WrongNetworkModal'
 import { isSupportedNetwork } from '@inverse/config/networks'
+import { isPreviouslyConnected } from '../../util/web3';
 
 const NAV_ITEMS = [
   {
@@ -113,9 +114,7 @@ const AppNavConnect = () => {
 
   const connectMetamask = () => {
     activate(injectedConnector)
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('previouslyConnected', JSON.stringify(true))
-    }
+    setIsPreviouslyConnected(true);
     close()
   }
 
@@ -125,9 +124,7 @@ const AppNavConnect = () => {
   }
 
   const disconnect = () => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('previouslyConnected', JSON.stringify(false))
-    }
+    setIsPreviouslyConnected(false);
     deactivate()
     close()
   }
@@ -221,19 +218,22 @@ const AppNavConnect = () => {
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
   const [showWrongNetModal, setShowWrongNetModal] = useState(false)
-  const { activate, active: walletActive, chainId } = useWeb3React<Web3Provider>()
+  const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
 
-  if (typeof window !== 'undefined' && !walletActive) {
-    const previouslyConnected = JSON.parse(window.localStorage.getItem('previouslyConnected'))
-    if (previouslyConnected) {
+  useEffect(() => {
+    if (!walletActive && isPreviouslyConnected()) {
       activate(injectedConnector)
     }
-  }
+  }, [walletActive]);
 
   useEffect(() => {
     if(!chainId) { return }
     const isSupported = isSupportedNetwork(chainId);
     setShowWrongNetModal(!isSupported);
+    if(!isSupported) {
+      setIsPreviouslyConnected(false);
+      deactivate();
+    }
   }, [chainId]);
 
   return (

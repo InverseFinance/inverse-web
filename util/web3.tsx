@@ -41,3 +41,13 @@ export const fetcher = async (input: RequestInfo, init: RequestInit) => {
 
   return res.json()
 }
+
+export const isPreviouslyConnected = (): boolean => {
+  if(typeof window === undefined) { return false }
+  return JSON.parse(window.localStorage.getItem('previouslyConnected')||'false');
+}
+
+export const setIsPreviouslyConnected = (value: boolean): void => {
+  if(typeof window === undefined) { return }
+  return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
+}
