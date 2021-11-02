@@ -220,7 +220,7 @@ const AppNavConnect = () => {
 
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
-  const [showWronNetModal, setShowWrongNetModal] = useState(false)
+  const [showWrongNetModal, setShowWrongNetModal] = useState(false)
   const { activate, active: walletActive, chainId } = useWeb3React<Web3Provider>()
 
   if (typeof window !== 'undefined' && !walletActive) {
@@ -239,7 +239,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   return (
     <>
       <WrongNetworkModal
-        isOpen={showWronNetModal}
+        isOpen={showWrongNetModal}
         onClose={() => setShowWrongNetModal(false)}
       />
       <Flex
