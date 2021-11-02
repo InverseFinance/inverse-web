@@ -1,4 +1,4 @@
-import { InfuraProvider, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import { AlchemyProvider, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   VAULT_ABI,
@@ -30,9 +30,9 @@ import {
 } from '@inverse/config/constants'
 import { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers'
 
-export const getNewProvider = () => new InfuraProvider('homestead', process.env.INFURA_ID)
+export const getNewProvider = () => new AlchemyProvider('homestead', process.env.ALCHEMY_API)
 
-export const getNewMulticallProvider = (provider: InfuraProvider) => new providers.MulticallProvider(provider)
+export const getNewMulticallProvider = (provider: AlchemyProvider) => new providers.MulticallProvider(provider)
 
 export const getNewContract = (
   address: string,
