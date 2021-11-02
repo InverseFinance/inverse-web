@@ -95,14 +95,45 @@ export enum NetworkIds {
 export type KeyString = { [key: string]: string };
 
 export type NetworkConfig = {
-  vaults: KeyString;
+  chainId: string;
+  INV: string,
+  DOLA: string,
+  DAI: string,
+  USDC: string,
+  WETH: string,
+  YFI: string,
+  XSUSHI: string,
+  WBTC: string,
+  XINV: string,
+  STETH: string,
+  INVDOLASLP: string,
+  DOLA3POOLCRV: string,
+  THREECRV: string,
+  escrow: string,
+  harvester: string,
+  governance: string,
+  vaults: {
+    vaultUsdcEth: string,
+    vaultDaiWbtc: string,
+    vaultDaiYfi: string,
+    vaultDaiEth: string,
+  };
   anchor: {
     lens: string,
     comptroller: string,
     oracle: string,
     stabilizer: string,
     treasury: string,
-    markets: KeyString;
+    markets: {
+      dola: string,
+      eth: string,
+      wbtc: string,
+      xsushi: string,
+      yfi: string,
+      steth: string,
+      dola3poolcrv: string,
+      invdolaslp: string,
+    };
   }
   namedAddresses: KeyString;
   [key: string]: string | any;

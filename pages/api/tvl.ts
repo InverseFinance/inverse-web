@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       XINV,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new AlchemyProvider(Number(chainId), process.env.ALCHEMY_API);
+    const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);

@@ -1,6 +1,7 @@
 import { NetworkConfig, Network, Token, NetworkIds, TokenList } from '@inverse/types'
 
 const mainnetConfig: NetworkConfig = {
+  chainId: '1',
   INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
   DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -69,6 +70,7 @@ const mainnetConfig: NetworkConfig = {
 
 // TODO: fill in all values
 const rinkebyConfig: NetworkConfig = {
+  chainId: '4',
   INV: '',
   DOLA: '',
   DAI: '',
@@ -82,6 +84,9 @@ const rinkebyConfig: NetworkConfig = {
   INVDOLASLP: '',
   DOLA3POOLCRV: '',
   THREECRV: '',
+  escrow: '',
+  harvester: '',
+  governance: '',
   vaults: {
     vaultUsdcEth: '',
     vaultDaiWbtc: '',
