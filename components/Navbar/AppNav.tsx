@@ -38,10 +38,6 @@ const NAV_ITEMS = [
     href: '/stabilizer',
   },
   {
-    label: 'Stake',
-    href: '/stake',
-  },
-  {
     label: 'Governance',
     href: '/governance',
   },

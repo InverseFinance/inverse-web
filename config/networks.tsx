@@ -11,8 +11,6 @@ const mainnetConfig: NetworkConfig = {
   WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
   XINV: '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE',
   STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
-  // old dola3crv LP in staking page (discontinued)
-  DOLA3CRV: '0x9547429C0e2c3A8B88C6833B58FCE962734C0E8C',
   INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
   DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
   THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
@@ -38,9 +36,6 @@ const mainnetConfig: NetworkConfig = {
       dola3poolcrv: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
       invdolaslp: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
     },
-  },
-  staking: {
-    dola3crv: '0xA88948217f21175337226d94f1A47b7A01EEd197',
   },
   escrow: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
   harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
@@ -83,7 +78,6 @@ const rinkebyConfig: NetworkConfig = {
     treasury: '',
     markets: {},
   },
-  staking: {},
   namedAddresses: {},
 }
 

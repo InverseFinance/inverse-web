@@ -97,7 +97,6 @@ export type NetworkConfig = {
     treasury: string,
     markets: KeyString;
   }
-  staking: KeyString;
   namedAddresses: KeyString;
   [key: string]: string | any;
 }

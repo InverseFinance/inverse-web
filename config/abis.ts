@@ -90,16 +90,6 @@ export const STABILIZER_ABI = [
   "function supply() external view returns (uint256)",
 ];
 
-export const STAKING_ABI = [
-  "function balanceOf() external view returns (uint256)",
-  "function earned(address) external view returns (uint256)",
-  "function getReward()",
-  "function rewardRate() external view returns (uint256)",
-  "function stake(uint256)",
-  "function totalSupply() external view returns (uint256)",
-  "function withdraw(uint256)",
-];
-
 export const VAULT_ABI = [
   "function balanceOf(address) external view returns (uint256)",
   "function claim()",

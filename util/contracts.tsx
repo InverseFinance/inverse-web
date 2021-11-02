@@ -11,7 +11,6 @@ import {
   HARVESTER_ABI,
   CETHER_ABI,
   ERC20_ABI,
-  STAKING_ABI,
   LENS_ABI,
   ESCROW_ABI,
 } from '@inverse/abis'
@@ -86,11 +85,6 @@ export const getERC20Contract = (
   address: string,
   provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
 ) => getNewContract(address, ERC20_ABI, provider)
-
-export const getStakingContract = (
-  address: string,
-  provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
-) => getNewContract(address, STAKING_ABI, provider)
 
 export const getLensContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
   getNewContract(LENS, LENS_ABI, provider)
