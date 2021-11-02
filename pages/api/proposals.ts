@@ -9,7 +9,7 @@ const client = createNodeRedisClient({
 export default async function handler(req, res) {
   try {
     const { chainId = '1' } = req.query;
-    const networkConfig = getNetworkConfig(chainId);
+    const networkConfig = getNetworkConfig(chainId, true);
     if(!networkConfig?.governance) {
       res.status(403).json({ success: false, message: `No Governance support on ${chainId} network` });
     }

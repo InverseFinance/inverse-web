@@ -12,6 +12,7 @@ export const BLOCKS_PER_DAY = BLOCKS_PER_SECOND * SECONDS_PER_DAY;
 export const DAYS_PER_YEAR = 365;
 export const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
 
+// TODO : refacto all networks consts usage to be dynamic with functions using chainId
 // Vaults
 export const VAULT_USDC_ETH = config.vaults.vaultUsdcEth;
 export const VAULT_DAI_WBTC = config.vaults.vaultDaiWbtc;

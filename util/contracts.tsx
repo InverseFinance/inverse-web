@@ -13,7 +13,7 @@ import {
   ERC20_ABI,
   LENS_ABI,
   ESCROW_ABI,
-} from '@inverse/abis'
+} from '@inverse/config/abis'
 import { providers } from '@0xsequence/multicall'
 import {
   ANCHOR_TOKENS,

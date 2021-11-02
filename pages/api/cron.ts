@@ -33,9 +33,9 @@ export default async function handler(req, res) {
     // run delegates cron job
     try {
         const { chainId = '1' } = req.query;
-        const networkConfig = getNetworkConfig(chainId);
+        const networkConfig = getNetworkConfig(chainId, false);
         if(!networkConfig?.governance) {
-          res.status(403).json({ success: false, message: `No Governance support on ${chainId} network` });
+          res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
         }
         const { INV, governance: GOVERNANCE } = networkConfig;
         const provider = new AlchemyProvider(Number(chainId), process.env.ALCHEMY_API);

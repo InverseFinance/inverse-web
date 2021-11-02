@@ -1,3 +1,6 @@
+import { NetworkIds } from '@inverse/types';
+import { getNetworkConfig, getNetworkConfigConstants, isSupportedNetwork } from './networks';
+
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
   "function claimComp(address) public",
@@ -52,6 +55,11 @@ export const ERC20_ABI = [
   "function totalSupply() external view returns (uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
 ];
+
+export const ESCROW_ABI = [
+  'function pendingWithdrawals(address user) public view returns (uint withdrawalTimestamp, uint amount)',
+  'function withdraw() public',
+]
 
 export const HARVESTER_ABI = [
   "function ratePerToken(address) external view returns (uint256)",
@@ -110,3 +118,37 @@ export const XINV_ABI = [
   "function totalSupply() external view returns (uint256)",
   "function underlying() external view returns (address)",
 ];
+
+export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
+  const networkConfig = getNetworkConfig(chainId, true);
+  const {
+    ANCHOR_TOKENS,
+    COMPTROLLER,
+    ESCROW,
+    GOVERNANCE,
+    HARVESTER,
+    INV,
+    LENS,
+    ORACLE,
+    TOKENS,
+    VAULT_TOKENS,
+    XINV,
+  } = getNetworkConfigConstants(networkConfig);
+
+  return new Map<string, string[]>(
+    // @ts-ignore
+    ANCHOR_TOKENS.map((address) => [address, CTOKEN_ABI]).concat(
+      [
+        [XINV, XINV_ABI],
+        [COMPTROLLER, COMPTROLLER_ABI],
+        [ESCROW, ESCROW_ABI],
+        [HARVESTER, HARVESTER_ABI],
+        [GOVERNANCE, GOVERNANCE_ABI],
+        [LENS, LENS_ABI],
+        [ORACLE, ORACLE_ABI],
+        ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
+      ],
+      Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
+    )
+  )
+}
