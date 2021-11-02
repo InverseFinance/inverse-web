@@ -1,36 +1,43 @@
 import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@inverse/config/abis";
-import {
-  ANCHOR_DOLA,
-  ANCHOR_ETH,
-  ANCHOR_TOKENS,
-  DAI,
-  USDC,
-  STABILIZER,
-  TOKENS,
-  UNDERLYING,
-  VAULT_TOKENS,
-  WETH,
-  XINV,
-  COMPTROLLER,
-  ORACLE
-} from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abis";
-import * as fetch from "node-fetch";
+import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
+import { StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
 
 export default async function handler(req, res) {
   try {
-    const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
+    const { chainId = '1' } = req.query;
+    // defaults to mainnet data if unsupported network
+    const networkConfig = getNetworkConfig(chainId, true);
+
+    const {
+      DAI,
+      USDC,
+      UNDERLYING,
+      ORACLE,
+      COMPTROLLER,
+      VAULT_TOKENS,
+      STABILIZER,
+      TOKENS,
+      ANCHOR_TOKENS,
+      ANCHOR_ETH,
+      WETH,
+      XINV,
+    } = getNetworkConfigConstants(networkConfig);
+
+    const provider = new AlchemyProvider(Number(chainId), process.env.ALCHEMY_API);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
-    const addresses = await comptroller.getAllMarkets();
+    const addresses: string[] = await comptroller.getAllMarkets();
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
-    const oraclePrices = await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))) 
-    let prices = oraclePrices
-      .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
-      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {});
+    const oraclePrices = await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address)));
+
+    let prices: StringNumMap = oraclePrices
+      .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
+
     prices[DAI] = 1
     prices[USDC] = 1
 
@@ -39,25 +46,16 @@ export default async function handler(req, res) {
       anchorBalances,
       stabilizerBalances,
     ] = await Promise.all([
-      vaultsTVL(prices, provider),
-      anchorTVL(prices, provider),
-      stabilizerTVL(prices, provider),
+      vaultsTVL(prices, provider, WETH, VAULT_TOKENS, TOKENS, UNDERLYING),
+      anchorTVL(prices, provider, XINV, ANCHOR_ETH, WETH, ANCHOR_TOKENS, TOKENS, UNDERLYING),
+      stabilizerTVL(prices, provider, DAI, STABILIZER, TOKENS),
     ]);
 
-    const usdVault = vaultBalances.reduce(
-      (balance, item) => balance + item.usdBalance,
-      0
-    );
-    const usdAnchor = anchorBalances.reduce(
-      (balance, item) => balance + item.usdBalance,
-      0
-    );
-    const usdStabilizer = stabilizerBalances.reduce(
-      (balance, item) => balance + item.usdBalance,
-      0
-    );
+    const usdVault = sumUsdBalances(vaultBalances);
+    const usdAnchor = sumUsdBalances(anchorBalances);
+    const usdStabilizer = sumUsdBalances(stabilizerBalances);
 
-    res.status(200).json( {
+    res.status(200).json({
       tvl: usdVault + usdAnchor + usdStabilizer,
       vaults: {
         tvl: usdVault,
@@ -77,8 +75,15 @@ export default async function handler(req, res) {
   }
 };
 
-const vaultsTVL = async (prices, provider) => {
-  const vaults = VAULT_TOKENS.map(
+const vaultsTVL = async (
+  prices: StringNumMap,
+  provider: AlchemyProvider,
+  wethAddress: string,
+  vaultTokens: string[],
+  tokens: TokenList,
+  underlying: TokenList,
+): Promise<TokenWithBalance[]> => {
+  const vaults = vaultTokens.map(
     (address) => new Contract(address, VAULT_ABI, provider)
   );
 
@@ -86,16 +91,17 @@ const vaultsTVL = async (prices, provider) => {
     vaults.map((contract: Contract) => contract.totalSupply())
   );
 
-  const balances = {};
+  const balances: StringNumMap = {};
+
   totalSupplies.forEach((totalSupply, i) => {
-    const token = UNDERLYING[vaults[i].address] || TOKENS[WETH];
+    const token = underlying[vaults[i].address] || tokens[wethAddress];
     balances[token.address] =
       (balances[token.address] || 0) +
       parseFloat(formatUnits(totalSupply, token.decimals));
   });
 
   return Object.entries(balances).map(([address, amount]: any) => {
-    const token = TOKENS[address];
+    const token = tokens[address];
 
     return {
       ...token,
@@ -105,27 +111,38 @@ const vaultsTVL = async (prices, provider) => {
   });
 };
 
-const anchorTVL = async (prices, provider) => {
-  const anchorContracts = ANCHOR_TOKENS.map((address) => new Contract(address, CTOKEN_ABI, provider));
-  anchorContracts.push(new Contract(XINV, XINV_ABI, provider));
+const anchorTVL = async (
+  prices: StringNumMap,
+  provider: AlchemyProvider,
+  xInvAddress: string,
+  anchorEthAddress: string,
+  wethAddress: string,
+  anchorTokenAddresses: string[],
+  tokens: TokenList,
+  underlying: TokenList,
+): Promise<TokenWithBalance[]> => {
+  const anchorContracts = anchorTokenAddresses.map((address: string) => new Contract(address, CTOKEN_ABI, provider));
+  anchorContracts.push(new Contract(xInvAddress, XINV_ABI, provider));
 
   const allCash = await Promise.all(
     anchorContracts.map((contract: Contract) => contract.getCash())
   );
 
-  const balances = {};
+  const balances: StringNumMap = {};
+
   allCash.forEach((cash, i) => {
     const token =
-      anchorContracts[i].address !== ANCHOR_ETH
-        ? UNDERLYING[anchorContracts[i].address]
-        : TOKENS[WETH];
+      anchorContracts[i].address !== anchorEthAddress
+        ? underlying[anchorContracts[i].address]
+        : tokens[wethAddress];
 
     balances[anchorContracts[i].address] =
       (balances[anchorContracts[i].address] || 0) +
       parseFloat(formatUnits(cash, token.decimals));
   });
+
   return Object.entries(balances).map(([address, amount]: any) => {
-    const token = TOKENS[address];
+    const token = tokens[address];
     return {
       ...token,
       balance: amount,
@@ -134,18 +151,32 @@ const anchorTVL = async (prices, provider) => {
   });
 };
 
-const stabilizerTVL = async (prices, provider) => {
-  const stabilizerContract = new Contract(STABILIZER, STABILIZER_ABI, provider);
+const stabilizerTVL = async (
+  prices: StringNumMap,
+  provider: AlchemyProvider,
+  daiAddress: string,
+  stabilizerAddress: string,
+  tokens: TokenList
+): Promise<TokenWithBalance[]> => {
+  const stabilizerContract = new Contract(stabilizerAddress, STABILIZER_ABI, provider);
 
-  const token = TOKENS[DAI];
+  const token = tokens[daiAddress];
   const supply = await stabilizerContract.supply();
   const amount = parseFloat(formatUnits(supply, token.decimals));
+  const tokenWithBalance: TokenWithBalance = {
+    ...token,
+    balance: amount,
+    usdBalance: amount * prices[token.address],
+  };
 
   return [
-    {
-      ...token,
-      balance: amount,
-      usdBalance: amount * prices[token.address],
-    },
+    tokenWithBalance
   ];
 };
+
+const sumUsdBalances = (tokenWithBalances: TokenWithBalance[]): number => {
+  return tokenWithBalances.reduce(
+    (usdBalance, item) => usdBalance + item.usdBalance,
+    0
+  );
+}

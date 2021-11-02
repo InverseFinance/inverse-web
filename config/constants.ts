@@ -1,4 +1,4 @@
-import { NetworkIds, Token } from '@inverse/types';
+import { NetworkIds, Token, TokenList } from '@inverse/types';
 import { getNetworkConfig } from '@inverse/config/networks';
 
 const config = getNetworkConfig(NetworkIds.mainnet);
@@ -171,7 +171,7 @@ export const TOKENS = {
   },
 };
 
-export const UNDERLYING: { [key: string]: Token } = {
+export const UNDERLYING: TokenList = {
   [ANCHOR_ETH]: TOKENS.ETH,
   [ANCHOR_DOLA]: TOKENS[DOLA],
   [ANCHOR_XSUSHI]: TOKENS[XSUSHI],

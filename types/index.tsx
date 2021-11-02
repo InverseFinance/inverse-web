@@ -1,4 +1,4 @@
-export type Token = {
+export interface Token {
   address: string
   name: string
   symbol: string
@@ -6,6 +6,13 @@ export type Token = {
   decimals: number
   coingeckoId?: string
 }
+
+export interface TokenWithBalance extends Token {
+  balance: number;
+  usdBalance: number;
+}
+
+export interface TokenList { [key: string]: Token };
 
 export type Market = {
   token: string
@@ -108,3 +115,5 @@ export type Network = {
   isSupported: boolean;
   config: NetworkConfig;
 }
+
+export type StringNumMap = { [key: string]: number };

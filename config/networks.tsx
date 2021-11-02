@@ -1,4 +1,4 @@
-import { NetworkConfig, Network, Token, NetworkIds } from '@inverse/types'
+import { NetworkConfig, Network, Token, NetworkIds, TokenList } from '@inverse/types'
 
 const mainnetConfig: NetworkConfig = {
   INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
@@ -192,7 +192,7 @@ export const getNetworkConfigConstants = (config: NetworkConfig) => {
 
     const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
 
-    const TOKENS = {
+    const TOKENS: TokenList = {
         ETH: {
             address: '',
             name: 'Ether',
@@ -299,7 +299,7 @@ export const getNetworkConfigConstants = (config: NetworkConfig) => {
         },
     };
 
-    const UNDERLYING: { [key: string]: Token } = {
+    const UNDERLYING: TokenList = {
         [ANCHOR_ETH]: TOKENS.ETH,
         [ANCHOR_DOLA]: TOKENS[DOLA],
         [ANCHOR_XSUSHI]: TOKENS[XSUSHI],
