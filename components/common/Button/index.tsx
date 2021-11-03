@@ -54,7 +54,7 @@ export const LinkOutlineButton = ({
   </Flex>
 )
 
-export const ClaimButton = (props: any) => (
+export const StyledButton = (props: any) => (
   <Button
     justify="center"
     bgColor="purple.500"

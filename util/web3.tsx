@@ -1,6 +1,8 @@
 import { ExternalProvider, JsonRpcFetchFunc, Web3Provider } from '@ethersproject/providers'
+import { getNetwork } from '@inverse/config/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import { hexValue } from 'ethers/lib/utils'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -20,7 +22,7 @@ export const injectedConnector = new InjectedConnector({
 
 export const walletConnectConnector = new WalletConnectConnector({
   rpc: {
-    1:"https://cloudflare-eth.com"
+    1: "https://cloudflare-eth.com"
   }
 })
 
@@ -43,11 +45,24 @@ export const fetcher = async (input: RequestInfo, init: RequestInit) => {
 }
 
 export const isPreviouslyConnected = (): boolean => {
-  if(typeof window === undefined) { return false }
-  return JSON.parse(window.localStorage.getItem('previouslyConnected')||'false');
+  if (typeof window === undefined) { return false }
+  return JSON.parse(window.localStorage.getItem('previouslyConnected') || 'false');
 }
 
 export const setIsPreviouslyConnected = (value: boolean): void => {
-  if(typeof window === undefined) { return }
+  if (typeof window === undefined) { return }
   return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
+}
+
+export const switchWalletNetwork = async (id: string | number, onSuccess?: () => void) => {
+  const hexaChainId = hexValue(Number(id));
+  try {
+    await window?.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: hexaChainId }],
+    });
+    if(onSuccess) { onSuccess() }
+  } catch (switchError: any) {
+    console.log(switchError);
+  }
 }
