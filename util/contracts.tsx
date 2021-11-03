@@ -1,4 +1,4 @@
-import { AlchemyProvider, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import { JsonRpcSigner } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   VAULT_ABI,
@@ -6,85 +6,68 @@ import {
   CTOKEN_ABI,
   STABILIZER_ABI,
   GOVERNANCE_ABI,
-  XINV_ABI,
   INV_ABI,
-  HARVESTER_ABI,
   CETHER_ABI,
   ERC20_ABI,
   LENS_ABI,
   ESCROW_ABI,
 } from '@inverse/config/abis'
-import { providers } from '@0xsequence/multicall'
-import {
-  ANCHOR_TOKENS,
-  STABILIZER,
-  COMPTROLLER,
-  GOVERNANCE,
-  VAULT_TOKENS,
-  XINV,
-  INV,
-  HARVESTER,
-  LENS,
-  ESCROW,
-} from '@inverse/config/constants'
-import { MulticallProvider } from '@0xsequence/multicall/dist/declarations/src/providers'
-
-export const getNewProvider = () => new AlchemyProvider('homestead', process.env.ALCHEMY_API)
-
-export const getNewMulticallProvider = (provider: AlchemyProvider) => new providers.MulticallProvider(provider)
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 
 export const getNewContract = (
   address: string,
   abi: string[],
-  provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
-) => new Contract(address, abi, provider)
+  signer: JsonRpcSigner | undefined
+) => new Contract(address, abi, signer)
 
 export const getVaultContract = (
   address: string,
-  provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
-) => getNewContract(address, VAULT_ABI, provider)
+  signer: JsonRpcSigner | undefined
+) => getNewContract(address, VAULT_ABI, signer)
 
-export const getVaultContracts = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  VAULT_TOKENS.map((address) => getVaultContract(address, provider))
-
-export const getComptrollerContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(COMPTROLLER, COMPTROLLER_ABI, provider)
+export const getComptrollerContract = (signer: JsonRpcSigner | undefined) => {
+  const { COMPTROLLER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  return getNewContract(COMPTROLLER, COMPTROLLER_ABI, signer);
+}
 
 export const getAnchorContract = (
   address: string,
-  provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
-) => getNewContract(address, CTOKEN_ABI, provider)
+  signer: JsonRpcSigner | undefined
+) => {
+  return getNewContract(address, CTOKEN_ABI, signer)
+}
 
-export const getAnchorContracts = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  ANCHOR_TOKENS.map((address) => getAnchorContract(address, provider))
+export const getStabilizerContract = (signer: JsonRpcSigner | undefined) => {
+  const { STABILIZER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  getNewContract(STABILIZER, STABILIZER_ABI, signer);
+}
 
-export const getStabilizerContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(STABILIZER, STABILIZER_ABI, provider)
+export const getGovernanceContract = (signer: JsonRpcSigner | undefined) => {
+  const { GOVERNANCE } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  getNewContract(GOVERNANCE, GOVERNANCE_ABI, signer)
+}
 
-export const getGovernanceContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(GOVERNANCE, GOVERNANCE_ABI, provider)
-
-export const getHarvesterContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(HARVESTER, HARVESTER_ABI, provider)
-
-export const getEscrowContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(ESCROW, ESCROW_ABI, provider)
-
-export const getINVContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(INV, INV_ABI, provider)
-
-export const getXINVContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(XINV, XINV_ABI, provider)
+export const getEscrowContract = (signer: JsonRpcSigner | undefined) => {
+  const { ESCROW } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  getNewContract(ESCROW, ESCROW_ABI, signer)
+}
+  
+export const getINVContract = (signer: JsonRpcSigner | undefined) => {
+  const { INV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  getNewContract(INV, INV_ABI, signer)
+}
 
 export const getCEtherContract = (
   address: string,
-  provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
-) => getNewContract(address, CETHER_ABI, provider)
+  signer: JsonRpcSigner | undefined
+) => getNewContract(address, CETHER_ABI, signer)
 
 export const getERC20Contract = (
   address: string,
-  provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined
-) => getNewContract(address, ERC20_ABI, provider)
+  signer: JsonRpcSigner | undefined
+) => getNewContract(address, ERC20_ABI, signer)
 
-export const getLensContract = (provider: Web3Provider | MulticallProvider | JsonRpcSigner | undefined) =>
-  getNewContract(LENS, LENS_ABI, provider)
+export const getLensContract = (signer: JsonRpcSigner | undefined) => {
+  const { LENS } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  getNewContract(LENS, LENS_ABI, signer);
+}
