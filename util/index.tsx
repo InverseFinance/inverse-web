@@ -1,6 +1,7 @@
-import { NAMED_ADDRESSES } from '@inverse/config/constants'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 
-export const namedAddress = (address: string, ensName?: string) => {
+export const namedAddress = (address: string, chainId?: string | number, ensName?: string) => {
+  const { NAMED_ADDRESSES } = getNetworkConfigConstants(chainId);
   if (NAMED_ADDRESSES[address]) {
     return NAMED_ADDRESSES[address]
   }

@@ -52,7 +52,7 @@ export const VotingWallet = ({ address }: { address?: string }) => {
         <Stack w="full" direction="row" justify="center" align="center">
           <Avatar address={account} boxSize={5} />
           <Text mt={1} fontSize="sm" fontWeight="medium" color="purple.100">
-            {namedAddress(account)}
+            {namedAddress(account, chainId)}
           </Text>
         </Stack>
         <VotingWalletField label="INV">
@@ -70,7 +70,7 @@ export const VotingWallet = ({ address }: { address?: string }) => {
           ) : (
             <Stack direction="row" align="center">
               <Avatar address={delegate} boxSize={5} />
-              <Text>{namedAddress(delegate)}</Text>
+              <Text>{namedAddress(delegate, chainId)}</Text>
             </Stack>
           )}
         </VotingWalletField>
@@ -90,8 +90,8 @@ export const VotingWallet = ({ address }: { address?: string }) => {
         >
           {address
             ? address === delegate
-              ? `Already delegated to ${namedAddress(address)}`
-              : `Delegate to ${namedAddress(address)}`
+              ? `Already delegated to ${namedAddress(address, chainId)}`
+              : `Delegate to ${namedAddress(address, chainId)}`
             : 'Change Delegate'}
         </Flex>
       </Stack>

@@ -10,9 +10,12 @@ import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
 import { namedAddress } from '@inverse/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const DelegateOverview = () => {
   const { query } = useRouter()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
 
@@ -30,7 +33,7 @@ const DelegateOverview = () => {
 
   return (
     <Container
-      label={namedAddress(address, ensName)}
+      label={namedAddress(address, chainId, ensName)}
       description={address}
       href={`https://etherscan.io/address/${address}`}
       image={<Avatar boxSize={12} address={address} />}
@@ -44,10 +47,11 @@ const DelegateOverview = () => {
 }
 
 export const DelegateView = () => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
 
   const address = query.address as string
-  const title = isAddress(address) ? namedAddress(address) : address
+  const title = isAddress(address) ? namedAddress(address, chainId) : address
 
   return (
     <Layout>

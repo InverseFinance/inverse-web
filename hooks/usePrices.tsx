@@ -1,9 +1,11 @@
-import { ANCHOR_TOKENS, ORACLE, TOKENS, XINV } from '@inverse/config/constants'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { BigNumber } from 'ethers'
 import useSWR from 'swr'
 import useEtherSWR from './useEtherSWR'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 type Prices = {
   prices: {
@@ -24,6 +26,9 @@ export const usePrice = (coingeckoId: string): SWR & Prices => {
 }
 
 export const usePrices = (): SWR & Prices => {
+  const { chainId } = useWeb3React<Web3Provider>()
+  const { TOKENS } = getNetworkConfigConstants(chainId)
+
   const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId)
   const { data, error } = useSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
@@ -38,6 +43,9 @@ export const usePrices = (): SWR & Prices => {
 }
 
 export const useAnchorPrices = (): any => {
+  const { chainId } = useWeb3React<Web3Provider>()
+  const { ANCHOR_TOKENS, XINV, ORACLE } = getNetworkConfigConstants(chainId)
+
   const tokens = ANCHOR_TOKENS.concat([XINV])
   const { data, error } = useEtherSWR(tokens.map((address: string) => [ORACLE, 'getUnderlyingPrice', address]))
   return {

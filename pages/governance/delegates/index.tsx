@@ -10,8 +10,12 @@ import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { useRouter } from 'next/dist/client/router'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const DelegatesTable = () => {
+  const { chainId } = useWeb3React<Web3Provider>()
+
   const { delegates, isLoading } = useTopDelegates()
   const router = useRouter()
 
@@ -27,7 +31,7 @@ const DelegatesTable = () => {
           </Flex>
           <Stack direction="row" align="center">
             <Avatar address={address} boxSize={6} />
-            <Flex>{namedAddress(address, ensName)}</Flex>
+            <Flex>{namedAddress(address, chainId, ensName)}</Flex>
           </Stack>
         </Stack>
       ),

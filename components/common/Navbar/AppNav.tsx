@@ -104,7 +104,7 @@ const ETHBalance = () => {
 }
 
 const AppNavConnect = () => {
-  const { account, activate, active, deactivate, connector } = useWeb3React<Web3Provider>()
+  const { account, activate, active, deactivate, connector, chainId } = useWeb3React<Web3Provider>()
   const [isOpen, setIsOpen] = useState(false)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
@@ -149,7 +149,7 @@ const AppNavConnect = () => {
           pr={4}
           _hover={{ bgColor: 'purple.600' }}
         >
-          {active && account ? `${namedAddress(account)}` : 'Connect'}
+          {active && account ? `${namedAddress(account, chainId)}` : 'Connect'}
         </Flex>
       </PopoverTrigger>
       <PopoverContent

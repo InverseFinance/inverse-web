@@ -1,13 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import {
-  ANCHOR_TOKENS,
-  UNDERLYING,
-  VAULT_DAI_ETH,
-  VAULT_DAI_WBTC,
-  VAULT_DAI_YFI,
-  VAULT_USDC_ETH,
-  XINV,
-} from '@inverse/config/constants'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
@@ -20,9 +12,11 @@ type Balances = {
 }
 
 export const useAccountBalances = (): SWR & Balances => {
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { UNDERLYING } = getNetworkConfigConstants(chainId)
+
   const tokens = Object.values(UNDERLYING)
 
-  const { account } = useWeb3React<Web3Provider>()
   const { data, error } = useEtherSWR(
     tokens.map(({ address }) => (address ? [address, 'balanceOf', account] : ['getBalance', account, 'latest']))
   )
@@ -38,9 +32,11 @@ export const useAccountBalances = (): SWR & Balances => {
 }
 
 export const useSupplyBalances = (): SWR & Balances => {
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { ANCHOR_TOKENS, XINV } = getNetworkConfigConstants(chainId)
+
   const tokens = ANCHOR_TOKENS.concat([XINV])
 
-  const { account } = useWeb3React<Web3Provider>()
   const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'balanceOf', account]))
 
   return {
@@ -86,9 +82,11 @@ export const useSupplyBalances = (): SWR & Balances => {
 // }
 
 export const useBorrowBalances = (): SWR & Balances => {
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { ANCHOR_TOKENS } = getNetworkConfigConstants(chainId)
+
   const tokens = ANCHOR_TOKENS
 
-  const { account } = useWeb3React<Web3Provider>()
   const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'borrowBalanceStored', account]))
 
   return {
@@ -112,7 +110,9 @@ export const useStabilizerBalance = () => {
 }
 
 export const useVaultBalances = () => {
-  const { account } = useWeb3React()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { VAULT_DAI_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_USDC_ETH } = getNetworkConfigConstants(chainId)
+  
   const { data } = useEtherSWR([
     [VAULT_DAI_ETH, 'balanceOf', account],
     [VAULT_DAI_WBTC, 'balanceOf', account],

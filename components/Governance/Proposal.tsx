@@ -89,6 +89,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
 }
 
 export const ProposalDetails = ({ id }: { id: number }) => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { proposal, isLoading } = useProposal(id)
 
   if (isLoading) {
@@ -125,7 +126,7 @@ export const ProposalDetails = ({ id }: { id: number }) => {
           <Stack direction="row" align="center">
             <Avatar address={proposer} boxSize={5} />
             <Link fontSize="sm" href={`https://etherscan.io/address/${proposer}`}>
-              {namedAddress(proposer)}
+              {namedAddress(proposer, chainId)}
             </Link>
           </Stack>
         </Flex>

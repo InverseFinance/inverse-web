@@ -27,6 +27,7 @@ type VoteCountModalProps = ModalProps & {
 }
 
 export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModalProps) => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { proposal, isLoading } = useProposal(id)
 
   if (isLoading) {
@@ -64,7 +65,7 @@ export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModal
             <Stack direction="row" align="center">
               <Avatar address={voter} boxSize={7} />
               <Text fontSize="sm" fontWeight="semibold">
-                {namedAddress(voter)}
+                {namedAddress(voter, chainId)}
               </Text>
             </Stack>
             <Text fontSize="sm" fontWeight="semibold">

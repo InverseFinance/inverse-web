@@ -7,7 +7,7 @@ import { ChevronRightIcon } from '@chakra-ui/icons';
 import { formatUnits } from 'ethers/lib/utils';
 import { getVaultContract } from '@inverse/util/contracts';
 import { Web3Provider } from '@ethersproject/providers';
-import { ClaimButton } from '@inverse/components/common/Button';
+import { StyledButton } from '@inverse/components/common/Button';
 
 export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
     const { library } = useWeb3React<Web3Provider>()
@@ -56,7 +56,7 @@ export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
                             ? parseFloat(formatUnits(rewards[address], vault.to.decimals))
                             : 0
                         ).toFixed(10)} ${vault.to.symbol}`}</Flex>
-                        <ClaimButton
+                        <StyledButton
                             onClick={() =>
                                 vault.to.address
                                     ? getVaultContract(address, library?.getSigner()).claim()
@@ -64,7 +64,7 @@ export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
                             }
                         >
                             Claim
-                        </ClaimButton>
+                        </StyledButton>
                     </Stack>
                 </Stack>
             ))}

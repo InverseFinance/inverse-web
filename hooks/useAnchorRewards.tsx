@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { COMPTROLLER, INV } from '@inverse/config/constants'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { SWR } from '@inverse/types'
 import { getLensContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
@@ -11,7 +11,8 @@ type AnchorRewards = {
 }
 
 export const useAnchorRewards = (): SWR & AnchorRewards => {
-  const { account, library } = useWeb3React<Web3Provider>()
+  const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const { INV, COMPTROLLER } = getNetworkConfigConstants(chainId);
   const { data, error } = useSWR(['getCompBalanceMetadataExt', INV, COMPTROLLER, account], (...args) => {
     const [method, ...otherParams] = args
     if (library) {
