@@ -39,22 +39,22 @@ export const getAnchorContract = (
 
 export const getStabilizerContract = (signer: JsonRpcSigner | undefined) => {
   const { STABILIZER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  getNewContract(STABILIZER, STABILIZER_ABI, signer);
+  return getNewContract(STABILIZER, STABILIZER_ABI, signer);
 }
 
 export const getGovernanceContract = (signer: JsonRpcSigner | undefined) => {
   const { GOVERNANCE } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  getNewContract(GOVERNANCE, GOVERNANCE_ABI, signer)
+  return getNewContract(GOVERNANCE, GOVERNANCE_ABI, signer)
 }
 
 export const getEscrowContract = (signer: JsonRpcSigner | undefined) => {
   const { ESCROW } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  getNewContract(ESCROW, ESCROW_ABI, signer)
+  return getNewContract(ESCROW, ESCROW_ABI, signer)
 }
   
 export const getINVContract = (signer: JsonRpcSigner | undefined) => {
   const { INV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  getNewContract(INV, INV_ABI, signer)
+  return getNewContract(INV, INV_ABI, signer)
 }
 
 export const getCEtherContract = (
@@ -69,5 +69,5 @@ export const getERC20Contract = (
 
 export const getLensContract = (signer: JsonRpcSigner | undefined) => {
   const { LENS } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  getNewContract(LENS, LENS_ABI, signer);
+  return getNewContract(LENS, LENS_ABI, signer);
 }
