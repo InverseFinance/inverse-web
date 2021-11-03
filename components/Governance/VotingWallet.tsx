@@ -4,7 +4,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { Avatar } from '@inverse/components/common/Avatar'
 import Container from '@inverse/components/common/Container'
 import { ChangeDelegatesModal } from '@inverse/components/Governance'
-import { INV, XINV } from '@inverse/config/constants'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
@@ -27,7 +27,8 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
 )
 
 export const VotingWallet = ({ address }: { address?: string }) => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [INV, 'balanceOf', account],
     [XINV, 'balanceOf', account],

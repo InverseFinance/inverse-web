@@ -6,11 +6,10 @@ import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
 import { Input, Textarea } from '@inverse/components/common/Input'
 import Link from '@inverse/components/common/Link'
 import { Modal, ModalProps } from '@inverse/components/common/Modal'
-import { INV } from '@inverse/config/constants'
-import { useDelegates } from '@inverse/hooks/useDelegates'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
-import { Delegate, ProposalVote } from '@inverse/types'
+import { ProposalVote } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
@@ -126,6 +125,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
   const [delegationType, setDelegationType] = useState('Delegate')
   const [delegate, setDelegate] = useState(address || '')
   const [signature, setSignature] = useState('')
+  const { INV } = getNetworkConfigConstants(chainId)
   const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
   const { hasCopied, onCopy } = useClipboard(signature)
 

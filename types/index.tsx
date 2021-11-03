@@ -148,3 +148,16 @@ export type Network = {
 }
 
 export type StringNumMap = { [key: string]: number };
+
+export type Vaults = { [key: string]: { from: Token; to: Token } }
+export type VaultTree = { [key: string]: { [key: string]: string } }
+
+export type AssetDropDownProps = {
+  tokens: TokenList,
+  isOpen: boolean,
+  onClose: () => void,
+  onOpen: () => void,
+  asset: Token,
+  options: [string, string][],
+  handleChange: (to: string) => void,
+}

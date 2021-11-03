@@ -3,7 +3,6 @@ import { Avatar } from '@inverse/components/common/Avatar'
 import Container from '@inverse/components/common/Container'
 import Link from '@inverse/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { CONTRACTS } from '@inverse/config/constants'
 import { useProposal } from '@inverse/hooks/useProposals'
 import { Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
@@ -11,6 +10,9 @@ import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
 import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import { useWeb3React } from '@web3-react/core';
+import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { Web3Provider } from '@ethersproject/providers';
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -141,6 +143,8 @@ export const ProposalDetails = ({ id }: { id: number }) => {
 }
 
 export const ProposalActions = ({ id }: { id: number }) => {
+  const { chainId } = useWeb3React<Web3Provider>()
+  const { CONTRACTS } = getNetworkConfigConstants(chainId)
   const { proposal, isLoading } = useProposal(id)
 
   if (isLoading) {

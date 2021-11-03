@@ -2,7 +2,7 @@ import { Flex, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
-import { GOVERNANCE } from '@inverse/config/constants'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposals } from '@inverse/hooks/useProposals'
 import { ProposalStatus } from '@inverse/types'
@@ -10,8 +10,9 @@ import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 
 export const VoteButton = ({ id }: { id: number }) => {
-  const { active, account } = useWeb3React<Web3Provider>()
+  const { active, account, chainId } = useWeb3React<Web3Provider>()
   const { proposals } = useProposals()
+  const { GOVERNANCE } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([GOVERNANCE, 'getReceipt', id, account])
   const { isOpen, onOpen, onClose } = useDisclosure()
 

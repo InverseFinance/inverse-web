@@ -13,7 +13,7 @@ import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
 import Link from '@inverse/components/common/Link'
 import Logo from '@inverse/components/common/Logo'
-import { ETH_MANTISSA, INV, XINV } from '@inverse/config/constants'
+import { ETH_MANTISSA } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
 import { injectedConnector, setIsPreviouslyConnected, walletConnectConnector } from '@inverse/util/web3'
@@ -21,7 +21,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
 import WrongNetworkModal from '../Modal/WrongNetworkModal'
-import { isSupportedNetwork } from '@inverse/config/networks'
+import { getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
 import { isPreviouslyConnected } from '../../../util/web3';
 
 const NAV_ITEMS = [
@@ -44,7 +44,8 @@ const NAV_ITEMS = [
 ]
 
 const INVBalance = () => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { data } = useEtherSWR([
     [INV, 'balanceOf', account],
     [XINV, 'balanceOf', account],

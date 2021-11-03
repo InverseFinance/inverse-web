@@ -1,4 +1,4 @@
-import { NetworkConfig, Network, Token, NetworkIds, TokenList } from '@inverse/types'
+import { NetworkConfig, Network, Token, NetworkIds, TokenList, Vaults, VaultTree } from '@inverse/types'
 
 const mainnetConfig: NetworkConfig = {
   chainId: '1',
@@ -352,7 +352,7 @@ export const getNetworkConfigConstants = (
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
   }
 
-  const VAULT_TREE: { [key: string]: { [key: string]: string } } = {
+  const VAULT_TREE: VaultTree = {
     [DAI]: {
       ETH: VAULT_DAI_ETH,
       [WBTC]: VAULT_DAI_WBTC,
@@ -363,7 +363,7 @@ export const getNetworkConfigConstants = (
     },
   }
 
-  const VAULTS: { [key: string]: { from: Token; to: Token } } = {
+  const VAULTS: Vaults = {
     [VAULT_DAI_ETH]: {
       from: TOKENS[DAI],
       to: TOKENS.ETH,
