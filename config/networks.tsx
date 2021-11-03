@@ -147,275 +147,282 @@ export const getNetworkConfig = (chainId: string | number, returnMainIfUnsupport
 export const getNetworks = (): Network[] => NETWORKS;
 export const getSupportedNetworks = (): Network[] => NETWORKS.filter(network => network.isSupported);
 
-export const getNetworkConfigConstants = (config: NetworkConfig) => {
-    // Vaults
-    const VAULT_USDC_ETH = config.vaults.vaultUsdcEth;
-    const VAULT_DAI_WBTC = config.vaults.vaultDaiWbtc;
-    const VAULT_DAI_YFI = config.vaults.vaultDaiYfi;
-    const VAULT_DAI_ETH = config.vaults.vaultDaiEth;
-    const VAULT_TOKENS = Object.values(config.vaults);
+export const getNetworkConfigConstants = (
+  configOrChainId: NetworkConfig | string | number = NetworkIds.mainnet,
+) => {
+  const config = typeof configOrChainId === 'string' || typeof configOrChainId === 'number' ?
+    getNetworkConfig(configOrChainId, true) :
+    isSupportedNetwork(configOrChainId.chainId) ?
+      configOrChainId : getNetworkConfig(NetworkIds.mainnet);
 
-    // Anchor
-    const LENS = config.anchor.lens;
-    const COMPTROLLER = config.anchor.comptroller;
-    const ORACLE = config.anchor.oracle;
-    const STABILIZER = config.anchor.stabilizer;
-    const TREASURY = config.anchor.treasury;
+  // Vaults
+  const VAULT_USDC_ETH = config.vaults.vaultUsdcEth;
+  const VAULT_DAI_WBTC = config.vaults.vaultDaiWbtc;
+  const VAULT_DAI_YFI = config.vaults.vaultDaiYfi;
+  const VAULT_DAI_ETH = config.vaults.vaultDaiEth;
+  const VAULT_TOKENS = Object.values(config.vaults);
 
-    const ANCHOR_ETH = config.anchor.markets.eth;
-    const ANCHOR_DOLA = config.anchor.markets.dola;
-    const ANCHOR_XSUSHI = config.anchor.markets.xsushi;
-    const ANCHOR_WBTC = config.anchor.markets.wbtc;
-    const ANCHOR_YFI = config.anchor.markets.yfi;
-    const ANCHOR_STETH = config.anchor.markets.steth;
-    const ANCHOR_INVDOLASLP = config.anchor.markets.invdolaslp
-    const ANCHOR_DOLA3POOLCRV = config.anchor.markets.dola3poolcrv
-    const ANCHOR_TOKENS = Object.values(config.anchor.markets);
+  // Anchor
+  const LENS = config.anchor.lens;
+  const COMPTROLLER = config.anchor.comptroller;
+  const ORACLE = config.anchor.oracle;
+  const STABILIZER = config.anchor.stabilizer;
+  const TREASURY = config.anchor.treasury;
 
-    const GOVERNANCE = config.governance;
+  const ANCHOR_ETH = config.anchor.markets.eth;
+  const ANCHOR_DOLA = config.anchor.markets.dola;
+  const ANCHOR_XSUSHI = config.anchor.markets.xsushi;
+  const ANCHOR_WBTC = config.anchor.markets.wbtc;
+  const ANCHOR_YFI = config.anchor.markets.yfi;
+  const ANCHOR_STETH = config.anchor.markets.steth;
+  const ANCHOR_INVDOLASLP = config.anchor.markets.invdolaslp
+  const ANCHOR_DOLA3POOLCRV = config.anchor.markets.dola3poolcrv
+  const ANCHOR_TOKENS = Object.values(config.anchor.markets);
 
-    // Harvester
-    const HARVESTER = config.harvester;
+  const GOVERNANCE = config.governance;
 
-    // Escrow
-    const ESCROW = config.escrow;
+  // Harvester
+  const HARVESTER = config.harvester;
 
-    // Tokens
-    const INV = config.INV;
-    const DOLA = config.DOLA;
-    const DAI = config.DAI;
-    const USDC = config.USDC;
-    const WETH = config.WETH;
-    const YFI = config.YFI;
-    const XSUSHI = config.XSUSHI;
-    const WBTC = config.WBTC;
-    const XINV = config.XINV;
-    const STETH = config.STETH;
-    const INVDOLASLP = config.INVDOLASLP
-    const DOLA3POOLCRV = config.DOLA3POOLCRV
-    const THREECRV = config.THREECRV;
+  // Escrow
+  const ESCROW = config.escrow;
 
-    const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
+  // Tokens
+  const INV = config.INV;
+  const DOLA = config.DOLA;
+  const DAI = config.DAI;
+  const USDC = config.USDC;
+  const WETH = config.WETH;
+  const YFI = config.YFI;
+  const XSUSHI = config.XSUSHI;
+  const WBTC = config.WBTC;
+  const XINV = config.XINV;
+  const STETH = config.STETH;
+  const INVDOLASLP = config.INVDOLASLP
+  const DOLA3POOLCRV = config.DOLA3POOLCRV
+  const THREECRV = config.THREECRV;
 
-    const TOKENS: TokenList = {
-        ETH: {
-            address: '',
-            name: 'Ether',
-            symbol: 'ETH',
-            coingeckoId: 'ethereum',
-            image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
-            decimals: 18,
-        },
-        [INV]: {
-            address: INV,
-            name: 'Inverse',
-            symbol: 'INV',
-            coingeckoId: 'inverse-finance',
-            image: '/assets/favicon.png',
-            decimals: 18,
-        },
-        [DOLA]: {
-            address: DOLA,
-            name: 'Dola',
-            symbol: 'DOLA',
-            coingeckoId: 'dola-usd',
-            image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
-            decimals: 18,
-        },
-        [DAI]: {
-            address: DAI,
-            name: 'Dai',
-            symbol: 'DAI',
-            coingeckoId: 'dai',
-            image: 'https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png',
-            decimals: 18,
-        },
-        [USDC]: {
-            address: USDC,
-            name: 'USD Coin',
-            symbol: 'USDC',
-            coingeckoId: 'usd-coin',
-            image: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
-            decimals: 6,
-        },
-        [WETH]: {
-            address: WETH,
-            name: 'Wrapped Ethereum',
-            symbol: 'WETH',
-            coingeckoId: 'weth',
-            image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
-            decimals: 18,
-        },
-        [YFI]: {
-            address: YFI,
-            name: 'Yearn',
-            symbol: 'YFI',
-            coingeckoId: 'yearn-finance',
-            image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
-            decimals: 18,
-        },
-        [XSUSHI]: {
-            address: XSUSHI,
-            name: 'xSUSHI',
-            symbol: 'xSUSHI',
-            coingeckoId: 'xsushi',
-            image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
-            decimals: 18,
-        },
-        [WBTC]: {
-            address: WBTC,
-            name: 'Wrapped Bitcoin',
-            symbol: 'WBTC',
-            coingeckoId: 'wrapped-bitcoin',
-            image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
-            decimals: 8,
-        },
-        [STETH]: {
-            address: STETH,
-            name: 'Lido Staked Ether',
-            symbol: 'stETH',
-            coingeckoId: 'staked-ether',
-            image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
-            decimals: 18,
-        },
-        [INVDOLASLP]: {
-            address: INVDOLASLP,
-            name: 'INV-DOLA SLP',
-            symbol: 'INV-DOLA-SLP',
-            //coingeckoId: 'staked-ether',
-            image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
-            decimals: 18,
-        },
-        [DOLA3POOLCRV]: {
-            address: DOLA3POOLCRV,
-            name: 'Dola-3pool CRV LP',
-            symbol: 'DOLA-3POOL',
-            coingeckoId: 'lp-3pool-curve',
-            image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
-            decimals: 18,
-        },
-        [THREECRV]: {
-            address: THREECRV,
-            name: 'lp-3pool-curve',
-            symbol: '3CRV',
-            coingeckoId: 'lp-3pool-curve',
-            image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
-            decimals: 18,
-        },
-    };
+  const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
 
-    const UNDERLYING: TokenList = {
-        [ANCHOR_ETH]: TOKENS.ETH,
-        [ANCHOR_DOLA]: TOKENS[DOLA],
-        [ANCHOR_XSUSHI]: TOKENS[XSUSHI],
-        [ANCHOR_WBTC]: TOKENS[WBTC],
-        [ANCHOR_YFI]: TOKENS[YFI],
-        [ANCHOR_STETH]: TOKENS[STETH],
-        [ANCHOR_INVDOLASLP]: TOKENS[INVDOLASLP],
-        [ANCHOR_DOLA3POOLCRV]: TOKENS[DOLA3POOLCRV],
-        [XINV]: TOKENS[INV],
-        [VAULT_USDC_ETH]: TOKENS[USDC],
-        [VAULT_DAI_ETH]: TOKENS[DAI],
-        [VAULT_DAI_WBTC]: TOKENS[DAI],
-        [VAULT_DAI_YFI]: TOKENS[DAI],
-        [THREECRV]: TOKENS[THREECRV],
-    }
+  const TOKENS: TokenList = {
+    ETH: {
+      address: '',
+      name: 'Ether',
+      symbol: 'ETH',
+      coingeckoId: 'ethereum',
+      image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+      decimals: 18,
+    },
+    [INV]: {
+      address: INV,
+      name: 'Inverse',
+      symbol: 'INV',
+      coingeckoId: 'inverse-finance',
+      image: '/assets/favicon.png',
+      decimals: 18,
+    },
+    [DOLA]: {
+      address: DOLA,
+      name: 'Dola',
+      symbol: 'DOLA',
+      coingeckoId: 'dola-usd',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      decimals: 18,
+    },
+    [DAI]: {
+      address: DAI,
+      name: 'Dai',
+      symbol: 'DAI',
+      coingeckoId: 'dai',
+      image: 'https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png',
+      decimals: 18,
+    },
+    [USDC]: {
+      address: USDC,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      coingeckoId: 'usd-coin',
+      image: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
+      decimals: 6,
+    },
+    [WETH]: {
+      address: WETH,
+      name: 'Wrapped Ethereum',
+      symbol: 'WETH',
+      coingeckoId: 'weth',
+      image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
+      decimals: 18,
+    },
+    [YFI]: {
+      address: YFI,
+      name: 'Yearn',
+      symbol: 'YFI',
+      coingeckoId: 'yearn-finance',
+      image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+      decimals: 18,
+    },
+    [XSUSHI]: {
+      address: XSUSHI,
+      name: 'xSUSHI',
+      symbol: 'xSUSHI',
+      coingeckoId: 'xsushi',
+      image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
+      decimals: 18,
+    },
+    [WBTC]: {
+      address: WBTC,
+      name: 'Wrapped Bitcoin',
+      symbol: 'WBTC',
+      coingeckoId: 'wrapped-bitcoin',
+      image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
+      decimals: 8,
+    },
+    [STETH]: {
+      address: STETH,
+      name: 'Lido Staked Ether',
+      symbol: 'stETH',
+      coingeckoId: 'staked-ether',
+      image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
+      decimals: 18,
+    },
+    [INVDOLASLP]: {
+      address: INVDOLASLP,
+      name: 'INV-DOLA SLP',
+      symbol: 'INV-DOLA-SLP',
+      //coingeckoId: 'staked-ether',
+      image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
+      decimals: 18,
+    },
+    [DOLA3POOLCRV]: {
+      address: DOLA3POOLCRV,
+      name: 'Dola-3pool CRV LP',
+      symbol: 'DOLA-3POOL',
+      coingeckoId: 'lp-3pool-curve',
+      image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+    },
+    [THREECRV]: {
+      address: THREECRV,
+      name: 'lp-3pool-curve',
+      symbol: '3CRV',
+      coingeckoId: 'lp-3pool-curve',
+      image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+    },
+  };
 
-    const CONTRACTS: { [key: string]: string } = {
-        [ANCHOR_ETH]: 'anETH',
-        [ANCHOR_DOLA]: 'anDOLA',
-        [ANCHOR_XSUSHI]: 'anXSUSHI',
-        [ANCHOR_WBTC]: 'anWBTC',
-        [ANCHOR_YFI]: 'anYFI',
-        [ANCHOR_STETH]: 'anStETH',
-        [ANCHOR_INVDOLASLP]: 'INV-DOLA SLP',
-        [ANCHOR_DOLA3POOLCRV]: 'Dola-3pool LP',
-        [COMPTROLLER]: 'Comptroller',
-        [DAI]: 'Dai',
-        [DOLA]: 'DOLA',
-        [INV]: 'INV',
-        [ORACLE]: 'Oracle',
-        [STABILIZER]: 'Stabilizer',
-        [VAULT_USDC_ETH]: 'vaultUsdcEth',
-        [VAULT_DAI_ETH]: 'vaultDaiEth',
-        [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
-        [VAULT_DAI_YFI]: 'vaultDaiYfi',
-        [XINV]: 'xINV',
-        '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
-        '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
-    }
+  const UNDERLYING: TokenList = {
+    [ANCHOR_ETH]: TOKENS.ETH,
+    [ANCHOR_DOLA]: TOKENS[DOLA],
+    [ANCHOR_XSUSHI]: TOKENS[XSUSHI],
+    [ANCHOR_WBTC]: TOKENS[WBTC],
+    [ANCHOR_YFI]: TOKENS[YFI],
+    [ANCHOR_STETH]: TOKENS[STETH],
+    [ANCHOR_INVDOLASLP]: TOKENS[INVDOLASLP],
+    [ANCHOR_DOLA3POOLCRV]: TOKENS[DOLA3POOLCRV],
+    [XINV]: TOKENS[INV],
+    [VAULT_USDC_ETH]: TOKENS[USDC],
+    [VAULT_DAI_ETH]: TOKENS[DAI],
+    [VAULT_DAI_WBTC]: TOKENS[DAI],
+    [VAULT_DAI_YFI]: TOKENS[DAI],
+    [THREECRV]: TOKENS[THREECRV],
+  }
 
-    const VAULT_TREE: { [key: string]: { [key: string]: string } } = {
-        [DAI]: {
-            ETH: VAULT_DAI_ETH,
-            [WBTC]: VAULT_DAI_WBTC,
-            [YFI]: VAULT_DAI_YFI,
-        },
-        [USDC]: {
-            ETH: VAULT_USDC_ETH,
-        },
-    }
+  const CONTRACTS: { [key: string]: string } = {
+    [ANCHOR_ETH]: 'anETH',
+    [ANCHOR_DOLA]: 'anDOLA',
+    [ANCHOR_XSUSHI]: 'anXSUSHI',
+    [ANCHOR_WBTC]: 'anWBTC',
+    [ANCHOR_YFI]: 'anYFI',
+    [ANCHOR_STETH]: 'anStETH',
+    [ANCHOR_INVDOLASLP]: 'INV-DOLA SLP',
+    [ANCHOR_DOLA3POOLCRV]: 'Dola-3pool LP',
+    [COMPTROLLER]: 'Comptroller',
+    [DAI]: 'Dai',
+    [DOLA]: 'DOLA',
+    [INV]: 'INV',
+    [ORACLE]: 'Oracle',
+    [STABILIZER]: 'Stabilizer',
+    [VAULT_USDC_ETH]: 'vaultUsdcEth',
+    [VAULT_DAI_ETH]: 'vaultDaiEth',
+    [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
+    [VAULT_DAI_YFI]: 'vaultDaiYfi',
+    [XINV]: 'xINV',
+    '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
+    '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
+  }
 
-    const VAULTS: { [key: string]: { from: Token; to: Token } } = {
-        [VAULT_DAI_ETH]: {
-            from: TOKENS[DAI],
-            to: TOKENS.ETH,
-        },
-        [VAULT_DAI_WBTC]: {
-            from: TOKENS[DAI],
-            to: TOKENS[WBTC],
-        },
-        [VAULT_DAI_YFI]: {
-            from: TOKENS[DAI],
-            to: TOKENS[YFI],
-        },
-        [VAULT_USDC_ETH]: {
-            from: TOKENS[USDC],
-            to: TOKENS.ETH,
-        },
-    }
+  const VAULT_TREE: { [key: string]: { [key: string]: string } } = {
+    [DAI]: {
+      ETH: VAULT_DAI_ETH,
+      [WBTC]: VAULT_DAI_WBTC,
+      [YFI]: VAULT_DAI_YFI,
+    },
+    [USDC]: {
+      ETH: VAULT_USDC_ETH,
+    },
+  }
 
-    return {
-        VAULT_USDC_ETH,
-        VAULT_DAI_WBTC,
-        VAULT_DAI_YFI,
-        VAULT_DAI_ETH,
-        VAULT_TOKENS,
-        LENS,
-        COMPTROLLER,
-        ORACLE,
-        STABILIZER,
-        TREASURY,
-        ANCHOR_ETH,
-        ANCHOR_DOLA,
-        ANCHOR_XSUSHI,
-        ANCHOR_WBTC,
-        ANCHOR_YFI,
-        ANCHOR_STETH,
-        ANCHOR_INVDOLASLP,
-        ANCHOR_DOLA3POOLCRV,
-        ANCHOR_TOKENS,
-        GOVERNANCE,
-        HARVESTER,
-        ESCROW,
-        INV,
-        DOLA,
-        DAI,
-        USDC,
-        WETH,
-        YFI,
-        XSUSHI,
-        WBTC,
-        XINV,
-        STETH,
-        INVDOLASLP,
-        DOLA3POOLCRV,
-        THREECRV,
-        UNDERLYING,
-        TOKENS,
-        VAULTS,
-        VAULT_TREE,
-        CONTRACTS,
-        NAMED_ADDRESSES,
-    }
+  const VAULTS: { [key: string]: { from: Token; to: Token } } = {
+    [VAULT_DAI_ETH]: {
+      from: TOKENS[DAI],
+      to: TOKENS.ETH,
+    },
+    [VAULT_DAI_WBTC]: {
+      from: TOKENS[DAI],
+      to: TOKENS[WBTC],
+    },
+    [VAULT_DAI_YFI]: {
+      from: TOKENS[DAI],
+      to: TOKENS[YFI],
+    },
+    [VAULT_USDC_ETH]: {
+      from: TOKENS[USDC],
+      to: TOKENS.ETH,
+    },
+  }
+
+  return {
+    VAULT_USDC_ETH,
+    VAULT_DAI_WBTC,
+    VAULT_DAI_YFI,
+    VAULT_DAI_ETH,
+    VAULT_TOKENS,
+    LENS,
+    COMPTROLLER,
+    ORACLE,
+    STABILIZER,
+    TREASURY,
+    ANCHOR_ETH,
+    ANCHOR_DOLA,
+    ANCHOR_XSUSHI,
+    ANCHOR_WBTC,
+    ANCHOR_YFI,
+    ANCHOR_STETH,
+    ANCHOR_INVDOLASLP,
+    ANCHOR_DOLA3POOLCRV,
+    ANCHOR_TOKENS,
+    GOVERNANCE,
+    HARVESTER,
+    ESCROW,
+    INV,
+    DOLA,
+    DAI,
+    USDC,
+    WETH,
+    YFI,
+    XSUSHI,
+    WBTC,
+    XINV,
+    STETH,
+    INVDOLASLP,
+    DOLA3POOLCRV,
+    THREECRV,
+    UNDERLYING,
+    TOKENS,
+    VAULTS,
+    VAULT_TREE,
+    CONTRACTS,
+    NAMED_ADDRESSES,
+  }
 }
