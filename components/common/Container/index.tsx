@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import Link from '@inverse/components/Link'
+import Link from '@inverse/components/common/Link'
 
 export const Container = ({
   label,

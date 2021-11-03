@@ -7,10 +7,10 @@ import {
   AnchorSupply,
   AnchorHeader,
 } from '@inverse/components/Anchor'
-import { NavButtons } from '@inverse/components/Button'
-import Container from '@inverse/components/Container'
-import Layout from '@inverse/components/Layout'
-import { AppNav } from '@inverse/components/Navbar'
+import { NavButtons } from '@inverse/components/common/Button'
+import Container from '@inverse/components/common/Container'
+import Layout from '@inverse/components/common/Layout'
+import { AppNav } from '@inverse/components/common/Navbar'
 import { useState } from 'react'
 
 export const Anchor = () => {

@@ -1,8 +1,8 @@
 import { Box, Flex, Image, Stack, Text } from '@chakra-ui/react'
 import { AnchorButton } from '@inverse/components/Anchor/AnchorButton'
 import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
-import { BalanceInput } from '@inverse/components/Input'
-import { Modal, ModalProps } from '@inverse/components/Modal'
+import { BalanceInput } from '@inverse/components/common/Input'
+import { Modal, ModalProps } from '@inverse/components/common/Modal'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
@@ -12,7 +12,7 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { NavButtons } from '@inverse/components/Button'
+import { NavButtons } from '@inverse/components/common/Button'
 
 export enum AnchorOperations {
   supply = 'Supply',

@@ -1,6 +1,6 @@
 import { Flex, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { SubmitButton } from '@inverse/components/Button'
+import { SubmitButton } from '@inverse/components/common/Button'
 import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
 import { GOVERNANCE } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'

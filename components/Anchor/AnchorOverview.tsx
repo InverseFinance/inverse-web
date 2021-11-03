@@ -1,13 +1,13 @@
 import { Flex, Stack, Text, Badge } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { ClaimButton } from '@inverse/components/Button'
-import Container from '@inverse/components/Container'
+import { ClaimButton } from '@inverse/components/common/Button'
+import Container from '@inverse/components/common/Container'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
 import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
-import { InfoTooltip } from '@inverse/components/Tooltip'
+import { InfoTooltip } from '@inverse/components/common/Tooltip'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()

@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
-import Layout from '@inverse/components/Layout'
-import { AppNav } from '@inverse/components/Navbar'
+import Layout from '@inverse/components/common/Layout'
+import { AppNav } from '@inverse/components/common/Navbar'
 import { VaultsView } from '@inverse/components/Vaults'
 
 export const Vaults = () => (

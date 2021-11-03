@@ -1,4 +1,4 @@
-import { Modal } from '@inverse/components/Modal';
+import { Modal } from '@inverse/components/common/Modal';
 import { Stack, Text, UnorderedList, ListItem } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons'
 import { getSupportedNetworks } from '@inverse/config/networks';

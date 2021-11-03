@@ -1,8 +1,8 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
 import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
-import LinkButton, { LinkOutlineButton } from '@inverse/components/Button'
-import Layout from '@inverse/components/Layout'
-import { LandingNav } from '@inverse/components/Navbar'
+import LinkButton, { LinkOutlineButton } from '@inverse/components/common/Button'
+import Layout from '@inverse/components/common/Layout'
+import { LandingNav } from '@inverse/components/common/Navbar'
 import { useDOLA } from '@inverse/hooks/useDOLA'
 import { useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'

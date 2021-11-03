@@ -11,9 +11,9 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { ClaimButton, NavButtons, SubmitButton } from '@inverse/components/Button'
-import Container from '@inverse/components/Container'
-import { BalanceInput } from '@inverse/components/Input'
+import { ClaimButton, NavButtons, SubmitButton } from '@inverse/components/common/Button'
+import Container from '@inverse/components/common/Container'
+import { BalanceInput } from '@inverse/components/common/Input'
 import { TOKENS, VAULTS, VAULT_DAI_ETH, VAULT_TREE } from '@inverse/config/constants'
 import { useVaultApprovals } from '@inverse/hooks/useApprovals'
 import { useAccountBalances, useVaultBalances } from '@inverse/hooks/useBalances'

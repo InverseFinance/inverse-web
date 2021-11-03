@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Stack } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
-import { SubmitButton } from '@inverse/components/Button'
+import { SubmitButton } from '@inverse/components/common/Button'
 import { ANCHOR_ETH, XINV } from '@inverse/config/constants'
 import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'

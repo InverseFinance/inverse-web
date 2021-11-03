@@ -1,7 +1,7 @@
 import { Flex, Image, Stack, Text } from '@chakra-ui/react'
-import LinkButton from '@inverse/components/Button'
-import Link from '@inverse/components/Link'
-import Logo from '@inverse/components/Logo'
+import LinkButton from '@inverse/components/common/Button'
+import Link from '@inverse/components/common/Link'
+import Logo from '@inverse/components/common/Logo'
 import { useState } from 'react'
 import { Announcement } from '../Announcement'
 

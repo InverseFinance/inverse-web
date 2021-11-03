@@ -11,8 +11,8 @@ import {
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
-import Link from '@inverse/components/Link'
-import Logo from '@inverse/components/Logo'
+import Link from '@inverse/components/common/Link'
+import Logo from '@inverse/components/common/Logo'
 import { ETH_MANTISSA, INV, XINV } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
 import WrongNetworkModal from '../Modal/WrongNetworkModal'
 import { isSupportedNetwork } from '@inverse/config/networks'
-import { isPreviouslyConnected } from '../../util/web3';
+import { isPreviouslyConnected } from '../../../util/web3';
 
 const NAV_ITEMS = [
   {
