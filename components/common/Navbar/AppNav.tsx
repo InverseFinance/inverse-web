@@ -21,7 +21,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
 import WrongNetworkModal from '../Modal/WrongNetworkModal'
-import { getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
+import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
 import { isPreviouslyConnected } from '../../../util/web3';
 import { NetworkItem } from '../NetworkItem'
 
@@ -63,8 +63,9 @@ const NavBadge = (props: any) => (
 )
 
 const NetworkBadge = ({ chainId }: { chainId?: string | number }) => {
+  const bgColor = getNetwork(chainId || '')?.bgColor || 'purple.800';
   return (
-    <NavBadge>
+    <NavBadge bgColor={bgColor}>
       <NetworkItem chainId={chainId} />
     </NavBadge>
   )
