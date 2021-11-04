@@ -13,6 +13,8 @@ import {
   ESCROW_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { NetworkIds } from '@inverse/types'
+import { utils } from 'ethers/lib'
 
 export const getNewContract = (
   address: string,
@@ -70,4 +72,22 @@ export const getERC20Contract = (
 export const getLensContract = (signer: JsonRpcSigner | undefined) => {
   const { LENS } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
   return getNewContract(LENS, LENS_ABI, signer);
+}
+
+export const getTokensFromFaucet = async (tokenSymbol: 'INV' | 'DOLA', qty: string, signer: JsonRpcSigner | undefined) => {
+  if(!signer || signer?.provider?.network?.chainId.toString() !== NetworkIds.rinkeby) { return }
+
+  const { [tokenSymbol]: tokenAddress } = getNetworkConfigConstants(NetworkIds.rinkeby);
+  // TODO: do corresponding logic (a special ERC20 token contract or a dedicated faucet contract to come)
+  // const contract = getNewContract(tokenAddress, FAUCET_ABI, signer);
+  // const tx = await contract.faucetFunction(utils.parseUnits(qty, 18))
+  // const txReceipt = await tx.wait()
+}
+
+export const getDOLAsFromFaucet = (signer: JsonRpcSigner | undefined) => {
+  getTokensFromFaucet('DOLA', '2000', signer)
+}
+
+export const getINVsFromFaucet = (signer: JsonRpcSigner | undefined) => {
+  getTokensFromFaucet('INV', '2', signer)
 }

@@ -56,6 +56,10 @@ export const ERC20_ABI = [
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
 ];
 
+export const FAUCET_ABI = [
+  // will depend on contract
+];
+
 export const ESCROW_ABI = [
   'function pendingWithdrawals(address user) public view returns (uint withdrawalTimestamp, uint amount)',
   'function withdraw() public',

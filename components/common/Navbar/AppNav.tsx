@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverBody,
   Text,
+  StackProps,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -24,6 +25,8 @@ import WrongNetworkModal from '../Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
 import { isPreviouslyConnected } from '../../../util/web3';
 import { NetworkItem } from '../NetworkItem'
+import { NetworkIds } from '@inverse/types'
+import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 
 const NAV_ITEMS = [
   {
@@ -105,8 +108,20 @@ const ETHBalance = () => {
   )
 }
 
+const ConnectionMenuItem = ({ ...props }: StackProps) => {
+  return <Stack
+    direction="row"
+    align="center"
+    p={4}
+    pt={2}
+    pb={2}
+    _hover={{ bgColor: 'purple.850' }}
+    {...props}
+  />
+}
+
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
-  const { account, activate, active, deactivate, connector, chainId } = useWeb3React<Web3Provider>()
+  const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const [isOpen, setIsOpen] = useState(false)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
@@ -178,47 +193,47 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         {!active && (
           <PopoverBody p={0}>
             <Stack w="full">
-              <Stack
-                direction="row"
-                align="center"
-                p={4}
-                pt={2}
-                pb={2}
+              <ConnectionMenuItem
                 onClick={connectMetamask}
-                _hover={{ bgColor: 'purple.850' }}
               >
                 <Image w={6} h={6} src="/assets/wallets/Metamask.png" />
                 <Text fontWeight="semibold">Metamask</Text>
-              </Stack>
-              <Stack
-                direction="row"
-                align="center"
-                p={4}
-                pt={2}
-                pb={2}
+              </ConnectionMenuItem>
+              <ConnectionMenuItem
                 onClick={connectWalletConnect}
-                _hover={{ bgColor: 'purple.850' }}
               >
                 <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
                 <Text fontWeight="semibold">WalletConnect</Text>
-              </Stack>
+              </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
         )}
         {active && (
           <PopoverBody p={0}>
-            <Stack
-              direction="row"
-              align="center"
-              p={4}
-              pt={2}
-              pb={2}
+            <ConnectionMenuItem
               onClick={disconnect}
-              _hover={{ bgColor: 'purple.850' }}
             >
               <CloseIcon color="red" boxSize={3} />
               <Text fontWeight="semibold">Disconnect</Text>
-            </Stack>
+            </ConnectionMenuItem>
+            {
+              !!chainId && chainId.toString() === NetworkIds.rinkeby ?
+                <>
+                  <ConnectionMenuItem
+                    onClick={() => getINVsFromFaucet(library?.getSigner())}
+                  >
+                    <Image boxSize={3} src={'/assets/favicon.png'} />
+                    <Text fontWeight="semibold">Get INVs</Text>
+                  </ConnectionMenuItem>
+                  <ConnectionMenuItem
+                    onClick={() => getDOLAsFromFaucet(library?.getSigner())}
+                  >
+                    <Image boxSize={3} src={'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'} />
+                    <Text fontWeight="semibold">Get DOLAs</Text>
+                  </ConnectionMenuItem>
+                </>
+                : null
+            }
           </PopoverBody>
         )}
       </PopoverContent>
