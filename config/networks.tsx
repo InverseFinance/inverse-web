@@ -142,7 +142,7 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: true,
-    bgColor: 'purple.500',
+    // bgColor: '',
     config: mainnetConfig,
   },
   {
@@ -171,7 +171,6 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'eth',
     isTestnet: true,
     isSupported: false,
-    bgColor: 'blue.500',
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
   {
