@@ -23,6 +23,7 @@ import { Announcement } from '../Announcement'
 import WrongNetworkModal from '../Modal/WrongNetworkModal'
 import { getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
 import { isPreviouslyConnected } from '../../../util/web3';
+import { NetworkItem } from '../NetworkItem'
 
 const NAV_ITEMS = [
   {
@@ -43,6 +44,32 @@ const NAV_ITEMS = [
   },
 ]
 
+const NavBadge = (props: any) => (
+  <Flex
+    justify="center"
+    fontSize="sm"
+    align="center"
+    bgColor="purple.800"
+    borderRadius={4}
+    borderWidth={1}
+    borderColor="purple.700"
+    fontWeight="semibold"
+    color="#fff"
+    p={2}
+    pl={4}
+    pr={4}
+    {...props}
+  />
+)
+
+const NetworkBadge = ({ chainId }: { chainId?: string | number }) => {
+  return (
+    <NavBadge>
+      <NetworkItem chainId={chainId} />
+    </NavBadge>
+  )
+}
+
 const INVBalance = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { INV, XINV } = getNetworkConfigConstants(chainId);
@@ -61,20 +88,7 @@ const INVBalance = () => {
   const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
 
   return (
-    <Flex
-      justify="center"
-      fontSize="sm"
-      align="center"
-      bgColor="purple.800"
-      borderRadius={4}
-      borderWidth={1}
-      borderColor="purple.700"
-      fontWeight="semibold"
-      color="#fff"
-      p={2}
-      pl={4}
-      pr={4}
-    >{`${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`}</Flex>
+    <NavBadge>{`${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`}</NavBadge>
   )
 }
 
@@ -86,44 +100,42 @@ const ETHBalance = () => {
     return <></>
   }
   return (
-    <Flex
-      justify="center"
-      fontSize="sm"
-      align="center"
-      bgColor="purple.800"
-      borderRadius={4}
-      borderWidth={1}
-      borderColor="purple.700"
-      fontWeight="semibold"
-      color="#fff"
-      p={2}
-      pl={4}
-      pr={4}
-    >{`${(balance / ETH_MANTISSA).toFixed(4)} ETH`}</Flex>
+    <NavBadge>{`${(balance / ETH_MANTISSA).toFixed(4)} ETH`}</NavBadge>
   )
 }
 
-const AppNavConnect = () => {
+const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId } = useWeb3React<Web3Provider>()
   const [isOpen, setIsOpen] = useState(false)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
 
-  const connectMetamask = () => {
-    activate(injectedConnector)
-    setIsPreviouslyConnected(true);
+  const disconnect = () => {
     close()
+    // visually better
+    setTimeout(() => {
+      setIsPreviouslyConnected(false);
+      deactivate()
+    }, 100)
+  }
+
+  const connectMetamask = () => {
+    if (isWrongNetwork) {
+      disconnect()
+      showWrongNetworkModal();
+    } else {
+      close()
+      // visually better
+      setTimeout(() => {
+        activate(injectedConnector)
+        setIsPreviouslyConnected(true);
+      }, 100)
+    }
   }
 
   const connectWalletConnect = () => {
+    close()
     activate(walletConnectConnector)
-    close()
-  }
-
-  const disconnect = () => {
-    setIsPreviouslyConnected(false);
-    deactivate()
-    close()
   }
 
   let connectorName
@@ -133,7 +145,8 @@ const AppNavConnect = () => {
   }
 
   return (
-    <Popover placement="bottom" trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
+    <Popover onClose={close} onOpen={open} isOpen={isOpen} placement="bottom"
+      trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
       <PopoverTrigger>
         <Flex
           justify="center"
@@ -215,7 +228,9 @@ const AppNavConnect = () => {
 export const AppNav = ({ active }: { active?: string }) => {
   const [showMobileNav, setShowMobileNav] = useState(false)
   const [showWrongNetModal, setShowWrongNetModal] = useState(false)
+  const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
+  const [badgeChainId, setBadgeChainId] = useState(chainId)
 
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
@@ -224,14 +239,25 @@ export const AppNav = ({ active }: { active?: string }) => {
   }, [walletActive]);
 
   useEffect(() => {
-    if(!chainId) { return }
-    const isSupported = isSupportedNetwork(chainId);
+    const chainIdInWallet = chainId || (typeof window !== 'undefined' ? window?.ethereum?.networkVersion : '');
+    setBadgeChainId(chainIdInWallet);
+
+    if (!chainIdInWallet) { return }
+
+    const isSupported = isSupportedNetwork(chainIdInWallet);
+    setIsUsupportedNetwork(!isSupported)
     setShowWrongNetModal(!isSupported);
-    if(!isSupported) {
+    if (!isSupported) {
       setIsPreviouslyConnected(false);
       deactivate();
     }
   }, [chainId]);
+
+  useEffect(() => {
+    if (window?.ethereum) {
+      window?.ethereum?.on('chainChanged', () => window.location.reload());
+    }
+  }, [])
 
   return (
     <>
@@ -268,7 +294,7 @@ export const AppNav = ({ active }: { active?: string }) => {
           </Stack>
         </Stack>
         <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
-          <AppNavConnect />
+          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={() => setShowWrongNetModal(true)} />
         </Stack>
         <Flex display={{ base: 'flex', lg: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
@@ -280,7 +306,8 @@ export const AppNav = ({ active }: { active?: string }) => {
         <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
           <INVBalance />
           <ETHBalance />
-          <AppNavConnect />
+          {badgeChainId ? <NetworkBadge chainId={badgeChainId} /> : null}
+          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={() => setShowWrongNetModal(true)} />
         </Stack>
       </Flex>
       {showMobileNav && (

@@ -1,3 +1,5 @@
+import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
+
 export interface Token {
   address: string
   name: string
@@ -141,10 +143,14 @@ export type NetworkConfig = {
 
 export type Network = {
   id: string;
-  label: string;
+  codename: string;
+  name: string;
   isTestnet: boolean;
   isSupported: boolean;
-  config: NetworkConfig;
+  coinSymbol: string,
+  bgColor?: BackgroundProps["bgColor"],
+  image?: string,
+  config?: NetworkConfig;
 }
 
 export type StringNumMap = { [key: string]: number };

@@ -1,4 +1,4 @@
-import { NetworkConfig, Network, Token, NetworkIds, TokenList, Vaults, VaultTree } from '@inverse/types'
+import { NetworkConfig, Network, NetworkIds, TokenList, Vaults, VaultTree } from '@inverse/types'
 
 const mainnetConfig: NetworkConfig = {
   chainId: '1',
@@ -71,11 +71,11 @@ const mainnetConfig: NetworkConfig = {
 // TODO: fill in all values
 const rinkebyConfig: NetworkConfig = {
   chainId: '4',
-  INV: '',
+  INV: '0xA11f04EFa86C3b32680dC9C2b9D43889E2B8136c',
   DOLA: '',
-  DAI: '',
+  DAI: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
   USDC: '',
-  WETH: '',
+  WETH: '0xc778417e063141139fce010982780140aa0cd5ab',
   YFI: '',
   XSUSHI: '',
   WBTC: '',
@@ -85,13 +85,13 @@ const rinkebyConfig: NetworkConfig = {
   DOLA3POOLCRV: '',
   THREECRV: '',
   escrow: '',
-  harvester: '',
-  governance: '',
+  harvester: '0x6dE45B9a80847Ce6Fd53819bA31cf296Ecc346bC',
+  governance: '0x7aC5048dcD9a0C31Bb4D539deFdc2af0E0486753',
   vaults: {
     vaultUsdcEth: '',
     vaultDaiWbtc: '',
     vaultDaiYfi: '',
-    vaultDaiEth: '',
+    vaultDaiEth: '0xC5e43BADAb90AB57CDe5D7c201EDdaFCB03Ba8c8',
   },
   anchor: {
     lens: '',
@@ -113,35 +113,200 @@ const rinkebyConfig: NetworkConfig = {
   namedAddresses: {},
 }
 
+export enum NETWORK_CODENAMES {
+  ethereum = 'ethereum',
+  ropsten = 'ropsten',
+  kovan = 'kovan',
+  rinkeby = 'rinkeby',
+  goerli = 'goerli',
+  bsc = 'bsc',
+  bscTestnet = 'bscTestnet',
+  polygon = 'polygon',
+  polygonTestnet = 'polygonTestnet',
+  heco = 'heco',
+  hecoTestnet = 'hecoTestnet',
+  avalanche = 'avalanche',
+  optimism = 'optimism',
+  arbitrum = 'arbitrum',
+  fantom = 'fantom',
+  harmony = 'harmony',
+  celo = 'celo',
+  moonriver = 'moonriver',
+}
+
 export const NETWORKS: Network[] = [
   {
     id: '1',
-    label: 'Ethereum',
+    codename: NETWORK_CODENAMES.ethereum,
+    name: 'Ethereum',
+    coinSymbol: 'eth',
     isTestnet: false,
     isSupported: true,
+    bgColor: 'purple.500',
     config: mainnetConfig,
   },
   {
-    id: '4',
-    label: 'Rinkeby',
+    id: '3',
+    codename: NETWORK_CODENAMES.ropsten,
+    name: 'Ropsten',
+    coinSymbol: 'eth',
     isTestnet: true,
     isSupported: false,
     config: rinkebyConfig,
-  }
-]
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
+  },
+  {
+    id: '42',
+    codename: NETWORK_CODENAMES.kovan,
+    name: 'Kovan',
+    coinSymbol: 'eth',
+    isTestnet: true,
+    isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
+  },
+  {
+    id: '4',
+    codename: NETWORK_CODENAMES.rinkeby,
+    name: 'Rinkeby',
+    coinSymbol: 'eth',
+    isTestnet: true,
+    isSupported: false,
+    bgColor: 'blue.500',
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
+  },
+  {
+    id: '5',
+    codename: NETWORK_CODENAMES.goerli,
+    name: 'Goerli',
+    coinSymbol: 'eth',
+    isTestnet: true,
+    isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
+  },
+  {
+    id: '56',
+    codename: NETWORK_CODENAMES.bsc,
+    name: 'BSC',
+    coinSymbol: 'bnb',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '97',
+    codename: NETWORK_CODENAMES.bscTestnet,
+    name: 'BSC testnet',
+    coinSymbol: 'bnb',
+    isTestnet: true,
+    isSupported: false,
+  },
+  {
+    id: '137',
+    codename: NETWORK_CODENAMES.polygon,
+    name: 'Polygon',
+    coinSymbol: 'matic',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '80001',
+    codename: NETWORK_CODENAMES.polygonTestnet,
+    name: 'Polygon Testnet',
+    coinSymbol: 'matic',
+    isTestnet: true,
+    isSupported: false,
+  },
+  {
+    id: '128',
+    codename: NETWORK_CODENAMES.heco,
+    name: 'HECO',
+    coinSymbol: 'ht',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '256',
+    codename: NETWORK_CODENAMES.hecoTestnet,
+    name: 'HECO',
+    coinSymbol: 'ht',
+    isTestnet: true,
+    isSupported: false,
+  },
+  {
+    id: '43114',
+    codename: NETWORK_CODENAMES.avalanche,
+    name: 'Avalanche',
+    coinSymbol: 'avax',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '10',
+    codename: NETWORK_CODENAMES.optimism,
+    name: 'Optimism',
+    coinSymbol: 'eth',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '42161',
+    codename: NETWORK_CODENAMES.arbitrum,
+    name: 'Arbitrum One',
+    coinSymbol: 'eth',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '250',
+    codename: NETWORK_CODENAMES.fantom,
+    name: 'Fantom',
+    coinSymbol: 'ftm',
+    isTestnet: false,
+    isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.fantom}.webp`,
+  },
+  {
+    id: '1666600000',
+    codename: NETWORK_CODENAMES.harmony,
+    name: 'Harmony',
+    coinSymbol: 'one',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '42220',
+    codename: NETWORK_CODENAMES.celo,
+    name: 'Celo',
+    coinSymbol: 'celo',
+    isTestnet: false,
+    isSupported: false,
+  },
+  {
+    id: '1285',
+    codename: NETWORK_CODENAMES.moonriver,
+    name: 'Moonriver',
+    coinSymbol: 'movr',
+    isTestnet: false,
+    isSupported: false,
+  },
+];
 
-export const isSupportedNetwork = (chainId: string | number): boolean => {
-  return getNetwork(chainId)?.isSupported;
+export const getNetworkImage = (chainId: string) => {
+  const { image, codename } = getNetwork(chainId);
+  return image || `/assets/networks/${codename}.png`;
+}
+
+export const isSupportedNetwork = (chainId?: string | number): boolean => {
+  return !!chainId && getNetwork(chainId)?.isSupported;
 }
 
 export const getNetwork = (chainId: string | number): Network => {
   return NETWORKS.find(network => network.id === chainId.toString())!;
 }
 
-export const getNetworkConfig = (chainId: string | number, returnMainIfUnsupported = false): NetworkConfig => {
+export const getNetworkConfig = (chainId: string | number, returnMainIfUnsupported = false): NetworkConfig | undefined => {
   const chainIdToGet = !isSupportedNetwork(chainId) && returnMainIfUnsupported ? NetworkIds.mainnet : chainId;
   const network = getNetwork(chainIdToGet);
-  return network?.config!;
+  return network?.config;
 }
 
 export const getNetworks = (): Network[] => NETWORKS;
@@ -151,9 +316,9 @@ export const getNetworkConfigConstants = (
   configOrChainId: NetworkConfig | string | number = NetworkIds.mainnet,
 ) => {
   const config = typeof configOrChainId === 'string' || typeof configOrChainId === 'number' ?
-    getNetworkConfig(configOrChainId, true) :
+    getNetworkConfig(configOrChainId, true)! :
     isSupportedNetwork(configOrChainId.chainId) ?
-      configOrChainId : getNetworkConfig(NetworkIds.mainnet);
+      configOrChainId : getNetworkConfig(NetworkIds.mainnet)!;
 
   // Vaults
   const VAULT_USDC_ETH = config.vaults.vaultUsdcEth;

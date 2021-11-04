@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   try {
     const { chainId = '1' } = req.query;
     // defaults to mainnet data if unsupported network
-    const networkConfig = getNetworkConfig(chainId, true);
+    const networkConfig = getNetworkConfig(chainId, true)!;
     const { DOLA } = networkConfig;
     const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API)
     const contract = new Contract(DOLA, ERC20_ABI, provider)

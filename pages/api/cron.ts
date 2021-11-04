@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         if(!networkConfig?.governance) {
           res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
         }
-        const { INV, governance: GOVERNANCE } = networkConfig;
+        const { INV, governance: GOVERNANCE } = networkConfig!;
         const provider = new AlchemyProvider(Number(chainId), process.env.ALCHEMY_API);
         const inv = new Contract(INV, INV_ABI, provider);
         const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);

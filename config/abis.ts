@@ -1,5 +1,5 @@
 import { NetworkIds } from '@inverse/types';
-import { getNetworkConfig, getNetworkConfigConstants, isSupportedNetwork } from './networks';
+import { getNetworkConfig, getNetworkConfigConstants } from './networks';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -120,7 +120,7 @@ export const XINV_ABI = [
 ];
 
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
-  const networkConfig = getNetworkConfig(chainId, true);
+  const networkConfig = getNetworkConfig(chainId, true)!;
   const {
     ANCHOR_TOKENS,
     COMPTROLLER,
