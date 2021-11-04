@@ -25,7 +25,7 @@ const WrongNetworkModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
             isOpen={isOpen}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
-                    <WarningIcon mr="2" />
+                    <WarningIcon color="orange.100" mr="2" />
                     <Text>Unsupported Network</Text>
                 </Stack>
             }

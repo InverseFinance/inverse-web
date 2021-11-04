@@ -1,15 +1,24 @@
-import { getNetwork, getNetworkImage } from '@inverse/config/networks';
-import { Image } from '@chakra-ui/react';
+import { getNetwork, getNetworkImage, isSupportedNetwork } from '@inverse/config/networks';
+import { Image, Tooltip } from '@chakra-ui/react';
+import { WarningIcon } from '@chakra-ui/icons';
 
 export const NetworkItem = ({ chainId }: { chainId?: string | number }) => {
-    if(!chainId) { return <></> }
+    if (!chainId) { return <></> }
     const network = getNetwork(chainId);
 
     const image = getNetworkImage(network.id)
+    const isSupported = isSupportedNetwork(chainId);
 
     return (
         <>
-            { image ? <Image src={getNetworkImage(network.id)} fallbackSrc={'/assets/networks/unknown.png'} w={5} h={5} mr="2" /> : null }
+            {
+                image && isSupported ?
+                    <Image src={getNetworkImage(network.id)} fallbackSrc={'/assets/networks/unknown.png'} w={5} h={5} mr="2" />
+                    :
+                    <Tooltip label="Unsupported Network">
+                        <WarningIcon color="orange.100" w={5} h={5} mr="2" />
+                    </Tooltip>
+            }
             {network.name || 'Unknown Network'}
         </>
     )
