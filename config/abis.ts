@@ -15,7 +15,8 @@ export const COMPTROLLER_ABI = [
   "function getAllMarkets() public view returns (address[])",
   "function getAssetsIn(address) view returns (address[])",
   "function markets(address) external view returns (bool, uint256, bool)",
-  "function borrowGuardianPaused(address) external view returns (bool)"
+  "function borrowGuardianPaused(address) external view returns (bool)",
+  "function mintGuardianPaused(address) external view returns (bool)",
 ];
 
 export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']

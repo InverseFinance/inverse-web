@@ -33,6 +33,7 @@ export type Market = {
   balance?: number
   isCollateral?: boolean
   liquidityUsd?: number
+  mintable: boolean
 }
 
 export type Proposal = {
