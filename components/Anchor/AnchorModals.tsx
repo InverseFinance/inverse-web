@@ -119,7 +119,11 @@ export const AnchorModal = ({
       data-testid={`${TEST_IDS.anchor.modal}-${operation}`}
     >
       <Stack p={4} w="full" spacing={4}>
-        <NavButtons options={operations} active={operation} onClick={setOperation} />
+        {
+          operations.length > 1 ?
+            <NavButtons options={operations} active={operation} onClick={setOperation} />
+            : null
+        }
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
@@ -160,7 +164,7 @@ export const AnchorSupplyModal = ({ isOpen, onClose, asset }: AnchorModalProps) 
     isOpen={isOpen}
     onClose={onClose}
     asset={asset}
-    operations={[AnchorOperations.supply, AnchorOperations.withdraw]}
+    operations={asset.mintable ? [AnchorOperations.supply, AnchorOperations.withdraw] : [AnchorOperations.withdraw]}
   />
 )
 
