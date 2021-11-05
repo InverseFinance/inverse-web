@@ -259,7 +259,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
-
+  
   const showWrongNetworkModal = () => setShowWrongNetModal(true)
 
   useEffect(() => {
