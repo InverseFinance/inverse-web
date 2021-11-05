@@ -1,5 +1,4 @@
 import { ExternalProvider, JsonRpcFetchFunc, Web3Provider } from '@ethersproject/providers'
-import { getNetwork } from '@inverse/config/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { hexValue } from 'ethers/lib/utils'
@@ -61,8 +60,33 @@ export const switchWalletNetwork = async (id: string | number, onSuccess?: () =>
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: hexaChainId }],
     });
-    if(onSuccess) { onSuccess() }
+    if (onSuccess) { onSuccess() }
   } catch (switchError: any) {
     console.log(switchError);
   }
+}
+
+// window.ethereum is injected by providers even if the user is not connected to our app
+export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
+  const polling = 50;
+
+  return new Promise((resolve) => {
+    const checkReady = (nbAttempts: number) => {
+      setTimeout(() => {
+        if (window?.ethereum?.networkVersion) {
+          resolve(true)
+        } else if(nbAttempts * polling <= timeout) {
+          checkReady(nbAttempts + 1);
+        } else {
+          resolve(false);
+        }
+      }, polling);
+    }
+
+    if (window?.ethereum?.networkVersion) {
+      resolve(true);
+    } else {
+      checkReady(0);
+    }
+  });
 }

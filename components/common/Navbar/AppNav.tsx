@@ -17,7 +17,7 @@ import Logo from '@inverse/components/common/Logo'
 import { ETH_MANTISSA } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
-import { injectedConnector, setIsPreviouslyConnected, walletConnectConnector } from '@inverse/util/web3'
+import { ethereumReady, injectedConnector, setIsPreviouslyConnected, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
@@ -268,32 +268,43 @@ export const AppNav = ({ active }: { active?: string }) => {
     }
   }, [walletActive]);
 
+  // chainId exists only if user is connected
   useEffect(() => {
+    if (!chainId) { return }
+    setBadgeChainId(chainId);
+  }, [chainId]);
+
+  // badgeChainId exists if user is connected or there is an injected provider present like metamask
+  useEffect(() => {
+    if(!badgeChainId) { return }
+
+    const isSupported = isSupportedNetwork(badgeChainId);
+    setIsUsupportedNetwork(!isSupported)
+    setShowWrongNetModal(!isSupported);
+
+    if (!isSupported) {
+      setIsPreviouslyConnected(false);
+      deactivate();
+    }
+  }, [badgeChainId]);
+
+  useEffect(() => {
+    // we can know the injected provider's network and show the badge even if the user is not connected to our app
     const init = async () => {
-      const provider = await detectEthereumProvider({ timeout: 10000 })
-      if (!provider) { return }
-      
-      const chainIdInWallet = (typeof window !== 'undefined' ? window?.ethereum?.networkVersion : '');
+      const isReady = await ethereumReady(10000);
+      if (!isReady) { return }
 
-      setBadgeChainId(chainIdInWallet);
-
+      const chainIdInWallet = window?.ethereum?.networkVersion;
       if (!chainIdInWallet) { return }
 
-      const isSupported = isSupportedNetwork(chainIdInWallet);
-      setIsUsupportedNetwork(!isSupported)
-      setShowWrongNetModal(!isSupported);
-      
-      if (!isSupported) {
-        setIsPreviouslyConnected(false);
-        deactivate();
-      }
+      setBadgeChainId(chainIdInWallet);
 
       if (window?.ethereum) {
         window?.ethereum?.on('chainChanged', () => window.location.reload());
       }
     }
     init();
-  }, [])
+  }, []);
 
   return (
     <>
