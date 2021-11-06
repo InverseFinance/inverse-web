@@ -21,11 +21,16 @@ util - Utility functions
 
 #### Development
 
-Create `.env.local` file with `INFURA_ID`:
+Copy `.env.example` to `.env.local` and fill in the values:
 
 ```
-INFURA_ID=<your_id_here>
-REDIS_URL=<your_upstash_url_here>
+REDIS_URL=<your_redis_url>
+
+# Alchemy Key
+ALCHEMY_API=<your_alchemy_key>
+
+# Secret key to use protected cron api
+API_SECRET_KEY=<your_cron_secret_key>
 ```
 
 Run `npm install` and `npm run dev`

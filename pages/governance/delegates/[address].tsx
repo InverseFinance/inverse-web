@@ -1,18 +1,21 @@
 import { Flex, Text } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/Avatar'
-import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
-import Container from '@inverse/components/Container'
+import { Avatar } from '@inverse/components/common/Avatar'
+import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
+import Container from '@inverse/components/common/Container'
 import { DelegatorsPreview, VotingWallet } from '@inverse/components/Governance'
-import Layout from '@inverse/components/Layout'
-import { AppNav } from '@inverse/components/Navbar'
-import { SkeletonBlob, SkeletonTitle } from '@inverse/components/Skeleton'
+import Layout from '@inverse/components/common/Layout'
+import { AppNav } from '@inverse/components/common/Navbar'
+import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
 import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
 import { namedAddress } from '@inverse/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const DelegateOverview = () => {
   const { query } = useRouter()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
 
@@ -30,7 +33,7 @@ const DelegateOverview = () => {
 
   return (
     <Container
-      label={namedAddress(address, ensName)}
+      label={namedAddress(address, chainId, ensName)}
       description={address}
       href={`https://etherscan.io/address/${address}`}
       image={<Avatar boxSize={12} address={address} />}
@@ -44,10 +47,11 @@ const DelegateOverview = () => {
 }
 
 export const DelegateView = () => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
 
   const address = query.address as string
-  const title = isAddress(address) ? namedAddress(address) : address
+  const title = isAddress(address) ? namedAddress(address, chainId) : address
 
   return (
     <Layout>

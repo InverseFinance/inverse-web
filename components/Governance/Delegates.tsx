@@ -1,13 +1,16 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/Avatar'
-import Container from '@inverse/components/Container'
-import { SkeletonList } from '@inverse/components/Skeleton'
+import { Avatar } from '@inverse/components/common/Avatar'
+import Container from '@inverse/components/common/Container'
+import { SkeletonList } from '@inverse/components/common/Skeleton'
 import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate, Delegator } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import NextLink from 'next/link'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 export const DelegatesPreview = () => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useTopDelegates()
 
   if (isLoading) {
@@ -28,7 +31,7 @@ export const DelegatesPreview = () => {
                 <Avatar address={address} boxSize={7} />
                 <Flex direction="column" w={40}>
                   <Text fontSize="sm" fontWeight="semibold" isTruncated>
-                    {namedAddress(address, ensName)}
+                    {namedAddress(address, chainId, ensName)}
                   </Text>
                   <Text fontSize="sm" color="purple.100">
                     {`${votes.length} votes`}
@@ -68,6 +71,7 @@ export const DelegatesPreview = () => {
 }
 
 export const DelegatorsPreview = ({ address }: { address: string }) => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
 
   if (isLoading || !delegates || !delegates[address]) {
@@ -90,7 +94,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
                 <Avatar address={address} boxSize={7} />
                 <Flex direction="column">
                   <Text fontSize="sm" fontWeight="semibold" isTruncated>
-                    {namedAddress(address)}
+                    {namedAddress(address, chainId)}
                   </Text>
                 </Flex>
               </Stack>

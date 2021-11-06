@@ -1,5 +1,5 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import Container from '@inverse/components/Container'
+import Container from '@inverse/components/common/Container'
 import { useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { commify } from 'ethers/lib/utils'
 

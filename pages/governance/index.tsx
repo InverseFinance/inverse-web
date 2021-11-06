@@ -6,8 +6,8 @@ import {
   RecentProposals,
   VotingWallet,
 } from '@inverse/components/Governance'
-import Layout from '@inverse/components/Layout'
-import { AppNav } from '@inverse/components/Navbar'
+import Layout from '@inverse/components/common/Layout'
+import { AppNav } from '@inverse/components/common/Navbar'
 
 export const Governance = () => (
   <Layout>

@@ -1,10 +1,10 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import { Web3Provider } from '@ethersproject/providers'
-import { Avatar } from '@inverse/components/Avatar'
-import Container from '@inverse/components/Container'
+import { Avatar } from '@inverse/components/common/Avatar'
+import Container from '@inverse/components/common/Container'
 import { ChangeDelegatesModal } from '@inverse/components/Governance'
-import { INV, XINV } from '@inverse/config'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
@@ -27,7 +27,8 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
 )
 
 export const VotingWallet = ({ address }: { address?: string }) => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [INV, 'balanceOf', account],
     [XINV, 'balanceOf', account],
@@ -51,7 +52,7 @@ export const VotingWallet = ({ address }: { address?: string }) => {
         <Stack w="full" direction="row" justify="center" align="center">
           <Avatar address={account} boxSize={5} />
           <Text mt={1} fontSize="sm" fontWeight="medium" color="purple.100">
-            {namedAddress(account)}
+            {namedAddress(account, chainId)}
           </Text>
         </Stack>
         <VotingWalletField label="INV">
@@ -69,7 +70,7 @@ export const VotingWallet = ({ address }: { address?: string }) => {
           ) : (
             <Stack direction="row" align="center">
               <Avatar address={delegate} boxSize={5} />
-              <Text>{namedAddress(delegate)}</Text>
+              <Text>{namedAddress(delegate, chainId)}</Text>
             </Stack>
           )}
         </VotingWalletField>
@@ -89,8 +90,8 @@ export const VotingWallet = ({ address }: { address?: string }) => {
         >
           {address
             ? address === delegate
-              ? `Already delegated to ${namedAddress(address)}`
-              : `Delegate to ${namedAddress(address)}`
+              ? `Already delegated to ${namedAddress(address, chainId)}`
+              : `Delegate to ${namedAddress(address, chainId)}`
             : 'Change Delegate'}
         </Flex>
       </Stack>

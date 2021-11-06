@@ -1,14 +1,14 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { COMPTROLLER, UNDERLYING } from '@inverse/config'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useMarkets } from '@inverse/hooks/useMarkets'
 import { useAnchorPrices } from '@inverse/hooks/usePrices'
-import { Market, SWR } from '@inverse/types'
+import { StringNumMap, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 
 type AccountLiquidity = {
   usdSupply: number
@@ -17,9 +17,10 @@ type AccountLiquidity = {
 }
 
 export const useAccountLiquidity = (): SWR & AccountLiquidity => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { COMPTROLLER, UNDERLYING } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', account])
-  const { markets, isLoading: marketsIsLoading } = useMarkets()
+  const { isLoading: marketsIsLoading } = useMarkets()
   const { prices: oraclePrices, isLoading: pricesIsLoading } = useAnchorPrices()
   const { balances: supplyBalances, isLoading: supplyBalancesIsLoading } = useSupplyBalances()
   const { balances: borrowBalances, isLoading: borrowBalancesIsLoading } = useBorrowBalances()
@@ -47,23 +48,23 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
     }
   }
 
-  let prices = {}
+  let prices: StringNumMap = {}
   for (var key in oraclePrices) {
     if (oraclePrices.hasOwnProperty(key)) {
-        prices[key] = parseFloat(formatUnits(oraclePrices[key], BigNumber.from(36).sub(UNDERLYING[key].decimals)))
+      prices[key] = parseFloat(formatUnits(oraclePrices[key], BigNumber.from(36).sub(UNDERLYING[key].decimals)))
     }
   }
   // const prices = oraclePrices
   // .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
   // .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {})
-  
+
   const usdSupply = Object.entries(supplyBalances).reduce((prev, [address, balance]) => {
     const underlying = UNDERLYING[address]
     return (
       prev +
       parseFloat(formatUnits(balance, underlying.decimals)) *
-        parseFloat(formatUnits(exchangeRates[address])) *
-        prices[address]
+      parseFloat(formatUnits(exchangeRates[address])) *
+      prices[address]
     )
   }, 0)
 

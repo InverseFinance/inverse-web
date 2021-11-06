@@ -1,11 +1,20 @@
-export type Token = {
+import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
+
+export interface Token {
   address: string
   name: string
   symbol: string
-  coingeckoId: string
   image: string
   decimals: number
+  coingeckoId?: string
 }
+
+export interface TokenWithBalance extends Token {
+  balance: number;
+  usdBalance: number;
+}
+
+export interface TokenList { [key: string]: Token };
 
 export type Market = {
   token: string
@@ -78,4 +87,83 @@ export type Delegator = string
 export type SWR = {
   isLoading?: boolean
   isError?: any
+}
+
+export enum NetworkIds {
+  mainnet = '1',
+  rinkeby = '4',
+}
+
+export type KeyString = { [key: string]: string };
+
+export type NetworkConfig = {
+  chainId: string;
+  INV: string,
+  DOLA: string,
+  DAI: string,
+  USDC: string,
+  WETH: string,
+  YFI: string,
+  XSUSHI: string,
+  WBTC: string,
+  XINV: string,
+  STETH: string,
+  INVDOLASLP: string,
+  DOLA3POOLCRV: string,
+  THREECRV: string,
+  escrow: string,
+  harvester: string,
+  governance: string,
+  vaults: {
+    vaultUsdcEth: string,
+    vaultDaiWbtc: string,
+    vaultDaiYfi: string,
+    vaultDaiEth: string,
+  };
+  anchor: {
+    lens: string,
+    comptroller: string,
+    oracle: string,
+    stabilizer: string,
+    treasury: string,
+    markets: {
+      dola: string,
+      eth: string,
+      wbtc: string,
+      xsushi: string,
+      yfi: string,
+      steth: string,
+      dola3poolcrv: string,
+      invdolaslp: string,
+    };
+  }
+  namedAddresses: KeyString;
+  [key: string]: string | any;
+}
+
+export type Network = {
+  id: string;
+  codename: string;
+  name: string;
+  isTestnet: boolean;
+  isSupported: boolean;
+  coinSymbol: string,
+  bgColor?: BackgroundProps["bgColor"],
+  image?: string,
+  config?: NetworkConfig;
+}
+
+export type StringNumMap = { [key: string]: number };
+
+export type Vaults = { [key: string]: { from: Token; to: Token } }
+export type VaultTree = { [key: string]: { [key: string]: string } }
+
+export type AssetDropDownProps = {
+  tokens: TokenList,
+  isOpen: boolean,
+  onClose: () => void,
+  onOpen: () => void,
+  asset: Token,
+  options: [string, string][],
+  handleChange: (to: string) => void,
 }

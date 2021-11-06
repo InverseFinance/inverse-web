@@ -1,18 +1,29 @@
-import { HARVESTER_ABI, VAULT_ABI } from "./config/abis";
+import { HARVESTER_ABI, VAULT_ABI } from "@inverse/config/abis";
 import {
   DAYS_PER_YEAR,
-  HARVESTER,
   SECONDS_PER_DAY,
-  VAULT_TOKENS,
-} from "./config/constants";
+} from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
+import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 
 export default async function handler(req, res) {
   try {
-    const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
+    const { chainId = '1' } = req.query;
+    // defaults to mainnet data if unsupported network
+    const networkConfig = getNetworkConfig(chainId, true)!;
+    if(!networkConfig?.governance) {
+      res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
+    }
+
+    const {
+      HARVESTER,
+      VAULT_TOKENS,
+    } = getNetworkConfigConstants(networkConfig);
+
+    const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API);
     const harvester = new Contract(HARVESTER, HARVESTER_ABI, provider);
 
     const rates = await Promise.all(

@@ -1,5 +1,5 @@
 import { Text, Stack, Image, Flex } from '@chakra-ui/react'
-import LinkButton, { LinkOutlineButton } from '@inverse/components/Button'
+import LinkButton, { LinkOutlineButton } from '@inverse/components/common/Button'
 import { CheckIcon } from '@chakra-ui/icons'
 import { useMarkets } from '@inverse/hooks/useMarkets'
 import { useDOLA } from '@inverse/hooks/useDOLA'

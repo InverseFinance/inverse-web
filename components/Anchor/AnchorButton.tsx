@@ -1,8 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Stack } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
-import { SubmitButton } from '@inverse/components/Button'
-import { ANCHOR_ETH, XINV } from '@inverse/config'
+import { SubmitButton } from '@inverse/components/common/Button'
 import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useEscrow } from '@inverse/hooks/useEscrow'
@@ -13,6 +12,7 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import moment from 'moment'
+import { getNetworkConfigConstants } from '@inverse/config/networks';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -39,11 +39,12 @@ const XINVEscrowAlert = ({ showDescription }: any) => (
 )
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
-  const { account, library } = useWeb3React<Web3Provider>()
+  const { library, chainId } = useWeb3React<Web3Provider>()
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { withdrawalTime, withdrawalAmount } = useEscrow()
+  const { ANCHOR_ETH, XINV } = getNetworkConfigConstants(chainId);
 
   const contract =
     asset.token === ANCHOR_ETH

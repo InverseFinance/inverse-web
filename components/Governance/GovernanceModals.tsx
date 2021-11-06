@@ -1,16 +1,15 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Text, useClipboard } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { Avatar } from '@inverse/components/Avatar'
-import { NavButtons, SubmitButton } from '@inverse/components/Button'
-import { Input, Textarea } from '@inverse/components/Input'
-import Link from '@inverse/components/Link'
-import { Modal, ModalProps } from '@inverse/components/Modal'
-import { INV } from '@inverse/config'
-import { useDelegates } from '@inverse/hooks/useDelegates'
+import { Avatar } from '@inverse/components/common/Avatar'
+import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
+import { Input, Textarea } from '@inverse/components/common/Input'
+import Link from '@inverse/components/common/Link'
+import { Modal, ModalProps } from '@inverse/components/common/Modal'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { useProposal, useProposals } from '@inverse/hooks/useProposals'
-import { Delegate, ProposalVote } from '@inverse/types'
+import { ProposalVote } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
@@ -28,6 +27,7 @@ type VoteCountModalProps = ModalProps & {
 }
 
 export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModalProps) => {
+  const { chainId } = useWeb3React<Web3Provider>()
   const { proposal, isLoading } = useProposal(id)
 
   if (isLoading) {
@@ -65,7 +65,7 @@ export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModal
             <Stack direction="row" align="center">
               <Avatar address={voter} boxSize={7} />
               <Text fontSize="sm" fontWeight="semibold">
-                {namedAddress(voter)}
+                {namedAddress(voter, chainId)}
               </Text>
             </Stack>
             <Text fontSize="sm" fontWeight="semibold">
@@ -126,6 +126,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
   const [delegationType, setDelegationType] = useState('Delegate')
   const [delegate, setDelegate] = useState(address || '')
   const [signature, setSignature] = useState('')
+  const { INV } = getNetworkConfigConstants(chainId)
   const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
   const { hasCopied, onCopy } = useClipboard(signature)
 

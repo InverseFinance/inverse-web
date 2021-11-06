@@ -1,13 +1,13 @@
 import { Flex, Stack, Text, Badge } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { ClaimButton } from '@inverse/components/Button'
-import Container from '@inverse/components/Container'
+import { StyledButton } from '@inverse/components/common/Button'
+import Container from '@inverse/components/common/Container'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
 import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
-import { InfoTooltip } from '@inverse/components/Tooltip'
+import { InfoTooltip } from '@inverse/components/common/Tooltip'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()
@@ -35,12 +35,12 @@ export const AnchorOverview = () => {
         <Stack direction="row" align="center" textAlign="end">
           <Text fontWeight="bold">{`${rewardAmount.toFixed(4)} INV`}</Text>
           <InfoTooltip message="This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive Reward APY." />
-          <ClaimButton
+          <StyledButton
             isDisabled={!rewardAmount}
             onClick={() => getComptrollerContract(library?.getSigner()).claimComp(account)}
           >
             Claim
-          </ClaimButton>
+          </StyledButton>
         </Stack>
       }
     >

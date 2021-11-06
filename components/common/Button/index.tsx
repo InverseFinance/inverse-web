@@ -1,5 +1,7 @@
-import { Button, Flex, Link } from '@chakra-ui/react'
+import { Button, Flex, Link, ButtonProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
+import { getNetwork } from '../../../config/networks';
+import { NetworkItem } from '../NetworkItem';
 
 export const LinkButton = ({
   children,
@@ -54,7 +56,7 @@ export const LinkOutlineButton = ({
   </Flex>
 )
 
-export const ClaimButton = (props: any) => (
+export const StyledButton = (props: any) => (
   <Button
     justify="center"
     bgColor="purple.500"
@@ -71,6 +73,28 @@ export const ClaimButton = (props: any) => (
     {...props}
   />
 )
+
+export const NetworkButton = ({
+  chainId,
+  onClick,
+  ...btnProps
+}: {
+  chainId: string | number | undefined,
+  onClick?: () => void,
+  btnProps?: ButtonProps,
+}) => {
+  if(!chainId) { return <></> }
+  const network = getNetwork(chainId);
+
+  return (
+    <StyledButton 
+    bgColor={network.bgColor || 'purple.500'} 
+    onClick={onClick} {...btnProps}
+    >
+      <NetworkItem chainId={chainId} />
+    </StyledButton>
+  )
+}
 
 export const OutlineButton = (props: any) => (
   <Flex

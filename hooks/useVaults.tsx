@@ -1,6 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { VAULT_TOKENS } from '@inverse/config'
-import { SWR } from '@inverse/types'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { NetworkIds, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
@@ -17,7 +17,9 @@ type Rewards = {
 }
 
 export const useVaultRates = (): SWR & Rates => {
-  const { data, error } = useSWR("/api/vaults", fetcher)
+  const { chainId } = useWeb3React<Web3Provider>()
+
+  const { data, error } = useSWR(`/api/vaults?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
 
   return {
     lastDistribution: data ? new Date(data.lastDistribution * 1000) : undefined,
@@ -28,7 +30,9 @@ export const useVaultRates = (): SWR & Rates => {
 }
 
 export const useVaultRewards = (): SWR & Rewards => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { VAULT_TOKENS } = getNetworkConfigConstants(chainId)
+
   const { data, error } = useEtherSWR(VAULT_TOKENS.map((address: string) => [address, 'unclaimedProfit', account]))
 
   return {

@@ -2,7 +2,7 @@
 // TODO: Refactor this entire mess
 import { isAddress } from '@ethersproject/address'
 import { Web3Provider } from '@ethersproject/providers'
-import { ABIs } from '@inverse/abis'
+import { getAbis } from '@inverse/config/abis'
 import etherJsFetcher from '@inverse/util/fetcher'
 import { useWeb3React } from '@web3-react/core'
 import { Contract } from 'ethers'
@@ -26,7 +26,9 @@ export function getContract(address, abi, signer) {
 }
 
 function useEtherSWR(...args) {
-  const { library } = useWeb3React<Web3Provider>()
+  const { library, chainId } = useWeb3React<Web3Provider>()
+
+  const ABIs = getAbis(chainId);
 
   let _key: ethKeyInterface
   let fn: any

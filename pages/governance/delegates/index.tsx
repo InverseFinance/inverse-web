@@ -1,17 +1,21 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/Avatar'
-import { Breadcrumbs } from '@inverse/components/Breadcrumbs'
-import Container from '@inverse/components/Container'
-import Layout from '@inverse/components/Layout'
-import { AppNav } from '@inverse/components/Navbar'
-import { SkeletonBlob } from '@inverse/components/Skeleton'
-import Table from '@inverse/components/Table'
+import { Avatar } from '@inverse/components/common/Avatar'
+import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
+import Container from '@inverse/components/common/Container'
+import Layout from '@inverse/components/common/Layout'
+import { AppNav } from '@inverse/components/common/Navbar'
+import { SkeletonBlob } from '@inverse/components/common/Skeleton'
+import Table from '@inverse/components/common/Table'
 import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { useRouter } from 'next/dist/client/router'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const DelegatesTable = () => {
+  const { chainId } = useWeb3React<Web3Provider>()
+
   const { delegates, isLoading } = useTopDelegates()
   const router = useRouter()
 
@@ -27,7 +31,7 @@ const DelegatesTable = () => {
           </Flex>
           <Stack direction="row" align="center">
             <Avatar address={address} boxSize={6} />
-            <Flex>{namedAddress(address, ensName)}</Flex>
+            <Flex>{namedAddress(address, chainId, ensName)}</Flex>
           </Stack>
         </Stack>
       ),

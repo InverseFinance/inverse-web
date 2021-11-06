@@ -1,30 +1,27 @@
-import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import {
   Flex,
-  Image,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
   Stack,
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { ClaimButton, NavButtons, SubmitButton } from '@inverse/components/Button'
-import Container from '@inverse/components/Container'
-import { BalanceInput } from '@inverse/components/Input'
-import { TOKENS, VAULTS, VAULT_DAI_ETH, VAULT_TREE } from '@inverse/config'
+import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
+import Container from '@inverse/components/common/Container'
+import { BalanceInput } from '@inverse/components/common/Input'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { useVaultApprovals } from '@inverse/hooks/useApprovals'
 import { useAccountBalances, useVaultBalances } from '@inverse/hooks/useBalances'
-import { useVaultRates, useVaultRewards } from '@inverse/hooks/useVaults'
-import { Token } from '@inverse/types'
+import { useVaultRates } from '@inverse/hooks/useVaults'
 import { getERC20Contract, getVaultContract } from '@inverse/util/contracts'
-import { timeSince } from '@inverse/util/time'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber, constants } from 'ethers'
+import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
+
+import { VaultsClaim } from './VaultsClaim'
+import { FromAssetDropdown } from './FromAssetDropdown';
+import { WithdrawAssetDropdown } from './WithdrawAssetDropdown';
+import { ToAssetDropdown } from './ToAssetDropdown';
 
 enum VaultOperations {
   deposit = 'Deposit',
@@ -32,278 +29,9 @@ enum VaultOperations {
   claim = 'Claim',
 }
 
-const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPadding }: any) => {
-  return (
-    <Popover placement="bottom" isOpen={isOpen} onClose={onClose} closeOnBlur={true} isLazy>
-      <PopoverTrigger>
-        <Stack
-          direction="row"
-          align="center"
-          onClick={onOpen}
-          borderRadius={8}
-          p={noPadding ? 0 : 2}
-          bgColor="purple.850"
-          cursor="pointer"
-        >
-          {label}
-        </Stack>
-      </PopoverTrigger>
-      <PopoverContent _focus={{ outline: 'none' }} borderWidth={0} bgColor="transparent">
-        <PopoverBody
-          p={2}
-          mt={-1}
-          bgColor="purple.800"
-          borderColor="purple.850"
-          borderWidth={2}
-          borderRadius={8}
-          boxShadow="rgba(0, 0, 0, 0.75) 0px 5px 15px"
-          _focus={{ outline: 'none' }}
-        >
-          {children}
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-const WithdrawAssetDropdown = ({ isOpen, onClose, onOpen, vault, handleChange }: any) => {
-  const { balances } = useVaultBalances()
-
-  return (
-    <AssetsDropdown
-      isOpen={isOpen}
-      onClose={onClose}
-      onOpen={onOpen}
-      label={
-        <Stack direction="row" align="center" spacing={1}>
-          <Stack direction="row" align="center" justify="flex-end">
-            <Flex w={5}>
-              <Image w={5} h={5} src={VAULTS[vault].from.image} />
-            </Flex>
-          </Stack>
-          <ChevronRightIcon boxSize={6} />
-          <Stack direction="row" align="center">
-            <Flex w={5}>
-              <Image w={5} h={5} src={VAULTS[vault].to.image} />
-            </Flex>
-          </Stack>
-          <ChevronDownIcon boxSize={6} mt={0.5} />
-        </Stack>
-      }
-      noPadding
-    >
-      {Object.entries(balances).map(([vault, balance]: any) => {
-        const from = VAULTS[vault].from
-        const to = VAULTS[vault].to
-
-        return (
-          <Flex
-            key={vault}
-            p={2}
-            justify="space-between"
-            borderRadius={8}
-            _hover={{ bgColor: 'purple.850' }}
-            onClick={() => handleChange(vault)}
-            cursor="pointer"
-          >
-            <Stack direction="row" align="center">
-              <Stack direction="row" align="center" w={20} justify="flex-end">
-                <Flex w={5}>
-                  <Image w={5} h={5} src={from.image} />
-                </Flex>
-                <Text fontWeight="semibold" color="purple.100">
-                  {from.symbol}
-                </Text>
-              </Stack>
-              <ChevronRightIcon boxSize={6} />
-              <Stack direction="row" align="center" w={20}>
-                <Flex w={5}>
-                  <Image w={5} h={5} src={to.image} />
-                </Flex>
-                <Text fontWeight="semibold" color="purple.100">
-                  {to.symbol}
-                </Text>
-              </Stack>
-            </Stack>
-            <Text fontWeight="semibold" color="purple.100">
-              {parseFloat(formatUnits(balance, from.decimals)).toFixed(2)}
-            </Text>
-          </Flex>
-        )
-      })}
-    </AssetsDropdown>
-  )
-}
-
-const FromAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChange }: any) => {
-  const { balances } = useAccountBalances()
-
-  return (
-    <AssetsDropdown
-      isOpen={isOpen}
-      onClose={onClose}
-      onOpen={onOpen}
-      asset={asset}
-      label={
-        <>
-          <Flex w={5}>
-            <Image w={5} h={5} src={asset.image} />
-          </Flex>
-          <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
-            {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
-          </Flex>
-        </>
-      }
-      noPadding
-    >
-      {options.map((from: string) => {
-        const fromToken = TOKENS[from]
-        const toToken = TOKENS[Object.keys(VAULT_TREE[from])[0]]
-
-        return (
-          <Flex
-            key={from}
-            p={2}
-            justify="space-between"
-            borderRadius={8}
-            _hover={{ bgColor: 'purple.850' }}
-            onClick={() => handleChange(from, toToken.address || 'ETH')}
-            cursor="pointer"
-          >
-            <Stack direction="row" align="center">
-              <Flex w={5}>
-                <Image w={5} h={5} src={fromToken.image} />
-              </Flex>
-              <Flex fontWeight="semibold" align="center" color="purple.100">
-                {fromToken.symbol}
-              </Flex>
-            </Stack>
-            <Text fontWeight="semibold" color="purple.100">
-              {balances ? parseFloat(formatUnits(balances[fromToken.address], fromToken.decimals)).toFixed(2) : '0.00'}
-            </Text>
-          </Flex>
-        )
-      })}
-    </AssetsDropdown>
-  )
-}
-
-const ToAssetDropdown = ({ isOpen, onClose, onOpen, asset, options, handleChange }: any) => {
-  const { rates } = useVaultRates()
-
-  return (
-    <AssetsDropdown
-      isOpen={isOpen}
-      onClose={onClose}
-      onOpen={onOpen}
-      asset={asset}
-      label={
-        <>
-          <Flex w={5}>
-            <Image w={5} h={5} src={asset.image} />
-          </Flex>
-          <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
-            {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
-          </Flex>
-        </>
-      }
-    >
-      {options.map(([to, vault]: [string, string]) => {
-        const toToken = TOKENS[to]
-
-        return (
-          <Flex
-            key={to}
-            p={2}
-            justify="space-between"
-            borderRadius={8}
-            _hover={{ bgColor: 'purple.850' }}
-            onClick={() => handleChange(to)}
-            cursor="pointer"
-          >
-            <Stack direction="row" align="center">
-              <Flex w={5}>
-                <Image w={5} h={5} src={toToken.image} />
-              </Flex>
-              <Flex fontWeight="semibold" align="center" color="purple.100">
-                {toToken.symbol}
-              </Flex>
-            </Stack>
-            <Text fontWeight="semibold" color="purple.100">
-              {`${(rates ? rates[vault] : 0).toFixed(2)}% APY`}
-            </Text>
-          </Flex>
-        )
-      })}
-    </AssetsDropdown>
-  )
-}
-
-export const VaultsClaim = () => {
-  const { library } = useWeb3React<Web3Provider>()
-  const { lastDistribution } = useVaultRates()
-  const { rewards } = useVaultRewards()
-
-  return (
-    <Stack>
-      <Stack direction="row" justify="center" spacing={1}>
-        <Text fontSize="xs" color="purple.200" fontWeight="semibold">
-          Last Distribution
-        </Text>
-        <Text fontSize="xs" fontWeight="semibold">
-          {timeSince(lastDistribution)}
-        </Text>
-      </Stack>
-      {Object.entries(VAULTS).map(([address, vault]: [string, { from: Token; to: Token }]) => (
-        <Stack key={address} direction="row" align="center" justify="space-between" p={2}>
-          <Stack direction="row" align="center" display={{ base: 'none', sm: 'flex' }}>
-            <Stack direction="row" align="center" w={20} justify="flex-end">
-              <Flex w={5}>
-                <Image w={5} h={5} src={vault.from.image} />
-              </Flex>
-              <Text fontWeight="semibold" color="purple.100">
-                {vault.from.symbol}
-              </Text>
-            </Stack>
-            <ChevronRightIcon boxSize={6} />
-            <Stack direction="row" align="center" w={20}>
-              <Flex w={5}>
-                <Image w={5} h={5} src={vault.to.image} />
-              </Flex>
-              <Text fontWeight="semibold" color="purple.100">
-                {vault.to.symbol}
-              </Text>
-            </Stack>
-          </Stack>
-          <Stack
-            w="full"
-            direction="row"
-            align="center"
-            justify={{ base: 'space-between', sm: 'flex-end' }}
-            spacing={4}
-          >
-            <Flex fontWeight="semibold">{`${(rewards && rewards[address]
-              ? parseFloat(formatUnits(rewards[address], vault.to.decimals))
-              : 0
-            ).toFixed(10)} ${vault.to.symbol}`}</Flex>
-            <ClaimButton
-              onClick={() =>
-                vault.to.address
-                  ? getVaultContract(address, library?.getSigner()).claim()
-                  : getVaultContract(address, library?.getSigner()).claimETH()
-              }
-            >
-              Claim
-            </ClaimButton>
-          </Stack>
-        </Stack>
-      ))}
-    </Stack>
-  )
-}
-
 export const VaultsView = () => {
-  const { active, library } = useWeb3React<Web3Provider>()
+  const { active, library, chainId } = useWeb3React<Web3Provider>()
+  const { TOKENS, VAULTS, VAULT_DAI_ETH, VAULT_TREE } = getNetworkConfigConstants(chainId)
   const [operation, setOperation] = useState<string>(VaultOperations.deposit)
   const [amount, setAmount] = useState<string>('')
   const [vault, setVault] = useState(VAULT_DAI_ETH)
@@ -347,7 +75,7 @@ export const VaultsView = () => {
           onClick={setOperation}
         />
         {operation === VaultOperations.claim ? (
-          <VaultsClaim />
+          <VaultsClaim vaults={VAULTS} />
         ) : (
           <Stack spacing={6}>
             <Stack spacing={1}>
@@ -372,6 +100,8 @@ export const VaultsView = () => {
                         <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
                       </Flex>
                       <FromAssetDropdown
+                        tokens={TOKENS}
+                        vaultTree={VAULT_TREE}
                         isOpen={fromIsOpen}
                         onClose={fromOnClose}
                         onOpen={() => {
@@ -392,6 +122,7 @@ export const VaultsView = () => {
                         <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
                       </Flex>
                       <WithdrawAssetDropdown
+                        vaults={VAULTS}
                         isOpen={fromIsOpen}
                         onClose={fromOnClose}
                         onOpen={() => {
@@ -425,6 +156,7 @@ export const VaultsView = () => {
                 </Text>
                 <Text color="purple.100">with</Text>
                 <ToAssetDropdown
+                  tokens={TOKENS}
                   isOpen={toIsOpen}
                   onClose={toOnClose}
                   onOpen={() => {
@@ -441,7 +173,7 @@ export const VaultsView = () => {
               </Stack>
             )}
             {operation === VaultOperations.deposit &&
-            (!approvals || !approvals[vault] || !parseFloat(formatUnits(approvals[vault]))) ? (
+              (!approvals || !approvals[vault] || !parseFloat(formatUnits(approvals[vault]))) ? (
               <SubmitButton
                 onClick={() =>
                   getERC20Contract(VAULTS[vault].from.address, library?.getSigner()).approve(

@@ -1,10 +1,10 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Image, Stack, Text } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { NavButtons, SubmitButton } from '@inverse/components/Button'
-import Container from '@inverse/components/Container'
-import { BalanceInput } from '@inverse/components/Input'
-import { DAI, DOLA, STABILIZER, TOKENS } from '@inverse/config'
+import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
+import Container from '@inverse/components/common/Container'
+import { BalanceInput } from '@inverse/components/common/Input'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { useStabilizerApprovals } from '@inverse/hooks/useApprovals'
 import { useAccountBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
@@ -22,11 +22,12 @@ enum StabilizerOperations {
 
 export const StabilizerView = () => {
   const [operation, setOperation] = useState<string>(StabilizerOperations.buy)
-  const { active, library } = useWeb3React<Web3Provider>()
+  const { active, library, chainId } = useWeb3React<Web3Provider>()
   const { balances } = useAccountBalances()
   const [amount, setAmount] = useState<string>('')
   const { approvals } = useStabilizerApprovals()
   const { balance: stabilizerBalance } = useStabilizerBalance()
+  const { DAI, DOLA, STABILIZER, TOKENS } = getNetworkConfigConstants(chainId)
 
   const max = () =>
     !balances

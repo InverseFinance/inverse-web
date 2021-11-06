@@ -1,33 +1,41 @@
-import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "./config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "@inverse/config/abis";
 import {
-  ANCHOR_ETH,
-  ANCHOR_WBTC,
   BLOCKS_PER_DAY,
-  COMPTROLLER,
   DAYS_PER_YEAR,
   ETH_MANTISSA,
-  INV,
-  TOKENS,
-  UNDERLYING,
-  XINV,
-  ORACLE
-} from "./config/constants";
+} from "@inverse/config/constants";
 import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import * as fetch from "node-fetch";
+import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
+import { StringNumMap } from '@inverse/types';
 
-const toApy = (rate) =>
+const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
   100;
 
 export default async function handler(req, res) {
   try {
-    const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API);
+    const { chainId = '1' } = req.query;
+    // defaults to mainnet data if unsupported network
+    const networkConfig = getNetworkConfig(chainId, true)!;
+
+    const {
+      INV,
+      TOKENS,
+      UNDERLYING,
+      XINV,
+      ORACLE,
+      ANCHOR_ETH,
+      ANCHOR_WBTC,
+      COMPTROLLER,
+    } = getNetworkConfigConstants(networkConfig);
+
+    const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API)
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
-    const addresses = await comptroller.getAllMarkets();
+    const addresses: string[] = await comptroller.getAllMarkets();
     const contracts = addresses
       .filter((address: string) => address !== XINV)
       .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
@@ -69,9 +77,11 @@ export default async function handler(req, res) {
       ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
     ]);
-    const prices = oraclePrices
+
+    const prices: StringNumMap = oraclePrices
       .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
-      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {})
+      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {});
+
     const supplyApys = supplyRates.map((rate) => toApy(rate));
     const borrowApys = borrowRates.map((rate) => toApy(rate));
     const rewardApys = speeds.map((speed, i) => {

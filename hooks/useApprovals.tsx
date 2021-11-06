@@ -1,17 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import {
-  DAI,
-  DOLA,
-  DOLA3CRV,
-  STABILIZER,
-  STAKING_DOLA3CRV,
-  UNDERLYING,
-  USDC,
-  VAULT_DAI_ETH,
-  VAULT_DAI_WBTC,
-  VAULT_DAI_YFI,
-  VAULT_USDC_ETH,
-} from '@inverse/config'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
@@ -22,9 +10,10 @@ type Approvals = {
 }
 
 export const useApprovals = (): SWR & Approvals => {
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { UNDERLYING } = getNetworkConfigConstants(chainId)
   const tokens = Object.entries(UNDERLYING).filter(([_, { address }]) => address)
 
-  const { account } = useWeb3React<Web3Provider>()
   const { data, error } = useEtherSWR(
     tokens.map(([address, underlying]) => [underlying.address, 'allowance', account, address])
   )
@@ -40,7 +29,8 @@ export const useApprovals = (): SWR & Approvals => {
 }
 
 export const useStabilizerApprovals = (): SWR & Approvals => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { DAI, DOLA, STABILIZER } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([
     [DAI, 'allowance', account, STABILIZER],
     [DOLA, 'allowance', account, STABILIZER],
@@ -58,23 +48,9 @@ export const useStabilizerApprovals = (): SWR & Approvals => {
   }
 }
 
-export const useStakingApprovals = (): SWR & Approvals => {
-  const { account } = useWeb3React<Web3Provider>()
-  const { data, error } = useEtherSWR([DOLA3CRV, 'allowance', account, STAKING_DOLA3CRV])
-
-  return {
-    approvals: data
-      ? {
-          [DOLA3CRV]: data,
-        }
-      : {},
-    isLoading: !error && !data,
-    isError: error,
-  }
-}
-
 export const useVaultApprovals = (): SWR & Approvals => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { DAI, USDC, VAULT_DAI_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_USDC_ETH } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([
     [DAI, 'allowance', account, VAULT_DAI_ETH],
     [DAI, 'allowance', account, VAULT_DAI_WBTC],
