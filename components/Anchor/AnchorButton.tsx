@@ -42,8 +42,10 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
-  const { withdrawalTime, withdrawalAmount } = useEscrow()
-  const { ANCHOR_ETH, XINV } = getNetworkConfigConstants(chainId);
+  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
+
+  const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
 
   const contract =
     asset.token === ANCHOR_ETH
@@ -90,6 +92,16 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               {moment(withdrawalTime).isAfter(moment())
                 ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime)}`
                 : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV`}
+            </SubmitButton>
+          )}
+          {asset.token === XINV_V1 && withdrawalAmount_v1?.gt(0) && (
+            <SubmitButton
+              onClick={() => getEscrowContract(library?.getSigner()).withdraw()}
+              isDisabled={moment(withdrawalTime_v1).isAfter(moment())}
+            >
+              {moment(withdrawalTime_v1).isAfter(moment())
+                ? `${parseFloat(formatUnits(withdrawalAmount_v1)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime_v1)}`
+                : `Claim ${parseFloat(formatUnits(withdrawalAmount_v1)).toFixed(2)} INV`}
             </SubmitButton>
           )}
           <SubmitButton

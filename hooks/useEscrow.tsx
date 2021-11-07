@@ -1,5 +1,4 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
@@ -10,11 +9,10 @@ type Escrow = {
   withdrawalAmount?: BigNumber
 }
 
-export const useEscrow = (): SWR & Escrow => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
-  const { ESCROW } = getNetworkConfigConstants(chainId)
+export const useEscrow = (escrowAddress: string): SWR & Escrow => {
+  const { account } = useWeb3React<Web3Provider>()
   
-  const { data, error } = useEtherSWR([ESCROW, 'pendingWithdrawals', account])
+  const { data, error } = useEtherSWR([escrowAddress, 'pendingWithdrawals', account])
 
   if (!data) {
     return {

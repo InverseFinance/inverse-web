@@ -25,6 +25,7 @@ export default async function handler(req, res) {
       INV,
       TOKENS,
       UNDERLYING,
+      XINV_V1,
       XINV,
       ORACLE,
       ANCHOR_ETH,
@@ -36,8 +37,9 @@ export default async function handler(req, res) {
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
+
     const contracts = addresses
-      .filter((address: string) => address !== XINV)
+      .filter((address: string) => address !== XINV && address !== XINV_V1)
       .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
     const [
@@ -85,8 +87,8 @@ export default async function handler(req, res) {
     ]);
 
     const prices: StringNumMap = oraclePrices
-      .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
-      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {});
+      .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
 
     const supplyApys = supplyRates.map((rate) => toApy(rate));
     const borrowApys = borrowRates.map((rate) => toApy(rate));
@@ -94,11 +96,11 @@ export default async function handler(req, res) {
       const underlying = UNDERLYING[contracts[i].address];
       return toApy(
         (speed * prices[XINV]) /
-          (parseFloat(
-            formatUnits(totalSupplies[i].toString(), underlying.decimals)
-          ) *
-            parseFloat(formatUnits(exchangeRates[i])) *
-            prices[contracts[i].address])
+        (parseFloat(
+          formatUnits(totalSupplies[i].toString(), underlying.decimals)
+        ) *
+          parseFloat(formatUnits(exchangeRates[i])) *
+          prices[contracts[i].address])
       );
     });
 
@@ -125,35 +127,41 @@ export default async function handler(req, res) {
         reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
         supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals))
       }
-  });
-
-    const xINV = new Contract(XINV, XINV_ABI, provider);
-
-    const [
-      rewardPerBlock,
-      exchangeRate,
-      totalSupply,
-      collateralFactor,
-    ] = await Promise.all([
-      xINV.rewardPerBlock(),
-      xINV.exchangeRateStored(),
-      xINV.totalSupply(),
-      comptroller.markets(xINV.address),
-    ]);
-
-    markets.push({
-      token: xINV.address,
-      underlying: TOKENS[INV],
-      supplyApy:
-        (((rewardPerBlock / ETH_MANTISSA) * BLOCKS_PER_DAY * DAYS_PER_YEAR) /
-          ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) *
-        100,
-      collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
-      supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
-      rewardApy: 0,
     });
 
-    res.status(200).json( {
+    const addXINV = async (xinvAddress: string, mintable: boolean) => {
+      const xINV = new Contract(xinvAddress, XINV_ABI, provider);
+
+      const [
+        rewardPerBlock,
+        exchangeRate,
+        totalSupply,
+        collateralFactor,
+      ] = await Promise.all([
+        xINV.rewardPerBlock(),
+        xINV.exchangeRateStored(),
+        xINV.totalSupply(),
+        comptroller.markets(xINV.address),
+      ]);
+
+      const supplyApy = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA) * BLOCKS_PER_DAY * DAYS_PER_YEAR) /
+      ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) * 100
+
+      markets.push({
+        token: xINV.address,
+        mintable: mintable,
+        underlying: TOKENS[INV],
+        supplyApy: supplyApy || 0,
+        collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
+        supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
+        rewardApy: 0,
+      });
+    }
+
+    await addXINV(XINV_V1, false);
+    await addXINV(XINV, true);
+
+    res.status(200).json({
       markets,
     });
   } catch (err) {

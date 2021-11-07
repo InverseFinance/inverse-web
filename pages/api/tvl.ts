@@ -25,6 +25,7 @@ export default async function handler(req, res) {
       ANCHOR_TOKENS,
       ANCHOR_ETH,
       WETH,
+      XINV_V1,
       XINV,
     } = getNetworkConfigConstants(networkConfig);
 
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
       stabilizerBalances,
     ] = await Promise.all([
       vaultsTVL(prices, provider, WETH, VAULT_TOKENS, TOKENS, UNDERLYING),
-      anchorTVL(prices, provider, XINV, ANCHOR_ETH, WETH, ANCHOR_TOKENS, TOKENS, UNDERLYING),
+      anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_ETH, WETH, ANCHOR_TOKENS, TOKENS, UNDERLYING),
       stabilizerTVL(prices, provider, DAI, STABILIZER, TOKENS),
     ]);
 
@@ -106,7 +107,7 @@ const vaultsTVL = async (
     return {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[token.address],
+      usdBalance: amount * prices[token.address] || 0,
     };
   });
 };
@@ -114,6 +115,7 @@ const vaultsTVL = async (
 const anchorTVL = async (
   prices: StringNumMap,
   provider: AlchemyProvider,
+  xInvV1Address: string,
   xInvAddress: string,
   anchorEthAddress: string,
   wethAddress: string,
@@ -122,6 +124,7 @@ const anchorTVL = async (
   underlying: TokenList,
 ): Promise<TokenWithBalance[]> => {
   const anchorContracts = anchorTokenAddresses.map((address: string) => new Contract(address, CTOKEN_ABI, provider));
+  anchorContracts.push(new Contract(xInvV1Address, XINV_ABI, provider));
   anchorContracts.push(new Contract(xInvAddress, XINV_ABI, provider));
 
   const allCash = await Promise.all(
@@ -146,7 +149,7 @@ const anchorTVL = async (
     return {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[address],
+      usdBalance: amount * prices[address] || 0,
     };
   });
 };
@@ -166,7 +169,7 @@ const stabilizerTVL = async (
   const tokenWithBalance: TokenWithBalance = {
     ...token,
     balance: amount,
-    usdBalance: amount * prices[token.address],
+    usdBalance: amount * prices[token.address] || 0,
   };
 
   return [
@@ -178,5 +181,5 @@ const sumUsdBalances = (tokenWithBalances: TokenWithBalance[]): number => {
   return tokenWithBalances.reduce(
     (usdBalance, item) => usdBalance + item.usdBalance,
     0
-  );
+  ) || 0;
 }

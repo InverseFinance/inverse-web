@@ -15,9 +15,9 @@ const mainnetConfig: NetworkConfig = {
   DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
   THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
   // old XINV
-  XINV: '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE',
+  XINV_V1: '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE',
   // new XINV
-  XINV2: '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B',
+  XINV: '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B',
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
     vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
@@ -41,7 +41,8 @@ const mainnetConfig: NetworkConfig = {
       invdolaslp: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
     },
   },
-  escrow: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
+  escrow_v1: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
+  escrow: '0x44814bf90ea659369a28633c3bd46ab52d8f73f7',
   harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
   governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
   namedAddresses: {
@@ -82,11 +83,13 @@ const rinkebyConfig: NetworkConfig = {
   YFI: '',
   XSUSHI: '',
   WBTC: '',
+  XINV_V1: '',
   XINV: '',
   STETH: '',
   INVDOLASLP: '',
   DOLA3POOLCRV: '',
   THREECRV: '',
+  escrow_v1: '',
   escrow: '',
   harvester: '0x6dE45B9a80847Ce6Fd53819bA31cf296Ecc346bC',
   governance: '0x7aC5048dcD9a0C31Bb4D539deFdc2af0E0486753',
@@ -353,6 +356,7 @@ export const getNetworkConfigConstants = (
   const HARVESTER = config.harvester;
 
   // Escrow
+  const ESCROW_V1 = config.escrow_v1;
   const ESCROW = config.escrow;
 
   // Tokens
@@ -364,6 +368,7 @@ export const getNetworkConfigConstants = (
   const YFI = config.YFI;
   const XSUSHI = config.XSUSHI;
   const WBTC = config.WBTC;
+  const XINV_V1 = config.XINV_V1;
   const XINV = config.XINV;
   const STETH = config.STETH;
   const INVDOLASLP = config.INVDOLASLP
@@ -488,6 +493,7 @@ export const getNetworkConfigConstants = (
     [ANCHOR_STETH]: TOKENS[STETH],
     [ANCHOR_INVDOLASLP]: TOKENS[INVDOLASLP],
     [ANCHOR_DOLA3POOLCRV]: TOKENS[DOLA3POOLCRV],
+    [XINV_V1]: TOKENS[INV],
     [XINV]: TOKENS[INV],
     [VAULT_USDC_ETH]: TOKENS[USDC],
     [VAULT_DAI_ETH]: TOKENS[DAI],
@@ -515,6 +521,7 @@ export const getNetworkConfigConstants = (
     [VAULT_DAI_ETH]: 'vaultDaiEth',
     [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
     [VAULT_DAI_YFI]: 'vaultDaiYfi',
+    [XINV_V1]: 'xINV',
     [XINV]: 'xINV',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
@@ -572,6 +579,7 @@ export const getNetworkConfigConstants = (
     ANCHOR_TOKENS,
     GOVERNANCE,
     HARVESTER,
+    ESCROW_V1,
     ESCROW,
     INV,
     DOLA,
@@ -581,6 +589,7 @@ export const getNetworkConfigConstants = (
     YFI,
     XSUSHI,
     WBTC,
+    XINV_V1,
     XINV,
     STETH,
     INVDOLASLP,
