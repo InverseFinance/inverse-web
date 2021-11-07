@@ -1,4 +1,5 @@
 import { NetworkConfig, Network, NetworkIds, TokenList, Vaults, VaultTree } from '@inverse/types'
+import { OLD_XINV } from './constants';
 
 const mainnetConfig: NetworkConfig = {
   chainId: '1',
@@ -15,7 +16,7 @@ const mainnetConfig: NetworkConfig = {
   DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
   THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
   // old XINV
-  XINV_V1: '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE',
+  XINV_V1: OLD_XINV,
   // new XINV
   XINV: '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B',
   vaults: {

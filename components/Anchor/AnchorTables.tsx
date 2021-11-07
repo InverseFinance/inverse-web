@@ -30,14 +30,6 @@ const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: B
     minWorthAccepted;
 }
 
-const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
-  if(amount === undefined) { return false }
-  return amount &&
-    parseFloat(formatUnits(amount, decimals)) *
-    parseFloat(formatUnits(exRate)) >=
-    minWorthAccepted;
-}
-
 export const AnchorSupplied = () => {
   const { chainId, library } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
@@ -166,12 +158,12 @@ export const AnchorSupplied = () => {
         items={marketsWithBalance.filter(
           ({ token, underlying, mintable }: Market) =>
             hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
-            || 
+            ||
             (
               token === XINV && !mintable &&
               hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token])
-            ) 
-            || 
+            )
+            ||
             (
               token === XINV_V1 && !mintable &&
               hasMinAmount(withdrawalAmount_v1, underlying.decimals, exchangeRates[token])
@@ -257,7 +249,7 @@ export const AnchorBorrowed = () => {
           columns={columns}
           items={marketsWithBalance.filter(
             ({ token, underlying }: Market) =>
-            hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
+              hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
           )}
           onClick={handleBorrow}
         />

@@ -49,9 +49,8 @@ export const getGovernanceContract = (signer: JsonRpcSigner | undefined) => {
   return getNewContract(GOVERNANCE, GOVERNANCE_ABI, signer)
 }
 
-export const getEscrowContract = (signer: JsonRpcSigner | undefined) => {
-  const { ESCROW } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  return getNewContract(ESCROW, ESCROW_ABI, signer)
+export const getEscrowContract = (escrowAddress: string, signer: JsonRpcSigner | undefined) => {
+  return getNewContract(escrowAddress, ESCROW_ABI, signer)
 }
   
 export const getINVContract = (signer: JsonRpcSigner | undefined) => {

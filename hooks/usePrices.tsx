@@ -44,9 +44,9 @@ export const usePrices = (): SWR & Prices => {
 
 export const useAnchorPrices = (): any => {
   const { chainId } = useWeb3React<Web3Provider>()
-  const { ANCHOR_TOKENS, XINV, ORACLE } = getNetworkConfigConstants(chainId)
+  const { ANCHOR_TOKENS, XINV, XINV_V1, ORACLE } = getNetworkConfigConstants(chainId)
 
-  const tokens = ANCHOR_TOKENS.concat([XINV])
+  const tokens = ANCHOR_TOKENS.concat([XINV, XINV_V1])
   const { data, error } = useEtherSWR(tokens.map((address: string) => [ORACLE, 'getUnderlyingPrice', address]))
   return {
     prices: data?.reduce((prices: { [key: string]: BigNumber }, price: BigNumber, i: number) => {

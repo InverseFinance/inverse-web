@@ -92,6 +92,7 @@ export default async function handler(req, res) {
 
     const supplyApys = supplyRates.map((rate) => toApy(rate));
     const borrowApys = borrowRates.map((rate) => toApy(rate));
+
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
       return toApy(
