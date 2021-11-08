@@ -151,6 +151,7 @@ export type Network = {
   bgColor?: BackgroundProps["bgColor"],
   image?: string,
   config?: NetworkConfig;
+  scan?: string;
 }
 
 export type StringNumMap = { [key: string]: number };

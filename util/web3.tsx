@@ -1,4 +1,6 @@
 import { ExternalProvider, JsonRpcFetchFunc, Web3Provider } from '@ethersproject/providers'
+import { BLOCK_SCAN } from '@inverse/config/constants'
+import { getNetwork } from '@inverse/config/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { hexValue } from 'ethers/lib/utils'
@@ -53,6 +55,16 @@ export const setIsPreviouslyConnected = (value: boolean): void => {
   return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
 }
 
+export const setPreviousChainId = (chainId: number | string): void => {
+  if (typeof window === undefined) { return }
+  try {
+    window.localStorage.setItem('signerChainId', chainId.toString())
+  } catch (e) {
+    window.localStorage.clear();
+    window.localStorage.setItem('signerChainId', chainId.toString());
+  }
+}
+
 export const switchWalletNetwork = async (id: string | number, onSuccess?: () => void) => {
   const hexaChainId = hexValue(Number(id));
   try {
@@ -90,3 +102,5 @@ export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
     }
   });
 }
+
+export const getScanner = (id: string | number): string => id ? (getNetwork(id)?.scan || BLOCK_SCAN) : BLOCK_SCAN;
