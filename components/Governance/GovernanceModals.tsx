@@ -135,39 +135,42 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
   }
 
   const handleSelfDelegate = () => {
-    getINVContract(library?.getSigner()).delegate(account)
+    return getINVContract(library?.getSigner()).delegate(account)
   }
 
-  const handleDelegate = async () => {
-    const invContract = getINVContract(library?.getSigner())
+  const handleDelegate = async (): Promise<boolean> => {
+    return new Promise(async (resolve) => {
+      const invContract = getINVContract(library?.getSigner())
 
-    const domain = { name: 'Inverse DAO', chainId, verifyingContract: INV }
+      const domain = { name: 'Inverse DAO', chainId, verifyingContract: INV }
 
-    const types = {
-      Delegation: [
-        { name: 'delegatee', type: 'address' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'expiry', type: 'uint256' },
-      ],
-    }
+      const types = {
+        Delegation: [
+          { name: 'delegatee', type: 'address' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'expiry', type: 'uint256' },
+        ],
+      }
 
-    const value = {
-      delegatee: delegate,
-      nonce: (await invContract.nonces(account)).toString(),
-      expiry: 10e9,
-    }
+      const value = {
+        delegatee: delegate,
+        nonce: (await invContract.nonces(account)).toString(),
+        expiry: 10e9,
+      }
 
-    const signature = await library?.getSigner()._signTypedData(domain, types, value)
+      const signature = await library?.getSigner()._signTypedData(domain, types, value)
 
-    setSignature(
-      JSON.stringify({
-        sig: signature,
-        nonce: value.nonce,
-        expiry: value.expiry,
-        chainId,
-        signer: account,
-      })
-    )
+      setSignature(
+        JSON.stringify({
+          sig: signature,
+          nonce: value.nonce,
+          expiry: value.expiry,
+          chainId,
+          signer: account,
+        })
+      )
+      resolve(true);
+    })
   }
 
   return (

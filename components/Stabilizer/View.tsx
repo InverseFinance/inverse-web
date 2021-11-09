@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Image, Stack, Text } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
+import { TransactionResponse, Web3Provider } from '@ethersproject/providers'
 import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
 import Container from '@inverse/components/common/Container'
 import { BalanceInput } from '@inverse/components/common/Input'
@@ -36,24 +36,26 @@ export const StabilizerView = () => {
       ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
       : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
 
-  const handleSubmit = () => {
+  // returning the transaction promise allows SubmitButton to automatically handle tx status and notifications
+  const handleSubmit = (): Promise<TransactionResponse> => {
     const contract = getStabilizerContract(library?.getSigner())
     switch (operation) {
       case StabilizerOperations.buy:
         if (!approvals || !approvals[DAI] || !parseFloat(formatUnits(approvals[DAI]))) {
-          getERC20Contract(DAI, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
+          return getERC20Contract(DAI, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
         } else {
-          contract.buy(parseUnits(amount))
+          return contract.buy(parseUnits(amount))
         }
         break
       case StabilizerOperations.sell:
         if (!approvals || !approvals[DOLA] || !parseFloat(formatUnits(approvals[DOLA]))) {
-          getERC20Contract(DOLA, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
+          return getERC20Contract(DOLA, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
         } else {
-          contract.sell(parseUnits(amount))
+          return contract.sell(parseUnits(amount))
         }
         break
       default:
+        return new Promise((resolve, reject) => reject());
     }
   }
 

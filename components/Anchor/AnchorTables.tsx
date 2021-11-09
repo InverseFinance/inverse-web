@@ -14,6 +14,8 @@ import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
+import { handleTx } from '@inverse/util/transactions'
+import { showFailNotif } from '@inverse/util/notify'
 
 export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
@@ -100,10 +102,12 @@ export const AnchorSupplied = () => {
                   try {
                     const contract = getComptrollerContract(library?.getSigner())
                     if (isEnabled) {
-                      await contract.exitMarket(token)
+                      await handleTx(await contract.exitMarket(token))
                     } else {
-                      await contract.enterMarkets([token])
+                      await handleTx(await contract.enterMarkets([token]))
                     }
+                  } catch(e) {
+                    showFailNotif(e, true);
                   } finally {
                     setDouble(false)
                   }
