@@ -1,5 +1,6 @@
 import { UseToastOptions, createStandaloneToast } from '@chakra-ui/react'
-import { ToastId } from '@chakra-ui/react';
+import { ToastId, Box } from '@chakra-ui/react';
+import { Notification } from '@inverse/components/common/Notification';
 import theme from '@inverse/theme';
 
 const toast = createStandaloneToast({ theme })
@@ -13,7 +14,8 @@ const defaults: Partial<UseToastOptions> = {
 
 export const showToast = (options: UseToastOptions) => {
     const toastId = options.id || 'current';
-    const mergedOptions = { id: toastId, ...defaults, ...options };
+    const render = () => <Notification status={options?.status} title={options?.title} description={options?.description} />;
+    const mergedOptions = { id: toastId, ...defaults, render, ...options };
 
     if (toast.isActive(toastId)) {
         toast.update(toastRefs[toastId], mergedOptions);
@@ -27,8 +29,8 @@ export const showToast = (options: UseToastOptions) => {
 export const showFailNotif = (e: any, isFromTx?: boolean) => {
     console.log(e);
     const msg = (e?.error?.message || e?.data?.message || e.reason || e.message || '').substring(0, 200);
-    // error code when user does not confirm tx
-    if (e?.code === 4001) {
+    // error codes relatable to transaction cancellation by user
+    if ([-32603, 4001].includes(e?.code)) {
         showToast({
             title: 'Transaction canceled',
             status: 'warning',
