@@ -59,13 +59,11 @@ export const LinkOutlineButton = ({
   </Flex>
 )
 
-export const StyledButton = (props: any) => (
-  <Button
-    justify="center"
+export const StyledButton = (props: ButtonProps) => (
+  <SmartButton
     bgColor="purple.500"
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
-    align="center"
     borderRadius={8}
     fontWeight="semibold"
     color="#fff"
@@ -120,12 +118,12 @@ export const OutlineButton = (props: any) => (
 )
 
 /**
- * "Smart" submit button :
+ * "Smart" button :
  * If the onClick function returns a Promise, we show a loader and disable the btn while the Promise is pending
  * If it's transaction Promise, we use handleTx to deal with the transaction status and notify the user
  * If there's an error there will be a notification (transaction case or not)
  *  **/
-export const SubmitButton = (props: ButtonProps) => {
+export const SmartButton = (props: ButtonProps) =>{
   const [isPending, setIsPending] = useState(false);
   const [loadingText, setLoadingText] = useState(props.loadingText || props?.children?.toString());
 
@@ -161,6 +159,19 @@ export const SubmitButton = (props: ButtonProps) => {
 
   return (
     <Button
+      loadingText={loadingText}
+      {...props}
+      // keep after {...props} :
+      disabled={props.disabled || props.isDisabled || isPending}
+      onClick={handleClick}
+      isLoading={props.isLoading || isPending}
+    />
+  )
+}
+
+export const SubmitButton = (props: ButtonProps) => {
+  return (
+    <SmartButton
       w="full"
       bgColor="purple.600"
       fontSize="13px"
@@ -168,12 +179,7 @@ export const SubmitButton = (props: ButtonProps) => {
       textTransform="uppercase"
       _focus={{}}
       _hover={{ bgColor: 'purple.700' }}
-      loadingText={loadingText}
       {...props}
-      // keep after {...props} :
-      disabled={props.disabled || props.isDisabled || isPending}
-      onClick={handleClick}
-      isLoading={props.isLoading || isPending}
     />
   )
 }
