@@ -1,4 +1,5 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
+import { UseToastOptions } from '@chakra-ui/react';
 
 export interface Token {
   address: string
@@ -167,4 +168,8 @@ export type AssetDropDownProps = {
   asset: Token,
   options: [string, string][],
   handleChange: (to: string) => void,
+}
+
+export interface CustomToastOptions extends Omit<UseToastOptions, "status"> {
+  status: UseToastOptions["status"] | 'loading',
 }

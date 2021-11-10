@@ -1,48 +1,102 @@
-import { CheckCircleIcon, WarningTwoIcon, InfoIcon, WarningIcon } from '@chakra-ui/icons';
-import { Box, BoxProps, Flex, Text, UseToastOptions } from '@chakra-ui/react';
+import { CloseIcon } from '@chakra-ui/icons';
+import { Box, BoxProps, ComponentWithAs, Flex, IconProps, Text } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
+import successLottie from '@inverse/public/assets/lotties/success.json';
+import loadingLottie from '@inverse/public/assets/lotties/loading.json';
+import warningLottie from '@inverse/public/assets/lotties/warning.json';
+import errorLottie from '@inverse/public/assets/lotties/error.json';
+import infoLottie from '@inverse/public/assets/lotties/info.json';
+import { CustomToastOptions } from '@inverse/types';
+import { Animation } from '../Animation';
+
+
+type AnimOptions = { animData: Object, loop: boolean }
+
+interface NotifTheme {
+    bg: BoxProps["bgColor"],
+    icon?: ComponentWithAs<"svg", IconProps>,
+    animOptions?: AnimOptions,
+}
+
 const themes: {
-    [key: string]: { bg: BoxProps["bgColor"], icon: any }
+    [key: string]: NotifTheme
 } = {
     'warning': {
         bg: 'orange.400',
-        icon: WarningTwoIcon
+        animOptions: {
+            animData: warningLottie,
+            loop: false,
+        },
     },
     'info': {
         bg: 'blue.400',
-        icon: InfoIcon
+        animOptions: {
+            animData: infoLottie,
+            loop: false,
+        },
     },
     'error': {
         bg: 'red.400',
-        icon: WarningIcon,
+        animOptions: {
+            animData: errorLottie,
+            loop: false,
+        },
     },
     'success': {
         bg: 'green.400',
-        icon: CheckCircleIcon,
+        animOptions: {
+            animData: successLottie,
+            loop: false,
+        },
+    },
+    'loading': {
+        bg: 'blue.500',
+        animOptions: {
+            animData: loadingLottie,
+            loop: true,
+        },
     },
 }
 
 export const Notification = ({
+    handleClose,
     title,
     description,
     status = 'info',
+    isClosable = true,
     boxProps,
+    icon,
+    animOptions,
 }: {
+    handleClose?: () => void,
     title?: ReactNode,
     description?: ReactNode,
-    status?: UseToastOptions["status"] | 'pending',
+    status?: CustomToastOptions["status"],
+    isClosable?: boolean,
     boxProps?: BoxProps,
+    icon?: ComponentWithAs<"svg", IconProps>,
+    animOptions?: AnimOptions,
 }) => {
-    const Icon = themes[status].icon;
+    const theme = themes[status];
+    const Icon = icon || theme?.icon;
+    const animationOptions = animOptions || theme?.animOptions
+    const anim = animationOptions ? <Animation {...animationOptions} /> : null;
 
     return (
-        <Box borderRadius="lg" color="white" p={3} bg={themes[status].bg} {...boxProps}>
+        <Box borderRadius="lg" color="white" p={3} bg={theme.bg} {...boxProps} position="relative">
+            {
+                isClosable && handleClose ?
+                    <CloseIcon onClick={handleClose} cursor="pointer" boxSize={3} style={{ position: 'absolute', top: '10px', right: '10px' }} />
+                    : null
+            }
             {
                 title ?
                     <Text fontWeight="bold">
                         <Flex alignItems="center">
-                            <Icon mr="2" />
+                            {
+                                Icon || anim ? <Box w="30" h="30" mr="2">{Icon ? <Icon /> : anim}</Box> : null
+                            }
                             {title}
                         </Flex>
                     </Text>

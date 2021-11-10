@@ -1,9 +1,11 @@
 import { UseToastOptions, createStandaloneToast } from '@chakra-ui/react'
-import { ToastId, Box } from '@chakra-ui/react';
+import { ToastId } from '@chakra-ui/react';
 import { Notification } from '@inverse/components/common/Notification';
 import theme from '@inverse/theme';
+import { CustomToastOptions } from '@inverse/types';
 
 const toast = createStandaloneToast({ theme })
+let toastCounter = 0;
 
 const toastRefs: { [key: string]: ToastId } = {}
 
@@ -12,10 +14,19 @@ const defaults: Partial<UseToastOptions> = {
     isClosable: true,
 }
 
-export const showToast = (options: UseToastOptions) => {
-    const toastId = options.id || 'current';
-    const render = () => <Notification status={options?.status} title={options?.title} description={options?.description} />;
-    const mergedOptions = { id: toastId, ...defaults, render, ...options };
+export const showToast = (options: CustomToastOptions) => {
+    const toastId = options.id || `custom-toast-${toastCounter++}`;
+    const { status, title, description, isClosable, ...toastOptions } = options;
+    const handleClose = () => toast.close(toastId);
+
+    const render = () => <Notification
+        handleClose={handleClose}
+        status={status}
+        title={title}
+        description={description}
+        isClosable={isClosable} />;
+
+    const mergedOptions: UseToastOptions = { id: toastId, ...defaults, render, ...toastOptions };
 
     if (toast.isActive(toastId)) {
         toast.update(toastRefs[toastId], mergedOptions);
@@ -34,7 +45,7 @@ export const showFailNotif = (e: any, isFromTx?: boolean) => {
         showToast({
             title: 'Transaction canceled',
             status: 'warning',
-            description: msg || undefined,
+            description: 'User canceled transaction in wallet',
         })
     } else {
         showToast({

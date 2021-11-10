@@ -1,7 +1,7 @@
 import { UseToastOptions } from "@chakra-ui/react"
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import ScannerLink from '@inverse/components/common/ScannerLink';
-import { NetworkIds } from '@inverse/types';
+import { CustomToastOptions, NetworkIds } from '@inverse/types';
 import { showFailNotif, showToast } from './notify';
 
 const txStatusMessages: { [key: string]: { txStatus: string, toastStatus: UseToastOptions["status"] } } = {
@@ -15,9 +15,9 @@ const txStatusMessages: { [key: string]: { txStatus: string, toastStatus: UseToa
     }
 }
 
-export const showTxToast = (txHash: string, txStatus: string, toastStatus: UseToastOptions["status"]) => {
+export const showTxToast = (txHash: string, txStatus: string, toastStatus: CustomToastOptions["status"]) => {
     const chainId = localStorage.getItem('signerChainId') || NetworkIds.mainnet;
-    const options: UseToastOptions = {
+    const options: CustomToastOptions = {
         id: txHash,
         title: `Transaction ${txStatus}`,
         description: <ScannerLink chainId={chainId} type="tx" value={txHash} shorten={true} />,
@@ -30,7 +30,7 @@ export const showTxToast = (txHash: string, txStatus: string, toastStatus: UseTo
 export const handleTx = async (tx: TransactionResponse): Promise<void> => {
     if(!tx?.hash) { return }
     try {
-        showTxToast(tx.hash, "pending", "info");
+        showTxToast(tx.hash, "pending", "loading");
         const receipt: TransactionReceipt = await tx.wait();
         const msgObj = txStatusMessages[receipt?.status || '0'];
         showTxToast(tx.hash, msgObj.txStatus, msgObj.toastStatus);
