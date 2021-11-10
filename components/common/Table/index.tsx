@@ -12,8 +12,8 @@ type TableProps = {
   onClick?: (e: any) => void
 }
 
-export const Table = ({ columns, items, onClick }: TableProps) => (
-  <Stack w="full" spacing={1} overflowX="auto">
+export const Table = ({ columns, items, onClick, ...props }: TableProps) => (
+  <Stack w="full" spacing={1} overflowX="auto" {...props}>
     <Flex
       w="full"
       fontSize="11px"

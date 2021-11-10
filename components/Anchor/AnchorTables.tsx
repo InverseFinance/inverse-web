@@ -16,6 +16,7 @@ import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { handleTx } from '@inverse/util/transactions'
 import { showFailNotif } from '@inverse/util/notify'
+import { TEST_IDS } from '@inverse/config/test-ids'
 
 export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
@@ -256,7 +257,7 @@ export const AnchorSupply = () => {
     {
       header: <Flex minWidth={36}>Asset</Flex>,
       value: ({ underlying }: Market) => (
-        <Stack minWidth={36} direction="row" align="center">
+        <Stack minWidth={36} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
           <Image src={underlying.image} w={5} h={5} />
           <Text>{underlying.symbol}</Text>
         </Stack>
@@ -329,7 +330,7 @@ export const AnchorSupply = () => {
       description="Earn interest on your deposits"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
     >
-      <Table columns={columns} items={markets} onClick={handleSupply} />
+      <Table columns={columns} items={markets} onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable}/>
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
@@ -350,7 +351,7 @@ export const AnchorBorrow = () => {
     {
       header: <Flex minWidth={24}>Asset</Flex>,
       value: ({ underlying }: Market) => (
-        <Stack minWidth={24} direction="row" align="center">
+        <Stack minWidth={24} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
           <Image src={underlying.image} w={5} h={5} />
           <Text>{underlying.symbol}</Text>
         </Stack>
@@ -402,7 +403,7 @@ export const AnchorBorrow = () => {
       description="Borrow against your supplied collateral"
       href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
     >
-      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} />
+      <Table columns={columns} items={markets.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )

@@ -5,4 +5,13 @@ export const TEST_IDS = {
         enterBtn: 'landing-enter-btn',
         learnMore: 'landing-learn-more-btn',
     },
+    anchor: {
+        buyDola: 'anchor-buy-dola',
+        learnMore: 'anchor-learn-more',
+        claim: 'anchor-claim',
+        supplyTable: 'anchor-supply-table',
+        borrowTable: 'anchor-borrow-table',
+        borrow: 'anchor-borrow',
+        tableItem: 'anchor-table-item',
+    }
 }

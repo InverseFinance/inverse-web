@@ -7,6 +7,7 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { commify } from '@ethersproject/units'
 import { chakra } from '@chakra-ui/system'
+import { TEST_IDS } from '@inverse/config/test-ids'
 
 export const AnchorHeader = () => {
   const { markets, isLoading } = useMarkets()
@@ -76,10 +77,10 @@ export const AnchorHeader = () => {
           </Text>
         </Stack>
         <Stack spacing={2} direction="row">
-          <LinkButton href="https://crv.to" target="_blank">
+          <LinkButton data-testid={TEST_IDS.anchor.buyDola} href="https://crv.to" target="_blank">
             Buy DOLA
           </LinkButton>
-          <LinkOutlineButton href="https://docs.inverse.finance/anchor-and-dola-overview" target="_blank">
+          <LinkOutlineButton data-testid={TEST_IDS.anchor.learnMore} href="https://docs.inverse.finance/anchor-and-dola-overview" target="_blank">
             Learn More
           </LinkOutlineButton>
         </Stack>
