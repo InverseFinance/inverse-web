@@ -142,6 +142,7 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: true,
+    scan: 'https://etherscan.io',
     // bgColor: '',
     config: mainnetConfig,
   },

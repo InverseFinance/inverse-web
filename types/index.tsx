@@ -1,4 +1,5 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
+import { UseToastOptions } from '@chakra-ui/react';
 
 export interface Token {
   address: string
@@ -151,6 +152,7 @@ export type Network = {
   bgColor?: BackgroundProps["bgColor"],
   image?: string,
   config?: NetworkConfig;
+  scan?: string;
 }
 
 export type StringNumMap = { [key: string]: number };
@@ -166,4 +168,8 @@ export type AssetDropDownProps = {
   asset: Token,
   options: [string, string][],
   handleChange: (to: string) => void,
+}
+
+export interface CustomToastOptions extends Omit<UseToastOptions, "status"> {
+  status: UseToastOptions["status"] | 'loading',
 }

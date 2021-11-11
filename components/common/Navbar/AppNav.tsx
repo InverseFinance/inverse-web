@@ -17,13 +17,12 @@ import Logo from '@inverse/components/common/Logo'
 import { ETH_MANTISSA } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
-import { ethereumReady, injectedConnector, setIsPreviouslyConnected, walletConnectConnector } from '@inverse/util/web3'
+import { ethereumReady, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '../Announcement'
 import WrongNetworkModal from '../Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
-import detectEthereumProvider from '@metamask/detect-provider'
 import { isPreviouslyConnected } from '../../../util/web3';
 import { NetworkItem } from '../NetworkItem'
 import { NetworkIds } from '@inverse/types'
@@ -271,6 +270,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   // chainId exists only if user is connected
   useEffect(() => {
     if (!chainId) { return }
+    setPreviousChainId(chainId);
     setBadgeChainId(chainId);
   }, [chainId]);
 

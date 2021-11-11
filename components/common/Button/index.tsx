@@ -1,7 +1,8 @@
-import { Button, Flex, Link, ButtonProps } from '@chakra-ui/react'
+import { Flex, Link, ButtonProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { getNetwork } from '../../../config/networks';
 import { NetworkItem } from '../NetworkItem';
+import { SmartButton } from './SmartButton';
 
 export const LinkButton = ({
   children,
@@ -56,13 +57,11 @@ export const LinkOutlineButton = ({
   </Flex>
 )
 
-export const StyledButton = (props: any) => (
-  <Button
-    justify="center"
+export const StyledButton = (props: ButtonProps) => (
+  <SmartButton
     bgColor="purple.500"
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
-    align="center"
     borderRadius={8}
     fontWeight="semibold"
     color="#fff"
@@ -116,18 +115,20 @@ export const OutlineButton = (props: any) => (
   />
 )
 
-export const SubmitButton = (props: any) => (
-  <Button
-    w="full"
-    bgColor="purple.600"
-    fontSize="13px"
-    fontWeight="semibold"
-    textTransform="uppercase"
-    _focus={{}}
-    _hover={{ bgColor: 'purple.700' }}
-    {...props}
-  />
-)
+export const SubmitButton = (props: ButtonProps) => {
+  return (
+    <SmartButton
+      w="full"
+      bgColor="purple.600"
+      fontSize="13px"
+      fontWeight="semibold"
+      textTransform="uppercase"
+      _focus={{}}
+      _hover={{ bgColor: 'purple.700' }}
+      {...props}
+    />
+  )
+}
 
 type NavButtonProps = {
   onClick: (s: any) => void
