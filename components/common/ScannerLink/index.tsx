@@ -39,6 +39,7 @@ const ScannerLink = ({
 			color="white"
 			justifyItems="center"
 			align="center"
+			style={{ textDecoration: 'underline' }}
 		>
 			{content}
 		</Link>

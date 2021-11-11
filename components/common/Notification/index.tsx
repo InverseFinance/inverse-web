@@ -81,7 +81,7 @@ export const Notification = ({
     const theme = themes[status];
     const Icon = icon || theme?.icon;
     const animationOptions = animOptions || theme?.animOptions
-    const anim = animationOptions ? <Animation {...animationOptions} /> : null;
+    const anim = animationOptions ? <Animation height={40} width={40} {...animationOptions} /> : null;
 
     return (
         <Box borderRadius="lg" color="white" p={3} bg={theme.bg} {...boxProps} position="relative">
@@ -90,21 +90,23 @@ export const Notification = ({
                     <CloseIcon onClick={handleClose} cursor="pointer" boxSize={3} style={{ position: 'absolute', top: '10px', right: '10px' }} />
                     : null
             }
-            {
-                title ?
-                    <Text fontWeight="bold">
-                        <Flex alignItems="center">
-                            {
-                                Icon || anim ? <Box w="30" h="30" mr="2">{Icon ? <Icon /> : anim}</Box> : null
-                            }
-                            {title}
-                        </Flex>
-                    </Text>
-                    : null
-            }
-            {
-                description ? <Text>{description}</Text> : null
-            }
+            <Flex alignItems="center">
+                {
+                    Icon || anim ?
+                        <Box alignItems="center" w="40px" h="40px" mr="2">
+                            {Icon ? <Icon /> : anim}
+                        </Box>
+                        : null
+                }
+                <Box>
+                    {
+                        title ? <Text fontWeight="bold">{title}</Text> : null
+                    }
+                    {
+                        description ? <Text>{description}</Text> : null
+                    }
+                </Box>
+            </Flex>
         </Box>
     )
 }

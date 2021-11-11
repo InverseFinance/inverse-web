@@ -11,10 +11,10 @@ import { handleTx } from '@inverse/util/transactions';
  *  **/
 export const SmartButton = (props: ButtonProps) => {
     const [isPending, setIsPending] = useState(false);
-    const [loadingText, setLoadingText] = useState(props.loadingText || props?.children?.toString());
+    const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
 
     useEffect(() => {
-        setLoadingText(props.loadingText || props?.children?.toString());
+        setLoadingText(props.loadingText || props?.children);
     }, [props.loadingText, props.children]);
 
     // wraps the onClick function given to handle promises/transactions automatically
