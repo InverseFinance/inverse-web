@@ -16,10 +16,10 @@ export type ModalProps = {
   footer?: React.ReactNode
 }
 
-export const Modal = ({ isOpen, onClose, header, children, footer }: ModalProps) => (
+export const Modal = ({ isOpen, onClose, header, children, footer, ...props }: ModalProps) => (
   <ChakraModal onClose={onClose} isOpen={isOpen} isCentered>
     <ModalOverlay />
-    <ModalContent m={{ base: 4, sm: 32 }} backgroundColor="purple.800" color="#fff">
+    <ModalContent m={{ base: 4, sm: 32 }} backgroundColor="purple.800" color="#fff"  {...props}>
       <ModalHeader borderBottomWidth={2} borderBottomColor="purple.850">
         {header}
       </ModalHeader>

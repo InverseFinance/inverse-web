@@ -13,5 +13,10 @@ export const TEST_IDS = {
         borrowTable: 'anchor-borrow-table',
         borrow: 'anchor-borrow',
         tableItem: 'anchor-table-item',
+        modal: 'anchor-modal',
+        modalHeader: 'anchor-modal-header',
+        modalFooter: 'anchor-modal-footer',
+        modalInput: 'anchor-modal-input',
+        modalTabs: 'anchor-modal-tabs',
     }
 }

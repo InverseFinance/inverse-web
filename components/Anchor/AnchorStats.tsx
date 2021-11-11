@@ -1,10 +1,9 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { AnchorOperations } from '@inverse/components/Anchor/AnchorModals'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAnchorPrices } from '@inverse/hooks/usePrices'
-import { Market } from '@inverse/types'
+import { Market, AnchorOperations } from '@inverse/types'
 import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 

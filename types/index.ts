@@ -173,3 +173,10 @@ export type AssetDropDownProps = {
 export interface CustomToastOptions extends Omit<UseToastOptions, "status"> {
   status: UseToastOptions["status"] | 'loading',
 }
+
+export enum AnchorOperations {
+  supply = 'Supply',
+  withdraw = 'Withdraw',
+  borrow = 'Borrow',
+  repay = 'Repay',
+}

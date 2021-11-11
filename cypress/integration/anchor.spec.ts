@@ -1,9 +1,42 @@
 /* eslint-disable */
 import { TEST_IDS } from '@inverse/config/test-ids';
+import { AnchorOperations } from '@inverse/types';
 
 // Disable ESLint to prevent failing linting inside the Next.js repo.
 // If you're using ESLint on your project, we recommend installing the ESLint Cypress plugin instead:
 // https://github.com/cypress-io/eslint-plugin-cypress
+
+const testTable = (table: string, minimumRequiredSymbols: string[]) => {
+  minimumRequiredSymbols.forEach(symbol => {
+    cy.getByFirstTestId(table)
+      .findByTestId(`${TEST_IDS.anchor.tableItem}-${symbol}`)
+      .should('exist')
+  })
+}
+
+const describeModalOpen = (table: string, operation: AnchorOperations) => {
+  describe(`Anchor ${operation} Modal`, () => {
+    it(`should open ${operation} modal on table-item click`, () => {
+      cy.getByFirstTestId(table)
+        .findByTestId(`${TEST_IDS.anchor.tableItem}-DOLA`)
+        .click()
+
+      const modalTestId = `${TEST_IDS.anchor.modal}-${operation}`
+      cy.shouldTestId(modalTestId, 'exist');
+
+      cy.getByFirstTestId(modalTestId)
+        .findByTestId(TEST_IDS.anchor.modalHeader)
+        .contains(/dola/i);
+
+      cy.getByFirstTestId(modalTestId)
+        .findByTestId(TEST_IDS.anchor.modalFooter)
+        .contains(new RegExp(`approve|${operation}`, 'i'));
+
+      cy.get('body').click(0, 0);
+    })
+  })
+}
+
 
 // TODO : more tests
 describe('Anchor Page', () => {
@@ -34,12 +67,7 @@ describe('Anchor Page', () => {
   it('should have at least DOLA, ETH & WBTC in borrow markets', () => {
     testTable(TEST_IDS.anchor.borrowTable, ['DOLA', 'ETH', 'WBTC'])
   })
-})
 
-const testTable = (table: string, minimumRequiredSymbols: string[]) => {
-  minimumRequiredSymbols.forEach(symbol => {
-    cy.getByFirstTestId(table)
-      .findByTestId(`${TEST_IDS.anchor.tableItem}-${symbol}`)
-      .should('exist')
-  })
-}
+  describeModalOpen(TEST_IDS.anchor.supplyTable, AnchorOperations.supply)
+  describeModalOpen(TEST_IDS.anchor.borrowTable, AnchorOperations.borrow)
+})
