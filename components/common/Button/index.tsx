@@ -8,29 +8,34 @@ export const LinkButton = ({
   children,
   href,
   target = '_self',
+  isOutline = false,
   ...props
 }: {
   href: string
   children: React.ReactNode
-  target: string
-}) => (
-  <Flex
-    w="full"
-    justify="center"
-    bgColor="purple.500"
-    cursor="pointer"
-    borderRadius={4}
-    p={2}
-    _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
-    {...props}
-  >
+  target?: string
+  isOutline?: boolean
+}) => {
+  const extraFlexProps = isOutline ? { bgColor: 'purple.850', borderColor: 'purple.600'  } : { bgColor: 'purple.500', borderColor: 'purple.500' }
+  return (
     <NextLink href={href} passHref>
-      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
-        {children}
+      <Link w="full" color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
+        <Flex
+          justify="center"
+          cursor="pointer"
+          borderRadius={4}
+          borderWidth={1}
+          p={2}
+          _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
+          {...extraFlexProps}
+        >
+          {children}
+        </Flex>
       </Link>
     </NextLink>
-  </Flex>
-)
+  )
+}
+
 export const LinkOutlineButton = ({
   children,
   href,
@@ -41,24 +46,7 @@ export const LinkOutlineButton = ({
   children: React.ReactNode
   target: string
 }) => (
-  <Flex
-    w="full"
-    justify="center"
-    bgColor="purple.850"
-    borderColor="purple.600"
-    borderWidth={1}
-    cursor="pointer"
-    borderRadius={4}
-    p={2}
-    _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
-    {...props}
-  >
-    <NextLink href={href} passHref>
-      <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
-        {children}
-      </Link>
-    </NextLink>
-  </Flex>
+  <LinkButton children={children} href={href} target={target} isOutline={true} {...props} />
 )
 
 export const StyledButton = (props: ButtonProps) => (
@@ -86,13 +74,13 @@ export const NetworkButton = ({
   onClick?: () => void,
   btnProps?: ButtonProps,
 }) => {
-  if(!chainId) { return <></> }
+  if (!chainId) { return <></> }
   const network = getNetwork(chainId);
 
   return (
-    <StyledButton 
-    bgColor={network.bgColor || 'purple.500'} 
-    onClick={onClick} {...btnProps}
+    <StyledButton
+      bgColor={network.bgColor || 'purple.500'}
+      onClick={onClick} {...btnProps}
     >
       <NetworkItem chainId={chainId} />
     </StyledButton>

@@ -50,13 +50,11 @@ describe('Anchor Page', () => {
 
   it('should "learn more" btn https://docs.inverse.finance/anchor-and-dola-overview', () => {
     cy.getByFirstTestId(TEST_IDS.anchor.learnMore)
-      .find('a')
       .should('have.attr', 'href', 'https://docs.inverse.finance/anchor-and-dola-overview')
   })
 
   it('should have "buy dola" btn lead to https://crv.to', () => {
     cy.getByFirstTestId(TEST_IDS.anchor.buyDola)
-      .find('a')
       .should('have.attr', 'href', 'https://crv.to')
   })
 
