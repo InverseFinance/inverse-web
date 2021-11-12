@@ -55,7 +55,7 @@ export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
                         <Flex fontWeight="semibold">
                             {
                                 rewards ?
-                                    formatBalance(rewards[address], 10, vault.to.symbol)
+                                    formatBalance(rewards[address], vault.to.decimals, vault.to.symbol)
                                     : 0
                             }
                         </Flex>
