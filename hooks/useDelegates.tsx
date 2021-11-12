@@ -37,6 +37,7 @@ export const useTopDelegates = (): SWR & TopDelegates => {
   return {
     delegates: Object.values(delegates)
       .filter(({ votingPower }) => votingPower)
-      .sort((a, b) => b.votingPower - a.votingPower),
+      .sort((a, b) => b.votingPower - a.votingPower)
+      .map((delegate, i) => ({...delegate, rank: i + 1 }))
   }
 }

@@ -26,10 +26,10 @@ const DelegatesTable = () => {
       field: 'rank',
       label: 'Rank',
       header: ({...props}) => <Flex minWidth={64} {...props} />,
-      value: ({ address, ensName }: Delegate, i: number) => (
+      value: ({ address, ensName, rank }: Delegate, i: number) => (
         <Stack direction="row" align="center" spacing={4} minWidth={64}>
           <Flex w={4} justify="center">
-            {i + 1}
+            {rank}
           </Flex>
           <Stack direction="row" align="center">
             <Avatar address={address} boxSize={6} />
@@ -68,14 +68,14 @@ const DelegatesTable = () => {
 
   if (isLoading) {
     return (
-      <Container label="Delegate Leaderboard" description="Top delegates by voting weight">
+      <Container label="Delegate Top 100" description="Top delegates by voting weight">
         <SkeletonBlob skeletonHeight={6} noOfLines={4} />
       </Container>
     )
   }
 
   return (
-    <Container label="Delegate Leaderboard" description="Top delegates by voting weight">
+    <Container label="Delegate Top 100" description="Top delegates by voting weight">
       <Table
         columns={columns}
         items={delegates.slice(0, 100)}

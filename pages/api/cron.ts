@@ -61,10 +61,9 @@ export default async function handler(req, res) {
         ]);
     
         const delegates = delegateVotesChanged.reduce(
-          (delegates: any, { args }, curIndex) => {
+          (delegates: any, { args }) => {
             if (args) {
               delegates[args.delegate] = {
-                rank: curIndex + 1,
                 address: args.delegate,
                 votingPower: parseFloat(formatUnits(args.newBalance)),
                 delegators: [],
