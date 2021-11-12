@@ -3,7 +3,8 @@ import { BLOCK_SCAN } from '@inverse/config/constants'
 import { getNetwork } from '@inverse/config/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
-import { hexValue } from 'ethers/lib/utils'
+import { hexValue, formatUnits } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers';
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -87,7 +88,7 @@ export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
       setTimeout(() => {
         if (window?.ethereum?.networkVersion) {
           resolve(true)
-        } else if(nbAttempts * polling <= timeout) {
+        } else if (nbAttempts * polling <= timeout) {
           checkReady(nbAttempts + 1);
         } else {
           resolve(false);
@@ -104,3 +105,10 @@ export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
 }
 
 export const getScanner = (id: string | number): string => id ? (getNetwork(id)?.scan || BLOCK_SCAN) : BLOCK_SCAN;
+
+export const formatBalance = (balance: BigNumber, decimals: number, symbol = '') => {
+  const floatBalance = balance ? parseFloat(formatUnits(balance, decimals)) : 0;
+  const precision = balance?.gt(0) ? 10 : 2;
+
+  return `${floatBalance.toFixed(precision)} ${symbol}`.trim();
+}

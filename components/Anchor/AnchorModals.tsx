@@ -14,6 +14,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { NavButtons } from '@inverse/components/common/Button'
 import { TEST_IDS } from '@inverse/config/test-ids'
+import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem';
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -102,8 +103,7 @@ export const AnchorModal = ({
       isOpen={isOpen}
       header={
         <Stack minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
-          <Image src={asset.underlying.image} w={8} h={8} />
-          <Text>{asset.underlying.name}</Text>
+          <UnderlyingItem label={asset.underlying.name} address={asset.token} image={asset.underlying.image} imgSize={8} />
         </Stack>
       }
       footer={

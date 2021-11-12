@@ -13,7 +13,7 @@ type Rates = {
 }
 
 type Rewards = {
-  rewards: { [key: string]: number }
+  rewards: { [key: string]: BigNumber }
 }
 
 export const useVaultRates = (): SWR & Rates => {

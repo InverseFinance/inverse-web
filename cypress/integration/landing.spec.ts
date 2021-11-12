@@ -16,13 +16,11 @@ describe('Landing Page', () => {
 
   it('should lead to /anchor on enter app', () => {
     cy.getByFirstTestId(TEST_IDS.landing.enterBtn)
-      .find('a')
       .should('have.attr', 'href', '/anchor')
   })
 
   it('should lead to https://docs.inverse.finance/ on learn more', () => {
     cy.getByFirstTestId(TEST_IDS.landing.learnMore)
-      .find('a')
       .should('have.attr', 'href', 'https://docs.inverse.finance/')
   })
 })
