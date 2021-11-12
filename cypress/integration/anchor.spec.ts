@@ -6,11 +6,65 @@ import { AnchorOperations } from '@inverse/types';
 // If you're using ESLint on your project, we recommend installing the ESLint Cypress plugin instead:
 // https://github.com/cypress-io/eslint-plugin-cypress
 
-const testTable = (table: string, minimumRequiredSymbols: string[]) => {
-  minimumRequiredSymbols.forEach(symbol => {
-    cy.getByFirstTestId(table)
-      .findByTestId(`${TEST_IDS.anchor.tableItem}-${symbol}`)
-      .should('exist')
+// TODO : more tests
+
+const sortableColExamples = {
+  [AnchorOperations.supply]: 'balance',
+  [AnchorOperations.withdraw]: 'balance',
+  [AnchorOperations.borrow]: 'borrowApy',
+  [AnchorOperations.repay]: 'borrowApy',
+}
+
+const describeTable = (table: string, minimumRequiredSymbols: string[], type: AnchorOperations) => {
+  describe(`Anchor ${table}`, () => {
+    it(`should have at least ${minimumRequiredSymbols.join(', ')}`, () => {
+      minimumRequiredSymbols.forEach(symbol => {
+        cy.getByFirstTestId(table)
+          .findByTestId(`${TEST_IDS.anchor.tableItem}-${symbol}`)
+          .should('exist')
+      })
+    })
+
+    // TODO : unit tests for table component
+    it(`should be able to sort`, () => {
+      cy.getByFirstTestId(table)
+        .should('have.attr', 'data-sort-by', 'symbol')
+        .should('have.attr', 'data-sort-dir', 'asc')
+
+      cy.getByFirstTestId(table)
+        .findByTestId(`${TEST_IDS.colHeaderBox}-symbol`)
+        .click()
+
+      cy.getByFirstTestId(table)
+        .should('have.attr', 'data-sort-by', 'symbol')
+        .should('have.attr', 'data-sort-dir', 'desc')
+
+      cy.getByFirstTestId(table)
+        .findByTestId(`${TEST_IDS.colHeaderBox}-symbol`)
+        .click()
+
+      cy.getByFirstTestId(table)
+        .should('have.attr', 'data-sort-by', 'symbol')
+        .should('have.attr', 'data-sort-dir', 'asc')
+
+      const otherSortableCol = sortableColExamples[type];
+
+      cy.getByFirstTestId(table)
+        .findByTestId(`${TEST_IDS.colHeaderBox}-${otherSortableCol}`)
+        .click()
+
+      cy.getByFirstTestId(table)
+        .should('have.attr', 'data-sort-by', otherSortableCol)
+        .should('have.attr', 'data-sort-dir', 'asc')
+
+      cy.getByFirstTestId(table)
+        .findByTestId(`${TEST_IDS.colHeaderBox}-${otherSortableCol}`)
+        .click()
+
+      cy.getByFirstTestId(table)
+        .should('have.attr', 'data-sort-by', otherSortableCol)
+        .should('have.attr', 'data-sort-dir', 'desc')
+    })
   })
 }
 
@@ -37,8 +91,6 @@ const describeModalOpen = (table: string, operation: AnchorOperations) => {
   })
 }
 
-
-// TODO : more tests
 describe('Anchor Page', () => {
   it('should navigate to anchor', () => {
     cy.visit('http://localhost:3000/anchor')
@@ -58,13 +110,8 @@ describe('Anchor Page', () => {
       .should('have.attr', 'href', 'https://crv.to')
   })
 
-  it('should have at least DOLA, INV, ETH & WBTC in supply markets', () => {
-    testTable(TEST_IDS.anchor.supplyTable, ['DOLA', 'INV', 'ETH', 'WBTC'])
-  })
-
-  it('should have at least DOLA, ETH & WBTC in borrow markets', () => {
-    testTable(TEST_IDS.anchor.borrowTable, ['DOLA', 'ETH', 'WBTC'])
-  })
+  describeTable(TEST_IDS.anchor.supplyTable, ['DOLA', 'INV', 'ETH', 'WBTC'], AnchorOperations.supply)
+  describeTable(TEST_IDS.anchor.borrowTable, ['DOLA', 'ETH', 'WBTC'], AnchorOperations.borrow)
 
   describeModalOpen(TEST_IDS.anchor.supplyTable, AnchorOperations.supply)
   describeModalOpen(TEST_IDS.anchor.borrowTable, AnchorOperations.borrow)

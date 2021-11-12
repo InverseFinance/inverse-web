@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Box, Text } from '@chakra-ui/react'
+import { TEST_IDS } from '@inverse/config/test-ids'
 import { Fragment, useEffect, useState } from 'react'
 
 type Column = {
@@ -50,7 +51,7 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
   const chevronProps = { color: 'purple.300', w: 4, h: 4 };
 
   return (
-    <Stack w="full" spacing={1} overflowX="auto" {...props}>
+    <Stack w="full" spacing={1} overflowX="auto" data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
       <Flex
         w="full"
         fontSize="11px"
@@ -67,6 +68,7 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
           return (
             <ColHeader key={i}>
               <Box
+                data-testid={`${TEST_IDS.colHeaderBox}-${col.field}`}
                 position="relative" fontWeight={sortBy === col.field ? 'bold' : 'normal'} cursor="pointer"
                 onClick={() => toggleSort(col)}>
                 {col.label}
