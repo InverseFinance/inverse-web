@@ -8,6 +8,7 @@ export const LinkButton = ({
   children,
   href,
   target = '_self',
+  ...props
 }: {
   href: string
   children: React.ReactNode
@@ -21,6 +22,7 @@ export const LinkButton = ({
     borderRadius={4}
     p={2}
     _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
+    {...props}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>
@@ -33,6 +35,7 @@ export const LinkOutlineButton = ({
   children,
   href,
   target = '_self',
+  ...props
 }: {
   href: string
   children: React.ReactNode
@@ -48,6 +51,7 @@ export const LinkOutlineButton = ({
     borderRadius={4}
     p={2}
     _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
+    {...props}
   >
     <NextLink href={href} passHref>
       <Link color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}}>

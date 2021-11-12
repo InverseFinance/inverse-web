@@ -93,3 +93,7 @@ $RECYCLE.BIN/
 .env*
 !.env.example
 out
+
+# testing
+cypress/screenshots
+cypress/videos

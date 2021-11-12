@@ -3,6 +3,7 @@ import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@inverse/components/common/Button'
 import Layout from '@inverse/components/common/Layout'
 import { LandingNav } from '@inverse/components/common/Navbar'
+import { TEST_IDS } from '@inverse/config/test-ids'
 import { useDOLA } from '@inverse/hooks/useDOLA'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useTVL } from '@inverse/hooks/useTVL'
@@ -124,10 +125,10 @@ export const Landing = () => {
           </Flex>
           <Flex>
             <Flex w={32} m={2}>
-              <LinkButton href="/anchor">Enter App</LinkButton>
+              <LinkButton data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">Enter App</LinkButton>
             </Flex>
             <Flex w={32} m={2}>
-              <LinkOutlineButton href="https://docs.inverse.finance/">Learn More</LinkOutlineButton>
+              <LinkOutlineButton data-testid={TEST_IDS.landing.learnMore} target="_self" href="https://docs.inverse.finance/">Learn More</LinkOutlineButton>
             </Flex>
           </Flex>
           <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">

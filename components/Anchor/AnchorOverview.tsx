@@ -8,6 +8,7 @@ import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { InfoTooltip } from '@inverse/components/common/Tooltip'
+import { TEST_IDS } from '@inverse/config/test-ids'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()
@@ -38,6 +39,7 @@ export const AnchorOverview = () => {
           <StyledButton
             isDisabled={!rewardAmount}
             onClick={() => getComptrollerContract(library?.getSigner()).claimComp(account)}
+            data-testid={TEST_IDS.anchor.claim}
           >
             Claim
           </StyledButton>

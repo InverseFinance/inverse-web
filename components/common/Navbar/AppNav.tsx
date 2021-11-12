@@ -27,6 +27,7 @@ import { isPreviouslyConnected } from '../../../util/web3';
 import { NetworkItem } from '../NetworkItem'
 import { NetworkIds } from '@inverse/types'
 import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
+import { TEST_IDS } from '@inverse/config/test-ids'
 
 const NAV_ITEMS = [
   {
@@ -188,6 +189,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           pl={4}
           pr={4}
           _hover={{ bgColor: 'purple.600' }}
+          data-testid={TEST_IDS.connectBtn}
         >
           {active && account ? `${namedAddress(account, chainId)}` : 'Connect'}
         </Flex>

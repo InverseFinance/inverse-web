@@ -1,4 +1,4 @@
-import { Box, Flex, Image, Stack, Text } from '@chakra-ui/react'
+import { Flex, Image, Stack, Text, Box } from '@chakra-ui/react'
 import { AnchorButton } from '@inverse/components/Anchor/AnchorButton'
 import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
 import { BalanceInput } from '@inverse/components/common/Input'
@@ -7,19 +7,13 @@ import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAnchorPrices } from '@inverse/hooks/usePrices'
-import { Market } from '@inverse/types'
+import { AnchorOperations, Market } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { NavButtons } from '@inverse/components/common/Button'
-
-export enum AnchorOperations {
-  supply = 'Supply',
-  withdraw = 'Withdraw',
-  borrow = 'Borrow',
-  repay = 'Repay',
-}
+import { TEST_IDS } from '@inverse/config/test-ids'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -41,7 +35,7 @@ export const AnchorModal = ({
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
 
-  if(!operations.includes(operation)) {
+  if (!operations.includes(operation)) {
     setOperation(operations[0])
   }
 
@@ -55,12 +49,12 @@ export const AnchorModal = ({
         const supply =
           supplyBalances && exchangeRates
             ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
-              parseFloat(formatUnits(exchangeRates[asset.token]))
+            parseFloat(formatUnits(exchangeRates[asset.token]))
             : 0
         const withdrawable = prices
           ? usdBorrowable /
-            (asset.collateralFactor *
-              parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
+          (asset.collateralFactor *
+            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
         const userWithdrawable = !usdBorrowable || withdrawable > supply ? supply : withdrawable
         return Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable)
@@ -68,7 +62,7 @@ export const AnchorModal = ({
         const borrowable =
           prices && usdBorrowable
             ? usdBorrowable /
-              parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
             : 0
         return Math.min(borrowable, asset.liquidity)
       case AnchorOperations.repay:
@@ -107,19 +101,22 @@ export const AnchorModal = ({
       onClose={handleClose}
       isOpen={isOpen}
       header={
-        <Stack minWidth={24} direction="row" align="center">
+        <Stack minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
           <Image src={asset.underlying.image} w={8} h={8} />
           <Text>{asset.underlying.name}</Text>
         </Stack>
       }
       footer={
-        <AnchorButton
-          operation={operation}
-          asset={asset}
-          amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
-          isDisabled={!amount || !active || isNaN(amount as any) || parseFloat(amount) > max()}
-        />
+        <Box w="100%" data-testid={TEST_IDS.anchor.modalFooter}>
+          <AnchorButton
+            operation={operation}
+            asset={asset}
+            amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+            isDisabled={!amount || !active || isNaN(amount as any) || parseFloat(amount) > max()}
+          />
+        </Box>
       }
+      data-testid={`${TEST_IDS.anchor.modal}-${operation}`}
     >
       <Stack p={4} w="full" spacing={4}>
         <NavButtons options={operations} active={operation} onClick={setOperation} />
@@ -172,6 +169,6 @@ export const AnchorBorrowModal = ({ isOpen, onClose, asset }: AnchorModalProps) 
     isOpen={isOpen}
     onClose={onClose}
     asset={asset}
-    operations={asset.borrowable? [AnchorOperations.borrow, AnchorOperations.repay]: [AnchorOperations.repay]}
+    operations={asset.borrowable ? [AnchorOperations.borrow, AnchorOperations.repay] : [AnchorOperations.repay]}
   />
 )
