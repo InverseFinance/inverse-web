@@ -12,11 +12,21 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
 import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { handleTx } from '@inverse/util/transactions'
 import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
+import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem'
+
+const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
+  if (amount === undefined) { return false }
+  return amount &&
+    parseFloat(formatUnits(amount, decimals)) *
+    parseFloat(formatUnits(exRate)) >=
+    minWorthAccepted;
+}
 
 export const AnchorSupplied = () => {
   const { library } = useWeb3React<Web3Provider>()
@@ -38,10 +48,9 @@ export const AnchorSupplied = () => {
   const columns = [
     {
       header: <Flex minWidth={40}>Asset</Flex>,
-      value: ({ underlying }: Market) => (
+      value: ({ token, underlying }: Market) => (
         <Stack minWidth={40} direction="row" align="center">
-          <Image src={underlying.image} w={5} h={5} />
-          <Text>{underlying.symbol}</Text>
+          <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
         </Stack>
       ),
     },
@@ -141,10 +150,7 @@ export const AnchorSupplied = () => {
         columns={columns}
         items={markets.filter(
           ({ token, underlying }: Market) =>
-            balances[token] &&
-            parseFloat(formatUnits(balances[token], underlying.decimals)) *
-              parseFloat(formatUnits(exchangeRates[token])) >=
-              0.01
+            hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
         )}
         onClick={handleSupply}
       />
@@ -170,10 +176,9 @@ export const AnchorBorrowed = () => {
   const columns = [
     {
       header: <Flex minWidth={24}>Asset</Flex>,
-      value: ({ underlying }: Market) => (
+      value: ({ token, underlying }: Market) => (
         <Stack minWidth={24} direction="row" align="center">
-          <Image src={underlying.image} w={5} h={5} />
-          <Text>{underlying.symbol}</Text>
+          <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
         </Stack>
       ),
     },
@@ -225,10 +230,7 @@ export const AnchorBorrowed = () => {
           columns={columns}
           items={markets.filter(
             ({ token, underlying }: Market) =>
-              balances[token] &&
-              parseFloat(formatUnits(balances[token], underlying.decimals)) *
-                parseFloat(formatUnits(exchangeRates[token])) >=
-                0.01
+              hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
           )}
           onClick={handleBorrow}
         />
@@ -256,10 +258,9 @@ export const AnchorSupply = () => {
   const columns = [
     {
       header: <Flex minWidth={36}>Asset</Flex>,
-      value: ({ underlying }: Market) => (
+      value: ({ token, underlying }: Market) => (
         <Stack minWidth={36} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
-          <Image src={underlying.image} w={5} h={5} />
-          <Text>{underlying.symbol}</Text>
+          <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
         </Stack>
       ),
     },
@@ -350,10 +351,9 @@ export const AnchorBorrow = () => {
   const columns = [
     {
       header: <Flex minWidth={24}>Asset</Flex>,
-      value: ({ underlying }: Market) => (
+      value: ({ token, underlying }: Market) => (
         <Stack minWidth={24} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
-          <Image src={underlying.image} w={5} h={5} />
-          <Text>{underlying.symbol}</Text>
+          <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
         </Stack>
       ),
     },

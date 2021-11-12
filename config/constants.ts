@@ -10,3 +10,6 @@ export const BLOCK_SCAN = 'https://blockscan.com';
 
 // Governance
 export const QUORUM_VOTES = 4000;
+
+// Migration
+export const OLD_XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE' 
