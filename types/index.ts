@@ -30,6 +30,9 @@ export type Market = {
   totalReserves: number
   supplied: number
   borrowable: boolean
+  balance?: number
+  isCollateral?: boolean
+  liquidityUsd?: number
 }
 
 export type Proposal = {
@@ -76,6 +79,7 @@ export type ProposalVote = {
 }
 
 export type Delegate = {
+  rank: number
   address: string
   ensName: string
   votingPower: number

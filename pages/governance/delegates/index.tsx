@@ -23,7 +23,9 @@ const DelegatesTable = () => {
 
   const columns = [
     {
-      header: <Flex minWidth={64}>Rank</Flex>,
+      field: 'rank',
+      label: 'Rank',
+      header: ({...props}) => <Flex minWidth={64} {...props} />,
       value: ({ address, ensName }: Delegate, i: number) => (
         <Stack direction="row" align="center" spacing={4} minWidth={64}>
           <Flex w={4} justify="center">
@@ -37,35 +39,27 @@ const DelegatesTable = () => {
       ),
     },
     {
-      header: (
-        <Flex justify="flex-end" minWidth={32}>
-          Delegators
-        </Flex>
-      ),
+      field: 'delegators',
+      label: 'Delegators',
+      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ delegators }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${delegators.length}`}</Flex>,
     },
     {
-      header: (
-        <Flex justify="flex-end" minWidth={32}>
-          Proposals Voted
-        </Flex>
-      ),
+      field: 'votes',
+      label: 'Proposals Voted',
+      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ votes }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${votes.length}`}</Flex>,
     },
     {
-      header: (
-        <Flex justify="flex-end" minWidth={32}>
-          Votes
-        </Flex>
-      ),
+      field: 'votingPower',
+      label: 'Votes',
+      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ votingPower }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${votingPower.toFixed(2)}`}</Flex>,
     },
     {
-      header: (
-        <Flex justify="flex-end" minWidth={32}>
-          Vote Weight
-        </Flex>
-      ),
+      field: 'votingPower',
+      label: 'Vote weight',
+      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ votingPower }: Delegate) => (
         <Flex justify="flex-end" minWidth={32}>{`${((votingPower / totalVotes) * 100).toFixed(2)}%`}</Flex>
       ),

@@ -142,7 +142,8 @@ export default async function handler(req, res) {
           ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) *
         100,
       collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
-      supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply))
+      supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
+      rewardApy: 0,
     });
 
     res.status(200).json( {

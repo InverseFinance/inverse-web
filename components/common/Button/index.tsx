@@ -26,7 +26,7 @@ export const LinkButton = ({
           borderRadius={4}
           borderWidth={1}
           p={2}
-          _hover={{ bgColor: 'purple.600', transition: 'all 250ms' }}
+          _hover={{ bgColor: 'purple.600', borderColor: 'purple.600', transition: 'all 250ms' }}
           {...extraFlexProps}
         >
           {children}
