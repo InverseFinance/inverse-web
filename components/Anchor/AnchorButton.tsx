@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Stack } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
@@ -37,13 +37,37 @@ const XINVEscrowAlert = ({ showDescription }: any) => (
   </Alert>
 )
 
+const ClaimFromEscrowBtn = ({
+  escrowAddress,
+  withdrawalTime,
+  withdrawalAmount,
+  signer,
+}:
+  {
+    escrowAddress: string,
+    withdrawalTime: Date | undefined,
+    withdrawalAmount: BigNumber,
+    signer: JsonRpcSigner,
+  }) => {
+  return <SubmitButton
+    onClick={() => getEscrowContract(escrowAddress, signer).withdraw()}
+    isDisabled={moment(withdrawalTime).isAfter(moment())}
+  >
+    {moment(withdrawalTime).isAfter(moment())
+      ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime)}`
+      : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV`}
+  </SubmitButton>
+}
+
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
   const { library, chainId } = useWeb3React<Web3Provider>()
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
-  const { withdrawalTime, withdrawalAmount } = useEscrow()
-  const { ANCHOR_ETH, XINV } = getNetworkConfigConstants(chainId);
+  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
+
+  const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
 
   const contract =
     asset.token === ANCHOR_ETH
@@ -82,15 +106,21 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
       return (
         <Stack w="full" spacing={4}>
           {asset.token === XINV && <XINVEscrowAlert showDescription />}
-          {asset.token === XINV && withdrawalAmount?.gt(0) && (
-            <SubmitButton
-              onClick={() => getEscrowContract(library?.getSigner()).withdraw()}
-              isDisabled={moment(withdrawalTime).isAfter(moment())}
-            >
-              {moment(withdrawalTime).isAfter(moment())
-                ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime)}`
-                : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV`}
-            </SubmitButton>
+          {asset.token === XINV && withdrawalAmount?.gt(0) && library?.getSigner() && (
+            <ClaimFromEscrowBtn
+              escrowAddress={ESCROW}
+              withdrawalTime={withdrawalTime}
+              withdrawalAmount={withdrawalAmount}
+              signer={library?.getSigner()}
+            />
+          )}
+          {asset.token === XINV_V1 && withdrawalAmount_v1?.gt(0) && library?.getSigner() && (
+            <ClaimFromEscrowBtn
+              escrowAddress={ESCROW_V1}
+              withdrawalTime={withdrawalTime_v1}
+              withdrawalAmount={withdrawalAmount_v1}
+              signer={library?.getSigner()}
+            />
           )}
           <SubmitButton
             onClick={() => contract.redeemUnderlying(amount)}

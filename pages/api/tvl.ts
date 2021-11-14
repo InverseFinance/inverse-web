@@ -1,11 +1,12 @@
 import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@inverse/config/abis";
-import { AlchemyProvider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abis";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
+import { getProvider } from '@inverse/util/providers';
 
 export default async function handler(req, res) {
   try {
@@ -25,10 +26,11 @@ export default async function handler(req, res) {
       ANCHOR_TOKENS,
       ANCHOR_ETH,
       WETH,
+      XINV_V1,
       XINV,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API);
+    const provider = getProvider(networkConfig.chainId)
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
@@ -47,7 +49,7 @@ export default async function handler(req, res) {
       stabilizerBalances,
     ] = await Promise.all([
       vaultsTVL(prices, provider, WETH, VAULT_TOKENS, TOKENS, UNDERLYING),
-      anchorTVL(prices, provider, XINV, ANCHOR_ETH, WETH, ANCHOR_TOKENS, TOKENS, UNDERLYING),
+      anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_ETH, WETH, ANCHOR_TOKENS, TOKENS, UNDERLYING),
       stabilizerTVL(prices, provider, DAI, STABILIZER, TOKENS),
     ]);
 
@@ -77,7 +79,7 @@ export default async function handler(req, res) {
 
 const vaultsTVL = async (
   prices: StringNumMap,
-  provider: AlchemyProvider,
+  provider: Provider,
   wethAddress: string,
   vaultTokens: string[],
   tokens: TokenList,
@@ -106,14 +108,15 @@ const vaultsTVL = async (
     return {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[token.address],
+      usdBalance: amount * prices[token.address] || 0,
     };
   });
 };
 
 const anchorTVL = async (
   prices: StringNumMap,
-  provider: AlchemyProvider,
+  provider: Provider,
+  xInvV1Address: string,
   xInvAddress: string,
   anchorEthAddress: string,
   wethAddress: string,
@@ -122,6 +125,7 @@ const anchorTVL = async (
   underlying: TokenList,
 ): Promise<TokenWithBalance[]> => {
   const anchorContracts = anchorTokenAddresses.map((address: string) => new Contract(address, CTOKEN_ABI, provider));
+  anchorContracts.push(new Contract(xInvV1Address, XINV_ABI, provider));
   anchorContracts.push(new Contract(xInvAddress, XINV_ABI, provider));
 
   const allCash = await Promise.all(
@@ -146,14 +150,14 @@ const anchorTVL = async (
     return {
       ...token,
       balance: amount,
-      usdBalance: amount * prices[address],
+      usdBalance: amount * prices[address] || 0,
     };
   });
 };
 
 const stabilizerTVL = async (
   prices: StringNumMap,
-  provider: AlchemyProvider,
+  provider: Provider,
   daiAddress: string,
   stabilizerAddress: string,
   tokens: TokenList
@@ -166,7 +170,7 @@ const stabilizerTVL = async (
   const tokenWithBalance: TokenWithBalance = {
     ...token,
     balance: amount,
-    usdBalance: amount * prices[token.address],
+    usdBalance: amount * prices[token.address] || 0,
   };
 
   return [
@@ -178,5 +182,5 @@ const sumUsdBalances = (tokenWithBalances: TokenWithBalance[]): number => {
   return tokenWithBalances.reduce(
     (usdBalance, item) => usdBalance + item.usdBalance,
     0
-  );
+  ) || 0;
 }

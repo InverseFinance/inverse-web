@@ -10,6 +10,7 @@ import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap } from '@inverse/types';
+import { getProvider } from '@inverse/util/providers';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
@@ -25,6 +26,7 @@ export default async function handler(req, res) {
       INV,
       TOKENS,
       UNDERLYING,
+      XINV_V1,
       XINV,
       ORACLE,
       ANCHOR_ETH,
@@ -32,12 +34,13 @@ export default async function handler(req, res) {
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API)
+    const provider = getProvider(networkConfig.chainId);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
+
     const contracts = addresses
-      .filter((address: string) => address !== XINV)
+      .filter((address: string) => address !== XINV && address !== XINV_V1)
       .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
     const [
@@ -52,6 +55,7 @@ export default async function handler(req, res) {
       totalSupplies,
       exchangeRates,
       borrowPaused,
+      mintPaused,
       oraclePrices,
     ]: any = await Promise.all([
       Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
@@ -75,24 +79,30 @@ export default async function handler(req, res) {
           comptroller.borrowGuardianPaused(contract.address)
         )
       ),
+      Promise.all(
+        contracts.map((contract) =>
+          comptroller.mintGuardianPaused(contract.address)
+        )
+      ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
     ]);
 
     const prices: StringNumMap = oraclePrices
-      .map((v,i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
-      .reduce((p,v,i) => ({...p, [addresses[i]]:v}), {});
+      .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
 
     const supplyApys = supplyRates.map((rate) => toApy(rate));
     const borrowApys = borrowRates.map((rate) => toApy(rate));
+
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
       return toApy(
         (speed * prices[XINV]) /
-          (parseFloat(
-            formatUnits(totalSupplies[i].toString(), underlying.decimals)
-          ) *
-            parseFloat(formatUnits(exchangeRates[i])) *
-            prices[contracts[i].address])
+        (parseFloat(
+          formatUnits(totalSupplies[i].toString(), underlying.decimals)
+        ) *
+          parseFloat(formatUnits(exchangeRates[i])) *
+          prices[contracts[i].address])
       );
     });
 
@@ -105,6 +115,7 @@ export default async function handler(req, res) {
         borrowApy: borrowApys[i],
         rewardApy: rewardApys[i],
         borrowable: !borrowPaused[i],
+        mintable: !mintPaused[i],
         liquidity: parseFloat(
           formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
         ),
@@ -118,35 +129,41 @@ export default async function handler(req, res) {
         reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
         supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals))
       }
-  });
-
-    const xINV = new Contract(XINV, XINV_ABI, provider);
-
-    const [
-      rewardPerBlock,
-      exchangeRate,
-      totalSupply,
-      collateralFactor,
-    ] = await Promise.all([
-      xINV.rewardPerBlock(),
-      xINV.exchangeRateStored(),
-      xINV.totalSupply(),
-      comptroller.markets(xINV.address),
-    ]);
-
-    markets.push({
-      token: xINV.address,
-      underlying: TOKENS[INV],
-      supplyApy:
-        (((rewardPerBlock / ETH_MANTISSA) * BLOCKS_PER_DAY * DAYS_PER_YEAR) /
-          ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) *
-        100,
-      collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
-      supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
-      rewardApy: 0,
     });
 
-    res.status(200).json( {
+    const addXINV = async (xinvAddress: string, mintable: boolean) => {
+      const xINV = new Contract(xinvAddress, XINV_ABI, provider);
+
+      const [
+        rewardPerBlock,
+        exchangeRate,
+        totalSupply,
+        collateralFactor,
+      ] = await Promise.all([
+        xINV.rewardPerBlock(),
+        xINV.exchangeRateStored(),
+        xINV.totalSupply(),
+        comptroller.markets(xINV.address),
+      ]);
+
+      const supplyApy = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA) * BLOCKS_PER_DAY * DAYS_PER_YEAR) /
+      ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) * 100
+
+      markets.push({
+        token: xINV.address,
+        mintable: mintable,
+        underlying: TOKENS[INV],
+        supplyApy: supplyApy || 0,
+        collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
+        supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
+        rewardApy: 0,
+      });
+    }
+
+    await addXINV(XINV_V1, false);
+    await addXINV(XINV, true);
+
+    res.status(200).json({
       markets,
     });
   } catch (err) {

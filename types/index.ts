@@ -33,6 +33,7 @@ export type Market = {
   balance?: number
   isCollateral?: boolean
   liquidityUsd?: number
+  mintable: boolean
 }
 
 export type Proposal = {
@@ -111,11 +112,13 @@ export type NetworkConfig = {
   YFI: string,
   XSUSHI: string,
   WBTC: string,
+  XINV_V1: string,
   XINV: string,
   STETH: string,
   INVDOLASLP: string,
   DOLA3POOLCRV: string,
   THREECRV: string,
+  escrow_v1: string,
   escrow: string,
   harvester: string,
   governance: string,

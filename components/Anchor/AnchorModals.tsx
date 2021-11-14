@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { NavButtons } from '@inverse/components/common/Button'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem';
+import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -35,6 +36,7 @@ export const AnchorModal = ({
   const { prices } = useAnchorPrices()
   const { usdBorrowable } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
+  const { markets: accountMarkets } = useAccountMarkets()
 
   if (!operations.includes(operation)) {
     setOperation(operations[0])
@@ -57,7 +59,8 @@ export const AnchorModal = ({
           (asset.collateralFactor *
             parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
-        const userWithdrawable = !usdBorrowable || withdrawable > supply ? supply : withdrawable
+          const isEnabled = accountMarkets.find((market: Market) => market.token === asset.token)
+          const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isEnabled ? supply : withdrawable
         return Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable)
       case AnchorOperations.borrow:
         const borrowable =
@@ -119,7 +122,11 @@ export const AnchorModal = ({
       data-testid={`${TEST_IDS.anchor.modal}-${operation}`}
     >
       <Stack p={4} w="full" spacing={4}>
-        <NavButtons options={operations} active={operation} onClick={setOperation} />
+        {
+          operations.length > 1 ?
+            <NavButtons options={operations} active={operation} onClick={setOperation} />
+            : null
+        }
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
@@ -160,7 +167,7 @@ export const AnchorSupplyModal = ({ isOpen, onClose, asset }: AnchorModalProps) 
     isOpen={isOpen}
     onClose={onClose}
     asset={asset}
-    operations={[AnchorOperations.supply, AnchorOperations.withdraw]}
+    operations={asset.mintable ? [AnchorOperations.supply, AnchorOperations.withdraw] : [AnchorOperations.withdraw]}
   />
 )
 

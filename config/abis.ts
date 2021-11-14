@@ -15,7 +15,8 @@ export const COMPTROLLER_ABI = [
   "function getAllMarkets() public view returns (address[])",
   "function getAssetsIn(address) view returns (address[])",
   "function markets(address) external view returns (bool, uint256, bool)",
-  "function borrowGuardianPaused(address) external view returns (bool)"
+  "function borrowGuardianPaused(address) external view returns (bool)",
+  "function mintGuardianPaused(address) external view returns (bool)",
 ];
 
 export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
@@ -128,6 +129,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
   const {
     ANCHOR_TOKENS,
     COMPTROLLER,
+    ESCROW_V1,
     ESCROW,
     GOVERNANCE,
     HARVESTER,
@@ -136,6 +138,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     ORACLE,
     TOKENS,
     VAULT_TOKENS,
+    XINV_V1,
     XINV,
   } = getNetworkConfigConstants(networkConfig);
 
@@ -143,8 +146,10 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     // @ts-ignore
     ANCHOR_TOKENS.map((address) => [address, CTOKEN_ABI]).concat(
       [
+        [XINV_V1, XINV_ABI],
         [XINV, XINV_ABI],
         [COMPTROLLER, COMPTROLLER_ABI],
+        [ESCROW_V1, ESCROW_ABI],
         [ESCROW, ESCROW_ABI],
         [HARVESTER, HARVESTER_ABI],
         [GOVERNANCE, GOVERNANCE_ABI],

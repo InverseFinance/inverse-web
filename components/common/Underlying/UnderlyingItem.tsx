@@ -14,9 +14,6 @@ export const UnderlyingItem = ({
 }) => {
     return <>
         <Image src={image} w={imgSize} h={imgSize} />
-        <Text>
-            {label}
-            {/* {address === OLD_XINV ? ' (OLD)' : ''} */}
-        </Text>
+        <Text>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
     </>
-} 
+}

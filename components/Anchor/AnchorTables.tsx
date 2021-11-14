@@ -4,8 +4,10 @@ import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor
 import Container from '@inverse/components/common/Container'
 import { SkeletonBlob, SkeletonList } from '@inverse/components/common/Skeleton'
 import Table from '@inverse/components/common/Table'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
+import { useEscrow } from '@inverse/hooks/useEscrow'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
@@ -29,7 +31,7 @@ const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: B
 }
 
 export const AnchorSupplied = () => {
-  const { library } = useWeb3React<Web3Provider>()
+  const { chainId, library } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
@@ -39,6 +41,10 @@ export const AnchorSupplied = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
   const [double, setDouble] = useState(false)
+  const { XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId)
+
+  const { withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalAmount } = useEscrow(ESCROW)
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
@@ -150,8 +156,18 @@ export const AnchorSupplied = () => {
       <Table
         columns={columns}
         items={marketsWithBalance.filter(
-          ({ token, underlying }: Market) =>
+          ({ token, underlying, mintable }: Market) =>
             hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
+            ||
+            (
+              token === XINV && !mintable &&
+              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token])
+            )
+            ||
+            (
+              token === XINV_V1 && !mintable &&
+              hasMinAmount(withdrawalAmount_v1, underlying.decimals, exchangeRates[token])
+            )
         )}
         onClick={handleSupply}
       />
@@ -247,6 +263,17 @@ export const AnchorBorrowed = () => {
   )
 }
 
+const AnchorSupplyContainer = ({ ...props }) => {
+  return (
+    <Container
+      label="Supply"
+      description="Earn interest on your deposits"
+      href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
+      {...props}
+    />
+  )
+}
+
 export const AnchorSupply = () => {
   const { markets, isLoading } = useMarkets()
   const { balances } = useAccountBalances()
@@ -318,25 +345,19 @@ export const AnchorSupply = () => {
 
   if (isLoading || !markets) {
     return (
-      <Container
-        label="Supply"
-        description="Earn interest on your deposits"
-        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
-      >
+      <AnchorSupplyContainer>
         <SkeletonList />
-      </Container>
+      </AnchorSupplyContainer>
     )
   }
 
+  const mintableMarkets = marketsWithBalance.filter(m => m.mintable);
+
   return (
-    <Container
-      label="Supply"
-      description="Earn interest on your deposits"
-      href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
-    >
-      <Table columns={columns} items={marketsWithBalance} onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
+    <AnchorSupplyContainer>
+      <Table columns={columns} items={mintableMarkets} onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
-    </Container>
+    </AnchorSupplyContainer>
   )
 }
 

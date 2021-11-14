@@ -33,9 +33,9 @@ export const useAccountBalances = (): SWR & Balances => {
 
 export const useSupplyBalances = (): SWR & Balances => {
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const { ANCHOR_TOKENS, XINV } = getNetworkConfigConstants(chainId)
+  const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(chainId)
 
-  const tokens = ANCHOR_TOKENS.concat([XINV])
+  const tokens = ANCHOR_TOKENS.concat([XINV_V1, XINV])
 
   const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'balanceOf', account]))
 
