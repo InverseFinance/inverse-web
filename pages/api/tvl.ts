@@ -7,6 +7,11 @@ import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abi
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
+import { createNodeRedisClient } from 'handy-redis';
+
+const client = createNodeRedisClient({
+  url: process.env.REDIS_URL
+});
 
 export default async function handler(req, res) {
   try {
@@ -29,6 +34,20 @@ export default async function handler(req, res) {
       XINV_V1,
       XINV,
     } = getNetworkConfigConstants(networkConfig);
+
+    const cacheKey = `${networkConfig.chainId}-tvl-cache`;
+
+    const cache = await client.get(cacheKey);
+
+    if(cache) {
+      const now = Date.now();
+      const cacheObj = JSON.parse(cache);
+      // 30 min cache
+      if((now - cacheObj?.timestamp) / 1000 < 1800) {
+        res.status(200).json(cacheObj.data);
+        return
+      }
+    }
 
     const provider = getProvider(networkConfig.chainId)
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
@@ -57,7 +76,7 @@ export default async function handler(req, res) {
     const usdAnchor = sumUsdBalances(anchorBalances);
     const usdStabilizer = sumUsdBalances(stabilizerBalances);
 
-    res.status(200).json({
+    const resultData = {
       tvl: usdVault + usdAnchor + usdStabilizer,
       vaults: {
         tvl: usdVault,
@@ -71,7 +90,11 @@ export default async function handler(req, res) {
         tvl: usdStabilizer,
         assets: stabilizerBalances,
       },
-    });
+    }
+
+    await client.set(cacheKey, JSON.stringify({ timestamp: Date.now(), data: resultData }));
+
+    res.status(200).json(resultData);
   } catch (err) {
     console.error(err);
   }

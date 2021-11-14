@@ -155,7 +155,7 @@ export const AnchorSupplied = () => {
     <Container label={`$${commify(usdSupply.toFixed(2))}`} description="Your supplied assets">
       <Table
         columns={columns}
-        items={marketsWithBalance.filter(
+        items={marketsWithBalance?.filter(
           ({ token, underlying, mintable }: Market) =>
             hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
             ||

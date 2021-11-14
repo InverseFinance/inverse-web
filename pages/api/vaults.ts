@@ -8,20 +8,36 @@ import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { getProvider } from '@inverse/util/providers';
+import { createNodeRedisClient } from 'handy-redis';
+
+const client = createNodeRedisClient({
+  url: process.env.REDIS_URL
+});
 
 export default async function handler(req, res) {
   try {
     const { chainId = '1' } = req.query;
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(chainId, true)!;
-    if(!networkConfig?.governance) {
-      res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
-    }
 
     const {
       HARVESTER,
       VAULT_TOKENS,
     } = getNetworkConfigConstants(networkConfig);
+
+    const cacheKey = `${networkConfig.chainId}-vaults-cache`;
+
+    const cache = await client.get(cacheKey);
+
+    if(cache) {
+      const now = Date.now();
+      const cacheObj = JSON.parse(cache);
+      // 30 min cache
+      if((now - cacheObj?.timestamp) / 1000 < 1800) {
+        res.status(200).json(cacheObj.data);
+        return
+      }
+    }
 
     const provider = getProvider(networkConfig.chainId);
     const harvester = new Contract(HARVESTER, HARVESTER_ABI, provider);
@@ -36,7 +52,7 @@ export default async function handler(req, res) {
       provider
     ).lastDistribution();
 
-    res.status(200).json( {
+    const resultData = {
       lastDistribution: lastDistribution.toNumber(),
       rates: rates.reduce((res, rate, i) => {
         res[VAULT_TOKENS[i]] =
@@ -48,7 +64,11 @@ export default async function handler(req, res) {
           ) * 100;
         return res;
       }, {}),
-    });
+    };
+
+    await client.set(cacheKey, JSON.stringify({ timestamp: Date.now(), data: resultData }));
+
+    res.status(200).json(resultData);
   } catch (err) {
     console.error(err);
   }
