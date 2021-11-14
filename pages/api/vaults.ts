@@ -3,11 +3,11 @@ import {
   DAYS_PER_YEAR,
   SECONDS_PER_DAY,
 } from "@inverse/config/constants";
-import { CloudflareProvider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
+import { getProvider } from '@inverse/util/providers';
 
 export default async function handler(req, res) {
   try {
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       VAULT_TOKENS,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new CloudflareProvider(Number(networkConfig.chainId));
+    const provider = getProvider(networkConfig.chainId);
     const harvester = new Contract(HARVESTER, HARVESTER_ABI, provider);
 
     const rates = await Promise.all(

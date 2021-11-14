@@ -4,12 +4,13 @@ import {
   DAYS_PER_YEAR,
   ETH_MANTISSA,
 } from "@inverse/config/constants";
-import { CloudflareProvider } from "@ethersproject/providers";
+import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap } from '@inverse/types';
+import { getProvider } from '@inverse/util/providers';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
@@ -33,7 +34,7 @@ export default async function handler(req, res) {
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new CloudflareProvider(Number(networkConfig.chainId))
+    const provider = getProvider(networkConfig.chainId);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
