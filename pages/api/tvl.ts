@@ -1,5 +1,5 @@
 import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@inverse/config/abis";
-import { InfuraProvider } from "@ethersproject/providers";
+import { CloudflareProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       XINV,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new InfuraProvider(Number(networkConfig.chainId), process.env.INFURA_ID);
+    const provider = new CloudflareProvider(Number(networkConfig.chainId));
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
 
 const vaultsTVL = async (
   prices: StringNumMap,
-  provider: InfuraProvider,
+  provider: CloudflareProvider,
   wethAddress: string,
   vaultTokens: string[],
   tokens: TokenList,
@@ -114,7 +114,7 @@ const vaultsTVL = async (
 
 const anchorTVL = async (
   prices: StringNumMap,
-  provider: InfuraProvider,
+  provider: CloudflareProvider,
   xInvV1Address: string,
   xInvAddress: string,
   anchorEthAddress: string,
@@ -156,7 +156,7 @@ const anchorTVL = async (
 
 const stabilizerTVL = async (
   prices: StringNumMap,
-  provider: InfuraProvider,
+  provider: CloudflareProvider,
   daiAddress: string,
   stabilizerAddress: string,
   tokens: TokenList

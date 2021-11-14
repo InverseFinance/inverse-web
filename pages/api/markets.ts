@@ -4,7 +4,7 @@ import {
   DAYS_PER_YEAR,
   ETH_MANTISSA,
 } from "@inverse/config/constants";
-import { InfuraProvider } from "@ethersproject/providers";
+import { CloudflareProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new InfuraProvider(Number(networkConfig.chainId), process.env.INFURA_ID)
+    const provider = new CloudflareProvider(Number(networkConfig.chainId))
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();

@@ -3,7 +3,7 @@ import {
   DAYS_PER_YEAR,
   SECONDS_PER_DAY,
 } from "@inverse/config/constants";
-import { InfuraProvider } from "@ethersproject/providers";
+import { CloudflareProvider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       VAULT_TOKENS,
     } = getNetworkConfigConstants(networkConfig);
 
-    const provider = new InfuraProvider(Number(networkConfig.chainId), process.env.INFURA_ID);
+    const provider = new CloudflareProvider(Number(networkConfig.chainId));
     const harvester = new Contract(HARVESTER, HARVESTER_ABI, provider);
 
     const rates = await Promise.all(
