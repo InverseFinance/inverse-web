@@ -1,6 +1,6 @@
 import "source-map-support";
 
-import { AlchemyProvider } from "@ethersproject/providers";
+import { InfuraProvider } from "@ethersproject/providers";
 import { Contract } from "ethers";
 import { GOVERNANCE_ABI, INV_ABI } from "@inverse/config/abis";
 import { formatUnits } from "ethers/lib/utils";
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
           res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
         }
         const { INV, governance: GOVERNANCE } = networkConfig!;
-        const provider = new AlchemyProvider(Number(chainId), process.env.ALCHEMY_API);
+        const provider = new InfuraProvider(Number(chainId), process.env.INFURA_ID);
         const inv = new Contract(INV, INV_ABI, provider);
         const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
         const blockNumber = await provider.getBlockNumber();

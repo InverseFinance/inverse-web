@@ -1,4 +1,4 @@
-import { AlchemyProvider } from '@ethersproject/providers'
+import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(chainId, true)!;
     const { DOLA } = networkConfig;
-    const provider = new AlchemyProvider(Number(networkConfig.chainId), process.env.ALCHEMY_API)
+    const provider = new InfuraProvider(Number(networkConfig.chainId), process.env.INFURA_ID)
     const contract = new Contract(DOLA, ERC20_ABI, provider)
 
     const totalSupply = await contract.totalSupply()
