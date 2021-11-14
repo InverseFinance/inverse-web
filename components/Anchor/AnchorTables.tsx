@@ -351,7 +351,7 @@ export const AnchorSupply = () => {
     )
   }
 
-  const mintableMarkets = markets.filter(m => m.mintable);
+  const mintableMarkets = marketsWithBalance.filter(m => m.mintable);
 
   return (
     <AnchorSupplyContainer>
