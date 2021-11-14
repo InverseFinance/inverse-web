@@ -49,7 +49,7 @@ export const AnchorHeader = () => {
         </Flex>
         <Flex direction="column">
           <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(prices['inverse-finance']?.usd)}
+            ${prices && prices['inverse-finance'] ? commify(prices['inverse-finance']?.usd) : ''}
           </Text>
           <Text color="secondary" fontSize="sm" fontWeight="semibold">
             INV Price

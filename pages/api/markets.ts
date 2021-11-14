@@ -4,17 +4,21 @@ import {
   DAYS_PER_YEAR,
   ETH_MANTISSA,
 } from "@inverse/config/constants";
-import { AlchemyProvider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
+import { createNodeRedisClient } from 'handy-redis';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
   100;
+
+const client = createNodeRedisClient({
+  url: process.env.REDIS_URL
+});
 
 export default async function handler(req, res) {
   try {
@@ -33,6 +37,20 @@ export default async function handler(req, res) {
       ANCHOR_WBTC,
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
+
+    const cacheKey = `${networkConfig.chainId}-markets-cache`;
+
+    const cache = await client.get(cacheKey);
+
+    if(cache) {
+      const now = Date.now();
+      const cacheObj = JSON.parse(cache);
+      // 30 min cache
+      if((now - cacheObj?.timestamp) / 1000 < 1800) {
+        res.status(200).json(cacheObj.data);
+        return
+      }
+    }
 
     const provider = getProvider(networkConfig.chainId);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
@@ -147,7 +165,7 @@ export default async function handler(req, res) {
       ]);
 
       const supplyApy = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA) * BLOCKS_PER_DAY * DAYS_PER_YEAR) /
-      ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) * 100
+        ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) * 100
 
       markets.push({
         token: xINV.address,
@@ -162,6 +180,8 @@ export default async function handler(req, res) {
 
     await addXINV(XINV_V1, false);
     await addXINV(XINV, true);
+
+    await client.set(cacheKey, JSON.stringify({ timestamp: Date.now(), data: { markets } }));
 
     res.status(200).json({
       markets,

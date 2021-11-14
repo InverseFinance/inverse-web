@@ -28,8 +28,8 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
     const itemsToSort = items?.map((item) => ({
       ...item,
       symbol: item?.underlying?.symbol,
-    }));
-
+    })) || [];
+    
     setSortedItems([...itemsToSort].sort((a, b) => {
       const returnVal = sortDir === 'asc' ? -1 : 1;
       const aVal = Array.isArray(a[sortBy]) ? a[sortBy].length : a[sortBy];
