@@ -78,6 +78,7 @@ export const INV_ABI = [
   "function delegates(address) external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
   "function nonces(address) external view returns (uint256)",
+  "function exchangeRateCurrent() external returns (uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
   "event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate)",
   "event DelegateVotesChanged(address indexed delegate, uint previousBalance, uint newBalance)",

@@ -84,11 +84,15 @@ export default async function handler(req, res) {
           {}
         );
 
+        const xinvExRate = await xinv.callStatic.exchangeRateCurrent();
+
         xinvDelegateVotesChanged.forEach(({ args }) => {
           if (args) {
+            const xinvVotePower = parseFloat(formatUnits(args.newBalance)) * parseFloat(formatUnits(xinvExRate));
+
             delegates[args.delegate] = {
               address: args.delegate,
-              votingPower: (delegates[args.delegate]?.votingPower||0) + parseFloat(formatUnits(args.newBalance)),
+              votingPower: (delegates[args.delegate]?.votingPower||0) + xinvVotePower,
               delegators: [],
               votes: [],
             };
