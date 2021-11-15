@@ -13,7 +13,7 @@ export const getProvider = (chainId: string | number): FallbackProvider => {
 
     // if(process.env.ALCHEMY_API) {
         // temporary
-        providers.unshift(new AlchemyProvider(network, 'Im06YX8gmXb3PDPLG7nv3ExIYGppGDvf'))
+        providers.unshift(new AlchemyProvider(network, 'H2RwjQnt6ADjGQX-IpA5jK7pBEqTKGJn'))
     // }
 
     return new FallbackProvider(providers);
