@@ -16,7 +16,7 @@ export const useMarkets = (): SWR & Markets => {
   const { data, error } = useSWR(`/api/markets?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
 
   return {
-    markets: data?.markets,
+    markets: data?.markets || [],
     isLoading: !error && !data,
     isError: error,
   }

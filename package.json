@@ -27,6 +27,7 @@
     "ethers": "^5.3.1",
     "framer-motion": "^4.1.17",
     "handy-redis": "^2.2.2",
+    "localforage": "^1.10.0",
     "moment": "^2.29.1",
     "next": "10.2.3",
     "node-fetch": "^2.6.1",

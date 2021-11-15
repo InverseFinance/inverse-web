@@ -5,6 +5,7 @@ import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { hexValue, formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
+import localforage from 'localforage';
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -28,10 +29,45 @@ export const walletConnectConnector = new WalletConnectConnector({
   }
 })
 
-export const fetcher = async (input: RequestInfo, init: RequestInit) => {
-  const res = await fetch(input, init)
+export async function fetchWithTimeout(input: RequestInfo, options: RequestInit = {}, timeout = 6000): Promise<Response> {
+  return new Promise(async (resolve, reject) => {
+    const controller = new AbortController();
 
-  if (!res.ok) {
+    const id = setTimeout(async () => {
+      controller.abort();
+      if (typeof input === 'string') {
+        const cachedResults: any = await localforage.getItem(input);
+        if (cachedResults) {
+          console.log('Timed out, returning last cached data for', input);
+          resolve(new Response(JSON.stringify(cachedResults), { status: 200, headers: { "Content-Type": "application/json" } }))
+        }
+      }
+      reject('Timeout and no cache found');
+    }, timeout);
+
+    const response = await fetch(input, {
+      ...options,
+      signal: controller.signal
+    });
+
+    clearTimeout(id);
+
+    resolve(response);
+  });
+}
+
+export const fetcher = async (input: RequestInfo, init: RequestInit) => {
+  const res = await fetchWithTimeout(input, init);
+
+  if (!res?.ok) {
+    // if api call fails, return cached results in browser
+    if (typeof input === 'string') {
+      const cachedResults = await localforage.getItem(input);
+      if (cachedResults) {
+        return cachedResults;
+      }
+    }
+
     const error = new Error('An error occurred while fetching the data.')
 
     // @ts-ignore
@@ -43,7 +79,13 @@ export const fetcher = async (input: RequestInfo, init: RequestInit) => {
     throw error
   }
 
-  return res.json()
+  const data = res.json();
+
+  if (typeof input === 'string') {
+    await localforage.setItem(input, data);
+  }
+
+  return data;
 }
 
 export const isPreviouslyConnected = (): boolean => {
