@@ -36,7 +36,7 @@ export async function fetchWithTimeout(input: RequestInfo, options: RequestInit 
     const id = setTimeout(async () => {
       controller.abort();
       if (typeof input === 'string') {
-        const cachedResults: any = await localforage.getItem(input);
+        const cachedResults: any = await localforage.getItem(input).catch(() => undefined);
         if (cachedResults) {
           console.log('Timed out, returning last cached data for', input);
           resolve(new Response(JSON.stringify(cachedResults), { status: 200, headers: { "Content-Type": "application/json" } }))
@@ -62,7 +62,7 @@ export const fetcher = async (input: RequestInfo, init: RequestInit) => {
   if (!res?.ok) {
     // if api call fails, return cached results in browser
     if (typeof input === 'string') {
-      const cachedResults = await localforage.getItem(input);
+      const cachedResults = await localforage.getItem(input).catch(() => undefined);
       if (cachedResults) {
         return cachedResults;
       }
@@ -82,7 +82,7 @@ export const fetcher = async (input: RequestInfo, init: RequestInit) => {
   const data = res.json();
 
   if (typeof input === 'string') {
-    await localforage.setItem(input, data);
+    await localforage.setItem(input, data).catch();
   }
 
   return data;

@@ -10,13 +10,12 @@ import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, getRedisClient } from '@inverse/util/redis';
+import { getCacheFromRedis } from '@inverse/util/redis';
+import { redisSetWithTimestamp } from '../../util/redis';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
   100;
-
-const client = getRedisClient();
 
 export default async function handler(req, res) {
   const { chainId = '1' } = req.query;
@@ -36,7 +35,6 @@ export default async function handler(req, res) {
       ANCHOR_WBTC,
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
-
 
     const validCache = await getCacheFromRedis(cacheKey, true, 1800);
     if(validCache) {
@@ -173,11 +171,11 @@ export default async function handler(req, res) {
     await addXINV(XINV_V1, false);
     await addXINV(XINV, true);
 
-    await client.set(cacheKey, JSON.stringify({ timestamp: Date.now(), data: { markets } }));
+    const resultData = { markets };
 
-    res.status(200).json({
-      markets,
-    });
+    await redisSetWithTimestamp(cacheKey, resultData);
+    res.status(200).json(resultData);
+    
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results

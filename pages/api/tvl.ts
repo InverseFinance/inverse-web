@@ -7,9 +7,7 @@ import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abi
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, getRedisClient } from '@inverse/util/redis';
-
-const client = getRedisClient();
+import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
 
 export default async function handler(req, res) {
   const { chainId = '1' } = req.query;
@@ -84,7 +82,7 @@ export default async function handler(req, res) {
       },
     }
 
-    await client.set(cacheKey, JSON.stringify({ timestamp: Date.now(), data: resultData }));
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData);
   } catch (err) {
