@@ -3,9 +3,9 @@ import "source-map-support";
 import { Contract } from "ethers";
 import { GOVERNANCE_ABI, INV_ABI } from "@inverse/config/abis";
 import { formatUnits } from "ethers/lib/utils";
-import { createNodeRedisClient } from 'handy-redis';
 import { getNetworkConfig } from '@inverse/config/networks';
 import { getProvider } from '@inverse/util/providers';
+import { getRedisClient } from '@inverse/util/redis';
 
 const GRACE_PERIOD = 1209600;
 const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
@@ -21,9 +21,7 @@ enum ProposalStatus {
   executed = "Executed",
 }
 
-const client = createNodeRedisClient({
-    url: process.env.REDIS_URL
-});
+const client = getRedisClient();
 
 function onlyUniqueArrayFilter(value, index, self) {
   return self.indexOf(value) === index;

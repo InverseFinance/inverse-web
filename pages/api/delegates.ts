@@ -1,10 +1,8 @@
 import "source-map-support";
-import { createNodeRedisClient } from 'handy-redis';
 import { getNetworkConfig } from '@inverse/config/networks';
+import { getRedisClient } from '@inverse/util/redis';
 
-const client = createNodeRedisClient({
-  url: process.env.REDIS_URL
-});
+const client = getRedisClient();
 
 export default async function handler(req, res) {
   try {
