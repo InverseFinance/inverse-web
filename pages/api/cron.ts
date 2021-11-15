@@ -25,6 +25,10 @@ const client = createNodeRedisClient({
     url: process.env.REDIS_URL
 });
 
+function onlyUniqueArrayFilter(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
 export default async function handler(req, res) {
     // authenticate cron job
     if (req.method !== 'POST') res.status(405).json({success: false});
@@ -37,9 +41,10 @@ export default async function handler(req, res) {
         if(!networkConfig?.governance) {
           res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
         }
-        const { INV, governance: GOVERNANCE } = networkConfig!;
+        const { XINV, INV, governance: GOVERNANCE } = networkConfig!;
         const provider = getProvider(chainId);
         const inv = new Contract(INV, INV_ABI, provider);
+        const xinv = new Contract(XINV, INV_ABI, provider);
         const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
         const blockNumber = await provider.getBlockNumber();
     
@@ -47,6 +52,8 @@ export default async function handler(req, res) {
         const [
           delegateVotesChanged,
           delegateChanged,
+          xinvDelegateVotesChanged,
+          xinvDelegateChanged,
           votesCast,
           proposalCount,
           quorumVotes,
@@ -54,35 +61,56 @@ export default async function handler(req, res) {
         ] = await Promise.all([
           inv.queryFilter(inv.filters.DelegateVotesChanged()),
           inv.queryFilter(inv.filters.DelegateChanged()),
+          xinv.queryFilter(xinv.filters.DelegateVotesChanged()),
+          xinv.queryFilter(xinv.filters.DelegateChanged()),
           governance.queryFilter(governance.filters.VoteCast()),
           governance.proposalCount(),
           governance.quorumVotes(),
           governance.queryFilter(governance.filters.ProposalCreated()),
         ]);
-    
+
         const delegates = delegateVotesChanged.reduce(
-          (delegates: any, { args }) => {
+          (invDelegates: any, { args }) => {
             if (args) {
-              delegates[args.delegate] = {
+              invDelegates[args.delegate] = {
                 address: args.delegate,
                 votingPower: parseFloat(formatUnits(args.newBalance)),
                 delegators: [],
                 votes: [],
               };
             }
-            return delegates;
+            return invDelegates;
           },
           {}
         );
+
+        const xinvExRate = await xinv.callStatic.exchangeRateCurrent();
+
+        xinvDelegateVotesChanged.forEach(({ args }) => {
+          if (args) {
+            const xinvVotePower = parseFloat(formatUnits(args.newBalance)) * parseFloat(formatUnits(xinvExRate));
+
+            delegates[args.delegate] = {
+              address: args.delegate,
+              votingPower: (delegates[args.delegate]?.votingPower||0) + xinvVotePower,
+              delegators: [],
+              votes: [],
+            };
+          }
+        })
+
+        const totalDelegateChanged = delegateChanged.concat(xinvDelegateChanged);
     
         Object.keys(delegates).forEach((delegate: string) => {
-          const delegators = delegateChanged
+          const delegators = totalDelegateChanged
             .filter(({ args }) => args.toDelegate === delegate)
-            .map(({ args }) => args.delegator);
+            .map(({ args }) => args.delegator)
+            .filter(onlyUniqueArrayFilter)
     
-          const undelegators = delegateChanged
+          const undelegators = totalDelegateChanged
             .filter(({ args }) => args.fromDelegate === delegate)
-            .map(({ args }) => args.delegator);
+            .map(({ args }) => args.delegator)
+            .filter(onlyUniqueArrayFilter)
     
           const votes = votesCast.filter(({ args }) => args.voter === delegate);
     
