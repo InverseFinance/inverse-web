@@ -10,22 +10,20 @@ import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
-import { createNodeRedisClient } from 'handy-redis';
+import { getCacheFromRedis } from '@inverse/util/redis';
+import { redisSetWithTimestamp } from '../../util/redis';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
   100;
 
-const client = createNodeRedisClient({
-  url: process.env.REDIS_URL
-});
-
 export default async function handler(req, res) {
-  try {
-    const { chainId = '1' } = req.query;
-    // defaults to mainnet data if unsupported network
-    const networkConfig = getNetworkConfig(chainId, true)!;
+  const { chainId = '1' } = req.query;
+  // defaults to mainnet data if unsupported network
+  const networkConfig = getNetworkConfig(chainId, true)!;
+  const cacheKey = `${networkConfig.chainId}-markets-cache`;
 
+  try {
     const {
       INV,
       TOKENS,
@@ -38,18 +36,10 @@ export default async function handler(req, res) {
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
-    const cacheKey = `${networkConfig.chainId}-markets-cache`;
-
-    const cache = await client.get(cacheKey);
-
-    if(cache) {
-      const now = Date.now();
-      const cacheObj = JSON.parse(cache);
-      // 30 min cache
-      if((now - cacheObj?.timestamp) / 1000 < 1800) {
-        res.status(200).json(cacheObj.data);
-        return
-      }
+    const validCache = await getCacheFromRedis(cacheKey, true, 1800);
+    if(validCache) {
+      res.status(200).json(validCache);
+      return
     }
 
     const provider = getProvider(networkConfig.chainId);
@@ -181,12 +171,22 @@ export default async function handler(req, res) {
     await addXINV(XINV_V1, false);
     await addXINV(XINV, true);
 
-    await client.set(cacheKey, JSON.stringify({ timestamp: Date.now(), data: { markets } }));
+    const resultData = { markets };
 
-    res.status(200).json({
-      markets,
-    });
+    await redisSetWithTimestamp(cacheKey, resultData);
+    res.status(200).json(resultData);
+    
   } catch (err) {
     console.error(err);
+    // if an error occured, try to return last cached results
+    try {
+      const cache = await getCacheFromRedis(cacheKey, false);
+      if(cache) {
+        console.log('Api call failed, returning last cache found');
+        res.status(200).json(cache);
+      }
+    } catch(e) {
+      console.error(e);
+    }
   }
 };
