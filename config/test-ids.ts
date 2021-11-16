@@ -2,6 +2,7 @@ export const TEST_IDS = {
     announcement: 'announcement-bar',
     connectBtn: 'connect-btn',
     colHeaderBox: 'col-header-box',
+    colHeaderText: 'col-header-text',
     landing: {
         enterBtn: 'landing-enter-btn',
         learnMore: 'landing-learn-more-btn',

@@ -1,7 +1,7 @@
-import { Tooltip } from '@chakra-ui/react'
+import { Tooltip, IconProps, TooltipProps } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 
-export const InfoTooltip = ({ message }) => {
+export const InfoTooltip = ({ message, iconProps, tooltipProps }: { message: string, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps> }) => {
   return (
     <Tooltip
       label={message}
@@ -13,8 +13,9 @@ export const InfoTooltip = ({ message }) => {
       borderColor="purple.850"
       textAlign="center"
       borderWidth={1}
+      {...tooltipProps}
     >
-      <InfoOutlineIcon />
+      <InfoOutlineIcon {...iconProps} />
     </Tooltip>
   )
 }

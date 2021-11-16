@@ -32,7 +32,7 @@ const describeTable = (table: string, minimumRequiredSymbols: string[], type: An
         .should('have.attr', 'data-sort-dir', 'asc')
 
       cy.getByFirstTestId(table)
-        .findByTestId(`${TEST_IDS.colHeaderBox}-symbol`)
+        .findByTestId(`${TEST_IDS.colHeaderText}-symbol`)
         .click()
 
       cy.getByFirstTestId(table)
@@ -40,7 +40,7 @@ const describeTable = (table: string, minimumRequiredSymbols: string[], type: An
         .should('have.attr', 'data-sort-dir', 'desc')
 
       cy.getByFirstTestId(table)
-        .findByTestId(`${TEST_IDS.colHeaderBox}-symbol`)
+        .findByTestId(`${TEST_IDS.colHeaderText}-symbol`)
         .click()
 
       cy.getByFirstTestId(table)
@@ -50,7 +50,7 @@ const describeTable = (table: string, minimumRequiredSymbols: string[], type: An
       const otherSortableCol = sortableColExamples[type];
 
       cy.getByFirstTestId(table)
-        .findByTestId(`${TEST_IDS.colHeaderBox}-${otherSortableCol}`)
+        .findByTestId(`${TEST_IDS.colHeaderText}-${otherSortableCol}`)
         .click()
 
       cy.getByFirstTestId(table)
@@ -58,7 +58,7 @@ const describeTable = (table: string, minimumRequiredSymbols: string[], type: An
         .should('have.attr', 'data-sort-dir', 'asc')
 
       cy.getByFirstTestId(table)
-        .findByTestId(`${TEST_IDS.colHeaderBox}-${otherSortableCol}`)
+        .findByTestId(`${TEST_IDS.colHeaderText}-${otherSortableCol}`)
         .click()
 
       cy.getByFirstTestId(table)
