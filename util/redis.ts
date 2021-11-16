@@ -2,6 +2,8 @@ import { WrappedNodeRedisClient, createNodeRedisClient } from 'handy-redis';
 
 let redisClient: WrappedNodeRedisClient = initRedis();
 
+const CACHE_VERSION = 1;
+
 function initRedis() {
     console.log('Redis: connecting');
     const client = createNodeRedisClient({
@@ -44,7 +46,7 @@ export const getCacheFromRedis = async (
     cacheTime = 1800,
 ) => {
     try {
-        const cache = await redisClient.get(cacheKey);
+        const cache = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`);
         if (cache) {
             const now = Date.now();
             const cacheObj = JSON.parse(cache);
@@ -61,7 +63,7 @@ export const getCacheFromRedis = async (
 
 export const redisSetWithTimestamp = async (key: string, data: any) => {
     try {
-        return await redisClient.set(key, JSON.stringify({ timestamp: Date.now(), data }));
+        return await redisClient.set(`${key}-version-${CACHE_VERSION}`, JSON.stringify({ timestamp: Date.now(), data }));
     } catch(e) {
         console.log(e);
         return
