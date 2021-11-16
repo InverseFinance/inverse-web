@@ -30,10 +30,12 @@ export type Market = {
   totalReserves: number
   supplied: number
   borrowable: boolean
+  mintable: boolean
   balance?: number
   isCollateral?: boolean
   liquidityUsd?: number
-  mintable: boolean
+  monthlyInvRewards?: number
+  monthlyAssetRewards?: number
 }
 
 export type Proposal = {

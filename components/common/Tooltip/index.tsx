@@ -1,7 +1,7 @@
 import { Tooltip, IconProps } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 
-export const InfoTooltip = ({ message, iconProps, ...props }: { message: string, iconProps: IconProps}) => {
+export const InfoTooltip = ({ message, iconProps, ...props }: { message: string, iconProps?: IconProps}) => {
   return (
     <Tooltip
       label={message}
