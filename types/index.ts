@@ -38,6 +38,7 @@ export type Market = {
   liquidityUsd?: number
   monthlyInvRewards?: number
   monthlyAssetRewards?: number
+  monthlyBorrowFee?: number
 }
 
 export type Proposal = {

@@ -21,7 +21,7 @@ import { handleTx } from '@inverse/util/transactions'
 import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem'
-import { InfoTooltip } from '../common/Tooltip'
+import { AnchorPoolInfo } from './AnchorPoolnfo'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -56,7 +56,7 @@ export const AnchorSupplied = () => {
     const { token, underlying, priceXinv } = market;
 
     // xinv exRate to its underlying (inv)
-    const xinvToInvRate = exchangeRates ?  parseFloat(formatUnits(exchangeRates[XINV])) : 0;
+    const xinvToInvRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[XINV])) : 0;
     const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
     // balance of the "anchor" version of the token supplied
     const anTokenBalance = balances ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0;
@@ -90,16 +90,7 @@ export const AnchorSupplied = () => {
       tooltip: 'Annual Percentage Yield in same asset',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards }: Market) => (
-        <Text textAlign="end" minWidth={24}>
-          {
-            monthlyAssetRewards && monthlyAssetRewards > 0 ?
-              <InfoTooltip
-                iconProps={{ mr: '1', fontSize: '10px' }}
-                message={`~ ${monthlyAssetRewards?.toFixed(4)} ${underlying.symbol} per month`} />
-              : null
-          }
-          {supplyApy ? `${supplyApy.toFixed(2)}%` : '0.00%'}
-        </Text>
+        <AnchorPoolInfo apy={supplyApy} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supplied'} textProps={{ textAlign: "end", minWidth: 24 }}  />
       ),
     },
     {
@@ -108,16 +99,7 @@ export const AnchorSupplied = () => {
       tooltip: 'Annual Percentage Yield in INV token',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ rewardApy, monthlyInvRewards }: Market) => (
-        <Text textAlign="end" minWidth={24} alignItems="center">
-          {
-            monthlyInvRewards && monthlyInvRewards > 0 ?
-              <InfoTooltip
-                iconProps={{ mr: '1', fontSize: '10px' }}
-                message={`~ ${monthlyInvRewards?.toFixed(4)} INV per month`} />
-              : null
-          }
-          {rewardApy ? `${rewardApy.toFixed(2)}%` : '0.00%'}
-        </Text>
+        <AnchorPoolInfo apy={rewardApy} monthlyValue={monthlyInvRewards} symbol="INV" type={'supplied'} textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
     {
@@ -215,9 +197,12 @@ export const AnchorBorrowed = () => {
   }
 
   const marketsWithBalance = markets?.map((market) => {
-    const { token, underlying } = market;
-    const balance = balances && balances[token] ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0
-    return { ...market, balance }
+    const { token, underlying, borrowApy } = market;
+    const balance = balances && balances[token] ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0;
+
+    const monthlyBorrowFee = balance * borrowApy / 100 / 12;
+
+    return { ...market, balance, monthlyBorrowFee }
   })
 
   const columns = [
@@ -236,10 +221,8 @@ export const AnchorBorrowed = () => {
       label: 'APR',
       tooltip: 'Annual Percentage Rate to borrow',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
-      value: ({ borrowApy }: Market) => (
-        <Text textAlign="end" minWidth={24}>
-          {borrowApy ? `${borrowApy.toFixed(2)}%` : '0.00%'}
-        </Text>
+      value: ({ borrowApy, monthlyBorrowFee, underlying }: Market) => (
+        <AnchorPoolInfo apy={borrowApy} monthlyValue={monthlyBorrowFee} type="borrowed" symbol={underlying.symbol} textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
     {
@@ -337,9 +320,7 @@ export const AnchorSupply = () => {
       tooltip: 'Annual Percentage Yield in same asset',
       header: ({ ...props }) => <Flex justify="end" minWidth={20} {...props} />,
       value: ({ supplyApy }: Market) => (
-        <Text minWidth={20} textAlign="end">
-          {supplyApy ? `${supplyApy.toFixed(2)}%` : '0.00%'}
-        </Text>
+        <AnchorPoolInfo apy={supplyApy} type="supply" textProps={{ textAlign: "end", minWidth: 20 }} />
       ),
     },
     {
@@ -348,9 +329,7 @@ export const AnchorSupply = () => {
       tooltip: 'Annual Percentage Yield in INV token',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ rewardApy }: Market) => (
-        <Text textAlign="end" minWidth={24}>
-          {rewardApy ? `${rewardApy.toFixed(2)}%` : '0.00%'}
-        </Text>
+        <AnchorPoolInfo apy={rewardApy} type="supply" textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
     {
@@ -363,7 +342,7 @@ export const AnchorSupply = () => {
             textAlign="end"
             minWidth={24}
             justify="flex-end"
-            color={balance ? '' : 'purple.300'}
+            opacity={balance ? 1 : 0.5}
           >{`${balance?.toFixed(2)}`}</Text>
         )
       },
@@ -422,9 +401,7 @@ export const AnchorBorrow = () => {
       tooltip: 'Annual Percentage Rate to borrow',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy }: Market) => (
-        <Text textAlign="end" minWidth={24}>
-          {borrowApy ? `${borrowApy.toFixed(2)}%` : '0.00%'}
-        </Text>
+        <AnchorPoolInfo apy={borrowApy} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
     {
