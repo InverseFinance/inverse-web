@@ -31,6 +31,8 @@ export type Market = {
   supplied: number
   borrowable: boolean
   mintable: boolean
+  priceUsd: number
+  priceXinv: number
   balance?: number
   isCollateral?: boolean
   liquidityUsd?: number

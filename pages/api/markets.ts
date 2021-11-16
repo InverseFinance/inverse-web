@@ -124,6 +124,8 @@ export default async function handler(req, res) {
         rewardApy: rewardApys[i],
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
+        priceUsd: prices[contracts[i].address],
+        priceXinv: prices[contracts[i].address] / prices[XINV],
         liquidity: parseFloat(
           formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
         ),
@@ -165,6 +167,8 @@ export default async function handler(req, res) {
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
         supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
         rewardApy: 0,
+        priceUsd: prices[xinvAddress],
+        priceXinv: 1,
       });
     }
 

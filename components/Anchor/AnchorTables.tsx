@@ -53,20 +53,24 @@ export const AnchorSupplied = () => {
   }
 
   const marketsWithBalance = markets?.map((market) => {
-    const { token, underlying } = market;
+    const { token, underlying, priceXinv } = market;
 
-    const invExRate = exchangeRates ?  1 / parseFloat(formatUnits(exchangeRates[XINV])) : 0;
-    const assetExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
+    // xinv exRate to its underlying (inv)
+    const xinvToInvRate = exchangeRates ?  parseFloat(formatUnits(exchangeRates[XINV])) : 0;
+    const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
+    // balance of the "anchor" version of the token supplied
+    const anTokenBalance = balances ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0;
+    // balance in undelying token
+    const tokenBalance = anTokenBalance * anTokenToTokenExRate;
 
-    const balanceRaw = balances ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0;
-    const balance = balanceRaw * assetExRate;
-
-    const monthlyInvRewards = 0;
-    const monthlyAssetRewards = market.supplyApy / 100 * balance / 12;
+    // priceXinv is the price of the underlying token in XINV token => convert tokenBalance to xinv then to inv
+    const tokenBalanceInInv = tokenBalance * priceXinv * xinvToInvRate;
+    const monthlyInvRewards = market.rewardApy / 100 * tokenBalanceInInv / 12;
+    const monthlyAssetRewards = market.supplyApy / 100 * tokenBalance / 12;
 
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
 
-    return { ...market, balance, isCollateral, monthlyInvRewards, monthlyAssetRewards }
+    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards }
   })
 
   const columns = [
