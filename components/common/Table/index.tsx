@@ -2,12 +2,14 @@ import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Box, Text } from '@chakra-ui/react'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { Fragment, useEffect, useState } from 'react'
+import { InfoTooltip } from '@inverse/components/common/Tooltip';
 
 type Column = {
   label: string
   field: string
   header: any
   value: any
+  tooltip?: string
 }
 
 type TableProps = {
@@ -29,7 +31,7 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
       ...item,
       symbol: item?.underlying?.symbol,
     })) || [];
-    
+
     setSortedItems([...itemsToSort].sort((a, b) => {
       const returnVal = sortDir === 'asc' ? -1 : 1;
       const aVal = Array.isArray(a[sortBy]) ? a[sortBy].length : a[sortBy];
@@ -56,12 +58,11 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
         w="full"
         fontSize="11px"
         fontWeight="semibold"
-        color="purple.300"
         justify="space-between"
         textTransform="uppercase"
         pb={2}
-        pl={4}
-        pr={4}
+        pl={3}
+        pr={3}
       >
         {columns.map((col: Column, i) => {
           const ColHeader = col.header
@@ -69,16 +70,26 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
             <ColHeader key={i}>
               <Box
                 data-testid={`${TEST_IDS.colHeaderBox}-${col.field}`}
-                position="relative" fontWeight={sortBy === col.field ? 'bold' : 'normal'} cursor="pointer"
-                onClick={() => toggleSort(col)}>
-                {col.label}
-                {
-                  sortBy === col.field ?
-                    <Text position="absolute" top="0" right="-4">
-                      {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
-                    </Text>
-                    : null
-                }
+                display="inline-flex"
+                fontWeight={sortBy === col.field ? 'bold' : 'normal'}
+                cursor="pointer"
+                alignItems="center"
+                color="purple.300"
+              >
+                {col.tooltip ? <InfoTooltip message={col.tooltip} iconProps={{ mr: "1", fontSize: "10px" }} /> : null}
+                <Box
+                  data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
+                  onClick={() => toggleSort(col)}
+                  position="relative">
+                  {col.label}
+                  {
+                    sortBy === col.field ?
+                      <Box position="absolute" display="inline-block" right="-4">
+                        {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
+                      </Box>
+                      : null
+                  }
+                </Box>
               </Box>
             </ColHeader>
           )

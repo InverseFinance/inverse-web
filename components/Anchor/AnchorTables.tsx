@@ -69,9 +69,9 @@ export const AnchorSupplied = () => {
     {
       field: 'symbol',
       label: 'Asset',
-      header: ({...props}) => <Flex minWidth={40} {...props} />,
+      header: ({...props}) => <Flex minWidth={32} {...props} />,
       value: ({ token, underlying }: Market) => (
-        <Stack minWidth={40} direction="row" align="center">
+        <Stack minWidth={32} direction="row" align="center">
           <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
         </Stack>
       ),
@@ -79,6 +79,7 @@ export const AnchorSupplied = () => {
     {
       field: 'supplyApy',
       label: 'APY',
+      tooltip: 'Annual Percentage Yield in same asset',
       header: ({...props}) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ supplyApy }: Market) => (
         <Text textAlign="end" minWidth={24}>
@@ -89,6 +90,7 @@ export const AnchorSupplied = () => {
     {
       field: 'rewardApy',
       label: 'Reward APY',
+      tooltip: 'Annual Percentage Yield in INV token',
       header: ({...props}) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ rewardApy }: Market) => (
         <Text textAlign="end" minWidth={24}>
@@ -210,6 +212,7 @@ export const AnchorBorrowed = () => {
     {
       field: 'borrowApy',
       label: 'APR',
+      tooltip: 'Annual Percentage Rate to borrow',
       header: ({...props}) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy }: Market) => (
         <Text textAlign="end" minWidth={24}>
@@ -299,9 +302,9 @@ export const AnchorSupply = () => {
     {
       field: 'symbol',
       label: 'Asset',
-      header: ({...props}) => <Flex minWidth={36} {...props} />,
+      header: ({...props}) => <Flex minWidth={32} {...props} />,
       value: ({ token, underlying }: Market) => (
-        <Stack minWidth={36} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
+        <Stack minWidth={32} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
           <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
         </Stack>
       ),
@@ -309,6 +312,7 @@ export const AnchorSupply = () => {
     {
       field: 'supplyApy',
       label: 'APY',
+      tooltip: 'Annual Percentage Yield in same asset',
       header: ({...props}) => <Flex justify="end" minWidth={20} {...props} />,
       value: ({ supplyApy }: Market) => (
         <Text minWidth={20} textAlign="end">
@@ -319,9 +323,10 @@ export const AnchorSupply = () => {
     {
       field: 'rewardApy',
       label: 'Reward APY',
-      header: ({...props}) => <Flex justify="end" minWidth={20} {...props} />,
+      tooltip: 'Annual Percentage Yield in INV token',
+      header: ({...props}) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ rewardApy }: Market) => (
-        <Text textAlign="end" minWidth={20}>
+        <Text textAlign="end" minWidth={24}>
           {rewardApy ? `${rewardApy.toFixed(2)}%` : '0.00%'}
         </Text>
       ),
@@ -392,6 +397,7 @@ export const AnchorBorrow = () => {
     {
       field: 'borrowApy',
       label: 'APR',
+      tooltip: 'Annual Percentage Rate to borrow',
       header: ({...props}) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy }: Market) => (
         <Text textAlign="end" minWidth={24}>
