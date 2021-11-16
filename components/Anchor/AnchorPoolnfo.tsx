@@ -14,9 +14,10 @@ export const AnchorPoolInfo = ({
     monthlyValue?: number,
     textProps?: TextProps,
 }) => {
-    const emoji = type === 'supplied' ? ' ✨' : '';
+    const isSupplied = type === 'supplied';
+    const emoji = isSupplied ? ' ✨' : '';
     const needTooltip = ['supplied', 'borrowed'].includes(type);
-
+    const monthlyType = isSupplied ? 'rewards' : 'fees';
     return (
         <Text {...textProps} opacity={apy && apy > 0 ? 1 : 0.5}>
             {apy ? `${apy.toFixed(2)}%` : '0.00%'}
@@ -24,9 +25,10 @@ export const AnchorPoolInfo = ({
                 needTooltip ?
                     <InfoTooltip
                         iconProps={{ ml: '1', fontSize: '10px' }}
+                        tooltipProps={{ bgColor: isSupplied ? 'success' : 'orange.400' }}
                         message={
                             symbol && monthlyValue && monthlyValue > 0 ?
-                                `~ ${monthlyValue?.toFixed(4)} ${symbol} ${type} per month${emoji}`
+                                `~ ${monthlyValue?.toFixed(4)} ${symbol} ${monthlyType} per month${emoji}`
                                 : ''
                         } />
                     : null

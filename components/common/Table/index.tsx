@@ -61,8 +61,8 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
         justify="space-between"
         textTransform="uppercase"
         pb={2}
-        pl={3}
-        pr={3}
+        pl={4}
+        pr={4}
       >
         {columns.map((col: Column, i) => {
           const ColHeader = col.header
@@ -76,7 +76,7 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
                 alignItems="center"
                 color="purple.300"
               >
-                {col.tooltip ? <InfoTooltip message={col.tooltip} iconProps={{ mr: "1", fontSize: "10px" }} /> : null}
+                {col.tooltip ? <InfoTooltip message={col.tooltip} tooltipProps={{ bgColor: 'blue.400' }} iconProps={{ mr: "1", fontSize: "10px" }} /> : null}
                 <Box
                   data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
                   onClick={() => toggleSort(col)}

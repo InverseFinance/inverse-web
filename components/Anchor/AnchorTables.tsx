@@ -87,7 +87,7 @@ export const AnchorSupplied = () => {
     {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: 'Annual Percentage Yield in same asset',
+      // tooltip: 'Annual Percentage Yield in same asset',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards }: Market) => (
         <AnchorPoolInfo apy={supplyApy} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supplied'} textProps={{ textAlign: "end", minWidth: 24 }}  />
@@ -96,7 +96,7 @@ export const AnchorSupplied = () => {
     {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: 'Annual Percentage Yield in INV token',
+      // tooltip: 'Annual Percentage Yield in INV token',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ rewardApy, monthlyInvRewards }: Market) => (
         <AnchorPoolInfo apy={rewardApy} monthlyValue={monthlyInvRewards} symbol="INV" type={'supplied'} textProps={{ textAlign: "end", minWidth: 24 }} />
@@ -317,7 +317,7 @@ export const AnchorSupply = () => {
     {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: 'Annual Percentage Yield in same asset',
+      // tooltip: 'Annual Percentage Yield in same asset',
       header: ({ ...props }) => <Flex justify="end" minWidth={20} {...props} />,
       value: ({ supplyApy }: Market) => (
         <AnchorPoolInfo apy={supplyApy} type="supply" textProps={{ textAlign: "end", minWidth: 20 }} />
@@ -326,7 +326,7 @@ export const AnchorSupply = () => {
     {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: 'Annual Percentage Yield in INV token',
+      // tooltip: 'Annual Percentage Yield in INV token',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ rewardApy }: Market) => (
         <AnchorPoolInfo apy={rewardApy} type="supply" textProps={{ textAlign: "end", minWidth: 24 }} />
@@ -398,7 +398,7 @@ export const AnchorBorrow = () => {
     {
       field: 'borrowApy',
       label: 'APR',
-      tooltip: 'Annual Percentage Rate to borrow',
+      // tooltip: 'Annual Percentage Rate to borrow',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy }: Market) => (
         <AnchorPoolInfo apy={borrowApy} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
