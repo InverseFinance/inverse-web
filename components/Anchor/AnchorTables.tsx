@@ -49,7 +49,7 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
       tooltip: 'Annual Percentage Yield',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards }: Market) => (
-        <AnchorPoolInfo apy={supplyApy} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supplied'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo apy={supplyApy} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     rewardApy: {
@@ -58,7 +58,7 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
       tooltip: <>Annual Percentage Yield in <b>INV</b> asset</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards }: Market) => (
-        <AnchorPoolInfo apy={rewardApy} monthlyValue={monthlyInvRewards} symbol="INV" type={'supplied'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo apy={rewardApy} monthlyValue={monthlyInvRewards} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     balance: {
