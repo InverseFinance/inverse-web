@@ -74,8 +74,8 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
       label: 'APR',
       tooltip: 'Annual Percentage Rate to borrow asset',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
-      value: ({ borrowApy }: Market) => (
-        <AnchorPoolInfo apy={borrowApy} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
+      value: ({ borrowApy, monthlyBorrowFee, underlying }: Market) => (
+        <AnchorPoolInfo apy={borrowApy} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
   }
