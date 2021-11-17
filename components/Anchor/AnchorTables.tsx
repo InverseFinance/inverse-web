@@ -304,7 +304,7 @@ export const AnchorSupply = () => {
 
   const columns = [
     getColumn('asset', 32),
-    getColumn('supplyApy', 24),
+    getColumn('supplyApy', 20),
     getColumn('rewardApy', 24),
     getColumn('wallet', 24),
   ]
