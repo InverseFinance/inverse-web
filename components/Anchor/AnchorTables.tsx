@@ -55,7 +55,7 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
     rewardApy: {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: <>Annual Percentage Yield in <b>INV</b> asset</>,
+      tooltip: <>Annual Percentage Yield in <b>INV</b> token</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards }: Market) => (
         <AnchorPoolInfo apy={rewardApy} monthlyValue={monthlyInvRewards} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
