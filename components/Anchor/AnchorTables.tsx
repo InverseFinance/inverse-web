@@ -22,7 +22,6 @@ import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
-import { InfoOutlineIcon } from '@chakra-ui/icons'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -47,7 +46,7 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: <Text><InfoOutlineIcon /> Annual Percentage Yield in same asset</Text>,
+      tooltip: 'Annual Percentage Yield',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards }: Market) => (
         <AnchorPoolInfo apy={supplyApy} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supplied'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -56,7 +55,7 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
     rewardApy: {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: <Text><InfoOutlineIcon /> Annual Percentage Yield in <b>INV</b> asset</Text>,
+      tooltip: <>Annual Percentage Yield in <b>INV</b> asset</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards }: Market) => (
         <AnchorPoolInfo apy={rewardApy} monthlyValue={monthlyInvRewards} symbol="INV" type={'supplied'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -73,7 +72,7 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
     borrowApy: {
       field: 'borrowApy',
       label: 'APR',
-      tooltip: <Text><InfoOutlineIcon /> Annual Percentage Rate to borrow asset</Text>,
+      tooltip: 'Annual Percentage Rate to borrow asset',
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy }: Market) => (
         <AnchorPoolInfo apy={borrowApy} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />

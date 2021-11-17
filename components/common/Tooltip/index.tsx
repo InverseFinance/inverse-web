@@ -1,8 +1,11 @@
 import { ReactNode } from 'react';
-import { Tooltip, IconProps, TooltipProps } from '@chakra-ui/react'
+import { Tooltip, IconProps, TooltipProps, Flex, Text } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
+import { InfoAnimatedIcon } from '../Animation/InfoAnim';
 
-export const InfoTooltip = ({ message, iconProps, tooltipProps }: { message: ReactNode, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps> }) => {
+type InfoTooltipProps = { message: ReactNode, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps> };
+
+export const InfoTooltip = ({ message, iconProps, tooltipProps }: InfoTooltipProps) => {
   return (
     <Tooltip
       label={message}
@@ -19,4 +22,17 @@ export const InfoTooltip = ({ message, iconProps, tooltipProps }: { message: Rea
       <InfoOutlineIcon {...iconProps} />
     </Tooltip>
   )
+}
+
+export const AnimatedInfoTooltip = ({ message, size = 'normal' }: { message: ReactNode, size?: 'normal' | 'small' }) => {
+  const content = <Flex alignItems="center">
+    <InfoAnimatedIcon />
+    <Text ml="1">{message}</Text>
+  </Flex>
+
+  const iconSizeProps = size === 'normal' ? { boxSize: '14px', mr: '1' } : { boxSize: '12px', p: '2px', mr: '1px' }
+
+  return <InfoTooltip message={content}
+    tooltipProps={{ bgColor: 'blue.400' }}
+    iconProps={{ ...iconSizeProps }} />
 }

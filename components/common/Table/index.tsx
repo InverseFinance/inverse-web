@@ -2,7 +2,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Box, Text } from '@chakra-ui/react'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
-import { InfoTooltip } from '@inverse/components/common/Tooltip';
+import { AnimatedInfoTooltip, InfoTooltip } from '@inverse/components/common/Tooltip';
 
 export type Column = {
   label: string
@@ -79,14 +79,13 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
 
                 {
                   col.tooltip ?
-                    <InfoTooltip message={col.tooltip} 
-                    tooltipProps={{ bgColor: 'blue.400', w: 250 }} 
-                    iconProps={{ mr: "3px", fontSize: "8px" }} />
+                    <AnimatedInfoTooltip message={col.tooltip} size="small" />
                     : null
                 }
                 <Box
                   data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
                   onClick={() => toggleSort(col)}
+                  userSelect="none"
                   position="relative">
                   {col.label}
                   {
