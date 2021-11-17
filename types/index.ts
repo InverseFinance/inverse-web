@@ -126,7 +126,11 @@ export type NetworkConfig = {
   escrow_v1: string,
   escrow: string,
   harvester: string,
+  // current
   governance: string,
+  // old
+  governanceAlpha: string,
+  multiDelegator: string,
   vaults: {
     vaultUsdcEth: string,
     vaultDaiWbtc: string,

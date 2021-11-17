@@ -45,7 +45,12 @@ const mainnetConfig: NetworkConfig = {
   escrow_v1: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
   escrow: '0x44814bf90ea659369a28633c3bd46ab52d8f73f7',
   harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
-  governance: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
+  // governance alpha (old)
+  governanceAlpha: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
+  // governance mils (current)
+  governance: '0xeF3bD8cA3beAC259D898b2C546F804B49D52e2FD',
+  // multiDelegator
+  multiDelegator: '0x1ba87bE4C20Fa2d4cbD8e4Ae9998649226207F76',
   namedAddresses: {
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'GovTimelock',
     '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68': 'INV',
@@ -352,6 +357,8 @@ export const getNetworkConfigConstants = (
   const ANCHOR_TOKENS = Object.values(config.anchor.markets);
 
   const GOVERNANCE = config.governance;
+  const GOVERNANCE_ALPHA = config.governanceAlpha;
+  const MULTI_DELEGATOR = config.multiDelegator;
 
   // Harvester
   const HARVESTER = config.harvester;
@@ -579,6 +586,8 @@ export const getNetworkConfigConstants = (
     ANCHOR_DOLA3POOLCRV,
     ANCHOR_TOKENS,
     GOVERNANCE,
+    GOVERNANCE_ALPHA,
+    MULTI_DELEGATOR,
     HARVESTER,
     ESCROW_V1,
     ESCROW,
