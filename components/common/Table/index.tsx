@@ -1,15 +1,15 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Box, Text } from '@chakra-ui/react'
 import { TEST_IDS } from '@inverse/config/test-ids'
-import { Fragment, useEffect, useState } from 'react'
-import { InfoTooltip } from '@inverse/components/common/Tooltip';
+import { Fragment, useEffect, useState, ReactNode } from 'react'
+import { AnimatedInfoTooltip, InfoTooltip } from '@inverse/components/common/Tooltip';
 
-type Column = {
+export type Column = {
   label: string
   field: string
   header: any
   value: any
-  tooltip?: string
+  tooltip?: ReactNode
 }
 
 type TableProps = {
@@ -76,15 +76,21 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
                 alignItems="center"
                 color="purple.300"
               >
-                {col.tooltip ? <InfoTooltip message={col.tooltip} tooltipProps={{ bgColor: 'blue.400' }} iconProps={{ mr: "1", fontSize: "10px" }} /> : null}
+
+                {
+                  col.tooltip ?
+                    <AnimatedInfoTooltip message={col.tooltip} size="small" />
+                    : null
+                }
                 <Box
                   data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
                   onClick={() => toggleSort(col)}
+                  userSelect="none"
                   position="relative">
                   {col.label}
                   {
                     sortBy === col.field ?
-                      <Box position="absolute" display="inline-block" right="-4">
+                      <Box position="absolute" display="inline-block" right="-14px">
                         {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
                       </Box>
                       : null

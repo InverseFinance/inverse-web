@@ -1,6 +1,6 @@
 import Lottie from 'react-lottie';
 
-type AnimProps = {
+export type AnimProps = {
     animData: Object,
     height?: number,
     width?: number,
