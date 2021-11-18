@@ -36,7 +36,8 @@ export default async function handler(req, res) {
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 1800);
+    // 5min
+    const validCache = await getCacheFromRedis(cacheKey, true, 300);
     if(validCache) {
       res.status(200).json(validCache);
       return
