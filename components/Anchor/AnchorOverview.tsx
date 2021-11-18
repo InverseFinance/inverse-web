@@ -73,7 +73,7 @@ export const AnchorOverview = () => {
                 <Badge variant="subtle" colorScheme={badgeColorScheme}>
                   {health}
                 </Badge>
-                <InfoTooltip message="This badge indicates your current loan health. If your loan health shows as 'Dangerous' then your current debt is too close to your borrow limit. In this case, you should repay some loans or add more collateral to reduce your liquidation risk." />
+                <AnimatedInfoTooltip message="This badge indicates your current loan health. If your loan health shows as 'Dangerous' then your current debt is too close to your borrow limit. In this case, you should repay some loans or add more collateral to reduce your liquidation risk." />
               </>
             )}
           </Stack>
