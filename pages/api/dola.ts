@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     const { DOLA } = networkConfig;
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 1800);
+    const validCache = await getCacheFromRedis(cacheKey, true, 600);
     if(validCache) {
       res.status(200).json(validCache);
       return

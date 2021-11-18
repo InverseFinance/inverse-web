@@ -25,10 +25,10 @@ export const Anchor = () => {
       <AppNav active="Anchor" />
       <ErrorBoundary>
         <Flex w={{ base: 'full', xl: '84rem' }} justify="flex-start">
-          <ErrorBoundary><AnchorHeader /></ErrorBoundary>
+          <ErrorBoundary description="Failed to load header"><AnchorHeader /></ErrorBoundary>
         </Flex>
         <Flex w={{ base: 'full', xl: '84rem' }} justify="center">
-          <ErrorBoundary>
+          <ErrorBoundary description="Failed to load borrow limits">
             <AnchorOverview />
           </ErrorBoundary>
         </Flex>
