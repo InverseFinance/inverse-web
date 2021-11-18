@@ -3,8 +3,7 @@ import { Avatar } from '@inverse/components/common/Avatar'
 import Container from '@inverse/components/common/Container'
 import Link from '@inverse/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { useProposal } from '@inverse/hooks/useProposals'
-import { Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
+import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
 import moment from 'moment'
@@ -22,15 +21,33 @@ const badgeColors: { [key: string]: string } = {
   [ProposalStatus.pending]: 'gray',
   [ProposalStatus.executed]: 'blue',
   [ProposalStatus.expired]: 'orange',
+  [GovEra.alpha]: 'yellow',
+  [GovEra.mils]: 'teal',
 }
 
+const StatusBadge = ({ status }: { status: ProposalStatus }) => (
+  <Badge colorScheme={badgeColors[status]} pl={1} pr={1} fontSize="11px" fontWeight="extrabold">
+    <Flex w={16} justify="center">
+      {status}
+    </Flex>
+  </Badge>
+)
+
+const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
+  <Badge colorScheme={badgeColors[era]} pl={1} pr={1} w="fit-content" fontSize="11px" fontWeight="extrabold">
+    <Flex justify="center">
+      {`#${id.toString().padStart(3, '0')} - ${era} ERA`}
+    </Flex>
+  </Badge>
+)
+
 export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
-  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status } = proposal
+  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era } = proposal
 
   const totalVotes = forVotes + againstVotes
 
   return (
-    <NextLink href={`/governance/proposals/${id}`}>
+    <NextLink href={`/governance/proposals/${era}/${id}`}>
       <Flex
         w="full"
         justify="space-between"
@@ -47,17 +64,12 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
             {title}
           </Text>
           <Stack direction="row" align="center">
-            <Badge colorScheme={badgeColors[status]} pl={1} pr={1} fontSize="11px" fontWeight="extrabold">
-              <Flex w={16} justify="center">
-                {status}
-              </Flex>
-            </Badge>
-            )
-            <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`#${id
-              .toString()
-              .padStart(3, '0')} - ${moment(etaTimestamp || endTimestamp || startTimestamp, 'x').format(
-              'MMM Do, YYYY'
-            )}`}</Text>
+            <StatusBadge status={status} />
+            <EraBadge era={era} id={id} />
+            <Text fontSize="13px" color="purple.100" fontWeight="semibold">
+              {`${moment(etaTimestamp || endTimestamp || startTimestamp, 'x').format(
+                'MMM Do, YYYY'
+              )}`}</Text>
           </Stack>
         </Flex>
         {(forVotes > 0 || againstVotes > 0) && (
@@ -78,9 +90,8 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
                 {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
               </Text>
             </Stack>
-            <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${
-              totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
-            } votes`}</Text>
+            <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
+              } votes`}</Text>
           </Flex>
         )}
       </Flex>
@@ -88,11 +99,10 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
   )
 }
 
-export const ProposalDetails = ({ id }: { id: number }) => {
+export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
   const { chainId } = useWeb3React<Web3Provider>()
-  const { proposal, isLoading } = useProposal(id)
 
-  if (isLoading) {
+  if (!proposal?.id) {
     return (
       <Container label={<SkeletonTitle />}>
         <SkeletonBlob />
@@ -100,21 +110,19 @@ export const ProposalDetails = ({ id }: { id: number }) => {
     )
   }
 
-  const { title, description, proposer, status, startTimestamp } = proposal
+  const { title, description, proposer, status, startTimestamp, id, era } = proposal
 
   return (
     <Container
       label={title}
       description={
         <Stack direction="row" align="center" spacing={1}>
-          <Badge colorScheme={badgeColors[status]} pl={1} pr={1} fontSize="11px" fontWeight="extrabold">
-            <Flex w={16} justify="center">
-              {status}
-            </Flex>
-          </Badge>
-          <Text fontSize="sm">{`#${id.toString().padStart(3, '0')} - ${moment(startTimestamp, 'x').format(
-            'MMM Do, YYYY'
-          )}`}</Text>
+          <StatusBadge status={status} />
+          <EraBadge era={era} id={id} />
+          <Text fontSize="sm">
+            {` - ${moment(startTimestamp, 'x').format(
+              'MMM Do, YYYY'
+            )}`}</Text>
         </Stack>
       }
     >
@@ -143,12 +151,11 @@ export const ProposalDetails = ({ id }: { id: number }) => {
   )
 }
 
-export const ProposalActions = ({ id }: { id: number }) => {
+export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { CONTRACTS } = getNetworkConfigConstants(chainId)
-  const { proposal, isLoading } = useProposal(id)
 
-  if (isLoading) {
+  if (!proposal?.id) {
     return <></>
   }
 
@@ -165,9 +172,8 @@ export const ProposalActions = ({ id }: { id: number }) => {
 
           return (
             <Stack w="full" key={i} spacing={1}>
-              <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="purple.200">{`Action ${
-                i + 1
-              }`}</Flex>
+              <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="purple.200">{`Action ${i + 1
+                }`}</Flex>
               <Flex w="full" overflowX="auto" direction="column" bgColor="purple.850" borderRadius={8} p={3}>
                 <Flex fontSize="15px">
                   <Link href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">

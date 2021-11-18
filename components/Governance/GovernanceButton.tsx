@@ -2,25 +2,23 @@ import { Flex, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { useProposals } from '@inverse/hooks/useProposals'
-import { ProposalStatus } from '@inverse/types'
+import { ProposalStatus, Proposal } from '@inverse/types'
+import { getGovernanceAddress } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 
-export const VoteButton = ({ id }: { id: number }) => {
+export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const { active, account, chainId } = useWeb3React<Web3Provider>()
-  const { proposals } = useProposals()
-  const { GOVERNANCE } = getNetworkConfigConstants(chainId)
-  const { data } = useEtherSWR([GOVERNANCE, 'getReceipt', id, account])
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const govAddress = getGovernanceAddress(proposal.era, chainId);
+  const { data } = useEtherSWR([govAddress, 'getReceipt', proposal?.id, account]);
 
-  if (!proposals || !proposals[id - 1] || !active || !data) {
+  if (!active || !account || !data || !proposal?.id) {
     return <></>
   }
 
-  const { status } = proposals[id - 1]
+  const { status } = proposal;
 
   const hasVoted = data[0]
   const votes = hasVoted ? parseFloat(formatUnits(data[2])).toFixed(2) : 0
@@ -37,7 +35,7 @@ export const VoteButton = ({ id }: { id: number }) => {
           Cast Vote
         </SubmitButton>
       )}
-      <VoteModal isOpen={isOpen} onClose={onClose} id={id} />
+      <VoteModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
     </Flex>
   )
 }
