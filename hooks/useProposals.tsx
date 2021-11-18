@@ -24,8 +24,8 @@ export const useProposals = (): SWR & Proposals => {
     isError: error,
   }
 }
-
-export const useProposal = (id: number): SWR & SingleProposal => {
+// proposalNum !== id
+export const useProposal = (proposalNum: number): SWR & SingleProposal => {
   const { proposals, isLoading } = useProposals()
 
   if (!proposals || isLoading) {
@@ -36,6 +36,6 @@ export const useProposal = (id: number): SWR & SingleProposal => {
   }
 
   return {
-    proposal: proposals[id - 1],
+    proposal: proposals?.find(p => p.proposalNum === proposalNum)!,
   }
 }

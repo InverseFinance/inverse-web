@@ -41,8 +41,14 @@ export type Market = {
   monthlyBorrowFee?: number
 }
 
+export enum GovEra {
+  alpha = 'alpha',
+  mils = 'mils',
+}
+
 export type Proposal = {
-  id: number
+  id: number // id in era
+  proposalNum: number // num regardless of era
   title: string
   description: string
   proposer: string
@@ -58,6 +64,7 @@ export type Proposal = {
   status: ProposalStatus
   functions: ProposalFunction[]
   voters: ProposalVote[]
+  era: GovEra
 }
 
 export enum ProposalStatus {
