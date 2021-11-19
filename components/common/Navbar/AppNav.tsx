@@ -262,10 +262,11 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   
   const showWrongNetworkModal = () => setShowWrongNetModal(true)
-
+  
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
-      activate(injectedConnector)
+      activate(injectedConnector);
+      setTimeout(() => activate(injectedConnector), 500);
     }
   }, [walletActive]);
 
