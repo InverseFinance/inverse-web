@@ -125,6 +125,11 @@ export const XINV_ABI = [
   "function underlying() external view returns (address)",
 ];
 
+export const MULTIDELEGATOR_ABI = [
+  "function inv() external view returns (address)",
+  "function delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)",
+];
+
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
