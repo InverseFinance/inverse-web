@@ -75,8 +75,6 @@ export const VotingWallet = ({ address }: { address?: string }) => {
           )}
         </VotingWalletField>
         {
-          address && address !== delegate ?
-            null :
             <Flex
               cursor="pointer"
               w="full"
@@ -94,12 +92,12 @@ export const VotingWallet = ({ address }: { address?: string }) => {
               {address
                 ? address === delegate
                   ? `Already delegated to ${namedAddress(address, chainId)}`
-                  : null
+                  : 'Change Delegate'
                 : 'Change Delegate'}
             </Flex>
         }
       </Stack>
-      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} address={address} />
+      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} />
     </Container>
   )
 }

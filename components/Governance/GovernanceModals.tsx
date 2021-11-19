@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Text, useClipboard } from '@chakra-ui/react'
+import { Flex, Stack, Text, Box } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
@@ -10,11 +10,11 @@ import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { ProposalVote, Proposal } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
-import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
+import { getGovernanceContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, isAddress } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { getDelegationSig } from '@inverse/util/delegation';
+import NextLink from 'next/link'
 
 enum VoteType {
   for = 'For',
@@ -122,25 +122,15 @@ export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) =>
 }
 
 export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & { address?: string }) => {
-  const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
   const [delegationType, setDelegationType] = useState('Delegate')
   const [delegate, setDelegate] = useState(address || '')
   const [signature, setSignature] = useState('')
   const { INV } = getNetworkConfigConstants(chainId)
   const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
-  const { hasCopied, onCopy } = useClipboard(signature)
 
   if (!currentDelegate) {
     return <></>
-  }
-
-  const handleSelfDelegate = () => {
-    return getINVContract(library?.getSigner()).delegate(account)
-  }
-
-  const handleDelegate = async (): Promise<boolean> => {
-    const sig = await getDelegationSig(library?.getSigner(), delegate);
-    setSignature(sig);
   }
 
   return (
@@ -156,17 +146,14 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
         </Stack>
       }
       footer={
-        delegationType === 'Self' ? (
-          <SubmitButton onClick={handleSelfDelegate} isDisabled={currentDelegate === account}>
-            Self-Delegate
-          </SubmitButton>
-        ) : !signature ? (
-          <SubmitButton onClick={handleDelegate} isDisabled={!isAddress(delegate)}>
-            Change Delegate
-          </SubmitButton>
-        ) : (
-          <SubmitButton onClick={onCopy}>{hasCopied ? 'Copied' : 'Copy'}</SubmitButton>
-        )
+        <Box w="full" alignItems="center" textAlign="center" justifyContent="center">
+          {
+            delegationType === 'Self' ?
+              <NextLink href={`/governance/delegates/${account}`}>Self-Delegate</NextLink>
+              :
+              !isAddress(delegate) ? null : <NextLink href={`/governance/delegates/${delegate}`}>Change Delegate</NextLink>
+          }
+        </Box>
       }
     >
       <Stack p={4}>
@@ -194,10 +181,11 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               </Flex>
             </Stack>
             <Flex direction="column">
-              <Text fontSize="xs" fontWeight="semibold" color="purple.100">
-                Delegate Address
+              <Text fontSize="xs" fontWeight="semibold" color="purple.100" mb="2">
+                Delegate Address :
               </Text>
               <Input
+                textAlign="left"
                 value={delegate}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => setDelegate(e.currentTarget.value)}
                 placeholder={currentDelegate}

@@ -18,27 +18,29 @@ import { SubmitButton } from '@inverse/components/common/Button'
 import { getDelegationSig } from '@inverse/util/delegation';
 import { NetworkIds } from '@inverse/types'
 import { SignatureAnim } from '@inverse/components/common/Animation/SignatureAnim'
-import { CopyIcon, EditIcon } from '@chakra-ui/icons'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
 
-const DelegateOverview = () => {
-  const [signature, setSignature] = useState('')
-  const [hasLastSigCopied, setHasLastSigCopied] = useState(false)
-  const { hasCopied, onCopy } = useClipboard(signature)
-  const { query } = useRouter()
-  const { chainId, library, active } = useWeb3React<Web3Provider>()
+const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
+  <Box textAlign="center">
+    <InfoMessage alertProps={{ p: '9' }} description={`You're currently delegating to ${isSelf ? 'yourself' : 'this address'} ✅`} />
+  </Box>
+)
+
+const DelegateOverview = ({ address }: { address: string }) => {
+  const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
+  const { INV } = getNetworkConfigConstants(chainId)
 
-  useEffect(() => {
-    if (!hasCopied) { return }
-    setHasLastSigCopied(true);
-  }, [hasCopied]);
+  const { data: userCurrentDelegateAddress } = useEtherSWR([
+    [INV, 'delegates', account],
+  ])
 
-  useEffect(() => {
-    setHasLastSigCopied(false);
-  }, [signature]);
-
-  const address = query.address as string
+  const isAlreadySameDelegate = userCurrentDelegateAddress === address;
+  const isSelf = account === address;
+  const isAlreadySelf = isSelf && isAlreadySameDelegate;
 
   const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
 
@@ -51,14 +53,16 @@ const DelegateOverview = () => {
   }
 
   const { ensName } = delegate
-  const rank = topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1
-
-  const handleDelegation = async () => {
-    const sig = await getDelegationSig(library?.getSigner(), address);
-    setSignature(sig);
-  }
+  const rank = (topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1) || ''
 
   const signDisabled = !active || chainId?.toString() !== NetworkIds.mainnet;
+
+  const delegationCase = (isAlreadySameDelegate ? 'alreadyDelegating' : 'changingDelegation');
+
+  const delegationCases = {
+    changingDelegation: <SignDelegation signDisabled={signDisabled} signer={library?.getSigner()} delegateAddress={address} isSelf={isSelf} />,
+    alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
+  }
 
   return (
     <Container
@@ -68,44 +72,18 @@ const DelegateOverview = () => {
       image={<Avatar boxSize={12} address={address} />}
       right={rank && <Text fontWeight="medium" fontSize="sm" color="purple.200">{`Rank ${rank}`}</Text>}
     >
-      <Box>
+      <Box w="full">
         <Flex alignItems="center">
           <SignatureAnim height={40} width={40} loop={true} />
-          <Text ml="2" display="inline-block" fontSize="20" fontWeight="bold">
-            Delegation
+          <Text ml="3" display="inline-block" fontSize="20" fontWeight="bold">
+            {isSelf ? 'Self-' : ''}Delegation
           </Text>
         </Flex>
+
         <Divider mt="3" mb="5" />
-        <InfoMessage
-          description={
-            <>
-              Do you want to delegate your <b>voting power</b> to the address above ?
-              <Text mt="2" mb="2">This action will <b>not cost you any gas fees</b>.</Text>
-              Previous delegations to other addresses (including yours) will be withdrawn.
-              You can also change your delegate at any time in the future.
-              <Text mt="2" mb="2" fontWeight="bold">Once signed, you will need to send the signature data to the delegatee whom will then finish the process</Text>
-            </>
-          } />
 
-        <SubmitButton mt="2" onClick={handleDelegation} disabled={signDisabled} alignItems="center">
-          <EditIcon mr="2" boxSize={3} />
-          {signDisabled ? 'Please connect to Mainnet first' : 'Sign Delegation'}
-        </SubmitButton>
+        {delegationCases[delegationCase]}
 
-        {
-          signature ?
-            <Flex direction="column" mt="3">
-              <Text align="center">Delegation Signature :</Text>
-              <Textarea value={signature} borderWidth="0px" fontSize="sm" p={1.5} />
-              <SubmitButton mt="2" onClick={onCopy} alignItems="center">
-                <CopyIcon mr="2" boxSize={3} /> {hasLastSigCopied ? 'Copied !' : 'Copy'}
-              </SubmitButton>
-            </Flex>
-            : null
-        }
-        {
-          hasLastSigCopied ? <Text align="center" mt="5">Now please send the copied signature to your delegatee 😀</Text> : null
-        }
       </Box>
     </Container>
   )
@@ -132,7 +110,7 @@ export const DelegateView = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-            <DelegateOverview />
+            <DelegateOverview address={address} />
           </Flex>
         </Flex>
         <Flex direction="column">
