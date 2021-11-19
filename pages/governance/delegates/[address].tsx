@@ -15,8 +15,10 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { SubmitButton } from '@inverse/components/common/Button'
-import { getDelegationSig } from '../../../util/delegation';
+import { getDelegationSig } from '@inverse/util/delegation';
 import { NetworkIds } from '@inverse/types'
+import { SignatureAnim } from '@inverse/components/common/Animation/SignatureAnim'
+import { CopyIcon, EditIcon } from '@chakra-ui/icons'
 
 const DelegateOverview = () => {
   const [signature, setSignature] = useState('')
@@ -37,7 +39,10 @@ const DelegateOverview = () => {
   }, [signature]);
 
   const address = query.address as string
-  if (!address || isLoading || !delegates || !delegates[address]) {
+
+  const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
+
+  if (!address || isLoading || !delegate) {
     return (
       <Container label={<SkeletonTitle />}>
         <SkeletonBlob />
@@ -45,7 +50,7 @@ const DelegateOverview = () => {
     )
   }
 
-  const { ensName } = delegates[address]
+  const { ensName } = delegate
   const rank = topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1
 
   const handleDelegation = async () => {
@@ -62,32 +67,39 @@ const DelegateOverview = () => {
       href={`https://etherscan.io/address/${address}`}
       image={<Avatar boxSize={12} address={address} />}
       right={rank && <Text fontWeight="medium" fontSize="sm" color="purple.200">{`Rank ${rank}`}</Text>}
-
     >
       <Box>
-        <Text fontSize="20" fontWeight="bold">Sign Delegation</Text>
+        <Flex alignItems="center">
+          <SignatureAnim height={40} width={40} loop={true} />
+          <Text ml="2" display="inline-block" fontSize="20" fontWeight="bold">
+            Delegation
+          </Text>
+        </Flex>
         <Divider mt="3" mb="5" />
         <InfoMessage
           description={
             <>
-              You are about to delegate your <b>voting power</b> to the address above.
+              Do you want to delegate your <b>voting power</b> to the address above ?
               <Text mt="2" mb="2">This action will <b>not cost you any gas fees</b>.</Text>
               Previous delegations to other addresses (including yours) will be withdrawn.
               You can also change your delegate at any time in the future.
-              <Text mt="2" mb="2" fontWeight="bold">Once signed, you will need to send the signature data shown to the delegatee</Text>
+              <Text mt="2" mb="2" fontWeight="bold">Once signed, you will need to send the signature data to the delegatee whom will then finish the process</Text>
             </>
           } />
 
-        <SubmitButton mt="2" onClick={handleDelegation} disabled={signDisabled}>
+        <SubmitButton mt="2" onClick={handleDelegation} disabled={signDisabled} alignItems="center">
+          <EditIcon mr="2" boxSize={3} />
           {signDisabled ? 'Please connect to Mainnet first' : 'Sign Delegation'}
         </SubmitButton>
 
         {
           signature ?
             <Flex direction="column" mt="3">
-              <Text>Delegation Signature :</Text>
-              <Textarea value={signature} borderWidth="0" fontSize="sm" p={1.5} />
-              <SubmitButton mt="2" onClick={onCopy}>{hasLastSigCopied ? 'Copied !' : 'Copy'}</SubmitButton>
+              <Text align="center">Delegation Signature :</Text>
+              <Textarea value={signature} borderWidth="0px" fontSize="sm" p={1.5} />
+              <SubmitButton mt="2" onClick={onCopy} alignItems="center">
+                <CopyIcon mr="2" boxSize={3} /> {hasLastSigCopied ? 'Copied !' : 'Copy'}
+              </SubmitButton>
             </Flex>
             : null
         }
@@ -114,7 +126,7 @@ export const DelegateView = () => {
         breadcrumbs={[
           { label: 'Governance', href: '/governance' },
           { label: 'Delegates', href: '/governance/delegates' },
-          { label: title, href: '#' },
+          { label: title, href: `/governance/delegates/${address}` },
         ]}
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>

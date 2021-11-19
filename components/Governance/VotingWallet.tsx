@@ -74,26 +74,30 @@ export const VotingWallet = ({ address }: { address?: string }) => {
             </Stack>
           )}
         </VotingWalletField>
-        <Flex
-          cursor="pointer"
-          w="full"
-          p={2}
-          justify="center"
-          fontSize="xs"
-          fontWeight="semibold"
-          borderRadius={8}
-          textTransform="uppercase"
-          bgColor={delegate === address ? 'purple.850' : ''}
-          color="purple.100"
-          onClick={delegate !== address ? onOpen : () => {}}
-          _hover={{ bgColor: delegate !== address ? 'purple.850' : '' }}
-        >
-          {address
-            ? address === delegate
-              ? `Already delegated to ${namedAddress(address, chainId)}`
-              : `Delegate to ${namedAddress(address, chainId)}`
-            : 'Change Delegate'}
-        </Flex>
+        {
+          address && address !== delegate ?
+            null :
+            <Flex
+              cursor="pointer"
+              w="full"
+              p={2}
+              justify="center"
+              fontSize="xs"
+              fontWeight="semibold"
+              borderRadius={8}
+              textTransform="uppercase"
+              bgColor={delegate === address ? 'purple.850' : ''}
+              color="purple.100"
+              onClick={delegate !== address ? onOpen : () => { }}
+              _hover={{ bgColor: delegate !== address ? 'purple.850' : '' }}
+            >
+              {address
+                ? address === delegate
+                  ? `Already delegated to ${namedAddress(address, chainId)}`
+                  : null
+                : 'Change Delegate'}
+            </Flex>
+        }
       </Stack>
       <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} address={address} />
     </Container>
