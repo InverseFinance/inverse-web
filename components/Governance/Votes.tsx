@@ -4,8 +4,7 @@ import Container from '@inverse/components/common/Container'
 import { AgainstVotesModal, ForVotesModal } from '@inverse/components/Governance/GovernanceModals'
 import { SkeletonList } from '@inverse/components/common/Skeleton'
 import { QUORUM_VOTES } from '@inverse/config/constants'
-import { useProposal } from '@inverse/hooks/useProposals'
-import { ProposalStatus, ProposalVote } from '@inverse/types'
+import { ProposalStatus, ProposalVote, Proposal } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import NextLink from 'next/link'
 import { useWeb3React } from '@web3-react/core';
@@ -69,11 +68,10 @@ const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => {
   )
 }
 
-export const ForVotes = ({ id }: { id: number }) => {
+export const ForVotes = ({ proposal }: { proposal: Proposal }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { proposal, isLoading: proposalIsLoading } = useProposal(id)
 
-  if (proposalIsLoading) {
+  if (!proposal?.id) {
     return (
       <Container label="For Votes">
         <SkeletonList />
@@ -90,16 +88,15 @@ export const ForVotes = ({ id }: { id: number }) => {
   return (
     <Container label="For Votes">
       <Votes votes={forVotes} voters={forVoters} status={status} onViewAll={onOpen} />
-      <ForVotesModal isOpen={isOpen} onClose={onClose} id={id} />
+      <ForVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
     </Container>
   )
 }
 
-export const AgainstVotes = ({ id }: { id: number }) => {
+export const AgainstVotes = ({ proposal }: { proposal: Proposal }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { proposal, isLoading: proposalIsLoading } = useProposal(id)
 
-  if (proposalIsLoading) {
+  if (!proposal?.id) {
     return (
       <Container label="Against Votes">
         <SkeletonList />
@@ -116,7 +113,7 @@ export const AgainstVotes = ({ id }: { id: number }) => {
   return (
     <Container label="Against Votes">
       <Votes votes={againstVotes} voters={againstVoters} status={status} onViewAll={onOpen} />
-      <AgainstVotesModal isOpen={isOpen} onClose={onClose} id={id} />
+      <AgainstVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
     </Container>
   )
 }

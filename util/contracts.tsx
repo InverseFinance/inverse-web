@@ -13,8 +13,7 @@ import {
   ESCROW_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { NetworkIds } from '@inverse/types'
-import { utils } from 'ethers/lib'
+import { GovEra, NetworkIds } from '@inverse/types'
 
 export const getNewContract = (
   address: string,
@@ -44,9 +43,15 @@ export const getStabilizerContract = (signer: JsonRpcSigner | undefined) => {
   return getNewContract(STABILIZER, STABILIZER_ABI, signer);
 }
 
-export const getGovernanceContract = (signer: JsonRpcSigner | undefined) => {
-  const { GOVERNANCE } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  return getNewContract(GOVERNANCE, GOVERNANCE_ABI, signer)
+export const getGovernanceAddress = (era: GovEra, chainId?: string | number) => {
+  const { GOVERNANCE, GOVERNANCE_ALPHA } = getNetworkConfigConstants(chainId||NetworkIds.mainnet)
+  const govs = { [GovEra.alpha]: GOVERNANCE_ALPHA, [GovEra.mils]: GOVERNANCE };
+  return govs[era];
+}
+
+export const getGovernanceContract = (signer: JsonRpcSigner | undefined, era: GovEra) => {
+  const govAddress = getGovernanceAddress(era);
+  return getNewContract(govAddress, GOVERNANCE_ABI, signer)
 }
 
 export const getEscrowContract = (escrowAddress: string, signer: JsonRpcSigner | undefined) => {

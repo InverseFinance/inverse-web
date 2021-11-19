@@ -29,9 +29,9 @@ export const Proposals = () => {
     >
       <Stack w="full" spacing={1}>
         {proposals
-          .sort((a: Proposal, b: Proposal) => b.id - a.id)
+          .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
           .map((proposal: Proposal) => (
-            <ProposalPreview key={proposal.id} proposal={proposal} />
+            <ProposalPreview key={proposal.proposalNum} proposal={proposal} />
           ))}
       </Stack>
     </Container>
@@ -43,7 +43,7 @@ export const ActiveProposals = () => {
 
   const active = proposals
     ?.filter((proposal: Proposal) => proposal.status === ProposalStatus.active)
-    .sort((a: Proposal, b: Proposal) => b.id - a.id)
+    .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
 
   return (
     <Container
@@ -53,7 +53,7 @@ export const ActiveProposals = () => {
     >
       <Stack w="full" spacing={1}>
         {active?.length ? (
-          active.map((proposal: Proposal) => <ProposalPreview key={proposal.id} proposal={proposal} />)
+          active.map((proposal: Proposal) => <ProposalPreview key={proposal.proposalNum} proposal={proposal} />)
         ) : (
           <Flex w="full" justify="center" color="purple.200" fontSize="sm">
             There are no active proposals.
@@ -77,14 +77,14 @@ export const RecentProposals = () => {
 
   const recent = proposals
     ?.filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
-    .sort((a: Proposal, b: Proposal) => b.id - a.id)
+    .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
     .slice(0, 10)
 
   return (
     <Container label="Recent Proposals">
       <Stack w="full" spacing={1}>
         {recent.map((proposal: Proposal) => (
-          <ProposalPreview key={proposal.id} proposal={proposal} />
+          <ProposalPreview key={proposal.proposalNum} proposal={proposal} />
         ))}
         <NextLink href="/governance/proposals">
           <Flex

@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Alert, AlertDescription, AlertTitle, Flex } from '@chakra-ui/react';
-import { WarningIcon } from '@chakra-ui/icons';
+import { Flex } from '@chakra-ui/react';
+import { AlertMessage } from './AlertMessage';
 
 interface Props {
     title?: ReactNode;
@@ -29,15 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
     public render() {
         if (this.state.hasError) {
             return <Flex alignItems="center" justifyContent="center" p="2" w="full" h="full">
-                <Alert status="warning" borderRadius="5" display="inline-block" w="fit-content">
-                    <WarningIcon mr="2" />
-                    {
-                        this.props.title ? <AlertTitle>{this.props.title}</AlertTitle> : null
-                    }
-                    <AlertDescription>
-                        {this.props.description || 'An error occured, please try reloading the page'}
-                    </AlertDescription>
-                </Alert>
+                <AlertMessage title={this.props.title} description={this.props.description} />
             </Flex>
         }
 

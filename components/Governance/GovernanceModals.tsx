@@ -8,8 +8,7 @@ import Link from '@inverse/components/common/Link'
 import { Modal, ModalProps } from '@inverse/components/common/Modal'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { useProposal, useProposals } from '@inverse/hooks/useProposals'
-import { ProposalVote } from '@inverse/types'
+import { ProposalVote, Proposal } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
@@ -22,15 +21,14 @@ enum VoteType {
 }
 
 type VoteCountModalProps = ModalProps & {
-  id: number
-  voteType?: VoteType
+  proposal: Proposal,
+  voteType?: VoteType,
 }
 
-export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModalProps) => {
+export const VoteCountModal = ({ isOpen, onClose, proposal, voteType }: VoteCountModalProps) => {
   const { chainId } = useWeb3React<Web3Provider>()
-  const { proposal, isLoading } = useProposal(id)
 
-  if (isLoading) {
+  if (!proposal?.id) {
     return <></>
   }
 
@@ -78,22 +76,23 @@ export const VoteCountModal = ({ isOpen, onClose, id, voteType }: VoteCountModal
   )
 }
 
-export const ForVotesModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
-  return <VoteCountModal isOpen={isOpen} onClose={onClose} id={id} voteType={VoteType.for} />
+export const ForVotesModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) => {
+  return <VoteCountModal isOpen={isOpen} onClose={onClose} proposal={proposal} voteType={VoteType.for} />
 }
 
-export const AgainstVotesModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
-  return <VoteCountModal isOpen={isOpen} onClose={onClose} id={id} voteType={VoteType.against} />
+export const AgainstVotesModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) => {
+  return <VoteCountModal isOpen={isOpen} onClose={onClose} proposal={proposal} voteType={VoteType.against} />
 }
 
-export const VoteModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
+export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) => {
   const { library } = useWeb3React<Web3Provider>()
   const [support, setSupport] = useState(true)
-  const { proposals } = useProposals()
 
-  if (!proposals || !proposals[id - 1]) {
+  if (!proposal?.id) {
     return <></>
   }
+
+  const { era, id } = proposal;
 
   return (
     <Modal
@@ -105,7 +104,7 @@ export const VoteModal = ({ isOpen, onClose, id }: VoteCountModalProps) => {
         </Stack>
       }
       footer={
-        <SubmitButton onClick={() => getGovernanceContract(library?.getSigner()).castVote(id, support)}>
+        <SubmitButton onClick={() => getGovernanceContract(library?.getSigner(), era).castVote(id, support)}>
           {support ? 'Vote For' : 'Vote Against'}
         </SubmitButton>
       }

@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     res.status(200).json( {
       blockNumber: data.blockNumber,
       timestamp: data.timestamp,
-      proposals: data.data,
+      proposals: data.proposals,
     });
   } catch (err) {
     console.error(err);
