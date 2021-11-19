@@ -11,6 +11,7 @@ import {
   ERC20_ABI,
   LENS_ABI,
   ESCROW_ABI,
+  MULTIDELEGATOR_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { GovEra, NetworkIds } from '@inverse/types'
@@ -61,6 +62,11 @@ export const getEscrowContract = (escrowAddress: string, signer: JsonRpcSigner |
 export const getINVContract = (signer: JsonRpcSigner | undefined) => {
   const { INV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
   return getNewContract(INV, INV_ABI, signer)
+}
+
+export const getMultiDelegatorContract = (signer: JsonRpcSigner | undefined) => {
+  const { MULTI_DELEGATOR } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  return getNewContract(MULTI_DELEGATOR, MULTIDELEGATOR_ABI, signer);
 }
 
 export const getCEtherContract = (
