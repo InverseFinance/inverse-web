@@ -13,7 +13,11 @@ type MessageProps = {
 }
 
 export const InfoMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
-    return <Message status="info" title={title} description={description} icon={<InfoAnimatedIcon boxProps={{ mr: '2' }} />} variant="solid" {...alertProps} />
+    return <Message status="info"
+        title={title}
+        description={description}
+        icon={<InfoAnimatedIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
+        variant="solid" {...alertProps} />
 }
 
 export const AlertMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
