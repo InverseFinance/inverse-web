@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { Box, Divider, Flex, Text, Textarea, useClipboard } from '@chakra-ui/react'
+import { Box, Divider, Flex, Text } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import Container from '@inverse/components/common/Container'
@@ -14,8 +13,6 @@ import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@inverse/components/common/Messages'
-import { SubmitButton } from '@inverse/components/common/Button'
-import { getDelegationSig } from '@inverse/util/delegation';
 import { NetworkIds } from '@inverse/types'
 import { SignatureAnim } from '@inverse/components/common/Animation/SignatureAnim'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
@@ -40,7 +37,6 @@ const DelegateOverview = ({ address }: { address: string }) => {
 
   const isAlreadySameDelegate = userCurrentDelegateAddress === address;
   const isSelf = account === address;
-  const isAlreadySelf = isSelf && isAlreadySameDelegate;
 
   const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
 

@@ -9,6 +9,7 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
+import { SubmitDelegationsModal } from './GovernanceModals'
 
 type VotingWalletFieldProps = {
   label: string
@@ -36,7 +37,8 @@ export const VotingWallet = ({ address }: { address?: string }) => {
     [INV, 'getCurrentVotes', account],
     [INV, 'delegates', account],
   ])
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: changeDelIsOpen, onOpen: changeDelOnOpen, onClose: changeDelOnClose } = useDisclosure()
+  const { isOpen: submitDelIsOpen, onOpen: submitDelOnOpen, onClose: submitDelOnClose } = useDisclosure()
 
   if (!account || !data) {
     return <></>
@@ -47,7 +49,7 @@ export const VotingWallet = ({ address }: { address?: string }) => {
   const votingPower = currentVotes ? parseFloat(formatUnits(currentVotes)) : 0
 
   return (
-    <Container label="Your Voting Wallet">
+    <Container label="Your Voting Power">
       <Stack w="full">
         <Stack w="full" direction="row" justify="center" align="center">
           <Avatar address={account} boxSize={5} />
@@ -74,30 +76,27 @@ export const VotingWallet = ({ address }: { address?: string }) => {
             </Stack>
           )}
         </VotingWalletField>
-        {
-            <Flex
-              cursor="pointer"
-              w="full"
-              p={2}
-              justify="center"
-              fontSize="xs"
-              fontWeight="semibold"
-              borderRadius={8}
-              textTransform="uppercase"
-              bgColor={delegate === address ? 'purple.850' : ''}
-              color="purple.100"
-              onClick={delegate !== address ? onOpen : () => { }}
-              _hover={{ bgColor: delegate !== address ? 'purple.850' : '' }}
-            >
-              {address
-                ? address === delegate
-                  ? `Already delegated to ${namedAddress(address, chainId)}`
-                  : 'Change Delegate'
-                : 'Change Delegate'}
-            </Flex>
-        }
+        <Flex
+          w="full"
+          pt="4"
+          justify='space-around'
+          fontSize="xs"
+          fontWeight="semibold"
+          borderRadius={8}
+          textTransform="uppercase"
+          bgColor={delegate === address ? 'purple.850' : ''}
+          color="purple.100"
+        >
+          <Text cursor="pointer" onClick={delegate !== address ? changeDelOnOpen : () => { }}>
+            Change Delegate
+          </Text>
+          <Text cursor="pointer" onClick={submitDelOnOpen}>
+            Submit Delegations
+          </Text>
+        </Flex>
       </Stack>
-      <ChangeDelegatesModal isOpen={isOpen} onClose={onClose} />
+      <ChangeDelegatesModal isOpen={changeDelIsOpen} onClose={changeDelOnClose} />
+      <SubmitDelegationsModal isOpen={submitDelIsOpen} onClose={submitDelOnClose} />
     </Container>
   )
 }

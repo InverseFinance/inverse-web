@@ -64,7 +64,7 @@ export const SignDelegation = ({
                 signature ?
                     <Flex direction="column" mt="3">
                         <Text align="center">Delegation Signature :</Text>
-                        <Textarea value={signature} borderWidth="0px" fontSize="sm" p={1.5} />
+                        <Textarea value={signature} readOnly borderWidth="0px" fontSize="sm" p={1.5} />
                         <SubmitButton mt="2" onClick={onCopy} alignItems="center">
                             <CopyIcon mr="2" boxSize={3} /> {hasLastSigCopied ? 'Copied !' : 'Copy'}
                         </SubmitButton>
