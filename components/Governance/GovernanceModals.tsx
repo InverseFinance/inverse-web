@@ -16,8 +16,8 @@ import { commify, isAddress } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import NextLink from 'next/link'
 import { InfoMessage } from '../common/Messages'
-import localforage from 'localforage'
-import { isValidSignature } from '@inverse/util/delegation'
+import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/delegation'
+import { handleTx } from '@inverse/util/transactions'
 
 enum VoteType {
   for = 'For',
@@ -222,8 +222,8 @@ const DelegationSignatureInput = ({ sig, onChange, onDelete }: { sig: string, on
   </InputGroup>
 }
 
-export const SubmitDelegationsModal = ({ isOpen, onClose, address }: ModalProps & { address?: string }) => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
+export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: ModalProps & { address?: string, onNewDelegate: (newDelegate: string) => void }) => {
+  const { library } = useWeb3React<Web3Provider>()
   const [signatures, setSignatures] = useState<string[]>([])
   const [isInited, setIsInited] = useState(false)
   const [hasInvalidSignature, setHasInvalidSignature] = useState(false)
@@ -231,7 +231,7 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, address }: ModalProps 
   useEffect(() => {
     const init = async () => {
       if (!signatures?.length) {
-        setSignatures(await localforage.getItem('collectedSignatures') || []);
+        setSignatures(await getStoredDelegationsCollected() || []);
       }
       setIsInited(true);
     }
@@ -242,7 +242,7 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, address }: ModalProps 
     if (!isInited) { return }
     const validSignatures = signatures.filter(isValidSignature);
     setHasInvalidSignature(validSignatures.length !== signatures.length);
-    localforage.setItem('collectedSignatures', validSignatures);
+    storeDelegationsCollected(validSignatures)
   }, [signatures]);
 
   const handleChange = (e: any, i: number) => {
@@ -262,8 +262,21 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, address }: ModalProps 
   }
 
   const signatureInputs = signatures.concat(['']).map((sig, i) => {
-    return <DelegationSignatureInput key={i} sig={sig} onChange={(e) => handleChange(e, i)} deleteSignature={() => deleteSignature(i)} />
+    return <DelegationSignatureInput key={i} sig={sig} onChange={(e) => handleChange(e, i)} onDelete={() => deleteSignature(i)} />
   })
+
+  const handleSuccess = async () => {
+    onClose();
+    clearStoredDelegationsCollected();
+    setSignatures([]);
+    onNewDelegate(await library?.getSigner()?.getAddress()!);
+  }
+
+  const handleSubmit = async () => {
+    if(!library?.getSigner()) { return new Promise((res, reject) => reject("Signer required")) };
+    const tx = await submitMultiDelegation(library?.getSigner(), signatures);
+    return handleTx(tx, { onSuccess: handleSuccess });
+  }
 
   return (
     <Modal
@@ -277,7 +290,7 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, address }: ModalProps 
         </Stack>
       }
       footer={
-        <SubmitButton disabled={!signatures.length || hasInvalidSignature}>
+        <SubmitButton disabled={!signatures.length || hasInvalidSignature} onClick={handleSubmit}>
           {
             hasInvalidSignature ?
               'There is an invalid signature'
@@ -288,7 +301,7 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, address }: ModalProps 
       }
     >
       <Stack p={4}>
-        <InfoMessage alertProps={{ w: 'full' }} description="Paste below the delegation signatures you collected. You can safely close the modal at any time and come back, valid pasted signatures will be remembered." />
+        <InfoMessage alertProps={{ w: 'full' }} description="Paste signed delegations sent by your supporters below and submit them on-chain in 1 transaction." />
         <Stack maxHeight={'50vh'} overflow='auto'>
           {signatureInputs}
         </Stack>

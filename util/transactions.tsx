@@ -27,14 +27,21 @@ export const showTxToast = (txHash: string, txStatus: string, toastStatus: Custo
     return showToast(options);
 }
 
-export const handleTx = async (tx: TransactionResponse): Promise<void> => {
-    if(!tx?.hash) { return }
+export const handleTx = async (
+    tx: TransactionResponse,
+    options?: { onSuccess?: (tx: TransactionResponse) => void, onFail?: (tx: TransactionResponse) => void, onPending?: (tx: TransactionResponse) => void },
+): Promise<void> => {
+    if (!tx?.hash) { return }
     try {
+        if (options?.onPending) { options.onPending(tx) }
         showTxToast(tx.hash, "pending", "loading");
         const receipt: TransactionReceipt = await tx.wait();
         const msgObj = txStatusMessages[receipt?.status || '0'];
         showTxToast(tx.hash, msgObj.txStatus, msgObj.toastStatus);
+        if (options?.onSuccess && receipt?.status === 1) { options.onSuccess(tx) }
+        if (options?.onFail && receipt?.status === 0) { options.onFail(tx) }
     } catch (e: any) {
+        if (options?.onFail) { options.onFail(tx) }
         showFailNotif(e, true);
     }
 }

@@ -27,7 +27,7 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   </Flex>
 )
 
-export const VotingWallet = ({ address }: { address?: string }) => {
+export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onNewDelegate: (newDelegate: string) => void }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
@@ -82,21 +82,18 @@ export const VotingWallet = ({ address }: { address?: string }) => {
           justify='space-around'
           fontSize="xs"
           fontWeight="semibold"
-          borderRadius={8}
           textTransform="uppercase"
-          bgColor={delegate === address ? 'purple.850' : ''}
-          color="purple.100"
         >
-          <Text cursor="pointer" onClick={delegate !== address ? changeDelOnOpen : () => { }}>
+          <Text _hover={{ color: 'secondary' }} cursor="pointer" onClick={changeDelOnOpen}>
             Change Delegate
           </Text>
-          <Text cursor="pointer" onClick={submitDelOnOpen}>
+          <Text _hover={{ color: 'secondary' }} cursor="pointer" onClick={submitDelOnOpen}>
             Submit Delegations
           </Text>
         </Flex>
       </Stack>
       <ChangeDelegatesModal isOpen={changeDelIsOpen} onClose={changeDelOnClose} />
-      <SubmitDelegationsModal isOpen={submitDelIsOpen} onClose={submitDelOnClose} />
+      <SubmitDelegationsModal isOpen={submitDelIsOpen} onClose={submitDelOnClose} onNewDelegate={onNewDelegate} />
     </Container>
   )
 }

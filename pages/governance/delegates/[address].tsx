@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Box, Divider, Flex, Text } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
@@ -25,17 +26,20 @@ const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   </Box>
 )
 
-const DelegateOverview = ({ address }: { address: string }) => {
+const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
   const { INV } = getNetworkConfigConstants(chainId)
 
-  const { data: userCurrentDelegateAddress } = useEtherSWR([
+  const { data } = useEtherSWR([
     [INV, 'delegates', account],
   ])
 
-  const isAlreadySameDelegate = userCurrentDelegateAddress === address;
+  if(!data) { return <></> }
+  
+  const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) == address;
+  
   const isSelf = account === address;
 
   const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
@@ -86,6 +90,7 @@ const DelegateOverview = ({ address }: { address: string }) => {
 }
 
 export const DelegateView = () => {
+  const [newlyChosenDelegate, setNewlyChosenDelegate] = useState('');
   const { chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
 
@@ -106,12 +111,12 @@ export const DelegateView = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-            <DelegateOverview address={address} />
+            <DelegateOverview address={address} newlyChosenDelegate={newlyChosenDelegate} />
           </Flex>
         </Flex>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <VotingWallet address={address} />
+            <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <DelegatorsPreview address={address} />
