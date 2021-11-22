@@ -3,7 +3,7 @@ import LinkButton from '@inverse/components/common/Button'
 import Link from '@inverse/components/common/Link'
 import Logo from '@inverse/components/common/Logo'
 import { useState } from 'react'
-import { Announcement } from '../Announcement'
+import { Announcement } from '@inverse/components/common/Announcement'
 
 const INVERSE_NAV = [
   {

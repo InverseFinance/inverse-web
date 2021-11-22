@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Tooltip, IconProps, TooltipProps, Flex, Text } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
-import { InfoAnimatedIcon } from '../Animation/InfoAnim';
+import { InfoAnimatedIcon } from '@inverse/components/common/Animation/InfoAnim';
 
 type InfoTooltipProps = { message: ReactNode, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps> };
 

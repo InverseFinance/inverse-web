@@ -15,7 +15,7 @@ import { useWeb3React } from '@web3-react/core'
 import { commify, isAddress } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import NextLink from 'next/link'
-import { InfoMessage } from '../common/Messages'
+import { InfoMessage } from '@inverse/components/common/Messages'
 import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/delegation'
 import { handleTx } from '@inverse/util/transactions'
 
