@@ -23,6 +23,9 @@ import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
     <InfoMessage alertProps={{ p: '9' }} description={`You're currently delegating to ${isSelf ? 'yourself' : 'this address'} ${isSelf ? '✅' : '🤝'}`} />
+    <Text mt="2" textAlign="center">
+      Share the link to this page if you want supporters delegating to {isSelf ? 'you' : 'this address'}
+    </Text>
   </Box>
 )
 
@@ -36,10 +39,10 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
     [INV, 'delegates', account],
   ])
 
-  if(!data) { return <></> }
-  
+  if (!data) { return <></> }
+
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) == address;
-  
+
   const isSelf = account === address;
 
   const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }

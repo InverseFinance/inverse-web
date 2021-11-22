@@ -10,6 +10,7 @@ import { namedAddress } from '@inverse/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { SubmitDelegationsModal } from './GovernanceModals'
+import Link from '@inverse/components/common/Link'
 
 type VotingWalletFieldProps = {
   label: string
@@ -51,12 +52,14 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   return (
     <Container label="Your Voting Power">
       <Stack w="full">
-        <Stack w="full" direction="row" justify="center" align="center">
+        <Flex w="full" alignItems="center" justify="center">
           <Avatar address={account} boxSize={5} />
-          <Text mt={1} fontSize="sm" fontWeight="medium" color="purple.100">
-            {namedAddress(account, chainId)}
-          </Text>
-        </Stack>
+          <Link ml="2" href={`/governance/delegates/${account}`} alignItems="center">
+            <Text fontSize="sm" fontWeight="medium" color="purple.100" textDecoration="underline">
+              {namedAddress(account, chainId)}
+            </Text>
+          </Link>
+        </Flex>
         <VotingWalletField label="INV">
           {(invBalance ? parseFloat(formatUnits(invBalance)) : 0).toFixed(4)}
         </VotingWalletField>
