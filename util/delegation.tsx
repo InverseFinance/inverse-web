@@ -1,6 +1,7 @@
 import { getMultiDelegatorContract } from './contracts';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { getINVContract } from '@inverse/util/contracts';
+import { isAddress } from 'ethers/lib/utils'
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -43,4 +44,18 @@ export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Prom
         }
         resolve('');
     })
+}
+
+export const isValidSignature = (sig: string): boolean => {
+    try {
+        const sigObj = JSON.parse(sig);
+        if(!sigObj.sig) { return false }
+        if(!sigObj.nonce) { return false }
+        if(!sigObj.expiry) { return false }
+        if(!sigObj.chainId) { return false }
+        if(!isAddress(sigObj.signer)) { return false }
+    } catch(e) {
+        return false;
+    }
+    return true;
 }
