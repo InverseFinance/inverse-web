@@ -72,7 +72,17 @@ export const SignDelegation = ({
                     : null
             }
             {
-                hasLastSigCopied && !isSelf ? <Text align="center" mt="5">Now please send the copied signature to your delegatee 😀</Text> : null
+                hasLastSigCopied ?
+                    <Text align="center" mt="5">
+                        {
+                            isSelf ?
+                                'You can now submit your signature, the process is the same as delegation signatures'
+                                :
+                                'Now please send the copied signature to your delegatee 😀'
+                        }
+                    </Text>
+                    :
+                    null
             }
         </>
     )

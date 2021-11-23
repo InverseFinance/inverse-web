@@ -96,7 +96,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             Change Delegate
           </Text>
           <Text _hover={{ color: 'secondary' }} cursor="pointer" onClick={submitDelOnOpen}>
-            Submit Delegations
+            Submit Signatures
           </Text>
         </Flex>
       </Stack>
