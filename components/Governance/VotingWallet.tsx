@@ -28,7 +28,7 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   </Flex>
 )
 
-export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onNewDelegate: (newDelegate: string) => void }) => {
+export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([

@@ -222,7 +222,7 @@ const DelegationSignatureInput = ({ sig, onChange, onDelete }: { sig: string, on
   </InputGroup>
 }
 
-export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: ModalProps & { address?: string, onNewDelegate: (newDelegate: string) => void }) => {
+export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: ModalProps & { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
   const { library } = useWeb3React<Web3Provider>()
   const [signatures, setSignatures] = useState<string[]>([])
   const [isInited, setIsInited] = useState(false)
@@ -269,7 +269,9 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: Modal
     onClose();
     clearStoredDelegationsCollected();
     setSignatures([]);
-    onNewDelegate(await library?.getSigner()?.getAddress()!);
+    if(onNewDelegate){
+      onNewDelegate(await library?.getSigner()?.getAddress()!);
+    }
   }
 
   const handleSubmit = async () => {
