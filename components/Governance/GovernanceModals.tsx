@@ -16,7 +16,7 @@ import { commify, isAddress } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
 import NextLink from 'next/link'
 import { InfoMessage } from '@inverse/components/common/Messages'
-import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/delegation'
+import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/governance'
 import { handleTx } from '@inverse/util/transactions'
 
 enum VoteType {

@@ -6,7 +6,7 @@ import { SubmitButton } from '@inverse/components/common/Button';
 import { ProposalFormFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { submitProposal } from '@inverse/util/delegation';
+import { submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 
