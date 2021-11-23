@@ -1,9 +1,11 @@
 import { getMultiDelegatorContract } from './contracts';
 import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
-import { getINVContract } from '@inverse/util/contracts';
-import { isAddress, splitSignature } from 'ethers/lib/utils'
+import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
+import { AbiCoder, isAddress, splitSignature } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
+import { GovEra, ProposalFormFields } from '@inverse/types';
+import { CURRENT_ERA } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -61,7 +63,6 @@ export const isValidSignature = (sig: string): boolean => {
     return true;
 }
 
-// delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)
 export const submitMultiDelegation = async (signer: JsonRpcSigner, signatures: string[], delegatee?: string): Promise<TransactionResponse> => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -70,6 +71,7 @@ export const submitMultiDelegation = async (signer: JsonRpcSigner, signatures: s
             const signatureObjects = signatures.map(sig => JSON.parse(sig));
             const vrs = signatureObjects.map(sigObj => splitSignature(sigObj.sig));
 
+            // delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)
             const promise = contract.delegateBySig(
                 delegatee || signerAddress,
                 signatureObjects.map(sigObj => sigObj.signer),
@@ -80,7 +82,7 @@ export const submitMultiDelegation = async (signer: JsonRpcSigner, signatures: s
                 vrs.map(splittedSig => splittedSig.s),
             );
             resolve(promise);
-        } catch(e) {
+        } catch (e) {
             console.log(e);
             reject(e);
         }
@@ -97,4 +99,35 @@ export const getStoredDelegationsCollected = async (): Promise<string[] | null> 
 
 export const clearStoredDelegationsCollected = (): void => {
     localforage.removeItem('signaturesCollected');
+}
+
+export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalFormFields) => {
+    const contract = getGovernanceContract(signer, CURRENT_ERA);
+    const { title, description, actions } = proposalForm;
+
+    const text = `# ${title}
+    ${description}`;
+
+    const calldatas = actions.map(action => {
+        const abiCoder = new AbiCoder()
+        return abiCoder.encode(
+            action.args.map(arg => arg.type),
+            action.args.map(arg => {
+                if (arg.type === "bool" || arg.type === "bool[]") {
+                    return JSON.parse(arg.value);
+                } else {
+                    return arg.value;
+                }
+            })
+        )
+    })
+
+    // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
+    return contract.propose(
+        actions.map(a => a.contractAddress),
+        actions.map(a => a.value),
+        actions.map(a => a.fragment!.format('sighash')),
+        calldatas,
+        text,
+    );
 }

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { FormControl, FormLabel, Text, Box, Flex, Divider } from '@chakra-ui/react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
+import { isAddress } from 'ethers/lib/utils';
 
 export const ProposalFormAction = ({
     action,
@@ -27,10 +28,19 @@ export const ProposalFormAction = ({
     }
 
     const argInputs = args.map((arg, i) => {
+        const inputType = arg.type.includes('int') ? 'number' : 'string';
+        const min = arg.type.includes('uint') ? '0' : undefined;
         return (
-            <FormControl key={i}>
-                <FormLabel>Argument #{i + 1} ({arg.type})</FormLabel>
-                <ProposalInput value={arg.value || ''} placeholder="Argument data" onChange={(e: any) => handleArgChange(e, i)} />
+            <FormControl key={i} mt="2">
+                <FormLabel fontSize="12">Argument #{i + 1} ({arg.type})</FormLabel>
+                <ProposalInput
+                    pt="1"
+                    pb="1"
+                    type={inputType}
+                    min={min}
+                    value={arg.value || ''}
+                    placeholder="Argument data"
+                    onChange={(e: any) => handleArgChange(e, i)} />
             </FormControl>
         )
     })
@@ -49,11 +59,16 @@ export const ProposalFormAction = ({
                         <Divider mt="2" mb="2" />
                         <FormControl>
                             <FormLabel >Contract Address</FormLabel>
-                            <ProposalInput placeholder="0x..." value={contractAddress} onChange={(e: any) => onChange('contractAddress', e.currentTarget.value)} />
+                            <ProposalInput
+                                isInvalid={!!contractAddress && !isAddress(contractAddress)}
+                                placeholder="0x..."
+                                value={contractAddress}
+                                onChange={(e: any) => onChange('contractAddress', e.currentTarget.value)}
+                            />
                         </FormControl>
                         <FormControl>
                             <FormLabel mt="2">Value (wei)</FormLabel>
-                            <ProposalInput placeholder="10000000000000000" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
+                            <ProposalInput type="number" placeholder="10000000000000000" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
                         </FormControl>
                         <FormControl>
                             <FormLabel mt="2">Contract Function</FormLabel>

@@ -1,3 +1,5 @@
+import { GovEra } from '@inverse/types';
+
 export const START_BLOCK = 11498340;
 export const ETH_MANTISSA = 1e18;
 export const SECONDS_PER_BLOCK = 13.5;
@@ -13,3 +15,5 @@ export const QUORUM_VOTES = 4000;
 
 // Migration
 export const OLD_XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE' 
+
+export const CURRENT_ERA = GovEra.mils;

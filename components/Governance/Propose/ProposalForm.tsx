@@ -1,11 +1,14 @@
-import { useState } from 'react'
-import { FormControl, FormLabel, Stack } from '@chakra-ui/react';
+import { useState, useEffect } from 'react'
+import { Flex, FormControl, FormLabel, Stack } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { SubmitButton } from '@inverse/components/common/Button';
 import { ProposalFormFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
+import { submitProposal } from '@inverse/util/delegation';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const EMPTY_ACTION = {
     contractAddress: '',
@@ -16,11 +19,17 @@ const EMPTY_ACTION = {
 };
 
 export const ProposalForm = () => {
+    const { library } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title: '',
         description: '',
         actions: [{ ...EMPTY_ACTION }],
     })
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    useEffect(() => {
+        setIsFormValid(!isFormInvalid(form))
+    }, [form])
 
     const handleFuncChange = (index: number, value: string) => {
 
@@ -42,7 +51,7 @@ export const ProposalForm = () => {
 
     const handleActionChange = (index: number, field: string, value: string) => {
         const newActions = [...form.actions];
-        newActions[index] = { ...newActions[index], [field]: value  };
+        newActions[index] = { ...newActions[index], [field]: value };
         setForm({ ...form, actions: newActions });
     }
 
@@ -67,6 +76,25 @@ export const ProposalForm = () => {
         setForm({ ...form, actions: form.actions.concat([{ ...EMPTY_ACTION }]) });
     }
 
+    const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
+        if (title.length === 0) return true;
+        if (description.length === 0) return true;
+        for(const action of actions) {
+            if (action.contractAddress.length === 0) return true;
+            if (action.func.length === 0) return true;
+            if (action.fragment === undefined) return true;
+            for (const arg of action.args) {
+                if (arg.value.length === 0) return true;
+            }
+        }
+        return false;
+    }
+
+    const handleSubmitProposal = () => {
+        if(!library?.getSigner()) { return }
+        return submitProposal(library?.getSigner(), form);
+    }
+
     return (
         <Stack direction="column" w="full">
             <FormControl>
@@ -75,12 +103,17 @@ export const ProposalForm = () => {
             </FormControl>
             <FormControl>
                 <FormLabel>Description</FormLabel>
-                <Textarea  onChange={(e) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
+                <Textarea onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
             </FormControl>
             {actionSubForms}
-            <SubmitButton onClick={addAction}>
-                Add an Action
-            </SubmitButton>
+            <Flex justify="center" pt="5">
+                <SubmitButton mr="1" w="fit-content" onClick={addAction}>
+                    Add an Action
+                </SubmitButton>
+                <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
+                    Submit the Proposal
+                </SubmitButton>
+            </Flex>
         </Stack>
     )
 }
