@@ -36,6 +36,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
     [XINV, 'balanceOf', account],
     [XINV, 'exchangeRateStored'],
     [INV, 'getCurrentVotes', account],
+    [XINV, 'getCurrentVotes', account],
     [INV, 'delegates', account],
   ])
   const { isOpen: changeDelIsOpen, onOpen: changeDelOnOpen, onClose: changeDelOnClose } = useDisclosure()
@@ -45,19 +46,23 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
     return <></>
   }
 
-  const [invBalance, xinvBalance, exchangeRate, currentVotes, delegate] = data
+  const [invBalance, xinvBalance, exchangeRate, currentVotes, currentVotesX, delegate] = data
 
-  const votingPower = currentVotes ? parseFloat(formatUnits(currentVotes)) : 0
+  const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   return (
     <Container label="Your Voting Power">
       <Stack w="full">
         <Flex w="full" alignItems="center" justify="center">
           <Avatar address={account} boxSize={5} />
-          <Link ml="2" href={`/governance/delegates/${account}`} alignItems="center">
-            <Text fontSize="sm" fontWeight="medium" color="purple.100" textDecoration="underline">
-              {namedAddress(account, chainId)}
-            </Text>
+          <Link href={`/governance/delegates/${account}`}
+            ml="2"
+            alignItems="center"
+            fontSize="sm"
+            fontWeight="medium"
+            color="purple.100"
+            textDecoration="underline">
+            {namedAddress(account, chainId)}
           </Link>
         </Flex>
         <VotingWalletField label="INV">
