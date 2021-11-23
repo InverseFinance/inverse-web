@@ -101,33 +101,39 @@ export const clearStoredDelegationsCollected = (): void => {
     localforage.removeItem('signaturesCollected');
 }
 
-export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalFormFields) => {
-    const contract = getGovernanceContract(signer, CURRENT_ERA);
-    const { title, description, actions } = proposalForm;
+export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalFormFields): Promise<TransactionResponse> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getGovernanceContract(signer, CURRENT_ERA);
+            const { title, description, actions } = proposalForm;
 
-    const text = `# ${title}
-    ${description}`;
+            const text = `# ${title}\n${description}`
 
-    const calldatas = actions.map(action => {
-        const abiCoder = new AbiCoder()
-        return abiCoder.encode(
-            action.args.map(arg => arg.type),
-            action.args.map(arg => {
-                if (arg.type === "bool" || arg.type === "bool[]") {
-                    return JSON.parse(arg.value);
-                } else {
-                    return arg.value;
-                }
+            const calldatas = actions.map(action => {
+                const abiCoder = new AbiCoder()
+                return abiCoder.encode(
+                    action.args.map(arg => arg.type),
+                    action.args.map(arg => {
+                        if (arg.type === "bool" || arg.type === "bool[]") {
+                            return JSON.parse(arg.value);
+                        } else {
+                            return arg.value;
+                        }
+                    })
+                )
             })
-        )
-    })
 
-    // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
-    return contract.propose(
-        actions.map(a => a.contractAddress),
-        actions.map(a => a.value),
-        actions.map(a => a.fragment!.format('sighash')),
-        calldatas,
-        text,
-    );
+            // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
+            resolve(contract.propose(
+                actions.map(a => a.contractAddress),
+                actions.map(a => a.value),
+                actions.map(a => a.fragment!.format('sighash')),
+                calldatas,
+                text,
+            ));
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    })
 }

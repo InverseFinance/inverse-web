@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps } from '@chakra-ui/react'
 import { InfoAnimatedIcon } from '@inverse/components/common/Animation/InfoAnim'
 import { WarningIcon } from '@chakra-ui/icons';
+import { SuccessAnimIcon } from '../Animation/SuccessAnim';
 
 type MessageProps = {
     status: AlertProps["status"],
@@ -17,6 +18,14 @@ export const InfoMessage = ({ title, description, alertProps }: Partial<MessageP
         title={title}
         description={description}
         icon={<InfoAnimatedIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
+        variant="solid" {...alertProps} />
+}
+
+export const SuccessMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
+    return <Message status="success"
+        title={title}
+        description={description}
+        icon={<SuccessAnimIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
         variant="solid" {...alertProps} />
 }
 

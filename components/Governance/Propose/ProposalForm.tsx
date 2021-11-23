@@ -9,6 +9,8 @@ import { ProposalFormAction } from './ProposalFormAction';
 import { submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
+import { handleTx } from '@inverse/util/transactions';
+import { InfoMessage, Message, SuccessMessage } from '@inverse/components/common/Messages';
 
 const EMPTY_ACTION = {
     contractAddress: '',
@@ -19,6 +21,7 @@ const EMPTY_ACTION = {
 };
 
 export const ProposalForm = () => {
+    const [hasSuccess, setHasSuccess] = useState(false);
     const { library } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title: '',
@@ -32,7 +35,6 @@ export const ProposalForm = () => {
     }, [form])
 
     const handleFuncChange = (index: number, value: string) => {
-
         const newActions = [...form.actions];
         newActions[index].func = value;
         try {
@@ -79,7 +81,7 @@ export const ProposalForm = () => {
     const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
         if (title.length === 0) return true;
         if (description.length === 0) return true;
-        for(const action of actions) {
+        for (const action of actions) {
             if (action.contractAddress.length === 0) return true;
             if (action.func.length === 0) return true;
             if (action.fragment === undefined) return true;
@@ -90,16 +92,17 @@ export const ProposalForm = () => {
         return false;
     }
 
-    const handleSubmitProposal = () => {
-        if(!library?.getSigner()) { return }
-        return submitProposal(library?.getSigner(), form);
+    const handleSubmitProposal = async () => {
+        if (!library?.getSigner()) { return }
+        const tx = await submitProposal(library?.getSigner(), form);
+        return handleTx(tx, { onSuccess: () => setHasSuccess(true) });
     }
 
     return (
         <Stack direction="column" w="full">
             <FormControl>
                 <FormLabel>Title</FormLabel>
-                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="My awesome proposal" />
+                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
             </FormControl>
             <FormControl>
                 <FormLabel>Description</FormLabel>
@@ -107,12 +110,19 @@ export const ProposalForm = () => {
             </FormControl>
             {actionSubForms}
             <Flex justify="center" pt="5">
-                <SubmitButton mr="1" w="fit-content" onClick={addAction}>
-                    Add an Action
-                </SubmitButton>
-                <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
-                    Submit the Proposal
-                </SubmitButton>
+                {
+                    hasSuccess ?
+                        <SuccessMessage description="Your proposal has been created ! It may take some time to appear" />
+                        :
+                        <>
+                            <SubmitButton mr="1" w="fit-content" onClick={addAction}>
+                                Add an Action
+                            </SubmitButton>
+                            <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
+                                Submit the Proposal
+                            </SubmitButton>
+                        </>
+                }
             </Flex>
         </Stack>
     )
