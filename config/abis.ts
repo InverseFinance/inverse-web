@@ -124,6 +124,7 @@ export const XINV_ABI = [
   "function rewardPerBlock() external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",
   "function underlying() external view returns (address)",
+  "function getCurrentVotes(address) external view returns (uint96)",
 ];
 
 export const MULTIDELEGATOR_ABI = [
