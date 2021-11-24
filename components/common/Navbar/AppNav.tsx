@@ -28,6 +28,7 @@ import { NetworkItem } from '@inverse/components/common/NetworkItem'
 import { NetworkIds } from '@inverse/types'
 import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 import { TEST_IDS } from '@inverse/config/test-ids'
+import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 
 const NAV_ITEMS = [
   {
@@ -135,6 +136,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const [isOpen, setIsOpen] = useState(false)
+  const { addressName } = useNamedAddress(account, chainId)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
 
@@ -191,7 +193,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           _hover={{ bgColor: 'purple.600' }}
           data-testid={TEST_IDS.connectBtn}
         >
-          {active && account ? `${namedAddress(account, chainId)}` : 'Connect'}
+          {active && account ? addressName : 'Connect'}
         </Flex>
       </PopoverTrigger>
       <PopoverContent
