@@ -15,7 +15,7 @@ export const Breadcrumbs = ({ w, breadcrumbs }: BreadcrumbsProps) => (
     <Flex w={w} pl={6} pt={6}>
       <Breadcrumb fontSize="sm" separator={<ChevronRightIcon color="purple.100" />} spacing="1">
         {breadcrumbs.map(({ href, label }, i) => (
-          <BreadcrumbItem key={label}>
+          <BreadcrumbItem key={i}>
             <Link href={href} passHref>
               <BreadcrumbLink
                 fontWeight={i + 1 !== breadcrumbs.length ? 'medium' : 'semibold'}

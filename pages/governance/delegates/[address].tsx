@@ -1,4 +1,5 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { useState } from 'react'
+import { Box, Divider, Flex, Text } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import Container from '@inverse/components/common/Container'
@@ -12,15 +13,41 @@ import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
+import { InfoMessage } from '@inverse/components/common/Messages'
+import { NetworkIds } from '@inverse/types'
+import { SignatureAnim } from '@inverse/components/common/Animation/SignatureAnim'
+import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
 
-const DelegateOverview = () => {
-  const { query } = useRouter()
-  const { chainId } = useWeb3React<Web3Provider>()
+const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
+  <Box textAlign="center">
+    <InfoMessage alertProps={{ p: '9' }} description={`You're currently delegating to ${isSelf ? 'yourself' : 'this address'} ${isSelf ? '✅' : '🤝'}`} />
+    <Text mt="2" textAlign="center">
+      Share the link to this page if you want supporters delegating to {isSelf ? 'you' : 'this address'}
+    </Text>
+  </Box>
+)
+
+const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
+  const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
+  const { INV } = getNetworkConfigConstants(chainId)
 
-  const address = query.address as string
-  if (!address || isLoading || !delegates || !delegates[address]) {
+  const { data } = useEtherSWR([
+    [INV, 'delegates', account],
+  ])
+
+  if (!data) { return <></> }
+
+  const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) == address;
+
+  const isSelf = account === address;
+
+  const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
+
+  if (!address || isLoading || !delegate) {
     return (
       <Container label={<SkeletonTitle />}>
         <SkeletonBlob />
@@ -28,8 +55,17 @@ const DelegateOverview = () => {
     )
   }
 
-  const { ensName } = delegates[address]
-  const rank = topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1
+  const { ensName } = delegate
+  const rank = (topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1) || ''
+
+  const signDisabled = !active || chainId?.toString() !== NetworkIds.mainnet;
+
+  const delegationCase = (isAlreadySameDelegate ? 'alreadyDelegating' : 'changingDelegation');
+
+  const delegationCases = {
+    changingDelegation: <SignDelegation signDisabled={signDisabled} signer={library?.getSigner()} delegateAddress={address} isSelf={isSelf} />,
+    alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
+  }
 
   return (
     <Container
@@ -39,14 +75,25 @@ const DelegateOverview = () => {
       image={<Avatar boxSize={12} address={address} />}
       right={rank && <Text fontWeight="medium" fontSize="sm" color="purple.200">{`Rank ${rank}`}</Text>}
     >
-      <Text color="purple.200" fontSize="sm">
-        Coming soon...
-      </Text>
+      <Box w="full">
+        <Flex alignItems="center">
+          <SignatureAnim height={40} width={40} loop={true} />
+          <Text ml="3" display="inline-block" fontSize="20" fontWeight="bold">
+            {isSelf ? 'Self-' : ''}Delegation
+          </Text>
+        </Flex>
+
+        <Divider mt="3" mb="5" />
+
+        {delegationCases[delegationCase]}
+
+      </Box>
     </Container>
   )
 }
 
 export const DelegateView = () => {
+  const [newlyChosenDelegate, setNewlyChosenDelegate] = useState('');
   const { chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
 
@@ -61,18 +108,18 @@ export const DelegateView = () => {
         breadcrumbs={[
           { label: 'Governance', href: '/governance' },
           { label: 'Delegates', href: '/governance/delegates' },
-          { label: title, href: '#' },
+          { label: title, href: `/governance/delegates/${address}` },
         ]}
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-            <DelegateOverview />
+            <DelegateOverview address={address} newlyChosenDelegate={newlyChosenDelegate} />
           </Flex>
         </Flex>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <VotingWallet address={address} />
+            <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <DelegatorsPreview address={address} />

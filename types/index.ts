@@ -1,5 +1,6 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions } from '@chakra-ui/react';
+import { FunctionFragment } from 'ethers/lib/utils';
 
 export interface Token {
   address: string
@@ -202,4 +203,18 @@ export enum AnchorOperations {
   withdraw = 'Withdraw',
   borrow = 'Borrow',
   repay = 'Repay',
+}
+
+export type ProposalFormActionFields = {
+  contractAddress: string,
+  func: string,
+  args: any[],
+  value: number,
+  fragment?: FunctionFragment,
+}
+
+export type ProposalFormFields = {
+  title: string,
+  description: string,
+  actions: ProposalFormActionFields[],
 }

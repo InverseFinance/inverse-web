@@ -20,11 +20,11 @@ import { namedAddress } from '@inverse/util'
 import { ethereumReady, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { Announcement } from '../Announcement'
-import WrongNetworkModal from '../Modal/WrongNetworkModal'
+import { Announcement } from '@inverse/components/common/Announcement'
+import WrongNetworkModal from '@inverse/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
-import { isPreviouslyConnected } from '../../../util/web3';
-import { NetworkItem } from '../NetworkItem'
+import { isPreviouslyConnected } from '@inverse/util/web3';
+import { NetworkItem } from '@inverse/components/common/NetworkItem'
 import { NetworkIds } from '@inverse/types'
 import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 import { TEST_IDS } from '@inverse/config/test-ids'
@@ -262,10 +262,11 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   
   const showWrongNetworkModal = () => setShowWrongNetModal(true)
-
+  
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
-      activate(injectedConnector)
+      activate(injectedConnector);
+      setTimeout(() => activate(injectedConnector), 500);
     }
   }, [walletActive]);
 

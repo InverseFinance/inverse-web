@@ -10,8 +10,7 @@ import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
 import { StringNumMap } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis } from '@inverse/util/redis';
-import { redisSetWithTimestamp } from '../../util/redis';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *

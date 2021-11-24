@@ -27,6 +27,7 @@ const theme = extendTheme({
     secondary: '#34E795',
     success: '#25C9A1',
     fail: '#F44061',
+    info: '#4299e1',
   },
   fonts: {
     body: 'Inter',

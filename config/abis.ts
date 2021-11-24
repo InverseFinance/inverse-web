@@ -91,6 +91,7 @@ export const GOVERNANCE_ABI = [
   "function proposals(uint256) public view returns (uint256 id, address proposer, uint256 eta, uint256 startBlock, uint256 endBlock, uint256 forVotes, uint256 againstVotes, bool canceled, bool executed)",
   "function quorumVotes() public view returns (uint256)",
   "function state(uint256) public view returns (uint256)",
+  "function propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)",
   "event ProposalCreated (uint256 id, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)",
   "event VoteCast (address voter, uint256 proposalId, bool support, uint256 votes)",
 ];
@@ -123,6 +124,12 @@ export const XINV_ABI = [
   "function rewardPerBlock() external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",
   "function underlying() external view returns (address)",
+  "function getCurrentVotes(address) external view returns (uint96)",
+];
+
+export const MULTIDELEGATOR_ABI = [
+  "function inv() external view returns (address)",
+  "function delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)",
 ];
 
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {

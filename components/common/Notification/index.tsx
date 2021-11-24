@@ -8,7 +8,7 @@ import warningLottie from '@inverse/public/assets/lotties/warning.json';
 import errorLottie from '@inverse/public/assets/lotties/error.json';
 import infoLottie from '@inverse/public/assets/lotties/info.json';
 import { CustomToastOptions } from '@inverse/types';
-import { Animation } from '../Animation';
+import { Animation } from '@inverse/components/common/Animation';
 
 
 type AnimOptions = { animData: Object, loop: boolean }

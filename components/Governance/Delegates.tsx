@@ -74,6 +74,14 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
 
+  if (!isLoading && (!delegates || !delegates[address])) {
+    return (
+      <Container label="Delegators">
+        None yet
+      </Container>
+    )
+  }
+
   if (isLoading || !delegates || !delegates[address]) {
     return (
       <Container label="Delegators">

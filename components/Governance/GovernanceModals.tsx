@@ -1,19 +1,23 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Text, useClipboard } from '@chakra-ui/react'
+import { DeleteIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Flex, Stack, Text, Box, Input as ChakraInput, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
-import { Input, Textarea } from '@inverse/components/common/Input'
+import { Input } from '@inverse/components/common/Input'
 import Link from '@inverse/components/common/Link'
 import { Modal, ModalProps } from '@inverse/components/common/Modal'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { ProposalVote, Proposal } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
-import { getGovernanceContract, getINVContract } from '@inverse/util/contracts'
+import { getGovernanceContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, isAddress } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import NextLink from 'next/link'
+import { InfoMessage } from '@inverse/components/common/Messages'
+import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/governance'
+import { handleTx } from '@inverse/util/transactions'
 
 enum VoteType {
   for = 'For',
@@ -121,59 +125,14 @@ export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) =>
 }
 
 export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & { address?: string }) => {
-  const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
   const [delegationType, setDelegationType] = useState('Delegate')
   const [delegate, setDelegate] = useState(address || '')
-  const [signature, setSignature] = useState('')
   const { INV } = getNetworkConfigConstants(chainId)
   const { data: currentDelegate } = useEtherSWR([INV, 'delegates', account])
-  const { hasCopied, onCopy } = useClipboard(signature)
 
   if (!currentDelegate) {
     return <></>
-  }
-
-  const handleSelfDelegate = () => {
-    return getINVContract(library?.getSigner()).delegate(account)
-  }
-
-  const handleDelegate = async (): Promise<boolean> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const invContract = getINVContract(library?.getSigner())
-
-        const domain = { name: 'Inverse DAO', chainId, verifyingContract: INV }
-
-        const types = {
-          Delegation: [
-            { name: 'delegatee', type: 'address' },
-            { name: 'nonce', type: 'uint256' },
-            { name: 'expiry', type: 'uint256' },
-          ],
-        }
-
-        const value = {
-          delegatee: delegate,
-          nonce: (await invContract.nonces(account)).toString(),
-          expiry: 10e9,
-        }
-
-        const signature = await library?.getSigner()._signTypedData(domain, types, value)
-
-        setSignature(
-          JSON.stringify({
-            sig: signature,
-            nonce: value.nonce,
-            expiry: value.expiry,
-            chainId,
-            signer: account,
-          })
-        )
-      } catch (e) {
-        reject(e);
-      }
-      resolve(true);
-    })
   }
 
   return (
@@ -189,24 +148,25 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
         </Stack>
       }
       footer={
-        delegationType === 'Self' ? (
-          <SubmitButton onClick={handleSelfDelegate} isDisabled={currentDelegate === account}>
-            Self-Delegate
-          </SubmitButton>
-        ) : !signature ? (
-          <SubmitButton onClick={handleDelegate} isDisabled={!isAddress(delegate)}>
-            Change Delegate
-          </SubmitButton>
-        ) : (
-          <SubmitButton onClick={onCopy}>{hasCopied ? 'Copied' : 'Copy'}</SubmitButton>
-        )
+        !isAddress(delegate) && delegationType === 'Delegate' ?
+          null :
+          <Box w="full" alignItems="center" textAlign="center">
+            <Box display="inline-block" onClick={onClose}>
+              {
+                delegationType === 'Self' ?
+                  <NextLink href={`/governance/delegates/${account}`}>Self-Delegate</NextLink>
+                  :
+                  <NextLink href={`/governance/delegates/${delegate}`}>Change Delegate</NextLink>
+              }
+            </Box>
+          </Box>
       }
     >
       <Stack p={4}>
         <NavButtons options={['Delegate', 'Self']} active={delegationType} onClick={setDelegationType} />
         {delegationType === 'Self' ? (
-          <Flex></Flex>
-        ) : !signature ? (
+          null
+        ) :
           <Stack direction="column" spacing={4}>
             <Stack spacing={1}>
               <Text fontWeight="semibold">Select Delegate</Text>
@@ -227,10 +187,11 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               </Flex>
             </Stack>
             <Flex direction="column">
-              <Text fontSize="xs" fontWeight="semibold" color="purple.100">
-                Delegate Address
+              <Text fontSize="xs" fontWeight="semibold" color="purple.100" mb="2">
+                Delegate Address :
               </Text>
               <Input
+                textAlign="left"
                 value={delegate}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => setDelegate(e.currentTarget.value)}
                 placeholder={currentDelegate}
@@ -238,32 +199,114 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
                 p={1.5}
               />
             </Flex>
-          </Stack>
-        ) : (
-          <Stack p={4} pt={2} direction="column" spacing={4}>
-            <Stack spacing={1}>
-              <Text fontWeight="semibold">Send to Delegate</Text>
-              <Text fontSize="sm">
-                To finalize your delegation, you need to copy the below data to your delegate. Your votes will not be
-                counted unless this is done.
-              </Text>
-              <Flex>
-                <Link
-                  href="https://docs.inverse.finance/governance/delegating-delegates-proposals-and-voting.-what-does-it-all-mean"
-                  fontSize="xs"
-                  color="purple.200"
-                  fontWeight="semibold"
-                  isExternal
-                >
-                  Learn More <ExternalLinkIcon />
-                </Link>
-              </Flex>
-            </Stack>
-            <Flex direction="column">
-              <Textarea value={signature} fontSize="sm" p={1.5} />
-            </Flex>
-          </Stack>
-        )}
+          </Stack>}
+      </Stack>
+    </Modal>
+  )
+}
+
+const DelegationSignatureInput = ({ sig, onChange, onDelete }: { sig: string, onChange: (e: any) => void, onDelete: () => void }) => {
+  return <InputGroup>
+    <ChakraInput
+      p="2"
+      pr="10"
+      textAlign="left"
+      placeholder='Delegation signature'
+      value={sig}
+      fontSize="small"
+      isInvalid={sig !== '' && !isValidSignature(sig)}
+      onChange={onChange} />
+    <InputRightElement
+      children={!sig ? null : <DeleteIcon cursor="pointer" onClick={onDelete} color="red.400" />}
+    />
+  </InputGroup>
+}
+
+export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: ModalProps & { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
+  const { library } = useWeb3React<Web3Provider>()
+  const [signatures, setSignatures] = useState<string[]>([])
+  const [isInited, setIsInited] = useState(false)
+  const [hasInvalidSignature, setHasInvalidSignature] = useState(false)
+
+  useEffect(() => {
+    const init = async () => {
+      if (!signatures?.length) {
+        setSignatures(await getStoredDelegationsCollected() || []);
+      }
+      setIsInited(true);
+    }
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (!isInited) { return }
+    const validSignatures = signatures.filter(isValidSignature);
+    setHasInvalidSignature(validSignatures.length !== signatures.length);
+    storeDelegationsCollected(validSignatures)
+  }, [signatures]);
+
+  const handleChange = (e: any, i: number) => {
+    const newSignatures = [...signatures];
+    if (!newSignatures[i]) {
+      newSignatures.push(e.currentTarget.value)
+    } else {
+      newSignatures[i] = e.currentTarget.value;
+    }
+    setSignatures(newSignatures.filter(sig => !!sig));
+  }
+
+  const deleteSignature = (indexToRemove: number) => {
+    const newSignatures = [...signatures];
+    newSignatures.splice(indexToRemove, 1);
+    setSignatures(newSignatures);
+  }
+
+  const signatureInputs = signatures.concat(['']).map((sig, i) => {
+    return <DelegationSignatureInput key={i} sig={sig} onChange={(e) => handleChange(e, i)} onDelete={() => deleteSignature(i)} />
+  })
+
+  const handleSuccess = async () => {
+    onClose();
+    clearStoredDelegationsCollected();
+    setSignatures([]);
+    if(onNewDelegate){
+      onNewDelegate(await library?.getSigner()?.getAddress()!);
+    }
+  }
+
+  const handleSubmit = async () => {
+    if(!library?.getSigner()) { return new Promise((res, reject) => reject("Signer required")) };
+    const tx = await submitMultiDelegation(library?.getSigner(), signatures);
+    return handleTx(tx, { onSuccess: handleSuccess });
+  }
+
+  return (
+    <Modal
+      onClose={() => {
+        onClose()
+      }}
+      isOpen={isOpen}
+      header={
+        <Stack minWidth={24} direction="row" align="center">
+          <Text>Submit Delegation Signatures</Text>
+        </Stack>
+      }
+      footer={
+        <SubmitButton disabled={!signatures.length || hasInvalidSignature} onClick={handleSubmit}>
+          {
+            hasInvalidSignature ?
+              'There is an invalid signature'
+              :
+              `Submit ${signatures.length || ' '} Signature${signatures.length > 1 ? 's' : ''}`
+          }
+        </SubmitButton>
+      }
+    >
+      <Stack p={4}>
+        <InfoMessage alertProps={{ w: 'full' }} description="Paste signed delegations sent by your supporters below and submit them on-chain in 1 transaction." />
+        <Stack maxHeight={'50vh'} overflow='auto'>
+          {signatureInputs}
+        </Stack>
       </Stack>
     </Modal>
   )

@@ -1,7 +1,7 @@
 import { Flex, Link, ButtonProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { getNetwork } from '../../../config/networks';
-import { NetworkItem } from '../NetworkItem';
+import { getNetwork } from '@inverse/config/networks';
+import { NetworkItem } from '@inverse/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
 
 export const LinkButton = ({

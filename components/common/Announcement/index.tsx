@@ -1,7 +1,7 @@
 import { ExternalLinkIcon, WarningIcon } from '@chakra-ui/icons'
 import { Text } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
-import Link from '../Link'
+import Link from '@inverse/components/common/Link'
 import { TEST_IDS } from '@inverse/config/test-ids';
 import { useSupplyBalances } from '@inverse/hooks/useBalances';
 import { OLD_XINV } from '@inverse/config/constants';

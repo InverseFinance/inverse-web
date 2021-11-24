@@ -8,6 +8,7 @@ import {
 } from '@inverse/components/Governance'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
+import { Link } from '@inverse/components/common/Link'
 
 export const Governance = () => (
   <Layout>
@@ -16,6 +17,9 @@ export const Governance = () => (
       <Flex direction="column">
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
           <ActiveProposals />
+        </Flex>
+        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+          <Link fontSize="12" mt="2" href={`/governance/propose`}>Submit a new Proposal</Link>
         </Flex>
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
           <RecentProposals />
