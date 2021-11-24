@@ -115,8 +115,8 @@ export const ProposalForm = () => {
                         <SuccessMessage description="Your proposal has been created ! It may take some time to appear" />
                         :
                         <>
-                            <SubmitButton mr="1" w="fit-content" onClick={addAction}>
-                                Add an Action
+                            <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={addAction}>
+                                { form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Action' }
                             </SubmitButton>
                             <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
                                 Submit the Proposal
