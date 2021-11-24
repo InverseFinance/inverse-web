@@ -18,9 +18,9 @@ import { useProposals } from '@inverse/hooks/useProposals';
 // urls can be /governance/proposals/<numProposal> or /governance/proposals/<era>/<proposalId>
 export const Governance = () => {
   const { asPath } = useRouter();
-  const slug = asPath.replace('/governance/proposals/', '').split('/');
+  const slug = asPath.replace('/governance/proposals/', '').replace(/\?.*$/, '').split('/');
   const { proposals, isLoading } = useProposals();
-
+  
   const proposal = proposals?.find((p: Proposal) => {
     return slug.length === 1 ? p.proposalNum.toString() === slug[0] : p.era === slug[0] && p.id.toString() === slug[1]
   }) || {} as Proposal;

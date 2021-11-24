@@ -13,7 +13,6 @@ import { useRouter } from 'next/dist/client/router'
 
 export const Propose = () => {
   const router = useRouter()
-  console.log(router);
   
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { INV, XINV } = getNetworkConfigConstants(chainId)

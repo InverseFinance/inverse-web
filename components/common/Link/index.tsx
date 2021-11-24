@@ -1,10 +1,13 @@
 import { Text, Link as ChakraLink } from '@chakra-ui/react'
+import { useRouter } from 'next/dist/client/router'
 import NextLink from 'next/link'
 
 export const Link = (props: any) => {
+  const { query } = useRouter()
   const { href, isExternal, ...otherProps } = props
+
   return (
-    <NextLink href={href} passHref>
+    <NextLink href={{ pathname: href?.pathname || href, query: href?.query || (query?.demo ? { demo: query?.demo } : undefined) }} passHref>
       {isExternal ? (
         <ChakraLink
           color="purple.200"
