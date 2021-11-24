@@ -18,7 +18,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
             href="https://docs.inverse.finance/governance"
         >
             {
-                votingPower <= REQUIRED_VOTING_POWER ?
+                votingPower < REQUIRED_VOTING_POWER ?
                     <Box w="full" textAlign="center">
                         <InfoMessage
                             alertProps={{ textAlign: "center", p: '6' }}
