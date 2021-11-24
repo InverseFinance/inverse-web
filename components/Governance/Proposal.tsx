@@ -12,6 +12,7 @@ import ReactMarkdown from 'react-markdown'
 import { useWeb3React } from '@web3-react/core';
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { Web3Provider } from '@ethersproject/providers';
+import { useRouter } from 'next/dist/client/router'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -42,12 +43,13 @@ const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
 )
 
 export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
+  const { query } = useRouter()
   const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era } = proposal
 
   const totalVotes = forVotes + againstVotes
 
   return (
-    <NextLink href={`/governance/proposals/${era}/${id}`}>
+    <NextLink href={{ pathname: `/governance/proposals/${era}/${id}`, query }}>
       <Flex
         w="full"
         justify="space-between"

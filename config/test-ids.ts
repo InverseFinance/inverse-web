@@ -20,5 +20,8 @@ export const TEST_IDS = {
         modalFooter: 'anchor-modal-footer',
         modalInput: 'anchor-modal-input',
         modalTabs: 'anchor-modal-tabs',
+    },
+    governance: {
+        newProposalContainer: 'governance-new-proposal-container',
     }
 }

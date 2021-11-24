@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
 import Link from '@inverse/components/common/Link'
 
 export const Container = ({
@@ -10,6 +10,7 @@ export const Container = ({
   image,
   noPadding,
   children,
+  ...props
 }: {
   label?: React.ReactNode
   description?: React.ReactNode
@@ -18,7 +19,7 @@ export const Container = ({
   image?: React.ReactNode
   noPadding?: boolean
   children?: React.ReactNode
-}) => {
+} & Partial<FlexProps>) => {
   const title = (
     <Flex>
       {typeof label === 'string' ? (
@@ -48,7 +49,7 @@ export const Container = ({
   )
 
   return (
-    <Flex w="full" direction="column" p={6} pb={0} color="#fff">
+    <Flex w="full" direction="column" p={6} pb={0} color="#fff" {...props}>
       <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end">
         <Stack direction="row" align="center">
           {image}

@@ -5,6 +5,7 @@ import { ProposalForm } from './ProposalForm';
 import { Box, Text } from '@chakra-ui/react';
 import Link from '@inverse/components/common/Link';
 import { SubmitButton } from '@inverse/components/common/Button';
+import { TEST_IDS } from '@inverse/config/test-ids';
 
 const REQUIRED_VOTING_POWER = 1000;
 
@@ -16,9 +17,10 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
             label="Submit a new Proposal"
             description="Participate in governance of the DAO"
             href="https://docs.inverse.finance/governance"
+            data-testid={TEST_IDS.governance.newProposalContainer}
         >
             {
-                votingPower <= REQUIRED_VOTING_POWER ?
+                votingPower < REQUIRED_VOTING_POWER ?
                     <Box w="full" textAlign="center">
                         <InfoMessage
                             alertProps={{ textAlign: "center", p: '6' }}
