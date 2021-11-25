@@ -6,7 +6,7 @@ import { formatUnits } from "ethers/lib/utils";
 import { getNetworkConfig } from '@inverse/config/networks';
 import { getProvider } from '@inverse/util/providers';
 import { getRedisClient } from '@inverse/util/redis';
-import { GovEra } from '@inverse/types';
+import { GovEra, Delegate } from '@inverse/types';
 
 const GRACE_PERIOD = 1209600;
 const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
       }
       const { XINV, INV, governance: GOVERNANCE, governanceAlpha: GOV_ALPHA } = networkConfig!;
-      const provider = getProvider(chainId);
+      const provider = getProvider(chainId, true);
       const inv = new Contract(INV, INV_ABI, provider);
       const xinv = new Contract(XINV, INV_ABI, provider);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
@@ -81,33 +81,44 @@ export default async function handler(req, res) {
         governanceAlpha.queryFilter(governanceAlpha.filters.ProposalCreated()),
       ]);
 
-      const delegates = delegateVotesChanged.reduce(
-        (invDelegates: any, { args }) => {
+      const invDelegates: { [key: string]: Delegate } = delegateVotesChanged.reduce(
+        (dels: any, { args }) => {
           if (args) {
-            invDelegates[args.delegate] = {
+            dels[args.delegate] = {
               address: args.delegate,
               votingPower: parseFloat(formatUnits(args.newBalance)),
               delegators: [],
               votes: [],
             };
           }
-          return invDelegates;
+          return dels;
         },
         {}
       );
 
       const xinvExRate = await xinv.callStatic.exchangeRateCurrent();
 
-      xinvDelegateVotesChanged.forEach(({ args }) => {
-        if (args) {
-          const xinvVotePower = parseFloat(formatUnits(args.newBalance)) * parseFloat(formatUnits(xinvExRate));
+      const xinvDelegates: { [key: string]: Delegate } = xinvDelegateVotesChanged.reduce(
+        (dels: any, { args }) => {
+          if (args) {
+            dels[args.delegate] = {
+              address: args.delegate,
+              votingPower: parseFloat(formatUnits(args.newBalance)) * parseFloat(formatUnits(xinvExRate)),
+              delegators: [],
+              votes: [],
+            };
+          }
+          return dels;
+        },
+        {}
+      );
 
-          delegates[args.delegate] = {
-            address: args.delegate,
-            votingPower: (delegates[args.delegate]?.votingPower || 0) + xinvVotePower,
-            delegators: [],
-            votes: [],
-          };
+      const delegates: { [key: string]: Delegate } = {...invDelegates};
+      Object.entries(xinvDelegates).forEach(([address, xinvDelegate]) => {
+        if(delegates[address]) {
+          delegates[address].votingPower += xinvDelegate.votingPower
+        } else {
+          delegates[address] = xinvDelegate;
         }
       })
 
