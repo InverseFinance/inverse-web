@@ -9,11 +9,25 @@ import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { TEST_IDS } from '@inverse/config/test-ids'
+import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances';
+import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
+import { useMarkets } from '@inverse/hooks/useMarkets'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { Interests } from '@inverse/types'
+import { getTotalInterests } from '@inverse/util/markets';
+import { AnchorInterests } from './AnchorInterests'
 
 export const AnchorOverview = () => {
-  const { account, library } = useWeb3React<Web3Provider>()
+  const { account, library, chainId } = useWeb3React<Web3Provider>()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
   const { rewards } = useAnchorRewards()
+  const { balances: supplyBalances } = useSupplyBalances()
+  const { balances: borrowBalances } = useBorrowBalances()
+  const { markets } = useMarkets()
+  const { exchangeRates } = useExchangeRates()
+  const { XINV } = getNetworkConfigConstants(chainId)
+
+  const totalInterestsUsd: Interests = getTotalInterests(markets, supplyBalances, borrowBalances, exchangeRates, XINV);
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
   const borrowLimitPercent = Math.floor((usdBorrow / (usdBorrowable + usdBorrow)) * 100)
@@ -31,7 +45,16 @@ export const AnchorOverview = () => {
   }
   return (
     <Container
-      label="Banking"
+      label={
+        <Flex alignItems="center">
+          <Text>Banking</Text>
+          {
+            totalInterestsUsd?.total !== 0 && totalInterestsUsd?.total !== undefined ?
+              <AnchorInterests {...totalInterestsUsd} />
+              : null
+          }
+        </Flex>
+      }
       right={
         <Stack direction="row" align="center" textAlign="end">
           <Text fontWeight="bold">{`${rewardAmount.toFixed(4)} INV`}</Text>
