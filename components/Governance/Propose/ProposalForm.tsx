@@ -10,7 +10,8 @@ import { submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
-import { InfoMessage, Message, SuccessMessage } from '@inverse/components/common/Messages';
+import { SuccessMessage } from '@inverse/components/common/Messages';
+import { TEST_IDS } from '@inverse/config/test-ids';
 
 const EMPTY_ACTION = {
     contractAddress: '',
@@ -99,7 +100,7 @@ export const ProposalForm = () => {
     }
 
     return (
-        <Stack direction="column" w="full">
+        <Stack direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             <FormControl>
                 <FormLabel>Title</FormLabel>
                 <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />

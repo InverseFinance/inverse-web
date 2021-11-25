@@ -3,7 +3,8 @@ import { useRouter } from 'next/dist/client/router'
 import NextLink from 'next/link'
 
 export const Link = (props: any) => {
-  const { query } = useRouter()
+  const router = useRouter()
+  const query = router?.query
   const { href, isExternal, ...otherProps } = props
 
   return (

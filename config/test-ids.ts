@@ -23,5 +23,6 @@ export const TEST_IDS = {
     },
     governance: {
         newProposalContainer: 'governance-new-proposal-container',
+        newProposalFormContainer: 'governance-new-proposal-form-container',
     }
 }

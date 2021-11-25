@@ -4,7 +4,7 @@ import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
 import { AbiCoder, isAddress, splitSignature } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { GovEra, ProposalFormFields } from '@inverse/types';
+import { ProposalFormFields } from '@inverse/types';
 import { CURRENT_ERA } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
