@@ -10,7 +10,9 @@
     "cypress": "cypress open",
     "cypress:headless": "cypress run",
     "e2e": "start-server-and-test dev http://localhost:3000 cypress",
-    "e2e:headless": "start-server-and-test dev http://localhost:3000 cypress:headless"
+    "e2e:headless": "start-server-and-test dev http://localhost:3000 cypress:headless",
+    "ut:watch": "jest --watch",
+    "ut": "jest --ci"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.0.13",
@@ -41,9 +43,17 @@
     "victory": "^35.8.6"
   },
   "devDependencies": {
+    "@testing-library/dom": "^8.11.1",
+    "@testing-library/jest-dom": "^5.15.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.0.3",
     "@types/node": "^15.12.1",
     "@types/react": "^17.0.9",
+    "babel-jest": "^27.3.1",
     "cypress": "^8.7.0",
+    "jest": "^27.3.1",
+    "jest-canvas-mock": "^2.3.1",
     "start-server-and-test": "^1.14.0",
     "typescript": "^4.3.2"
   }
