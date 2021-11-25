@@ -22,6 +22,7 @@ import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
+import { getBalanceInInv, getMonthlyRate, getParsedBalance } from '@inverse/util/markets'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -110,18 +111,15 @@ export const AnchorSupplied = () => {
   const marketsWithBalance = markets?.map((market) => {
     const { token, underlying, priceXinv } = market;
 
-    // xinv exRate to its underlying (inv)
-    const xinvToInvRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[XINV])) : 0;
     const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
     // balance of the "anchor" version of the token supplied
-    const anTokenBalance = balances ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0;
+    const anTokenBalance = getParsedBalance(balances, token, underlying.decimals);
     // balance in undelying token
     const tokenBalance = anTokenBalance * anTokenToTokenExRate;
-
-    // priceXinv is the price of the underlying token in XINV token => convert tokenBalance to xinv then to inv
-    const tokenBalanceInInv = tokenBalance * priceXinv * xinvToInvRate;
-    const monthlyInvRewards = market.rewardApy / 100 * tokenBalanceInInv / 12;
-    const monthlyAssetRewards = market.supplyApy / 100 * tokenBalance / 12;
+    
+    const tokenBalanceInInv = getBalanceInInv(balances, token, exchangeRates, XINV, priceXinv, underlying.decimals);
+    const monthlyInvRewards = getMonthlyRate(tokenBalanceInInv, market.rewardApy);
+    const monthlyAssetRewards = getMonthlyRate(tokenBalance, market.supplyApy);
 
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
 
@@ -221,10 +219,8 @@ export const AnchorBorrowed = () => {
 
   const marketsWithBalance = markets?.map((market) => {
     const { token, underlying, borrowApy } = market;
-    const balance = balances && balances[token] ? parseFloat(formatUnits(balances[token], underlying.decimals)) : 0;
-
-    const monthlyBorrowFee = balance * borrowApy / 100 / 12;
-
+    const balance = getParsedBalance(balances, token, underlying.decimals);
+    const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
     return { ...market, balance, monthlyBorrowFee }
   })
 

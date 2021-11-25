@@ -11,7 +11,7 @@ export const Container = ({
   noPadding,
   children,
   ...props
-}: {
+}: Partial<Omit<FlexProps, "right">> & {
   label?: React.ReactNode
   description?: React.ReactNode
   href?: string
@@ -19,7 +19,7 @@ export const Container = ({
   image?: React.ReactNode
   noPadding?: boolean
   children?: React.ReactNode
-} & Partial<FlexProps>) => {
+}) => {
   const title = (
     <Flex>
       {typeof label === 'string' ? (
