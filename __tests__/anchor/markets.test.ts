@@ -6,6 +6,8 @@ import { parseUnits } from '@ethersproject/units';
 import { Market } from '@inverse/types';
 import { getMonthlyRate, getMonthlyUsdRate, getTotalInterests } from '@inverse/util/markets';
 import { getBalanceInInv } from '@inverse/util/markets';
+import { BigNumber } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 
 describe('Markets utils', () => {
   it('correctly gets monthly rates', () => {
@@ -31,39 +33,56 @@ describe('Markets utils', () => {
       { token: 'eth', underlying: { decimals: 18 }, supplyApy: 1, borrowApy: 2, rewardApy: 6, priceUsd: 4060, priceXinv: 9.07 },
     ];
 
+    const getAnBalance = (balance: number, exRate: BigNumber) => {
+      return parseUnits((balance / parseFloat(formatUnits(exRate))).toFixed(18))
+    }
+
     it('should have zero if zero supplied and zero borrowed', () => {
-      const supplied = {  }
+      const anTokenBalances = {  }
       const borrowed = {  }
       // @ts-ignore
-      const interests = getTotalInterests(markets, supplied, borrowed, exRates, 'xinv');
+      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
       expect(interests.total).toBe(0)
     })
 
     it('should have negative interests if only borrowing', () => {
-      const supplied = { }
+      const anTokenBalances = { }
       const borrowed = { 'eth': parseUnits('10') }
       // @ts-ignore
-      const interests = getTotalInterests(markets, supplied, borrowed, exRates, 'xinv');
+      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
       expect(interests.total).toBeNegative()
     })
 
     it('should have positive interests if supplying', () => {
-      const supplied = { 'eth': parseUnits('10') }
+      const anTokenBalances = { 'eth': parseUnits('10') }
       const borrowed = { }
       // @ts-ignore
-      const interests = getTotalInterests(markets, supplied, borrowed, exRates, 'xinv');
+      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
       expect(interests.total).toBePositive()
     })
 
     it('should have correct interests for supplying', () => {
-      const supplied = { 'dola': parseUnits('0.000004818') }// around 1000 dola
+      const anTokenBalances = { 'dola': parseUnits('0.000004818') }// around 1000 dola
       const borrowed = { }
       // @ts-ignore
-      const interests = getTotalInterests(markets, supplied, borrowed, exRates, 'xinv');
-      expect(interests.total.toFixed(4)).toBe('8.3335')
-      expect(interests.supplyUsdInterests.toFixed(4)).toBe('8.3335')
+      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
+      expect(interests.total.toFixed(2)).toBe('8.33')
+      expect(interests.supplyUsdInterests.toFixed(2)).toBe('8.33')
       expect(interests.borrowInterests).toBe(0)
       expect(interests.invUsdInterests).toBe(0)
+    })
+
+    it('should have negative interests if suppling and borrowing same amount of dola', () => {
+      // supply balances are anToken version
+      const anTokenBalances = { 'dola': getAnBalance(1000, exRates['dola']) }// worth 1000 dola
+      const borrowed = { 'dola': parseUnits('1000') }
+      // @ts-ignore
+      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
+      expect(interests.total).toBeNegative()
+      expect(interests.supplyUsdInterests.toFixed(2)).toBe('8.33')
+      expect(interests.borrowInterests.toFixed(2)).toBe('-20.83')
+      expect(interests.invUsdInterests).toBe(0)
+      expect(interests.total.toFixed(2)).toBe('-12.50')
     })
   })
 })
