@@ -15,6 +15,7 @@ type AnimOptions = { animData: Object, loop: boolean }
 
 interface NotifTheme {
     bg: BoxProps["bgColor"],
+    borderColor: BoxProps["borderColor"],
     icon?: ComponentWithAs<"svg", IconProps>,
     animOptions?: AnimOptions,
 }
@@ -23,35 +24,40 @@ const themes: {
     [key: string]: NotifTheme
 } = {
     'warning': {
-        bg: 'orange.400',
+        bg: 'warningAlpha',
+        borderColor: 'warning',
         animOptions: {
             animData: warningLottie,
             loop: false,
         },
     },
     'info': {
-        bg: 'blue.400',
+        bg: 'infoAlpha',
+        borderColor: 'info',
         animOptions: {
             animData: infoLottie,
             loop: false,
         },
     },
     'error': {
-        bg: 'red.400',
+        bg: 'failAlpha',
+        borderColor: 'fail',
         animOptions: {
             animData: errorLottie,
             loop: false,
         },
     },
     'success': {
-        bg: 'green.400',
+        bg: 'successAlpha',
+        borderColor: 'success',
         animOptions: {
             animData: successLottie,
             loop: false,
         },
     },
     'loading': {
-        bg: 'blue.500',
+        bg: 'infoAlpha',
+        borderColor: 'info',
         animOptions: {
             animData: loadingLottie,
             loop: true,
@@ -84,7 +90,17 @@ export const Notification = ({
     const anim = animationOptions ? <Animation height={40} width={40} {...animationOptions} /> : null;
 
     return (
-        <Box borderRadius="lg" color="white" p={3} bg={theme.bg} {...boxProps} position="relative">
+        <Box
+            borderRadius="lg"
+            color="white"
+            p={3}
+            bg={theme.bg}
+            border="1px solid"
+            borderColor={theme.borderColor}
+            backdropFilter="blur(1.5rem)"
+            {...boxProps}
+            position="relative"
+        >
             {
                 isClosable && handleClose ?
                     <CloseIcon onClick={handleClose} cursor="pointer" boxSize={3} style={{ position: 'absolute', top: '10px', right: '10px' }} />
