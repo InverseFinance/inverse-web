@@ -41,6 +41,7 @@ export const getBalanceInInv = (
 }
 
 // supply balances are in anTokens, borrow balances are already in underlying token balance
+// get monthly interests in USD
 export const getTotalInterests = (markets: Market[], anSupplyBalances: BigNumberList, borrowBalances: BigNumberList, exchangeRates: BigNumberList, xinvAddress: string) => {
     return markets?.reduce((prevValue, { token, underlying, borrowApy, supplyApy, rewardApy, priceUsd }) => {
         const borrowInterests = -getMarketMonthlyUsdRate(borrowBalances, token, underlying.decimals, borrowApy, priceUsd);

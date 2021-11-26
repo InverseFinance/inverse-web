@@ -23,14 +23,19 @@ describe('Markets utils', () => {
   })
 
   describe('correctly calculate monthly interests', () => {
+    // exRates corresponding to specific market prices => dont change exRates & prices
     const exRates = {
       'dola': parseUnits('207559356'),
       'eth': parseUnits('201342936'),
       'xinv': parseUnits('1.1'),
     }
+
+    const dolaMarket: Partial<Market> = { token: 'dola', underlying: { decimals: 18 }, supplyApy: 10, borrowApy: 25, rewardApy: 0, priceUsd: 1, priceXinv: 0.0022 };
+    const ethMarket: Partial<Market> = { token: 'eth', underlying: { decimals: 18 }, supplyApy: 1, borrowApy: 2, rewardApy: 6, priceUsd: 4060, priceXinv: 9.07 };
+
     const markets: Partial<Market>[] = [
-      { token: 'dola', underlying: { decimals: 18 }, supplyApy: 10, borrowApy: 25, rewardApy: 0, priceUsd: 1, priceXinv: 0.0022 },
-      { token: 'eth', underlying: { decimals: 18 }, supplyApy: 1, borrowApy: 2, rewardApy: 6, priceUsd: 4060, priceXinv: 9.07 },
+      dolaMarket,
+      ethMarket,
     ];
 
     const getAnBalance = (balance: number, exRate: BigNumber) => {
@@ -61,17 +66,6 @@ describe('Markets utils', () => {
       expect(interests.total).toBePositive()
     })
 
-    it('should have correct interests for supplying', () => {
-      const anTokenBalances = { 'dola': parseUnits('0.000004818') }// around 1000 dola
-      const borrowed = { }
-      // @ts-ignore
-      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
-      expect(interests.total.toFixed(2)).toBe('8.33')
-      expect(interests.supplyUsdInterests.toFixed(2)).toBe('8.33')
-      expect(interests.borrowInterests).toBe(0)
-      expect(interests.invUsdInterests).toBe(0)
-    })
-
     it('should have negative interests if suppling and borrowing same amount of dola', () => {
       // supply balances are anToken version
       const anTokenBalances = { 'dola': getAnBalance(1000, exRates['dola']) }// worth 1000 dola
@@ -83,6 +77,25 @@ describe('Markets utils', () => {
       expect(interests.borrowInterests.toFixed(2)).toBe('-20.83')
       expect(interests.invUsdInterests).toBe(0)
       expect(interests.total.toFixed(2)).toBe('-12.50')
+    })
+
+    it('should have correct supply, borrow, inv and total usd interests', () => {
+      const ethSupplied = 1;
+      const dolaBorrowed = 1000;
+      // supply balances are anToken version
+      const anTokenBalances = { 'eth': getAnBalance(ethSupplied, exRates['eth']) }
+      const borrowed = { 'dola': parseUnits(dolaBorrowed.toString()) }
+      // @ts-ignore
+      const interests = getTotalInterests(markets, anTokenBalances, borrowed, exRates, 'xinv');
+
+      const expectedSupplyUsdInterests = (ethSupplied * ethMarket.priceUsd! * ethMarket.supplyApy! / 100 / 12)
+      const expectedBorrowUsdInterests = -(dolaBorrowed * dolaMarket.priceUsd! * dolaMarket.borrowApy! / 100 / 12)
+      const expectedRewardUsdInterests = (ethSupplied * ethMarket.priceUsd! * ethMarket.rewardApy! / 100 / 12)
+
+      expect(interests.supplyUsdInterests.toFixed(2)).toBe(expectedSupplyUsdInterests.toFixed(2))
+      expect(interests.borrowInterests.toFixed(2)).toBe(expectedBorrowUsdInterests.toFixed(2))
+      expect(interests.invUsdInterests.toFixed(2)).toBe(expectedRewardUsdInterests.toFixed(2))
+      expect(interests.total.toFixed(2)).toBe((expectedSupplyUsdInterests + expectedRewardUsdInterests + expectedBorrowUsdInterests).toFixed(2))
     })
   })
 })
