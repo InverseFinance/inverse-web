@@ -15,6 +15,6 @@ describe('Proposal Form', () => {
 
     proposalFormContainer = screen.getByTestId(TEST_IDS.governance.newProposalFormContainer)
 
-    expect(proposalFormContainer).exist
+    expect(proposalFormContainer).toBeInTheDocument()
   })
 })
