@@ -1,8 +1,8 @@
 import { AlchemyProvider, InfuraProvider, CloudflareProvider, FallbackProvider } from "@ethersproject/providers";
 
-export const getProvider = (chainId: string | number, onlyAlchemy = false): FallbackProvider => {
+export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider => {
     const network = Number(chainId);
-    const providers = [new AlchemyProvider(network, 'LgTZOKdM-WIveBwxT3m5wU78afiM8Eau' || process?.env?.ALCHEMY_API || 'YVO2GiC9kWZCnFsJBvFi-UKz_GtC5TrD')];
+    const providers = [new AlchemyProvider(network, specificAlchemyKey || process?.env?.ALCHEMY_API || 'YVO2GiC9kWZCnFsJBvFi-UKz_GtC5TrD')];
 
     if(!onlyAlchemy) {
         providers.push(new CloudflareProvider(network));
