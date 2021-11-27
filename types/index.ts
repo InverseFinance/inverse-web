@@ -1,6 +1,7 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
+import { BigNumber } from 'ethers';
 
 export interface Token {
   address: string
@@ -218,3 +219,13 @@ export type ProposalFormFields = {
   description: string,
   actions: ProposalFormActionFields[],
 }
+
+export type Interests = {
+  supplyUsdInterests: number,
+  invUsdInterests: number,
+  borrowInterests: number,
+  total: number,
+  totalPositive: number,
+}
+
+export type BigNumberList = { [key: string]: BigNumber };

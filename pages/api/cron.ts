@@ -41,7 +41,8 @@ export default async function handler(req, res) {
         res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
       }
       const { XINV, INV, governance: GOVERNANCE, governanceAlpha: GOV_ALPHA } = networkConfig!;
-      const provider = getProvider(chainId, true);
+      // use specific AlchemyApiKey for the cron
+      const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API || 'H2RwjQnt6ADjGQX-IpA5jK7pBEqTKGJn', true);
       const inv = new Contract(INV, INV_ABI, provider);
       const xinv = new Contract(XINV, INV_ABI, provider);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);

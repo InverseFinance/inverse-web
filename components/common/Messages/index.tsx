@@ -14,19 +14,23 @@ type MessageProps = {
 }
 
 export const InfoMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
+    const alertPropsExtended = { bgColor: 'infoAlpha', backdropFilter:"blur(1.5rem)", ...alertProps };
     return <Message status="info"
         title={title}
         description={description}
         icon={<InfoAnimatedIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
-        variant="solid" {...alertProps} />
+        variant="solid"
+        {...alertPropsExtended} />
 }
 
 export const SuccessMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
+    const alertPropsExtended = { bgColor: 'successAlpha', backdropFilter:"blur(1.5rem)", ...alertProps };
     return <Message status="success"
         title={title}
         description={description}
         icon={<SuccessAnimIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
-        variant="solid" {...alertProps} />
+        variant="solid"
+        {...alertPropsExtended} />
 }
 
 export const AlertMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {

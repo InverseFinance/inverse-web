@@ -26,7 +26,11 @@
     "paths": {
       "@inverse/*": ["*"]
     },
+    "types": ["jest"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "cypress/support/commands.js", "cypress/support/index.ts"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    "cypress",
+  ],
 }

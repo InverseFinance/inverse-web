@@ -25,7 +25,11 @@ export const AnchorPoolInfo = ({
                 needTooltip ?
                     <InfoTooltip
                         iconProps={{ ml: '1', fontSize: '10px' }}
-                        tooltipProps={{ bgColor: isSupplied ? 'success' : 'orange.400' }}
+                        tooltipProps={{
+                            bgColor: isSupplied ? 'successAlpha' : 'warningAlpha',
+                            backdropFilter: 'blur(1.5rem)',
+                            borderColor: isSupplied ? 'success' : 'warning',
+                        }}
                         message={
                             symbol && monthlyValue && monthlyValue > 0 ?
                                 <>~ <b>{monthlyValue?.toFixed(4)} {symbol}</b> {monthlyType} per month{emoji}</>
