@@ -1,10 +1,11 @@
-import { ExternalLinkIcon, WarningIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
 import Link from '@inverse/components/common/Link'
 import { TEST_IDS } from '@inverse/config/test-ids';
 import { useSupplyBalances } from '@inverse/hooks/useBalances';
 import { OLD_XINV } from '@inverse/config/constants';
+import { utils } from 'ethers'
 
 const DefaultMessage = () => {
   return <Link
@@ -21,14 +22,13 @@ const DefaultMessage = () => {
 
 const XinvMigrationMessage = () => {
   return <>
-    <WarningIcon color="orange.400" mr="2" />
-    <Text>xINV is <b>migrating</b> ! Please withdraw funds from <b>INV (OLD)</b>, you can then resupply in the new <b>INV</b> 🙂</Text>
+    <Text>xINV migration is in progress. Please withdraw funds from <b>INV (OLD)</b> and resupply them into the new <b>INV</b></Text>
   </>
 }
 
 export const Announcement = () => {
   const { balances } = useSupplyBalances()
-  const needsXinvMigration = balances && balances[OLD_XINV]?.gt(0)
+  const needsXinvMigration = balances && balances[OLD_XINV] && Number(utils.formatEther(balances[OLD_XINV])) > 0.1
 
   return (
     <Flex
