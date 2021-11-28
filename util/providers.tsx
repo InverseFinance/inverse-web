@@ -5,7 +5,7 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     const providers = [new AlchemyProvider(network, specificAlchemyKey || process?.env?.ALCHEMY_API || 'YVO2GiC9kWZCnFsJBvFi-UKz_GtC5TrD')];
 
     if(!onlyAlchemy) {
-        providers.push(new CloudflareProvider(network));
+        // providers.push(new CloudflareProvider(network));
         providers.push(new InfuraProvider(network, process?.env?.INFURA_ID || '6b35eba40d2d47c0b115b3110073faf8'))
     }
 
