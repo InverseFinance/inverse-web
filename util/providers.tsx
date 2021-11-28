@@ -9,5 +9,5 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         providers.push(new InfuraProvider(network, process?.env?.INFURA_ID || '6b35eba40d2d47c0b115b3110073faf8'))
     }
 
-    return new FallbackProvider(providers);
+    return new FallbackProvider(providers, 1);
 }
