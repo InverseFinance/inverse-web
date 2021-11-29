@@ -8,8 +8,11 @@ import { useTVL } from '@inverse/hooks/useTVL'
 import { commify } from '@ethersproject/units'
 import { chakra } from '@chakra-ui/system'
 import { TEST_IDS } from '@inverse/config/test-ids'
+import { Link } from '@inverse/components/common/Link';
+import { useMediaQuery } from '@chakra-ui/react'
 
 export const AnchorHeader = () => {
+  const [isSmallerThan728] = useMediaQuery('(max-width: 728px)')
   const { markets, isLoading } = useMarkets()
   const DOLA = markets?.find((v) => v.underlying.name === 'Dola')
   const { totalSupply } = useDOLA()
@@ -77,13 +80,22 @@ export const AnchorHeader = () => {
           </Text>
         </Stack>
         <Stack spacing={2} direction="row">
-          <LinkButton data-testid={TEST_IDS.anchor.buyDola} href="https://crv.to" target="_blank">
+          <LinkButton data-testid={TEST_IDS.anchor.buyDola} href="https://app.sushi.com/swap?inputCurrency=0x6B175474E89094C44Da98b954EedeAC495271d0F&outputCurrency=0x865377367054516e17014CcdED1e7d814EDC9ce4" target="_blank">
             Buy DOLA
           </LinkButton>
-          <LinkOutlineButton data-testid={TEST_IDS.anchor.learnMore} href="https://docs.inverse.finance/anchor-and-dola-overview" target="_blank">
-            Learn More
+          <LinkButton href="https://app.sushi.com/swap?inputCurrency=0x865377367054516e17014CcdED1e7d814EDC9ce4&outputCurrency=0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68" target="_blank">
+            Buy INV
+          </LinkButton>
+          <LinkOutlineButton
+            data-testid={TEST_IDS.anchor.learnMore}
+            href="https://docs.inverse.finance/anchor-and-dola-overview"
+            target="_blank">
+            { isSmallerThan728 ? 'More' : 'Learn More' }
           </LinkOutlineButton>
         </Stack>
+        <Text fontSize="14px" textAlign="center" color="#ffffffee">
+          The best rates for DOLA are on <Link isExternal target="_blank" href="https://crv.to">CRV</Link>
+        </Text>
       </Stack>
     </Flex>
   )

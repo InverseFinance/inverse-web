@@ -100,16 +100,6 @@ describe('Anchor Page', () => {
     cy.shouldTestId(TEST_IDS.anchor.buyDola, 'exist')
   })
 
-  it('should "learn more" btn https://docs.inverse.finance/anchor-and-dola-overview', () => {
-    cy.getByFirstTestId(TEST_IDS.anchor.learnMore)
-      .should('have.attr', 'href', 'https://docs.inverse.finance/anchor-and-dola-overview')
-  })
-
-  it('should have "buy dola" btn lead to https://crv.to', () => {
-    cy.getByFirstTestId(TEST_IDS.anchor.buyDola)
-      .should('have.attr', 'href', 'https://crv.to')
-  })
-
   describeTable(TEST_IDS.anchor.supplyTable, ['DOLA', 'INV', 'ETH', 'WBTC'], AnchorOperations.supply)
   describeTable(TEST_IDS.anchor.borrowTable, ['DOLA', 'ETH', 'WBTC'], AnchorOperations.borrow)
 
