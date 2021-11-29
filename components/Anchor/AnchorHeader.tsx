@@ -93,8 +93,8 @@ export const AnchorHeader = () => {
             { isSmallerThan728 ? 'More' : 'Learn More' }
           </LinkOutlineButton>
         </Stack>
-        <Text fontSize="14px" textAlign="center" color="#ffffffee">
-          The best rates for DOLA are on <Link isExternal target="_blank" href="https://crv.to">CRV</Link>
+        <Text fontSize="14px" textAlign="left" color="#ffffffee">
+          Tip: the best rates for DOLA are on <Link isExternal href="https://crv.to">CRV</Link>
         </Text>
       </Stack>
     </Flex>
