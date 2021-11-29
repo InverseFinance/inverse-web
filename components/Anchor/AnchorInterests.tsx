@@ -1,7 +1,7 @@
 import { Interests } from '@inverse/types'
 import { Text, Box, Flex, TextProps, Divider } from '@chakra-ui/react';
-import { InfoTooltip } from '../common/Tooltip';
-import { commify } from 'ethers/lib/utils';
+import { InfoTooltip } from '@inverse/components/common/Tooltip';
+import { dollarify } from '@inverse/util/markets';
 
 const InterestDetails = (interests: Interests) => {
     return (
@@ -18,15 +18,14 @@ const InterestDetails = (interests: Interests) => {
 const InterestText = ({ value, ...props }: { value: number } & Partial<TextProps>) => {
     return (
         <Text display="inline-block" fontWeight="bold" color={value === 0 ? undefined : value > 0 ? 'success' : 'orange.400'} {...props}>
-            {value > 0 ? '+' : ''}
-            ${commify(value?.toFixed(2) || 0)} a month
+            {dollarify(value, 2, true)} a month
         </Text>
     )
 }
 
 export const AnchorInterests = (interests: Interests) => {
     return (
-        <Flex ml="2" alignItems="center">
+        <Flex alignItems="center">
             <InterestText fontSize="14" value={interests.total} mr="2" color={ interests?.total > 0 ? 'secondary' : 'warning' } />
             <InfoTooltip
                 iconProps={{ boxSize: 3, mt: '2px' }}

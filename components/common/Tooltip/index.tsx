@@ -24,15 +24,30 @@ export const InfoTooltip = ({ message, iconProps, tooltipProps }: InfoTooltipPro
   )
 }
 
-export const AnimatedInfoTooltip = ({ message, size = 'normal', ...props }: { message: ReactNode, size?: 'normal' | 'small' } & Partial<FlexProps>) => {
+const iconSizes = {
+  normal: { boxSize: '14px', mr: '1' },
+  intermediary: { boxSize: '3', mr: '1' },
+  small: { boxSize: '12px', p: '2px', mr: '1px' },
+}
+
+export const AnimatedInfoTooltip = ({
+  message,
+  size = 'normal',
+  iconProps,
+  ...props
+}: {
+  message: ReactNode,
+  size?: 'normal' | 'small' | 'intermediary',
+  iconProps?: IconProps,
+} & Partial<FlexProps>) => {
   const content = <Flex alignItems="center" {...props}>
     <InfoAnimatedIcon />
     <Text ml="1">{message}</Text>
   </Flex>
 
-  const iconSizeProps = size === 'normal' ? { boxSize: '14px', mr: '1' } : { boxSize: '12px', p: '2px', mr: '1px' }
+  const tooltipIconProps = iconProps || iconSizes[size];
 
   return <InfoTooltip message={content}
-    tooltipProps={{ bgColor: 'infoAlpha', backdropFilter:"blur(1.5rem)", borderColor: 'info' }}
-    iconProps={{ ...iconSizeProps }} />
+    tooltipProps={{ bgColor: 'infoAlpha', backdropFilter: "blur(1.5rem)", borderColor: 'info' }}
+    iconProps={{ ...tooltipIconProps }} />
 }

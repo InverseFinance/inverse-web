@@ -46,8 +46,8 @@ export const AnchorOverview = () => {
   return (
     <Container
       label={
-        <Flex alignItems="center">
-          <Text>Banking</Text>
+        <Flex pb={{ base: '0px', sm: '4px' }} textAlign="left" flexDirection={{ base: 'column', sm: 'row' }}>
+          <Text mr="2">Banking</Text>
           {
             totalInterestsUsd?.total !== 0 && totalInterestsUsd?.total !== undefined ?
               <AnchorInterests {...totalInterestsUsd} />
@@ -56,9 +56,15 @@ export const AnchorOverview = () => {
         </Flex>
       }
       right={
-        <Stack direction="row" align="center" textAlign="end">
-          <Text fontWeight="bold">{`${rewardAmount.toFixed(4)} INV`}</Text>
-          <AnimatedInfoTooltip message="This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive Reward APY." />
+        <Stack direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
+          <Flex flexDirection="row" alignItems="center">
+            <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
+              {`${rewardAmount.toFixed(4)} INV`}
+            </Text>
+            <AnimatedInfoTooltip
+              iconProps={{ boxSize: 3, mt: '2px' }}
+              message="This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive Reward APY." />
+          </Flex>
           <StyledButton
             isDisabled={!rewardAmount}
             onClick={() => getComptrollerContract(library?.getSigner()).claimComp(account)}
