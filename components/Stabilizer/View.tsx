@@ -12,6 +12,7 @@ import { useWeb3React } from '@web3-react/core'
 import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 const FEE = 0.004
 
@@ -33,8 +34,8 @@ export const StabilizerView = () => {
     !balances
       ? 0
       : operation === StabilizerOperations.buy
-      ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
-      : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
+        ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
+        : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
 
   // returning the transaction promise allows SubmitButton to automatically handle tx status and notifications
   const handleSubmit = (): Promise<TransactionResponse> => {
@@ -65,8 +66,10 @@ export const StabilizerView = () => {
         ? 'Approve'
         : 'Buy DOLA'
       : !approvals || !approvals[DOLA] || !parseFloat(formatUnits(approvals[DOLA]))
-      ? 'Approve'
-      : 'Sell DOLA'
+        ? 'Approve'
+        : 'Sell DOLA'
+
+  const notEnoughLiquidity = parseFloat(amount) > max();
 
   return (
     <Container
@@ -114,11 +117,21 @@ export const StabilizerView = () => {
           />
         </Stack>
         <SubmitButton
-          isDisabled={!active || !amount || !balances || isNaN(amount as any) || parseFloat(amount) > max()}
+          isDisabled={!active || !amount || !balances || isNaN(amount as any) || notEnoughLiquidity}
           onClick={handleSubmit}
         >
           {buttonText}
         </SubmitButton>
+        {
+          notEnoughLiquidity ?
+            <InfoMessage alertProps={{ w: 'full' }}
+              description={
+                operation === StabilizerOperations.buy ?
+                  'Not enough tokens' :
+                  'There is not enough DAI liquidity in the Stabilizer right now for this swap'
+              } />
+            : null
+        }
       </Stack>
     </Container>
   )
