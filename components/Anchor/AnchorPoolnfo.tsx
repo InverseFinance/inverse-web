@@ -17,7 +17,7 @@ export const AnchorPoolInfo = ({
     const needTooltip = monthlyValue && monthlyValue > 0;
     const isSupplied = type === 'supply' && needTooltip;
     const emoji = isSupplied ? ' ✨' : '';
-    const monthlyType = isSupplied ? 'rewards' : 'fees';
+    const monthlyType = isSupplied ? 'rewards' : 'interests';
     return (
         <Text {...textProps} opacity={apy && apy > 0 ? 1 : 0.5}>
             {apy ? `${apy.toFixed(2)}%` : '0.00%'}
