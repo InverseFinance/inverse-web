@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
-import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps } from '@chakra-ui/react'
-import { InfoAnimatedIcon } from '@inverse/components/common/Animation/InfoAnim'
+import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex } from '@chakra-ui/react'
+import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@inverse/components/common/Animation'
 import { WarningIcon } from '@chakra-ui/icons';
-import { SuccessAnimIcon } from '../Animation/SuccessAnim';
 
 type MessageProps = {
     status: AlertProps["status"],
@@ -13,25 +12,28 @@ type MessageProps = {
     alertProps?: AlertProps,
 }
 
-export const InfoMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
-    const alertPropsExtended = { bgColor: 'infoAlpha', backdropFilter:"blur(1.5rem)", ...alertProps };
-    return <Message status="info"
+const statusAnims = {
+    info: InfoAnimIcon,
+    success: SuccessAnimIcon,
+    warning: WarningAnimIcon,
+    error: ErrorAnimIcon,
+}
+
+const StatusMessage = ({ title, description, status = 'info', alertProps }: Partial<MessageProps>) => {
+    const alertPropsExtended = { bgColor: `${status}Alpha`, backdropFilter: "blur(1.5rem)", ...alertProps };
+    const IconComp = statusAnims[status];
+    return <Message status={status}
         title={title}
         description={description}
-        icon={<InfoAnimatedIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
+        icon={<IconComp boxProps={{ mr: '2' }} />}
         variant="solid"
         {...alertPropsExtended} />
 }
 
-export const SuccessMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
-    const alertPropsExtended = { bgColor: 'successAlpha', backdropFilter:"blur(1.5rem)", ...alertProps };
-    return <Message status="success"
-        title={title}
-        description={description}
-        icon={<SuccessAnimIcon boxProps={{ mr: '2', transform: 'translateY(4px)' }} />}
-        variant="solid"
-        {...alertPropsExtended} />
-}
+export const InfoMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="info" />
+export const SuccessMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="success" />
+export const WarningMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="warning" />
+export const ErrorMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="error" />
 
 export const AlertMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
     return <Message status="warning" title={title} description={description} icon={<WarningIcon mr="2" />} {...alertProps} />
@@ -47,13 +49,17 @@ export const Message = ({
 }: MessageProps) => {
     return (
         <Alert variant={variant} status={status} borderRadius="5" display="inline-block" w="fit-content" {...alertProps}>
-            {icon}
-            {
-                title ? <AlertTitle>{title}</AlertTitle> : null
-            }
-            <AlertDescription>
-                {description || 'An error occured, please try reloading the page'}
-            </AlertDescription>
+            <Flex alignItems="center">
+                {icon}
+                <Flex flexDirection="column">
+                    {
+                        title ? <AlertTitle>{title}</AlertTitle> : null
+                    }
+                    {
+                        description ? <AlertDescription>{description}</AlertDescription> : null
+                    }
+                </Flex>
+            </Flex>
         </Alert>
     )
 }
