@@ -4,13 +4,17 @@ import { InfoTooltip } from '@inverse/components/common/Tooltip';
 import { dollarify } from '@inverse/util/markets';
 
 const InterestDetails = (interests: Interests) => {
+    const fixed2Total = parseFloat(interests.supplyUsdInterests.toFixed(2)) +
+    + parseFloat(interests.invUsdInterests.toFixed(2))
+    + parseFloat(interests.borrowInterests.toFixed(2));
+
     return (
         <Box p="1" textAlign="left" minW="300">
             <Flex justify="space-between">Supply interest: <InterestText value={interests.supplyUsdInterests} /></Flex>
             <Flex justify="space-between">INV rewards: <InterestText value={interests.invUsdInterests} /></Flex>
             <Flex justify="space-between">Borrowing interest: <InterestText value={interests.borrowInterests} /></Flex>
             <Divider mt="1" mb="1" borderColor="#cccccc22" />
-            <Flex justify="space-between">Total: <InterestText value={interests.total} /></Flex>
+            <Flex justify="space-between">Total: <InterestText value={fixed2Total} /></Flex>
         </Box>
     )
 }
