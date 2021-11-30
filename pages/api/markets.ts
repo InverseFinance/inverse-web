@@ -159,16 +159,18 @@ export default async function handler(req, res) {
       const supplyApy = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA) * BLOCKS_PER_DAY * DAYS_PER_YEAR) /
         ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) * 100
 
+      const parsedExRate = parseFloat(formatUnits(exchangeRate))
+
       markets.push({
         token: xINV.address,
         mintable: mintable,
         underlying: TOKENS[INV],
         supplyApy: supplyApy || 0,
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
-        supplied: parseFloat(formatUnits(exchangeRate)) * parseFloat(formatUnits(totalSupply)),
+        supplied:  parsedExRate * parseFloat(formatUnits(totalSupply)),
         rewardApy: 0,
-        priceUsd: prices[xinvAddress],
-        priceXinv: 1,
+        priceUsd: prices[xinvAddress] / parsedExRate,
+        priceXinv: 1 / parsedExRate,
       });
     }
 
