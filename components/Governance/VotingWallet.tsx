@@ -74,7 +74,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
         <VotingWalletField label="Delegating To">
           {delegate === AddressZero ? (
-            <Text color="fail">Nobody</Text>
+            <Text color="error">Nobody</Text>
           ) : delegate === account ? (
             <Text>Self</Text>
           ) : (

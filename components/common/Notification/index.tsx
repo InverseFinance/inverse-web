@@ -40,8 +40,8 @@ const themes: {
         },
     },
     'error': {
-        bg: 'failAlpha',
-        borderColor: 'fail',
+        bg: 'errorAlpha',
+        borderColor: 'error',
         animOptions: {
             animData: errorLottie,
             loop: false,

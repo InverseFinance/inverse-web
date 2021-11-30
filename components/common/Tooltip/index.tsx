@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Tooltip, IconProps, TooltipProps, Flex, Text, FlexProps } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
-import { InfoAnimatedIcon } from '@inverse/components/common/Animation/InfoAnim';
+import { InfoAnimIcon } from '@inverse/components/common/Animation';
 
 type InfoTooltipProps = { message: ReactNode, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps> };
 
@@ -41,7 +41,7 @@ export const AnimatedInfoTooltip = ({
   iconProps?: IconProps,
 } & Partial<FlexProps>) => {
   const content = <Flex alignItems="center" {...props}>
-    <InfoAnimatedIcon />
+    <InfoAnimIcon />
     <Text ml="1">{message}</Text>
   </Flex>
 

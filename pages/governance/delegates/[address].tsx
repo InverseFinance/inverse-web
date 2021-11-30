@@ -15,7 +15,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { NetworkIds } from '@inverse/types'
-import { SignatureAnim } from '@inverse/components/common/Animation/SignatureAnim'
+import { SignatureAnim } from '@inverse/components/common/Animation'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
