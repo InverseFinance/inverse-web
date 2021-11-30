@@ -25,8 +25,8 @@ export const getBalanceInInv = (
     balances: BigNumberList,
     address: string,
     exchangeRates: BigNumberList,
-    xinvAddress: string,
-    priceXinv: number,
+    priceUsd: number,
+    invPriceUsd: number,
     underlyingDecimals: number,
 ) => {
     // balance in anchor version of token
@@ -35,9 +35,7 @@ export const getBalanceInInv = (
     const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[address])) : 0;
     // balance in underlying token
     const tokenBalance = anTokenBalance * anTokenToTokenExRate;
-    const xinvToInvRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[xinvAddress])) : 0;
-    // priceXinv is the price of the underlying token in XINV token => convert tokenBalance to xinv then to inv
-    return tokenBalance * priceXinv * xinvToInvRate;
+    return tokenBalance * priceUsd / invPriceUsd;
 }
 
 // supply balances are in anTokens, borrow balances are already in underlying token balance

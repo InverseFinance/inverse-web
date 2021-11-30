@@ -18,8 +18,8 @@ describe('Markets utils', () => {
   it('correctly converts rewards to INV balance', () => {
     const balances = { 'token': parseUnits('0.000005') }
     const exRates = { 'token': parseUnits('1000000'), 'xinv': parseUnits('1.1') }
-    const balanceInInv = getBalanceInInv(balances, 'token', exRates, 'xinv', 8, 18);
-    expect(balanceInInv).toBe(44)
+    const balanceInInv = getBalanceInInv(balances, 'token', exRates, 10, 1000, 18);
+    expect(balanceInInv).toBe(0.05)
   })
 
   describe('correctly calculate monthly interests', () => {
