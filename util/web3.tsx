@@ -6,6 +6,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { hexValue, formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
+import { BigNumberList } from '@inverse/types'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -153,4 +154,8 @@ export const formatBalance = (balance: BigNumber, decimals: number, symbol = '')
   const precision = balance?.gt(0) ? 10 : 2;
 
   return `${floatBalance.toFixed(precision)} ${symbol}`.trim();
+}
+
+export const hasAllowance = (approvals: BigNumberList, address: string): boolean => {
+  return !!(approvals && approvals[address] && parseFloat(formatUnits(approvals[address])))
 }
