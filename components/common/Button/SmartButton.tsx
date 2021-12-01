@@ -51,6 +51,7 @@ export const SmartButton = (props: ButtonProps) => {
             disabled={props.disabled || props.isDisabled || isPending}
             onClick={handleClick}
             isLoading={props.isLoading || isPending}
+            lineHeight={0}
         />
     )
 }
