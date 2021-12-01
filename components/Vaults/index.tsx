@@ -16,12 +16,14 @@ import { getERC20Contract, getVaultContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { VaultsClaim } from './VaultsClaim'
 import { FromAssetDropdown } from './FromAssetDropdown';
 import { WithdrawAssetDropdown } from './WithdrawAssetDropdown';
 import { ToAssetDropdown } from './ToAssetDropdown';
+import { handleTx } from '@inverse/util/transactions';
+import { hasAllowance } from '@inverse/util/web3'
 
 enum VaultOperations {
   deposit = 'Deposit',
@@ -40,7 +42,12 @@ export const VaultsView = () => {
   const { balances } = useAccountBalances()
   const { rates } = useVaultRates()
   const { approvals } = useVaultApprovals()
+  const [isApproved, setIsApproved] = useState(hasAllowance(approvals, vault));
   const { balances: vaultBalances } = useVaultBalances()
+
+  useEffect(() => {
+    setIsApproved(hasAllowance(approvals, vault))
+  }, [approvals, vault])
 
   const max = () => {
     if (operation === VaultOperations.deposit) {
@@ -173,12 +180,12 @@ export const VaultsView = () => {
               </Stack>
             )}
             {operation === VaultOperations.deposit &&
-              (!approvals || !approvals[vault] || !parseFloat(formatUnits(approvals[vault]))) ? (
+              !isApproved ? (
               <SubmitButton
-                onClick={() =>
-                  getERC20Contract(VAULTS[vault].from.address, library?.getSigner()).approve(
-                    vault,
-                    constants.MaxUint256
+                onClick={async () =>
+                  handleTx(
+                    await getERC20Contract(VAULTS[vault].from.address, library?.getSigner()).approve(vault, constants.MaxUint256),
+                    { onSuccess: () => setIsApproved(true) }
                   )
                 }
                 isDisabled={!active}
