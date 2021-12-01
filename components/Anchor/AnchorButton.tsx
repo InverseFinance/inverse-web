@@ -1,4 +1,5 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Stack } from '@chakra-ui/react'
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, GridItem, SimpleGrid, Stack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { useApprovals } from '@inverse/hooks/useApprovals'
@@ -12,6 +13,9 @@ import { BigNumber, constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import moment from 'moment'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
+import { InfoMessage } from '@inverse/components/common/Messages'
+import { handleTx } from '@inverse/util/transactions';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -59,18 +63,46 @@ const ClaimFromEscrowBtn = ({
   </SubmitButton>
 }
 
+const ApproveButton = ({
+  asset,
+  signer,
+  isDisabled,
+  onSuccess = () => { },
+}: {
+  asset: Market,
+  signer?: JsonRpcSigner,
+  isDisabled: boolean,
+  onSuccess?: () => void,
+}) => {
+  return (
+    <SubmitButton
+      onClick={async () =>
+        handleTx(
+          await getERC20Contract(asset.underlying.address, signer).approve(asset.token, constants.MaxUint256),
+          { onSuccess },
+        )
+      }
+    isDisabled={isDisabled}
+    >
+      Approve
+    </SubmitButton>
+  )
+}
+
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
-  const { library, chainId } = useWeb3React<Web3Provider>()
+  const { library, chainId, account } = useWeb3React<Web3Provider>()
+  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
+  const isEthMarket = asset.token === ANCHOR_ETH;
   const { approvals } = useApprovals()
+  const [isApproved, setIsApproved] = useState(isEthMarket || (approvals && parseFloat(formatUnits(approvals[asset.token]))));
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
-  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
 
   const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
   const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
 
   const contract =
-    asset.token === ANCHOR_ETH
+    isEthMarket
       ? getCEtherContract(asset.token, library?.getSigner())
       : getAnchorContract(asset.token, library?.getSigner())
 
@@ -79,21 +111,11 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
       return (
         <Stack w="full" spacing={4}>
           {asset.token === XINV && <XINVEscrowAlert />}
-          {asset.token !== ANCHOR_ETH && (!approvals || !parseFloat(formatUnits(approvals[asset.token]))) ? (
-            <SubmitButton
-              onClick={() =>
-                getERC20Contract(asset.underlying.address, library?.getSigner()).approve(
-                  asset.token,
-                  constants.MaxUint256
-                )
-              }
-              isDisabled={isDisabled}
-            >
-              Approve
-            </SubmitButton>
+          {!isApproved ? (
+            <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={() => setIsApproved(true)} />
           ) : (
             <SubmitButton
-              onClick={() => contract.mint(asset.token === ANCHOR_ETH ? { value: amount } : amount)}
+              onClick={() => contract.mint(isEthMarket ? { value: amount } : amount)}
               isDisabled={isDisabled}
             >
               Supply
@@ -122,12 +144,24 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               signer={library?.getSigner()}
             />
           )}
-          <SubmitButton
-            onClick={() => contract.redeemUnderlying(amount)}
-            isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
-          >
-            Withdraw
-          </SubmitButton>
+          <SimpleGrid columns={2} spacingX="3" spacingY="1">
+            <SubmitButton
+              onClick={() => contract.redeemUnderlying(amount)}
+              isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
+            >
+              Withdraw
+            </SubmitButton>
+            <SubmitButton
+              onClick={async () => {
+                const bn = await contract.balanceOf(account);
+                return contract.redeem(bn);
+              }}
+              isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
+              rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind.' />}
+            >
+              Withdraw ALL
+            </SubmitButton>
+          </SimpleGrid>
         </Stack>
       )
 
@@ -139,22 +173,34 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
       )
 
     case AnchorOperations.repay:
-      return asset.token !== ANCHOR_ETH && (!approvals || !parseFloat(formatUnits(approvals[asset.token]))) ? (
-        <SubmitButton
-          onClick={() =>
-            getERC20Contract(asset.underlying.address, library?.getSigner()).approve(asset.token, constants.MaxUint256)
-          }
-          isDisabled={isDisabled}
-        >
-          Approve
-        </SubmitButton>
+      return !isApproved ? (
+        <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={() => setIsApproved(true)} />
       ) : (
-        <SubmitButton
-          isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
-          onClick={() => contract.repayBorrow(asset.token === ANCHOR_ETH ? { value: amount } : amount)}
-        >
-          Repay
-        </SubmitButton>
+        <SimpleGrid columns={2} spacingX="3" spacingY="1">
+          <SubmitButton
+            isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            onClick={() => contract.repayBorrow(isEthMarket ? { value: amount } : amount)}
+          >
+            Repay
+          </SubmitButton>
+
+          <SubmitButton
+            isDisabled={!borrowBalances || isEthMarket || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            onClick={() => contract.repayBorrow(constants.MaxUint256)}
+            rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt and avoid "debt dust" being left behind.' />}
+          >
+            Repay ALL
+          </SubmitButton>
+          {
+            isEthMarket ?
+              <GridItem colSpan={2}>
+                <InfoMessage
+                  alertProps={{ fontSize: '12px', mt: "2", w: 'full' }}
+                  description="Repay ALL feature is not supported in the borrow ETH market." />
+              </GridItem>
+              : null
+          }
+        </SimpleGrid>
       )
   }
 

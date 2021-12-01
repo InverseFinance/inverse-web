@@ -3,9 +3,9 @@ import { Tooltip, IconProps, TooltipProps, Flex, Text, FlexProps } from '@chakra
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { InfoAnimIcon } from '@inverse/components/common/Animation';
 
-type InfoTooltipProps = { message: ReactNode, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps> };
+type InfoTooltipProps = { message: ReactNode, iconProps?: IconProps, tooltipProps?: Partial<TooltipProps>, children?: ReactNode };
 
-export const InfoTooltip = ({ message, iconProps, tooltipProps }: InfoTooltipProps) => {
+export const InfoTooltip = ({ message, iconProps, tooltipProps, children }: InfoTooltipProps) => {
   return (
     <Tooltip
       label={message}
@@ -19,7 +19,7 @@ export const InfoTooltip = ({ message, iconProps, tooltipProps }: InfoTooltipPro
       borderWidth={1}
       {...tooltipProps}
     >
-      <InfoOutlineIcon {...iconProps} />
+      {children ? children : <InfoOutlineIcon {...iconProps} />}
     </Tooltip>
   )
 }
@@ -34,6 +34,7 @@ export const AnimatedInfoTooltip = ({
   message,
   size = 'normal',
   iconProps,
+  children,
   ...props
 }: {
   message: ReactNode,
@@ -49,5 +50,7 @@ export const AnimatedInfoTooltip = ({
 
   return <InfoTooltip message={content}
     tooltipProps={{ bgColor: 'infoAlpha', backdropFilter: "blur(1.5rem)", borderColor: 'info' }}
-    iconProps={{ ...tooltipIconProps }} />
+    iconProps={{ ...tooltipIconProps }}
+    children={children}
+  />
 }
