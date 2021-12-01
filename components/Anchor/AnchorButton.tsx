@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Stack } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, GridItem, SimpleGrid, Stack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { useApprovals } from '@inverse/hooks/useApprovals'
@@ -12,6 +12,8 @@ import { BigNumber, constants } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import moment from 'moment'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -149,12 +151,31 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           Approve
         </SubmitButton>
       ) : (
-        <SubmitButton
-          isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
-          onClick={() => contract.repayBorrow(asset.token === ANCHOR_ETH ? { value: amount } : amount)}
-        >
-          Repay
-        </SubmitButton>
+        <SimpleGrid columns={2} spacingX="3" spacingY="1">
+          <SubmitButton
+            isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            onClick={() => contract.repayBorrow(asset.token === ANCHOR_ETH ? { value: amount } : amount)}
+          >
+            Repay
+          </SubmitButton>
+
+          <SubmitButton
+            isDisabled={!borrowBalances || asset.token === ANCHOR_ETH || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            onClick={() => contract.repayBorrow(constants.MaxUint256)}
+            rightIcon={<AnimatedInfoTooltip ml="1" message='Repays all the debt and avoids "dust" being left behind.' />}
+          >
+            Repay ALL
+          </SubmitButton>
+          {
+            asset.token === ANCHOR_ETH ?
+              <GridItem colSpan={2}>
+                <InfoMessage
+                  alertProps={{ fontSize: '12px', mt: "2", w: 'full' }}
+                  description="Repay ALL feature is not supported in the ETH market." />
+              </GridItem>
+              : null
+          }
+        </SimpleGrid>
       )
   }
 
