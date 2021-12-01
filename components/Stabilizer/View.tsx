@@ -11,8 +11,10 @@ import { getERC20Contract, getStabilizerContract } from '@inverse/util/contracts
 import { useWeb3React } from '@web3-react/core'
 import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
+import { hasAllowance } from '@inverse/util/web3'
 
 const FEE = 0.004
 
@@ -29,6 +31,13 @@ export const StabilizerView = () => {
   const { approvals } = useStabilizerApprovals()
   const { balance: stabilizerBalance } = useStabilizerBalance()
   const { DAI, DOLA, STABILIZER, TOKENS } = getNetworkConfigConstants(chainId)
+  const [isDAIApproved, setIsDAIApproved] = useState(hasAllowance(approvals, DAI))
+  const [isDOLAApproved, setIsDOLAApproved] = useState(hasAllowance(approvals, DOLA))
+
+  useEffect(() => {
+    setIsDAIApproved(hasAllowance(approvals, DAI))
+    setIsDOLAApproved(hasAllowance(approvals, DOLA))
+  }, [approvals, DAI, DOLA])
 
   const max = () =>
     !balances
@@ -37,20 +46,27 @@ export const StabilizerView = () => {
         ? parseFloat(formatUnits(balances[DAI])) * (1 - FEE)
         : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
 
+  const approveToken = async (token: string, options: HandleTxOptions) => {
+    return handleTx(
+      await getERC20Contract(token, library?.getSigner()).approve(STABILIZER, constants.MaxUint256),
+      options,
+    )
+  }
+
   // returning the transaction promise allows SubmitButton to automatically handle tx status and notifications
-  const handleSubmit = (): Promise<TransactionResponse> => {
+  const handleSubmit = (): Promise<TransactionResponse | void> => {
     const contract = getStabilizerContract(library?.getSigner())
     switch (operation) {
       case StabilizerOperations.buy:
-        if (!approvals || !approvals[DAI] || !parseFloat(formatUnits(approvals[DAI]))) {
-          return getERC20Contract(DAI, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
+        if (!isDAIApproved) {
+          return approveToken(DAI, { onSuccess: () => setIsDAIApproved(true) });
         } else {
           return contract.buy(parseUnits(amount))
         }
         break
       case StabilizerOperations.sell:
-        if (!approvals || !approvals[DOLA] || !parseFloat(formatUnits(approvals[DOLA]))) {
-          return getERC20Contract(DOLA, library?.getSigner()).approve(STABILIZER, constants.MaxUint256)
+        if (!isDOLAApproved) {
+          return approveToken(DOLA, { onSuccess: () => setIsDOLAApproved(true) });
         } else {
           return contract.sell(parseUnits(amount))
         }

@@ -27,9 +27,15 @@ export const showTxToast = (txHash: string, txStatus: string, toastStatus: Custo
     return showToast(options);
 }
 
+export type HandleTxOptions = {
+    onSuccess?: (tx: TransactionResponse) => void,
+    onFail?: (tx: TransactionResponse) => void,
+    onPending?: (tx: TransactionResponse) => void,
+}
+
 export const handleTx = async (
     tx: TransactionResponse,
-    options?: { onSuccess?: (tx: TransactionResponse) => void, onFail?: (tx: TransactionResponse) => void, onPending?: (tx: TransactionResponse) => void },
+    options?: HandleTxOptions,
 ): Promise<void> => {
     if (!tx?.hash) { return }
     try {
