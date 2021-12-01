@@ -196,7 +196,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               <GridItem colSpan={2}>
                 <InfoMessage
                   alertProps={{ fontSize: '12px', mt: "2", w: 'full' }}
-                  description="Repay ALL feature is not supported in the borrow ETH market." />
+                  description="Repay ALL is not supported in the borrow ETH market." />
               </GridItem>
               : null
           }
