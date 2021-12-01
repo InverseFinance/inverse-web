@@ -32,6 +32,7 @@ export const CTOKEN_ABI = [
   "function getCash() external view returns (uint256)",
   "function mint(uint256) returns (uint256)",
   "function redeemUnderlying(uint256) returns (uint256)",
+  "function redeem(uint256) returns (uint256)",
   "function repayBorrow(uint256) returns (uint256)",
   "function supplyRatePerBlock() external view returns (uint256)",
   "function totalBorrowsCurrent() external view returns (uint256)",
@@ -46,7 +47,9 @@ export const CETHER_ABI = [
   "function borrow(uint256) returns (uint256)",
   "function mint() payable",
   "function redeemUnderlying(uint256) returns (uint256)",
+  "function redeem(uint256) returns (uint256)",
   "function repayBorrow() payable",
+  "function balanceOf(address) external view returns (uint256)",
 ];
 
 export const ERC20_ABI = [

@@ -62,7 +62,7 @@ const ClaimFromEscrowBtn = ({
 }
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
-  const { library, chainId } = useWeb3React<Web3Provider>()
+  const { library, chainId, account } = useWeb3React<Web3Provider>()
   const { approvals } = useApprovals()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
@@ -124,12 +124,23 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               signer={library?.getSigner()}
             />
           )}
-          <SubmitButton
-            onClick={() => contract.redeemUnderlying(amount)}
-            isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
-          >
-            Withdraw
-          </SubmitButton>
+          <SimpleGrid columns={2} spacingX="3" spacingY="1">
+            <SubmitButton
+              onClick={() => contract.redeemUnderlying(amount)}
+              isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
+            >
+              Withdraw
+            </SubmitButton>
+            <SubmitButton
+              onClick={async () => {
+                const bn = await contract.balanceOf(account);
+                return contract.redeem(bn);
+              }}
+              isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
+            >
+              Withdraw ALL
+            </SubmitButton>
+          </SimpleGrid>
         </Stack>
       )
 
@@ -162,7 +173,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           <SubmitButton
             isDisabled={!borrowBalances || asset.token === ANCHOR_ETH || !parseFloat(formatUnits(borrowBalances[asset.token]))}
             onClick={() => contract.repayBorrow(constants.MaxUint256)}
-            rightIcon={<AnimatedInfoTooltip ml="1" message='Repays all the debt and avoids "dust" being left behind.' />}
+            rightIcon={<AnimatedInfoTooltip ml="1" message='Repays all the debt and avoids "debt dust" being left behind.' />}
           >
             Repay ALL
           </SubmitButton>
@@ -171,7 +182,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               <GridItem colSpan={2}>
                 <InfoMessage
                   alertProps={{ fontSize: '12px', mt: "2", w: 'full' }}
-                  description="Repay ALL feature is not supported in the ETH market." />
+                  description="Repay ALL feature is not supported in the borrow ETH market." />
               </GridItem>
               : null
           }
