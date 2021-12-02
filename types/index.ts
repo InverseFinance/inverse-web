@@ -122,6 +122,7 @@ export type NetworkConfig = {
   DOLA: string,
   DAI: string,
   USDC: string,
+  USDT: string,
   WETH: string,
   YFI: string,
   XSUSHI: string,
