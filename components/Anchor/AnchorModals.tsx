@@ -14,7 +14,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { NavButtons } from '@inverse/components/common/Button'
 import { TEST_IDS } from '@inverse/config/test-ids'
-import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem';
+import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem';
 import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'

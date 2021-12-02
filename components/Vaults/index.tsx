@@ -19,9 +19,9 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState, useEffect } from 'react'
 
 import { VaultsClaim } from './VaultsClaim'
-import { FromAssetDropdown } from './FromAssetDropdown';
+import { FromAssetDropdown } from '@inverse/components/common/Assets/FromAssetDropdown';
 import { WithdrawAssetDropdown } from './WithdrawAssetDropdown';
-import { ToAssetDropdown } from './ToAssetDropdown';
+import { ToAssetDropdown } from '@inverse/components/common/Assets/ToAssetDropdown';
 import { handleTx } from '@inverse/util/transactions';
 import { hasAllowance } from '@inverse/util/web3'
 
@@ -108,6 +108,7 @@ export const VaultsView = () => {
                       </Flex>
                       <FromAssetDropdown
                         tokens={TOKENS}
+                        balances={balances}
                         vaultTree={VAULT_TREE}
                         isOpen={fromIsOpen}
                         onClose={fromOnClose}

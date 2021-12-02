@@ -1,14 +1,31 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { SWR } from '@inverse/types'
+import { BigNumberList, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import useSWR from 'swr'
 
 type Balances = {
-  balances: { [key: string]: BigNumber }
+  balances: BigNumberList
+}
+
+export const useBalances = (addresses: string[]): SWR & Balances => {
+  const { account } = useWeb3React<Web3Provider>()
+
+  const { data, error } = useEtherSWR(
+    addresses.map((address) => (address ? [address, 'balanceOf', account] : ['getBalance', account, 'latest']))
+  )
+
+  return {
+    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
+      balances[addresses[i] || 'ETH'] = balance
+      return balances
+    }, {}),
+    isLoading: !error && !data,
+    isError: error,
+  }
 }
 
 export const useAccountBalances = (): SWR & Balances => {
@@ -22,7 +39,7 @@ export const useAccountBalances = (): SWR & Balances => {
   )
 
   return {
-    balances: data?.reduce((balances: { [key: string]: BigNumber }, balance: BigNumber, i: number) => {
+    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
       balances[tokens[i].address || 'ETH'] = balance
       return balances
     }, {}),
@@ -40,7 +57,7 @@ export const useSupplyBalances = (): SWR & Balances => {
   const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'balanceOf', account]))
 
   return {
-    balances: data?.reduce((balances: { [key: string]: BigNumber }, balance: BigNumber, i: number) => {
+    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
       balances[tokens[i]] = balance
       return balances
     }, {}),
@@ -90,7 +107,7 @@ export const useBorrowBalances = (): SWR & Balances => {
   const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'borrowBalanceStored', account]))
 
   return {
-    balances: data?.reduce((balances: { [key: string]: BigNumber }, balance: BigNumber, i: number) => {
+    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
       balances[tokens[i]] = balance
       return balances
     }, {}),
