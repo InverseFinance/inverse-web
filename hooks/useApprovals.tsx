@@ -1,12 +1,12 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { SWR } from '@inverse/types'
+import { BigNumberList, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 
 type Approvals = {
-  approvals: { [key: string]: BigNumber }
+  approvals: BigNumberList
 }
 
 export const useApprovals = (): SWR & Approvals => {

@@ -16,6 +16,7 @@ import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { handleTx } from '@inverse/util/transactions';
+import { hasAllowance } from '@inverse/util/web3';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -94,7 +95,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
   const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
   const isEthMarket = asset.token === ANCHOR_ETH;
   const { approvals } = useApprovals()
-  const [isApproved, setIsApproved] = useState(isEthMarket || (approvals && parseFloat(formatUnits(approvals[asset.token]))));
+  const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
 
