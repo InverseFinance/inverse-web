@@ -3,6 +3,7 @@ import useScanner from '@inverse/hooks/useScanner';
 import { namedAddress } from '@inverse/util';
 import { BLOCK_SCAN } from '@inverse/config/constants';
 import { Link } from '@inverse/components/common/Link';
+import { LinkProps } from '@chakra-ui/react';
 
 const ScannerLink = ({
 	value,
@@ -13,16 +14,17 @@ const ScannerLink = ({
 	chainId,
 	scanUrl = '',
 	useBlockScan = false,
+	...props
 }: {
 	scanUrl?: string;
 	value?: string;
-	label?: string;
+	label?: React.ReactNode | React.ReactNode[];
 	type?: 'address' | 'tx';
 	shorten?: boolean;
 	useBlockScan?: boolean;
 	chainId?: string;
 	children?: React.ReactNode | React.ReactNode[];
-}
+} & Partial<LinkProps>
 ) => {
 	const netScanner = useScanner(chainId);
 	const scannerUrl = scanUrl || (useBlockScan ? BLOCK_SCAN : netScanner);
@@ -40,6 +42,7 @@ const ScannerLink = ({
 			justifyItems="center"
 			align="center"
 			style={{ textDecoration: 'underline' }}
+			{...props}
 		>
 			{content}
 		</Link>

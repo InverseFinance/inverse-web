@@ -16,6 +16,8 @@ import { NavButtons } from '@inverse/components/common/Button'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem';
 import { useAccountMarkets } from '@inverse/hooks/useMarkets'
+import ScannerLink from '@inverse/components/common/ScannerLink'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -59,8 +61,8 @@ export const AnchorModal = ({
           (asset.collateralFactor *
             parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
-          const isEnabled = accountMarkets.find((market: Market) => market.token === asset.token)
-          const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isEnabled ? supply : withdrawable
+        const isEnabled = accountMarkets.find((market: Market) => market.token === asset.token)
+        const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isEnabled ? supply : withdrawable
         return Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable)
       case AnchorOperations.borrow:
         const borrowable =
@@ -100,13 +102,23 @@ export const AnchorModal = ({
     onClose()
   }
 
+  const inputRightSideContent = <Stack direction="row" align="center" pl={2} pr={4}>
+    <Flex w={5}>
+      <Image w={5} h={5} src={asset.underlying.image} />
+    </Flex>
+    <Text fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+      {asset.underlying.symbol}
+    </Text>
+  </Stack>
+
   return (
     <Modal
       onClose={handleClose}
       isOpen={isOpen}
       header={
         <Stack minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
-          <UnderlyingItem label={asset.underlying.name} address={asset.token} image={asset.underlying.image} imgSize={8} />
+          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
+          <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
       }
       footer={
@@ -145,14 +157,11 @@ export const AnchorModal = ({
             }}
             onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
             label={
-              <Stack direction="row" align="center" pl={2} pr={4}>
-                <Flex w={5}>
-                  <Image w={5} h={5} src={asset.underlying.image} />
-                </Flex>
-                <Text fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
-                  {asset.underlying.symbol}
-                </Text>
-              </Stack>
+              asset.underlying.symbol !== 'ETH' ?
+                <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>
+                  {inputRightSideContent}
+                </ScannerLink>
+                : inputRightSideContent
             }
           />
         </Stack>
