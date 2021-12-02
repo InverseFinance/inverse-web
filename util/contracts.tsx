@@ -15,7 +15,8 @@ import {
   DOLA3POOLCRV_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { GovEra, NetworkIds } from '@inverse/types'
+import { GovEra, NetworkIds, Token } from '@inverse/types'
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
 export const getNewContract = (
   address: string,
@@ -106,4 +107,17 @@ export const getINVsFromFaucet = (signer: JsonRpcSigner | undefined) => {
 export const getDolaCrvPoolContract = (signer: JsonRpcSigner | undefined) => {
   const { DOLA3POOLCRV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
   return getNewContract(DOLA3POOLCRV, DOLA3POOLCRV_ABI, signer);
+}
+
+export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, maxSlippage: number) => {
+  const indexes: any = { DOLA: 0, DAI: 1, USDC: 2, USDT: 3 }
+  const contract = getDolaCrvPoolContract(signer);
+  
+  const bnAmount = parseUnits(amount.toString(), fromUnderlying.decimals);
+  const bnMinReceived = parseUnits((amount - (amount * maxSlippage / 100)).toString(), toUnderlying.decimals);
+
+  const fromIndex = indexes[fromUnderlying.symbol]
+  const toIndex = indexes[toUnderlying.symbol]
+  
+  return contract.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
 }
