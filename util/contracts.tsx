@@ -12,6 +12,7 @@ import {
   LENS_ABI,
   ESCROW_ABI,
   MULTIDELEGATOR_ABI,
+  DOLA3POOLCRV_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { GovEra, NetworkIds } from '@inverse/types'
@@ -100,4 +101,9 @@ export const getDOLAsFromFaucet = (signer: JsonRpcSigner | undefined) => {
 
 export const getINVsFromFaucet = (signer: JsonRpcSigner | undefined) => {
   getTokensFromFaucet('INV', '2', signer)
+}
+
+export const getDolaCrvPoolContract = (signer: JsonRpcSigner | undefined) => {
+  const { DOLA3POOLCRV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  return getNewContract(DOLA3POOLCRV, DOLA3POOLCRV_ABI, signer);
 }
