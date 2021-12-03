@@ -8,10 +8,11 @@ import { useBalances } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
 import { hasAllowance } from '@inverse/util/web3'
-import { FromAssetDropdown } from '../common/Assets/FromAssetDropdown'
+import { FromAssetDropdown } from '@inverse/components/common/Assets/FromAssetDropdown'
 import { getParsedBalance } from '@inverse/util/markets'
 import { BigNumberList, Token, TokenList } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
+import { usePrices } from '@inverse/hooks/usePrices'
 
 const AssetInput = ({
   amount,
@@ -90,6 +91,7 @@ export const SwapView = () => {
 
   const { balances } = useBalances(swapOptions)
   const { approvals } = useApprovals()
+  const { prices } = usePrices()
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
 
@@ -116,13 +118,15 @@ export const SwapView = () => {
 
   const commonAssetInputProps = { tokens: TOKENS, balances }
 
+  const exRate = prices ? prices[fromToken.coingeckoId!].usd / prices[toToken.coingeckoId!].usd : 0
+
   return (
     <Container
       label="Swap"
       description="Swap between DOLA, INV, DAI, USDC and USDT"
       href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
     >
-      <Stack w="full" direction="column" spacing="2">
+      <Stack w="full" direction="column" spacing="3">
         <AssetInput
           amount={fromAmount}
           token={fromToken}
@@ -147,6 +151,11 @@ export const SwapView = () => {
           onAmountChange={(newAmount) => setToAmount(newAmount)}
           {...commonAssetInputProps}
         />
+
+        <Text textAlign="center" w="full" fontSize="12px" mt="2">
+          {`Exchange Rate : 1 ${fromToken.symbol} = ${exRate.toFixed(4)} ${toToken.symbol}`}
+        </Text>
+        
       </Stack>
     </Container>
   )
