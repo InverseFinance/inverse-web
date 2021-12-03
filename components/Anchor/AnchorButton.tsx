@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, GridItem, SimpleGrid, Stack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
@@ -98,6 +98,10 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
+
+  useEffect(() => {
+    setIsApproved(isEthMarket || hasAllowance(approvals, asset?.token))
+  }, [approvals, asset])
 
   const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
   const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
