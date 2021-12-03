@@ -36,9 +36,10 @@ type BalanceInputProps = {
   label?: React.ReactNode
   onChange: (e: React.MouseEvent<HTMLInputElement>) => void
   onMaxClick: (e: any) => void
+  inputProps?: InputProps
 }
 
-export const BalanceInput = ({ value, label, onChange, onMaxClick }: BalanceInputProps) => (
+export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps }: BalanceInputProps) => (
   <Flex w="full" bgColor="purple.850" borderRadius={8} align="center">
     <Flex w="full" position="relative" align="center">
       <Flex
@@ -55,7 +56,7 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick }: BalanceInpu
       >
         MAX
       </Flex>
-      <Input value={value} onChange={onChange} placeholder="0" />
+      <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />
     </Flex>
     {typeof label === 'string' ? (
       <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="purple.100" align="center" pl={2} pr={4}>
