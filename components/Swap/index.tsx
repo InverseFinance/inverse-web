@@ -1,4 +1,4 @@
-import { Text, Stack, Flex, useDisclosure } from '@chakra-ui/react'
+import { Text, Stack, Flex, useDisclosure, SimpleGrid } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import Container from '@inverse/components/common/Container'
 import { BalanceInput } from '@inverse/components/common/Input'
@@ -11,6 +11,7 @@ import { hasAllowance } from '@inverse/util/web3'
 import { FromAssetDropdown } from '../common/Assets/FromAssetDropdown'
 import { getParsedBalance } from '@inverse/util/markets'
 import { BigNumberList, Token, TokenList } from '@inverse/types';
+import { InverseAnimIcon } from '@inverse/components/common/Animation'
 
 const AssetInput = ({
   amount,
@@ -85,13 +86,36 @@ export const SwapView = () => {
   const [toAmount, setToAmount] = useState<string>('')
   const [fromToken, setFromToken] = useState(TOKENS[DOLA])
   const [toToken, setToToken] = useState(TOKENS[DAI])
+  const [isAnimStopped, setIsAnimStopped] = useState(true)
 
   const { balances } = useBalances(swapOptions)
   const { approvals } = useApprovals()
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
 
+  useEffect(() => {
+    if (fromToken.symbol === toToken.symbol) {
+      setToToken(fromToken.address === DOLA ? TOKENS[DAI] : TOKENS[DOLA])
+    }
+  }, [fromToken])
+
+  useEffect(() => {
+    if (toToken.symbol === toToken.symbol) {
+      setFromToken(toToken.address === DOLA ? TOKENS[DAI] : TOKENS[DOLA])
+    }
+  }, [toToken])
+
+  const handleInverse = () => {
+    setFromToken(toToken)
+    setToToken(fromToken)
+    setFromAmount(toAmount)
+    setToAmount(fromAmount)
+    setIsAnimStopped(false)
+    setTimeout(() => setIsAnimStopped(true), 1000)
+  }
+
   const commonAssetInputProps = { tokens: TOKENS, balances }
+
   return (
     <Container
       label="Swap"
@@ -99,8 +123,7 @@ export const SwapView = () => {
       href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
     >
       <Stack w="full" direction="column" spacing="2">
-        <Text>From : </Text>
-        <AssetInput 
+        <AssetInput
           amount={fromAmount}
           token={fromToken}
           assetOptions={swapOptions}
@@ -108,8 +131,15 @@ export const SwapView = () => {
           onAmountChange={(newAmount) => setFromAmount(newAmount)}
           {...commonAssetInputProps}
         />
-        <Text>To : </Text>
-        <AssetInput 
+
+        <SimpleGrid columns={3} w="full" alignItems="center">
+          <Text align="left">From {fromToken.symbol}</Text>
+          <InverseAnimIcon height={50} width={50} autoplay={!isAnimStopped} loop={false}
+            boxProps={{ onClick: handleInverse, w: "full", textAlign: "center" }} />
+          <Text align="right">To {toToken.symbol}</Text>
+        </SimpleGrid>
+
+        <AssetInput
           amount={toAmount}
           token={toToken}
           assetOptions={swapOptions}
