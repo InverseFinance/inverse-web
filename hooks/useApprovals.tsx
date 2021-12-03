@@ -27,6 +27,23 @@ export const useApprovals = (): SWR & Approvals => {
     isError: error,
   }
 }
+// TODO: refactor all approval hooks using this one
+export const useAllowances = (addresses: string[], target: string): SWR & Approvals => {
+  const { account } = useWeb3React<Web3Provider>()
+  const { data, error } = useEtherSWR(addresses.map(ad => ([ad, 'allowance', account, target])))
+
+  const results: BigNumberList = {};
+   
+  if(data) {
+    addresses.forEach((ad, i) => results[ad] = data[i])
+  }
+
+  return {
+    approvals: results,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
 
 export const useStabilizerApprovals = (): SWR & Approvals => {
   const { account, chainId } = useWeb3React<Web3Provider>()
@@ -39,9 +56,9 @@ export const useStabilizerApprovals = (): SWR & Approvals => {
   return {
     approvals: data
       ? {
-          [DAI]: data[0],
-          [DOLA]: data[1],
-        }
+        [DAI]: data[0],
+        [DOLA]: data[1],
+      }
       : {},
     isLoading: !error && !data,
     isError: error,
@@ -61,11 +78,11 @@ export const useVaultApprovals = (): SWR & Approvals => {
   return {
     approvals: data
       ? {
-          [VAULT_DAI_ETH]: data[0],
-          [VAULT_DAI_WBTC]: data[1],
-          [VAULT_DAI_YFI]: data[2],
-          [VAULT_USDC_ETH]: data[3],
-        }
+        [VAULT_DAI_ETH]: data[0],
+        [VAULT_DAI_WBTC]: data[1],
+        [VAULT_DAI_YFI]: data[2],
+        [VAULT_USDC_ETH]: data[3],
+      }
       : {},
     isLoading: !error && !data,
     isError: error,

@@ -3,7 +3,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import Container from '@inverse/components/common/Container'
 import { BalanceInput } from '@inverse/components/common/Input'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { useApprovals } from '@inverse/hooks/useApprovals'
+import { useAllowances } from '@inverse/hooks/useApprovals'
 import { useBalances } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
@@ -13,6 +13,10 @@ import { getParsedBalance } from '@inverse/util/markets'
 import { BigNumberList, Token, TokenList } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
 import { usePrices } from '@inverse/hooks/usePrices'
+import { SubmitButton } from '@inverse/components/common/Button'
+import { crvSwap, getERC20Contract } from '@inverse/util/contracts'
+import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
+import { constants } from 'ethers'
 
 const AssetInput = ({
   amount,
@@ -80,20 +84,25 @@ const AssetInput = ({
 
 export const SwapView = () => {
   const { active, library, chainId } = useWeb3React<Web3Provider>()
-  const { TOKENS, DOLA, DAI, USDC, USDT } = getNetworkConfigConstants(chainId)
+  const { TOKENS, DOLA, DAI, USDC, USDT, DOLA3POOLCRV } = getNetworkConfigConstants(chainId)
   const swapOptions = [DOLA, DAI, USDC, USDT];
 
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
+  const [exRate, setExRate] = useState<number>(0)
   const [fromToken, setFromToken] = useState(TOKENS[DOLA])
   const [toToken, setToToken] = useState(TOKENS[DAI])
   const [isAnimStopped, setIsAnimStopped] = useState(true)
 
   const { balances } = useBalances(swapOptions)
-  const { approvals } = useApprovals()
+  const { approvals } = useAllowances(swapOptions, DOLA3POOLCRV)
   const { prices } = usePrices()
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
+
+  useEffect(() => {
+    setIsApproved(hasAllowance(approvals, fromToken.address))
+  }, [approvals])
 
   useEffect(() => {
     if (fromToken.symbol === toToken.symbol) {
@@ -107,6 +116,17 @@ export const SwapView = () => {
     }
   }, [toToken])
 
+  useEffect(() => {
+    const fromPrice = prices ? prices[fromToken.coingeckoId!]?.usd||0 : 0;
+    const toPrice = prices ? prices[toToken.coingeckoId!]?.usd||1 : 1;
+    setExRate(fromPrice / toPrice);
+  }, [prices, fromToken, toToken])
+
+  useEffect(() => {
+    const amount = parseFloat(fromAmount)||0
+    setToAmount((amount * exRate).toFixed(4))
+  }, [fromAmount, exRate])
+
   const handleInverse = () => {
     setFromToken(toToken)
     setToToken(fromToken)
@@ -116,10 +136,25 @@ export const SwapView = () => {
     setTimeout(() => setIsAnimStopped(true), 1000)
   }
 
+  const approveToken = async (token: string, options: HandleTxOptions) => {
+    return handleTx(
+      await getERC20Contract(token, library?.getSigner()).approve(DOLA3POOLCRV, constants.MaxUint256),
+      options,
+    )
+  }
+
+  const handleSubmit = async () => {
+    if(!library?.getSigner()) { return }
+    if(isApproved) {
+      return crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), 1)
+    } else {
+      return approveToken(fromToken.address, { onSuccess : () => setIsApproved(true) })
+    }
+  }
+
   const commonAssetInputProps = { tokens: TOKENS, balances }
 
-  const exRate = prices ? prices[fromToken.coingeckoId!].usd / prices[toToken.coingeckoId!].usd : 0
-
+  
   return (
     <Container
       label="Swap"
@@ -137,10 +172,10 @@ export const SwapView = () => {
         />
 
         <SimpleGrid columns={3} w="full" alignItems="center">
-          <Text align="left">From {fromToken.symbol}</Text>
+          <Text opacity="0.6" align="left">From {fromToken.symbol}</Text>
           <InverseAnimIcon height={50} width={50} autoplay={!isAnimStopped} loop={false}
             boxProps={{ onClick: handleInverse, w: "full", textAlign: "center" }} />
-          <Text align="right">To {toToken.symbol}</Text>
+          <Text opacity="0.6" align="right">To {toToken.symbol}</Text>
         </SimpleGrid>
 
         <AssetInput
@@ -156,6 +191,11 @@ export const SwapView = () => {
           {`Exchange Rate : 1 ${fromToken.symbol} = ${exRate.toFixed(4)} ${toToken.symbol}`}
         </Text>
         
+        <SubmitButton onClick={handleSubmit}>
+          {
+            isApproved ? 'Swap' : 'Approve'
+          }
+        </SubmitButton>
       </Stack>
     </Container>
   )
