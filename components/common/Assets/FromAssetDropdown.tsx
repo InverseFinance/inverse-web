@@ -36,9 +36,9 @@ export const FromAssetDropdown = ({
             label={
                 <>
                     <Flex w={5}>
-                        <Image w={5} h={5} src={asset.image} />
+                        <Image ignoreFallback={true} alt="" w={5} h={5} src={asset.image} />
                     </Flex>
-                    <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+                    <Flex minW="80px" fontSize="lg" fontWeight="semibold" color="purple.100" justify="space-between">
                         {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </>
