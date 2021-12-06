@@ -116,8 +116,8 @@ export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlyi
   const contract = getDolaCrvPoolContract(signer);
 
   const bnAmount = parseUnits(amount.toString(), fromUnderlying.decimals);
-  const bnMinReceived = parseUnits((toAmount - (toAmount * maxSlippage / 100)).toString(), toUnderlying.decimals);
-
+  const minReveived = (toAmount - (toAmount * maxSlippage / 100)).toFixed(toUnderlying.decimals);
+  const bnMinReceived = parseUnits(minReveived, toUnderlying.decimals);
   const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
   const toIndex = CRV_INDEXES[toUnderlying.symbol]
 
