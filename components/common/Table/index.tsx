@@ -53,7 +53,7 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
   const chevronProps = { color: 'purple.300', w: 4, h: 4 };
 
   return (
-    <Stack w="full" spacing={1} overflowX="auto" data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
+    <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
       <Flex
         w="full"
         fontSize="11px"
