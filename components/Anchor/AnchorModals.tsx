@@ -18,6 +18,7 @@ import { UnderlyingItem } from '@inverse/components/common/Underlying/Underlying
 import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -166,6 +167,11 @@ export const AnchorModal = ({
           />
         </Stack>
         <AnchorStats operation={operation} asset={asset} amount={amount} />
+        {
+          operation === AnchorOperations.borrow ?
+            <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
+            : null
+        }
       </Stack>
     </Modal>
   )

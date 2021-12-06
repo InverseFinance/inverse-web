@@ -39,18 +39,18 @@ export const Anchor = () => {
             </Container>
           </Flex>
           <Flex w="full" justify="center">
-            <Flex w={{ base: 'full', xl: '2xl' }} justify="flex-end" display={supplyDisplay}>
+            <Flex w={{ base: 'full', xl: '2xl', lg: '65%' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load supplied assets"><AnchorSupplied /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '2xl' }} display={borrowDisplay}>
+            <Flex w={{ base: 'full', xl: '2xl', lg:'35%' }} display={borrowDisplay}>
               <ErrorBoundary description="Failed to load borrowed assets"><AnchorBorrowed /></ErrorBoundary>
             </Flex>
           </Flex>
           <Flex w="full" justify="center">
-            <Flex w={{ base: 'full', xl: '2xl' }} justify="flex-end" display={supplyDisplay}>
+            <Flex w={{ base: 'full', xl: '2xl', lg: '65%' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load suppliable assets"><AnchorSupply /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '2xl' }} display={borrowDisplay}>
+            <Flex w={{ base: 'full', xl: '2xl', lg:'35%' }} display={borrowDisplay}>
               <ErrorBoundary description="failed to load borrowable assets"><AnchorBorrow /></ErrorBoundary>
             </Flex>
           </Flex>
