@@ -169,7 +169,7 @@ export const AnchorModal = ({
         <AnchorStats operation={operation} asset={asset} amount={amount} />
         {
           operation === AnchorOperations.borrow ?
-            <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests by the borrow APR" />
+            <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
             : null
         }
       </Stack>

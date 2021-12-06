@@ -51,7 +51,7 @@ const getColumn = (
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: 'Annual Percentage Yield',
+      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd }: Market) => (
         <AnchorPoolInfo apy={supplyApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -60,7 +60,7 @@ const getColumn = (
     rewardApy: {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: <>Annual Percentage Yield in <b>INV</b> token</>,
+      tooltip: <><Text fontWeight="bold">APY rewarded in INV token</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards, priceUsd }: Market) => (
         <AnchorPoolInfo apy={rewardApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} isReward={true} monthlyValue={monthlyInvRewards} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -91,13 +91,13 @@ const getColumn = (
   }
   cols.supplyBalance = {
     ...cols.balance,
-    tooltip: 'Equals the Supplied amount plus the generated interests over time',
+    tooltip: 'Equals the Supplied amount plus the generated supply Interests over time',
   }
   cols.borrowBalance = {
     ...cols.balance,
     label: 'Debt',
     tooltip: <Text>
-      Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated Interests</b> over time.
+      Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated borrow Interests</b> over time.
     </Text>,
   }
   cols.wallet = {

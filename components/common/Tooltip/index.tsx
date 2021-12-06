@@ -43,7 +43,7 @@ export const AnimatedInfoTooltip = ({
 } & Partial<FlexProps>) => {
   const content = <Flex alignItems="center" {...props}>
     <InfoAnimIcon />
-    <Text ml="1">{message}</Text>
+    <Text ml="2">{message}</Text>
   </Flex>
 
   const tooltipIconProps = iconProps || iconSizes[size];
