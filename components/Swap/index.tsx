@@ -16,6 +16,11 @@ import { SubmitButton } from '@inverse/components/common/Button'
 import { crvGetDyUnderlying, crvSwap, getERC20Contract } from '@inverse/util/contracts'
 import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
 import { constants } from 'ethers'
+import { isAddress } from 'ethers/lib/utils';
+
+const getMaxBalance = (balances: BigNumberList, token: Token) => {
+  return getParsedBalance(balances, token.address, token.decimals);
+}
 
 const AssetInput = ({
   amount,
@@ -42,12 +47,8 @@ const AssetInput = ({
     setTimeout(() => setJustClosed(false), 200)
   }, [isOpen])
 
-  const getMaxBalance = () => {
-    return getParsedBalance(balances, token.address, token.decimals);
-  }
-
   const setAmountToMax = () => {
-    onAmountChange((Math.floor(getMaxBalance() * 1e8) / 1e8).toString())
+    onAmountChange((Math.floor(getMaxBalance(balances, token) * 1e8) / 1e8).toString())
   }
 
   return (
@@ -82,9 +83,16 @@ const AssetInput = ({
   )
 }
 
-export const SwapView = () => {
+const getToken = (tokens: TokenList, symbolOrAddress: string) => {
+  return Object.entries(tokens)
+    .map(([address, token]) => token)
+    .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
+}
+
+export const SwapView = ({ from, to }: { from: string, to: string }) => {
   const { active, library, chainId } = useWeb3React<Web3Provider>()
   const { TOKENS, DOLA, DAI, USDC, USDT, DOLA3POOLCRV } = getNetworkConfigConstants(chainId)
+
   const swapOptions = [DOLA, DAI, USDC, USDT];
 
   const [fromAmount, setFromAmount] = useState<string>('')
@@ -92,10 +100,10 @@ export const SwapView = () => {
   const [exRates, setExRates] = useState<{ [key: string]: number }>({})
   const [maxSlippage, setMaxSlippage] = useState<number>(1)
   const [isDisabled, setIsDisabled] = useState<boolean>(true)
-  const [autoChangeAmount, setAutoChangeAmount] = useState<boolean>(true)
-  const [autoChangeTimeout, setAutoChangeTimeout] = useState<any>(undefined)
-  const [fromToken, setFromToken] = useState(TOKENS[DOLA])
-  const [toToken, setToToken] = useState(TOKENS[DAI])
+  const defaultFromToken = getToken(TOKENS, from) || getToken(TOKENS, 'DOLA')!;
+  const defaultToToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!
+  const [fromToken, setFromToken] = useState(defaultFromToken)
+  const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
   const [isAnimStopped, setIsAnimStopped] = useState(true)
 
   const { balances } = useBalances(swapOptions)
@@ -108,68 +116,55 @@ export const SwapView = () => {
   }, [approvals])
 
   useEffect(() => {
-    if (fromToken.symbol === toToken.symbol) {
-      setToToken(fromToken.address === DOLA ? TOKENS[DAI] : TOKENS[DOLA])
-      handleAutoChange()
-    }
-  }, [fromToken])
+    changeAmount(fromAmount, true)
+  }, [exRates])
 
   useEffect(() => {
-    if (toToken.symbol === toToken.symbol) {
-      setFromToken(toToken.address === DOLA ? TOKENS[DAI] : TOKENS[DOLA])
-      handleAutoChange()
-    }
-  }, [toToken])
-
-  useEffect(() => {
-    const fetchExRate = async () => {
-      const exRateKey = fromToken.symbol+toToken.symbol;
-      if(!library || exRates[exRateKey]){ return }
+    const fetchCrvExRate = async () => {
+      const exRateKey = fromToken.symbol + toToken.symbol;
+      const exRateKeyReverse = toToken.symbol + fromToken.symbol;
+      if (!library || exRates[exRateKey]) { return }
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, 1);
-      setExRates({ ...exRates, [exRateKey]: parseFloat(dy) });
+      const exRate = parseFloat(dy);
+      const reverseExRate = exRate ? 1 / parseFloat(dy) : 0;
+      setExRates({ ...exRates, [exRateKey]: exRate, [exRateKeyReverse]: reverseExRate });
     }
-    fetchExRate()
+    fetchCrvExRate()
   }, [library, fromToken, toToken])
 
-  const autoChangeOtherAmount = (changedAmount: string, isFrom: boolean, exRate: number) => {
-    if(!autoChangeAmount){
-      return
-    }
-    if(changedAmount === ''){
-      return
-    }
-    const amount = parseFloat(changedAmount)||0
-    setIsDisabled(!(amount > 0))
-    if(isFrom){
-      setToAmount((amount * exRate).toString())
-    } else {
-      setFromAmount(exRate ? (amount / exRate).toString() : '')
+  const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
+    setter(newToken)
+    if(newToken.symbol === otherToken.symbol) {
+      otherSetter(newToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
     }
   }
 
-  useEffect(() => {
-    autoChangeOtherAmount(fromAmount, true, exRates[fromToken.symbol+toToken.symbol])
-  }, [fromAmount, exRates])
+  const changeAmount = (newAmount: string, isFrom: boolean) => {
+    const setter = isFrom ? setFromAmount : setToAmount
+    setter(newAmount);
 
-  useEffect(() => {
-    autoChangeOtherAmount(toAmount, false, exRates[fromToken.symbol+toToken.symbol])
-  }, [toAmount, exRates])
+    const otherSetter = !isFrom ? setFromAmount : setToAmount
+    const fromToExRate = exRates[fromToken.symbol + toToken.symbol];
+    const toFromExRate = fromToExRate ? 1 / fromToExRate : 0;
+    changeOtherAmount(newAmount, otherSetter, isFrom ? fromToExRate : toFromExRate)
+  }
 
-  const handleAutoChange = () => {
-    setAutoChangeAmount(false)
-    if(typeof autoChangeTimeout === 'number') { clearTimeout(autoChangeTimeout) }
-    setAutoChangeTimeout(setTimeout(() => setAutoChangeAmount(true), 1000))
+  const changeOtherAmount = (changedAmount: string, otherSetter: (v: string) => void, exRate: number) => {
+    if (changedAmount === '' || !exRate) {
+      otherSetter('')
+      return
+    }
+    const amount = parseFloat(changedAmount) || 0
+    setIsDisabled(!(amount > 0))
+    otherSetter((amount * exRate).toString())
   }
 
   const handleInverse = () => {
-    setAutoChangeAmount(false)
     setFromToken(toToken)
     setToToken(fromToken)
     setFromAmount(toAmount)
     setToAmount(fromAmount)
     setIsAnimStopped(false)
-    if(typeof autoChangeTimeout === 'number') { clearTimeout(autoChangeTimeout) }
-    setAutoChangeTimeout(setTimeout(() => setAutoChangeAmount(true), 1000))
     setTimeout(() => setIsAnimStopped(true), 1000)
   }
 
@@ -181,16 +176,16 @@ export const SwapView = () => {
   }
 
   const handleSubmit = async () => {
-    if(!library?.getSigner()) { return }
-    if(isApproved) {
+    if (!library?.getSigner()) { return }
+    if (isApproved) {
       return crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), 1)
     } else {
-      return approveToken(fromToken.address, { onSuccess : () => setIsApproved(true) })
+      return approveToken(fromToken.address, { onSuccess: () => setIsApproved(true) })
     }
   }
 
   const commonAssetInputProps = { tokens: TOKENS, balances }
-  
+
   return (
     <Container
       label="Swap"
@@ -202,8 +197,8 @@ export const SwapView = () => {
           amount={fromAmount}
           token={fromToken}
           assetOptions={swapOptions}
-          onAssetChange={(newToken) => setFromToken(newToken)}
-          onAmountChange={(newAmount) => setFromAmount(newAmount)}
+          onAssetChange={(newToken) => changeToken(newToken, setFromToken, toToken, setToToken)}
+          onAmountChange={(newAmount) => changeAmount(newAmount, true)}
           {...commonAssetInputProps}
         />
 
@@ -218,18 +213,18 @@ export const SwapView = () => {
           amount={toAmount}
           token={toToken}
           assetOptions={swapOptions}
-          onAssetChange={(newToken) => setToToken(newToken)}
-          onAmountChange={(newAmount) => setToAmount(newAmount)}
+          onAssetChange={(newToken) => changeToken(newToken, setToToken, fromToken, setFromToken)}
+          onAmountChange={(newAmount) => changeAmount(newAmount, false)}
           {...commonAssetInputProps}
         />
 
         <Text textAlign="center" w="full" fontSize="12px" mt="2">
-          {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[fromToken.symbol+toToken.symbol]?.toFixed(4)} ${toToken.symbol}`}
+          {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[fromToken.symbol + toToken.symbol]?.toFixed(4)} ${toToken.symbol}`}
         </Text>
         <Text textAlign="center" w="full" fontSize="12px" mt="2">
-          {`Max slippage set to 1%, min. to receive : ${ toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100)).toFixed(4) }`}
+          {`Max slippage set to 1%, min. to receive : ${toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100)).toFixed(4)}`}
         </Text>
-        
+
         <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
           {
             isApproved ? 'Swap' : 'Approve'
