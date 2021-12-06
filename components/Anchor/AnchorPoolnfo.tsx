@@ -45,6 +45,10 @@ export const AnchorPoolInfo = ({
                                 <>
                                     <Text>Monthly {monthlyType}{emoji}</Text>
                                     ~ <b>{monthlyValue?.toFixed(5)} {symbol}</b> ({dollarify(monthlyValue * interestPriceUsd!)})
+                                    {
+                                        !isSupplied ? 
+                                        <Text>This increases the debt to repay</Text> : null
+                                    }
                                 </>
                                 : ''
                         } />

@@ -32,7 +32,11 @@ const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: B
     minWorthAccepted;
 }
 
-const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 'balance' | 'wallet', minWidth = 24, invPriceUsd?: number): Column => {
+const getColumn = (
+  colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 'balance' | 'wallet' | 'supplyBalance' | 'borrowBalance',
+  minWidth = 24,
+  invPriceUsd?: number,
+): Column => {
   const cols: { [key: string]: Column } = {
     asset: {
       field: 'symbol',
@@ -73,15 +77,32 @@ const getColumn = (colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 
     borrowApy: {
       field: 'borrowApy',
       label: 'APR',
-      tooltip: 'Annual Percentage Rate to borrow asset',
+      tooltip: <>
+        <Text fontWeight="bold">Annual Percentage Rate</Text>
+        <Text>Corresponds to how much your debt increases in one year.</Text>
+        <Text>The APR may vary over time.</Text>
+        <Text></Text>
+      </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy, monthlyBorrowFee, underlying, priceUsd }: Market) => (
         <AnchorPoolInfo apy={borrowApy} priceUsd={priceUsd} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
   }
+  cols.supplyBalance = {
+    ...cols.balance,
+    tooltip: 'Equals the Supplied amount plus the generated interests over time',
+  }
+  cols.borrowBalance = {
+    ...cols.balance,
+    label: 'Debt',
+    tooltip: <Text>
+      Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated Interests</b> over time.
+    </Text>,
+  }
   cols.wallet = {
     ...cols.balance,
+    tooltip: undefined,
     label: 'Wallet',
   }
   return cols[colName];
@@ -109,7 +130,7 @@ export const AnchorSupplied = () => {
     onOpen()
   }
 
-  const invPriceUsd = prices['inverse-finance']?.usd||0;
+  const invPriceUsd = prices['inverse-finance']?.usd || 0;
 
   const marketsWithBalance = markets?.map((market) => {
     const { token, underlying, priceUsd } = market;
@@ -119,7 +140,7 @@ export const AnchorSupplied = () => {
     const anTokenBalance = getParsedBalance(balances, token, underlying.decimals);
     // balance in undelying token
     const tokenBalance = anTokenBalance * anTokenToTokenExRate;
-    
+
     const tokenBalanceInInv = getBalanceInInv(balances, token, exchangeRates, priceUsd, invPriceUsd, underlying.decimals);
     const monthlyInvRewards = getMonthlyRate(tokenBalanceInInv, market.rewardApy);
     const monthlyAssetRewards = getMonthlyRate(tokenBalance, market.supplyApy);
@@ -133,10 +154,11 @@ export const AnchorSupplied = () => {
     getColumn('asset', 32),
     getColumn('supplyApy', 24, invPriceUsd),
     getColumn('rewardApy', 24, invPriceUsd),
-    getColumn('balance', 24),
+    getColumn('supplyBalance', 24),
     {
       field: 'isCollateral',
       label: 'Collateral',
+      tooltip: 'If enabled, your asset will be used as collateral to increase your borrow limit. Collaterals can be liquidated if the borrow limit reaches 100%.',
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }} {...props} />,
       value: ({ token, isCollateral }: Market) => {
         return (
@@ -228,9 +250,9 @@ export const AnchorBorrowed = () => {
   })
 
   const columns = [
-    getColumn('asset', 24),
-    getColumn('borrowApy', 24),
-    getColumn('balance', 24),
+    getColumn('asset', 16),
+    getColumn('borrowApy', 20),
+    getColumn('borrowBalance', 24),
   ]
 
   if (!active || !usdSupply) {
@@ -344,8 +366,8 @@ export const AnchorBorrow = () => {
   });
 
   const columns = [
-    getColumn('asset', 24),
-    getColumn('borrowApy', 24),
+    getColumn('asset', 16),
+    getColumn('borrowApy', 20),
     {
       field: 'liquidityUsd',
       label: 'Liquidity',

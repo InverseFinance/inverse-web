@@ -156,7 +156,7 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
       label="Borrow Stats"
       stats={[
         {
-          label: 'Borrow APY',
+          label: 'Borrow APR',
           value: `${asset.borrowApy.toFixed(2)}%`,
         },
         {
