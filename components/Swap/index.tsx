@@ -3,8 +3,8 @@ import { Web3Provider } from '@ethersproject/providers'
 import Container from '@inverse/components/common/Container'
 import { BalanceInput } from '@inverse/components/common/Input'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { useAllowances } from '@inverse/hooks/useApprovals'
-import { useBalances } from '@inverse/hooks/useBalances'
+import { useAllowances, useStabilizerApprovals } from '@inverse/hooks/useApprovals'
+import { useBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
 import { hasAllowance } from '@inverse/util/web3'
@@ -13,10 +13,12 @@ import { getParsedBalance } from '@inverse/util/markets'
 import { BigNumberList, Token, TokenList } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
 import { SubmitButton } from '@inverse/components/common/Button'
-import { crvGetDyUnderlying, crvSwap, getERC20Contract } from '@inverse/util/contracts'
+import { crvGetDyUnderlying, crvSwap, getERC20Contract, getNewContract, getStabilizerContract } from '@inverse/util/contracts'
 import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
 import { constants } from 'ethers'
-import { isAddress } from 'ethers/lib/utils';
+import { isAddress, parseUnits } from 'ethers/lib/utils';
+import { formatUnits } from 'ethers/lib/utils';
+import { STABILIZER_FEE } from '@inverse/config/constants'
 
 const getMaxBalance = (balances: BigNumberList, token: Token) => {
   return getParsedBalance(balances, token.address, token.decimals);
@@ -89,31 +91,45 @@ const getToken = (tokens: TokenList, symbolOrAddress: string) => {
     .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
 }
 
+enum Swappers {
+  crv = 'crv',
+  oneinch = '1inch',
+  stabilizer = 'stabilizer',
+}
+
 export const SwapView = ({ from, to }: { from: string, to: string }) => {
   const { active, library, chainId } = useWeb3React<Web3Provider>()
-  const { TOKENS, DOLA, DAI, USDC, USDT, DOLA3POOLCRV } = getNetworkConfigConstants(chainId)
+  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
 
-  const swapOptions = [DOLA, DAI, USDC, USDT];
+  const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
+
+  const swapOptions = [DOLA, DAI, USDC, USDT]//, INV];
 
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
   const [exRates, setExRates] = useState<{ [key: string]: number }>({})
   const [maxSlippage, setMaxSlippage] = useState<number>(1)
   const [isDisabled, setIsDisabled] = useState<boolean>(true)
+  const { balance: stabilizerBalance } = useStabilizerBalance()
   const defaultFromToken = getToken(TOKENS, from) || getToken(TOKENS, 'DOLA')!;
   const defaultToToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!
   const [fromToken, setFromToken] = useState(defaultFromToken)
   const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
+  const [bestRoute, setBestRoute] = useState<Swappers>(fromToken?.symbol !== 'INV' ? Swappers.crv : Swappers.oneinch)
+  const [chosenRoute, setChosenRoute] = useState<Swappers>(bestRoute)
+
   const [isAnimStopped, setIsAnimStopped] = useState(true)
 
   const { balances } = useBalances(swapOptions)
   const { approvals } = useAllowances(swapOptions, DOLA3POOLCRV)
+  const { approvals: stabilizerApprovals } = useStabilizerApprovals()
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
 
   useEffect(() => {
-    setIsApproved(hasAllowance(approvals, fromToken.address))
-  }, [approvals])
+    const contractApprovals: any = { [Swappers.crv]: approvals, [Swappers.stabilizer]: stabilizerApprovals }
+    setIsApproved(hasAllowance(contractApprovals[chosenRoute], fromToken.address))
+  }, [approvals, chosenRoute, stabilizerApprovals])
 
   useEffect(() => {
     changeAmount(fromAmount, true)
@@ -124,17 +140,49 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
       const exRateKey = fromToken.symbol + toToken.symbol;
       const exRateKeyReverse = toToken.symbol + fromToken.symbol;
       if (!library || exRates[exRateKey]) { return }
-      const dy = await crvGetDyUnderlying(library, fromToken, toToken, 1);
-      const exRate = parseFloat(dy);
+      const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
+      const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
+      const exRate = parseFloat(dy) / rateAmountRef;
       const reverseExRate = exRate ? 1 / parseFloat(dy) : 0;
       setExRates({ ...exRates, [exRateKey]: exRate, [exRateKeyReverse]: reverseExRate });
     }
     fetchCrvExRate()
   }, [library, fromToken, toToken])
 
+  useEffect(() => {
+    getBestRoute()
+  }, [exRates, fromToken, toToken, fromAmount, toAmount, stabilizerBalance, balances])
+
+  const getStabilizerMax = (stabilizerRate: number) => {
+    if(!balances) { return 0 }
+
+    return fromToken.symbol === 'DAI' ?
+      parseFloat(formatUnits(balances[DAI])) * stabilizerRate
+      : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
+  }
+
+  // best route bewteen CRV, STABILIZER & 1INCH
+  const getBestRoute = () => {
+    const stablizerTokens = ['DOLA', 'DAI']
+    // if INV case we can only use 1inch
+    if (fromToken.symbol === 'INV') {
+      setBestRoute(Swappers.oneinch);
+    } // if DOLA-DAI we can use either stabilizer, crv or 1inch
+    else if (stablizerTokens.includes(fromToken.symbol) && stablizerTokens.includes(toToken.symbol)) {
+      const stabilizerRate = 1 - STABILIZER_FEE;
+      const stabilizerMax = getStabilizerMax(stabilizerRate)
+      const notEnoughLiquidity = parseFloat(fromAmount) > stabilizerMax;
+      const useCrv = notEnoughLiquidity || exRates[fromToken.symbol + toToken.symbol] > stabilizerRate
+      setBestRoute(useCrv ? Swappers.crv : Swappers.stabilizer);
+    } // for other cases crv
+    else {
+      setBestRoute(Swappers.crv)
+    }
+  }
+
   const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
     setter(newToken)
-    if(newToken.symbol === otherToken.symbol) {
+    if (newToken.symbol === otherToken.symbol) {
       otherSetter(newToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
     }
   }
@@ -170,15 +218,25 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
 
   const approveToken = async (token: string, options: HandleTxOptions) => {
     return handleTx(
-      await getERC20Contract(token, library?.getSigner()).approve(DOLA3POOLCRV, constants.MaxUint256),
+      await getERC20Contract(token, library?.getSigner()).approve(contracts[chosenRoute], constants.MaxUint256),
       options,
     )
   }
 
   const handleSubmit = async () => {
     if (!library?.getSigner()) { return }
-    if (isApproved) {
-      return crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), 1)
+    // 1inch v4 can "approve and swap" in 1 tx
+    if (isApproved || chosenRoute === Swappers.oneinch) {
+      if (chosenRoute === Swappers.crv) {
+        return crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage)
+      } else if (chosenRoute === Swappers.stabilizer) {
+        const contract = getStabilizerContract(library?.getSigner())
+        const stabilizerOperation: string = toToken.symbol === 'DOLA' ? 'buy' : 'sell'
+        contract[stabilizerOperation](parseUnits(fromAmount));
+      } // TODO : handle 1inch
+      else {
+
+      }
     } else {
       return approveToken(fromToken.address, { onSuccess: () => setIsApproved(true) })
     }
@@ -190,7 +248,7 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
     <Container
       label="Swap"
       description="Swap between DOLA, INV, DAI, USDC and USDT"
-      href="https://docs.inverse.finance/anchor-and-dola-overview#stabilizer"
+      href="https://docs.inverse.finance/anchor-and-dola-overview"
     >
       <Stack w="full" direction="column" spacing="3">
         <AssetInput
@@ -219,12 +277,11 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
         />
 
         <Text textAlign="center" w="full" fontSize="12px" mt="2">
-          {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[fromToken.symbol + toToken.symbol]?.toFixed(4)} ${toToken.symbol}`}
+          {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`}
         </Text>
         <Text textAlign="center" w="full" fontSize="12px" mt="2">
           {`Max slippage set to 1%, min. to receive : ${toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100)).toFixed(4)}`}
         </Text>
-
         <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
           {
             isApproved ? 'Swap' : 'Approve'

@@ -131,7 +131,7 @@ export const crvGetDyUnderlying = async (signerOrProvider: JsonRpcSigner | Web3P
   const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
   const toIndex = CRV_INDEXES[toUnderlying.symbol]
   
-  const bnAmount = parseUnits(amount.toString(), fromUnderlying.decimals);
+  const bnAmount = parseUnits(amount.toFixed(fromUnderlying.decimals), fromUnderlying.decimals);
 
   try {
     return formatUnits(await contract.get_dy_underlying(fromIndex, toIndex, bnAmount), toUnderlying.decimals);
