@@ -7,7 +7,7 @@ import { useBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
 import { hasAllowance } from '@inverse/util/web3'
-import { getToken } from '@inverse/util/markets'
+import { getParsedBalance, getToken } from '@inverse/util/markets'
 import { Token } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
 import { SubmitButton } from '@inverse/components/common/Button'
@@ -35,6 +35,10 @@ const routes = [
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
 
+const SwapInfoMessage = ({ description, height }: { description: string, height?: string }) => {
+  return <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
+}
+
 export const SwapView = ({ from, to }: { from: string, to: string }) => {
   const { active, library, chainId } = useWeb3React<Web3Provider>()
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
@@ -61,6 +65,8 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
   const [chosenRoute, setChosenRoute] = useState<Swappers>(bestRoute)
   const [swapDir, setSwapDir] = useState<string>(fromToken.symbol + toToken.symbol)
   const [canUseStabilizer, setCanUseStabilizer] = useState(true);
+  const [noStabilizerLiquidity, setNoStabilizerLiquidity] = useState(false);
+  const [notEnoughTokens, setNotEnoughTokens] = useState(false);
 
   const [isAnimStopped, setIsAnimStopped] = useState(true)
 
@@ -123,6 +129,7 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
     else if (canUseStabilizer) {
       const stabilizerMax = getStabilizerMax(1 - STABILIZER_FEE)
       const notEnoughLiquidity = parseFloat(fromAmount) > stabilizerMax;
+      setNoStabilizerLiquidity(notEnoughLiquidity);
       const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir]
       setBestRoute(useCrv ? Swappers.crv : Swappers.stabilizer);
     } // for other cases crv
@@ -145,6 +152,12 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
     const otherSetter = !isFrom ? setFromAmount : setToAmount
     const fromToExRate = exRates[chosenRoute][swapDir];
     const toFromExRate = fromToExRate ? 1 / fromToExRate : 0;
+
+    const amount = parseFloat(newAmount) || 0
+    const fromBalance = getParsedBalance(balances, fromToken.address, fromToken.decimals);
+    setNotEnoughTokens(amount > fromBalance)
+    setIsDisabled(!(amount > 0) || amount > fromBalance)
+
     changeOtherAmount(newAmount, otherSetter, isFrom ? fromToExRate : toFromExRate)
   }
 
@@ -154,7 +167,6 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
       return
     }
     const amount = parseFloat(changedAmount) || 0
-    setIsDisabled(!(amount > 0))
     otherSetter((amount * exRate).toString())
   }
 
@@ -260,30 +272,33 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
 
         {
           chosenRoute === Swappers.stabilizer && !canUseStabilizer ?
-            <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height: '48px' }} description="The Stabilizer can only be used for the DAI-DOLA pair" />
+            <SwapInfoMessage description="The Stabilizer can only be used for the DAI-DOLA pair" />
             :
-            <>
-              <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" mt="2">
-                {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`}
-              </Text>
+            chosenRoute === Swappers.stabilizer && noStabilizerLiquidity ?
+              <SwapInfoMessage description="Not enough liquidity" />
+              :
+              <>
+                <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" mt="2">
+                  {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`}
+                </Text>
 
-              {
-                chosenRoute === Swappers.stabilizer ? 
-                  <InfoMessage alertProps={{ w: 'full', fontSize: '12px' }} description="There is no slippage when using the Stabilizer" />
-                  :
-                  <SwapSlippage onChange={(v: string) => setMaxSlippage(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
-              }
+                {
+                  chosenRoute === Swappers.stabilizer ?
+                    <SwapInfoMessage height='48px' description="There is no slippage when using the Stabilizer" />
+                    :
+                    <SwapSlippage onChange={(v: string) => setMaxSlippage(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
+                }
 
-              <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
-                {
-                  isApproved ? 'Swap' : 'Approve'
-                }
-                {
-                  !isApproved ?
-                    <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
-                }
-              </SubmitButton>
-            </>
+                <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
+                  {
+                    notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Approve'
+                  }
+                  {
+                    !isApproved ?
+                      <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
+                  }
+                </SubmitButton>
+              </>
         }
       </Stack>
     </Container>
