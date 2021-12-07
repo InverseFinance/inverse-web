@@ -297,8 +297,8 @@ export const AppNav = ({ active }: { active?: string }) => {
     const init = async () => {
       const isReady = await ethereumReady(10000);
       if (!isReady) { return }
-
-      const chainIdInWallet = window?.ethereum?.networkVersion;
+      // use chainId not networkVersion
+      const chainIdInWallet = parseInt(window?.ethereum?.chainId, 16);
       if (!chainIdInWallet) { return }
 
       setBadgeChainId(chainIdInWallet);

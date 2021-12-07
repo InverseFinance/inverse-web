@@ -129,7 +129,7 @@ export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
   return new Promise((resolve) => {
     const checkReady = (nbAttempts: number) => {
       setTimeout(() => {
-        if (window?.ethereum?.networkVersion) {
+        if (window?.ethereum?.chainId) {
           resolve(true)
         } else if (nbAttempts * polling <= timeout) {
           checkReady(nbAttempts + 1);
@@ -139,7 +139,7 @@ export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
       }, polling);
     }
 
-    if (window?.ethereum?.networkVersion) {
+    if (window?.ethereum?.chainId) {
       resolve(true);
     } else {
       checkReady(0);
