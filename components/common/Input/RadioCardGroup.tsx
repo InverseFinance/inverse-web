@@ -1,4 +1,5 @@
 import { useRadio, UseRadioProps, Box, UseRadioGroupProps, useRadioGroup, HStack, BoxProps, StackProps } from '@chakra-ui/react'
+import { RadioCardGroupOptions } from '@inverse/types'
 
 export const RadioCard = ({ radioProps, ...props }: { radioProps: UseRadioProps } & Partial<BoxProps>) => {
     const { getInputProps, getCheckboxProps } = useRadio(radioProps)
@@ -28,8 +29,6 @@ export const RadioCard = ({ radioProps, ...props }: { radioProps: UseRadioProps 
         </Box>
     )
 }
-
-type RadioCardGroupOptions = { value: string, label?: React.ReactNode }[];
 
 export const RadioCardGroup = ({
     options,

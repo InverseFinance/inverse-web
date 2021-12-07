@@ -230,3 +230,5 @@ export type Interests = {
 }
 
 export type BigNumberList = { [key: string]: BigNumber };
+
+export type RadioCardGroupOptions = { value: string, label?: React.ReactNode }[];

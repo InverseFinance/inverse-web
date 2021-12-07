@@ -1,98 +1,27 @@
-import { Text, Stack, Flex, Box, useDisclosure, SimpleGrid, Badge, Divider } from '@chakra-ui/react'
+import { Text, Stack, Box, SimpleGrid, Badge, Divider } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import Container from '@inverse/components/common/Container'
-import { BalanceInput } from '@inverse/components/common/Input'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { useAllowances, useStabilizerApprovals } from '@inverse/hooks/useApprovals'
 import { useBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
 import { hasAllowance } from '@inverse/util/web3'
-import { FromAssetDropdown } from '@inverse/components/common/Assets/FromAssetDropdown'
-import { getParsedBalance } from '@inverse/util/markets'
-import { BigNumberList, Token, TokenList } from '@inverse/types';
+import { getToken } from '@inverse/util/markets'
+import { Token } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
 import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
 import { constants } from 'ethers'
-import { isAddress, parseUnits } from 'ethers/lib/utils';
+import { parseUnits } from 'ethers/lib/utils';
 import { formatUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@inverse/config/constants'
 import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { InfoMessage } from '@inverse/components/common/Messages'
-
-const getMaxBalance = (balances: BigNumberList, token: Token) => {
-  return getParsedBalance(balances, token.address, token.decimals);
-}
-
-const AssetInput = ({
-  amount,
-  balances,
-  token,
-  tokens,
-  assetOptions,
-  onAssetChange,
-  onAmountChange
-}: {
-  amount: string,
-  balances: BigNumberList,
-  token: Token,
-  tokens: TokenList,
-  assetOptions: string[],
-  onAssetChange: (newToken: Token) => void,
-  onAmountChange: (newAmount: string) => void,
-}) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [justClosed, setJustClosed] = useState(isOpen)
-
-  useEffect(() => {
-    if (!isOpen) { setJustClosed(true) }
-    setTimeout(() => setJustClosed(false), 200)
-  }, [isOpen])
-
-  const setAmountToMax = () => {
-    onAmountChange((Math.floor(getMaxBalance(balances, token) * 1e8) / 1e8).toString())
-  }
-
-  return (
-    <BalanceInput
-      value={amount}
-      onChange={(e: React.MouseEvent<HTMLInputElement>) => onAmountChange(e.currentTarget.value)}
-      onMaxClick={setAmountToMax}
-      inputProps={{ fontSize: { base: '12px', sm: '16px' }, minW: { base: 'full', sm: '280px' } }}
-      label={
-        <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
-          <Flex w={0.5} h={8}>
-            <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
-          </Flex>
-          <FromAssetDropdown
-            tokens={tokens}
-            balances={balances}
-            isOpen={isOpen}
-            onClose={onClose}
-            onOpen={() => {
-              if (!isOpen && !justClosed) { onOpen() }
-            }}
-            asset={token}
-            options={assetOptions}
-            handleChange={(selected: string) => {
-              onClose()
-              onAssetChange(tokens[selected])
-            }}
-          />
-        </Stack>
-      }
-    />
-  )
-}
-
-const getToken = (tokens: TokenList, symbolOrAddress: string) => {
-  return Object.entries(tokens)
-    .map(([address, token]) => token)
-    .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
-}
+import { AssetInput } from '@inverse/components/common/Assets/AssetInput'
+import { SwapSlippage } from './SwapSlippage'
 
 enum Swappers {
   crv = 'crv',
@@ -274,7 +203,7 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
     return {
       value: route.value,
       label: <Box position="relative" p="5">
-        {route.label}
+        Via {route.label}
         {route.value === bestRoute ?
           <Badge bgColor="secondary" textTransform="none" fontSize="10px" color="primary" position="absolute" top="-1" right="-1">
             Best Rate
@@ -331,19 +260,18 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
 
         {
           chosenRoute === Swappers.stabilizer && !canUseStabilizer ?
-            <InfoMessage alertProps={{ w:'full' }} description="The Stabilizer can only be used for the DAI-DOLA pair" />
+            <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height: '48px' }} description="The Stabilizer can only be used for the DAI-DOLA pair" />
             :
             <>
-              <Text textAlign="center" w="full" fontSize="12px" mt="2">
+              <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" mt="2">
                 {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`}
               </Text>
 
               {
-                chosenRoute === Swappers.stabilizer ? null
+                chosenRoute === Swappers.stabilizer ? 
+                  <InfoMessage alertProps={{ w: 'full', fontSize: '12px' }} description="There is no slippage when using the Stabilizer" />
                   :
-                  <Text textAlign="center" w="full" fontSize="12px" mt="2">
-                    {`Max. slippage is set to 1%, the min. received will be ${toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100)).toFixed(4)}`}
-                  </Text>
+                  <SwapSlippage onChange={(v: string) => setMaxSlippage(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
               }
 
               <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
