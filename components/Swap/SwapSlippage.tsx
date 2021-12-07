@@ -18,7 +18,7 @@ export const SwapSlippage = ({
     const color = 'whiteAlpha.800'
 
     return (
-        <Flex alignItem="center" direction="row" color={color} height='48px'>
+        <Flex alignItems="center" direction="row" color={color} w='full'>
             <Text color={color} display="flex" alignItems="center" justifyContent="right" w="full" fontSize="12px" mr="2">
                 <AnimatedInfoTooltip size="intermediary" message="The maximum slippage accepted for the swap, if the slippage exceeds the maximum chosen the transaction will fail." />
                 Max. slippage :

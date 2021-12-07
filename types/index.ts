@@ -232,3 +232,9 @@ export type Interests = {
 export type BigNumberList = { [key: string]: BigNumber };
 
 export type RadioCardGroupOptions = { value: string, label?: React.ReactNode }[];
+
+export enum Swappers {
+  crv = 'crv',
+  oneinch = '1inch',
+  stabilizer = 'stabilizer',
+}

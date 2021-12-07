@@ -1,0 +1,134 @@
+
+import { useEffect, useState } from 'react'
+import { Text, Box, Badge, VStack } from '@chakra-ui/react'
+import { Web3Provider } from '@ethersproject/providers'
+import { useWeb3React } from '@web3-react/core'
+import { Swappers, Token } from '@inverse/types';
+import { SubmitButton } from '@inverse/components/common/Button'
+import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
+import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
+import { InfoMessage } from '@inverse/components/common/Messages'
+import { SwapSlippage } from './SwapSlippage'
+import { ethereumReady } from '@inverse/util/web3';
+
+const SwapInfoMessage = ({ description, height }: { description: string, height?: string }) => {
+    return <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
+}
+
+const SwapText = ({ children }: { children: React.ReactNode }) => {
+    return <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" mt="2">
+        {children}
+    </Text>
+}
+
+export const SwapFooter = ({
+    bestRoute,
+    onRouteChange,
+    routes,
+    chosenRoute,
+    canUseStabilizer,
+    noStabilizerLiquidity,
+    notEnoughTokens,
+    exRates,
+    fromToken,
+    toToken,
+    isDisabled,
+    handleSubmit,
+    toAmount,
+    isApproved,
+    maxSlippage,
+    onMaxSlippageChange,
+}: {
+    bestRoute: Swappers | '',
+    onRouteChange: (v: Swappers) => void,
+    routes: any[],
+    chosenRoute: Swappers,
+    canUseStabilizer: boolean,
+    noStabilizerLiquidity: boolean,
+    notEnoughTokens: boolean,
+    isDisabled: boolean,
+    isApproved: boolean,
+    exRates: any,
+    fromToken: Token,
+    toToken: Token,
+    handleSubmit: () => void,
+    toAmount: string,
+    fromAmount: string,
+    maxSlippage: number,
+    onMaxSlippageChange: (v: number) => void
+}) => {
+    const { active } = useWeb3React<Web3Provider>()
+    const [isReady, setIsReady] = useState(false)
+
+    useEffect(() => {
+        const init = async () => {
+            await ethereumReady(10000);
+            setIsReady(isReady);
+        }
+        init()
+    }, [])
+
+    const routeRadioOptions = routes.map((route) => {
+        return {
+            value: route.value,
+            label: <Box position="relative" p="5">
+                Via {route.label}
+                {route.value === bestRoute ?
+                    <Badge bgColor="secondary" textTransform="none" fontSize="10px" color="primary" position="absolute" top="-1" right="-1">
+                        Best Rate
+                    </Badge> : null
+                }
+            </Box>
+        }
+    })
+
+    const slippageZone = chosenRoute === Swappers.stabilizer ?
+        <SwapText>There is no slippage when using the Stabilizer</SwapText>
+        :
+        <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
+
+    return (
+        <>
+            <RadioCardGroup
+                wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center' }}
+                group={{
+                    name: 'swapper',
+                    value: chosenRoute,
+                    onChange: onRouteChange,
+                }}
+                radioCardProps={{ p: 0, mx: '2' }}
+                options={routeRadioOptions}
+            />
+
+            {
+                chosenRoute === Swappers.stabilizer && !canUseStabilizer ?
+                    <SwapInfoMessage description="The Stabilizer can only be used for the DAI-DOLA pair" />
+                    :
+                    chosenRoute === Swappers.stabilizer && noStabilizerLiquidity && !notEnoughTokens ?
+                        <SwapInfoMessage description="Not enough liquidity" />
+                        :
+                        <>
+                            <VStack spacing={1} height={'60px'}>
+                                <SwapText>
+                                    {
+                                        !active && isReady ? 'Please connect with a wallet to get rates' :
+                                            `Exchange Rate : 1 ${fromToken.symbol} = ${exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`
+                                    }
+                                </SwapText>
+                                {slippageZone}
+                            </VStack>
+
+                            <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
+                                {
+                                    notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Approve'
+                                }
+                                {
+                                    !isApproved ?
+                                        <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
+                                }
+                            </SubmitButton>
+                        </>
+            }
+        </>
+    )
+}

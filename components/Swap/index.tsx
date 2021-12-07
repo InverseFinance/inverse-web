@@ -1,4 +1,4 @@
-import { Text, Stack, Box, SimpleGrid, Badge, Divider } from '@chakra-ui/react'
+import { Text, Stack, SimpleGrid, Divider } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import Container from '@inverse/components/common/Container'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
@@ -8,26 +8,15 @@ import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
 import { hasAllowance } from '@inverse/util/web3'
 import { getParsedBalance, getToken } from '@inverse/util/markets'
-import { Token } from '@inverse/types';
+import { Token, Swappers } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
-import { SubmitButton } from '@inverse/components/common/Button'
 import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
 import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
 import { constants } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils';
-import { formatUnits } from 'ethers/lib/utils';
+import { parseUnits, formatUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@inverse/config/constants'
-import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { InfoMessage } from '@inverse/components/common/Messages'
 import { AssetInput } from '@inverse/components/common/Assets/AssetInput'
-import { SwapSlippage } from './SwapSlippage'
-
-enum Swappers {
-  crv = 'crv',
-  oneinch = '1inch',
-  stabilizer = 'stabilizer',
-}
+import { SwapFooter } from './SwapFooter'
 
 const routes = [
   { value: Swappers.crv, label: 'Curve' },
@@ -35,12 +24,8 @@ const routes = [
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
 
-const SwapInfoMessage = ({ description, height }: { description: string, height?: string }) => {
-  return <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
-}
-
-export const SwapView = ({ from, to }: { from: string, to: string }) => {
-  const { active, library, chainId } = useWeb3React<Web3Provider>()
+export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string }) => {
+  const { library, chainId } = useWeb3React<Web3Provider>()
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
 
   const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
@@ -61,8 +46,8 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
   const defaultToToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!
   const [fromToken, setFromToken] = useState(defaultFromToken)
   const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
-  const [bestRoute, setBestRoute] = useState<Swappers>(fromToken?.symbol !== 'INV' ? Swappers.crv : Swappers.oneinch)
-  const [chosenRoute, setChosenRoute] = useState<Swappers>(bestRoute)
+  const [bestRoute, setBestRoute] = useState<Swappers | ''>('')
+  const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.crv)
   const [swapDir, setSwapDir] = useState<string>(fromToken.symbol + toToken.symbol)
   const [canUseStabilizer, setCanUseStabilizer] = useState(true);
   const [noStabilizerLiquidity, setNoStabilizerLiquidity] = useState(false);
@@ -94,8 +79,8 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
   useEffect(() => {
     const fetchRates = async () => {
       const exRateKeyReverse = toToken.symbol + fromToken.symbol;
-      if (!library || exRates[chosenRoute][swapDir]) { return }
-
+      if (!library || exRates[Swappers.crv][swapDir]) { return }
+      
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
@@ -106,11 +91,34 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromToken, toToken, swapDir, chosenRoute])
+  }, [library, fromToken, toToken, swapDir])
 
   useEffect(() => {
-    getBestRoute()
-  }, [exRates, fromToken, toToken, fromAmount, toAmount, stabilizerBalance, balances])
+    if (!library || !exRates[Swappers.crv][swapDir]) { return }
+
+    const newBestRoute = getBestRoute();
+    if (bestRoute === '' && newBestRoute) {
+      setChosenRoute(newBestRoute);
+    }
+    setBestRoute(newBestRoute);
+  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, balances, canUseStabilizer])
+
+  // best route bewteen CRV, STABILIZER & 1INCH
+  const getBestRoute = () => {
+    // if INV case we can only use 1inch
+    if (fromToken.symbol === 'INV') {
+      return Swappers.oneinch
+    } // if DOLA-DAI we can use either stabilizer, crv or 1inch
+    else if (canUseStabilizer) {
+      const stabilizerMax = getStabilizerMax(1 - STABILIZER_FEE)
+      const notEnoughLiquidity = parseFloat(fromAmount) > stabilizerMax;
+      setNoStabilizerLiquidity(notEnoughLiquidity);
+      const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir]
+      return useCrv ? Swappers.crv : Swappers.stabilizer
+    }
+    // for other cases crv
+    return Swappers.crv
+  }
 
   const getStabilizerMax = (stabilizerRate: number) => {
     if (!balances) { return 0 }
@@ -118,24 +126,6 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
     return fromToken.symbol === 'DAI' ?
       parseFloat(formatUnits(balances[DAI])) * stabilizerRate
       : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
-  }
-
-  // best route bewteen CRV, STABILIZER & 1INCH
-  const getBestRoute = () => {
-    // if INV case we can only use 1inch
-    if (fromToken.symbol === 'INV') {
-      setBestRoute(Swappers.oneinch);
-    } // if DOLA-DAI we can use either stabilizer, crv or 1inch
-    else if (canUseStabilizer) {
-      const stabilizerMax = getStabilizerMax(1 - STABILIZER_FEE)
-      const notEnoughLiquidity = parseFloat(fromAmount) > stabilizerMax;
-      setNoStabilizerLiquidity(notEnoughLiquidity);
-      const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir]
-      setBestRoute(useCrv ? Swappers.crv : Swappers.stabilizer);
-    } // for other cases crv
-    else {
-      setBestRoute(Swappers.crv)
-    }
   }
 
   const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
@@ -211,20 +201,6 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
 
   const commonAssetInputProps = { tokens: TOKENS, balances }
 
-  const routeRadioOptions = routes.map((route) => {
-    return {
-      value: route.value,
-      label: <Box position="relative" p="5">
-        Via {route.label}
-        {route.value === bestRoute ?
-          <Badge bgColor="secondary" textTransform="none" fontSize="10px" color="primary" position="absolute" top="-1" right="-1">
-            Best Rate
-          </Badge> : null
-        }
-      </Box>
-    }
-  })
-
   return (
     <Container
       label="Swap using Curve or the Stabilizer"
@@ -259,47 +235,25 @@ export const SwapView = ({ from, to }: { from: string, to: string }) => {
 
         <Divider borderColor="#ccccccaa" />
 
-        <RadioCardGroup
-          wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center' }}
-          group={{
-            name: 'swapper',
-            defaultValue: bestRoute,
-            onChange: handleRouteChange,
-          }}
-          radioCardProps={{ p: 0, mx: '2' }}
-          options={routeRadioOptions}
+        <SwapFooter
+          bestRoute={bestRoute}
+          chosenRoute={chosenRoute}
+          routes={routes}
+          isApproved={isApproved}
+          isDisabled={isDisabled}
+          canUseStabilizer={canUseStabilizer}
+          noStabilizerLiquidity={noStabilizerLiquidity}
+          notEnoughTokens={notEnoughTokens}
+          exRates={exRates}
+          fromToken={fromToken}
+          fromAmount={fromAmount}
+          toToken={toToken}
+          toAmount={toAmount}
+          maxSlippage={maxSlippage}
+          onRouteChange={handleRouteChange}
+          onMaxSlippageChange={setMaxSlippage}
+          handleSubmit={handleSubmit}
         />
-
-        {
-          chosenRoute === Swappers.stabilizer && !canUseStabilizer ?
-            <SwapInfoMessage description="The Stabilizer can only be used for the DAI-DOLA pair" />
-            :
-            chosenRoute === Swappers.stabilizer && noStabilizerLiquidity ?
-              <SwapInfoMessage description="Not enough liquidity" />
-              :
-              <>
-                <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" mt="2">
-                  {`Exchange Rate : 1 ${fromToken.symbol} = ${exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`}
-                </Text>
-
-                {
-                  chosenRoute === Swappers.stabilizer ?
-                    <SwapInfoMessage height='48px' description="There is no slippage when using the Stabilizer" />
-                    :
-                    <SwapSlippage onChange={(v: string) => setMaxSlippage(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
-                }
-
-                <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
-                  {
-                    notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Approve'
-                  }
-                  {
-                    !isApproved ?
-                      <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
-                  }
-                </SubmitButton>
-              </>
-        }
       </Stack>
     </Container>
   )
