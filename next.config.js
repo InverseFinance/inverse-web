@@ -7,6 +7,11 @@ const redirects = async () => {
       destination: '/anchor',
       permanent: true,
     },
+    {
+      source: '/stake',
+      destination: '/anchor',
+      permanent: true,
+    },
   ]
 }
 
