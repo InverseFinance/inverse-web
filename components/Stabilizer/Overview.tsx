@@ -39,8 +39,7 @@ export const StabilizerOverview = () => {
           <StabilizerOverviewField label="Dai Liquidity">{`$${commify(
             (balance || 0).toFixed(2)
           )}`}</StabilizerOverviewField>
-          <StabilizerOverviewField label="Stabilizer Fee">0.4%</StabilizerOverviewField>
-          <StabilizerOverviewField label="Rate">Fixed rate of 1 minus the 0.4% fee</StabilizerOverviewField>
+          <StabilizerOverviewField label="Rate">Fixed rate of 0.996 either way</StabilizerOverviewField>
         </Stack>
       </Stack>
     </Container>
