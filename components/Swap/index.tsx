@@ -58,6 +58,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const { balances } = useBalances(swapOptions)
   const { approvals } = useAllowances(swapOptions, DOLA3POOLCRV)
   const { approvals: stabilizerApprovals } = useStabilizerApprovals()
+  const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
 
@@ -69,8 +70,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   useEffect(() => {
     const contractApprovals: any = { [Swappers.crv]: approvals, [Swappers.stabilizer]: stabilizerApprovals }
-    setIsApproved(hasAllowance(contractApprovals[chosenRoute], fromToken.address))
-  }, [approvals, chosenRoute, stabilizerApprovals])
+    setIsApproved(freshApprovals[chosenRoute+fromToken.address] || hasAllowance(contractApprovals[chosenRoute], fromToken.address))
+  }, [approvals, chosenRoute, stabilizerApprovals, fromToken, freshApprovals])
 
   useEffect(() => {
     changeAmount(fromAmount, true)
@@ -80,7 +81,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     const fetchRates = async () => {
       const exRateKeyReverse = toToken.symbol + fromToken.symbol;
       if (!library || exRates[Swappers.crv][swapDir]) { return }
-      
+
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
@@ -184,7 +185,11 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
       }
     } else {
-      return approveToken(fromToken.address, { onSuccess: () => setIsApproved(true) })
+      return approveToken(fromToken.address, {
+        onSuccess: () => {
+          setFreshApprovals({ ...freshApprovals, [chosenRoute + fromToken.address]: true })
+        }
+      })
     }
   }
 
