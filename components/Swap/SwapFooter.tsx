@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { Text, Box, Badge, VStack } from '@chakra-ui/react'
+import { Text, TextProps, VStack } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { Swappers, Token } from '@inverse/types';
@@ -10,13 +10,14 @@ import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { SwapSlippage } from './SwapSlippage'
 import { ethereumReady } from '@inverse/util/web3';
+import { SwapRoute } from './SwapRoute';
 
 const SwapInfoMessage = ({ description, height }: { description: string, height?: string }) => {
     return <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
 }
 
-const SwapText = ({ children }: { children: React.ReactNode }) => {
-    return <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" mt="2">
+const SwapText = ({ children, ...props }: { children: React.ReactNode } & Partial<TextProps>) => {
+    return <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" {...props}>
         {children}
     </Text>
 }
@@ -71,19 +72,12 @@ export const SwapFooter = ({
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
-            label: <Box position="relative" p="5">
-                Via {route.label}
-                {route.value === bestRoute ?
-                    <Badge bgColor="secondary" textTransform="none" fontSize="10px" color="primary" position="absolute" top="-1" right="-1">
-                        Best Rate
-                    </Badge> : null
-                }
-            </Box>
+            label: <SwapRoute label={route.label} isBestRoute={ bestRoute === route.value } />
         }
     })
 
     const slippageZone = chosenRoute === Swappers.stabilizer ?
-        <SwapText>There is no slippage when using the Stabilizer</SwapText>
+        <SwapText lineHeight="28px">There is no slippage when using the Stabilizer</SwapText>
         :
         <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
 
@@ -107,7 +101,7 @@ export const SwapFooter = ({
                     <SwapInfoMessage description="The Stabilizer can only be used for the DAI-DOLA pair" />
                     :
                     chosenRoute === Swappers.stabilizer && noStabilizerLiquidity && !notEnoughTokens ?
-                        <SwapInfoMessage description="Not enough liquidity" />
+                        <SwapInfoMessage description="There is not enough DAI liquidity in the Stabilizer right now for this swap" />
                         :
                         <>
                             <VStack spacing={2} height={'60px'}>

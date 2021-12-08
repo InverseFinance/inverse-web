@@ -13,7 +13,7 @@ import { InverseAnimIcon } from '@inverse/components/common/Animation'
 import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
 import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
 import { constants } from 'ethers'
-import { parseUnits, formatUnits } from 'ethers/lib/utils';
+import { parseUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@inverse/config/constants'
 import { AssetInput } from '@inverse/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
