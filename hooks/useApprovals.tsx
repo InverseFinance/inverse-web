@@ -33,7 +33,7 @@ export const useAllowances = (addresses: string[], target: string): SWR & Approv
   const { data, error } = useEtherSWR(addresses.map(ad => ([ad, 'allowance', account, target])))
 
   const results: BigNumberList = {};
-   
+  
   if(data) {
     addresses.forEach((ad, i) => results[ad] = data[i])
   }
@@ -46,23 +46,9 @@ export const useAllowances = (addresses: string[], target: string): SWR & Approv
 }
 
 export const useStabilizerApprovals = (): SWR & Approvals => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { DAI, DOLA, STABILIZER } = getNetworkConfigConstants(chainId)
-  const { data, error } = useEtherSWR([
-    [DAI, 'allowance', account, STABILIZER],
-    [DOLA, 'allowance', account, STABILIZER],
-  ])
-
-  return {
-    approvals: data
-      ? {
-        [DAI]: data[0],
-        [DOLA]: data[1],
-      }
-      : {},
-    isLoading: !error && !data,
-    isError: error,
-  }
+  return useAllowances([DAI, DOLA], STABILIZER)
 }
 
 export const useVaultApprovals = (): SWR & Approvals => {

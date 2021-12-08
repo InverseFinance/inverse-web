@@ -11,11 +11,11 @@ type Balances = {
   balances: BigNumberList
 }
 
-export const useBalances = (addresses: string[]): SWR & Balances => {
+export const useBalances = (addresses: string[], method = 'balanceOf'): SWR & Balances => {
   const { account } = useWeb3React<Web3Provider>()
 
   const { data, error } = useEtherSWR(
-    addresses.map((address) => (address ? [address, 'balanceOf', account] : ['getBalance', account, 'latest']))
+    addresses.map((address) => (address ? [address, method, account] : ['getBalance', account, 'latest']))
   )
 
   return {
@@ -29,91 +29,24 @@ export const useBalances = (addresses: string[]): SWR & Balances => {
 }
 
 export const useAccountBalances = (): SWR & Balances => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { UNDERLYING } = getNetworkConfigConstants(chainId)
-
   const tokens = Object.values(UNDERLYING)
-
-  const { data, error } = useEtherSWR(
-    tokens.map(({ address }) => (address ? [address, 'balanceOf', account] : ['getBalance', account, 'latest']))
-  )
-
-  return {
-    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
-      balances[tokens[i].address || 'ETH'] = balance
-      return balances
-    }, {}),
-    isLoading: !error && !data,
-    isError: error,
-  }
+  return useBalances(tokens.map(t => t.address))
 }
 
 export const useSupplyBalances = (): SWR & Balances => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(chainId)
-
   const tokens = ANCHOR_TOKENS.concat([XINV_V1, XINV])
-
-  const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'balanceOf', account]))
-
-  return {
-    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
-      balances[tokens[i]] = balance
-      return balances
-    }, {}),
-    isLoading: !error && !data,
-    isError: error,
-  }
+  return useBalances(tokens)
 }
 
-// export const useSupplyBalances = (): SWR & Balances => {
-//   const { account, library } = useWeb3React<Web3Provider>()
-//   const [xinvBalance, setXinvBalance] = useState()
-
-//   const { data, error } = useEtherSWR(ANCHOR_TOKENS.map((address: string) => [address, 'balanceOf', account]))
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       setXinvBalance(await getXINVContract(library?.getSigner()).callStatic.balanceOfUnderlying(account))
-//     }
-
-//     if (library) {
-//       fetchData()
-//     }
-//   }, [library])
-
-//   const balances = data?.reduce((balances: { [key: string]: BigNumber }, balance: BigNumber, i: number) => {
-//     balances[ANCHOR_TOKENS[i]] = balance
-//     return balances
-//   }, {})
-
-//   if (balances && xinvBalance) {
-//     balances[XINV] = xinvBalance
-//   }
-
-//   return {
-//     balances,
-//     isLoading: !error && !data,
-//     isError: error,
-//   }
-// }
-
 export const useBorrowBalances = (): SWR & Balances => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS } = getNetworkConfigConstants(chainId)
-
   const tokens = ANCHOR_TOKENS
-
-  const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'borrowBalanceStored', account]))
-
-  return {
-    balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
-      balances[tokens[i]] = balance
-      return balances
-    }, {}),
-    isLoading: !error && !data,
-    isError: error,
-  }
+  return useBalances(tokens, 'borrowBalanceStored')
 }
 
 export const useStabilizerBalance = () => {
