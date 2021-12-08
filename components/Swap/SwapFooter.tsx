@@ -63,7 +63,7 @@ export const SwapFooter = ({
     useEffect(() => {
         const init = async () => {
             await ethereumReady(10000);
-            setIsReady(isReady);
+            setIsReady(true);
         }
         init()
     }, [])
@@ -87,6 +87,8 @@ export const SwapFooter = ({
         :
         <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
 
+    const exRate = exRates && exRates[chosenRoute] ? exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || '' : '';
+
     return (
         <>
             <RadioCardGroup
@@ -108,11 +110,13 @@ export const SwapFooter = ({
                         <SwapInfoMessage description="Not enough liquidity" />
                         :
                         <>
-                            <VStack spacing={1} height={'60px'}>
+                            <VStack spacing={2} height={'60px'}>
                                 <SwapText>
                                     {
-                                        !active && isReady ? 'Please connect with a wallet to get rates' :
-                                            `Exchange Rate : 1 ${fromToken.symbol} = ${exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || ''} ${toToken.symbol}`
+                                        !active ? <>&nbsp;</> :
+                                            !exRate ? 'Fetching rates...'
+                                                :
+                                                `Exchange Rate : 1 ${fromToken.symbol} = ${exRate} ${toToken.symbol}`
                                     }
                                 </SwapText>
                                 {slippageZone}

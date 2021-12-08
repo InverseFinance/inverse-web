@@ -40,10 +40,10 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
     <Layout>
       <AppNav active="Swap" />
       <Flex justify="center" direction="column">
-        <Flex w={{ base: 'full', xl: 'xl' }}>
+        <Flex w={{ base: 'full', xl: '2xl' }}>
           <SwapView from={from} to={to} />
         </Flex>
-        <Flex w={{ base: 'full', lg: '600px' }}>
+        <Flex w={{ base: 'full', lg: '2xl' }}>
           <StabilizerOverview />
         </Flex>
       </Flex>
