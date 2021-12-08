@@ -110,22 +110,13 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       return Swappers.oneinch
     } // if DOLA-DAI we can use either stabilizer, crv or 1inch
     else if (canUseStabilizer) {
-      const stabilizerMax = getStabilizerMax(1 - STABILIZER_FEE)
-      const notEnoughLiquidity = parseFloat(fromAmount) > stabilizerMax;
+      const notEnoughLiquidity = toToken.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
       setNoStabilizerLiquidity(notEnoughLiquidity);
       const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir]
       return useCrv ? Swappers.crv : Swappers.stabilizer
     }
     // for other cases crv
     return Swappers.crv
-  }
-
-  const getStabilizerMax = (stabilizerRate: number) => {
-    if (!balances) { return 0 }
-
-    return fromToken.symbol === 'DAI' ?
-      parseFloat(formatUnits(balances[DAI])) * stabilizerRate
-      : Math.min(parseFloat(formatUnits(balances[DOLA])), stabilizerBalance)
   }
 
   const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
@@ -185,7 +176,9 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
         const stabilizerOperation: string = toToken.symbol === 'DOLA' ? 'buy' : 'sell'
-        contract[stabilizerOperation](parseUnits(fromAmount));
+        // reduce amount to cover stabilizer fee
+        const amountMinusFee = parseFloat(fromAmount) - STABILIZER_FEE * parseFloat(fromAmount);
+        contract[stabilizerOperation](parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
       } // TODO : handle 1inch
       else {
 
