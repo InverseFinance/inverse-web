@@ -19,7 +19,7 @@ export const SlippageRadioGroup = ({
 }) => {
     return (
         <RadioCardGroup
-            wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center' }}
+            wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center', my: { base: '2', sm: '0' } }}
             group={{
                 name: 'slippage',
                 defaultValue: defaultValue,

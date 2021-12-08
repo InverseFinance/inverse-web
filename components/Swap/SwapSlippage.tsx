@@ -18,13 +18,13 @@ export const SwapSlippage = ({
     const color = 'whiteAlpha.800'
 
     return (
-        <Flex alignItems="center" direction="row" color={color} w='full'>
-            <Text color={color} display="flex" alignItems="center" justifyContent="right" w="full" fontSize="12px" mr="2">
+        <Flex alignItems="center" direction={{ base: 'column', sm: 'row' }} color={color} w='full'>
+            <Text color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" mr="2">
                 <AnimatedInfoTooltip size="intermediary" message="The maximum slippage accepted for the swap, if the slippage exceeds the maximum chosen the transaction will fail." />
                 Max. slippage :
             </Text>
             <SlippageRadioGroup defaultValue={maxSlippage.toString()} onChange={onChange} />
-            <Text color={color} display="flex" alignItems="center" justifyContent="left" w="full" fontSize="12px" ml="2">
+            <Text color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'left' }} w="full" fontSize="12px" ml="2">
                 <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken.symbol} that will receive`} />
                 Min. received&nbsp;:&nbsp;<b>{minReceived}</b>
             </Text>

@@ -2,7 +2,7 @@ import { Badge, Box } from '@chakra-ui/react';
 
 export const SwapRoute = ({ label, isBestRoute }: { label: string, isBestRoute: boolean }) => {
     return (
-        <Box position="relative" px="5" py="3">
+        <Box position="relative" px="5" py="3" fontSize={{ base: '12px', sm: '14px' }}>
             Via {label}
             {isBestRoute ?
                 <Badge

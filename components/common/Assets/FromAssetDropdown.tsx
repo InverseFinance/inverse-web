@@ -67,7 +67,7 @@ export const FromAssetDropdown = ({
                             </Flex>
                         </Stack>
                         <Text fontWeight="semibold" color="purple.100">
-                            {balances ? parseFloat(formatUnits(balances[token.address], token.decimals)).toFixed(2) : '0.00'}
+                            {balances && balances[token.address] ? parseFloat(formatUnits(balances[token.address], token.decimals)).toFixed(2) : '0.00'}
                         </Text>
                     </Flex>
                 )

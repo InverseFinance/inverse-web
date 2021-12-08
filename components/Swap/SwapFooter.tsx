@@ -104,7 +104,7 @@ export const SwapFooter = ({
                         <SwapInfoMessage description="There is not enough DAI liquidity in the Stabilizer right now for this swap" />
                         :
                         <>
-                            <VStack spacing={2} height={'60px'}>
+                            <VStack spacing={2} height={{ base: 'auto', sm: '60px' }}>
                                 <SwapText>
                                     {
                                         !active ? <>&nbsp;</> :

@@ -41,9 +41,12 @@ export const AssetInput = ({
     return (
         <BalanceInput
             value={amount}
-            onChange={(e: React.MouseEvent<HTMLInputElement>) => onAmountChange(e.currentTarget.value)}
+            onChange={(e: React.MouseEvent<HTMLInputElement>) => onAmountChange(e.currentTarget.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
             onMaxClick={setAmountToMax}
-            inputProps={{ fontSize: { base: '12px', sm: '16px' }, minW: { base: 'full', sm: '280px' } }}
+            inputProps={{
+                fontSize: { base: '12px', sm: '20px' },
+                minW: { base: 'full', sm: '280px' },
+            }}
             label={
                 <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
                     <Flex w={0.5} h={8}>
