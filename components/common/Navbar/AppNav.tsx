@@ -39,8 +39,8 @@ const NAV_ITEMS = [
     href: '/vaults',
   },
   {
-    label: 'Stabilizer',
-    href: '/stabilizer',
+    label: 'Swap',
+    href: '/swap/DAI/DOLA',
   },
   {
     label: 'Governance',
