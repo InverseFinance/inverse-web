@@ -213,7 +213,7 @@ export type ProposalFormActionFields = {
   contractAddress: string,
   func: string,
   args: any[],
-  value: number,
+  value: string,
   fragment?: FunctionFragment,
 }
 
@@ -239,4 +239,9 @@ export enum Swappers {
   crv = 'crv',
   oneinch = '1inch',
   stabilizer = 'stabilizer',
+}
+export interface AutocompleteItem {
+  label: string;
+  value: string;
+  isSearchValue?: boolean;
 }
