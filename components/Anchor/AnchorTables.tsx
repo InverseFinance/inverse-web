@@ -20,7 +20,7 @@ import { useState } from 'react'
 import { handleTx } from '@inverse/util/transactions'
 import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
-import { UnderlyingItem } from '@inverse/components/common/Underlying/UnderlyingItem'
+import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { getBalanceInInv, getMonthlyRate, getParsedBalance } from '@inverse/util/markets'
 

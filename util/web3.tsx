@@ -1,4 +1,4 @@
-import { ExternalProvider, JsonRpcFetchFunc, Web3Provider } from '@ethersproject/providers'
+import { ExternalProvider, JsonRpcFetchFunc, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BLOCK_SCAN } from '@inverse/config/constants'
 import { getNetwork } from '@inverse/config/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
@@ -6,7 +6,9 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { hexValue, formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
-import { BigNumberList } from '@inverse/types'
+import { BigNumberList, Token } from '@inverse/types'
+import { getNewContract } from './contracts'
+import { ERC20_ABI } from '@inverse/config/abis'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -158,4 +160,14 @@ export const formatBalance = (balance: BigNumber, decimals: number, symbol = '')
 
 export const hasAllowance = (approvals: BigNumberList, address: string): boolean => {
   return !!(approvals && approvals[address] && parseFloat(formatUnits(approvals[address])))
+}
+
+export const getTokenBalance = async (token: Token, signer: JsonRpcSigner) => {
+  const contract = getNewContract(token.address, ERC20_ABI, signer);
+  return await contract.balanceOf(await signer.getAddress())
+}
+
+export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner) => {
+  const bnBalance = await getTokenBalance(token, signer);
+  return parseFloat(formatUnits(bnBalance, token.decimals));
 }

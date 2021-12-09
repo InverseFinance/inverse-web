@@ -7,6 +7,7 @@ const mainnetConfig: NetworkConfig = {
   DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
   DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  USDT: '0xdac17f958d2ee523a2206206994597c13d831ec7',
   WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
   XSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
@@ -372,6 +373,7 @@ export const getNetworkConfigConstants = (
   const DOLA = config.DOLA;
   const DAI = config.DAI;
   const USDC = config.USDC;
+  const USDT = config.USDT;
   const WETH = config.WETH;
   const YFI = config.YFI;
   const XSUSHI = config.XSUSHI;
@@ -417,6 +419,14 @@ export const getNetworkConfigConstants = (
       coingeckoId: 'dai',
       image: 'https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png',
       decimals: 18,
+    },
+    [USDT]: {
+      address: USDT,
+      name: 'Tether',
+      symbol: 'USDT',
+      coingeckoId: 'tether',
+      image: 'https://assets.coingecko.com/coins/images/325/small/Tether-logo.png',
+      decimals: 6,
     },
     [USDC]: {
       address: USDC,
@@ -595,6 +605,7 @@ export const getNetworkConfigConstants = (
     DOLA,
     DAI,
     USDC,
+    USDT,
     WETH,
     YFI,
     XSUSHI,

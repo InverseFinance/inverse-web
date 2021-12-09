@@ -1,5 +1,5 @@
-import { BigNumberList, Market } from '@inverse/types';
-import { formatUnits, commify } from 'ethers/lib/utils';
+import { BigNumberList, Market, TokenList } from '@inverse/types';
+import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -60,7 +60,13 @@ export const getTotalInterests = (markets: Market[], anSupplyBalances: BigNumber
 }
 
 export const dollarify = (value: number, precision = 2, showPlusSign = false): string => {
-    if(typeof value !== 'number') { return '$' }
+    if (typeof value !== 'number') { return '$' }
     const signPrefix = value > 0 ? showPlusSign ? '+' : '' : value < 0 ? '-' : ''
     return `${signPrefix}$${commify(Math.abs(value)?.toFixed(precision))}`;
+}
+
+export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
+    return Object.entries(tokens)
+        .map(([address, token]) => token)
+        .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
 }

@@ -135,6 +135,18 @@ export const MULTIDELEGATOR_ABI = [
   "function delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)",
 ];
 
+export const DOLA3POOLCRV_ABI = [
+  /*  @param i Index value for the underlying coin to send
+  *   @param j Index value of the underlying coin to receive
+  *   @param _dx Amount of `i` being exchanged
+  *   @param _min_dy Minimum amount of `j` to receive
+  *   indexes DOLA = 0, DAI = 1, USDC = 2, USDT = 3
+  */
+  "function exchange_underlying(int128 i, int128 j, uint256 _dx, uint256 _min_dy) external returns (uint256)",
+  "function get_dy_underlying(int128 i, int128 j, uint256 _dx) external view returns (uint256)",
+];
+
+
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -152,6 +164,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     VAULT_TOKENS,
     XINV_V1,
     XINV,
+    DOLA3POOLCRV,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -168,6 +181,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [GOVERNANCE_ALPHA, GOVERNANCE_ABI],
         [LENS, LENS_ABI],
         [ORACLE, ORACLE_ABI],
+        [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])

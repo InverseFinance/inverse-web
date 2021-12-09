@@ -1,4 +1,4 @@
-import { JsonRpcSigner } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   VAULT_ABI,
@@ -12,14 +12,16 @@ import {
   LENS_ABI,
   ESCROW_ABI,
   MULTIDELEGATOR_ABI,
+  DOLA3POOLCRV_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { GovEra, NetworkIds } from '@inverse/types'
+import { GovEra, NetworkIds, Token } from '@inverse/types'
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
 export const getNewContract = (
   address: string,
   abi: string[],
-  signer: JsonRpcSigner | undefined
+  signer: JsonRpcSigner | Web3Provider | undefined
 ) => new Contract(address, abi, signer)
 
 export const getVaultContract = (
@@ -45,7 +47,7 @@ export const getStabilizerContract = (signer: JsonRpcSigner | undefined) => {
 }
 
 export const getGovernanceAddress = (era: GovEra, chainId?: string | number) => {
-  const { GOVERNANCE, GOVERNANCE_ALPHA } = getNetworkConfigConstants(chainId||NetworkIds.mainnet)
+  const { GOVERNANCE, GOVERNANCE_ALPHA } = getNetworkConfigConstants(chainId || NetworkIds.mainnet)
   const govs = { [GovEra.alpha]: GOVERNANCE_ALPHA, [GovEra.mils]: GOVERNANCE };
   return govs[era];
 }
@@ -58,7 +60,7 @@ export const getGovernanceContract = (signer: JsonRpcSigner | undefined, era: Go
 export const getEscrowContract = (escrowAddress: string, signer: JsonRpcSigner | undefined) => {
   return getNewContract(escrowAddress, ESCROW_ABI, signer)
 }
-  
+
 export const getINVContract = (signer: JsonRpcSigner | undefined) => {
   const { INV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
   return getNewContract(INV, INV_ABI, signer)
@@ -85,7 +87,7 @@ export const getLensContract = (signer: JsonRpcSigner | undefined) => {
 }
 
 export const getTokensFromFaucet = async (tokenSymbol: 'INV' | 'DOLA', qty: string, signer: JsonRpcSigner | undefined) => {
-  if(!signer || signer?.provider?.network?.chainId.toString() !== NetworkIds.rinkeby) { return }
+  if (!signer || signer?.provider?.network?.chainId.toString() !== NetworkIds.rinkeby) { return }
 
   const { [tokenSymbol]: tokenAddress } = getNetworkConfigConstants(NetworkIds.rinkeby);
   // TODO: do corresponding logic (a special ERC20 token contract or a dedicated faucet contract to come)
@@ -100,4 +102,41 @@ export const getDOLAsFromFaucet = (signer: JsonRpcSigner | undefined) => {
 
 export const getINVsFromFaucet = (signer: JsonRpcSigner | undefined) => {
   getTokensFromFaucet('INV', '2', signer)
+}
+
+export const getDolaCrvPoolContract = (signer: JsonRpcSigner | Web3Provider | undefined) => {
+  const { DOLA3POOLCRV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  return getNewContract(DOLA3POOLCRV, DOLA3POOLCRV_ABI, signer);
+}
+
+const CRV_INDEXES: any = { DOLA: 0, DAI: 1, USDC: 2, USDT: 3 }
+
+export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number, maxSlippage: number) => {
+
+  const contract = getDolaCrvPoolContract(signer);
+
+  const bnAmount = parseUnits(amount.toString(), fromUnderlying.decimals);
+  const minReveived = (toAmount - (toAmount * maxSlippage / 100)).toFixed(toUnderlying.decimals);
+  const bnMinReceived = parseUnits(minReveived, toUnderlying.decimals);
+  const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
+  const toIndex = CRV_INDEXES[toUnderlying.symbol]
+
+  return contract.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
+}
+// useful to get the exRate
+export const crvGetDyUnderlying = async (signerOrProvider: JsonRpcSigner | Web3Provider, fromUnderlying: Token, toUnderlying: Token, amount: number) => {
+  if(amount <= 0) { return '0' }
+  const contract = getDolaCrvPoolContract(signerOrProvider);
+
+  const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
+  const toIndex = CRV_INDEXES[toUnderlying.symbol]
+  
+  const bnAmount = parseUnits(amount.toFixed(fromUnderlying.decimals), fromUnderlying.decimals);
+
+  try {
+    return formatUnits(await contract.get_dy_underlying(fromIndex, toIndex, bnAmount), toUnderlying.decimals);
+  } catch (e) {
+    console.log(e);
+    return '0'
+  }
 }

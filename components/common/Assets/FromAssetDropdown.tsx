@@ -1,13 +1,13 @@
 import { Stack, Text, Flex, Image } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { TokenList, Token, VaultTree } from '@inverse/types';
-import { useAccountBalances } from '@inverse/hooks/useBalances';
+import { TokenList, Token, VaultTree, BigNumberList } from '@inverse/types';
 import { formatUnits } from 'ethers/lib/utils';
 import { AssetsDropdown } from './AssetsDropdown';
 
 type FromAssetDropDownProps = {
     tokens: TokenList,
-    vaultTree: VaultTree,
+    balances: BigNumberList,
+    vaultTree?: VaultTree,
     isOpen: boolean,
     onClose: () => void,
     onOpen: () => void,
@@ -16,9 +16,17 @@ type FromAssetDropDownProps = {
     handleChange: (from: string, to: string) => void,
 }
 
-export const FromAssetDropdown = ({ tokens, vaultTree, isOpen, onClose, onOpen, asset, options, handleChange }: FromAssetDropDownProps) => {
-    const { balances } = useAccountBalances()
-
+export const FromAssetDropdown = ({
+    tokens,
+    balances,
+    vaultTree,
+    isOpen,
+    onClose,
+    onOpen,
+    asset,
+    options,
+    handleChange,
+}: FromAssetDropDownProps) => {
     return (
         <AssetsDropdown
             isOpen={isOpen}
@@ -28,38 +36,38 @@ export const FromAssetDropdown = ({ tokens, vaultTree, isOpen, onClose, onOpen, 
             label={
                 <>
                     <Flex w={5}>
-                        <Image w={5} h={5} src={asset.image} />
+                        <Image ignoreFallback={true} alt="" w={5} h={5} src={asset.image} />
                     </Flex>
-                    <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+                    <Flex minW="80px" fontSize="lg" fontWeight="semibold" color="purple.100" justify="space-between">
                         {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </>
             }
         >
-            {options.map((from: string) => {
-                const fromToken = tokens[from]
-                const toToken = tokens[Object.keys(vaultTree[from])[0]]
+            {options.map((symbol: string) => {
+                const token = tokens[symbol]
+                const vaultYieldToken = vaultTree ? tokens[Object.keys(vaultTree[symbol])[0]] : { address: '' }
 
                 return (
                     <Flex
-                        key={from}
+                        key={symbol}
                         p={2}
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'purple.850' }}
-                        onClick={() => handleChange(from, toToken.address || 'ETH')}
+                        onClick={() => handleChange(symbol, vaultYieldToken.address || 'ETH')}
                         cursor="pointer"
                     >
                         <Stack direction="row" align="center">
                             <Flex w={5}>
-                                <Image w={5} h={5} src={fromToken.image} />
+                                <Image w={5} h={5} src={token.image} />
                             </Flex>
                             <Flex fontWeight="semibold" align="center" color="purple.100">
-                                {fromToken.symbol}
+                                {token.symbol}
                             </Flex>
                         </Stack>
                         <Text fontWeight="semibold" color="purple.100">
-                            {balances ? parseFloat(formatUnits(balances[fromToken.address], fromToken.decimals)).toFixed(2) : '0.00'}
+                            {balances && balances[token.address] ? parseFloat(formatUnits(balances[token.address], token.decimals)).toFixed(2) : '0.00'}
                         </Text>
                     </Flex>
                 )

@@ -4,6 +4,7 @@ import infoBubbleLottie from '@inverse/public/assets/lotties/info-bubble.json';
 import errorLottie from '@inverse/public/assets/lotties/error.json';
 import successLottie from '@inverse/public/assets/lotties/success.json';
 import warningLottie from '@inverse/public/assets/lotties/warning.json';
+import inverseLottie from '@inverse/public/assets/lotties/inverse.json';
 import Lottie from 'react-lottie';
 
 export type AnimProps = {
@@ -11,13 +12,17 @@ export type AnimProps = {
     height?: number,
     width?: number,
     loop?: boolean,
+    autoplay?: boolean,
+    isStopped?: boolean,
 }
 
-export const Animation = ({ animData, height = 30, width = 30, loop = false }: AnimProps) => {
+// some react-lottie features don't work with React 17
+export const Animation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
     return (
         <Lottie
             options={{
-                loop: loop,
+                loop,
+                autoplay,
                 animationData: animData,
                 rendererSettings: {
                     preserveAspectRatio: 'xMidYMid slice'
@@ -25,15 +30,16 @@ export const Animation = ({ animData, height = 30, width = 30, loop = false }: A
             }}
             height={height}
             width={width}
+            isStopped={isStopped ?? !autoplay}
         />
     )
 }
 
 type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps }
 
-export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, boxProps }: AnimIconProps) => {
+export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps }: AnimIconProps) => {
     return <Box display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
-        <Animation animData={animData} height={height} width={width} loop={loop} />
+        <Animation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
     </Box>;
 }
 
@@ -42,3 +48,4 @@ export const ErrorAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} anim
 export const WarningAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={warningLottie} />
 export const InfoAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={infoBubbleLottie} />
 export const SuccessAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={successLottie} />
+export const InverseAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={inverseLottie} />

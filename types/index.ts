@@ -122,6 +122,7 @@ export type NetworkConfig = {
   DOLA: string,
   DAI: string,
   USDC: string,
+  USDT: string,
   WETH: string,
   YFI: string,
   XSUSHI: string,
@@ -229,3 +230,11 @@ export type Interests = {
 }
 
 export type BigNumberList = { [key: string]: BigNumber };
+
+export type RadioCardGroupOptions = { value: string, label?: React.ReactNode }[];
+
+export enum Swappers {
+  crv = 'crv',
+  oneinch = '1inch',
+  stabilizer = 'stabilizer',
+}

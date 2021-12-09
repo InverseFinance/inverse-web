@@ -17,3 +17,4 @@ export const QUORUM_VOTES = 4000;
 export const OLD_XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE' 
 
 export const CURRENT_ERA = GovEra.mils;
+export const STABILIZER_FEE = 0.004
