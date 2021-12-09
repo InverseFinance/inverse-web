@@ -6,17 +6,18 @@ import { useAllowances, useStabilizerApprovals } from '@inverse/hooks/useApprova
 import { useBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
-import { hasAllowance } from '@inverse/util/web3'
+import { getTokenBalance, hasAllowance } from '@inverse/util/web3'
 import { getParsedBalance, getToken } from '@inverse/util/markets'
 import { Token, Swappers } from '@inverse/types';
 import { InverseAnimIcon } from '@inverse/components/common/Animation'
 import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
 import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
-import { constants } from 'ethers'
+import { constants, BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@inverse/config/constants'
 import { AssetInput } from '@inverse/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
+import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 
 const routes = [
   { value: Swappers.crv, label: 'Curve' },
@@ -24,8 +25,9 @@ const routes = [
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
 
+// TODO: refacto + add INV
 export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string }) => {
-  const { library, chainId } = useWeb3React<Web3Provider>()
+  const { account, library, chainId } = useWeb3React<Web3Provider>()
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
 
   const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
@@ -55,10 +57,11 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   const [isAnimStopped, setIsAnimStopped] = useState(true)
 
-  const { balances } = useBalances(swapOptions)
+  const { balances: balancesWithCache } = useBalances(swapOptions)
   const { approvals } = useAllowances(swapOptions, DOLA3POOLCRV)
   const { approvals: stabilizerApprovals } = useStabilizerApprovals()
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
+  const [freshBalances, setFreshBalances] = useState<{ [key: string]: BigNumber }>({})
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
 
@@ -70,29 +73,29 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   useEffect(() => {
     const contractApprovals: any = { [Swappers.crv]: approvals, [Swappers.stabilizer]: stabilizerApprovals }
-    setIsApproved(freshApprovals[chosenRoute+fromToken.address] || hasAllowance(contractApprovals[chosenRoute], fromToken.address))
+    setIsApproved(freshApprovals[chosenRoute + fromToken.address] || hasAllowance(contractApprovals[chosenRoute], fromToken.address))
   }, [approvals, chosenRoute, stabilizerApprovals, fromToken, freshApprovals])
 
   useEffect(() => {
     changeAmount(fromAmount, true)
   }, [exRates, chosenRoute])
 
-  useEffect(() => {
+  useDebouncedEffect(() => {
     const fetchRates = async () => {
       const exRateKeyReverse = toToken.symbol + fromToken.symbol;
-      if (!library || exRates[Swappers.crv][swapDir]) { return }
+      if (!library) { return }
 
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
+      
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
       const exRate = parseFloat(dy) / rateAmountRef;
       const reverseExRate = exRate ? 1 / parseFloat(dy) : 0;
       const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate, [exRateKeyReverse]: reverseExRate }
-
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromToken, toToken, swapDir])
+  }, [library, fromAmount, fromToken, toToken, swapDir], 200)
 
   useEffect(() => {
     if (!library || !exRates[Swappers.crv][swapDir]) { return }
@@ -102,7 +105,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       setChosenRoute(newBestRoute);
     }
     setBestRoute(newBestRoute);
-  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, balances, canUseStabilizer])
+  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer])
 
   // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
@@ -136,6 +139,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     const toFromExRate = fromToExRate ? 1 / fromToExRate : 0;
 
     const amount = parseFloat(newAmount) || 0
+    const balances = { ...balancesWithCache, ...freshBalances }
     const fromBalance = getParsedBalance(balances, fromToken.address, fromToken.decimals);
     setNotEnoughTokens(amount > fromBalance)
     setIsDisabled(!(amount > 0) || amount > fromBalance)
@@ -168,26 +172,37 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     )
   }
 
-  const handleSubmit = async () => {
+  const onSwapSuccess = async (from: Token, to: Token) => {
+    if(!library?.getSigner()) { return }
+    setFreshBalances({
+      ...freshBalances,
+      [from.address]: await getTokenBalance(from, library?.getSigner()),
+      [to.address]: await getTokenBalance(to, library?.getSigner()),
+    })
+  }
+
+  const handleSubmit = async (from: Token, to: Token) => {
     if (!library?.getSigner()) { return }
+    let tx;
     // 1inch v4 can "approve and swap" in 1 tx
     if (isApproved || chosenRoute === Swappers.oneinch) {
       if (chosenRoute === Swappers.crv) {
-        return crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage)
+        tx = await crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
         const stabilizerOperation: string = toToken.symbol === 'DOLA' ? 'buy' : 'sell'
         // reduce amount to cover stabilizer fee
         const amountMinusFee = parseFloat(fromAmount) - STABILIZER_FEE * parseFloat(fromAmount);
-        contract[stabilizerOperation](parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
+        tx = contract[stabilizerOperation](parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
       } // TODO : handle 1inch
       else {
 
       }
+      return handleTx(tx, { onSuccess: () => onSwapSuccess(from, to) })
     } else {
       return approveToken(fromToken.address, {
         onSuccess: () => {
-          setFreshApprovals({ ...freshApprovals, [chosenRoute + fromToken.address]: true })
+          setFreshApprovals({ ...freshApprovals, [chosenRoute + fromToken.address]: true });
         }
       })
     }
@@ -196,7 +211,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const handleRouteChange = (newValue: Swappers) => {
     setChosenRoute(newValue);
   }
-
+  const balances = { ...balancesWithCache, ...freshBalances }
   const commonAssetInputProps = { tokens: TOKENS, balances }
 
   return (
@@ -250,7 +265,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
           maxSlippage={maxSlippage}
           onRouteChange={handleRouteChange}
           onMaxSlippageChange={setMaxSlippage}
-          handleSubmit={handleSubmit}
+          handleSubmit={() => handleSubmit(fromToken, toToken)}
         />
       </Stack>
     </Container>
