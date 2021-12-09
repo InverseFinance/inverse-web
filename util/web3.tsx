@@ -59,7 +59,7 @@ export async function fetchWithTimeout(input: RequestInfo, options: RequestInit 
   });
 }
 
-export const fetcher = async (input: RequestInfo, init: RequestInit) => {
+export const fetcher = async (input: RequestInfo, init?: RequestInit) => {
   const res = await fetchWithTimeout(input, init);
 
   if (!res?.ok) {
