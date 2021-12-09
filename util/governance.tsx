@@ -1,7 +1,7 @@
 import { getMultiDelegatorContract } from './contracts';
 import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
 import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
-import { AbiCoder, isAddress, splitSignature } from 'ethers/lib/utils'
+import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields } from '@inverse/types';
@@ -126,7 +126,7 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
                 actions.map(a => a.contractAddress),
-                actions.map(a => a.value),
+                actions.map(a => parseUnits(a.value.toString())),
                 actions.map(a => a.fragment!.format('sighash')),
                 calldatas,
                 text,

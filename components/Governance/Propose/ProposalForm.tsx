@@ -17,7 +17,7 @@ const EMPTY_ACTION = {
     contractAddress: '',
     func: '',
     args: [],
-    value: 0,
+    value: '',
     fragment: undefined,
 };
 
@@ -71,7 +71,7 @@ export const ProposalForm = () => {
             index={i}
             onChange={(field: string, e: any) => handleActionChange(i, field, e)}
             onDelete={() => deleteAction(i)}
-            onFuncChange={(e) => handleFuncChange(i, e.currentTarget.value)}
+            onFuncChange={(v) => handleFuncChange(i, v)}
         />
     })
 
