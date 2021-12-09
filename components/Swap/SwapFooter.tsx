@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react'
-import { Text, TextProps, VStack } from '@chakra-ui/react'
+import { Text, TextProps, VStack, Flex } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { Swappers, Token } from '@inverse/types';
@@ -72,12 +72,14 @@ export const SwapFooter = ({
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
-            label: <SwapRoute label={route.label} isBestRoute={ bestRoute === route.value } />
+            label: <SwapRoute label={route.label} isBestRoute={bestRoute === route.value} />
         }
     })
 
     const slippageZone = chosenRoute === Swappers.stabilizer ?
-        <SwapText lineHeight="28px">There is no slippage when using the Stabilizer</SwapText>
+        <Flex alignItems="center">
+            <SwapInfoMessage description="There is no slippage when using the Stabilizer" />
+        </Flex>
         :
         <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
 
@@ -85,16 +87,31 @@ export const SwapFooter = ({
 
     return (
         <>
-            <RadioCardGroup
-                wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center' }}
-                group={{
-                    name: 'swapper',
-                    value: chosenRoute,
-                    onChange: onRouteChange,
-                }}
-                radioCardProps={{ p: 0, mx: '2' }}
-                options={routeRadioOptions}
-            />
+            <Flex flexDirection={{ base: 'column', sm: 'row' }} w='full' justifyContent="space-between">
+                <VStack textAlign="left">
+                    <RadioCardGroup
+                        wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center' }}
+                        group={{
+                            name: 'swapper',
+                            value: chosenRoute,
+                            onChange: onRouteChange,
+                        }}
+                        radioCardProps={{ p: 0, mr: '4' }}
+                        options={routeRadioOptions}
+                    />
+                    <SwapText textAlign={{ base: 'center', sm: 'left' }}>
+                        {
+                            !active ? <>&nbsp;</> :
+                                !exRate ? 'Fetching rates...'
+                                    :
+                                    `Exchange Rate : 1 ${fromToken.symbol} = ${exRate} ${toToken.symbol}`
+                        }
+                    </SwapText>
+                </VStack>
+                <VStack spacing={2} height={{ base: 'auto', sm: '60px' }}>
+                    {slippageZone}
+                </VStack>
+            </Flex>
 
             {
                 chosenRoute === Swappers.stabilizer && !canUseStabilizer ?
@@ -104,18 +121,6 @@ export const SwapFooter = ({
                         <SwapInfoMessage description="There is not enough DAI liquidity in the Stabilizer right now for this swap" />
                         :
                         <>
-                            <VStack spacing={2} height={{ base: 'auto', sm: '60px' }}>
-                                <SwapText>
-                                    {
-                                        !active ? <>&nbsp;</> :
-                                            !exRate ? 'Fetching rates...'
-                                                :
-                                                `Exchange Rate : 1 ${fromToken.symbol} = ${exRate} ${toToken.symbol}`
-                                    }
-                                </SwapText>
-                                {slippageZone}
-                            </VStack>
-
                             <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
                                 {
                                     notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Approve'
