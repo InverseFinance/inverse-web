@@ -208,7 +208,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     setChosenRoute(newValue);
   }
   const balances = { ...balancesWithCache, ...freshBalances }
-  const commonAssetInputProps = { tokens: TOKENS, balances }
+  const commonAssetInputProps = { tokens: TOKENS, balances, showBalance: true }
 
   return (
     <Container

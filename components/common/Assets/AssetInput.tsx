@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { FromAssetDropdown } from '@inverse/components/common/Assets/FromAssetDropdown'
 import { BigNumberList, Token, TokenList } from '@inverse/types';
 import { getParsedBalance } from '@inverse/util/markets';
+import { commify } from 'ethers/lib/utils';
 
 const getMaxBalance = (balances: BigNumberList, token: Token) => {
     return getParsedBalance(balances, token.address, token.decimals);
@@ -16,7 +17,8 @@ export const AssetInput = ({
     tokens,
     assetOptions,
     onAssetChange,
-    onAmountChange
+    onAmountChange,
+    showBalance,
 }: {
     amount: string,
     balances: BigNumberList,
@@ -25,6 +27,7 @@ export const AssetInput = ({
     assetOptions: string[],
     onAssetChange: (newToken: Token) => void,
     onAmountChange: (newAmount: string) => void,
+    showBalance?: boolean,
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -47,6 +50,8 @@ export const AssetInput = ({
                 fontSize: { base: '12px', sm: '20px' },
                 minW: { base: 'full', sm: '280px' },
             }}
+            showBalance={showBalance}
+            balance={commify(getMaxBalance(balances, token).toFixed(2))}
             label={
                 <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
                     <Flex w={0.5} h={8}>
