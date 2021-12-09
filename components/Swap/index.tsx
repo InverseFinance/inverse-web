@@ -82,24 +82,20 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   useDebouncedEffect(() => {
     const fetchRates = async () => {
-      const exRateKeyReverse = toToken.symbol + fromToken.symbol;
       if (!library) { return }
 
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
-      
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
       const exRate = parseFloat(dy) / rateAmountRef;
-      const reverseExRate = exRate ? 1 / parseFloat(dy) : 0;
-      const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate, [exRateKeyReverse]: reverseExRate }
+      const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate }
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromAmount, fromToken, toToken, swapDir], 200)
+  }, [library, fromAmount, fromToken, toToken, swapDir], 500)
 
   useEffect(() => {
     if (!library || !exRates[Swappers.crv][swapDir]) { return }
-
     const newBestRoute = getBestRoute();
     if (bestRoute === '' && newBestRoute) {
       setChosenRoute(newBestRoute);

@@ -76,7 +76,9 @@ export const SwapFooter = ({
         }
     })
 
-    const slippageZone = chosenRoute === Swappers.stabilizer ?
+    const isStabilizer = chosenRoute === Swappers.stabilizer;
+
+    const slippageZone = isStabilizer ?
         <Flex alignItems="center">
             <SwapInfoMessage description="There is no slippage when using the Stabilizer" />
         </Flex>
@@ -90,7 +92,7 @@ export const SwapFooter = ({
             <Flex flexDirection={{ base: 'column', sm: 'row' }} w='full' justifyContent="space-between">
                 <VStack textAlign="left">
                     <RadioCardGroup
-                        wrapperProps={{ w: 'full', alignItems: 'center', justify: 'center' }}
+                        wrapperProps={{ w: 'full', alignItems: 'center', justify: { base: 'center', sm: 'left' } }}
                         group={{
                             name: 'swapper',
                             value: chosenRoute,
@@ -102,7 +104,8 @@ export const SwapFooter = ({
                     <SwapText textAlign={{ base: 'center', sm: 'left' }}>
                         {
                             !active ? <>&nbsp;</> :
-                                !exRate ? 'Fetching rates...'
+                                !exRate ?
+                                    isStabilizer ? '' : 'Fetching rates...'
                                     :
                                     `Exchange Rate : 1 ${fromToken.symbol} = ${exRate} ${toToken.symbol}`
                         }
