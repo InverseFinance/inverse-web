@@ -25,7 +25,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
             const govContract = getGovernanceContract(library?.getSigner(), GovEra.mils);
             const threshold = await govContract.proposalThreshold();
             const lastId = await govContract.proposalCount();
-            if(!isMounted) { return }
+            if (!isMounted) { return }
             const parsedThreshold = parseFloat(formatUnits(threshold));
             setRequiredVotingPower(parsedThreshold)
             setLastProposalId(parseInt(lastId))
@@ -36,6 +36,9 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
 
     return (
         <Box w="full" p={6} pb={0} data-testid={TEST_IDS.governance.newProposalContainer}>
+            <Text textAlign="center" fontSize="30px" fontWeight="bold" mb="7">
+                Add a New Proposal
+            </Text>
             {
                 votingPower < requiredVotingPower ?
                     <Box w="full" textAlign="center">

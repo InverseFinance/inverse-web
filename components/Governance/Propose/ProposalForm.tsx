@@ -160,9 +160,7 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
 
     return (
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
-            <Text fontSize="30px" fontWeight="bold" mb="3">
-                Add a New Proposal {previewMode ? ' - Preview' : ''}
-            </Text>
+            { previewMode ? <Text textAlign="center">Preview / Recap</Text> : null }
             {
                 !isUnderstood ?
                     <ProposalWarningMessage onOk={() => warningUnderstood() } /> : null
