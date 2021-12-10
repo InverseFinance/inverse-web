@@ -27,7 +27,7 @@ const EMPTY_ACTION = {
 
 const PROPOSAL_WARNING_KEY = 'proposalWarningAgreed';
 
-export const ProposalForm = () => {
+export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number }) => {
     const isMountedRef = useRef(true)
     const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
@@ -148,7 +148,7 @@ export const ProposalForm = () => {
     }
 
     const preview: Partial<Proposal> = isFormValid && previewMode ? {
-        id: 1,
+        id: lastProposalId + 1,
         title: form.title,
         description: form.description,
         functions: getActionsToFunctions(),

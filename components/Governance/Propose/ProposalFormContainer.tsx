@@ -16,6 +16,7 @@ const DEFAULT_REQUIRED_VOTING_POWER = 1000;
 export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) => {
     const { library, account } = useWeb3React<Web3Provider>();
     const [requiredVotingPower, setRequiredVotingPower] = useState(DEFAULT_REQUIRED_VOTING_POWER);
+    const [lastProposalId, setLastProposalId] = useState(0);
 
     useEffect(() => {
         let isMounted = true;
@@ -23,9 +24,11 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
             if (!account) { return }
             const govContract = getGovernanceContract(library?.getSigner(), GovEra.mils);
             const threshold = await govContract.proposalThreshold();
+            const lastId = await govContract.proposalCount();
             if(!isMounted) { return }
             const parsedThreshold = parseFloat(formatUnits(threshold));
             setRequiredVotingPower(parsedThreshold)
+            setLastProposalId(parseInt(lastId))
         }
         init();
         return () => { isMounted = false }
@@ -52,7 +55,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                     </Box>
                     :
                     <Box w="full" textAlign="center">
-                        <ProposalForm />
+                        <ProposalForm lastProposalId={lastProposalId} />
                     </Box>
             }
         </Box>
