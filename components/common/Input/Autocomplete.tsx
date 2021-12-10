@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Box, List, ListItem, InputGroup, InputLeftElement, ComponentWithAs, InputProps, BoxProps, ListItemProps, useDisclosure } from '@chakra-ui/react';
+import { Box, List, ListItem, InputGroup, InputLeftElement, ComponentWithAs, InputProps, BoxProps, ListItemProps } from '@chakra-ui/react';
 import { Input } from '.';
 import { useEffect } from 'react';
 import { useOutsideClick } from '@chakra-ui/react'
@@ -23,6 +23,7 @@ const AutocompleteListItem = (props: ListItemProps) => {
             transitionDuration="400ms"
             transitionTimingFunction="ease"
             _hover={{ bgColor: 'purple.700' }}
+            overflow="hidden"
             {...props}
         />
     )
@@ -51,41 +52,43 @@ export const Autocomplete = ({
     const [isOpen, setIsOpen] = useState(false)
     const [filteredList, setFilteredList] = useState(list)
     const [notFound, setNotFound] = useState(false)
-    const [isFocused, setIsFocused] = useState(false)
 
-    const ref = useRef(null)
+    const listCompRef = useRef(null)
 
     useOutsideClick({
-        ref: ref,
-        handler: () => setIsOpen(false),
+        ref: listCompRef,
+        handler: () => {
+            setIsOpen(false)
+        },
     })
 
     const getFilteredList = (list: AutocompleteItem[], searchValue: string) => {
-        const regEx = new RegExp(searchValue?.replace(/([^a-zA-Z0-9])/g, "\\$1"), 'i')
+        const regEx = new RegExp(searchValue?.replace(/([^a-zA-Z0-9])/g, "\\$1"), 'i')  
         return list
             .filter(item => regEx.test(item.value) || regEx.test(item.label));
     }
 
     useEffect(() => {
         const newList = getFilteredList(list, searchValue)
-
         const notFound = newList.length === 0
         setNotFound(notFound)
-        if (notFound) {
+
+        if (notFound && searchValue) {
             newList.push({ label: `Select "${searchValue}"`, value: searchValue, isSearchValue: true });
         }
 
         setFilteredList(newList)
-        setIsOpen(isFocused)
-    }, [searchValue, list, isFocused])
+    }, [searchValue, list])
 
-    const handleSelect = (item?: AutocompleteItem) => {
+    const handleSelect = (item?: AutocompleteItem, autoClose = true) => {
         setSelectedItem(item)
-        if(item) {
+        if (item) {
             setSearchValue(item.isSearchValue ? item.value : item.label)
         }
         onItemSelect(item || EMPTY_ITEM)
-        setTimeout(() => setIsOpen(false), 200)
+        if(autoClose) {
+            setIsOpen(false)
+        }
     }
 
     const listItems = filteredList
@@ -100,26 +103,26 @@ export const Autocomplete = ({
         })
 
     const clear = () => {
-        handleSelect(EMPTY_ITEM)
+        handleSelect(EMPTY_ITEM, false)
     }
 
     const handleSearchChange = (value: string) => {
         setSearchValue(value)
-        if(!value) {
+        if (!value) {
             clear()
-        } else if(isAddress(value)) {
+        } else if (isAddress(value)) {
             handleSelect({ value, label: value })
         } else {
             const perfectMatch = list.find((item) => item.value.toLowerCase() === value.toLowerCase() || item.label.toLowerCase() === value.toLowerCase())
             const filteredList = getFilteredList(list, value)
-            if(perfectMatch && filteredList.length === 1) {
+            if (perfectMatch && filteredList.length === 1) {
                 handleSelect(perfectMatch)
             }
         }
     }
 
     return (
-        <Box position="relative" ref={ref} {...props}>
+        <Box position="relative" {...props}>
             <InputGroup alignItems="center">
                 <InputLeftElement
                     height="100%"
@@ -135,13 +138,13 @@ export const Autocomplete = ({
                     textAlign="left"
                     fontSize="12px"
                     onChange={(e: any) => handleSearchChange(e.target.value)}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setTimeout(() => setIsFocused(false), 100)}
+                    onClick={() => setIsOpen(!isOpen)}
                 />
             </InputGroup>
             {
                 isOpen ?
                     <List
+                        ref={listCompRef}
                         position="absolute"
                         bgColor={'darkPrimary'}
                         w="full"
