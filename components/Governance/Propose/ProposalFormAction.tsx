@@ -43,9 +43,7 @@ export const ProposalFormAction = ({
             }
         }
         init()
-        return () => {
-            isMounted = false
-        }
+        return () => { isMounted = false }
     }, [])
 
     useEffect(() => {
@@ -91,8 +89,9 @@ export const ProposalFormAction = ({
         )
     })
 
-    const onAutoCompleteChange = async (item?: AutocompleteItem) => {
+    const onContractChange = async (item?: AutocompleteItem) => {
         onChange('contractAddress', item?.value || '');
+        setAbi('[]')
         if (item?.value && isAddress(item?.value)) {
             setAbi(await getRemoteAbi(item.value));
         }
@@ -117,7 +116,7 @@ export const ProposalFormAction = ({
                                 {contractAddress ? <> (<ScannerLink value={contractAddress} label={contractAddress} />)</> : ''}
                             </FormLabel>
                             <Autocomplete
-                                onItemSelect={onAutoCompleteChange}
+                                onItemSelect={onContractChange}
                                 defaultValue={contractAddress}
                                 InputComp={(p) => <ProposalInput isInvalid={!!contractAddress && !isAddress(contractAddress)} {...p} />}
                                 list={knownAddresses}

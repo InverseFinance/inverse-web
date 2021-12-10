@@ -1,19 +1,40 @@
 import { useState } from 'react';
-import { Container } from '@inverse/components/common/Container';
 import { InfoMessage } from '@inverse/components/common/Messages';
 import { ProposalForm } from './ProposalForm';
 import { Box, Text } from '@chakra-ui/react';
 import Link from '@inverse/components/common/Link';
-import { SubmitButton } from '@inverse/components/common/Button';
 import { TEST_IDS } from '@inverse/config/test-ids';
+import { GovEra } from '@inverse/types';
+import { useEffect } from 'react';
+import { getGovernanceContract } from '@inverse/util/contracts';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+import { formatUnits } from 'ethers/lib/utils';
 
-const REQUIRED_VOTING_POWER = 1000;
+const DEFAULT_REQUIRED_VOTING_POWER = 1000;
 
 export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) => {
+    const { library, account } = useWeb3React<Web3Provider>();
+    const [requiredVotingPower, setRequiredVotingPower] = useState(DEFAULT_REQUIRED_VOTING_POWER);
+
+    useEffect(() => {
+        let isMounted = true;
+        const init = async () => {
+            if (!account) { return }
+            const govContract = getGovernanceContract(library?.getSigner(), GovEra.mils);
+            const threshold = await govContract.proposalThreshold();
+            if(!isMounted) { return }
+            const parsedThreshold = parseFloat(formatUnits(threshold));
+            setRequiredVotingPower(parsedThreshold)
+        }
+        init();
+        return () => { isMounted = false }
+    }, [library])
+
     return (
-        <Box w="full" p={6} pb={0}>
+        <Box w="full" p={6} pb={0} data-testid={TEST_IDS.governance.newProposalContainer}>
             {
-                votingPower < REQUIRED_VOTING_POWER ?
+                votingPower < requiredVotingPower ?
                     <Box w="full" textAlign="center">
                         <InfoMessage
                             alertProps={{ textAlign: "center", p: '6' }}
