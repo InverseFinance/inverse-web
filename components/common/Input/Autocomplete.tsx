@@ -34,7 +34,7 @@ const EMPTY_ITEM: AutocompleteItem = { label: '', value: '' }
 export const Autocomplete = ({
     title = '',
     list = defaultList,
-    defaultItem,
+    defaultValue = '',
     placeholder = '',
     InputComp = defaultInputComp,
     onItemSelect = () => { },
@@ -42,13 +42,14 @@ export const Autocomplete = ({
 }: {
     title?: string,
     list: AutocompleteItem[],
-    defaultItem?: AutocompleteItem,
+    defaultValue?: string,
     placeholder?: string,
     InputComp: ComponentWithAs<"input", InputProps>,
     onItemSelect: (selectedItem?: AutocompleteItem) => any,
 } & Partial<BoxProps>) => {
-    const [searchValue, setSearchValue] = useState('')
-    const [selectedItem, setSelectedItem] = useState(defaultItem)
+    const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
+    const [selectedItem, setSelectedItem] = useState<AutocompleteItem | undefined>(preselectedItem)    
+    const [searchValue, setSearchValue] = useState(preselectedItem?.label || '')
     const [isOpen, setIsOpen] = useState(false)
     const [filteredList, setFilteredList] = useState(list)
     const [notFound, setNotFound] = useState(false)
@@ -62,12 +63,6 @@ export const Autocomplete = ({
         },
     })
 
-    const getFilteredList = (list: AutocompleteItem[], searchValue: string) => {
-        const regEx = new RegExp(searchValue?.replace(/([^a-zA-Z0-9])/g, "\\$1"), 'i')  
-        return list
-            .filter(item => regEx.test(item.value) || regEx.test(item.label));
-    }
-
     useEffect(() => {
         const newList = getFilteredList(list, searchValue)
         const notFound = newList.length === 0
@@ -80,27 +75,22 @@ export const Autocomplete = ({
         setFilteredList(newList)
     }, [searchValue, list])
 
+    const getFilteredList = (list: AutocompleteItem[], searchValue: string) => {
+        const regEx = new RegExp(searchValue?.replace(/([^a-zA-Z0-9])/g, "\\$1"), 'i')
+        return list
+            .filter(item => regEx.test(item.value) || regEx.test(item.label));
+    }
+
     const handleSelect = (item?: AutocompleteItem, autoClose = true) => {
         setSelectedItem(item)
         if (item) {
             setSearchValue(item.isSearchValue ? item.value : item.label)
         }
         onItemSelect(item || EMPTY_ITEM)
-        if(autoClose) {
+        if (autoClose) {
             setIsOpen(false)
         }
     }
-
-    const listItems = filteredList
-        .map((item, i) => {
-            return <AutocompleteListItem
-                key={i}
-                onClick={() => handleSelect(item)}
-                fontWeight={item.value === selectedItem?.value ? 'bold' : 'normal'}
-            >
-                {item.label}
-            </AutocompleteListItem>
-        })
 
     const clear = () => {
         handleSelect(EMPTY_ITEM, false)
@@ -120,6 +110,17 @@ export const Autocomplete = ({
             }
         }
     }
+
+    const listItems = filteredList
+        .map((item, i) => {
+            return <AutocompleteListItem
+                key={i}
+                onClick={() => handleSelect(item)}
+                fontWeight={item.value === selectedItem?.value ? 'bold' : 'normal'}
+            >
+                {item.label}
+            </AutocompleteListItem>
+        })
 
     return (
         <Box position="relative" {...props}>
