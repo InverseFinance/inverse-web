@@ -1,7 +1,7 @@
 import { ProposalFormActionFields, NetworkIds, AutocompleteItem } from '@inverse/types';
 import { useState } from 'react'
 import { FormControl, FormLabel, Text, Box, Flex, Divider } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
 import { isAddress, FunctionFragment } from 'ethers/lib/utils';
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
@@ -9,8 +9,6 @@ import { Autocomplete } from '@inverse/components/common/Input/Autocomplete';
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { getRemoteAbi } from '@inverse/util/etherscan';
 import { useEffect } from 'react';
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
 import ScannerLink from '@inverse/components/common/ScannerLink';
 
 export const ProposalFormAction = ({
@@ -18,19 +16,37 @@ export const ProposalFormAction = ({
     index,
     onChange,
     onDelete,
+    onDuplicate,
     onFuncChange,
 }: {
     action: ProposalFormActionFields,
     index: number,
     onChange: (field: string, e: any) => void,
     onDelete: () => void,
+    onDuplicate: () => void,
     onFuncChange: (e: any) => void,
 }) => {
-    const { library } = useWeb3React<Web3Provider>()
     const { contractAddress, func, args, value } = action
     const [hideBody, setHideBody] = useState(false)
     const [abi, setAbi] = useState('')
     const [contractFunctions, setContractFunctions] = useState([])
+
+    useEffect(() => {
+        let isMounted = true;
+        const init = async () => {
+            if (action.contractAddress) {
+                if (action.contractAddress && isAddress(action.contractAddress)) {
+                    const result = await getRemoteAbi(action.contractAddress)
+                    if (!isMounted) { return }
+                    setAbi(result);
+                }
+            }
+        }
+        init()
+        return () => {
+            isMounted = false
+        }
+    }, [])
 
     useEffect(() => {
         const parsedAbi = abi ? JSON.parse(abi) : [];
@@ -83,12 +99,13 @@ export const ProposalFormAction = ({
     }
 
     return (
-        <Box bgColor="purple.700" borderRadius="5" p="4">
-            <Flex alignItems="center">
+        <Box bgColor="purple.750" borderRadius="5" p="4">
+            <Flex alignItems="center" position="relative">
                 <Text fontWeight="bold" cursor="pointer" fontSize="20" onClick={() => setHideBody(!hideBody)}>
                     Action #{index + 1}
                 </Text>
-                <DeleteIcon ml="2" cursor="pointer" color="red.400" onClick={onDelete} />
+                <CopyIcon ml="2" cursor="pointer" color="blue.400" onClick={onDuplicate} />
+                <DeleteIcon position="absolute" right="0" ml="2" cursor="pointer" color="red.400" onClick={onDelete} />
             </Flex>
             {
                 hideBody ? null :
@@ -101,6 +118,7 @@ export const ProposalFormAction = ({
                             </FormLabel>
                             <Autocomplete
                                 onItemSelect={onAutoCompleteChange}
+                                defaultValue={contractAddress}
                                 InputComp={(p) => <ProposalInput isInvalid={!!contractAddress && !isAddress(contractAddress)} {...p} />}
                                 list={knownAddresses}
                                 title="Well-Known Contract / Wallet Names :"
@@ -108,19 +126,13 @@ export const ProposalFormAction = ({
                             />
                         </FormControl>
                         <FormControl>
-                            <FormLabel mt="2">
-                                Amount of Eth to send
-                                <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '12px' }} message="Directly in normal Eth units not in wei" />
-                            </FormLabel>
-                            <ProposalInput type="number" placeholder="Eg : 0.1, 0 by default" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel mt="2">Contract Function</FormLabel>
+                            <FormLabel mt="2">Contract Function to Call</FormLabel>
                             <Autocomplete
                                 onItemSelect={(item) => onFuncChange(item?.value)}
+                                defaultValue={func}
                                 InputComp={(p) => <ProposalInput {...p} />}
                                 list={contractFunctions}
-                                title="Write functions found in the Contract Abi :"
+                                title={`"Write" Functions found in the Contracts's Abi :`}
                                 placeholder="transfer(address,uint)"
                             />
                         </FormControl>
@@ -131,6 +143,13 @@ export const ProposalFormAction = ({
                                 </FormControl>
                                 : null
                         }
+                        <FormControl>
+                            <FormLabel mt="2">
+                                Amount of Eth to send
+                                <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '12px' }} message="Directly in normal Eth units not in wei" />
+                            </FormLabel>
+                            <ProposalInput type="number" placeholder="Eg : 0.1, 0 by default" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
+                        </FormControl>
                     </>
             }
         </Box>

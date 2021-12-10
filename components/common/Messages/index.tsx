@@ -52,9 +52,9 @@ export const Message = ({
 }: MessageProps) => {
     return (
         <Alert variant={variant} status={status} borderRadius="5" display="inline-block" w="fit-content" {...alertProps}>
-            <Flex alignItems="center">
+            <Flex alignItems="center" w='full'>
                 {icon}
-                <Flex flexDirection="column">
+                <Flex flexDirection="column" w='full'>
                     {
                         title ? <AlertTitle>{title}</AlertTitle> : null
                     }

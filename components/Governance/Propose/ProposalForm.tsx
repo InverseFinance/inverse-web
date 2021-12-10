@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react'
-import { Flex, FormControl, FormLabel, Stack } from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel, Stack, Text, Box } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { SubmitButton } from '@inverse/components/common/Button';
-import { ProposalFormFields } from '@inverse/types';
+import { GovEra, Proposal, ProposalFormFields, ProposalFunction, ProposalStatus } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { submitProposal } from '@inverse/util/governance';
+import { getCallData, submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
 import { SuccessMessage } from '@inverse/components/common/Messages';
 import { TEST_IDS } from '@inverse/config/test-ids';
+import { ProposalActions, ProposalDetails } from '../Proposal';
+import { ProposalWarningMessage } from './ProposalWarningMessage';
+import { showToast } from '@inverse/util/notify';
 
 const EMPTY_ACTION = {
     contractAddress: '',
@@ -22,14 +25,16 @@ const EMPTY_ACTION = {
 };
 
 export const ProposalForm = () => {
+    const [isUnderstood, setIsUnderstood] = useState(false);
     const [hasSuccess, setHasSuccess] = useState(false);
-    const { library } = useWeb3React<Web3Provider>()
+    const { library, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title: '',
         description: '',
         actions: [{ ...EMPTY_ACTION }],
     })
     const [isFormValid, setIsFormValid] = useState(false);
+    const [previewMode, setPreviewMode] = useState(false);
 
     useEffect(() => {
         setIsFormValid(!isFormInvalid(form))
@@ -62,6 +67,14 @@ export const ProposalForm = () => {
         const actions = [...form.actions];
         actions.splice(index, 1);
         setForm({ ...form, actions });
+        showToast({ status: 'error', title: 'Action Removed from proposal' })
+    }
+    
+    const duplicateAction = (index: number) => {
+        const actions = [...form.actions];
+        actions.splice(index + 1, 0, actions[index]);
+        setForm({ ...form, actions });
+        showToast({ status: 'info', title: 'Action Duplicated', description: 'The duplicated action is just below the one copied' })
     }
 
     const actionSubForms = form.actions.map((action, i) => {
@@ -71,6 +84,7 @@ export const ProposalForm = () => {
             index={i}
             onChange={(field: string, e: any) => handleActionChange(i, field, e)}
             onDelete={() => deleteAction(i)}
+            onDuplicate={() => duplicateAction(i)}
             onFuncChange={(v) => handleFuncChange(i, v)}
         />
     })
@@ -99,30 +113,87 @@ export const ProposalForm = () => {
         return handleTx(tx, { onSuccess: () => setHasSuccess(true) });
     }
 
+    const getActionsToFunctions = () => {
+        const previewFunctions: ProposalFunction[] = form.actions.map(action => {
+            return {
+                target: action.contractAddress,
+                callData: getCallData(action),
+                signature: action.fragment?.format('sighash') || '',
+            }
+        })
+        return previewFunctions
+    }
+
+    const preview: Partial<Proposal> = isFormValid ? {
+        id: 1,
+        title: form.title,
+        description: form.description,
+        functions: getActionsToFunctions(),
+        proposer: account || '',
+        era: GovEra.mils,
+        startTimestamp: Date.now(),
+        status: ProposalStatus.active,
+    } : {}
+
     return (
-        <Stack direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
-            <FormControl>
-                <FormLabel>Title</FormLabel>
-                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
-            </FormControl>
-            <FormControl>
-                <FormLabel>Description</FormLabel>
-                <Textarea onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
-            </FormControl>
-            {actionSubForms}
+        <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
+            <Text fontSize="30px" fontWeight="bold" mb="3">
+                New Proposal {previewMode ? 'Preview' : ''}
+            </Text>
+            {
+                !isUnderstood ?
+                    <ProposalWarningMessage onOk={() => setIsUnderstood(true)} /> : null
+            }
+            {
+                previewMode ?
+                    <Flex direction="column" textAlign="left">
+                        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                            <ProposalDetails proposal={preview} />
+                        </Flex>
+                        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                            <ProposalActions proposal={preview} />
+                        </Flex>
+                    </Flex>
+                    :
+                    <>
+                        <Box bgColor="purple.750" borderRadius="5" p="4" color="white">
+                            <FormControl>
+                                <FormLabel>Title</FormLabel>
+                                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
+                            </FormControl>
+                            <FormControl mt="2">
+                                <FormLabel>Details</FormLabel>
+                                <Textarea onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
+                            </FormControl>
+                        </Box>
+                        {
+                            form.title && form.description ? actionSubForms : null
+                        }
+                    </>
+            }
             <Flex justify="center" pt="5">
                 {
                     hasSuccess ?
                         <SuccessMessage description="Your proposal has been created ! It may take some time to appear" />
                         :
-                        <>
-                            <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={addAction}>
-                                { form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Action' }
-                            </SubmitButton>
-                            <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
-                                Submit the Proposal
-                            </SubmitButton>
-                        </>
+                        !previewMode ?
+                            <>
+                                <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={addAction}>
+                                    {form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Action'}
+                                </SubmitButton>
+                                <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={() => setPreviewMode(true)}>
+                                    Preview Proposal
+                                </SubmitButton>
+                            </>
+                            :
+                            <>
+                                <SubmitButton mr="1" w="fit-content" onClick={() => setPreviewMode(false)}>
+                                    Resume Editing
+                                </SubmitButton>
+                                <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
+                                    Submit the Proposal
+                                </SubmitButton>
+                            </>
                 }
             </Flex>
         </Stack>

@@ -10,15 +10,8 @@ import { TEST_IDS } from '@inverse/config/test-ids';
 const REQUIRED_VOTING_POWER = 1000;
 
 export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) => {
-    const [isUnderstood, setIsUnderstood] = useState(false);
-
     return (
-        <Container
-            label="Submit a new Proposal"
-            description="Participate in governance of the DAO"
-            href="https://docs.inverse.finance/governance"
-            data-testid={TEST_IDS.governance.newProposalContainer}
-        >
+        <Box w="full" p={6} pb={0}>
             {
                 votingPower < REQUIRED_VOTING_POWER ?
                     <Box w="full" textAlign="center">
@@ -38,23 +31,9 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                     </Box>
                     :
                     <Box w="full" textAlign="center">
-                        {
-                            !isUnderstood ?
-                                <InfoMessage description={
-                                    <>
-                                        You are expected to know what you're doing.
-                                        <Text>If you don't, please reach out to someone who can help.</Text>
-                                        <Text fontWeight="bold">Otherwise, your proposal <u>may fail to execute</u> after it passes.</Text>
-                                        <SubmitButton onClick={() => setIsUnderstood(true)} textTransform="none" mt="2" fontSize="12" w="fit-content">
-                                            Yes, I Understand
-                                        </SubmitButton>
-                                    </>
-                                } />
-                                : null
-                        }
                         <ProposalForm />
                     </Box>
             }
-        </Container>
+        </Box>
     )
 }

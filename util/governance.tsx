@@ -4,7 +4,7 @@ import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
 import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields } from '@inverse/types';
+import { ProposalFormFields, ProposalFormActionFields } from '@inverse/types';
 import { CURRENT_ERA } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
@@ -101,6 +101,20 @@ export const clearStoredDelegationsCollected = (): void => {
     localforage.removeItem('signaturesCollected');
 }
 
+export const getCallData = (action: ProposalFormActionFields) => {
+    const abiCoder = new AbiCoder()
+    return abiCoder.encode(
+        action.args.map(arg => arg.type),
+        action.args.map(arg => {
+            if (arg.type === "bool" || arg.type === "bool[]") {
+                return JSON.parse(arg.value);
+            } else {
+                return arg.value;
+            }
+        })
+    )
+}
+
 export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalFormFields): Promise<TransactionResponse> => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -109,19 +123,7 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
 
             const text = `# ${title}\n${description}`
 
-            const calldatas = actions.map(action => {
-                const abiCoder = new AbiCoder()
-                return abiCoder.encode(
-                    action.args.map(arg => arg.type),
-                    action.args.map(arg => {
-                        if (arg.type === "bool" || arg.type === "bool[]") {
-                            return JSON.parse(arg.value);
-                        } else {
-                            return arg.value;
-                        }
-                    })
-                )
-            })
+            const calldatas = actions.map(action => getCallData(action))
 
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
