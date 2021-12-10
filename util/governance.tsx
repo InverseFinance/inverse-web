@@ -126,7 +126,7 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
                 actions.map(a => a.contractAddress),
-                actions.map(a => parseUnits(a.value.toString())),
+                actions.map(a => parseUnits((a.value||'0').toString())),
                 actions.map(a => a.fragment!.format('sighash')),
                 calldatas,
                 text,

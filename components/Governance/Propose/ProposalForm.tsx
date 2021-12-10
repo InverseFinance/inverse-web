@@ -40,7 +40,7 @@ export const ProposalForm = () => {
         newActions[index].func = value;
         try {
             const fragment = FunctionFragment.from(value);
-            const args: any = fragment.inputs.map(v => ({ type: v.type, value: '' }));
+            const args: any = fragment.inputs.map(v => ({ type: v.type, value: '', name: v.name }));
             newActions[index] = { ...newActions[index], args, fragment };
         } catch {
             newActions[index] = { ...newActions[index], args: [], fragment: undefined }

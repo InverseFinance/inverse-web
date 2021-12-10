@@ -11,6 +11,7 @@ import { getRemoteAbi } from '@inverse/util/etherscan';
 import { useEffect } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
+import ScannerLink from '@inverse/components/common/ScannerLink';
 
 export const ProposalFormAction = ({
     action,
@@ -58,9 +59,10 @@ export const ProposalFormAction = ({
     const argInputs = args.map((arg, i) => {
         const inputType = arg.type.includes('int') ? 'number' : 'string';
         const min = arg.type.includes('uint') ? '0' : undefined;
+        const name = arg.name || `Argument #${i + 1}`
         return (
             <FormControl key={i} mt="2">
-                <FormLabel fontSize="12">Argument #{i + 1} ({arg.type})</FormLabel>
+                <FormLabel fontSize="12">{name} ({arg.type})</FormLabel>
                 <ProposalInput
                     pt="1"
                     pb="1"
@@ -95,7 +97,7 @@ export const ProposalFormAction = ({
                         <FormControl>
                             <FormLabel>
                                 Contract Address
-                                {contractAddress ? ` (${contractAddress})` : ''}
+                                {contractAddress ? <> (<ScannerLink value={contractAddress} label={contractAddress} />)</> : ''}
                             </FormLabel>
                             <Autocomplete
                                 onItemSelect={onAutoCompleteChange}
