@@ -90,6 +90,7 @@ export const INV_ABI = [
 
 export const GOVERNANCE_ABI = [
   "function xinvExchangeRates(uint256) public view returns (uint256)",
+  "function proposalThreshold() public view returns (uint256)",
   "function castVote(uint256, bool)",
   "function getReceipt(uint256, address) public view returns (bool, bool, uint256)",
   "function proposalCount() public view returns (uint256)",

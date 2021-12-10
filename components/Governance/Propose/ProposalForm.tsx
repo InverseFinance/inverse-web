@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Flex, FormControl, FormLabel, Stack, Text, Box } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
@@ -15,6 +15,7 @@ import { TEST_IDS } from '@inverse/config/test-ids';
 import { ProposalActions, ProposalDetails } from '../Proposal';
 import { ProposalWarningMessage } from './ProposalWarningMessage';
 import { showToast } from '@inverse/util/notify';
+import localforage from 'localforage';
 
 const EMPTY_ACTION = {
     contractAddress: '',
@@ -24,8 +25,11 @@ const EMPTY_ACTION = {
     fragment: undefined,
 };
 
+const PROPOSAL_WARNING_KEY = 'proposalWarningAgreed';
+
 export const ProposalForm = () => {
-    const [isUnderstood, setIsUnderstood] = useState(false);
+    const isMountedRef = useRef(true)
+    const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
     const { library, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
@@ -35,6 +39,16 @@ export const ProposalForm = () => {
     })
     const [isFormValid, setIsFormValid] = useState(false);
     const [previewMode, setPreviewMode] = useState(false);
+
+    useEffect(() => {
+        const init = async () => {
+            const alreadyAggreed = await localforage.getItem(PROPOSAL_WARNING_KEY)
+            if(!isMountedRef.current) { return }
+            setIsUnderstood(!!alreadyAggreed)
+        }
+        init()
+        return () => { isMountedRef.current = false }
+    }, [])
 
     useEffect(() => {
         setIsFormValid(!isFormInvalid(form))
@@ -72,14 +86,17 @@ export const ProposalForm = () => {
     
     const duplicateAction = (index: number) => {
         const actions = [...form.actions];
-        actions.splice(index + 1, 0, actions[index]);
+        const toCopy = { ...actions[index] };
+        
+        actions.splice(index + 1, 0, toCopy);
+
         setForm({ ...form, actions });
         showToast({ status: 'info', title: 'Action Duplicated', description: 'The duplicated action is just below the one copied' })
     }
 
     const actionSubForms = form.actions.map((action, i) => {
         return <ProposalFormAction
-            key={i}
+            key={`${i}-${JSON.stringify(action)}`}
             action={action}
             index={i}
             onChange={(field: string, e: any) => handleActionChange(i, field, e)}
@@ -96,6 +113,7 @@ export const ProposalForm = () => {
     const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
         if (title.length === 0) return true;
         if (description.length === 0) return true;
+        if (actions.length === 0) return true;
         for (const action of actions) {
             if (action.contractAddress.length === 0) return true;
             if (action.func.length === 0) return true;
@@ -124,7 +142,12 @@ export const ProposalForm = () => {
         return previewFunctions
     }
 
-    const preview: Partial<Proposal> = isFormValid ? {
+    const warningUnderstood = () => {
+        setIsUnderstood(true)
+        localforage.setItem(PROPOSAL_WARNING_KEY, true)
+    }
+
+    const preview: Partial<Proposal> = isFormValid && previewMode ? {
         id: 1,
         title: form.title,
         description: form.description,
@@ -138,11 +161,11 @@ export const ProposalForm = () => {
     return (
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             <Text fontSize="30px" fontWeight="bold" mb="3">
-                New Proposal {previewMode ? 'Preview' : ''}
+                Add a New Proposal {previewMode ? ' - Preview' : ''}
             </Text>
             {
                 !isUnderstood ?
-                    <ProposalWarningMessage onOk={() => setIsUnderstood(true)} /> : null
+                    <ProposalWarningMessage onOk={() => warningUnderstood() } /> : null
             }
             {
                 previewMode ?
