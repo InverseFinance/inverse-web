@@ -174,7 +174,9 @@ export default async function handler(req, res) {
       });
     }
 
-    await addXINV(XINV_V1, false);
+    if(XINV_V1) {
+      await addXINV(XINV_V1, false);
+    }
     await addXINV(XINV, true);
 
     const resultData = { markets };
