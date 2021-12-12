@@ -49,7 +49,10 @@ export const AnimatedInfoTooltip = ({
   const tooltipIconProps = iconProps || iconSizes[size];
 
   return <InfoTooltip message={content}
-    tooltipProps={{ bgColor: 'infoAlpha', backdropFilter: "blur(1.5rem)", borderColor: 'info' }}
+    tooltipProps={{
+      className: `blurred-container info-bg`,
+      borderColor: 'info'
+    }}
     iconProps={{ ...tooltipIconProps }}
     children={children}
   />

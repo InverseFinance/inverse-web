@@ -5,8 +5,8 @@ import { dollarify } from '@inverse/util/markets';
 
 const InterestDetails = (interests: Interests) => {
     const fixed2Total = parseFloat(interests.supplyUsdInterests.toFixed(2)) +
-    + parseFloat(interests.invUsdInterests.toFixed(2))
-    + parseFloat(interests.borrowInterests.toFixed(2));
+        + parseFloat(interests.invUsdInterests.toFixed(2))
+        + parseFloat(interests.borrowInterests.toFixed(2));
 
     return (
         <Box p="1" textAlign="left" minW="300">
@@ -30,10 +30,13 @@ const InterestText = ({ value, ...props }: { value: number } & Partial<TextProps
 export const AnchorInterests = (interests: Interests) => {
     return (
         <Flex alignItems="center">
-            <InterestText fontSize="14" value={interests.total} mr="2" color={ interests?.total > 0 ? 'secondary' : 'warning' } />
+            <InterestText fontSize="14" value={interests.total} mr="2" color={interests?.total > 0 ? 'secondary' : 'warning'} />
             <InfoTooltip
                 iconProps={{ boxSize: 3, mt: '2px' }}
-                tooltipProps={{ bgColor: 'infoAlpha', backdropFilter:"blur(1.5rem)", borderColor: 'info' }}
+                tooltipProps={{
+                    className: 'blurred-container info-bg',
+                    borderColor: 'info'
+                }}
                 message={<InterestDetails {...interests} />}
             />
         </Flex>

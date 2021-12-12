@@ -36,8 +36,7 @@ export const AnchorPoolInfo = ({
                     <InfoTooltip
                         iconProps={{ ml: '1', fontSize: '10px' }}
                         tooltipProps={{
-                            bgColor: isSupplied ? 'successAlpha' : 'warningAlpha',
-                            backdropFilter: 'blur(1.5rem)',
+                            className: `blurred-container ${isSupplied ? 'success-bg' : 'warning-bg' }`,
                             borderColor: isSupplied ? 'success' : 'warning',
                         }}
                         message={
