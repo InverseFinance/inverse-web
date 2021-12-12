@@ -20,7 +20,10 @@ const statusAnims = {
 }
 
 const StatusMessage = ({ title, description, status = 'info', alertProps }: Partial<MessageProps>) => {
-    const alertPropsExtended = { bgColor: `${status}Alpha`, backdropFilter: "blur(1.5rem)", ...alertProps };
+    const alertPropsExtended = {
+        className: `blurred-container ${status}-bg`,
+        ...alertProps,
+    };
     const IconComp = statusAnims[status];
     return <Message status={status}
         title={title}

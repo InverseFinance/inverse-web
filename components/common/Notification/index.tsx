@@ -10,7 +10,6 @@ import infoLottie from '@inverse/public/assets/lotties/info.json';
 import { CustomToastOptions } from '@inverse/types';
 import { Animation } from '@inverse/components/common/Animation';
 
-
 type AnimOptions = { animData: Object, loop: boolean }
 
 interface NotifTheme {
@@ -94,10 +93,9 @@ export const Notification = ({
             borderRadius="lg"
             color="white"
             p={3}
-            bg={theme.bg}
             border="1px solid"
             borderColor={theme.borderColor}
-            backdropFilter="blur(1.5rem)"
+            className={`blurred-container ${status}-bg`}
             {...boxProps}
             position="relative"
         >

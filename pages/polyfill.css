@@ -1,0 +1,44 @@
+body {
+    overflow-x: hidden !important;
+}
+    
+@supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+    .blurred-container {
+      -webkit-backdrop-filter: blur(1.5rem);
+      backdrop-filter: blur(1.5rem);
+    }
+    .info-bg {
+        background-color: #4299e122 !important;
+    }
+    .loading-bg {
+        background-color: #4299e122 !important;
+    }
+    .success-bg {
+        background-color: #25C9A122 !important;
+    }    
+    .error-bg {
+        background-color: #F4406166 !important;
+    }
+    .warning-bg {
+        background-color: #ed893622 !important;
+    }
+  }
+  
+  /* slightly transparent fallback for Firefox (not supporting backdrop-filter) */
+  @supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+    .info-bg {
+        background-color: #4299e1dd !important;
+    }
+    .loading-bg {
+        background-color: #4299e1dd !important;
+    }
+    .success-bg {
+        background-color: #25C9A1dd !important;
+    }    
+    .error-bg {
+        background-color: #F44061dd !important;
+    }
+    .warning-bg {
+        background-color: #ed8936dd !important;
+    }
+  }
