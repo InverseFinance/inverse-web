@@ -37,13 +37,15 @@ export const Autocomplete = ({
     defaultValue = '',
     placeholder = '',
     InputComp = defaultInputComp,
+    inputProps,
     onItemSelect = () => { },
+    isOpenDefault = false,
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
     const [selectedItem, setSelectedItem] = useState<AutocompleteItem | undefined>(preselectedItem)
     const [searchValue, setSearchValue] = useState(preselectedItem?.label || '')
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(isOpenDefault)
     const [filteredList, setFilteredList] = useState(list)
     const [notFound, setNotFound] = useState(false)
 
@@ -144,6 +146,7 @@ export const Autocomplete = ({
                     onKeyPress={handleKeyPress}
                     onChange={(e: any) => handleSearchChange(e.target.value)}
                     onClick={() => setIsOpen(!isOpen)}
+                    {...inputProps}
                 />
                 <InputRightElement
                     height="100%"

@@ -255,6 +255,8 @@ export type AutocompleteProps = {
   defaultValue?: string,
   placeholder?: string,
   InputComp?: ComponentWithAs<"input", InputProps>,
+  inputProps?: InputProps,
+  isOpenDefault?: boolean,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,
 } & Partial<BoxProps>
 
