@@ -174,8 +174,8 @@ export type Network = {
   id: string;
   codename: string;
   name: string;
-  isTestnet: boolean;
-  isSupported: boolean;
+  isTestnet?: boolean;
+  isSupported?: boolean;
   coinSymbol: string,
   bgColor?: BackgroundProps["bgColor"],
   image?: string,

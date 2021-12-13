@@ -314,11 +314,17 @@ export const getNetworkImage = (chainId: string) => {
 }
 
 export const isSupportedNetwork = (chainId?: string | number): boolean => {
-  return !!chainId && getNetwork(chainId)?.isSupported;
+  return !!chainId && !!getNetwork(chainId)?.isSupported;
 }
 
 export const getNetwork = (chainId: string | number): Network => {
-  return NETWORKS.find(network => network.id === chainId.toString())!;
+  return NETWORKS.find(network => network.id === chainId?.toString())
+    || {
+    name: 'Unknown',
+    id: chainId?.toString(),
+    codename: 'unknown',
+    coinSymbol: '',
+  };
 }
 
 export const getNetworkConfig = (chainId: string | number, returnMainIfUnsupported = false): NetworkConfig | undefined => {
