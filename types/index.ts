@@ -133,6 +133,7 @@ export type NetworkConfig = {
   INVDOLASLP: string,
   DOLA3POOLCRV: string,
   THREECRV: string,
+  FLOKI: string,
   escrow_v1: string,
   escrow: string,
   harvester: string,
@@ -162,6 +163,7 @@ export type NetworkConfig = {
       steth: string,
       dola3poolcrv: string,
       invdolaslp: string,
+      floki: string,
     };
   }
   namedAddresses: KeyString;

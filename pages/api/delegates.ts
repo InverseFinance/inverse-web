@@ -1,14 +1,14 @@
 import "source-map-support";
 import { getNetworkConfig } from '@inverse/config/networks';
 import { getRedisClient } from '@inverse/util/redis';
+import { NetworkIds } from '@inverse/types';
 
 const client = getRedisClient();
 
 export default async function handler(req, res) {
   try {
-    const { chainId = '1' } = req.query;
     // defaults to mainnet data if unsupported network
-    const networkConfig = getNetworkConfig(chainId, true)!;
+    const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
     if(!networkConfig?.governance) {
       res.status(403).json({ success: false, message: `No Governance support on ${networkConfig.chainId} network` });
     }

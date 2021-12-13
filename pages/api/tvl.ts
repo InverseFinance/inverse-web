@@ -5,14 +5,14 @@ import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abis";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
-import { StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
+import { NetworkIds, StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
 
 export default async function handler(req, res) {
-  const { chainId = '1' } = req.query;
+  // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(chainId, true)!;
+  const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
   const cacheKey = `${networkConfig.chainId}-tvl-cache`;
 
   try {

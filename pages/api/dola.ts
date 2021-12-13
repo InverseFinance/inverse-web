@@ -5,11 +5,12 @@ import { ERC20_ABI } from '@inverse/config/abis'
 import { getNetworkConfig } from '@inverse/config/networks'
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
+import { NetworkIds } from '@inverse/types';
 
 export default async function handler(req, res) {
-  const { chainId = '1' } = req.query;
+  // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(chainId, true)!;
+  const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
   const cacheKey = `${networkConfig.chainId}-dola-cache`;
 
   try {

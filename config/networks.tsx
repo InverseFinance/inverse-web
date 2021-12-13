@@ -16,6 +16,7 @@ const mainnetConfig: NetworkConfig = {
   INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
   DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
   THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
+  FLOKI: '0x43f11c02439e2736800433b4594994Bd43Cd066D',
   // old XINV
   XINV_V1: OLD_XINV,
   // new XINV
@@ -41,6 +42,7 @@ const mainnetConfig: NetworkConfig = {
       steth: '0xA978D807614c3BFB0f90bC282019B2898c617880',
       dola3poolcrv: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
       invdolaslp: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
+      floki: '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B',
     },
   },
   escrow_v1: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
@@ -55,6 +57,7 @@ const mainnetConfig: NetworkConfig = {
   namedAddresses: {
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'GovTimelock',
     '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68': 'INV',
+    '0x43f11c02439e2736800433b4594994Bd43Cd066D': 'FLOKI',
     '0x0000000000000000000000000000000000000000': 'Burn address',
     '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28': 'Deployer',
     '0x7165ac4008c3603AfE432787419eB61B3a2CEe8B': 'BenLavabo',
@@ -96,6 +99,7 @@ const rinkebyConfig: NetworkConfig = {
   INVDOLASLP: '',
   DOLA3POOLCRV: '',
   THREECRV: '',
+  FLOKI: '',
   escrow_v1: '',
   escrow: '',
   harvester: '0x6dE45B9a80847Ce6Fd53819bA31cf296Ecc346bC',
@@ -121,6 +125,7 @@ const rinkebyConfig: NetworkConfig = {
       steth: '',
       dola3poolcrv: '',
       invdolaslp: '',
+      floki: '',
     },
   },
   namedAddresses: {},
@@ -166,7 +171,6 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'eth',
     isTestnet: true,
     isSupported: false,
-    config: rinkebyConfig,
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
   {
@@ -185,6 +189,7 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'eth',
     isTestnet: true,
     isSupported: false,
+    config: rinkebyConfig,
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
   {
@@ -355,6 +360,7 @@ export const getNetworkConfigConstants = (
   const ANCHOR_STETH = config.anchor.markets.steth;
   const ANCHOR_INVDOLASLP = config.anchor.markets.invdolaslp
   const ANCHOR_DOLA3POOLCRV = config.anchor.markets.dola3poolcrv
+  const ANCHOR_FLOKI = config.anchor.markets.floki;
   const ANCHOR_TOKENS = Object.values(config.anchor.markets);
 
   const GOVERNANCE = config.governance;
@@ -384,6 +390,7 @@ export const getNetworkConfigConstants = (
   const INVDOLASLP = config.INVDOLASLP
   const DOLA3POOLCRV = config.DOLA3POOLCRV
   const THREECRV = config.THREECRV;
+  const FLOKI = config.FLOKI;
 
   const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
 
@@ -500,6 +507,14 @@ export const getNetworkConfigConstants = (
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
     },
+    [FLOKI]: {
+      address: FLOKI,
+      name: 'Floki',
+      symbol: 'FLOKI',
+      coingeckoId: 'floki-inu',
+      image: 'https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665',
+      decimals: 9,
+    },
   };
 
   const UNDERLYING: TokenList = {
@@ -511,6 +526,7 @@ export const getNetworkConfigConstants = (
     [ANCHOR_STETH]: TOKENS[STETH],
     [ANCHOR_INVDOLASLP]: TOKENS[INVDOLASLP],
     [ANCHOR_DOLA3POOLCRV]: TOKENS[DOLA3POOLCRV],
+    [ANCHOR_FLOKI]: TOKENS[FLOKI],
     [XINV_V1]: TOKENS[INV],
     [XINV]: TOKENS[INV],
     [VAULT_USDC_ETH]: TOKENS[USDC],
@@ -529,12 +545,14 @@ export const getNetworkConfigConstants = (
     [ANCHOR_STETH]: 'anStETH',
     [ANCHOR_INVDOLASLP]: 'INV-DOLA SLP',
     [ANCHOR_DOLA3POOLCRV]: 'Dola-3pool LP',
+    [ANCHOR_FLOKI]: 'anFloki',
     [COMPTROLLER]: 'Comptroller',
     [DAI]: 'Dai',
     [DOLA]: 'DOLA',
     [INV]: 'INV',
     [ORACLE]: 'Oracle',
     [STABILIZER]: 'Stabilizer',
+    // [FLOKI]: 'Floki',
     [VAULT_USDC_ETH]: 'vaultUsdcEth',
     [VAULT_DAI_ETH]: 'vaultDaiEth',
     [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
@@ -594,6 +612,7 @@ export const getNetworkConfigConstants = (
     ANCHOR_STETH,
     ANCHOR_INVDOLASLP,
     ANCHOR_DOLA3POOLCRV,
+    // ANCHOR_FLOKI,
     ANCHOR_TOKENS,
     GOVERNANCE,
     GOVERNANCE_ALPHA,
@@ -615,6 +634,7 @@ export const getNetworkConfigConstants = (
     STETH,
     INVDOLASLP,
     DOLA3POOLCRV,
+    //FLOKI,
     THREECRV,
     UNDERLYING,
     TOKENS,
