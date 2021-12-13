@@ -188,7 +188,7 @@ export const NETWORKS: Network[] = [
     name: 'Rinkeby',
     coinSymbol: 'eth',
     isTestnet: true,
-    isSupported: true,
+    isSupported: false,
     config: rinkebyConfig,
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
