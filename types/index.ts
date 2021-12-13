@@ -163,7 +163,7 @@ export type NetworkConfig = {
       steth: string,
       dola3poolcrv: string,
       invdolaslp: string,
-      // floki: string,
+      floki: string,
     };
   }
   namedAddresses: KeyString;

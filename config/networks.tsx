@@ -42,7 +42,7 @@ const mainnetConfig: NetworkConfig = {
       steth: '0xA978D807614c3BFB0f90bC282019B2898c617880',
       dola3poolcrv: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
       invdolaslp: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
-      // floki: '',
+      floki: '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B',
     },
   },
   escrow_v1: '0xfD5eB01AedA9dD5449eFdE2CD6D978D15F5c15B6',
@@ -125,7 +125,7 @@ const rinkebyConfig: NetworkConfig = {
       steth: '',
       dola3poolcrv: '',
       invdolaslp: '',
-      // floki: '',
+      floki: '',
     },
   },
   namedAddresses: {},
@@ -360,7 +360,7 @@ export const getNetworkConfigConstants = (
   const ANCHOR_STETH = config.anchor.markets.steth;
   const ANCHOR_INVDOLASLP = config.anchor.markets.invdolaslp
   const ANCHOR_DOLA3POOLCRV = config.anchor.markets.dola3poolcrv
-  // const ANCHOR_FLOKI = config.anchor.markets.floki
+  const ANCHOR_FLOKI = config.anchor.markets.floki;
   const ANCHOR_TOKENS = Object.values(config.anchor.markets);
 
   const GOVERNANCE = config.governance;
@@ -390,7 +390,7 @@ export const getNetworkConfigConstants = (
   const INVDOLASLP = config.INVDOLASLP
   const DOLA3POOLCRV = config.DOLA3POOLCRV
   const THREECRV = config.THREECRV;
-  //const FLOKI = config.FLOKI;
+  const FLOKI = config.FLOKI;
 
   const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
 
@@ -507,14 +507,14 @@ export const getNetworkConfigConstants = (
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
     },
-    // [FLOKI]: {
-    //   address: FLOKI,
-    //   name: 'Floki',
-    //   symbol: 'FLOKI',
-    //   coingeckoId: 'floki-inu',
-    //   image: 'https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665',
-    //   decimals: 9,
-    // },
+    [FLOKI]: {
+      address: FLOKI,
+      name: 'Floki',
+      symbol: 'FLOKI',
+      coingeckoId: 'floki-inu',
+      image: 'https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665',
+      decimals: 9,
+    },
   };
 
   const UNDERLYING: TokenList = {
@@ -526,7 +526,7 @@ export const getNetworkConfigConstants = (
     [ANCHOR_STETH]: TOKENS[STETH],
     [ANCHOR_INVDOLASLP]: TOKENS[INVDOLASLP],
     [ANCHOR_DOLA3POOLCRV]: TOKENS[DOLA3POOLCRV],
-    // [ANCHOR_FLOKI]: TOKENS[FLOKI],
+    [ANCHOR_FLOKI]: TOKENS[FLOKI],
     [XINV_V1]: TOKENS[INV],
     [XINV]: TOKENS[INV],
     [VAULT_USDC_ETH]: TOKENS[USDC],
@@ -545,7 +545,7 @@ export const getNetworkConfigConstants = (
     [ANCHOR_STETH]: 'anStETH',
     [ANCHOR_INVDOLASLP]: 'INV-DOLA SLP',
     [ANCHOR_DOLA3POOLCRV]: 'Dola-3pool LP',
-    // [ANCHOR_FLOKI]: 'anFloki',
+    [ANCHOR_FLOKI]: 'anFloki',
     [COMPTROLLER]: 'Comptroller',
     [DAI]: 'Dai',
     [DOLA]: 'DOLA',
