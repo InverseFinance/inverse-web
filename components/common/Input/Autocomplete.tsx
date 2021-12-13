@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
-import { Box, List, ListItem, InputGroup, InputLeftElement, ComponentWithAs, InputProps, BoxProps, ListItemProps } from '@chakra-ui/react';
+import { Box, List, ListItem, InputGroup, InputLeftElement, ListItemProps, InputRightElement } from '@chakra-ui/react';
 import { Input } from '.';
 import { useEffect } from 'react';
 import { useOutsideClick } from '@chakra-ui/react'
-import { CloseIcon } from '@chakra-ui/icons';
+import { CloseIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { isAddress } from 'ethers/lib/utils';
 import { AutocompleteItem, AutocompleteProps } from '@inverse/types';
 
@@ -41,7 +41,7 @@ export const Autocomplete = ({
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
-    const [selectedItem, setSelectedItem] = useState<AutocompleteItem | undefined>(preselectedItem)    
+    const [selectedItem, setSelectedItem] = useState<AutocompleteItem | undefined>(preselectedItem)
     const [searchValue, setSearchValue] = useState(preselectedItem?.label || '')
     const [isOpen, setIsOpen] = useState(false)
     const [filteredList, setFilteredList] = useState(list)
@@ -57,7 +57,7 @@ export const Autocomplete = ({
     })
 
     useEffect(() => {
-        if(!isOpen && (searchValue !== selectedItem?.label && !selectedItem?.isSearchValue)) {
+        if (!isOpen && (searchValue !== selectedItem?.label && !selectedItem?.isSearchValue)) {
             setSearchValue(selectedItem?.label!)
         }
     }, [searchValue, selectedItem, isOpen])
@@ -97,9 +97,7 @@ export const Autocomplete = ({
 
     const handleSearchChange = (value: string) => {
         setSearchValue(value)
-        if (!value) {
-            clear()
-        } else if (isAddress(value)) {
+        if (isAddress(value)) {
             handleSelect({ value, label: value })
         } else {
             const perfectMatch = list.find((item) => item.value.toLowerCase() === value.toLowerCase() || item.label.toLowerCase() === value.toLowerCase())
@@ -107,6 +105,12 @@ export const Autocomplete = ({
             if (perfectMatch && filteredList.length === 1) {
                 handleSelect(perfectMatch)
             }
+        }
+    }
+
+    const handleKeyPress = (e: any) => {
+        if(e.key === 'Enter' && searchValue && filteredList.length === 1) {
+            handleSelect(filteredList[0])
         }
     }
 
@@ -137,8 +141,13 @@ export const Autocomplete = ({
                     value={searchValue}
                     textAlign="left"
                     fontSize="12px"
+                    onKeyPress={handleKeyPress}
                     onChange={(e: any) => handleSearchChange(e.target.value)}
                     onClick={() => setIsOpen(!isOpen)}
+                />
+                <InputRightElement
+                    height="100%"
+                    children={<ChevronDownIcon />}
                 />
             </InputGroup>
             {
