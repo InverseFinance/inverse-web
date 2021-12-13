@@ -210,6 +210,7 @@ export enum AnchorOperations {
 }
 
 export type ProposalFormActionFields = {
+  actionId: number,
   contractAddress: string,
   func: string,
   args: any[],

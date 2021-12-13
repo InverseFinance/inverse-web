@@ -10,6 +10,8 @@ import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { getRemoteAbi } from '@inverse/util/etherscan';
 import { useEffect } from 'react';
 import ScannerLink from '@inverse/components/common/ScannerLink';
+import { ProposalFormFuncArg } from './ProposalFormFuncArg';
+import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
 
 export const ProposalFormAction = ({
     action,
@@ -51,42 +53,29 @@ export const ProposalFormAction = ({
         const writeFunctions = parsedAbi
             .filter((abiItem: FunctionFragment) => abiItem.type === 'function' && abiItem.stateMutability !== 'view')
             .map((abiItem: FunctionFragment) => {
-                const fields = abiItem.inputs.map((input) => `${input.internalType} ${input.name}`.trim()).join(',')
+                const fields = abiItem.inputs.map((input) => `${input.type} ${input.name}`.trim()).join(',')
                 const signature = `${abiItem.name}(${fields})`
                 return { label: signature, value: signature }
             })
         setContractFunctions(writeFunctions)
     }, [abi])
 
-    const { PROPOSAL_AUTOCOMPLETE_ADDRESSES } = getNetworkConfigConstants(NetworkIds.mainnet)
 
-    const knownAddresses = Object.entries(PROPOSAL_AUTOCOMPLETE_ADDRESSES)
-        .map(([ad, name]) => ({ value: ad, label: name }))
-        .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1)
-
-    const handleArgChange = (e: any, i: number) => {
+    const handleArgChange = (eventOrValue: any, i: number) => {
         const newArgs = [...args];
-        newArgs[i] = { ...newArgs[i], value: e.currentTarget.value };
+        newArgs[i] = { ...newArgs[i], value: eventOrValue?.currentTarget?.value || eventOrValue };
         onChange('args', newArgs);
     }
 
     const argInputs = args.map((arg, i) => {
-        const inputType = arg.type.includes('int') ? 'number' : 'string';
-        const min = arg.type.includes('uint') ? '0' : undefined;
-        const name = arg.name || `Argument #${i + 1}`
-        return (
-            <FormControl key={i} mt="2">
-                <FormLabel fontSize="12">{name} ({arg.type})</FormLabel>
-                <ProposalInput
-                    pt="1"
-                    pb="1"
-                    type={inputType}
-                    min={min}
-                    value={arg.value || ''}
-                    placeholder="Argument data"
-                    onChange={(e: any) => handleArgChange(e, i)} />
-            </FormControl>
-        )
+        return <ProposalFormFuncArg
+            key={i}
+            type={arg.type}
+            name={arg.name}
+            defaultValue={arg.value}
+            index={i}
+            onChange={(e) => handleArgChange(e, i)}
+        />
     })
 
     const onContractChange = async (item?: AutocompleteItem) => {
@@ -113,15 +102,12 @@ export const ProposalFormAction = ({
                         <FormControl>
                             <FormLabel>
                                 Contract Address
-                                {contractAddress ? <> (<ScannerLink value={contractAddress} label={contractAddress} />)</> : ''}
+                                {contractAddress && isAddress(contractAddress) ? <> (<ScannerLink value={contractAddress} label={contractAddress} />)</> : ''}
                             </FormLabel>
-                            <Autocomplete
+                            <AddressAutocomplete
                                 onItemSelect={onContractChange}
                                 defaultValue={contractAddress}
-                                InputComp={(p) => <ProposalInput isInvalid={!!contractAddress && !isAddress(contractAddress)} {...p} />}
-                                list={knownAddresses}
-                                title="Well-Known Contract / Wallet Names :"
-                                placeholder="0x... Or a Known Contract / Wallet Name, eg: Comptroller, DAI, DOLA"
+                                InputComp={(p) => <ProposalInput {...p} />}
                             />
                         </FormControl>
                         <FormControl>

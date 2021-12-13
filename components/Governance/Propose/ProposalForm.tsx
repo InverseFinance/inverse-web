@@ -18,6 +18,7 @@ import { showToast } from '@inverse/util/notify';
 import localforage from 'localforage';
 
 const EMPTY_ACTION = {
+    actionId: 0,
     contractAddress: '',
     func: '',
     args: [],
@@ -39,11 +40,12 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
     })
     const [isFormValid, setIsFormValid] = useState(false);
     const [previewMode, setPreviewMode] = useState(false);
+    const [actionLastId, setActionLastId] = useState(0);
 
     useEffect(() => {
         const init = async () => {
             const alreadyAggreed = await localforage.getItem(PROPOSAL_WARNING_KEY)
-            if(!isMountedRef.current) { return }
+            if (!isMountedRef.current) { return }
             setIsUnderstood(!!alreadyAggreed)
         }
         init()
@@ -83,11 +85,13 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         setForm({ ...form, actions });
         showToast({ status: 'error', title: 'Action Removed from proposal' })
     }
-    
+
     const duplicateAction = (index: number) => {
         const actions = [...form.actions];
-        const toCopy = { ...actions[index] };
-        
+        const actionId = actionLastId + 1;
+        setActionLastId(actionId)
+        const toCopy = { ...actions[index], actionId: actionId };
+
         actions.splice(index + 1, 0, toCopy);
 
         setForm({ ...form, actions });
@@ -96,7 +100,7 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
 
     const actionSubForms = form.actions.map((action, i) => {
         return <ProposalFormAction
-            key={`${i}-${JSON.stringify(action)}`}
+            key={action.actionId}
             action={action}
             index={i}
             onChange={(field: string, e: any) => handleActionChange(i, field, e)}
@@ -107,7 +111,9 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
     })
 
     const addAction = () => {
-        setForm({ ...form, actions: form.actions.concat([{ ...EMPTY_ACTION }]) });
+        const actionId = actionLastId + 1;
+        setActionLastId(actionId);
+        setForm({ ...form, actions: form.actions.concat([{ ...EMPTY_ACTION, actionId }]) });
     }
 
     const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
@@ -121,6 +127,11 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
             for (const arg of action.args) {
                 if (arg.value.length === 0) return true;
             }
+        }
+        try {
+            getActionsToFunctions()
+        } catch (e) {
+            return true
         }
         return false;
     }
@@ -160,10 +171,10 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
 
     return (
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
-            { previewMode ? <Text textAlign="center">Preview / Recap</Text> : null }
+            {previewMode ? <Text textAlign="center">Preview / Recap</Text> : null}
             {
                 !isUnderstood ?
-                    <ProposalWarningMessage onOk={() => warningUnderstood() } /> : null
+                    <ProposalWarningMessage onOk={() => warningUnderstood()} /> : null
             }
             {
                 previewMode ?
