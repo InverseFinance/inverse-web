@@ -112,10 +112,17 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         />
     })
 
-    const addAction = (action: TemplateProposalFormActionFields = EMPTY_ACTION) => {
+    const addAction = (action: TemplateProposalFormActionFields = EMPTY_ACTION, collapsed = false) => {
         const actionId = actionLastId + 1;
         setActionLastId(actionId);
-        setForm({ ...form, actions: form.actions.concat([{ ...action, actionId }]) });
+        setForm({
+            ...form,
+            actions: form.actions.concat([{
+                ...action,
+                actionId,
+                collapsed,
+            }])
+        });
     }
 
     const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
@@ -153,8 +160,8 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         onOpen()
     }
 
-    const handleAddTemplate =  (action: TemplateProposalFormActionFields) => {
-        addAction(action)
+    const handleAddTemplate = (action: TemplateProposalFormActionFields) => {
+        addAction(action, true)
         onClose()
     }
 

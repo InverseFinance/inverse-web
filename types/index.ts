@@ -216,6 +216,7 @@ export type ProposalFormActionFields = {
   args: any[],
   value: string,
   fragment?: FunctionFragment,
+  collapsed?: boolean,
 }
 
 export type TemplateProposalFormActionFields = Omit<ProposalFormActionFields, "actionId">

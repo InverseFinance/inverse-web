@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { Modal } from '@inverse/components/common/Modal';
 import { Stack, Text } from '@chakra-ui/react';
 import { Autocomplete } from '@inverse/components/common/Input/Autocomplete';
-import { AutocompleteItem, TemplateProposalFormActionFields } from '@inverse/types';
-import { InvCompTemplate } from './templates/InvCompTemplate';
+import { AutocompleteItem, TemplateProposalFormActionFields, NetworkIds } from '@inverse/types';
 import { FunctionFragment } from 'ethers/lib/utils';
+import { InfoMessage } from '@inverse/components/common/Messages';
+import { TokenTemplate } from './templates/TokenTemplate';
+import { AnchorTemplate } from './templates/AnchorTemplate';
+import { getNetworkConfigConstants } from '@inverse/config/networks';
 
 type Props = {
     isOpen: boolean
@@ -13,15 +16,31 @@ type Props = {
 }
 
 enum TemplateValues {
-    invComp = 'invComp',
-    anchorLending = 'invComp',
-    anchorBorrowing = 'invComp',
+    invTransfer = 'invTransfer',
+    invApprove = 'invApprove',
+    dolaTransfer = 'dolaTransfer',
+    dolaApprove = 'dolaApprove',
+    daiTransfer = 'daiTransfer',
+    daiApprove = 'daiApprove',
+    anchorLending = 'anchorLending',
+    anchorBorrowing = 'anchorBorrowing',
 }
 
+const { INV, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet)
+
+// const tokenTemplates = []
+
 const templates = [
-    { label: 'INV: Send tokens', value: TemplateValues.invComp },
-    // { label: 'Anchor: Toggle Supplying', value: TemplateValues.anchorLending },
-    // { label: 'Anchor: Toggle Borrowing', value: TemplateValues.anchorBorrowing },
+    // tokens
+    { label: 'INV: Send tokens', value: TemplateValues.invTransfer },
+    { label: 'INV: Approve funding', value: TemplateValues.invApprove },
+    { label: 'DOLA: Send tokens', value: TemplateValues.dolaTransfer },
+    { label: 'DOLA: Approve funding', value: TemplateValues.dolaApprove },
+    { label: 'DAI: Send tokens', value: TemplateValues.daiTransfer },
+    { label: 'DAI: Approve funding', value: TemplateValues.daiApprove },
+    // anchor
+    { label: 'Anchor: Toggle Supplying for a market', value: TemplateValues.anchorLending },
+    { label: 'Anchor: Toggle Borrowing for a market', value: TemplateValues.anchorBorrowing },
 ]
 
 export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) => {
@@ -33,16 +52,26 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
     }
 
     const handleSubmit = (action: TemplateProposalFormActionFields) => {
-        onAddTemplate({ ...action!, fragment: FunctionFragment.from(action?.func!) })
+        onAddTemplate({
+            ...action!,
+            fragment: FunctionFragment.from(action?.func!),
+        })
     }
 
     const templateComps = {
-        [TemplateValues.invComp]: InvCompTemplate,
-        // [TemplateValues.anchorLending]: null,
-        // [TemplateValues.anchorBorrowing]: null,
+        [TemplateValues.invTransfer]: { comp: TokenTemplate, props: { token: TOKENS[INV], type: 'transfer' } },
+        [TemplateValues.invApprove]: { comp: TokenTemplate, props: { token: TOKENS[INV], type: 'approve' } },
+        [TemplateValues.dolaTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'transfer' } },
+        [TemplateValues.dolaApprove]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'approve' } },
+        [TemplateValues.daiTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'transfer' } },
+        [TemplateValues.daiApprove]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'approve' } },
+        // anchor
+        [TemplateValues.anchorLending]:  { comp: AnchorTemplate, props: { type: '_setMintPaused' } },
+        [TemplateValues.anchorBorrowing]: { comp: AnchorTemplate, props: { type: '_setBorrowPaused' } },
     }
 
-    const ChosenTemplate = templateComps[template?.value]
+    const chosenTemplate = templateComps[template?.value]
+    const ChosenTemplateComp = chosenTemplate?.comp
 
     return (
         <Modal
@@ -50,21 +79,25 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
             isOpen={isOpen}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
-                    <Text>Add a Standard action using a Template</Text>
+                    <Text>Add a Common Proposal Action</Text>
                 </Stack>
             }
         >
-            <Stack p={'5'} height={'fit-content'} minH='300px' overflowY="auto">
+            <Stack p={'5'} height={'fit-content'} minH='350px' overflowY="visible">
                 <Text>Template : </Text>
                 <Autocomplete
-                    title="Standard actions"
+                    inputProps={{ autoFocus: true }}
+                    isOpenDefault={true}
+                    title="Common Proposal Actions :"
                     list={templates}
                     onItemSelect={handleSelect}
                 />
 
                 {
                     template?.value ?
-                        <ChosenTemplate onSubmit={handleSubmit} /> : null}
+                        <ChosenTemplateComp onSubmit={handleSubmit} {...chosenTemplate.props} /> :
+                        <InfoMessage alertProps={{ w: 'full' }} description="Choose a template above" />
+                }
             </Stack>
         </Modal>
     )

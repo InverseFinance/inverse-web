@@ -6,19 +6,20 @@ import ScannerLink from '@inverse/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { useEffect } from 'react';
-import { AutocompleteItem, NetworkIds, TemplateProposalFormActionFields } from '@inverse/types'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { AutocompleteItem, TemplateProposalFormActionFields, Token } from '@inverse/types'
 import { parseUnits } from '@ethersproject/units';
 
-const { INV, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-
-export const InvCompTemplate = ({
+export const TokenTemplate = ({
     defaultAddress = '',
     defaultAmount = '',
+    token,
     onSubmit,
+    type,
 }: {
     defaultAddress?: string,
     defaultAmount?: string,
+    token: Token,
+    type: 'approve' | 'transfer',
     onSubmit: (action: TemplateProposalFormActionFields) => void,
 }) => {
     const [destination, setDestination] = useState(defaultAddress);
@@ -39,11 +40,11 @@ export const InvCompTemplate = ({
 
     const handleSubmit = () => {
         const action: TemplateProposalFormActionFields = {
-            contractAddress: INV,
-            func: 'transfer(address destination, uint256 rawAmount)',
+            contractAddress: token.address,
+            func: `${type}(address destination, uint256 rawAmount)`,
             args: [
                 { type: 'address', value: destination, name: 'destination' },
-                { type: 'uint256', value: parseUnits(amount, TOKENS[INV].decimals), name: 'rawAmount' },
+                { type: 'uint256', value: parseUnits(amount, token.decimals), name: 'rawAmount' },
             ],
             value: '0',
         }
@@ -67,11 +68,11 @@ export const InvCompTemplate = ({
             </FormControl>
             <FormControl>
                 <FormLabel>
-                    Amount in INV :
+                    Amount in <b>{ token.symbol } to {type}</b> :
                 </FormLabel>
                 <Input type="number" min="0" defaultValue={defaultAmount} onChange={handleAmountChange} />
             </FormControl>
-            <SubmitButton isDisabled={isDisabled} bgColor="secondary" onClick={handleSubmit}>
+            <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
                 ADD ACTION
             </SubmitButton>
         </VStack>

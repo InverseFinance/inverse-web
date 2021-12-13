@@ -6,7 +6,13 @@ import { getNetworkConfigConstants } from '@inverse/config/networks';
 
 const { CONTRACTS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-export const ProposalActionPreview = (({ target, signature, callData, num, ...props }: ProposalFunction & { num?: number } & StackProps) => {
+export const ProposalActionPreview = (({
+    target,
+    signature,
+    callData,
+    num,
+    ...props
+}: ProposalFunction & { num?: number } & StackProps) => {
     const callDatas = new AbiCoder()
         .decode(FunctionFragment.from(signature).inputs, callData)
         .toString()
