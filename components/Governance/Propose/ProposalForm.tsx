@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { Flex, FormControl, FormLabel, Stack, Text, Box } from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { SubmitButton } from '@inverse/components/common/Button';
-import { GovEra, Proposal, ProposalFormFields, ProposalStatus } from '@inverse/types';
+import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
 import { getFunctionsFromProposalActions, submitProposal } from '@inverse/util/governance';
@@ -16,6 +16,7 @@ import { ProposalActions, ProposalDetails } from '../Proposal';
 import { ProposalWarningMessage } from './ProposalWarningMessage';
 import { showToast } from '@inverse/util/notify';
 import localforage from 'localforage';
+import { ActionTemplateModal } from './ActionTemplateModal';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -36,11 +37,12 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
     const [form, setForm] = useState<ProposalFormFields>({
         title: '',
         description: '',
-        actions: [{ ...EMPTY_ACTION }],
+        actions: [],
     })
     const [isFormValid, setIsFormValid] = useState(false);
     const [previewMode, setPreviewMode] = useState(false);
     const [actionLastId, setActionLastId] = useState(0);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     useEffect(() => {
         const init = async () => {
@@ -110,10 +112,10 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         />
     })
 
-    const addAction = () => {
+    const addAction = (action: TemplateProposalFormActionFields = EMPTY_ACTION) => {
         const actionId = actionLastId + 1;
         setActionLastId(actionId);
-        setForm({ ...form, actions: form.actions.concat([{ ...EMPTY_ACTION, actionId }]) });
+        setForm({ ...form, actions: form.actions.concat([{ ...action, actionId }]) });
     }
 
     const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
@@ -145,6 +147,15 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
     const warningUnderstood = () => {
         setIsUnderstood(true)
         localforage.setItem(PROPOSAL_WARNING_KEY, true)
+    }
+
+    const showTemplateModal = () => {
+        onOpen()
+    }
+
+    const handleAddTemplate =  (action: TemplateProposalFormActionFields) => {
+        addAction(action)
+        onClose()
     }
 
     const preview: Partial<Proposal> = isFormValid && previewMode ? {
@@ -199,8 +210,15 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
                         :
                         !previewMode ?
                             <>
-                                <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={addAction}>
-                                    {form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Action'}
+                                {
+                                    form.actions.length < 20 ?
+                                        <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={showTemplateModal}>
+                                            Add a Template Action
+                                        </SubmitButton>
+                                        : null
+                                }
+                                <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={() => addAction()}>
+                                    {form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Empty Action'}
                                 </SubmitButton>
                                 <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={() => setPreviewMode(true)}>
                                     Preview Proposal
@@ -217,6 +235,7 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
                             </>
                 }
             </Flex>
+            <ActionTemplateModal isOpen={isOpen} onClose={onClose} onAddTemplate={handleAddTemplate} />
         </Stack>
     )
 }

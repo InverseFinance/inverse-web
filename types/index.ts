@@ -218,6 +218,8 @@ export type ProposalFormActionFields = {
   fragment?: FunctionFragment,
 }
 
+export type TemplateProposalFormActionFields = Omit<ProposalFormActionFields, "actionId">
+
 export type ProposalFormFields = {
   title: string,
   description: string,

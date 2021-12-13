@@ -13,7 +13,7 @@ export const ProposalActionPreview = (({ target, signature, callData, num, ...pr
         .split(',')
 
     return (
-        <Stack w="full" spacing={1} {...props}>
+        <Stack w="full" spacing={1} {...props} textAlign="left">
             {
                 num ?
                     <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="purple.200">

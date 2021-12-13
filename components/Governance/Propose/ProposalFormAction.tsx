@@ -69,7 +69,7 @@ export const ProposalFormAction = ({
         onChange('args', newArgs);
     }
 
-    const argInputs = args.map((arg, i) => {
+    const argInputs = args?.map((arg, i) => {
         return <ProposalFormFuncArg
             key={i}
             type={arg.type}
