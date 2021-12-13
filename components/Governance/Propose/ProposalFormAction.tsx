@@ -1,6 +1,6 @@
 import { ProposalFormActionFields, AutocompleteItem } from '@inverse/types';
 import { useState } from 'react'
-import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade } from '@chakra-ui/react';
+import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade, ScaleFade } from '@chakra-ui/react';
 import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
 import { isAddress, FunctionFragment } from 'ethers/lib/utils';
@@ -11,6 +11,8 @@ import { useEffect } from 'react';
 import ScannerLink from '@inverse/components/common/ScannerLink';
 import { ProposalFormFuncArg } from './ProposalFormFuncArg';
 import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
+import { getFunctionFromProposalAction } from '@inverse/util/governance';
+import { ProposalActionPreview } from '../ProposalActionPreview';
 
 export const ProposalFormAction = ({
     action,
@@ -93,6 +95,13 @@ export const ProposalFormAction = ({
         }, 200)
     }
 
+    let previewFunc = null
+    try {
+        previewFunc = getFunctionFromProposalAction(action)
+    } catch (e) {
+
+    }
+
     return (
         <SlideFade offsetY={'100px'} in={scaledInEffect}>
             <Box bgColor="purple.750" borderRadius="5" p="4">
@@ -103,9 +112,24 @@ export const ProposalFormAction = ({
                     <CopyIcon ml="2" cursor="pointer" color="blue.400" onClick={onDuplicate} />
                     <DeleteIcon position="absolute" right="0" ml="2" cursor="pointer" color="red.400" onClick={handleDelete} />
                 </Flex>
+                <Divider mt="2" mb="2" />
 
-                <SlideFade offsetY={'100px'} in={!hideBody} unmountOnExit={true} reverse={true}>
-                    <Divider mt="2" mb="2" />
+                <ScaleFade initialScale={0.1} unmountOnExit={true} in={hideBody} reverse={false}>
+                    {
+                        previewFunc?.signature && previewFunc?.callData && previewFunc?.target ?
+                            <ProposalActionPreview
+                                pt="1"
+                                target={previewFunc.target}
+                                signature={previewFunc.signature}
+                                callData={previewFunc.callData} />
+                            :
+                            <Text textAlign="left">
+                                Incomplete or Invalid action details
+                            </Text>
+                    }
+                </ScaleFade>
+
+                <ScaleFade initialScale={0.1} unmountOnExit={true} in={!hideBody} reverse={true}>
                     <FormControl>
                         <FormLabel>
                             Contract Address
@@ -142,8 +166,7 @@ export const ProposalFormAction = ({
                         </FormLabel>
                         <ProposalInput type="number" placeholder="Eg : 0.1, 0 by default" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
                     </FormControl>
-                </SlideFade>
-
+                </ScaleFade>
             </Box>
         </SlideFade>
     )

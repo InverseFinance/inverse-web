@@ -4,7 +4,7 @@ import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
 import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields } from '@inverse/types';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction } from '@inverse/types';
 import { CURRENT_ERA } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
@@ -138,4 +138,16 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
             reject(e);
         }
     })
+}
+
+export const getFunctionsFromProposalActions = (actions: ProposalFormActionFields[]): ProposalFunction[] => {
+    return actions.map(getFunctionFromProposalAction);
+}
+
+export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {
+    return {
+        target: action.contractAddress,
+        callData: getCallData(action),
+        signature: action.fragment?.format('sighash') || '',
+    }
 }

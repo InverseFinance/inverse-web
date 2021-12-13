@@ -3,10 +3,10 @@ import { Flex, FormControl, FormLabel, Stack, Text, Box } from '@chakra-ui/react
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { SubmitButton } from '@inverse/components/common/Button';
-import { GovEra, Proposal, ProposalFormFields, ProposalFunction, ProposalStatus } from '@inverse/types';
+import { GovEra, Proposal, ProposalFormFields, ProposalStatus } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { getCallData, submitProposal } from '@inverse/util/governance';
+import { getFunctionsFromProposalActions, submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
@@ -129,7 +129,7 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
             }
         }
         try {
-            getActionsToFunctions()
+            getFunctionsFromProposalActions(actions);
         } catch (e) {
             return true
         }
@@ -142,17 +142,6 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         return handleTx(tx, { onSuccess: () => setHasSuccess(true) });
     }
 
-    const getActionsToFunctions = () => {
-        const previewFunctions: ProposalFunction[] = form.actions.map(action => {
-            return {
-                target: action.contractAddress,
-                callData: getCallData(action),
-                signature: action.fragment?.format('sighash') || '',
-            }
-        })
-        return previewFunctions
-    }
-
     const warningUnderstood = () => {
         setIsUnderstood(true)
         localforage.setItem(PROPOSAL_WARNING_KEY, true)
@@ -162,7 +151,7 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         id: lastProposalId + 1,
         title: form.title,
         description: form.description,
-        functions: getActionsToFunctions(),
+        functions: getFunctionsFromProposalActions(form.actions),
         proposer: account || '',
         era: GovEra.mils,
         startTimestamp: Date.now(),
