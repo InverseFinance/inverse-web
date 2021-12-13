@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useOutsideClick } from '@chakra-ui/react'
 import { CloseIcon } from '@chakra-ui/icons';
 import { isAddress } from 'ethers/lib/utils';
-import { AutocompleteItem } from '@inverse/types';
+import { AutocompleteItem, AutocompleteProps } from '@inverse/types';
 
 const defaultList: AutocompleteItem[] = [];
 const defaultInputComp = Input;
@@ -39,14 +39,7 @@ export const Autocomplete = ({
     InputComp = defaultInputComp,
     onItemSelect = () => { },
     ...props
-}: {
-    title?: string,
-    list: AutocompleteItem[],
-    defaultValue?: string,
-    placeholder?: string,
-    InputComp: ComponentWithAs<"input", InputProps>,
-    onItemSelect: (selectedItem?: AutocompleteItem) => any,
-} & Partial<BoxProps>) => {
+}: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
     const [selectedItem, setSelectedItem] = useState<AutocompleteItem | undefined>(preselectedItem)    
     const [searchValue, setSearchValue] = useState(preselectedItem?.label || '')
@@ -62,6 +55,12 @@ export const Autocomplete = ({
             setIsOpen(false)
         },
     })
+
+    useEffect(() => {
+        if(!isOpen && (searchValue !== selectedItem?.label && !selectedItem?.isSearchValue)) {
+            setSearchValue(selectedItem?.label!)
+        }
+    }, [searchValue, selectedItem, isOpen])
 
     useEffect(() => {
         const newList = getFilteredList(list, searchValue)

@@ -1,5 +1,5 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
-import { UseToastOptions } from '@chakra-ui/react';
+import { UseToastOptions, ComponentWithAs, InputProps, BoxProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 
@@ -245,3 +245,14 @@ export interface AutocompleteItem {
   value: string;
   isSearchValue?: boolean;
 }
+
+export type AutocompleteProps = {
+  title?: string,
+  list: AutocompleteItem[],
+  defaultValue?: string,
+  placeholder?: string,
+  InputComp?: ComponentWithAs<"input", InputProps>,
+  onItemSelect: (selectedItem?: AutocompleteItem) => any,
+} & Partial<BoxProps>
+
+export type AddressAutocompleteProps = Omit<AutocompleteProps, "list"> & { list?: AutocompleteItem[] }
