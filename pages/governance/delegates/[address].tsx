@@ -43,7 +43,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   if (!data) { return <></> }
 
   const [invDelegate, xinvDelegate] = data;
-  const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === invDelegate && invDelegate === xinvDelegate;
+  const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
 
