@@ -171,7 +171,7 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         description: form.description,
         functions: getFunctionsFromProposalActions(form.actions),
         proposer: account || '',
-        era: GovEra.mils,
+        era: GovEra.mills,
         startTimestamp: Date.now(),
         status: ProposalStatus.active,
     } : {}

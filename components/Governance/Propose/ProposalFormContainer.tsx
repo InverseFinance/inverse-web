@@ -22,7 +22,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
         let isMounted = true;
         const init = async () => {
             if (!account) { return }
-            const govContract = getGovernanceContract(library?.getSigner(), GovEra.mils);
+            const govContract = getGovernanceContract(library?.getSigner(), GovEra.mills);
             const threshold = await govContract.proposalThreshold();
             const lastId = await govContract.proposalCount();
             if (!isMounted) { return }

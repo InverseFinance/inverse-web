@@ -567,7 +567,7 @@ export const getNetworkConfigConstants = (
     [VAULT_DAI_YFI]: 'vaultDaiYfi',
     [XINV_V1]: 'xINV-v1',
     [XINV]: 'xINV',
-    [GOVERNANCE]: 'GovMils',
+    [GOVERNANCE]: 'GovMills',
     [GOVERNANCE_ALPHA]: 'GovAlpha',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
