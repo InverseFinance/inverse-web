@@ -46,7 +46,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                 (Governance Contract : <ScannerLink value={GOVERNANCE} shorten={true} />)
             </Text>
             {
-                votingPower < requiredVotingPower ?
+                votingPower < requiredVotingPower || !account ?
                     <Box w="full" textAlign="center">
                         <InfoMessage
                             alertProps={{ textAlign: "center", p: '6' }}
