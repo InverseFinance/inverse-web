@@ -27,7 +27,7 @@ export const useProposals = (): SWR & Proposals => {
     dummy.id = 999
     dummy.title = 'Dummy Proposal'
     dummy.status = ProposalStatus.active
-    dummy.era = GovEra.mils
+    dummy.era = GovEra.mills
     dummy.againstVotes = 0
     dummy.forVotes = 0
     dummy.executed = false

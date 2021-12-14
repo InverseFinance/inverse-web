@@ -48,7 +48,7 @@ export const getStabilizerContract = (signer: JsonRpcSigner | undefined) => {
 
 export const getGovernanceAddress = (era: GovEra, chainId?: string | number) => {
   const { GOVERNANCE, GOVERNANCE_ALPHA } = getNetworkConfigConstants(chainId || NetworkIds.mainnet)
-  const govs = { [GovEra.alpha]: GOVERNANCE_ALPHA, [GovEra.mils]: GOVERNANCE };
+  const govs = { [GovEra.alpha]: GOVERNANCE_ALPHA, [GovEra.mills]: GOVERNANCE };
   return govs[era];
 }
 

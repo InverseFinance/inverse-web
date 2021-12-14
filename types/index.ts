@@ -45,7 +45,7 @@ export type Market = {
 
 export enum GovEra {
   alpha = 'alpha',
-  mils = 'mils',
+  mills = 'mills',
 }
 
 export type Proposal = {
