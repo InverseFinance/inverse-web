@@ -80,6 +80,7 @@ export const INV_ABI = [
   "function delegate(address)",
   "function delegates(address) external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
+  "function getPriorVotes(address, uint256) external view returns (uint96)",
   "function nonces(address) external view returns (uint256)",
   "function exchangeRateCurrent() external returns (uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
@@ -88,6 +89,7 @@ export const INV_ABI = [
 ];
 
 export const GOVERNANCE_ABI = [
+  "function xinvExchangeRates(uint256) public view returns (uint256)",
   "function castVote(uint256, bool)",
   "function getReceipt(uint256, address) public view returns (bool, bool, uint256)",
   "function proposalCount() public view returns (uint256)",
@@ -128,6 +130,7 @@ export const XINV_ABI = [
   "function totalSupply() external view returns (uint256)",
   "function underlying() external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
+  "function getPriorVotes(address, uint256) external view returns (uint96)",
 ];
 
 export const MULTIDELEGATOR_ABI = [

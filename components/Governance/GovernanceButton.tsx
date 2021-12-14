@@ -3,11 +3,14 @@ import { Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ProposalStatus, Proposal } from '@inverse/types'
+import { ProposalStatus, Proposal, NetworkIds } from '@inverse/types'
 import { getGovernanceAddress } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { getNetworkConfigConstants } from '@inverse/config/networks';
+
+const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const { active, account, chainId } = useWeb3React<Web3Provider>()
@@ -15,9 +18,19 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const govAddress = getGovernanceAddress(proposal.era, chainId);
   const { data } = useEtherSWR([govAddress, 'getReceipt', proposal?.id, account]);
 
-  if (!active || !account || !data || !proposal?.id) {
+  const { data: snapshotVotingPowerData } = useEtherSWR([
+    [GOVERNANCE, 'xinvExchangeRates', proposal?.id],
+    [INV, 'getPriorVotes', account, proposal?.startBlock],
+    [XINV, 'getPriorVotes', account, proposal?.startBlock],
+  ])
+
+  if (!active || !account || !data || !proposal?.id || !snapshotVotingPowerData) {
     return <></>
   }
+
+  const [exchangeRate, currentVotes, currentVotesX] = snapshotVotingPowerData || [1, 0, 0];
+  const snapshotVotingPower = parseFloat(formatUnits(currentVotes || 0))
+    + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   const { status } = proposal;
 
@@ -29,9 +42,14 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
     <Flex w="full" m={6} mt={9} mb={0} flexDirection="column">
       {
         status === ProposalStatus.active && !hasVoted ?
-          <SubmitButton color="#fff" onClick={onOpen}>
-            Cast Vote
-          </SubmitButton>
+          <>
+            <SubmitButton disabled={snapshotVotingPower === 0} color="#fff" onClick={onOpen}>
+              Cast Vote
+            </SubmitButton>
+            <InfoMessage alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
+              description={`Voting Power at Snapshot Time : ${snapshotVotingPower}`}
+            />
+          </>
           :
           <InfoMessage
             alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
