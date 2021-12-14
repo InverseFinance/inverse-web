@@ -46,6 +46,9 @@ export const SignDelegation = ({
                         Previous delegations to other addresses (including yours) will be withdrawn.
                         You can also change your delegate at any time in the future.
                         <Text mt="2" mb="2" fontWeight="bold">
+                            Delegation will apply for both INV and xINV.
+                        </Text>
+                        <Text mt="2" mb="2" fontWeight="bold">
                             Once signed, you will need to {
                                 isSelf ?
                                     'submit the signature data' :

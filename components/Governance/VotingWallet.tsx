@@ -11,6 +11,7 @@ import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { SubmitDelegationsModal } from './GovernanceModals'
 import Link from '@inverse/components/common/Link'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 type VotingWalletFieldProps = {
   label: string
@@ -94,8 +95,12 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           delegate={invDelegate} account={account} chainId={chainId?.toString()} />
         {
           invDelegate !== xinvDelegate ?
-            <DelegatingTo label={'Delegating xINV to'}
-              delegate={xinvDelegate} account={account} chainId={chainId?.toString()} />
+            <>
+              <DelegatingTo label={'Delegating xINV to'}
+                delegate={xinvDelegate} account={account} chainId={chainId?.toString()} />
+              <InfoMessage alertProps={{ fontSize: '12px' }}
+                description="Your xINV delegation is out of sync with INV, you can sync them by doing the delegation process." />
+            </>
             : null
         }
         <Flex
