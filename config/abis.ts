@@ -132,6 +132,8 @@ export const XINV_ABI = [
   "function underlying() external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
   "function getPriorVotes(address, uint256) external view returns (uint96)",
+  "function delegate(address)",
+  "function delegates(address) external view returns (address)",
 ];
 
 export const MULTIDELEGATOR_ABI = [

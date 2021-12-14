@@ -28,6 +28,23 @@ const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   </Flex>
 )
 
+const DelegatingTo = ({ label, delegate, account, chainId }: { label: string, delegate: string, chainId?: string, account?: string }) => {
+  return (
+    <VotingWalletField label={label}>
+      {delegate === AddressZero ? (
+        <Text color="error">Nobody</Text>
+      ) : delegate === account ? (
+        <Text>Self</Text>
+      ) : (
+        <Stack direction="row" align="center">
+          <Avatar address={delegate} boxSize={5} />
+          <Text>{namedAddress(delegate, chainId)}</Text>
+        </Stack>
+      )}
+    </VotingWalletField>
+  )
+}
+
 export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { INV, XINV } = getNetworkConfigConstants(chainId)
@@ -38,6 +55,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
     [INV, 'getCurrentVotes', account],
     [XINV, 'getCurrentVotes', account],
     [INV, 'delegates', account],
+    [XINV, 'delegates', account],
   ])
   const { isOpen: changeDelIsOpen, onOpen: changeDelOnOpen, onClose: changeDelOnClose } = useDisclosure()
   const { isOpen: submitDelIsOpen, onOpen: submitDelOnOpen, onClose: submitDelOnClose } = useDisclosure()
@@ -46,7 +64,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
     return <></>
   }
 
-  const [invBalance, xinvBalance, exchangeRate, currentVotes, currentVotesX, delegate] = data
+  const [invBalance, xinvBalance, exchangeRate, currentVotes, currentVotesX, invDelegate, xinvDelegate] = data
 
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
@@ -72,18 +90,14 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           {(xinvBalance ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
-        <VotingWalletField label="Delegating To">
-          {delegate === AddressZero ? (
-            <Text color="error">Nobody</Text>
-          ) : delegate === account ? (
-            <Text>Self</Text>
-          ) : (
-            <Stack direction="row" align="center">
-              <Avatar address={delegate} boxSize={5} />
-              <Text>{namedAddress(delegate, chainId)}</Text>
-            </Stack>
-          )}
-        </VotingWalletField>
+        <DelegatingTo label={invDelegate === xinvDelegate ? 'Delegating To' : 'Delegating INV to'}
+          delegate={invDelegate} account={account} chainId={chainId?.toString()} />
+        {
+          invDelegate !== xinvDelegate ?
+            <DelegatingTo label={'Delegating xINV to'}
+              delegate={xinvDelegate} account={account} chainId={chainId?.toString()} />
+            : null
+        }
         <Flex
           w="full"
           pt="4"
