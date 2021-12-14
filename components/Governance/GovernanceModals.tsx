@@ -98,6 +98,16 @@ export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) =>
 
   const { era, id } = proposal;
 
+  const handleVote = async () => {
+    const tx = await getGovernanceContract(library?.getSigner(), era).castVote(id, support);
+    return handleTx(tx, {
+      onSuccess: () => {
+        onClose()
+        setTimeout(() => window.location.reload(), 1500)
+      }
+    })
+  }
+
   return (
     <Modal
       onClose={onClose}
@@ -108,7 +118,7 @@ export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) =>
         </Stack>
       }
       footer={
-        <SubmitButton onClick={() => getGovernanceContract(library?.getSigner(), era).castVote(id, support)}>
+        <SubmitButton onClick={handleVote}>
           {support ? 'Vote For' : 'Vote Against'}
         </SubmitButton>
       }
@@ -269,13 +279,13 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: Modal
     onClose();
     clearStoredDelegationsCollected();
     setSignatures([]);
-    if(onNewDelegate){
+    if (onNewDelegate) {
       onNewDelegate(await library?.getSigner()?.getAddress()!);
     }
   }
 
   const handleSubmit = async () => {
-    if(!library?.getSigner()) { return new Promise((res, reject) => reject("Signer required")) };
+    if (!library?.getSigner()) { return new Promise((res, reject) => reject("Signer required")) };
     const tx = await submitMultiDelegation(library?.getSigner(), signatures);
     return handleTx(tx, { onSuccess: handleSuccess });
   }

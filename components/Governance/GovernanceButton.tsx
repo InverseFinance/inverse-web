@@ -7,6 +7,7 @@ import { ProposalStatus, Proposal } from '@inverse/types'
 import { getGovernanceAddress } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const { active, account, chainId } = useWeb3React<Web3Provider>()
@@ -25,16 +26,23 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const support = hasVoted && data[1]
 
   return (
-    <Flex w="full" m={6} mt={9} mb={0}>
-      {status !== ProposalStatus.active ? (
-        <SubmitButton color="#fff" isDisabled={true}>
-          {hasVoted ? `Voted ${support ? 'for' : 'against'} with ${votes} INV` : 'Did not vote'}
-        </SubmitButton>
-      ) : (
-        <SubmitButton color="#fff" onClick={onOpen}>
-          Cast Vote
-        </SubmitButton>
-      )}
+    <Flex w="full" m={6} mt={9} mb={0} flexDirection="column">
+      {
+        status === ProposalStatus.active && !hasVoted ?
+          <SubmitButton color="#fff" onClick={onOpen}>
+            Cast Vote
+          </SubmitButton>
+          :
+          <InfoMessage
+            alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
+            description={
+              hasVoted ?
+                `You voted ${support ? '"For"' : '"Against"'} with ${votes} voting power`
+                :
+                'You did not vote for this proposal'
+            }
+          />
+      }
       <VoteModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
     </Flex>
   )
