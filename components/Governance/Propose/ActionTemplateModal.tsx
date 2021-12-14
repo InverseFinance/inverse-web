@@ -8,6 +8,7 @@ import { InfoMessage } from '@inverse/components/common/Messages';
 import { TokenTemplate } from './templates/TokenTemplate';
 import { AnchorTemplate } from './templates/AnchorTemplate';
 import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { SubmitButton } from '@inverse/components/common/Button';
 
 type Props = {
     isOpen: boolean
@@ -28,8 +29,6 @@ enum TemplateValues {
 
 const { INV, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet)
 
-// const tokenTemplates = []
-
 const templates = [
     // tokens
     { label: 'INV: Send tokens', value: TemplateValues.invTransfer },
@@ -45,17 +44,23 @@ const templates = [
 
 export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) => {
     const [template, setTemplate] = useState<AutocompleteItem | undefined>(undefined);
-    // const [action, setAction] = useState<TemplateProposalFormActionFields | undefined>(undefined);
+    const [action, setAction] = useState<TemplateProposalFormActionFields | undefined>(undefined);
+    const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
     const handleSelect = (item: AutocompleteItem | undefined) => {
         setTemplate(item);
     }
 
-    const handleSubmit = (action: TemplateProposalFormActionFields) => {
+    const handleSubmit = () => {
         onAddTemplate({
             ...action!,
             fragment: FunctionFragment.from(action?.func!),
         })
+    }
+
+    const commonProps = {
+        onDisabledChange: setIsDisabled, 
+        onActionChange: setAction, 
     }
 
     const templateComps = {
@@ -82,8 +87,13 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
                     <Text>Add a Common Proposal Action</Text>
                 </Stack>
             }
+            footer={
+                <SubmitButton disabled={isDisabled || !action} onClick={handleSubmit}>
+                    ADD ACTION
+                </SubmitButton>
+            }
         >
-            <Stack p={'5'} height={'fit-content'} minH='350px' overflowY="visible">
+            <Stack spacing={'4'} p={'5'} height={'fit-content'} minH='300px' overflowY="visible">
                 <Text>Template : </Text>
                 <Autocomplete
                     inputProps={{ autoFocus: true }}
@@ -92,10 +102,9 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
                     list={templates}
                     onItemSelect={handleSelect}
                 />
-
                 {
                     template?.value ?
-                        <ChosenTemplateComp onSubmit={handleSubmit} {...chosenTemplate.props} /> :
+                        <ChosenTemplateComp onSubmit={handleSubmit} {...commonProps} {...chosenTemplate.props} /> :
                         <InfoMessage alertProps={{ w: 'full' }} description="Choose a template above" />
                 }
             </Stack>

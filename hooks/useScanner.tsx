@@ -3,7 +3,7 @@ import { NetworkIds } from '@inverse/types';
 import { getScanner } from '@inverse/util/web3';
 
 const getChainId = (chainId?: string): string => {
-	return chainId || localStorage.getItem('signerChainId') || NetworkIds.mainnet
+	return chainId || (typeof window !== 'undefined' ? window?.localStorage?.getItem('signerChainId') : '') || NetworkIds.mainnet
 }
 
 export default function useScanner(chainId?: string): string {

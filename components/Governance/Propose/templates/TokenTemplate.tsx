@@ -4,7 +4,6 @@ import { Input } from '@inverse/components/common/Input'
 import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
-import { SubmitButton } from '@inverse/components/common/Button'
 import { useEffect } from 'react';
 import { AutocompleteItem, TemplateProposalFormActionFields, Token } from '@inverse/types'
 import { parseUnits } from '@ethersproject/units';
@@ -13,21 +12,45 @@ export const TokenTemplate = ({
     defaultAddress = '',
     defaultAmount = '',
     token,
-    onSubmit,
     type,
+    onDisabledChange,
+    onActionChange,
 }: {
     defaultAddress?: string,
     defaultAmount?: string,
     token: Token,
     type: 'approve' | 'transfer',
-    onSubmit: (action: TemplateProposalFormActionFields) => void,
+    onDisabledChange: (v: boolean) => void
+    onActionChange: (action: TemplateProposalFormActionFields | undefined) => void
 }) => {
     const [destination, setDestination] = useState(defaultAddress);
     const [amount, setAmount] = useState(defaultAmount);
+    const [action, setAction] = useState<TemplateProposalFormActionFields | undefined>(undefined);
     const [isDisabled, setIsDisabled] = useState(true);
 
     useEffect(() => {
-        setIsDisabled(!amount || amount === '0' || !destination || !isAddress(destination))
+        onDisabledChange(isDisabled)
+    }, [isDisabled])
+
+    useEffect(() => {
+        onActionChange(action)
+    }, [action])
+
+    useEffect(() => {
+        const disabled = !amount || amount === '0' || !destination || !isAddress(destination)
+        setIsDisabled(disabled)
+        if(disabled) { return }
+
+        const action: TemplateProposalFormActionFields = {
+            contractAddress: token.address,
+            func: `${type}(address destination, uint256 rawAmount)`,
+            args: [
+                { type: 'address', value: destination, name: 'destination' },
+                { type: 'uint256', value: parseUnits(amount, token.decimals), name: 'rawAmount' },
+            ],
+            value: '0',
+        }
+        setAction(action)
     }, [amount, destination])
 
     const handleAmountChange = (e: any) => {
@@ -38,21 +61,8 @@ export const TokenTemplate = ({
         setDestination(item?.value || '')
     }
 
-    const handleSubmit = () => {
-        const action: TemplateProposalFormActionFields = {
-            contractAddress: token.address,
-            func: `${type}(address destination, uint256 rawAmount)`,
-            args: [
-                { type: 'address', value: destination, name: 'destination' },
-                { type: 'uint256', value: parseUnits(amount, token.decimals), name: 'rawAmount' },
-            ],
-            value: '0',
-        }
-        onSubmit(action)
-    }
-
     return (
-        <VStack spacing="2">
+        <VStack spacing="4">
             <FormControl>
                 <FormLabel>
                     Destination Address :
@@ -72,9 +82,6 @@ export const TokenTemplate = ({
                 </FormLabel>
                 <Input type="number" min="0" defaultValue={defaultAmount} onChange={handleAmountChange} />
             </FormControl>
-            <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
-                ADD ACTION
-            </SubmitButton>
         </VStack>
     )
 }

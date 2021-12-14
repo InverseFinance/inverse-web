@@ -4,14 +4,17 @@ import { ProposalForm } from './ProposalForm';
 import { Box, Text } from '@chakra-ui/react';
 import Link from '@inverse/components/common/Link';
 import { TEST_IDS } from '@inverse/config/test-ids';
-import { GovEra } from '@inverse/types';
+import { GovEra, NetworkIds } from '@inverse/types';
 import { useEffect } from 'react';
 import { getGovernanceContract } from '@inverse/util/contracts';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { formatUnits } from 'ethers/lib/utils';
+import ScannerLink from '@inverse/components/common/ScannerLink';
+import { getNetworkConfigConstants } from '@inverse/config/networks';
 
 const DEFAULT_REQUIRED_VOTING_POWER = 1000;
+const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) => {
     const { library, account } = useWeb3React<Web3Provider>();
@@ -36,8 +39,11 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
 
     return (
         <Box w="full" p={6} pb={0} data-testid={TEST_IDS.governance.newProposalContainer}>
-            <Text textAlign="center" fontSize="30px" fontWeight="bold" mb="7">
+            <Text textAlign="center" fontSize="30px" fontWeight="bold">
                 Add a New Proposal
+            </Text>
+            <Text textAlign="center" fontSize="12px" mb="7">
+                (Governance Contract : <ScannerLink value={GOVERNANCE} shorten={true} />)
             </Text>
             {
                 votingPower < requiredVotingPower ?
