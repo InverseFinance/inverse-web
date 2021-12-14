@@ -17,6 +17,7 @@ import { ProposalWarningMessage } from './ProposalWarningMessage';
 import { showToast } from '@inverse/util/notify';
 import localforage from 'localforage';
 import { ActionTemplateModal } from './ActionTemplateModal';
+import { ProposalFormBtns } from './ProposalFormBtns';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -210,38 +211,17 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
                         }
                     </>
             }
-            <Flex justify="center" pt="5">
-                {
-                    hasSuccess ?
-                        <SuccessMessage description="Your proposal has been created ! It may take some time to appear" />
-                        :
-                        !previewMode ?
-                            <>
-                                {
-                                    form.actions.length < 20 ?
-                                        <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={showTemplateModal}>
-                                            Add a Template Action
-                                        </SubmitButton>
-                                        : null
-                                }
-                                <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={() => addAction()}>
-                                    {form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Empty Action'}
-                                </SubmitButton>
-                                <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={() => setPreviewMode(true)}>
-                                    Preview Proposal
-                                </SubmitButton>
-                            </>
-                            :
-                            <>
-                                <SubmitButton mr="1" w="fit-content" onClick={() => setPreviewMode(false)}>
-                                    Resume Editing
-                                </SubmitButton>
-                                <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
-                                    Submit the Proposal
-                                </SubmitButton>
-                            </>
-                }
-            </Flex>
+            <ProposalFormBtns
+                hasTitleAndDescrption={!!form.title && !!form.description}
+                nbActions={form.actions.length}
+                isFormValid={isFormValid}
+                hasSuccess={hasSuccess}
+                previewMode={previewMode}
+                handleSubmitProposal={handleSubmitProposal}
+                addAction={addAction}
+                setPreviewMode={setPreviewMode}
+                showTemplateModal={showTemplateModal}
+            />
             <ActionTemplateModal isOpen={isOpen} onClose={onClose} onAddTemplate={handleAddTemplate} />
         </Stack>
     )
