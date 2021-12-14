@@ -23,7 +23,7 @@ const badgeColors: { [key: string]: string } = {
   [ProposalStatus.executed]: 'blue',
   [ProposalStatus.expired]: 'orange',
   [GovEra.alpha]: 'yellow',
-  [GovEra.mils]: 'teal',
+  [GovEra.mills]: 'teal',
 }
 
 const StatusBadge = ({ status }: { status: ProposalStatus }) => (

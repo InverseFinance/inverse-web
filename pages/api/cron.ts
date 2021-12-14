@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         delegateChanged,
         xinvDelegateVotesChanged,
         xinvDelegateChanged,
-        // gov Mils
+        // gov mills
         votesCast,
         proposalCount,
         quorumVotes,
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
         inv.queryFilter(inv.filters.DelegateChanged()),
         xinv.queryFilter(xinv.filters.DelegateVotesChanged()),
         xinv.queryFilter(xinv.filters.DelegateChanged()),
-        // gov Mils
+        // gov mills
         governance.queryFilter(governance.filters.VoteCast()),
         governance.proposalCount(),
         governance.quorumVotes(),
@@ -252,7 +252,7 @@ export default async function handler(req, res) {
         );
       }
 
-      const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mils);
+      const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mills);
       const proposalsAlpha = await getProposals(proposalCountAlpha, governanceAlpha, proposalsCreatedAlpha, votesCastAlpha, quorumVotesAlpha, GovEra.alpha);
 
       const totalProposals = proposals.concat(proposalsAlpha);

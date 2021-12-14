@@ -50,8 +50,10 @@ const mainnetConfig: NetworkConfig = {
   harvester: '0xb677e5c5cbc42c25bff9578dda2959adb7eecc96',
   // governance alpha (old)
   governanceAlpha: '0x35d9f4953748b318f18c30634bA299b237eeDfff',
-  // governance mils (current)
-  governance: '0xeF3bD8cA3beAC259D898b2C546F804B49D52e2FD',
+  // governance mills (old mills)
+  // governance: '0xeF3bD8cA3beAC259D898b2C546F804B49D52e2FD',
+  // governance mills (new mills)
+  governance: '0xBeCCB6bb0aa4ab551966A7E4B97cec74bb359Bf6',
   // multiDelegator
   multiDelegator: '0x1ba87bE4C20Fa2d4cbD8e4Ae9998649226207F76',
   namedAddresses: {
