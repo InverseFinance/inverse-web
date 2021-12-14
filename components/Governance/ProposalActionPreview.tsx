@@ -29,7 +29,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="purple.850" borderRadius={8} p={3}>
                 <Flex fontSize="15px">
-                    <Link href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">
+                    <Link isExternal href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">
                         {CONTRACTS[target] || target}
                     </Link>
                     <Flex>{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>
@@ -37,7 +37,7 @@ export const ProposalActionPreview = (({
                 <Flex direction="column" fontSize="sm" pl={4} pr={4}>
                     {callDatas.map((data: string, i) =>
                         isAddress(data) ? (
-                            <Link key={i} href={`https://etherscan.io/address/${data}`} whiteSpace="nowrap">
+                            <Link isExternal key={i} href={`https://etherscan.io/address/${data}`} whiteSpace="nowrap">
                                 {CONTRACTS[data] || data}
                                 {i + 1 !== callDatas.length ? ',' : ''}
                             </Link>
