@@ -61,10 +61,10 @@ export const AnchorBoolTemplate = ({
 
         const action: TemplateProposalFormActionFields = {
             contractAddress: COMPTROLLER,
-            func: `${functionName}(address anMarket, bool value)`,
+            func: `${functionName}(address cToken,bool state)`,
             args: [
                 { type: 'address', value: address, name: 'cToken' },
-                { type: 'bool', value: value, name: 'value' },
+                { type: 'bool', value: value, name: 'state' },
             ],
             value: '0',
         }

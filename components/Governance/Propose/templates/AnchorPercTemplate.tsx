@@ -62,7 +62,7 @@ export const AnchorPercTemplate = ({
 
         const action: TemplateProposalFormActionFields = {
             contractAddress: COMPTROLLER,
-            func: `${functionName}(address anMarket, uint256 value)`,
+            func: `${functionName}(address cToken,uint256 value)`,
             args: [
                 { type: 'address', value: address, name: 'cToken' },
                 { type: 'uint256', value: bnFactor, name: 'value' },

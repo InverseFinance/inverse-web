@@ -1,5 +1,4 @@
 import { ProposalFormActionFields, AutocompleteItem } from '@inverse/types';
-import { useState } from 'react'
 import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade, ScaleFade } from '@chakra-ui/react';
 import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
@@ -7,12 +6,13 @@ import { isAddress, FunctionFragment } from 'ethers/lib/utils';
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
 import { Autocomplete } from '@inverse/components/common/Input/Autocomplete';
 import { getRemoteAbi } from '@inverse/util/etherscan';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ScannerLink from '@inverse/components/common/ScannerLink';
 import { ProposalFormFuncArg } from './ProposalFormFuncArg';
 import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
 import { getFunctionFromProposalAction } from '@inverse/util/governance';
 import { ProposalActionPreview } from '../ProposalActionPreview';
+import { WarningMessage } from '@inverse/components/common/Messages';
 
 export const ProposalFormAction = ({
     action,
@@ -34,6 +34,7 @@ export const ProposalFormAction = ({
     const [abi, setAbi] = useState('')
     const [contractFunctions, setContractFunctions] = useState([])
     const [scaledInEffect, setScaledInEffect] = useState(true);
+    const [notInAbiWarning, setNotInAbiWarning] = useState(false)
 
     useEffect(() => {
         let isMounted = true;
@@ -51,6 +52,12 @@ export const ProposalFormAction = ({
     }, [])
 
     useEffect(() => {
+        const funcIsInAbi = contractFunctions
+            .find((f: AutocompleteItem) => toSimpleSig(f.value) === toSimpleSig(func))
+        setNotInAbiWarning(!funcIsInAbi && !!func && !!contractFunctions.length)
+    }, [func, contractFunctions])
+
+    useEffect(() => {
         const parsedAbi = abi ? JSON.parse(abi) : [];
         const writeFunctions = parsedAbi
             .filter((abiItem: FunctionFragment) => abiItem.type === 'function' && abiItem.stateMutability !== 'view')
@@ -62,6 +69,13 @@ export const ProposalFormAction = ({
         setContractFunctions(writeFunctions)
     }, [abi])
 
+    const toSimpleSig = (sigWithNames: string) => {
+        if (!sigWithNames) { return '' }
+        try {
+            return FunctionFragment.fromString(sigWithNames).format();
+        } catch (e) { }
+        return '';
+    }
 
     const handleArgChange = (eventOrValue: any, i: number) => {
         const newArgs = [...args];
@@ -104,12 +118,19 @@ export const ProposalFormAction = ({
 
     return (
         <SlideFade offsetY={'100px'} in={scaledInEffect}>
-            <Box bgColor="purple.750" borderRadius="5" p="4">
+            <Box bgColor="purple.750" borderRadius="5" p="4" pt="2">
                 <Flex alignItems="center" position="relative">
                     <Text fontWeight="bold" cursor="pointer" fontSize="20" onClick={() => setHideBody(!hideBody)}>
                         Action #{index + 1}
                     </Text>
                     <CopyIcon ml="2" cursor="pointer" color="blue.400" onClick={onDuplicate} />
+                    {
+                        notInAbiWarning ?
+                            <WarningMessage 
+                            description="Function to call not found in contract ABI fetched from Etherscan !"
+                                alertProps={{ p: "1", position: "absolute", right: "8", fontSize: "12px" }} />
+                            : ''
+                    }
                     <DeleteIcon position="absolute" right="0" ml="2" cursor="pointer" color="red.400" onClick={handleDelete} />
                 </Flex>
                 <Divider mt="2" mb="2" />

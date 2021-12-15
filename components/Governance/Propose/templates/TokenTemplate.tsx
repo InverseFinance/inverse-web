@@ -40,12 +40,12 @@ export const TokenTemplate = ({
         const disabled = !amount || amount === '0' || !destination || !isAddress(destination)
         setIsDisabled(disabled)
         if(disabled) { return }
-
+        const addressVarName = type === 'transfer' ? 'destination' : 'spender'
         const action: TemplateProposalFormActionFields = {
             contractAddress: token.address,
-            func: `${type}(address destination, uint256 rawAmount)`,
+            func: `${type}(address ${addressVarName},uint256 rawAmount)`,
             args: [
-                { type: 'address', value: destination, name: 'destination' },
+                { type: 'address', value: destination, name: addressVarName },
                 { type: 'uint256', value: parseUnits(amount, token.decimals), name: 'rawAmount' },
             ],
             value: '0',
