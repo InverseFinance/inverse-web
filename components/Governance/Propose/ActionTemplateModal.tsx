@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Modal } from '@inverse/components/common/Modal';
 import { Stack, Text } from '@chakra-ui/react';
 import { Autocomplete } from '@inverse/components/common/Input/Autocomplete';
-import { AutocompleteItem, TemplateProposalFormActionFields, NetworkIds } from '@inverse/types';
+import { AutocompleteItem, TemplateProposalFormActionFields, NetworkIds, ProposalTemplates } from '@inverse/types';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { InfoMessage } from '@inverse/components/common/Messages';
 import { TokenTemplate } from './templates/TokenTemplate';
-import { AnchorTemplate } from './templates/AnchorTemplate';
+import { AnchorBoolTemplate } from './templates/AnchorBoolTemplate';
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { SubmitButton } from '@inverse/components/common/Button';
+import { AnchorPercTemplate } from './templates/AnchorPercTemplate';
 
 type Props = {
     isOpen: boolean
@@ -16,30 +17,20 @@ type Props = {
     onAddTemplate: (action: TemplateProposalFormActionFields) => void
 }
 
-enum TemplateValues {
-    invTransfer = 'invTransfer',
-    invApprove = 'invApprove',
-    dolaTransfer = 'dolaTransfer',
-    dolaApprove = 'dolaApprove',
-    daiTransfer = 'daiTransfer',
-    daiApprove = 'daiApprove',
-    anchorLending = 'anchorLending',
-    anchorBorrowing = 'anchorBorrowing',
-}
-
 const { INV, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 const templates = [
     // tokens
-    { label: 'INV: Send tokens', value: TemplateValues.invTransfer },
-    { label: 'INV: Approve funding', value: TemplateValues.invApprove },
-    { label: 'DOLA: Send tokens', value: TemplateValues.dolaTransfer },
-    { label: 'DOLA: Approve funding', value: TemplateValues.dolaApprove },
-    { label: 'DAI: Send tokens', value: TemplateValues.daiTransfer },
-    { label: 'DAI: Approve funding', value: TemplateValues.daiApprove },
+    { label: 'INV: Send tokens', value: ProposalTemplates.invTransfer },
+    { label: 'INV: Approve funding', value: ProposalTemplates.invApprove },
+    { label: 'DOLA: Send tokens', value: ProposalTemplates.dolaTransfer },
+    { label: 'DOLA: Approve funding', value: ProposalTemplates.dolaApprove },
+    { label: 'DAI: Send tokens', value: ProposalTemplates.daiTransfer },
+    { label: 'DAI: Approve funding', value: ProposalTemplates.daiApprove },
     // anchor
-    { label: 'Anchor: Toggle Supplying for a market', value: TemplateValues.anchorLending },
-    { label: 'Anchor: Toggle Borrowing for a market', value: TemplateValues.anchorBorrowing },
+    { label: 'Anchor: Toggle Supplying for a market', value: ProposalTemplates.anchorLending },
+    { label: 'Anchor: Toggle Borrowing for a market', value: ProposalTemplates.anchorBorrowing },
+    { label: 'Anchor: Set Collateral Factor %', value: ProposalTemplates.anchorCollateralFactor },
 ]
 
 export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) => {
@@ -64,15 +55,16 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
     }
 
     const templateComps = {
-        [TemplateValues.invTransfer]: { comp: TokenTemplate, props: { token: TOKENS[INV], type: 'transfer' } },
-        [TemplateValues.invApprove]: { comp: TokenTemplate, props: { token: TOKENS[INV], type: 'approve' } },
-        [TemplateValues.dolaTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'transfer' } },
-        [TemplateValues.dolaApprove]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'approve' } },
-        [TemplateValues.daiTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'transfer' } },
-        [TemplateValues.daiApprove]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'approve' } },
+        [ProposalTemplates.invTransfer]: { comp: TokenTemplate, props: { token: TOKENS[INV], type: 'transfer' } },
+        [ProposalTemplates.invApprove]: { comp: TokenTemplate, props: { token: TOKENS[INV], type: 'approve' } },
+        [ProposalTemplates.dolaTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'transfer' } },
+        [ProposalTemplates.dolaApprove]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'approve' } },
+        [ProposalTemplates.daiTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'transfer' } },
+        [ProposalTemplates.daiApprove]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'approve' } },
         // anchor
-        [TemplateValues.anchorLending]:  { comp: AnchorTemplate, props: { type: '_setMintPaused' } },
-        [TemplateValues.anchorBorrowing]: { comp: AnchorTemplate, props: { type: '_setBorrowPaused' } },
+        [ProposalTemplates.anchorLending]:  { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorLending } },
+        [ProposalTemplates.anchorBorrowing]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorBorrowing } },
+        [ProposalTemplates.anchorCollateralFactor]: { comp: AnchorPercTemplate, props: { type: ProposalTemplates.anchorCollateralFactor } },
     }
 
     const chosenTemplate = templateComps[template?.value]

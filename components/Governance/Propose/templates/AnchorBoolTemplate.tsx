@@ -4,7 +4,7 @@ import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAut
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { AutocompleteItem, NetworkIds, TemplateProposalFormActionFields } from '@inverse/types'
+import { AutocompleteItem, NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@inverse/types'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
 
@@ -16,12 +16,17 @@ const anchorContractsList = Object.entries(CONTRACTS)
         return { value: address, label }
     })
 
-const LABELS = {
-    _setMintPaused: 'Pause supplying',
-    _setBorrowPaused: 'Pause borrowing',
+const FUNCTIONS = {
+    [ProposalTemplates.anchorLending]: '_setMintPaused',
+    [ProposalTemplates.anchorBorrowing]: '_setBorrowPaused',
 }
 
-export const AnchorTemplate = ({
+const LABELS = {
+    [ProposalTemplates.anchorLending]: 'Pause supplying',
+    [ProposalTemplates.anchorBorrowing]: 'Pause borrowing',
+}
+
+export const AnchorBoolTemplate = ({
     defaultAddress = '',
     defaultValue = '',
     type,
@@ -30,7 +35,7 @@ export const AnchorTemplate = ({
 }: {
     defaultAddress?: string,
     defaultValue?: string,
-    type: '_setMintPaused' | '_setBorrowPaused',
+    type: ProposalTemplates.anchorLending | ProposalTemplates.anchorBorrowing,
     onDisabledChange: (v: boolean) => void
     onActionChange: (action: TemplateProposalFormActionFields | undefined) => void
 }) => {
@@ -38,6 +43,8 @@ export const AnchorTemplate = ({
     const [value, setValue] = useState(defaultValue);
     const [action, setAction] = useState<TemplateProposalFormActionFields | undefined>(undefined);
     const [isDisabled, setIsDisabled] = useState(true);
+
+    const functionName = FUNCTIONS[type]
 
     useEffect(() => {
         onDisabledChange(isDisabled)
@@ -54,9 +61,9 @@ export const AnchorTemplate = ({
 
         const action: TemplateProposalFormActionFields = {
             contractAddress: COMPTROLLER,
-            func: `${type}(address anMarket, bool value)`,
+            func: `${functionName}(address anMarket, bool value)`,
             args: [
-                { type: 'address', value: address, name: 'destination' },
+                { type: 'address', value: address, name: 'cToken' },
                 { type: 'bool', value: value, name: 'value' },
             ],
             value: '0',

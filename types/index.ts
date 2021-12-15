@@ -262,3 +262,15 @@ export type AutocompleteProps = {
 } & Partial<BoxProps>
 
 export type AddressAutocompleteProps = Omit<AutocompleteProps, "list"> & { list?: AutocompleteItem[] }
+
+export enum ProposalTemplates {
+  invTransfer = 'invTransfer',
+  invApprove = 'invApprove',
+  dolaTransfer = 'dolaTransfer',
+  dolaApprove = 'dolaApprove',
+  daiTransfer = 'daiTransfer',
+  daiApprove = 'daiApprove',
+  anchorLending = 'anchorLending',
+  anchorBorrowing = 'anchorBorrowing',
+  anchorCollateralFactor = 'anchorCollateralFactor',
+}
