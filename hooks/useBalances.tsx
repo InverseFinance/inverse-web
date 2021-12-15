@@ -5,6 +5,7 @@ import { BigNumberList, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
 
 type Balances = {
@@ -13,9 +14,11 @@ type Balances = {
 
 export const useBalances = (addresses: string[], method = 'balanceOf'): SWR & Balances => {
   const { account } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
 
   const { data, error } = useEtherSWR(
-    addresses.map((address) => (address ? [address, method, account] : ['getBalance', account, 'latest']))
+    addresses.map((address) => (address ? [address, method, userAddress] : ['getBalance', userAddress, 'latest']))
   )
 
   return {

@@ -4,6 +4,7 @@ import { SWR } from '@inverse/types'
 import { getLensContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
 
 type AnchorRewards = {
@@ -12,8 +13,10 @@ type AnchorRewards = {
 
 export const useAnchorRewards = (): SWR & AnchorRewards => {
   const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { INV, COMPTROLLER } = getNetworkConfigConstants(chainId);
-  const { data, error } = useSWR(['getCompBalanceMetadataExt', INV, COMPTROLLER, account], (...args) => {
+  const { data, error } = useSWR(['getCompBalanceMetadataExt', INV, COMPTROLLER, userAddress], (...args) => {
     const [method, ...otherParams] = args
     if (library) {
       return getLensContract(library?.getSigner()).callStatic[method](...otherParams)

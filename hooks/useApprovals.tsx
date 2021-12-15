@@ -4,6 +4,7 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { BigNumberList, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import { useRouter } from 'next/dist/client/router'
 
 type Approvals = {
   approvals: BigNumberList
@@ -11,11 +12,13 @@ type Approvals = {
 
 export const useApprovals = (): SWR & Approvals => {
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { UNDERLYING } = getNetworkConfigConstants(chainId)
   const tokens = Object.entries(UNDERLYING).filter(([_, { address }]) => address)
 
   const { data, error } = useEtherSWR(
-    tokens.map(([address, underlying]) => [underlying.address, 'allowance', account, address])
+    tokens.map(([address, underlying]) => [underlying.address, 'allowance', userAddress, address])
   )
 
   return {
@@ -30,7 +33,9 @@ export const useApprovals = (): SWR & Approvals => {
 // TODO: refactor all approval hooks using this one
 export const useAllowances = (addresses: string[], target: string): SWR & Approvals => {
   const { account } = useWeb3React<Web3Provider>()
-  const { data, error } = useEtherSWR(addresses.map(ad => ([ad, 'allowance', account, target])))
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
+  const { data, error } = useEtherSWR(addresses.map(ad => ([ad, 'allowance', userAddress, target])))
 
   const results: BigNumberList = {};
   
@@ -53,12 +58,14 @@ export const useStabilizerApprovals = (): SWR & Approvals => {
 
 export const useVaultApprovals = (): SWR & Approvals => {
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { DAI, USDC, VAULT_DAI_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_USDC_ETH } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([
-    [DAI, 'allowance', account, VAULT_DAI_ETH],
-    [DAI, 'allowance', account, VAULT_DAI_WBTC],
-    [DAI, 'allowance', account, VAULT_DAI_YFI],
-    [USDC, 'allowance', account, VAULT_USDC_ETH],
+    [DAI, 'allowance', userAddress, VAULT_DAI_ETH],
+    [DAI, 'allowance', userAddress, VAULT_DAI_WBTC],
+    [DAI, 'allowance', userAddress, VAULT_DAI_YFI],
+    [USDC, 'allowance', userAddress, VAULT_USDC_ETH],
   ])
 
   return {

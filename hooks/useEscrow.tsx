@@ -3,6 +3,7 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import { useRouter } from 'next/dist/client/router'
 
 type Escrow = {
   withdrawalTime?: Date
@@ -11,8 +12,10 @@ type Escrow = {
 
 export const useEscrow = (escrowAddress: string): SWR & Escrow => {
   const { account } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   
-  const { data, error } = useEtherSWR([escrowAddress, 'pendingWithdrawals', account])
+  const { data, error } = useEtherSWR([escrowAddress, 'pendingWithdrawals', userAddress])
 
   if (!data) {
     return {
