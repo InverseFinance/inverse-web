@@ -22,7 +22,7 @@ const AutocompleteListItem = (props: ListItemProps) => {
             transitionProperty="background-color"
             transitionDuration="400ms"
             transitionTimingFunction="ease"
-            _hover={{ bgColor: 'purple.700' }}
+            _hover={{ bgColor: 'info' }}
             overflow="hidden"
             {...props}
         />
@@ -30,6 +30,10 @@ const AutocompleteListItem = (props: ListItemProps) => {
 }
 
 const EMPTY_ITEM: AutocompleteItem = { label: '', value: '' }
+
+const sortList = (list: AutocompleteItem[]) => {
+    list.sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1)
+}
 
 export const Autocomplete = ({
     title = '',
@@ -40,12 +44,14 @@ export const Autocomplete = ({
     inputProps,
     onItemSelect = () => { },
     isOpenDefault = false,
+    autoSort = true,
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
     const [selectedItem, setSelectedItem] = useState<AutocompleteItem | undefined>(preselectedItem)
     const [searchValue, setSearchValue] = useState(preselectedItem?.label || '')
     const [isOpen, setIsOpen] = useState(isOpenDefault)
+    const [unfilteredList, setUnfilteredList] = useState(list)
     const [filteredList, setFilteredList] = useState(list)
     const [notFound, setNotFound] = useState(false)
 
@@ -59,13 +65,21 @@ export const Autocomplete = ({
     })
 
     useEffect(() => {
+        const newList = [...list]
+        if(autoSort) {
+            sortList(newList)
+        }
+        setUnfilteredList(newList)
+    }, [autoSort, list])
+
+    useEffect(() => {
         if (!isOpen && (searchValue !== selectedItem?.label && !selectedItem?.isSearchValue)) {
             setSearchValue(selectedItem?.label!)
         }
     }, [searchValue, selectedItem, isOpen])
 
     useEffect(() => {
-        const newList = getFilteredList(list, searchValue)
+        const newList = getFilteredList(unfilteredList, searchValue)
         const notFound = newList.length === 0
         setNotFound(notFound)
 
@@ -74,7 +88,7 @@ export const Autocomplete = ({
         }
 
         setFilteredList(newList)
-    }, [searchValue, list])
+    }, [searchValue, unfilteredList, autoSort])
 
     const getFilteredList = (list: AutocompleteItem[], searchValue: string) => {
         const regEx = new RegExp(searchValue?.replace(/([^a-zA-Z0-9])/g, "\\$1"), 'i')
@@ -158,7 +172,7 @@ export const Autocomplete = ({
                     <List
                         ref={listCompRef}
                         position="absolute"
-                        bgColor={'darkPrimary'}
+                        className="blurred-container info-bg"
                         w="full"
                         zIndex="10"
                         borderRadius="5"
