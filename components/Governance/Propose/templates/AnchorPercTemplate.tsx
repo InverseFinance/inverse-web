@@ -1,20 +1,14 @@
 import { useState } from 'react'
-import { FormControl, FormLabel, VStack } from '@chakra-ui/react'
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete'
-import ScannerLink from '@inverse/components/common/ScannerLink'
-import { isAddress, parseUnits } from 'ethers/lib/utils'
+import { FormControl, FormLabel } from '@chakra-ui/react'
+import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { AutocompleteItem, NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@inverse/types'
+import { NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@inverse/types'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { Input } from '@inverse/components/common/Input'
+import { AnchorTemplate } from './AnchorTemplate';
+import { Input } from '@inverse/components/common/Input';
+import { parseUnits } from '@ethersproject/units';
 
-const { COMPTROLLER, CONTRACTS } = getNetworkConfigConstants(NetworkIds.mainnet)
-
-const anchorContractsList = Object.entries(CONTRACTS)
-    .filter(([address, label]) => label.startsWith('an'))
-    .map(([address, label]) => {
-        return { value: address, label }
-    })
+const { COMPTROLLER } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 const FUNCTIONS = {
     [ProposalTemplates.anchorCollateralFactor]: '_setCollateralFactor',
@@ -39,22 +33,12 @@ export const AnchorPercTemplate = ({
 }) => {
     const [address, setAddress] = useState(defaultAddress);
     const [value, setValue] = useState(defaultValue);
-    const [action, setAction] = useState<TemplateProposalFormActionFields | undefined>(undefined);
-    const [isDisabled, setIsDisabled] = useState(true);
 
     const functionName = FUNCTIONS[type]
 
     useEffect(() => {
-        onDisabledChange(isDisabled)
-    }, [isDisabled])
-
-    useEffect(() => {
-        onActionChange(action)
-    }, [action])
-
-    useEffect(() => {
         const disabled = !value || !address || !isAddress(address)
-        setIsDisabled(disabled)
+        onDisabledChange(disabled)
         if (disabled) { return }
 
         const percentage = parseFloat(value) / 100
@@ -69,40 +53,25 @@ export const AnchorPercTemplate = ({
             ],
             value: '0',
         }
-        setAction(action)
+        onActionChange(action)
     }, [value, address])
 
     const handleValueChange = (e: any) => {
         setValue(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))
     }
 
-    const handleAddressChange = (item: AutocompleteItem | undefined) => {
-        setAddress(item?.value || '')
+    const onMarketChange = (newAddress: string) => {
+        setAddress(newAddress)
     }
 
     return (
-        <VStack spacing="4">
-            <FormControl>
-                <FormLabel>
-                    Anchor Market :
-                    {
-                        defaultAddress && isAddress(defaultAddress) ?
-                            <ScannerLink value={defaultAddress} shorten={true} /> : null
-                    }
-                </FormLabel>
-                <AddressAutocomplete
-                    title="Available Anchor Markets : "
-                    list={anchorContractsList}
-                    defaultValue={defaultAddress}
-                    onItemSelect={handleAddressChange}
-                />
-            </FormControl>
+        <AnchorTemplate onMarketChange={onMarketChange}>
             <FormControl>
                 <FormLabel>
                     {LABELS[type]} % for this market ? :
                 </FormLabel>
                 <Input placeholder="Example: 60" type="number" min="0" max="100" defaultValue={defaultValue} onChange={handleValueChange} />
             </FormControl>
-        </VStack>
+        </AnchorTemplate>
     )
 }
