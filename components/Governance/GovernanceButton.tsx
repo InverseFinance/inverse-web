@@ -3,28 +3,32 @@ import { Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ProposalStatus, Proposal, NetworkIds } from '@inverse/types'
+import { ProposalStatus, Proposal, NetworkIds, GovEra } from '@inverse/types'
 import { getGovernanceAddress } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { useRouter } from 'next/dist/client/router';
 
 const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const { active, account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const govAddress = getGovernanceAddress(proposal.era, chainId);
-  const { data } = useEtherSWR([govAddress, 'getReceipt', proposal?.id, account]);
+  const { data } = useEtherSWR([govAddress, 'getReceipt', proposal?.id, userAddress]);
 
   const { data: snapshotVotingPowerData } = useEtherSWR([
-    [GOVERNANCE, 'xinvExchangeRates', proposal?.id],
-    [INV, 'getPriorVotes', account, proposal?.startBlock],
-    [XINV, 'getPriorVotes', account, proposal?.startBlock],
+    // xinvExchangeRates exists in gov contract starting from mills only
+    [proposal.era === GovEra.alpha ? GOVERNANCE : govAddress, 'xinvExchangeRates', proposal?.id],
+    [INV, 'getPriorVotes', userAddress, proposal?.startBlock],
+    [XINV, 'getPriorVotes', userAddress, proposal?.startBlock],
   ])
 
-  if (!active || !account || !data || !proposal?.id || !snapshotVotingPowerData) {
+  if (!active || !account || !data || !proposal?.id || !snapshotVotingPowerData || !userAddress) {
     return <></>
   }
 
@@ -47,7 +51,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
               Cast Vote
             </SubmitButton>
             <InfoMessage alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
-              description={`Voting Power at Snapshot Time : ${snapshotVotingPower}`}
+              description={`Your Voting Power for this proposal : ${snapshotVotingPower}`}
             />
           </>
           :

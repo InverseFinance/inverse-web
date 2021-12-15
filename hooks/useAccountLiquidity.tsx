@@ -9,6 +9,7 @@ import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { useRouter } from 'next/dist/client/router'
 
 type AccountLiquidity = {
   usdSupply: number
@@ -18,8 +19,10 @@ type AccountLiquidity = {
 
 export const useAccountLiquidity = (): SWR & AccountLiquidity => {
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { COMPTROLLER, UNDERLYING } = getNetworkConfigConstants(chainId)
-  const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', account])
+  const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', userAddress])
   const { isLoading: marketsIsLoading } = useMarkets()
   const { prices: oraclePrices, isLoading: pricesIsLoading } = useAnchorPrices()
   const { balances: supplyBalances, isLoading: supplyBalancesIsLoading } = useSupplyBalances()
@@ -28,6 +31,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
 
   if (
     !account ||
+    !userAddress ||
     !data ||
     !oraclePrices ||
     marketsIsLoading ||

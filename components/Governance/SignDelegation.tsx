@@ -46,6 +46,9 @@ export const SignDelegation = ({
                         Previous delegations to other addresses (including yours) will be withdrawn.
                         You can also change your delegate at any time in the future.
                         <Text mt="2" mb="2" fontWeight="bold">
+                            Delegation will apply for both INV and xINV.
+                        </Text>
+                        <Text mt="2" mb="2" fontWeight="bold">
                             Once signed, you will need to {
                                 isSelf ?
                                     'submit the signature data' :
@@ -72,17 +75,16 @@ export const SignDelegation = ({
                     : null
             }
             {
-                hasLastSigCopied ?
-                    <Text align="center" mt="5">
-                        {
-                            isSelf ?
-                                'You can now submit your signature, the process is the same as delegation signatures'
-                                :
-                                'Now please send the copied signature to your delegatee 😀'
-                        }
-                    </Text>
-                    :
-                    null
+                hasLastSigCopied &&
+                <InfoMessage
+                    alertProps={{ mt: "5", fontSize: '14px', w: 'full' }}
+                    description={
+                        isSelf ?
+                            'You can now submit your signature via the "SUBMIT SIGNATURES" button, the process is the same as delegation signatures'
+                            :
+                            'Now please send the copied signature to your delegatee, the Delegation Change will take effect once your delegatee submits the signature on-chain'
+                    }
+                />
             }
         </>
     )

@@ -1,35 +1,59 @@
-import { useState, useEffect } from 'react'
-import { Flex, FormControl, FormLabel, Stack } from '@chakra-ui/react';
+import { useState, useEffect, useRef } from 'react'
+import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { SubmitButton } from '@inverse/components/common/Button';
-import { ProposalFormFields } from '@inverse/types';
+import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { submitProposal } from '@inverse/util/governance';
+import { getFunctionsFromProposalActions, submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
 import { SuccessMessage } from '@inverse/components/common/Messages';
 import { TEST_IDS } from '@inverse/config/test-ids';
+import { ProposalActions, ProposalDetails } from '../Proposal';
+import { ProposalWarningMessage } from './ProposalWarningMessage';
+import { showToast } from '@inverse/util/notify';
+import localforage from 'localforage';
+import { ActionTemplateModal } from './ActionTemplateModal';
+import { ProposalFormBtns } from './ProposalFormBtns';
 
 const EMPTY_ACTION = {
+    actionId: 0,
     contractAddress: '',
     func: '',
     args: [],
-    value: 0,
+    value: '',
     fragment: undefined,
 };
 
-export const ProposalForm = () => {
+const PROPOSAL_WARNING_KEY = 'proposalWarningAgreed';
+
+export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number }) => {
+    const isMountedRef = useRef(true)
+    const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
-    const { library } = useWeb3React<Web3Provider>()
+    const { library, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title: '',
         description: '',
-        actions: [{ ...EMPTY_ACTION }],
+        actions: [],
     })
     const [isFormValid, setIsFormValid] = useState(false);
+    const [previewMode, setPreviewMode] = useState(false);
+    const [actionLastId, setActionLastId] = useState(0);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    useEffect(() => {
+        const init = async () => {
+            const alreadyAggreed = await localforage.getItem(PROPOSAL_WARNING_KEY)
+            if (!isMountedRef.current) { return }
+            setIsUnderstood(!!alreadyAggreed)
+        }
+        init()
+        return () => { isMountedRef.current = false }
+    }, [])
 
     useEffect(() => {
         setIsFormValid(!isFormInvalid(form))
@@ -40,7 +64,7 @@ export const ProposalForm = () => {
         newActions[index].func = value;
         try {
             const fragment = FunctionFragment.from(value);
-            const args: any = fragment.inputs.map(v => ({ type: v.type, value: '' }));
+            const args: any = fragment.inputs.map(v => ({ type: v.type, value: '', name: v.name }));
             newActions[index] = { ...newActions[index], args, fragment };
         } catch {
             newActions[index] = { ...newActions[index], args: [], fragment: undefined }
@@ -62,26 +86,50 @@ export const ProposalForm = () => {
         const actions = [...form.actions];
         actions.splice(index, 1);
         setForm({ ...form, actions });
+        showToast({ status: 'error', title: 'Action Removed from proposal' })
+    }
+
+    const duplicateAction = (index: number) => {
+        const actions = [...form.actions];
+        const actionId = actionLastId + 1;
+        setActionLastId(actionId)
+        const toCopy = { ...actions[index], actionId: actionId };
+
+        actions.splice(index + 1, 0, toCopy);
+
+        setForm({ ...form, actions });
+        showToast({ status: 'info', title: 'Action Duplicated', description: 'The duplicated action is just below the one copied' })
     }
 
     const actionSubForms = form.actions.map((action, i) => {
         return <ProposalFormAction
-            key={i}
+            key={action.actionId}
             action={action}
             index={i}
             onChange={(field: string, e: any) => handleActionChange(i, field, e)}
             onDelete={() => deleteAction(i)}
-            onFuncChange={(e) => handleFuncChange(i, e.currentTarget.value)}
+            onDuplicate={() => duplicateAction(i)}
+            onFuncChange={(v) => handleFuncChange(i, v)}
         />
     })
 
-    const addAction = () => {
-        setForm({ ...form, actions: form.actions.concat([{ ...EMPTY_ACTION }]) });
+    const addAction = (action: TemplateProposalFormActionFields = EMPTY_ACTION, collapsed = false) => {
+        const actionId = actionLastId + 1;
+        setActionLastId(actionId);
+        setForm({
+            ...form,
+            actions: form.actions.concat([{
+                ...action,
+                actionId,
+                collapsed,
+            }])
+        });
     }
 
     const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
         if (title.length === 0) return true;
         if (description.length === 0) return true;
+        if (actions.length === 0) return true;
         for (const action of actions) {
             if (action.contractAddress.length === 0) return true;
             if (action.func.length === 0) return true;
@@ -89,6 +137,11 @@ export const ProposalForm = () => {
             for (const arg of action.args) {
                 if (arg.value.length === 0) return true;
             }
+        }
+        try {
+            getFunctionsFromProposalActions(actions);
+        } catch (e) {
+            return true
         }
         return false;
     }
@@ -99,32 +152,77 @@ export const ProposalForm = () => {
         return handleTx(tx, { onSuccess: () => setHasSuccess(true) });
     }
 
+    const warningUnderstood = () => {
+        setIsUnderstood(true)
+        localforage.setItem(PROPOSAL_WARNING_KEY, true)
+    }
+
+    const showTemplateModal = () => {
+        onOpen()
+    }
+
+    const handleAddTemplate = (action: TemplateProposalFormActionFields) => {
+        addAction(action, true)
+        onClose()
+    }
+
+    const preview: Partial<Proposal> = isFormValid && previewMode ? {
+        id: lastProposalId + 1,
+        title: form.title,
+        description: form.description,
+        functions: getFunctionsFromProposalActions(form.actions),
+        proposer: account || '',
+        era: GovEra.mills,
+        startTimestamp: Date.now(),
+        status: ProposalStatus.active,
+    } : {}
+
     return (
-        <Stack direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
-            <FormControl>
-                <FormLabel>Title</FormLabel>
-                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
-            </FormControl>
-            <FormControl>
-                <FormLabel>Description</FormLabel>
-                <Textarea onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
-            </FormControl>
-            {actionSubForms}
-            <Flex justify="center" pt="5">
-                {
-                    hasSuccess ?
-                        <SuccessMessage description="Your proposal has been created ! It may take some time to appear" />
-                        :
-                        <>
-                            <SubmitButton disabled={form.actions.length === 20} mr="1" w="fit-content" onClick={addAction}>
-                                { form.actions.length === 20 ? 'Max number of actions reached' : 'Add an Action' }
-                            </SubmitButton>
-                            <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
-                                Submit the Proposal
-                            </SubmitButton>
-                        </>
-                }
-            </Flex>
+        <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
+            {previewMode ? <Text textAlign="center">Preview / Recap</Text> : null}
+            {
+                !isUnderstood ?
+                    <ProposalWarningMessage onOk={() => warningUnderstood()} /> : null
+            }
+            {
+                previewMode ?
+                    <Flex direction="column" textAlign="left">
+                        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                            <ProposalDetails proposal={preview} />
+                        </Flex>
+                        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                            <ProposalActions proposal={preview} />
+                        </Flex>
+                    </Flex>
+                    :
+                    <>
+                        <Box bgColor="purple.750" borderRadius="5" p="4" color="white">
+                            <FormControl>
+                                <FormLabel>Title</FormLabel>
+                                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
+                            </FormControl>
+                            <FormControl mt="2">
+                                <FormLabel>Details</FormLabel>
+                                <Textarea onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
+                            </FormControl>
+                        </Box>
+                        {
+                            form.title && form.description ? actionSubForms : null
+                        }
+                    </>
+            }
+            <ProposalFormBtns
+                hasTitleAndDescrption={!!form.title && !!form.description}
+                nbActions={form.actions.length}
+                isFormValid={isFormValid}
+                hasSuccess={hasSuccess}
+                previewMode={previewMode}
+                handleSubmitProposal={handleSubmitProposal}
+                addAction={addAction}
+                setPreviewMode={setPreviewMode}
+                showTemplateModal={showTemplateModal}
+            />
+            <ActionTemplateModal isOpen={isOpen} onClose={onClose} onAddTemplate={handleAddTemplate} />
         </Stack>
     )
 }

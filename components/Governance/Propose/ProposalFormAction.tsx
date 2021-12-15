@@ -1,88 +1,196 @@
-import { ProposalFormActionFields } from '@inverse/types';
-import { useState } from 'react'
-import { FormControl, FormLabel, Text, Box, Flex, Divider } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { ProposalFormActionFields, AutocompleteItem } from '@inverse/types';
+import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade, ScaleFade } from '@chakra-ui/react';
+import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
-import { isAddress } from 'ethers/lib/utils';
+import { isAddress, FunctionFragment } from 'ethers/lib/utils';
+import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
+import { Autocomplete } from '@inverse/components/common/Input/Autocomplete';
+import { getRemoteAbi } from '@inverse/util/etherscan';
+import { useEffect, useState } from 'react';
+import ScannerLink from '@inverse/components/common/ScannerLink';
+import { ProposalFormFuncArg } from './ProposalFormFuncArg';
+import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
+import { getFunctionFromProposalAction } from '@inverse/util/governance';
+import { ProposalActionPreview } from '../ProposalActionPreview';
+import { WarningMessage } from '@inverse/components/common/Messages';
 
 export const ProposalFormAction = ({
     action,
     index,
     onChange,
     onDelete,
+    onDuplicate,
     onFuncChange,
 }: {
     action: ProposalFormActionFields,
     index: number,
     onChange: (field: string, e: any) => void,
     onDelete: () => void,
+    onDuplicate: () => void,
     onFuncChange: (e: any) => void,
 }) => {
-    const { contractAddress, func, args, value } = action
-    const [hideBody, setHideBody] = useState(false)
+    const { contractAddress, func, args, value, collapsed } = action
+    const [hideBody, setHideBody] = useState(collapsed)
+    const [abi, setAbi] = useState('')
+    const [contractFunctions, setContractFunctions] = useState([])
+    const [scaledInEffect, setScaledInEffect] = useState(true);
+    const [notInAbiWarning, setNotInAbiWarning] = useState(false)
 
-    const handleArgChange = (e: any, i: number) => {
+    useEffect(() => {
+        let isMounted = true;
+        const init = async () => {
+            if (action.contractAddress) {
+                if (action.contractAddress && isAddress(action.contractAddress)) {
+                    const result = await getRemoteAbi(action.contractAddress)
+                    if (!isMounted) { return }
+                    setAbi(result);
+                }
+            }
+        }
+        init()
+        return () => { isMounted = false }
+    }, [])
+
+    useEffect(() => {
+        const funcIsInAbi = contractFunctions
+            .find((f: AutocompleteItem) => toSimpleSig(f.value) === toSimpleSig(func))
+        setNotInAbiWarning(!funcIsInAbi && !!func && !!contractFunctions.length)
+    }, [func, contractFunctions])
+
+    useEffect(() => {
+        const parsedAbi = abi ? JSON.parse(abi) : [];
+        const writeFunctions = parsedAbi
+            .filter((abiItem: FunctionFragment) => abiItem.type === 'function' && abiItem.stateMutability !== 'view')
+            .map((abiItem: FunctionFragment) => {
+                const fields = abiItem.inputs.map((input) => `${input.type} ${input.name}`.trim()).join(',')
+                const signature = `${abiItem.name}(${fields})`
+                return { label: signature, value: signature }
+            })
+        setContractFunctions(writeFunctions)
+    }, [abi])
+
+    const toSimpleSig = (sigWithNames: string) => {
+        if (!sigWithNames) { return '' }
+        try {
+            return FunctionFragment.fromString(sigWithNames).format();
+        } catch (e) { }
+        return '';
+    }
+
+    const handleArgChange = (eventOrValue: any, i: number) => {
         const newArgs = [...args];
-        newArgs[i] = { ...newArgs[i], value: e.currentTarget.value };
+        newArgs[i] = { ...newArgs[i], value: eventOrValue?.currentTarget?.value || eventOrValue };
         onChange('args', newArgs);
     }
 
-    const argInputs = args.map((arg, i) => {
-        const inputType = arg.type.includes('int') ? 'number' : 'string';
-        const min = arg.type.includes('uint') ? '0' : undefined;
-        return (
-            <FormControl key={i} mt="2">
-                <FormLabel fontSize="12">Argument #{i + 1} ({arg.type})</FormLabel>
-                <ProposalInput
-                    pt="1"
-                    pb="1"
-                    type={inputType}
-                    min={min}
-                    value={arg.value || ''}
-                    placeholder="Argument data"
-                    onChange={(e: any) => handleArgChange(e, i)} />
-            </FormControl>
-        )
+    const argInputs = args?.map((arg, i) => {
+        return <ProposalFormFuncArg
+            key={i}
+            type={arg.type}
+            name={arg.name}
+            defaultValue={arg.value}
+            index={i}
+            onChange={(e) => handleArgChange(e, i)}
+        />
     })
 
+    const onContractChange = async (item?: AutocompleteItem) => {
+        onChange('contractAddress', item?.value || '');
+        setAbi('[]')
+        if (item?.value && isAddress(item?.value)) {
+            setAbi(await getRemoteAbi(item.value));
+        }
+    }
+
+    const handleDelete = () => {
+        setScaledInEffect(false)
+        setTimeout(() => {
+            onDelete()
+        }, 200)
+    }
+
+    let previewFunc = null
+    try {
+        previewFunc = getFunctionFromProposalAction(action)
+    } catch (e) {
+
+    }
+
     return (
-        <Box bgColor="purple.700" borderRadius="5" p="4">
-            <Flex alignItems="center">
-                <Text fontWeight="bold" cursor="pointer" fontSize="20" onClick={() => setHideBody(!hideBody)}>
-                    Action #{index + 1}
-                </Text>
-                <DeleteIcon ml="2" cursor="pointer" color="red.400" onClick={onDelete} />
-            </Flex>
-            {
-                hideBody ? null :
-                    <>
-                        <Divider mt="2" mb="2" />
-                        <FormControl>
-                            <FormLabel >Contract Address</FormLabel>
-                            <ProposalInput
-                                isInvalid={!!contractAddress && !isAddress(contractAddress)}
-                                placeholder="0x..."
-                                value={contractAddress}
-                                onChange={(e: any) => onChange('contractAddress', e.currentTarget.value)}
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel mt="2">Value (wei)</FormLabel>
-                            <ProposalInput type="number" placeholder="10000000000000000" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel mt="2">Contract Function</FormLabel>
-                            <ProposalInput placeholder="transfer(address,uint)" value={func} onChange={onFuncChange} />
-                        </FormControl>
-                        {
-                            args?.length ?
-                                <FormControl pl="5" mt="2">
-                                    {argInputs}
-                                </FormControl>
-                                : null
-                        }
-                    </>
-            }
-        </Box>
+        <SlideFade offsetY={'100px'} in={scaledInEffect}>
+            <Box bgColor="purple.750" borderRadius="5" px="4" pt="2" pb="3">
+                <Flex alignItems="center" position="relative">
+                    <Text fontWeight="bold" cursor="pointer" fontSize="18" onClick={() => setHideBody(!hideBody)}>
+                        Action #{index + 1}
+                    </Text>
+                    <CopyIcon ml="2" cursor="pointer" color="blue.400" onClick={onDuplicate} />
+                    {
+                        notInAbiWarning ?
+                            <WarningMessage
+                                description="Function to call not found in contract ABI fetched from Etherscan !"
+                                alertProps={{ p: "1", position: "absolute", right: "8", fontSize: "12px" }} />
+                            : ''
+                    }
+                    <DeleteIcon position="absolute" right="0" ml="2" cursor="pointer" color="red.400" onClick={handleDelete} />
+                </Flex>
+                <Divider mt="2" mb="2" />
+
+                <ScaleFade initialScale={0.1} unmountOnExit={true} in={hideBody} reverse={false}>
+                    {
+                        previewFunc?.signature && previewFunc?.callData && previewFunc?.target ?
+                            <ProposalActionPreview
+                                pt="1"
+                                target={previewFunc.target}
+                                signature={previewFunc.signature}
+                                callData={previewFunc.callData} />
+                            :
+                            <Box textAlign="left" pt="3">
+                                <WarningMessage
+                                    alertProps={{ fontSize: '12px', p: '1' }}
+                                    description="Incomplete or Invalid action details" />
+                            </Box>
+                    }
+                </ScaleFade>
+
+                <ScaleFade initialScale={0.1} unmountOnExit={true} in={!hideBody} reverse={true}>
+                    <FormControl>
+                        <FormLabel>
+                            Contract Address
+                            {contractAddress && isAddress(contractAddress) ? <> (<ScannerLink value={contractAddress} label={contractAddress} />)</> : ''}
+                        </FormLabel>
+                        <AddressAutocomplete
+                            onItemSelect={onContractChange}
+                            defaultValue={contractAddress}
+                            InputComp={(p) => <ProposalInput {...p} />}
+                        />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel mt="2">Contract Function to Call</FormLabel>
+                        <Autocomplete
+                            onItemSelect={(item) => onFuncChange(item?.value)}
+                            defaultValue={func}
+                            InputComp={(p) => <ProposalInput {...p} />}
+                            list={contractFunctions}
+                            title={`"Write" Functions found in the Contracts's Abi :`}
+                            placeholder="transfer(address,uint)"
+                        />
+                    </FormControl>
+                    {
+                        args?.length ?
+                            <FormControl pl="5" mt="2">
+                                {argInputs}
+                            </FormControl>
+                            : null
+                    }
+                    <FormControl>
+                        <FormLabel mt="2">
+                            Amount of Eth to send
+                            <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '12px' }} message="Directly in normal Eth units not in wei" />
+                        </FormLabel>
+                        <ProposalInput type="number" placeholder="Eg : 0.1, 0 by default" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
+                    </FormControl>
+                </ScaleFade>
+            </Box>
+        </SlideFade>
     )
 }

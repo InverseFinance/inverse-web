@@ -1,5 +1,5 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
-import { UseToastOptions } from '@chakra-ui/react';
+import { UseToastOptions, ComponentWithAs, InputProps, BoxProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 
@@ -210,12 +210,16 @@ export enum AnchorOperations {
 }
 
 export type ProposalFormActionFields = {
+  actionId: number,
   contractAddress: string,
   func: string,
   args: any[],
-  value: number,
+  value: string,
   fragment?: FunctionFragment,
+  collapsed?: boolean,
 }
+
+export type TemplateProposalFormActionFields = Omit<ProposalFormActionFields, "actionId">
 
 export type ProposalFormFields = {
   title: string,
@@ -239,4 +243,39 @@ export enum Swappers {
   crv = 'crv',
   oneinch = '1inch',
   stabilizer = 'stabilizer',
+}
+export interface AutocompleteItem {
+  label: string;
+  value: string;
+  isSearchValue?: boolean;
+}
+
+export type AutocompleteProps = {
+  title?: string,
+  list: AutocompleteItem[],
+  defaultValue?: string,
+  placeholder?: string,
+  InputComp?: ComponentWithAs<"input", InputProps>,
+  inputProps?: InputProps,
+  isOpenDefault?: boolean,
+  autoSort?: boolean,
+  onItemSelect: (selectedItem?: AutocompleteItem) => any,
+} & Partial<BoxProps>
+
+export type AddressAutocompleteProps = Omit<AutocompleteProps, "list"> & { list?: AutocompleteItem[] }
+
+export enum ProposalTemplates {
+  invTransfer = 'invTransfer',
+  invApprove = 'invApprove',
+  dolaTransfer = 'dolaTransfer',
+  dolaApprove = 'dolaApprove',
+  daiTransfer = 'daiTransfer',
+  daiApprove = 'daiApprove',
+  // acnhor
+  anchorLending = 'anchorLending',
+  anchorBorrowing = 'anchorBorrowing',
+  anchorCollateralFactor = 'anchorCollateralFactor',
+  anchorSupportMarket = 'anchorSupportMarket',
+  anchorsetCompSpeed = 'anchorsetCompSpeed',
+  anchorOracleFeed = 'anchorOracleFeed',
 }

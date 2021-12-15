@@ -7,8 +7,18 @@ export const Link = (props: any) => {
   const query = router?.query
   const { href, isExternal, ...otherProps } = props
 
+  const urlParamsToKeepWhenChangingPage = (({ demo, simAddress }) => {
+    const params: any = {}
+    if(demo) { params['demo'] = demo }
+    if(simAddress) { params['simAddress'] = simAddress }
+    return params
+  })(query);
+
   return (
-    <NextLink href={{ pathname: href?.pathname || href, query: href?.query || (query?.demo ? { demo: query?.demo } : undefined) }} passHref>
+    <NextLink href={{
+      pathname: href?.pathname || href,
+      query: href?.query || urlParamsToKeepWhenChangingPage,
+    }} passHref>
       {isExternal ? (
         <ChakraLink
           color="purple.200"

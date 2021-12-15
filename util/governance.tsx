@@ -1,10 +1,10 @@
 import { getMultiDelegatorContract } from './contracts';
 import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
 import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
-import { AbiCoder, isAddress, splitSignature } from 'ethers/lib/utils'
+import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields } from '@inverse/types';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction } from '@inverse/types';
 import { CURRENT_ERA } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
@@ -101,6 +101,20 @@ export const clearStoredDelegationsCollected = (): void => {
     localforage.removeItem('signaturesCollected');
 }
 
+export const getCallData = (action: ProposalFormActionFields) => {
+    const abiCoder = new AbiCoder()
+    return abiCoder.encode(
+        action.args.map(arg => arg.type),
+        action.args.map(arg => {
+            if (arg.type === "bool" || arg.type === "bool[]") {
+                return JSON.parse(arg.value);
+            } else {
+                return arg.value;
+            }
+        })
+    )
+}
+
 export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalFormFields): Promise<TransactionResponse> => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -109,24 +123,12 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
 
             const text = `# ${title}\n${description}`
 
-            const calldatas = actions.map(action => {
-                const abiCoder = new AbiCoder()
-                return abiCoder.encode(
-                    action.args.map(arg => arg.type),
-                    action.args.map(arg => {
-                        if (arg.type === "bool" || arg.type === "bool[]") {
-                            return JSON.parse(arg.value);
-                        } else {
-                            return arg.value;
-                        }
-                    })
-                )
-            })
+            const calldatas = actions.map(action => getCallData(action))
 
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
                 actions.map(a => a.contractAddress),
-                actions.map(a => a.value),
+                actions.map(a => parseUnits((a.value||'0').toString())),
                 actions.map(a => a.fragment!.format('sighash')),
                 calldatas,
                 text,
@@ -136,4 +138,16 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
             reject(e);
         }
     })
+}
+
+export const getFunctionsFromProposalActions = (actions: ProposalFormActionFields[]): ProposalFunction[] => {
+    return actions.map(getFunctionFromProposalAction);
+}
+
+export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {
+    return {
+        target: action.contractAddress,
+        callData: getCallData(action),
+        signature: action.fragment?.format('sighash') || '',
+    }
 }

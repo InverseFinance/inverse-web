@@ -5,14 +5,13 @@ import Link from '@inverse/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
 import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
-import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils'
 import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { useWeb3React } from '@web3-react/core';
-import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
+import { ProposalActionPreview } from './ProposalActionPreview'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -154,9 +153,6 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
 }
 
 export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
-  const { chainId } = useWeb3React<Web3Provider>()
-  const { CONTRACTS } = getNetworkConfigConstants(chainId)
-
   if (!proposal?.id) {
     return <></>
   }
@@ -167,41 +163,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
     <Container label="Actions">
       <Stack w="full" spacing={6} p={2}>
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
-          const callDatas = new AbiCoder()
-            .decode(FunctionFragment.from(signature).inputs, callData)
-            .toString()
-            .split(',')
-
-          return (
-            <Stack w="full" key={i} spacing={1}>
-              <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="purple.200">{`Action ${i + 1
-                }`}</Flex>
-              <Flex w="full" overflowX="auto" direction="column" bgColor="purple.850" borderRadius={8} p={3}>
-                <Flex fontSize="15px">
-                  <Link href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">
-                    {CONTRACTS[target] || target}
-                  </Link>
-                  <Flex>{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>
-                </Flex>
-                <Flex direction="column" fontSize="sm" pl={4} pr={4}>
-                  {callDatas.map((data: string, i) =>
-                    isAddress(data) ? (
-                      <Link key={i} href={`https://etherscan.io/address/${data}`} whiteSpace="nowrap">
-                        {CONTRACTS[data] || data}
-                        {i + 1 !== callDatas.length ? ',' : ''}
-                      </Link>
-                    ) : (
-                      <Text key={i}>
-                        {data}
-                        {i + 1 !== callDatas.length ? ',' : ''}
-                      </Text>
-                    )
-                  )}
-                </Flex>
-                {callDatas[0] && <Text>)</Text>}
-              </Flex>
-            </Stack>
-          )
+          return <ProposalActionPreview key={i} num={i+1} target={target} signature={signature} callData={callData} />
         })}
       </Stack>
     </Container>

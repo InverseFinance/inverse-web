@@ -33,15 +33,17 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
-  const { INV } = getNetworkConfigConstants(chainId)
+  const { INV, XINV } = getNetworkConfigConstants(chainId)
 
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
+    [XINV, 'delegates', account],
   ])
 
   if (!data) { return <></> }
 
-  const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) == address;
+  const [invDelegate, xinvDelegate] = data;
+  const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
 
@@ -84,7 +86,6 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         </Flex>
 
         <Divider mt="3" mb="5" />
-
         {delegationCases[delegationCase]}
 
       </Box>

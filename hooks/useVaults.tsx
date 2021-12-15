@@ -4,6 +4,7 @@ import { NetworkIds, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
 import useEtherSWR from './useEtherSWR'
 
@@ -31,9 +32,11 @@ export const useVaultRates = (): SWR & Rates => {
 
 export const useVaultRewards = (): SWR & Rewards => {
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { VAULT_TOKENS } = getNetworkConfigConstants(chainId)
 
-  const { data, error } = useEtherSWR(VAULT_TOKENS.map((address: string) => [address, 'unclaimedProfit', account]))
+  const { data, error } = useEtherSWR(VAULT_TOKENS.map((address: string) => [address, 'unclaimedProfit', userAddress]))
 
   return {
     rewards: data?.reduce((rewards: { [key: string]: BigNumber }, reward: BigNumber, i: number) => {

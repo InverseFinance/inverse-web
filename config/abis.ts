@@ -41,6 +41,7 @@ export const CTOKEN_ABI = [
   'function totalSupply() external view returns (uint256)',
   "function reserveFactorMantissa() external view returns (uint256)",
   "function underlying() external view returns (address)",
+  "function decimals() view returns (uint8)",
 ];
 
 export const CETHER_ABI = [
@@ -55,6 +56,7 @@ export const CETHER_ABI = [
 export const ERC20_ABI = [
   "function allowance(address, address) external view returns (uint256)",
   "function approve(address, uint256)",
+  "function decimals() view returns (uint8)",
   "function balanceOf(address) external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
@@ -90,6 +92,7 @@ export const INV_ABI = [
 
 export const GOVERNANCE_ABI = [
   "function xinvExchangeRates(uint256) public view returns (uint256)",
+  "function proposalThreshold() public view returns (uint256)",
   "function castVote(uint256, bool)",
   "function getReceipt(uint256, address) public view returns (bool, bool, uint256)",
   "function proposalCount() public view returns (uint256)",
@@ -131,6 +134,8 @@ export const XINV_ABI = [
   "function underlying() external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
   "function getPriorVotes(address, uint256) external view returns (uint96)",
+  "function delegate(address)",
+  "function delegates(address) external view returns (address)",
 ];
 
 export const MULTIDELEGATOR_ABI = [

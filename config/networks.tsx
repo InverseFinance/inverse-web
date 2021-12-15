@@ -560,15 +560,22 @@ export const getNetworkConfigConstants = (
     [INV]: 'INV',
     [ORACLE]: 'Oracle',
     [STABILIZER]: 'Stabilizer',
-    // [FLOKI]: 'Floki',
+    [FLOKI]: 'Floki',
     [VAULT_USDC_ETH]: 'vaultUsdcEth',
     [VAULT_DAI_ETH]: 'vaultDaiEth',
     [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
     [VAULT_DAI_YFI]: 'vaultDaiYfi',
-    [XINV_V1]: 'xINV',
+    [XINV_V1]: 'xINV-v1',
     [XINV]: 'xINV',
+    [GOVERNANCE]: 'GovMills',
+    [GOVERNANCE_ALPHA]: 'GovAlpha',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
+  }
+
+  const PROPOSAL_AUTOCOMPLETE_ADDRESSES = {
+    ...CONTRACTS,
+    '0x0000000000000000000000000000000000000000': 'BurnAddress',
   }
 
   const VAULT_TREE: VaultTree = {
@@ -620,7 +627,7 @@ export const getNetworkConfigConstants = (
     ANCHOR_STETH,
     ANCHOR_INVDOLASLP,
     ANCHOR_DOLA3POOLCRV,
-    // ANCHOR_FLOKI,
+    ANCHOR_FLOKI,
     ANCHOR_TOKENS,
     GOVERNANCE,
     GOVERNANCE_ALPHA,
@@ -642,7 +649,7 @@ export const getNetworkConfigConstants = (
     STETH,
     INVDOLASLP,
     DOLA3POOLCRV,
-    //FLOKI,
+    FLOKI,
     THREECRV,
     UNDERLYING,
     TOKENS,
@@ -650,5 +657,6 @@ export const getNetworkConfigConstants = (
     VAULT_TREE,
     CONTRACTS,
     NAMED_ADDRESSES,
+    PROPOSAL_AUTOCOMPLETE_ADDRESSES,
   }
 }
