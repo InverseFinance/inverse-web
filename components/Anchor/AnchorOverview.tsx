@@ -27,11 +27,12 @@ export const AnchorOverview = () => {
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
 
-  const invPriceUsd = prices['inverse-finance']?.usd||0;
+  const invPriceUsd = prices['inverse-finance']?.usd || 0;
   const totalInterestsUsd: Interests = getTotalInterests(markets, supplyBalances, borrowBalances, exchangeRates, invPriceUsd);
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
-  const borrowLimitPercent = Math.floor((usdBorrow / (usdBorrowable + usdBorrow)) * 100)
+  const borrowTotal = usdBorrowable + usdBorrow;
+  const borrowLimitPercent = borrowTotal ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
   let badgeColorScheme
   let health
   if (borrowLimitPercent <= 25) {
@@ -40,7 +41,7 @@ export const AnchorOverview = () => {
   } else if (borrowLimitPercent <= 75) {
     badgeColorScheme = 'yellow'
     health = 'Moderate'
-  } else {
+  } else if (borrowLimitPercent > 75) {
     badgeColorScheme = 'red'
     health = 'Dangerous'
   }
@@ -97,8 +98,8 @@ export const AnchorOverview = () => {
             <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="purple.400"></Flex>
           </Flex>
           <Stack direction="row" align="center">
-            <Text>{`$${usdBorrowable ? commify((usdBorrowable + usdBorrow).toFixed(2)) : '0.00'}`}</Text>
-            {borrowLimitPercent > 0 && (
+            <Text>{`$${borrowTotal ? commify((borrowTotal).toFixed(2)) : '0.00'}`}</Text>
+            {borrowLimitPercent > 0 && borrowTotal > 0 && !!health && (
               <>
                 <Badge variant="subtle" colorScheme={badgeColorScheme}>
                   {health}
