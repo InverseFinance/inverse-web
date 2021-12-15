@@ -118,16 +118,16 @@ export const ProposalFormAction = ({
 
     return (
         <SlideFade offsetY={'100px'} in={scaledInEffect}>
-            <Box bgColor="purple.750" borderRadius="5" p="4" pt="2">
+            <Box bgColor="purple.750" borderRadius="5" px="4" pt="2" pb="3">
                 <Flex alignItems="center" position="relative">
-                    <Text fontWeight="bold" cursor="pointer" fontSize="20" onClick={() => setHideBody(!hideBody)}>
+                    <Text fontWeight="bold" cursor="pointer" fontSize="18" onClick={() => setHideBody(!hideBody)}>
                         Action #{index + 1}
                     </Text>
                     <CopyIcon ml="2" cursor="pointer" color="blue.400" onClick={onDuplicate} />
                     {
                         notInAbiWarning ?
-                            <WarningMessage 
-                            description="Function to call not found in contract ABI fetched from Etherscan !"
+                            <WarningMessage
+                                description="Function to call not found in contract ABI fetched from Etherscan !"
                                 alertProps={{ p: "1", position: "absolute", right: "8", fontSize: "12px" }} />
                             : ''
                     }
@@ -144,9 +144,11 @@ export const ProposalFormAction = ({
                                 signature={previewFunc.signature}
                                 callData={previewFunc.callData} />
                             :
-                            <Text textAlign="left">
-                                Incomplete or Invalid action details
-                            </Text>
+                            <Box textAlign="left" pt="3">
+                                <WarningMessage
+                                    alertProps={{ fontSize: '12px', p: '1' }}
+                                    description="Incomplete or Invalid action details" />
+                            </Box>
                     }
                 </ScaleFade>
 
