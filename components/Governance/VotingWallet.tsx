@@ -12,6 +12,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import { SubmitDelegationsModal } from './GovernanceModals'
 import Link from '@inverse/components/common/Link'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { useRouter } from 'next/dist/client/router'
 
 type VotingWalletFieldProps = {
   label: string
@@ -48,20 +49,22 @@ const DelegatingTo = ({ label, delegate, account, chainId }: { label: string, de
 
 export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
-    [INV, 'balanceOf', account],
-    [XINV, 'balanceOf', account],
+    [INV, 'balanceOf', userAddress],
+    [XINV, 'balanceOf', userAddress],
     [XINV, 'exchangeRateStored'],
-    [INV, 'getCurrentVotes', account],
-    [XINV, 'getCurrentVotes', account],
-    [INV, 'delegates', account],
-    [XINV, 'delegates', account],
+    [INV, 'getCurrentVotes', userAddress],
+    [XINV, 'getCurrentVotes', userAddress],
+    [INV, 'delegates', userAddress],
+    [XINV, 'delegates', userAddress],
   ])
   const { isOpen: changeDelIsOpen, onOpen: changeDelOnOpen, onClose: changeDelOnClose } = useDisclosure()
   const { isOpen: submitDelIsOpen, onOpen: submitDelOnOpen, onClose: submitDelOnClose } = useDisclosure()
 
-  if (!account || !data) {
+  if (!account || !data || !userAddress) {
     return <></>
   }
 
@@ -69,19 +72,21 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
 
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
+  const needToShowXinvDelegate = parseFloat(formatUnits(xinvBalance)) > 0 && invDelegate !== xinvDelegate
+
   return (
-    <Container label="Your Voting Power">
+    <Container label="Your Current Voting Power">
       <Stack w="full">
         <Flex w="full" alignItems="center" justify="center">
-          <Avatar address={account} boxSize={5} />
-          <Link href={`/governance/delegates/${account}`}
+          <Avatar address={userAddress} boxSize={5} />
+          <Link href={`/governance/delegates/${userAddress}`}
             ml="2"
             alignItems="center"
             fontSize="sm"
             fontWeight="medium"
             color="purple.100"
             textDecoration="underline">
-            {namedAddress(account, chainId)}
+            {namedAddress(userAddress, chainId)}
           </Link>
         </Flex>
         <VotingWalletField label="INV">
@@ -91,13 +96,13 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           {(xinvBalance ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
-        <DelegatingTo label={invDelegate === xinvDelegate ? 'Delegating To' : 'Delegating INV to'}
-          delegate={invDelegate} account={account} chainId={chainId?.toString()} />
+        <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : 'Delegating INV to'}
+          delegate={invDelegate} account={userAddress} chainId={chainId?.toString()} />
         {
-          invDelegate !== xinvDelegate ?
+          needToShowXinvDelegate ?
             <>
               <DelegatingTo label={'Delegating xINV to'}
-                delegate={xinvDelegate} account={account} chainId={chainId?.toString()} />
+                delegate={xinvDelegate} account={userAddress} chainId={chainId?.toString()} />
               <InfoMessage alertProps={{ fontSize: '12px' }}
                 description="Your xINV delegation is out of sync with INV, you can sync them by doing the delegation process." />
             </>
