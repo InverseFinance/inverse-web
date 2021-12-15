@@ -32,7 +32,9 @@ export const AnchorOverview = () => {
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
   const borrowTotal = usdBorrowable + usdBorrow;
-  const borrowLimitPercent = borrowTotal ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
+  
+  // ignore dust
+  const borrowLimitPercent = usdBorrow > 0.01 ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
   let badgeColorScheme
   let health
   if (borrowLimitPercent <= 25) {
@@ -45,6 +47,7 @@ export const AnchorOverview = () => {
     badgeColorScheme = 'red'
     health = 'Dangerous'
   }
+
   return (
     <Container
       label={
