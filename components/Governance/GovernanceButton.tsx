@@ -51,7 +51,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
               Cast Vote
             </SubmitButton>
             <InfoMessage alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
-              description={`Your Voting Power for this proposal : ${snapshotVotingPower}`}
+              description={`Your Voting Power for this proposal : ${(snapshotVotingPower||0)?.toFixed(2)}`}
             />
           </>
           :
