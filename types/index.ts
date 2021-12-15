@@ -273,4 +273,7 @@ export enum ProposalTemplates {
   anchorLending = 'anchorLending',
   anchorBorrowing = 'anchorBorrowing',
   anchorCollateralFactor = 'anchorCollateralFactor',
+  anchorSupportMarket = 'anchorSupportMarket',
+  anchorsetCompSpeed = 'anchorSupportMarket',
+  anchorSetOracle = 'anchorSetOracle',
 }

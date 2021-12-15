@@ -10,6 +10,7 @@ import { AnchorBoolTemplate } from './templates/AnchorBoolTemplate';
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { SubmitButton } from '@inverse/components/common/Button';
 import { AnchorPercTemplate } from './templates/AnchorPercTemplate';
+import { AnchorSupportMarketTemplate } from './templates/AnchorSupportMarkerTemplate';
 
 type Props = {
     isOpen: boolean
@@ -31,6 +32,7 @@ const templates = [
     { label: 'Anchor: Toggle Supplying for a market', value: ProposalTemplates.anchorLending },
     { label: 'Anchor: Toggle Borrowing for a market', value: ProposalTemplates.anchorBorrowing },
     { label: 'Anchor: Set Collateral Factor %', value: ProposalTemplates.anchorCollateralFactor },
+    { label: 'Anchor: Add support to a market', value: ProposalTemplates.anchorSupportMarket },
 ]
 
 export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) => {
@@ -65,6 +67,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         [ProposalTemplates.anchorLending]:  { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorLending } },
         [ProposalTemplates.anchorBorrowing]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorBorrowing } },
         [ProposalTemplates.anchorCollateralFactor]: { comp: AnchorPercTemplate, props: { type: ProposalTemplates.anchorCollateralFactor } },
+        [ProposalTemplates.anchorSupportMarket]: { comp: AnchorSupportMarketTemplate },
     }
 
     const chosenTemplate = templateComps[template?.value]
@@ -85,7 +88,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
                 </SubmitButton>
             }
         >
-            <Stack spacing={'4'} p={'5'} height={'fit-content'} minH='300px' overflowY="visible">
+            <Stack spacing={'4'} p={'5'} height={'fit-content'} minH='200px' overflowY="visible">
                 <Text>Template : </Text>
                 <Autocomplete
                     inputProps={{ autoFocus: true }}

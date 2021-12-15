@@ -70,7 +70,7 @@ export const AnchorPercTemplate = ({
                 <FormLabel>
                     {LABELS[type]} % for this market ? :
                 </FormLabel>
-                <Input placeholder="Example: 60" type="number" min="0" max="100" defaultValue={defaultValue} onChange={handleValueChange} />
+                <Input placeholder="Example: 60" type="number" min="0" max="100" value={value} onChange={handleValueChange} />
             </FormControl>
         </AnchorTemplate>
     )
