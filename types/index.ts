@@ -258,6 +258,7 @@ export type AutocompleteProps = {
   InputComp?: ComponentWithAs<"input", InputProps>,
   inputProps?: InputProps,
   isOpenDefault?: boolean,
+  autoSort?: boolean,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,
 } & Partial<BoxProps>
 
@@ -270,10 +271,11 @@ export enum ProposalTemplates {
   dolaApprove = 'dolaApprove',
   daiTransfer = 'daiTransfer',
   daiApprove = 'daiApprove',
+  // acnhor
   anchorLending = 'anchorLending',
   anchorBorrowing = 'anchorBorrowing',
   anchorCollateralFactor = 'anchorCollateralFactor',
   anchorSupportMarket = 'anchorSupportMarket',
-  anchorsetCompSpeed = 'anchorSupportMarket',
-  anchorSetOracle = 'anchorSetOracle',
+  anchorsetCompSpeed = 'anchorsetCompSpeed',
+  anchorOracleFeed = 'anchorOracleFeed',
 }

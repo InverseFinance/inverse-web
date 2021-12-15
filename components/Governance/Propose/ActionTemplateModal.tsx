@@ -11,6 +11,7 @@ import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { SubmitButton } from '@inverse/components/common/Button';
 import { AnchorPercTemplate } from './templates/AnchorPercTemplate';
 import { AnchorSupportMarketTemplate } from './templates/AnchorSupportMarkerTemplate';
+import { AnchorOracleTemplate } from './templates/AnchorOracleTemplate';
 
 type Props = {
     isOpen: boolean
@@ -29,10 +30,11 @@ const templates = [
     { label: 'DAI: Send tokens', value: ProposalTemplates.daiTransfer },
     { label: 'DAI: Approve funding', value: ProposalTemplates.daiApprove },
     // anchor
-    { label: 'Anchor: Toggle Supplying for a market', value: ProposalTemplates.anchorLending },
-    { label: 'Anchor: Toggle Borrowing for a market', value: ProposalTemplates.anchorBorrowing },
+    { label: 'Anchor: Toggle Supply', value: ProposalTemplates.anchorLending },
+    { label: 'Anchor: Toggle Borrow', value: ProposalTemplates.anchorBorrowing },
     { label: 'Anchor: Set Collateral Factor %', value: ProposalTemplates.anchorCollateralFactor },
     { label: 'Anchor: Add support to a market', value: ProposalTemplates.anchorSupportMarket },
+    { label: 'Anchor: Set Oracle Feed', value: ProposalTemplates.anchorOracleFeed },
 ]
 
 export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) => {
@@ -68,6 +70,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         [ProposalTemplates.anchorBorrowing]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorBorrowing } },
         [ProposalTemplates.anchorCollateralFactor]: { comp: AnchorPercTemplate, props: { type: ProposalTemplates.anchorCollateralFactor } },
         [ProposalTemplates.anchorSupportMarket]: { comp: AnchorSupportMarketTemplate },
+        [ProposalTemplates.anchorOracleFeed]: { comp: AnchorOracleTemplate },
     }
 
     const chosenTemplate = templateComps[template?.value]
