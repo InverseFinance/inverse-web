@@ -1,10 +1,8 @@
 import { Flex, Stack, Text, Badge, useDisclosure } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
 import { StyledButton } from '@inverse/components/common/Button'
 import Container from '@inverse/components/common/Container'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
-import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { TEST_IDS } from '@inverse/config/test-ids'
@@ -18,7 +16,6 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { AnchorClaimModal } from './AnchorClaimModal'
 
 export const AnchorOverview = () => {
-  const { account, library } = useWeb3React<Web3Provider>()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
   const { rewards } = useAnchorRewards()
   const { balances: supplyBalances } = useSupplyBalances()

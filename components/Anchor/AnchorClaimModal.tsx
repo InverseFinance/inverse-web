@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Modal } from '@inverse/components/common/Modal';
-import { Checkbox, CheckboxGroup, Flex, Stack, Text, VStack } from '@chakra-ui/react';
+import { Checkbox, CheckboxGroup, Stack, Text, Box } from '@chakra-ui/react';
 import { SubmitButton } from '@inverse/components/common/Button';
-import { useAccountMarkets } from '@inverse/hooks/useMarkets';
+import { useMarkets } from '@inverse/hooks/useMarkets';
 import { useSupplyBalances } from '@inverse/hooks/useBalances';
 import { getParsedBalance } from '@inverse/util/markets';
-import { getComptrollerContract } from '@inverse/util/contracts';
+import { claimInvRewards } from '@inverse/util/contracts';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { handleTx } from '@inverse/util/transactions';
+import { InfoMessage } from '@inverse/components/common/Messages';
 
 type Props = {
     isOpen: boolean
@@ -20,28 +20,31 @@ export const AnchorClaimModal = ({
     onClose,
 }: Props) => {
     const { library, account } = useWeb3React<Web3Provider>()
-    const { markets: accountMarkets, isLoading: marketsLoading } = useAccountMarkets()
+    const { markets, isLoading: marketsLoading } = useMarkets()
     const { balances: supplyBalances, isLoading: balancesLoading } = useSupplyBalances()
     const [checkedMarkets, setCheckedMarkets] = useState<string[]>([]);
 
-    if (marketsLoading || balancesLoading || !account) { return <></> }
-
-    const handleClaim = async () => {
-        const tx =  await getComptrollerContract(library?.getSigner()).claimComp(account, checkedMarkets);
-        return handleTx(tx, { onSuccess: () => onClose() })
+    const handleClaim = () => {
+        return claimInvRewards(library?.getSigner()!, checkedMarkets)
     }
 
     const handleCheck = (marketAddresses: string[]) => {
         setCheckedMarkets(marketAddresses)
     }
 
-    const checkboxes = accountMarkets
+    const checkboxesWithBalance = markets
         .filter(market => market.rewardApy > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) > 0)
         .map(market => <Checkbox w='200px' key={market.token} value={market.token}>
             {market.underlying.symbol}
         </Checkbox>)
 
-    const isDisabled = !checkedMarkets.length;
+    const checkboxesWithoutBalance = markets
+        .filter(market => market.rewardApy > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) === 0)
+        .map(market => <Checkbox w='200px' key={market.token} value={market.token}>
+            {market.underlying.symbol}
+        </Checkbox>)
+
+    const isDisabled = !checkedMarkets.length || marketsLoading || balancesLoading || !account;
 
     return (
         <Modal
@@ -58,16 +61,26 @@ export const AnchorClaimModal = ({
                 </SubmitButton>
             }
         >
-            <Stack spacing={'4'} p={'5'}>
-                <Text>Asset Pools with Claimable INV Rewards : </Text>
-                <Flex w="200px" pl="10">
-                    <CheckboxGroup colorScheme='green' defaultValue={[]} value={checkedMarkets} onChange={handleCheck}>
-                        <VStack textAlign="left" justifyContent="left" w="full">
-                            {checkboxes}
-                        </VStack>
-                    </CheckboxGroup>
-                </Flex>
-            </Stack>
+            <CheckboxGroup colorScheme='green' defaultValue={[]} value={checkedMarkets} onChange={handleCheck}>
+                <Box p="5" textAlign="left" justifyContent="left" w="full">
+                    <Text mb="4" fontSize="14px">
+                        Pools giving INV rewards where you have <b>supplied tokens</b> :
+                    </Text>
+                    {checkboxesWithBalance}
+                    {
+                        checkboxesWithoutBalance?.length > 0 &&
+                        <>
+                            <Text my="4" fontSize="14px">
+                                Other pools giving INV rewards :
+                            </Text>
+                            {checkboxesWithoutBalance}
+                        </>
+                    }
+                    <InfoMessage alertProps={{ fontSize: '12px', mt: '9' }}
+                        description="You may have INV rewards in a pool where you no longer have supplied tokens. The gas cost varies according to the number of pools to claim."
+                    />
+                </Box>
+            </CheckboxGroup>
         </Modal>
     )
 }

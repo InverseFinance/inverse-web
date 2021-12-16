@@ -17,6 +17,7 @@ import {
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { GovEra, NetworkIds, Token } from '@inverse/types'
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { handleTx, HandleTxOptions } from './transactions'
 
 export const getNewContract = (
   address: string,
@@ -139,4 +140,18 @@ export const crvGetDyUnderlying = async (signerOrProvider: JsonRpcSigner | Web3P
     console.log(e);
     return '0'
   }
+}
+
+export const claimInvRewards = async (signer: JsonRpcSigner, cTokenAddresses: string[], options?: HandleTxOptions) => {
+  const contract = getComptrollerContract(signer);
+  const account = await signer.getAddress();
+  const tx = await contract["claimComp(address,address[])"](account, cTokenAddresses);
+  return handleTx(tx, options);
+}
+
+export const claimAllInvRewards = async (signer: JsonRpcSigner, options?: HandleTxOptions) => {
+  const contract = getComptrollerContract(signer);
+  const account = await signer.getAddress();
+  const tx = await contract["claimComp(address)"](account);
+  return handleTx(tx, options);
 }
