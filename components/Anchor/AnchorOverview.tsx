@@ -1,10 +1,9 @@
-import { Flex, Stack, Text, Badge } from '@chakra-ui/react'
+import { Flex, Stack, Text, Badge, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { StyledButton } from '@inverse/components/common/Button'
 import Container from '@inverse/components/common/Container'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
-import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
@@ -16,6 +15,7 @@ import { Interests } from '@inverse/types'
 import { getTotalInterests } from '@inverse/util/markets';
 import { AnchorInterests } from './AnchorInterests'
 import { usePrices } from '@inverse/hooks/usePrices'
+import { AnchorClaimModal } from './AnchorClaimModal'
 
 export const AnchorOverview = () => {
   const { account, library } = useWeb3React<Web3Provider>()
@@ -26,13 +26,14 @@ export const AnchorOverview = () => {
   const { markets } = useMarkets()
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const invPriceUsd = prices['inverse-finance']?.usd || 0;
   const totalInterestsUsd: Interests = getTotalInterests(markets, supplyBalances, borrowBalances, exchangeRates, invPriceUsd);
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
   const borrowTotal = usdBorrowable + usdBorrow;
-  
+
   // ignore dust
   const borrowLimitPercent = usdBorrow > 0.01 ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
   let badgeColorScheme
@@ -46,6 +47,10 @@ export const AnchorOverview = () => {
   } else if (borrowLimitPercent > 75) {
     badgeColorScheme = 'red'
     health = 'Dangerous'
+  }
+
+  const handleClaim = () => {
+    onOpen()
   }
 
   return (
@@ -72,7 +77,7 @@ export const AnchorOverview = () => {
           </Flex>
           <StyledButton
             isDisabled={!rewardAmount}
-            onClick={() => getComptrollerContract(library?.getSigner()).claimComp(account)}
+            onClick={handleClaim}
             data-testid={TEST_IDS.anchor.claim}
           >
             Claim
@@ -113,6 +118,7 @@ export const AnchorOverview = () => {
           </Stack>
         </Stack>
       </Flex>
+      <AnchorClaimModal isOpen={isOpen} onClose={onClose} />
     </Container>
   )
 }

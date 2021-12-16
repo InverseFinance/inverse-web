@@ -4,6 +4,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from './networks';
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
   "function claimComp(address) public",
+  "function claimComp(address holder,address[] cTokens) public",
   "function compBorrowerIndex(address, address) public view returns (uint256)",
   "function compBorrowState(address) public view returns (uint224, uint32)",
   "function compSpeeds(address) public view returns (uint256)",
