@@ -54,7 +54,7 @@ const getColumn = (
       tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd }: Market) => (
-        <AnchorPoolInfo apy={supplyApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     rewardApy: {
@@ -63,15 +63,15 @@ const getColumn = (
       tooltip: <><Text fontWeight="bold">APY rewarded in INV token</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards, priceUsd }: Market) => (
-        <AnchorPoolInfo apy={rewardApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} isReward={true} monthlyValue={monthlyInvRewards} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} isReward={true} monthlyValue={monthlyInvRewards} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     balance: {
       field: 'balance',
       label: 'Balance',
-      header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
-      value: ({ balance }: Market) => {
-        return <Text textAlign="end" minWidth={24} opacity={balance ? 1 : 0.5}>{`${balance?.toFixed(2)}`}</Text>
+      header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
+      value: ({ balance, underlying, priceUsd }: Market) => {
+        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} invPriceUsd={invPriceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       },
     },
     borrowApy: {
@@ -79,13 +79,12 @@ const getColumn = (
       label: 'APR',
       tooltip: <>
         <Text fontWeight="bold">Annual Percentage Rate</Text>
-        <Text>Corresponds to how much your debt increases in one year.</Text>
+        <Text>Corresponds to how much your debt would increases in one year.</Text>
         <Text>The APR may vary over time.</Text>
-        <Text></Text>
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy, monthlyBorrowFee, underlying, priceUsd }: Market) => (
-        <AnchorPoolInfo apy={borrowApy} priceUsd={priceUsd} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
+        <AnchorPoolInfo value={borrowApy} priceUsd={priceUsd} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
       ),
     },
   }
@@ -99,6 +98,9 @@ const getColumn = (
     tooltip: <Text>
       Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated borrow Interests</b> over time.
     </Text>,
+    value: ({ balance, underlying, priceUsd }: Market) => {
+      return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} invPriceUsd={invPriceUsd} symbol={underlying.symbol} type={'borrow'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+    },
   }
   cols.wallet = {
     ...cols.balance,

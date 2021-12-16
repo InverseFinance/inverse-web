@@ -60,9 +60,14 @@ export const getTotalInterests = (markets: Market[], anSupplyBalances: BigNumber
 }
 
 export const dollarify = (value: number, precision = 2, showPlusSign = false): string => {
-    if (typeof value !== 'number') { return '$' }
+    if (typeof value !== 'number' && value !== NaN) { return '$' }
     const signPrefix = value > 0 ? showPlusSign ? '+' : '' : value < 0 ? '-' : ''
-    return `${signPrefix}$${commify(Math.abs(value)?.toFixed(precision))}`;
+    try {
+        return `${signPrefix}$${commify(Math.abs(value)?.toFixed(precision))}`
+    } catch (e) {
+        console.log(value);
+    }
+    return '$';
 }
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
