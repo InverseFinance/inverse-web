@@ -35,7 +35,11 @@ export const AnchorOverview = () => {
   const borrowLimitPercent = usdBorrow > 0.01 ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
   let badgeColorScheme
   let health
-  if (borrowLimitPercent <= 25) {
+  
+  if(usdBorrowable === 0 && usdBorrow > 0) {
+    badgeColorScheme = 'gray'
+    health = 'NO COLLATERAL'
+  } else if (borrowLimitPercent <= 25) {
     badgeColorScheme = 'green'
     health = 'Healthy'
   } else if (borrowLimitPercent <= 75) {
@@ -97,7 +101,7 @@ export const AnchorOverview = () => {
               Borrow Limit
             </Flex>
             <AnimatedInfoTooltip message="Your borrow limit represents the maximum amount that you're allowed to borrow across all tokens. If you reach 100% of your borrow limit, you will get liquidated." />
-            <Text>{`${usdBorrowable ? borrowLimitPercent : 0}%`}</Text>
+            <Text>{`${borrowLimitPercent}%`}</Text>
           </Stack>
           <Flex w="full" h={1} borderRadius={8} bgColor="purple.850">
             <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="purple.400"></Flex>
