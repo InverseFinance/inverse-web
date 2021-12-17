@@ -99,6 +99,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
                     title="Common Proposal Actions :"
                     list={templates}
                     onItemSelect={handleSelect}
+                    highlightBeforeChar=":"
                 />
                 {
                     template?.value ?

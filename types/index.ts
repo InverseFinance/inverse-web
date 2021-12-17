@@ -259,6 +259,7 @@ export type AutocompleteProps = {
   inputProps?: InputProps,
   isOpenDefault?: boolean,
   autoSort?: boolean,
+  highlightBeforeChar?: string,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,
 } & Partial<BoxProps>
 

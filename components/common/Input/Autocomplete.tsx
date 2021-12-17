@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Box, List, ListItem, InputGroup, InputLeftElement, ListItemProps, InputRightElement } from '@chakra-ui/react';
+import { Box, List, ListItem, InputGroup, InputLeftElement, ListItemProps, InputRightElement, Text } from '@chakra-ui/react';
 import { Input } from '.';
 import { useEffect } from 'react';
 import { useOutsideClick } from '@chakra-ui/react'
@@ -35,6 +35,18 @@ const sortList = (list: AutocompleteItem[]) => {
     list.sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1)
 }
 
+const HighlightBefore = ({ label, char }: { label: string, char: string }) => {
+    const index = label.indexOf(char)
+    return <>
+        <Text color="secondary" fontWeight="bold" display="inline-block" whiteSpace="pre">
+            {label.substring(0, index)}
+        </Text>
+        <Text display="inline-block" whiteSpace="pre">
+            {label.substring(index, label.length)}
+        </Text>
+    </>
+}
+
 export const Autocomplete = ({
     title = '',
     list = defaultList,
@@ -45,6 +57,7 @@ export const Autocomplete = ({
     onItemSelect = () => { },
     isOpenDefault = false,
     autoSort = true,
+    highlightBeforeChar = '',
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
@@ -66,7 +79,7 @@ export const Autocomplete = ({
 
     useEffect(() => {
         const newList = [...list]
-        if(autoSort) {
+        if (autoSort) {
             sortList(newList)
         }
         setUnfilteredList(newList)
@@ -125,19 +138,21 @@ export const Autocomplete = ({
     }
 
     const handleKeyPress = (e: any) => {
-        if(e.key === 'Enter' && searchValue && filteredList.length === 1) {
+        if (e.key === 'Enter' && searchValue && filteredList.length === 1) {
             handleSelect(filteredList[0])
         }
     }
 
     const listItems = filteredList
         .map((item, i) => {
+            const label = !highlightBeforeChar ? item.label : <HighlightBefore label={item.label} char={highlightBeforeChar} />
+
             return <AutocompleteListItem
                 key={i}
                 onClick={() => handleSelect(item)}
                 fontWeight={item.value === selectedItem?.value ? 'bold' : 'normal'}
             >
-                {item.label}
+                {label}
             </AutocompleteListItem>
         })
 

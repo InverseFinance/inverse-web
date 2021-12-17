@@ -167,11 +167,12 @@ export const ProposalFormAction = ({
                     <FormControl>
                         <FormLabel mt="2">Contract Function to Call</FormLabel>
                         <Autocomplete
+                            title={`"Write" Functions found in the Contracts's Abi :`}
                             onItemSelect={(item) => onFuncChange(item?.value)}
                             defaultValue={func}
                             InputComp={(p) => <ProposalInput {...p} />}
                             list={contractFunctions}
-                            title={`"Write" Functions found in the Contracts's Abi :`}
+                            highlightBeforeChar="("
                             placeholder="transfer(address,uint)"
                         />
                     </FormControl>
