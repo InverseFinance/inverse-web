@@ -25,6 +25,12 @@ const badgeColors: { [key: string]: string } = {
   [GovEra.mills]: 'teal',
 }
 
+const getDate = (timestamp: moment.MomentInput, addHours = false) => {
+  return moment(timestamp, 'x').format(
+    `MMM Do${addHours ? ' h:mm a' : ''}, YYYY`
+  )
+}
+
 const StatusBadge = ({ status }: { status: ProposalStatus }) => (
   <Badge colorScheme={badgeColors[status]} pl={1} pr={1} fontSize="11px" fontWeight="extrabold">
     <Flex w={16} justify="center">
@@ -68,9 +74,11 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
             <StatusBadge status={status} />
             <EraBadge era={era} id={id} />
             <Text fontSize="13px" color="purple.100" fontWeight="semibold">
-              {`${moment(etaTimestamp || endTimestamp || startTimestamp, 'x').format(
-                'MMM Do, YYYY'
-              )}`}</Text>
+              {
+                status === ProposalStatus.active ? `Voting active between ${getDate(startTimestamp)} - ` : ''
+              }
+              {getDate(etaTimestamp || endTimestamp)}
+            </Text>
           </Stack>
         </Flex>
         {(forVotes > 0 || againstVotes > 0) && (
@@ -111,7 +119,7 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
     )
   }
 
-  const { title, description, proposer, status, startTimestamp, id, era } = proposal
+  const { title, description, proposer, status, startTimestamp, etaTimestamp, endTimestamp, id, era } = proposal
 
   return (
     <Container
@@ -121,9 +129,12 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
           <StatusBadge status={status} />
           <EraBadge era={era} id={id} />
           <Text fontSize="sm">
-            {` - ${moment(startTimestamp, 'x').format(
-              'MMM Do, YYYY'
-            )}`}</Text>
+            {' - '}
+            {
+              status === ProposalStatus.active ? `Voting active between ${getDate(startTimestamp, true)} - ` : ''
+            }
+            {getDate(etaTimestamp || endTimestamp, status === ProposalStatus.active)}
+          </Text>
         </Stack>
       }
     >
@@ -163,7 +174,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
     <Container label="Actions">
       <Stack w="full" spacing={6} p={2}>
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
-          return <ProposalActionPreview key={i} num={i+1} target={target} signature={signature} callData={callData} />
+          return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} />
         })}
       </Stack>
     </Container>

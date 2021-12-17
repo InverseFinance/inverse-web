@@ -1,11 +1,8 @@
-import { Flex, Stack, Text, Badge } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
+import { Flex, Stack, Text, Badge, useDisclosure } from '@chakra-ui/react'
 import { StyledButton } from '@inverse/components/common/Button'
 import Container from '@inverse/components/common/Container'
 import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
-import { getComptrollerContract } from '@inverse/util/contracts'
-import { useWeb3React } from '@web3-react/core'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { TEST_IDS } from '@inverse/config/test-ids'
@@ -16,9 +13,9 @@ import { Interests } from '@inverse/types'
 import { getTotalInterests } from '@inverse/util/markets';
 import { AnchorInterests } from './AnchorInterests'
 import { usePrices } from '@inverse/hooks/usePrices'
+import { AnchorClaimModal } from './AnchorClaimModal'
 
 export const AnchorOverview = () => {
-  const { account, library } = useWeb3React<Web3Provider>()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
   const { rewards } = useAnchorRewards()
   const { balances: supplyBalances } = useSupplyBalances()
@@ -26,18 +23,23 @@ export const AnchorOverview = () => {
   const { markets } = useMarkets()
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const invPriceUsd = prices['inverse-finance']?.usd || 0;
   const totalInterestsUsd: Interests = getTotalInterests(markets, supplyBalances, borrowBalances, exchangeRates, invPriceUsd);
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
   const borrowTotal = usdBorrowable + usdBorrow;
-  
+
   // ignore dust
   const borrowLimitPercent = usdBorrow > 0.01 ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
   let badgeColorScheme
   let health
-  if (borrowLimitPercent <= 25) {
+
+  if(usdBorrowable === 0 && usdBorrow > 0) {
+    badgeColorScheme = 'gray'
+    health = 'NO COLLATERAL'
+  } else if (borrowLimitPercent <= 25) {
     badgeColorScheme = 'green'
     health = 'Healthy'
   } else if (borrowLimitPercent <= 75) {
@@ -46,6 +48,10 @@ export const AnchorOverview = () => {
   } else if (borrowLimitPercent > 75) {
     badgeColorScheme = 'red'
     health = 'Dangerous'
+  }
+
+  const handleClaim = () => {
+    onOpen()
   }
 
   return (
@@ -72,7 +78,7 @@ export const AnchorOverview = () => {
           </Flex>
           <StyledButton
             isDisabled={!rewardAmount}
-            onClick={() => getComptrollerContract(library?.getSigner()).claimComp(account)}
+            onClick={handleClaim}
             data-testid={TEST_IDS.anchor.claim}
           >
             Claim
@@ -95,7 +101,7 @@ export const AnchorOverview = () => {
               Borrow Limit
             </Flex>
             <AnimatedInfoTooltip message="Your borrow limit represents the maximum amount that you're allowed to borrow across all tokens. If you reach 100% of your borrow limit, you will get liquidated." />
-            <Text>{`${usdBorrowable ? borrowLimitPercent : 0}%`}</Text>
+            <Text>{`${borrowLimitPercent}%`}</Text>
           </Stack>
           <Flex w="full" h={1} borderRadius={8} bgColor="purple.850">
             <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="purple.400"></Flex>
@@ -113,6 +119,7 @@ export const AnchorOverview = () => {
           </Stack>
         </Stack>
       </Flex>
+      <AnchorClaimModal rewardAmount={rewardAmount} isOpen={isOpen} onClose={onClose} />
     </Container>
   )
 }
