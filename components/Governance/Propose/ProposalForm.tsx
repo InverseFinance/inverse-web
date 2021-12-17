@@ -166,6 +166,8 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         onClose()
     }
 
+    const now = new Date()
+
     const preview: Partial<Proposal> = isFormValid && previewMode ? {
         id: lastProposalId + 1,
         title: form.title,
@@ -173,7 +175,8 @@ export const ProposalForm = ({ lastProposalId = 0 }: { lastProposalId: number })
         functions: getFunctionsFromProposalActions(form.actions),
         proposer: account || '',
         era: GovEra.mills,
-        startTimestamp: Date.now(),
+        startTimestamp: now,
+        endTimestamp: (new Date()).setDate(now.getDate() + 3),
         status: ProposalStatus.active,
     } : {}
 
