@@ -11,11 +11,13 @@ import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@inverse/components/common/Messages';
 
 type Props = {
+    rewardAmount: number,
     isOpen: boolean
     onClose: () => void
 }
 
 export const AnchorClaimModal = ({
+    rewardAmount,
     isOpen,
     onClose,
 }: Props) => {
@@ -52,7 +54,7 @@ export const AnchorClaimModal = ({
             isOpen={isOpen}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
-                    <Text>Claim INV rewards</Text>
+                    <Text>Claim up to {rewardAmount.toFixed(4)} INV rewards</Text>
                 </Stack>
             }
             footer={
@@ -66,7 +68,8 @@ export const AnchorClaimModal = ({
                     <Text mb="4" fontSize="14px">
                         Pools giving INV rewards where you have <b>supplied tokens</b> :
                     </Text>
-                    {checkboxesWithBalance}
+                    { checkboxesWithBalance }
+                    { !checkboxesWithBalance.length ? 'None' : '' }
                     {
                         checkboxesWithoutBalance?.length > 0 &&
                         <>

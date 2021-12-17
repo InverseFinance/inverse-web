@@ -35,7 +35,7 @@ export const AnchorOverview = () => {
   const borrowLimitPercent = usdBorrow > 0.01 ? Math.floor((usdBorrow / (borrowTotal)) * 100) : 0
   let badgeColorScheme
   let health
-  
+
   if(usdBorrowable === 0 && usdBorrow > 0) {
     badgeColorScheme = 'gray'
     health = 'NO COLLATERAL'
@@ -119,7 +119,7 @@ export const AnchorOverview = () => {
           </Stack>
         </Stack>
       </Flex>
-      <AnchorClaimModal isOpen={isOpen} onClose={onClose} />
+      <AnchorClaimModal rewardAmount={rewardAmount} isOpen={isOpen} onClose={onClose} />
     </Container>
   )
 }
