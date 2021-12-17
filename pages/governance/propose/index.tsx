@@ -12,19 +12,19 @@ import { ProposalFormContainer } from '@inverse/components/Governance/Propose/Pr
 import { useRouter } from 'next/dist/client/router'
 
 export const Propose = () => {
-  // const router = useRouter()
-  
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = query?.simAddress || account
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [XINV, 'exchangeRateStored'],
-    [INV, 'getCurrentVotes', account],
-    [XINV, 'getCurrentVotes', account],
+    [INV, 'getCurrentVotes', userAddress],
+    [XINV, 'getCurrentVotes', userAddress],
   ])
 
   const [exchangeRate, currentVotes, currentVotesX] = data || [1, 0, 0];
-  const votingPower = // router?.query?.demo === 'gov' ? 1000 : 
-    parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
+  const votingPower = parseFloat(formatUnits(currentVotes || 0)) + 
+    parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   return (
     <Layout>
