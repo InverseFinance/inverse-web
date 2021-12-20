@@ -12,6 +12,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
+import { GRACE_PERIOD_MS } from '@inverse/config/constants'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -29,6 +30,27 @@ const getDate = (timestamp: moment.MomentInput, addHours = false) => {
   return moment(timestamp, 'x').format(
     `MMM Do${addHours ? ' h:mm a' : ''}, YYYY`
   )
+}
+
+const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false) => {
+  switch (status) {
+    case ProposalStatus.pending:
+      return `Will be opened to votes on ${getDate(start, isDetails)}`
+    case ProposalStatus.active:
+      return `Voting open until ${getDate(end, isDetails)}`
+    case ProposalStatus.succeeded:
+      return `To be queued (will enter a 48h lock period)`
+    case ProposalStatus.queued:
+      const isLockOver = Date.now() >= eta;
+      const text = isLockOver ?
+        `Lock period over - Executable until ${getDate(eta + GRACE_PERIOD_MS, isDetails)}`
+        : `Locked until ${getDate(eta, isDetails)} (${moment(eta).fromNow()})`
+      return text;
+    case ProposalStatus.executed:
+      return getDate(eta)
+    default:
+      return getDate(eta || end || start)
+  }
 }
 
 const StatusBadge = ({ status }: { status: ProposalStatus }) => (
@@ -74,10 +96,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
             <StatusBadge status={status} />
             <EraBadge era={era} id={id} />
             <Text fontSize="13px" color="purple.100" fontWeight="semibold">
-              {
-                status === ProposalStatus.active ? `Voting active between ${getDate(startTimestamp)} - ` : ''
-              }
-              {getDate(etaTimestamp || endTimestamp)}
+              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false)}
             </Text>
           </Stack>
         </Flex>
@@ -130,10 +149,7 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
           <EraBadge era={era} id={id} />
           <Text fontSize="sm">
             {' - '}
-            {
-              status === ProposalStatus.active ? `Voting active between ${getDate(startTimestamp, true)} - ` : ''
-            }
-            {getDate(etaTimestamp || endTimestamp, status === ProposalStatus.active)}
+            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true)}
           </Text>
         </Stack>
       }

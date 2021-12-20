@@ -1,11 +1,10 @@
-import { getMultiDelegatorContract } from './contracts';
+import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
 import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
-import { getINVContract, getGovernanceContract } from '@inverse/util/contracts';
 import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields, ProposalFunction } from '@inverse/types';
-import { CURRENT_ERA } from '@inverse/config/constants';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus } from '@inverse/types';
+import { CURRENT_ERA, GRACE_PERIOD_MS } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -128,7 +127,7 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
                 actions.map(a => a.contractAddress),
-                actions.map(a => parseUnits((a.value||'0').toString())),
+                actions.map(a => parseUnits((a.value || '0').toString())),
                 actions.map(a => a.fragment!.format('sighash')),
                 calldatas,
                 text,
@@ -150,4 +149,43 @@ export const getFunctionFromProposalAction = (action: ProposalFormActionFields):
         callData: getCallData(action),
         signature: action.fragment?.format('sighash') || '',
     }
+}
+
+export const queueProposal = (signer: JsonRpcSigner, era: GovEra, id: number) => {
+    const govContract = getGovernanceContract(signer, era);
+    return govContract.queue(id);
+}
+
+export const executeProposal = (signer: JsonRpcSigner, era: GovEra, id: number) => {
+    const govContract = getGovernanceContract(signer, era);
+    return govContract.execute(id);
+}
+
+export const getProposalStatus = (
+    canceled: boolean,
+    executed: boolean,
+    eta: BigNumber,
+    startBlock: BigNumber,
+    endBlock: BigNumber,
+    blockNumber: number,
+    againstVotes: BigNumber,
+    forVotes: BigNumber,
+    quorumVotes: BigNumber,
+) => {
+    if (canceled) {
+        return ProposalStatus.canceled;
+    } else if (executed) {
+        return ProposalStatus.executed;
+    } else if (blockNumber <= startBlock.toNumber()) {
+        return ProposalStatus.pending;
+    } else if (blockNumber <= endBlock.toNumber()) {
+        return ProposalStatus.active;
+    } else if (forVotes.lte(againstVotes) || forVotes.lte(quorumVotes)) {
+        return ProposalStatus.defeated;
+    } else if (eta.isZero()) {
+        return ProposalStatus.succeeded;
+    } else if (Date.now() >= (eta.toNumber() * 1000) + GRACE_PERIOD_MS) {
+        return ProposalStatus.expired;
+    }
+    return ProposalStatus.queued
 }
