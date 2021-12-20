@@ -6,8 +6,9 @@ import { formatUnits } from "ethers/lib/utils";
 import { getNetworkConfig } from '@inverse/config/networks';
 import { getProvider } from '@inverse/util/providers';
 import { getRedisClient } from '@inverse/util/redis';
-import { GovEra, Delegate, ProposalStatus } from '@inverse/types';
-import { GRACE_PERIOD, PROPOSAL_DURATION } from '@inverse/config/constants';
+import { GovEra, Delegate } from '@inverse/types';
+import { PROPOSAL_DURATION } from '@inverse/config/constants';
+import { getProposalStatus } from '@inverse/util/governance';
 
 const client = getRedisClient();
 
@@ -191,22 +192,7 @@ export default async function handler(req, res) {
 
             const etaTimestamp = eta.toNumber() * 1000
 
-            let status = ProposalStatus.queued;
-            if (canceled) {
-              status = ProposalStatus.canceled;
-            } else if (executed) {
-              status = ProposalStatus.executed;
-            } else if (blockNumber <= startBlock.toNumber()) {
-              status = ProposalStatus.pending;
-            } else if (blockNumber <= endBlock.toNumber()) {
-              status = ProposalStatus.active;
-            } else if (forVotes.lte(againstVotes) || forVotes.lte(quorumVotes)) {
-              status = ProposalStatus.defeated;
-            } else if (eta.isZero()) {
-              status = ProposalStatus.succeeded;
-            } else if (Date.now() >= etaTimestamp + GRACE_PERIOD) {
-              status = ProposalStatus.expired;
-            }
+            let status = getProposalStatus(canceled, executed, eta, startBlock, endBlock, blockNumber, againstVotes, forVotes, quorumVotes)
 
             return {
               id: id.toNumber(),
