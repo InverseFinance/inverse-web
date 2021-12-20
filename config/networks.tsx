@@ -369,7 +369,7 @@ export const getNetworkConfigConstants = (
   const ANCHOR_INVDOLASLP = config.anchor.markets.invdolaslp
   const ANCHOR_DOLA3POOLCRV = config.anchor.markets.dola3poolcrv
   const ANCHOR_FLOKI = config.anchor.markets.floki;
-  const ANCHOR_TOKENS = Object.values(config.anchor.markets);
+  const ANCHOR_TOKENS = Object.values(config.anchor.markets).filter(v => !!v);
 
   const GOVERNANCE = config.governance;
   const GOVERNANCE_ALPHA = config.governanceAlpha;

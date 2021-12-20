@@ -4,6 +4,7 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { BigNumberList, SWR } from '@inverse/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
 
 type Approvals = {
@@ -35,12 +36,13 @@ export const useAllowances = (addresses: string[], target: string): SWR & Approv
   const { account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const userAddress = (query?.simAddress as string) || account;
-  const { data, error } = useEtherSWR(addresses.map(ad => ([ad, 'allowance', userAddress, target])))
+  const filteredAddresses = addresses.filter(ad => !!ad && isAddress(ad));
+  const { data, error } = useEtherSWR(filteredAddresses.map(ad => ([ad, 'allowance', userAddress, target])))
 
   const results: BigNumberList = {};
   
   if(data) {
-    addresses.forEach((ad, i) => results[ad] = data[i])
+    filteredAddresses.forEach((ad, i) => results[ad] = data[i])
   }
 
   return {
