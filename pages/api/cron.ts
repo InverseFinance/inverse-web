@@ -6,21 +6,8 @@ import { formatUnits } from "ethers/lib/utils";
 import { getNetworkConfig } from '@inverse/config/networks';
 import { getProvider } from '@inverse/util/providers';
 import { getRedisClient } from '@inverse/util/redis';
-import { GovEra, Delegate } from '@inverse/types';
-
-const GRACE_PERIOD = 1209600;
-const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
-
-enum ProposalStatus {
-  pending = "Pending",
-  active = "Active",
-  canceled = "Canceled",
-  defeated = "Defeated",
-  succeeded = "Succeeded",
-  queued = "Queued",
-  expired = "Expired",
-  executed = "Executed",
-}
+import { GovEra, Delegate, ProposalStatus } from '@inverse/types';
+import { GRACE_PERIOD, PROPOSAL_DURATION } from '@inverse/config/constants';
 
 const client = getRedisClient();
 
@@ -202,6 +189,8 @@ export default async function handler(req, res) {
             const { args } = proposalsCreated.find(({ args }) => args.id.eq(id));
             const votes = votesCast.filter(({ args }) => args?.proposalId.eq(id));
 
+            const etaTimestamp = eta.toNumber() * 1000
+
             let status = ProposalStatus.queued;
             if (canceled) {
               status = ProposalStatus.canceled;
@@ -215,7 +204,7 @@ export default async function handler(req, res) {
               status = ProposalStatus.defeated;
             } else if (eta.isZero()) {
               status = ProposalStatus.succeeded;
-            } else if (Date.now() >= eta.toNumber() + GRACE_PERIOD) {
+            } else if (Date.now() >= etaTimestamp + GRACE_PERIOD) {
               status = ProposalStatus.expired;
             }
 
@@ -224,7 +213,7 @@ export default async function handler(req, res) {
               proposalNum: id.toNumber() + (era === GovEra.alpha ? 0 : proposalCountAlpha.toNumber()),
               era,
               proposer: proposer,
-              etaTimestamp: eta.toNumber() * 1000,
+              etaTimestamp: etaTimestamp,
               startTimestamp: startBlocks[i].timestamp * 1000,
               endTimestamp: blockNumber > endBlock.toNumber() ? endBlocks[i].timestamp * 1000 : (startBlocks[i].timestamp * 1000) + PROPOSAL_DURATION,
               startBlock: startBlock.toNumber(),
