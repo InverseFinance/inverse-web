@@ -96,12 +96,17 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
   const isEthMarket = asset.token === ANCHOR_ETH;
   const { approvals } = useApprovals()
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
+  const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
 
   useEffect(() => {
-    setIsApproved(isEthMarket || hasAllowance(approvals, asset?.token))
-  }, [approvals, asset])
+    setIsApproved(isEthMarket || freshApprovals[asset?.token] || hasAllowance(approvals, asset?.token))
+  }, [approvals, asset, freshApprovals])
+
+  const handleApproveSuccess = () => {
+    setFreshApprovals({ ...freshApprovals, [asset?.token]: true });
+  }
 
   const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
   const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
@@ -117,7 +122,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
         <Stack w="full" spacing={4}>
           {asset.token === XINV && <XINVEscrowAlert />}
           {!isApproved ? (
-            <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={() => setIsApproved(true)} />
+            <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
           ) : (
             <SubmitButton
               onClick={() => contract.mint(isEthMarket ? { value: amount } : amount)}
@@ -179,7 +184,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
 
     case AnchorOperations.repay:
       return !isApproved ? (
-        <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={() => setIsApproved(true)} />
+        <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
       ) : (
         <SimpleGrid columns={2} spacingX="3" spacingY="1">
           <SubmitButton
