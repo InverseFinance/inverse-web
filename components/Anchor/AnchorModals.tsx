@@ -113,7 +113,7 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
-  const getMaxString = () => (max()).toFixed(asset.underlying.decimals).replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1');
+  const getMaxString = (precision?: number) => (max()).toFixed(precision || asset.underlying.decimals).replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1');
 
   return (
     <Modal
@@ -163,7 +163,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${getMaxString()} ${asset.underlying.symbol}`}
+                {`${getMaxString(8)} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
