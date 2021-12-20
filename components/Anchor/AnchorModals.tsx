@@ -19,6 +19,7 @@ import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { Link } from '@inverse/components/common/Link';
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -135,6 +136,19 @@ export const AnchorModal = ({
       data-testid={`${TEST_IDS.anchor.modal}-${operation}`}
     >
       <Stack p={4} w="full" spacing={4}>
+        {
+          asset.underlying.symbol === 'FLOKI' && <InfoMessage
+            alertProps={{ w: 'full' }}
+            description={
+              <>
+                <Text>Hey <b>Viking</b> ! Any question ? </Text>
+                Check out the
+                <Link ml="1" isExternal href="https://docs.google.com/document/d/1EwbaXqGzcUo1rEhGZ-WvaXYc3b2_RJifAd8KGiONM0A">
+                  Floki-Inverse FAQ
+                </Link>
+              </>
+            } />
+        }
         {
           operations.length > 1 ?
             <NavButtons options={operations} active={operation} onClick={setOperation} />
