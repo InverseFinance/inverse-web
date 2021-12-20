@@ -115,7 +115,7 @@ const rinkebyConfig: NetworkConfig = {
   anchor: {
     lens: '',
     comptroller: '0xa92C7168D0304d8463CA1805E614E4Cd8c476505',
-    oracle: '0x61fBdE4C65E88D8e45B369c8538E06970f046374',
+    oracle: '0x4ff3e3b2d1962fc1386af53216e6ea6f013a420c',
     stabilizer: '',
     treasury: '',
     markets: {
