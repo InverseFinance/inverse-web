@@ -113,6 +113,8 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
+  const getMaxString = () => (max()).toFixed(asset.underlying.decimals).replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1');
+
   return (
     <Modal
       onClose={handleClose}
@@ -161,16 +163,17 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${Math.floor(max() * 1e8) / 1e8} ${asset.underlying.symbol}`}
+                {`${getMaxString()} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
           <BalanceInput
             value={amount}
+            inputProps={{ fontSize: '15px' }}
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
+            onMaxClick={() => setAmount(getMaxString())}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>

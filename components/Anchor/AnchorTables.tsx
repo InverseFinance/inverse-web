@@ -314,12 +314,12 @@ export const AnchorSupply = () => {
     setModalAsset(asset)
     onOpen()
   }
-
+  
   const marketsWithBalance = markets?.map((market) => {
     const { underlying } = market;
     const balance = balances
       ? parseFloat(
-        formatUnits(underlying.address ? balances[underlying.address] : balances.ETH, underlying.decimals)
+        formatUnits(underlying.address ? (balances[underlying.address]||BigNumber.from('0')) : balances.ETH, underlying.decimals)
       )
       : 0
     return { ...market, balance }
