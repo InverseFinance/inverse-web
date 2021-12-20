@@ -230,7 +230,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               <CloseIcon color="red" boxSize={3} />
               <Text fontWeight="semibold">Disconnect</Text>
             </ConnectionMenuItem>
-            {
+            {/* {
               !!chainId && chainId.toString() === NetworkIds.rinkeby ?
                 <>
                   <ConnectionMenuItem
@@ -247,7 +247,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                   </ConnectionMenuItem>
                 </>
                 : null
-            }
+            } */}
           </PopoverBody>
         )}
       </PopoverContent>

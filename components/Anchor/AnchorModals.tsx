@@ -19,6 +19,7 @@ import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { Link } from '@inverse/components/common/Link';
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -112,6 +113,8 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
+  const getMaxString = (precision?: number) => (max()).toFixed(precision || asset.underlying.decimals).replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1');
+
   return (
     <Modal
       onClose={handleClose}
@@ -136,6 +139,19 @@ export const AnchorModal = ({
     >
       <Stack p={4} w="full" spacing={4}>
         {
+          asset.underlying.symbol === 'FLOKI' && <InfoMessage
+            alertProps={{ w: 'full' }}
+            description={
+              <>
+                <Text>Hey <b>Viking</b> ! Any question ? </Text>
+                Check out the
+                <Link ml="1" isExternal href="https://docs.google.com/document/d/1EwbaXqGzcUo1rEhGZ-WvaXYc3b2_RJifAd8KGiONM0A">
+                  Floki-Inverse FAQ
+                </Link>
+              </>
+            } />
+        }
+        {
           operations.length > 1 ?
             <NavButtons options={operations} active={operation} onClick={setOperation} />
             : null
@@ -147,16 +163,17 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${Math.floor(max() * 1e8) / 1e8} ${asset.underlying.symbol}`}
+                {`${getMaxString(8)} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
           <BalanceInput
             value={amount}
+            inputProps={{ fontSize: '15px' }}
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
+            onMaxClick={() => setAmount(getMaxString())}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>

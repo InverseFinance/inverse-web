@@ -45,7 +45,8 @@ export default async function handler(req, res) {
     const provider = getProvider(networkConfig.chainId);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
-    const addresses: string[] = await comptroller.getAllMarkets();
+    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const addresses = allMarkets.filter(address => !!UNDERLYING[address])
 
     const contracts = addresses
       .filter((address: string) => address !== XINV && address !== XINV_V1)
@@ -119,9 +120,9 @@ export default async function handler(req, res) {
       return {
         token: address,
         underlying,
-        supplyApy: supplyApys[i],
-        borrowApy: borrowApys[i],
-        rewardApy: rewardApys[i],
+        supplyApy: supplyApys[i] || 0,
+        borrowApy: borrowApys[i] || 0,
+        rewardApy: rewardApys[i] || 0,
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
         priceUsd: prices[contracts[i].address],
