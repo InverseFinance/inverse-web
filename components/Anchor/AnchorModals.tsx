@@ -145,7 +145,7 @@ export const AnchorModal = ({
               <>
                 <Text>Hey <b>Viking</b> ! Any question ? </Text>
                 Check out the
-                <Link ml="1" isExternal href="https://docs.google.com/document/d/1EwbaXqGzcUo1rEhGZ-WvaXYc3b2_RJifAd8KGiONM0A">
+                <Link ml="1" isExternal href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/floki-faq">
                   Floki-Inverse FAQ
                 </Link>
               </>
