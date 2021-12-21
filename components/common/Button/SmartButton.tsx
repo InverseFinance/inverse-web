@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, ButtonProps } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import { showFailNotif } from '@inverse/util/notify';
 import { handleTx } from '@inverse/util/transactions';
+import { SmartButtonProps } from '@inverse/types';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider, TransactionResponse } from '@ethersproject/providers';
+import { forceQuickAccountRefresh } from '@inverse/util/web3';
 
 /**
  * "Smart" Button :
@@ -9,19 +13,21 @@ import { handleTx } from '@inverse/util/transactions';
  * If it's transaction Promise, we use handleTx to deal with the transaction status and notify the user
  * If there's an error there will be a notification (transaction case or not)
  *  **/
-export const SmartButton = (props: ButtonProps) => {
+export const SmartButton = (props: SmartButtonProps) => {
+    const { deactivate, activate, connector } = useWeb3React<Web3Provider>();
     const [isPending, setIsPending] = useState(false);
     const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
+    const { onSuccess, onFail, onPending, refreshOnSuccess, ...btnProps } = props;
 
     useEffect(() => {
-        setLoadingText(props.loadingText || props?.children);
-    }, [props.loadingText, props.children]);
+        setLoadingText(btnProps.loadingText || btnProps?.children);
+    }, [btnProps.loadingText, btnProps.children]);
 
     // wraps the onClick function given to handle promises/transactions automatically
     const handleClick = async (e: any) => {
-        if (!props.onClick) { return }
+        if (!btnProps.onClick) { return }
 
-        const returnedValueFromClick: any = props.onClick(e);
+        const returnedValueFromClick: any = btnProps.onClick(e);
         if (!returnedValueFromClick) { return }
 
         // click returns a Promise
@@ -33,7 +39,11 @@ export const SmartButton = (props: ButtonProps) => {
                 const promiseResult = await returnedValueFromClick;
                 // it's a TransactionResponse => handle tx status
                 if (promiseResult?.hash) {
-                    await handleTx(promiseResult);
+                    const handleSuccess = (tx: TransactionResponse) => {
+                        if(onSuccess) { onSuccess(tx) }
+                        if(refreshOnSuccess) { forceQuickAccountRefresh(connector, deactivate, activate) }
+                    }
+                    await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
                 }
             } catch (e) {
                 showFailNotif(e)
@@ -46,11 +56,11 @@ export const SmartButton = (props: ButtonProps) => {
     return (
         <Button
             loadingText={loadingText}
-            {...props}
+            {...btnProps}
             // keep after {...props} :
-            disabled={props.disabled || props.isDisabled || isPending}
+            disabled={btnProps.disabled || btnProps.isDisabled || isPending}
             onClick={handleClick}
-            isLoading={props.isLoading || isPending}
+            isLoading={btnProps.isLoading || isPending}
             lineHeight={0}
         />
     )
