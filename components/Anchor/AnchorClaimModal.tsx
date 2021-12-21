@@ -27,7 +27,7 @@ export const AnchorClaimModal = ({
     const [checkedMarkets, setCheckedMarkets] = useState<string[]>([]);
 
     const handleClaim = () => {
-        return claimInvRewards(library?.getSigner()!, checkedMarkets)
+        return claimInvRewards(library?.getSigner()!, checkedMarkets, { onSuccess: () => onClose() })
     }
 
     const handleCheck = (marketAddresses: string[]) => {
@@ -58,7 +58,7 @@ export const AnchorClaimModal = ({
                 </Stack>
             }
             footer={
-                <SubmitButton disabled={isDisabled} onClick={handleClaim}>
+                <SubmitButton disabled={isDisabled} onClick={handleClaim} refreshOnSuccess={true}>
                     Claim
                 </SubmitButton>
             }
