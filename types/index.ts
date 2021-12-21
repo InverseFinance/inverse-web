@@ -1,7 +1,8 @@
 import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
-import { UseToastOptions, ComponentWithAs, InputProps, BoxProps } from '@chakra-ui/react';
+import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
+import { HandleTxOptions } from '@inverse/util/transactions';
 
 export interface Token {
   address: string
@@ -280,3 +281,5 @@ export enum ProposalTemplates {
   anchorsetCompSpeed = 'anchorsetCompSpeed',
   anchorOracleFeed = 'anchorOracleFeed',
 }
+
+export type SmartButtonProps = ButtonProps & Partial<HandleTxOptions> & { refreshOnSuccess?: boolean }

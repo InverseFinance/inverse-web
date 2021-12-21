@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Divider, Flex, Text } from '@chakra-ui/react'
+import { Box, Divider, Flex, Text, useMediaQuery } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import Container from '@inverse/components/common/Container'
@@ -8,7 +8,7 @@ import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
 import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
-import { namedAddress } from '@inverse/util'
+import { namedAddress, shortenAddress } from '@inverse/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
@@ -33,6 +33,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
+  const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
   const { INV, XINV } = getNetworkConfigConstants(chainId)
 
   const { data } = useEtherSWR([
@@ -72,7 +73,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   return (
     <Container
       label={namedAddress(address, chainId, ensName)}
-      description={address}
+      description={isLargerThan780 ? address : shortenAddress(address)}
       href={`https://etherscan.io/address/${address}`}
       image={<Avatar boxSize={12} address={address} />}
       right={rank && <Text fontWeight="medium" fontSize="sm" color="purple.200">{`Rank ${rank}`}</Text>}

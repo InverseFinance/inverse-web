@@ -3,14 +3,14 @@ import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus } from '@inverse/types';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds } from '@inverse/types';
 import { CURRENT_ERA, GRACE_PERIOD_MS } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!signer || !delegatee) { resolve('') }
-            const chainId = signer?.provider?.network?.chainId;
+            const chainId = NetworkIds.mainnet;
             const account = await signer.getAddress();
             const invContract = getINVContract(signer);
 

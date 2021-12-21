@@ -23,6 +23,7 @@ import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { getBalanceInInv, getMonthlyRate, getParsedBalance } from '@inverse/util/markets'
+import { forceQuickAccountRefresh } from '@inverse/util/web3'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -111,7 +112,7 @@ const getColumn = (
 }
 
 export const AnchorSupplied = () => {
-  const { chainId, library } = useWeb3React<Web3Provider>()
+  const { chainId, library, deactivate, activate, connector } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
@@ -171,12 +172,12 @@ export const AnchorSupplied = () => {
                 if (!double) {
                   setDouble(true)
                   try {
-                    const contract = getComptrollerContract(library?.getSigner())
-                    if (isCollateral) {
-                      await handleTx(await contract.exitMarket(token))
-                    } else {
-                      await handleTx(await contract.enterMarkets([token]))
-                    }
+                    const contract = getComptrollerContract(library?.getSigner());
+                    const method = isCollateral ? 'exitMarket' : 'enterMarkets';
+                    const target = isCollateral ? token : [token];
+                    await handleTx(await contract[method](target), {
+                      onSuccess: () => forceQuickAccountRefresh(connector, deactivate, activate)
+                    })
                   } catch (e) {
                     showFailNotif(e, true);
                   } finally {
@@ -314,12 +315,12 @@ export const AnchorSupply = () => {
     setModalAsset(asset)
     onOpen()
   }
-  
+
   const marketsWithBalance = markets?.map((market) => {
     const { underlying } = market;
     const balance = balances
       ? parseFloat(
-        formatUnits(underlying.address ? (balances[underlying.address]||BigNumber.from('0')) : balances.ETH, underlying.decimals)
+        formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.ETH, underlying.decimals)
       )
       : 0
     return { ...market, balance }

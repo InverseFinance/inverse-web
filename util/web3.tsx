@@ -9,6 +9,7 @@ import localforage from 'localforage';
 import { BigNumberList, Token } from '@inverse/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@inverse/config/abis'
+import { AbstractConnector } from '@web3-react/abstract-connector'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -170,4 +171,16 @@ export const getTokenBalance = async (token: Token, signer: JsonRpcSigner) => {
 export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner) => {
   const bnBalance = await getTokenBalance(token, signer);
   return parseFloat(formatUnits(bnBalance, token.decimals));
+}
+
+export const forceQuickAccountRefresh = (
+  connector: AbstractConnector | undefined,
+  deactivate: () => void,
+  activate: (c: InjectedConnector, onError?: () => void) => Promise<void>,
+  onActivateError?: () => void,
+) => {
+  const isViaInjected = connector instanceof InjectedConnector;
+  if (!isViaInjected) { return }
+  deactivate()
+  activate(injectedConnector, onActivateError)
 }

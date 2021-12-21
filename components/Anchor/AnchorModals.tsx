@@ -120,7 +120,7 @@ export const AnchorModal = ({
       onClose={handleClose}
       isOpen={isOpen}
       header={
-        <Stack minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
+        <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
           <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
           <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
@@ -145,7 +145,7 @@ export const AnchorModal = ({
               <>
                 <Text>Hey <b>Viking</b> ! Any question ? </Text>
                 Check out the
-                <Link ml="1" isExternal href="https://docs.google.com/document/d/1EwbaXqGzcUo1rEhGZ-WvaXYc3b2_RJifAd8KGiONM0A">
+                <Link ml="1" isExternal href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/floki-faq">
                   Floki-Inverse FAQ
                 </Link>
               </>

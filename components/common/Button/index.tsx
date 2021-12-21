@@ -3,6 +3,7 @@ import NextLink from 'next/link'
 import { getNetwork } from '@inverse/config/networks';
 import { NetworkItem } from '@inverse/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
+import { SmartButtonProps } from '@inverse/types';
 
 export const LinkButton = ({
   children,
@@ -49,7 +50,7 @@ export const LinkOutlineButton = ({
   <LinkButton children={children} href={href} target={target} isOutline={true} {...props} />
 )
 
-export const StyledButton = (props: ButtonProps) => (
+export const StyledButton = (props: SmartButtonProps) => (
   <SmartButton
     bgColor="purple.500"
     cursor={props.onClick ? 'pointer' : ''}
@@ -107,7 +108,7 @@ export const OutlineButton = (props: any) => (
   />
 )
 
-export const SubmitButton = (props: ButtonProps) => {
+export const SubmitButton = (props: SmartButtonProps) => {
   return (
     <SmartButton
       w="full"

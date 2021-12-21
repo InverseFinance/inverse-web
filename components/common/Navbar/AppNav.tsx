@@ -28,6 +28,7 @@ import { NetworkIds } from '@inverse/types'
 import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
+import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
 
 const NAV_ITEMS = [
   {
@@ -94,29 +95,43 @@ const INVBalance = () => {
     [XINV, 'balanceOf', account],
     [XINV, 'exchangeRateStored'],
   ])
+  const [formattedBalance, setFormattedBalance] = useState('')
 
-  if (!data) {
+  useDualSpeedEffect(() => {
+    setFormattedBalance(account ? formatData(data) : '')
+  }, [data, account], !account, 1000)
+
+  const formatData = (data: [number, number, number] | undefined) => {
+    const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
+    const inv = invBalance / ETH_MANTISSA
+    const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
+    return `${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`
+  }
+
+  if(!formattedBalance) {
     return <></>
   }
 
-  const [invBalance, xinvBalance, exchangeRate] = data
-  const inv = invBalance / ETH_MANTISSA
-  const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
-
   return (
-    <NavBadge>{`${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`}</NavBadge>
+    <NavBadge>{formattedBalance}</NavBadge>
   )
 }
 
 const ETHBalance = () => {
   const { account } = useWeb3React<Web3Provider>()
   const { data: balance } = useEtherSWR(['getBalance', account, 'latest'])
+  const [formattedBalance, setFormattedBalance] = useState('')
 
-  if (!balance) {
+  useDualSpeedEffect(() => {
+    setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
+  }, [balance, account], !account, 1000)
+
+  if(!formattedBalance) {
     return <></>
   }
+
   return (
-    <NavBadge>{`${(balance / ETH_MANTISSA).toFixed(4)} ETH`}</NavBadge>
+    <NavBadge>{`${formattedBalance} ETH`}</NavBadge>
   )
 }
 
@@ -135,9 +150,14 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const [isOpen, setIsOpen] = useState(false)
+  const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
   const { addressName } = useNamedAddress(account, chainId)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
+
+  useDualSpeedEffect(() => {
+    setConnectBtnLabel(active && account ? addressName : 'Connect')
+  }, [active, account, addressName], !account, 1000)
 
   const disconnect = () => {
     close()
@@ -192,7 +212,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           _hover={{ bgColor: 'purple.600' }}
           data-testid={TEST_IDS.connectBtn}
         >
-          {active && account ? addressName : 'Connect'}
+          {connectBtnLabel}
         </Flex>
       </PopoverTrigger>
       <PopoverContent
