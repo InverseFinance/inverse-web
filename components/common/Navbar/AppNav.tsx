@@ -98,7 +98,7 @@ const INVBalance = () => {
   const [formattedBalance, setFormattedBalance] = useState('')
 
   useDualSpeedEffect(() => {
-    setFormattedBalance(formatData(data))
+    setFormattedBalance(account ? formatData(data) : '')
   }, [data, account], !account, 1000)
 
   const formatData = (data: [number, number, number] | undefined) => {
@@ -123,7 +123,7 @@ const ETHBalance = () => {
   const [formattedBalance, setFormattedBalance] = useState('')
 
   useDualSpeedEffect(() => {
-    setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '0.0')
+    setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
   }, [balance, account], !account, 1000)
 
   if(!formattedBalance) {
