@@ -43,6 +43,7 @@ export const AnchorPoolInfo = ({
     invPriceUsd,
     isReward = false,
     isBalance = false,
+    underlyingSymbol = '',
     textProps,
 }: {
     type: 'supply' | 'borrow',
@@ -53,6 +54,7 @@ export const AnchorPoolInfo = ({
     invPriceUsd?: number,
     isReward?: boolean,
     isBalance?: boolean,
+    underlyingSymbol?: string,
     textProps?: TextProps,
 }) => {
     const needTooltip = (!!monthlyValue && monthlyValue > 0) || (isBalance && !!value && value > 0);
@@ -63,10 +65,15 @@ export const AnchorPoolInfo = ({
     const bestPriceRef = invPriceUsd && (isReward || symbol === 'INV') ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
+    
+    const label = (symbol === 'FLOKI' || underlyingSymbol === 'FLOKI') && !value && !isBalance ?
+        'NEW!'
+        :
+        (value ? `${value.toFixed(2)}` : '0.00')+suffix
 
     return (
         <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5}>
-            {value ? `${value.toFixed(2)}` : '0.00'}{suffix}
+            {label}
             {
                 needTooltip && bestPriceRef ?
                     <InfoTooltip

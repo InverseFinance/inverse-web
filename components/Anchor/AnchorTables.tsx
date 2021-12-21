@@ -63,8 +63,8 @@ const getColumn = (
       label: 'Reward APY',
       tooltip: <><Text fontWeight="bold">APY rewarded in INV token</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
-      value: ({ rewardApy, monthlyInvRewards, priceUsd }: Market) => (
-        <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} isReward={true} monthlyValue={monthlyInvRewards} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+      value: ({ rewardApy, monthlyInvRewards, priceUsd, underlying }: Market) => (
+        <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     balance: {

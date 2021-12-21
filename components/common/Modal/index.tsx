@@ -18,8 +18,9 @@ export type ModalProps = {
 }
 
 export const Modal = ({ isOpen, onClose, header, children, footer, ...props }: ModalProps) => {
-  const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
-  const scrollBehavior = isLargerThan780 ? 'outside' : 'inside';
+  const [isLargerThan] = useMediaQuery('(min-width: 1200px)')
+  const scrollBehavior = isLargerThan ? 'outside' : 'inside';
+  const footerBorderProps = isLargerThan ? {} : { borderTopWidth: 2, borderTopColor: 'purple.850' }
   return (
     <ChakraModal onClose={onClose} isOpen={isOpen} isCentered scrollBehavior={scrollBehavior}>
       <ModalOverlay />
@@ -29,7 +30,9 @@ export const Modal = ({ isOpen, onClose, header, children, footer, ...props }: M
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody p={0}>{children}</ModalBody>
-        {footer && <ModalFooter>{footer}</ModalFooter>}
+        {footer && <ModalFooter {...footerBorderProps}>
+          {footer}
+        </ModalFooter>}
       </ModalContent>
     </ChakraModal>
   )
