@@ -126,6 +126,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           ) : (
             <SubmitButton
               onClick={() => contract.mint(isEthMarket ? { value: amount } : amount)}
+              refreshOnSuccess={true}
               isDisabled={isDisabled}
             >
               Supply
@@ -157,6 +158,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           <SimpleGrid columns={2} spacingX="3" spacingY="1">
             <SubmitButton
               onClick={() => contract.redeemUnderlying(amount)}
+              refreshOnSuccess={true}
               isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
             >
               Withdraw
@@ -166,6 +168,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
                 const bn = await contract.balanceOf(account);
                 return contract.redeem(bn);
               }}
+              refreshOnSuccess={true}
               isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
               rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind.' />}
             >
@@ -177,7 +180,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
 
     case AnchorOperations.borrow:
       return (
-        <SubmitButton onClick={() => contract.borrow(amount)} isDisabled={isDisabled}>
+        <SubmitButton onClick={() => contract.borrow(amount)} refreshOnSuccess={true} isDisabled={isDisabled}>
           Borrow
         </SubmitButton>
       )
@@ -190,6 +193,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           <SubmitButton
             isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
             onClick={() => contract.repayBorrow(isEthMarket ? { value: amount } : amount)}
+            refreshOnSuccess={true}
           >
             Repay
           </SubmitButton>
@@ -197,6 +201,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
           <SubmitButton
             isDisabled={!borrowBalances || isEthMarket || !parseFloat(formatUnits(borrowBalances[asset.token]))}
             onClick={() => contract.repayBorrow(constants.MaxUint256)}
+            refreshOnSuccess={true}
             rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt and avoid "debt dust" being left behind.' />}
           >
             Repay ALL
