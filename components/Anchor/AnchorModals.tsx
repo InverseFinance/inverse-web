@@ -113,7 +113,7 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
-  const getMaxString = (precision?: number) => (max()).toFixed(precision || asset.underlying.decimals).replace(/(\.[0-9]*[1-9])0+$|\.0*$/,'$1');
+  const getMaxString = (precision?: number) => (max()).toFixed(precision || asset.underlying.decimals);
 
   return (
     <Modal
