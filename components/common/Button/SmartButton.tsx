@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@chakra-ui/react'
 import { showFailNotif } from '@inverse/util/notify';
 import { handleTx } from '@inverse/util/transactions';
@@ -18,6 +18,13 @@ export const SmartButton = (props: SmartButtonProps) => {
     const [isPending, setIsPending] = useState(false);
     const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
     const { onSuccess, onFail, onPending, refreshOnSuccess, ...btnProps } = props;
+    const isMountedRef = useRef(true)
+
+    useEffect(() => {
+        return () => {
+            isMountedRef.current = false
+        }
+    }, [])
 
     useEffect(() => {
         setLoadingText(btnProps.loadingText || btnProps?.children);
@@ -48,7 +55,7 @@ export const SmartButton = (props: SmartButtonProps) => {
             } catch (e) {
                 showFailNotif(e)
             }
-
+            if(!isMountedRef.current) { return }
             setIsPending(false);
         }
     }
