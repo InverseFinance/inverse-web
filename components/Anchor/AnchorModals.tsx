@@ -143,10 +143,10 @@ export const AnchorModal = ({
             alertProps={{ w: 'full' }}
             description={
               <>
-                <Text>Hey <b>Viking</b> ! Any question ? </Text>
+                <Text>Hey <b>Viking</b>! Any questions? </Text>
                 Check out the
                 <Link ml="1" isExternal href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/floki-faq">
-                  Floki-Inverse FAQ
+                  Floki x Inverse FAQ
                 </Link>
               </>
             } />
