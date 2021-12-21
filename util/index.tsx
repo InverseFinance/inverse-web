@@ -25,5 +25,9 @@ export const namedAddress = (address: string, chainId?: string | number, ensName
     return NAMED_ADDRESSES[address]
   }
 
-  return ensName || `${address.substr(0, 6)}...${address.substr(address.length - 4)}`
+  return ensName || shortenAddress(address)
+}
+
+export const shortenAddress = (address: string) => {
+  return `${address.substr(0, 6)}...${address.substr(address.length - 4)}`
 }
