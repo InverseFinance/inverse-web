@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(chainId, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-floki`;
 
   try {
     const {
@@ -33,10 +33,11 @@ export default async function handler(req, res) {
       ANCHOR_ETH,
       ANCHOR_WBTC,
       COMPTROLLER,
+      ANCHOR_FLOKI,
     } = getNetworkConfigConstants(networkConfig);
 
     // 5min
-    const validCache = await getCacheFromRedis(cacheKey, true, 300);
+    const validCache = await getCacheFromRedis(cacheKey, true, 60);
     if(validCache) {
       res.status(200).json(validCache);
       return
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const allMarkets: string[] = [...await comptroller.getAllMarkets()];
     const addresses = allMarkets.filter(address => !!UNDERLYING[address])
-
+    addresses.push(ANCHOR_FLOKI)
     const contracts = addresses
       .filter((address: string) => address !== XINV && address !== XINV_V1)
       .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
