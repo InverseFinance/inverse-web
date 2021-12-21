@@ -26,8 +26,13 @@ export const AnchorClaimModal = ({
     const { balances: supplyBalances, isLoading: balancesLoading } = useSupplyBalances()
     const [checkedMarkets, setCheckedMarkets] = useState<string[]>([]);
 
+    const close = () => {
+        onClose()
+        setCheckedMarkets([])
+    }
+
     const handleClaim = () => {
-        return claimInvRewards(library?.getSigner()!, checkedMarkets, { onSuccess: () => onClose() })
+        return claimInvRewards(library?.getSigner()!, checkedMarkets, { onSuccess: () => close() })
     }
 
     const handleCheck = (marketAddresses: string[]) => {
@@ -50,7 +55,7 @@ export const AnchorClaimModal = ({
 
     return (
         <Modal
-            onClose={onClose}
+            onClose={close}
             isOpen={isOpen}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
