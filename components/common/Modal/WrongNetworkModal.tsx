@@ -13,6 +13,7 @@ export type WrongNetworkModalProps = {
 const WrongNetworkModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
 
     const networkListItems = getSupportedNetworks()
+        .filter(n => !n.isTestnet)
         .map((network) => {
             return <ListItem key={network.id}>
                 <NetworkButton chainId={network.id} onClick={() => switchWalletNetwork(network.id, onClose)} />
@@ -30,7 +31,7 @@ const WrongNetworkModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
                 </Stack>
             }
         >
-            <Stack p={'5'} height={150} overflowY="auto">
+            <Stack p={'5'} minH={150} overflowY="auto">
                 <Text>Please switch to a supported Network :</Text>
                 <UnorderedList pl="10" pt="2" spacing="2">
                     {networkListItems}
