@@ -66,10 +66,7 @@ export const AnchorPoolInfo = ({
 
     const suffix = isBalance ? '' : '%'
     
-    const label = (symbol === 'FLOKI' || underlyingSymbol === 'FLOKI') && !value && !isBalance ?
-        'NEW!'
-        :
-        (value ? `${value.toFixed(2)}` : '0.00')+suffix
+    const label = (value ? `${value.toFixed(2)}` : '0.00')+suffix
 
     return (
         <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5}>

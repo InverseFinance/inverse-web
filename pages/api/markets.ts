@@ -31,7 +31,6 @@ export default async function handler(req, res) {
       XINV,
       ORACLE,
       ANCHOR_ETH,
-      ANCHOR_WBTC,
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
@@ -128,13 +127,13 @@ export default async function handler(req, res) {
         priceUsd: prices[contracts[i].address],
         priceXinv: prices[contracts[i].address] / prices[XINV],
         liquidity: parseFloat(
-          formatUnits(cashes[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+          formatUnits(cashes[i], underlying.decimals)
         ),
         totalReserves: parseFloat(
-          formatUnits(totalReserves[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+          formatUnits(totalReserves[i], underlying.decimals)
         ),
         totalBorrows: parseFloat(
-          formatUnits(totalBorrows[i], contracts[i].address === ANCHOR_WBTC ? 8 : 18)
+          formatUnits(totalBorrows[i], underlying.decimals)
         ),
         collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
         reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
