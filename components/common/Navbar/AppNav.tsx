@@ -206,13 +206,15 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           borderRadius={4}
           fontWeight="semibold"
           color="#fff"
+          gap={2}
           p={2.5}
           pl={4}
           pr={4}
           _hover={{ bgColor: 'purple.600' }}
           data-testid={TEST_IDS.connectBtn}
         >
-          {connectBtnLabel}
+          {account && <Davatar size={20} address={account as string} generatedAvatarType="jazzicon" />}
+          <div>{connectBtnLabel}</div>
         </Flex>
       </PopoverTrigger>
       <PopoverContent
