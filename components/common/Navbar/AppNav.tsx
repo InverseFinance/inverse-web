@@ -1,4 +1,4 @@
-import { CloseIcon } from '@chakra-ui/icons'
+import { CloseIcon, SearchIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -30,6 +30,7 @@ import { TEST_IDS } from '@inverse/config/test-ids'
 import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
+import { showToast } from '@inverse/util/notify'
 
 const NAV_ITEMS = [
   {
@@ -109,7 +110,7 @@ const INVBalance = () => {
     return `${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`
   }
 
-  if(!formattedBalance) {
+  if (!formattedBalance) {
     return <></>
   }
 
@@ -127,7 +128,7 @@ const ETHBalance = () => {
     setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
   }, [balance, account], !account, 1000)
 
-  if(!formattedBalance) {
+  if (!formattedBalance) {
     return <></>
   }
 
@@ -279,14 +280,26 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 }
 
 export const AppNav = ({ active }: { active?: string }) => {
+  const { query } = useRouter()
   const [showMobileNav, setShowMobileNav] = useState(false)
   const [showWrongNetModal, setShowWrongNetModal] = useState(false)
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
-  
+
   const showWrongNetworkModal = () => setShowWrongNetModal(true)
-  
+
+  useEffect(() => {
+    if (query?.simAddress) {
+      showToast({
+        status: 'info',
+        title: 'Account Simulation Mode',
+        description: <>Viewing As <b>{query?.simAddress}</b></>,
+        duration: 15000,
+      })
+    }
+  }, [query])
+
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
       activate(injectedConnector);
@@ -303,7 +316,7 @@ export const AppNav = ({ active }: { active?: string }) => {
 
   // badgeChainId exists if user is connected or there is an injected provider present like metamask
   useEffect(() => {
-    if(!badgeChainId) { return }
+    if (!badgeChainId) { return }
 
     const isSupported = isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
