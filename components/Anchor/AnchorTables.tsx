@@ -1,4 +1,4 @@
-import { Flex, Stack, Switch, Text, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
 import Container from '@inverse/components/common/Container'
@@ -162,33 +162,33 @@ export const AnchorSupplied = () => {
       field: 'isCollateral',
       label: 'Collateral',
       tooltip: 'If enabled, your asset will be used as collateral to increase your borrow limit. Collaterals can be liquidated if the borrow limit reaches 100%.',
-      header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} display={{ base: 'none', sm: 'flex' }} {...props} />,
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
       value: ({ token, isCollateral }: Market) => {
         return (
-          <Flex justify="flex-end" minWidth={24} display={{ base: 'none', md: 'flex' }}>
-            <Flex
-              onClick={async (e: React.MouseEvent<HTMLElement>) => {
-                e.stopPropagation()
-                if (!double) {
-                  setDouble(true)
-                  try {
-                    const contract = getComptrollerContract(library?.getSigner());
-                    const method = isCollateral ? 'exitMarket' : 'enterMarkets';
-                    const target = isCollateral ? token : [token];
-                    await handleTx(await contract[method](target), {
-                      onSuccess: () => forceQuickAccountRefresh(connector, deactivate, activate)
-                    })
-                  } catch (e) {
-                    showFailNotif(e, true);
-                  } finally {
-                    setDouble(false)
-                  }
+          <Stack minWidth={24} direction="row" align="center"
+            onClick={async (e: React.MouseEvent<HTMLElement>) => {
+              e.stopPropagation()
+              if (!double) {
+                setDouble(true)
+                try {
+                  const contract = getComptrollerContract(library?.getSigner());
+                  const method = isCollateral ? 'exitMarket' : 'enterMarkets';
+                  const target = isCollateral ? token : [token];
+                  await handleTx(await contract[method](target), {
+                    onSuccess: () => forceQuickAccountRefresh(connector, deactivate, activate)
+                  })
+                } catch (e) {
+                  showFailNotif(e, true);
+                } finally {
+                  setDouble(false)
                 }
-              }}
-            >
+              }
+            }}
+          >
+            <FormControl w='full' justifyContent="flex-end" display='flex' alignItems='center'>
               <Switch size="sm" colorScheme="purple" isChecked={!!isCollateral} />
-            </Flex>
-          </Flex>
+            </FormControl>
+          </Stack>
         )
       },
     },
