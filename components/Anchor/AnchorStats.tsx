@@ -6,6 +6,7 @@ import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market, AnchorOperations } from '@inverse/types'
 import { BigNumber } from 'ethers'
 import { commify, formatUnits } from 'ethers/lib/utils'
+import { shortenNumber } from '@inverse/util/markets';
 
 type Stat = {
   label: string
@@ -76,7 +77,7 @@ const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
       stats={[
         {
           label: 'Available Liquidity',
-          value: `${asset.liquidity.toFixed(2)} ${asset.underlying.symbol}`,
+          value: `${shortenNumber(asset.liquidity, 2)} ${asset.underlying.symbol}`,
         },
       ]}
     />
@@ -165,7 +166,7 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
         },
         {
           label: 'Available Liquidity',
-          value: `${asset.liquidity.toFixed(2)} ${asset.underlying.symbol}`,
+          value: `${shortenNumber(asset.liquidity, 2)} ${asset.underlying.symbol}`,
         },
       ]}
     />
