@@ -16,19 +16,26 @@ import Link from '@inverse/components/common/Link'
 import Logo from '@inverse/components/common/Logo'
 import { ETH_MANTISSA } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ethereumReady, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector } from '@inverse/util/web3'
+import {
+  ethereumReady,
+  injectedConnector,
+  setIsPreviouslyConnected,
+  setPreviousChainId,
+  walletConnectConnector,
+} from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '@inverse/components/common/Announcement'
 import WrongNetworkModal from '@inverse/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
-import { isPreviouslyConnected } from '@inverse/util/web3';
+import { isPreviouslyConnected } from '@inverse/util/web3'
 import { NetworkItem } from '@inverse/components/common/NetworkItem'
 import { NetworkIds } from '@inverse/types'
 import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
+import Davatar from '@davatar/react'
 
 const NAV_ITEMS = [
   {
@@ -70,18 +77,20 @@ const NavBadge = (props: any) => (
 const NetworkBadge = ({
   chainId,
   isWrongNetwork,
-  showWrongNetworkModal
+  showWrongNetworkModal,
 }: {
-  chainId?: string | number,
-  isWrongNetwork: boolean,
+  chainId?: string | number
+  isWrongNetwork: boolean
   showWrongNetworkModal: () => void
 }) => {
-  const network = getNetwork(chainId || '');
-  const bgColor = network?.bgColor || 'purple.800';
+  const network = getNetwork(chainId || '')
+  const bgColor = network?.bgColor || 'purple.800'
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
-      onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bgColor={bgColor}>
+      onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
+      bgColor={bgColor}
+    >
       <NetworkItem chainId={chainId} />
     </NavBadge>
   )
@@ -89,7 +98,7 @@ const NetworkBadge = ({
 
 const INVBalance = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const { INV, XINV } = getNetworkConfigConstants(chainId);
+  const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [INV, 'balanceOf', account],
     [XINV, 'balanceOf', account],
@@ -97,9 +106,14 @@ const INVBalance = () => {
   ])
   const [formattedBalance, setFormattedBalance] = useState('')
 
-  useDualSpeedEffect(() => {
-    setFormattedBalance(account ? formatData(data) : '')
-  }, [data, account], !account, 1000)
+  useDualSpeedEffect(
+    () => {
+      setFormattedBalance(account ? formatData(data) : '')
+    },
+    [data, account],
+    !account,
+    1000
+  )
 
   const formatData = (data: [number, number, number] | undefined) => {
     const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
@@ -108,13 +122,11 @@ const INVBalance = () => {
     return `${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`
   }
 
-  if(!formattedBalance) {
+  if (!formattedBalance) {
     return <></>
   }
 
-  return (
-    <NavBadge>{formattedBalance}</NavBadge>
-  )
+  return <NavBadge>{formattedBalance}</NavBadge>
 }
 
 const ETHBalance = () => {
@@ -122,32 +134,33 @@ const ETHBalance = () => {
   const { data: balance } = useEtherSWR(['getBalance', account, 'latest'])
   const [formattedBalance, setFormattedBalance] = useState('')
 
-  useDualSpeedEffect(() => {
-    setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
-  }, [balance, account], !account, 1000)
+  useDualSpeedEffect(
+    () => {
+      setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
+    },
+    [balance, account],
+    !account,
+    1000
+  )
 
-  if(!formattedBalance) {
+  if (!formattedBalance) {
     return <></>
   }
 
-  return (
-    <NavBadge>{`${formattedBalance} ETH`}</NavBadge>
-  )
+  return <NavBadge>{`${formattedBalance} ETH`}</NavBadge>
 }
 
 const ConnectionMenuItem = ({ ...props }: StackProps) => {
-  return <Stack
-    direction="row"
-    align="center"
-    p={4}
-    pt={2}
-    pb={2}
-    _hover={{ bgColor: 'purple.850' }}
-    {...props}
-  />
+  return <Stack direction="row" align="center" p={4} pt={2} pb={2} _hover={{ bgColor: 'purple.850' }} {...props} />
 }
 
-const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
+const AppNavConnect = ({
+  isWrongNetwork,
+  showWrongNetworkModal,
+}: {
+  isWrongNetwork: boolean
+  showWrongNetworkModal: () => void
+}) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
@@ -155,15 +168,20 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
 
-  useDualSpeedEffect(() => {
-    setConnectBtnLabel(active && account ? addressName : 'Connect')
-  }, [active, account, addressName], !account, 1000)
+  useDualSpeedEffect(
+    () => {
+      setConnectBtnLabel(active && account ? addressName : 'Connect')
+    },
+    [active, account, addressName],
+    !account,
+    1000
+  )
 
   const disconnect = () => {
     close()
     // visually better
     setTimeout(() => {
-      setIsPreviouslyConnected(false);
+      setIsPreviouslyConnected(false)
       deactivate()
     }, 100)
   }
@@ -171,13 +189,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const connectMetamask = () => {
     if (isWrongNetwork) {
       disconnect()
-      showWrongNetworkModal();
+      showWrongNetworkModal()
     } else {
       close()
       // visually better
       setTimeout(() => {
         activate(injectedConnector)
-        setIsPreviouslyConnected(true);
+        setIsPreviouslyConnected(true)
       }, 100)
     }
   }
@@ -194,8 +212,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   }
 
   return (
-    <Popover onClose={close} onOpen={open} isOpen={isOpen} placement="bottom"
-      trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
+    <Popover
+      onClose={close}
+      onOpen={open}
+      isOpen={isOpen}
+      placement="bottom"
+      trigger={useBreakpointValue({ base: 'click', md: 'hover' })}
+    >
       <PopoverTrigger>
         <Flex
           justify="center"
@@ -203,6 +226,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           cursor="pointer"
           fontSize="sm"
           align="center"
+          gap={2}
           borderRadius={4}
           fontWeight="semibold"
           color="#fff"
@@ -212,7 +236,8 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           _hover={{ bgColor: 'purple.600' }}
           data-testid={TEST_IDS.connectBtn}
         >
-          {connectBtnLabel}
+          {account && <Davatar size={20} address={account as string} generatedAvatarType="jazzicon" />}
+          <div>{connectBtnLabel}</div>
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -227,15 +252,11 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         {!active && (
           <PopoverBody p={0}>
             <Stack w="full">
-              <ConnectionMenuItem
-                onClick={connectMetamask}
-              >
+              <ConnectionMenuItem onClick={connectMetamask}>
                 <Image w={6} h={6} src="/assets/wallets/Metamask.png" />
                 <Text fontWeight="semibold">Metamask</Text>
               </ConnectionMenuItem>
-              <ConnectionMenuItem
-                onClick={connectWalletConnect}
-              >
+              <ConnectionMenuItem onClick={connectWalletConnect}>
                 <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
                 <Text fontWeight="semibold">WalletConnect</Text>
               </ConnectionMenuItem>
@@ -244,9 +265,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         )}
         {active && (
           <PopoverBody p={0}>
-            <ConnectionMenuItem
-              onClick={disconnect}
-            >
+            <ConnectionMenuItem onClick={disconnect}>
               <CloseIcon color="red" boxSize={3} />
               <Text fontWeight="semibold">Disconnect</Text>
             </ConnectionMenuItem>
@@ -281,61 +300,66 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
-  
+
   const showWrongNetworkModal = () => setShowWrongNetModal(true)
-  
+
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
-      activate(injectedConnector);
-      setTimeout(() => activate(injectedConnector), 500);
+      activate(injectedConnector)
+      setTimeout(() => activate(injectedConnector), 500)
     }
-  }, [walletActive]);
+  }, [walletActive])
 
   // chainId exists only if user is connected
   useEffect(() => {
-    if (!chainId) { return }
-    setPreviousChainId(chainId);
-    setBadgeChainId(chainId);
-  }, [chainId]);
+    if (!chainId) {
+      return
+    }
+    setPreviousChainId(chainId)
+    setBadgeChainId(chainId)
+  }, [chainId])
 
   // badgeChainId exists if user is connected or there is an injected provider present like metamask
   useEffect(() => {
-    if(!badgeChainId) { return }
+    if (!badgeChainId) {
+      return
+    }
 
-    const isSupported = isSupportedNetwork(badgeChainId);
+    const isSupported = isSupportedNetwork(badgeChainId)
     setIsUsupportedNetwork(!isSupported)
-    setShowWrongNetModal(!isSupported);
+    setShowWrongNetModal(!isSupported)
 
     if (!isSupported) {
-      setIsPreviouslyConnected(false);
-      deactivate();
+      setIsPreviouslyConnected(false)
+      deactivate()
     }
-  }, [badgeChainId]);
+  }, [badgeChainId])
 
   useEffect(() => {
     // we can know the injected provider's network and show the badge even if the user is not connected to our app
     const init = async () => {
-      const isReady = await ethereumReady(10000);
-      if (!isReady) { return }
+      const isReady = await ethereumReady(10000)
+      if (!isReady) {
+        return
+      }
       // use chainId not networkVersion
-      const chainIdInWallet = parseInt(window?.ethereum?.chainId, 16);
-      if (!chainIdInWallet) { return }
+      const chainIdInWallet = parseInt(window?.ethereum?.chainId, 16)
+      if (!chainIdInWallet) {
+        return
+      }
 
-      setBadgeChainId(chainIdInWallet);
+      setBadgeChainId(chainIdInWallet)
 
       if (window?.ethereum) {
-        window?.ethereum?.on('chainChanged', () => window.location.reload());
+        window?.ethereum?.on('chainChanged', () => window.location.reload())
       }
     }
-    init();
-  }, []);
+    init()
+  }, [])
 
   return (
     <>
-      <WrongNetworkModal
-        isOpen={showWrongNetModal}
-        onClose={() => setShowWrongNetModal(false)}
-      />
+      <WrongNetworkModal isOpen={showWrongNetModal} onClose={() => setShowWrongNetModal(false)} />
       <Flex
         w="full"
         backgroundColor="purple.900"
@@ -377,11 +401,13 @@ export const AppNav = ({ active }: { active?: string }) => {
         <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
           <INVBalance />
           <ETHBalance />
-          {
-            badgeChainId ?
-              <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={showWrongNetworkModal} />
-              : null
-          }
+          {badgeChainId ? (
+            <NetworkBadge
+              isWrongNetwork={isUnsupportedNetwork}
+              chainId={badgeChainId}
+              showWrongNetworkModal={showWrongNetworkModal}
+            />
+          ) : null}
           <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={showWrongNetworkModal} />
         </Stack>
       </Flex>
