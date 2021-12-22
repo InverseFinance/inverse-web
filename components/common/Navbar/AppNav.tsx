@@ -29,6 +29,7 @@ import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
+import { useRouter } from 'next/dist/client/router'
 
 const NAV_ITEMS = [
   {
@@ -149,15 +150,17 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.simAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
-  const { addressName } = useNamedAddress(account, chainId)
+  const { addressName } = useNamedAddress(userAddress, chainId)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
 
   useDualSpeedEffect(() => {
-    setConnectBtnLabel(active && account ? addressName : 'Connect')
-  }, [active, account, addressName], !account, 1000)
+    setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
+  }, [active, userAddress, addressName], !userAddress, 1000)
 
   const disconnect = () => {
     close()
