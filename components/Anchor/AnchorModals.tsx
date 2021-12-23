@@ -114,8 +114,6 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
-  const getMaxString = (precision?: number) => (max()).toFixed(precision || asset.underlying.decimals);
-
   return (
     <Modal
       onClose={handleClose}
@@ -174,7 +172,7 @@ export const AnchorModal = ({
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount(getMaxString())}
+            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>
