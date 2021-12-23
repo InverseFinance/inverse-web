@@ -129,7 +129,7 @@ export const AnchorModal = ({
           <AnchorButton
             operation={operation}
             asset={asset}
-            amount={amount && !isNaN(amount as any) && asset?.underlying?.decimals ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+            amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
             isDisabled={!amount || !active || isNaN(amount as any) || parseFloat(amount) > max()}
           />
         </Box>
@@ -162,7 +162,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${shortenNumber(max(), 4)} ${asset.underlying.symbol}`}
+                {`${shortenNumber(max(), (amount.startsWith('0') ? 4 : 2))} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
@@ -172,7 +172,7 @@ export const AnchorModal = ({
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
+            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toFixed(8))}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>
