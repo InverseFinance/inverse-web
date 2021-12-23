@@ -24,6 +24,8 @@ const AutocompleteListItem = (props: ListItemProps) => {
             transitionTimingFunction="ease"
             _hover={{ bgColor: 'info' }}
             overflow="hidden"
+            minW="full"
+            width="max-content"
             {...props}
         />
     )
@@ -193,6 +195,7 @@ export const Autocomplete = ({
                         borderRadius="5"
                         maxH="200px"
                         overflowY="auto"
+                        overflowX="hidden"
                         boxShadow="0 0 2px 1px #aaaaaa"
                     >
                         {
