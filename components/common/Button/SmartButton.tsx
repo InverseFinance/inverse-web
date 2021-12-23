@@ -40,12 +40,12 @@ export const SmartButton = (props: SmartButtonProps) => {
 
         // click returns a Promise
         if (returnedValueFromClick?.then) {
-            if (query?.simAddress) {
+            if (query?.viewAddress) {
                 showToast({
                     duration: null,
                     status: 'error',
-                    title: 'Warning: Simulated Account',
-                    description: "You're using your wallet but are seeing the simulated account data, please cancel transaction",
+                    title: 'Warning: Viewing Another Address',
+                    description: "You're using your wallet but are seeing another's account data! We strongly recommend to cancel the transaction",
                 })
             }
             // when pending disable btn and show loader in btn

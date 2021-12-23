@@ -10,7 +10,7 @@ import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAut
 import { AutocompleteItem } from '@inverse/types';
 import { useTopDelegates } from '@inverse/hooks/useDelegates';
 import { namedAddress } from '@inverse/util';
-import { SearchIcon } from '@chakra-ui/icons';
+import { ViewIcon } from '@chakra-ui/icons';
 
 type Props = {
     isOpen: boolean
@@ -36,11 +36,11 @@ export const ViewAsModal = ({
     }, [delegates, addressList])
 
     useEffect(() => {
-        if (query?.simAddress) { setAddress(query?.simAddress as string) }
+        if (query?.viewAddress) { setAddress(query?.viewAddress as string) }
     }, [query])
 
     const handleViewAs = () => {
-        window.location.search = '?simAddress=' + address
+        window.location.search = '?viewAddress=' + address
     }
 
     return (
@@ -50,7 +50,7 @@ export const ViewAsModal = ({
             scrollBehavior={'outside'}
             header={
                 <Stack minWidth={24} direction="row" align="center">
-                    <SearchIcon color="blue.600" />
+                    <ViewIcon color="blue.600" />
                     <Text>View Address</Text>
                 </Stack>
             }

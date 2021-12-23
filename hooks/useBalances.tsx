@@ -15,7 +15,7 @@ type Balances = {
 export const useBalances = (addresses: string[], method = 'balanceOf'): SWR & Balances => {
   const { account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
 
   const { data, error } = useEtherSWR(
     addresses.map((address) => (address ? [address, method, userAddress] : ['getBalance', userAddress, 'latest']))

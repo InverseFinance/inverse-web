@@ -25,7 +25,7 @@ const proposalCompletionMethods: any = {
 export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const { active, account, chainId, library } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const govAddress = getGovernanceAddress(proposal.era, chainId);
   const { data } = useEtherSWR([govAddress, 'getReceipt', proposal?.id, userAddress]);

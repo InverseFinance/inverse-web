@@ -9,9 +9,9 @@ export const Link = (props: any) => {
 
   const urlParamsToKeepWhenChangingPage = ((q) => {
     if(!q) { return {} }
-    const { simAddress } = q;
+    const { viewAddress } = q;
     const params: any = {}
-    if(simAddress) { params['simAddress'] = simAddress }
+    if(viewAddress) { params['viewAddress'] = viewAddress }
     return params
   })(query);
 

@@ -1,4 +1,4 @@
-import { CloseIcon, SearchIcon } from '@chakra-ui/icons'
+import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -33,6 +33,7 @@ import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
 import { showToast } from '@inverse/util/notify'
 import { ViewAsModal } from './ViewAsModal'
+import { getEnsName, namedAddress } from '@inverse/util'
 
 const NAV_ITEMS = [
   {
@@ -154,7 +155,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
   const { addressName } = useNamedAddress(userAddress, chainId)
@@ -266,14 +267,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
             <ConnectionMenuItem
               onClick={onViewAsOpen}
             >
-              <SearchIcon color="blue.600" boxSize={3} />
+              <ViewIcon color="blue.600" boxSize={3} />
               <Text fontWeight="semibold">View Address</Text>
             </ConnectionMenuItem>
             {
-              query?.simAddress && <ConnectionMenuItem
-                onClick={() => window.location.search = '?'}
+              query?.viewAddress && <ConnectionMenuItem
+                onClick={() => window.location.search = ''}
               >
-                <CloseIcon color="blue.600" boxSize={3} />
+                <ViewOffIcon color="blue.600" boxSize={3} />
                 <Text fontWeight="semibold">Clear View Address</Text>
               </ConnectionMenuItem>
             }
@@ -312,14 +313,19 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [badgeChainId, setBadgeChainId] = useState(chainId)
 
   useEffect(() => {
-    if (query?.simAddress) {
-      showToast({
-        status: 'info',
-        title: 'Viewing Address:',
-        description: query?.simAddress,
-        duration: 15000,
-      })
+    const init = async () => {
+      if (query?.viewAddress) {
+        const address = query?.viewAddress as string
+        const ens = await getEnsName(address);
+        showToast({
+          status: 'info',
+          title: 'Viewing Address:',
+          description: `${namedAddress(address)}${ens ? ` (${ens})`: ''}`,
+          duration: 15000,
+        })
+      }
     }
+    init()
   }, [query])
 
   useEffect(() => {

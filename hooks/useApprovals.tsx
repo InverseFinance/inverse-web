@@ -14,7 +14,7 @@ type Approvals = {
 export const useApprovals = (): SWR & Approvals => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { UNDERLYING } = getNetworkConfigConstants(chainId)
   const tokens = Object.entries(UNDERLYING).filter(([_, { address }]) => address)
 
@@ -35,7 +35,7 @@ export const useApprovals = (): SWR & Approvals => {
 export const useAllowances = (addresses: string[], target: string): SWR & Approvals => {
   const { account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const filteredAddresses = addresses.filter(ad => !!ad && isAddress(ad));
   const { data, error } = useEtherSWR(filteredAddresses.map(ad => ([ad, 'allowance', userAddress, target])))
 
@@ -61,7 +61,7 @@ export const useStabilizerApprovals = (): SWR & Approvals => {
 export const useVaultApprovals = (): SWR & Approvals => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { DAI, USDC, VAULT_DAI_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_USDC_ETH } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([
     [DAI, 'allowance', userAddress, VAULT_DAI_ETH],
