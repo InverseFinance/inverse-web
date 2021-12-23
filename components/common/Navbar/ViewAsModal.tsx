@@ -62,8 +62,9 @@ export const ViewAsModal = ({
         >
             <Stack p={'5'}>
                 <AddressAutocomplete
-                    title="Top 100 Delegates"
+                    title={!addressList.length ? 'Loading...' : 'Top 100 Delegates'}
                     autoSort={false}
+                    defaultValue={address}
                     placeholder="Paste an Address or Choose an example from the list"
                     list={addressList}
                     inputProps={{ isInvalid: !!address && !isAddress(address) }}
