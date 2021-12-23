@@ -1,8 +1,19 @@
-import { Flex, Image } from '@chakra-ui/react'
-import makeBlockie from 'ethereum-blockies-base64'
+import { Box, BoxProps } from '@chakra-ui/react'
+import Davatar, { DavatarProps } from '@davatar/react';
 
-export const Avatar = ({ address, boxSize }: { address: string; boxSize: number }) => (
-  <Flex h={boxSize} w={boxSize}>
-    <Image borderRadius={64} src={makeBlockie(address)} />
-  </Flex>
+export const Avatar = ({
+  address,
+  defaultAvatar = 'blockies',
+  boxSize = '20px',
+  avatarSize = 20,
+  ...boxProps
+}: {
+  address: string,
+  boxSize?: number | string,
+  avatarSize?: DavatarProps["size"],
+  defaultAvatar?: 'blockies' | 'jazzicon',
+} & Partial<BoxProps>) => (
+  <Box boxSize={boxSize} {...boxProps}>
+    <Davatar size={avatarSize} address={address} generatedAvatarType={defaultAvatar} />
+  </Box>
 )

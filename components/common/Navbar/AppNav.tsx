@@ -34,6 +34,7 @@ import { useRouter } from 'next/dist/client/router'
 import { showToast } from '@inverse/util/notify'
 import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@inverse/util'
+import { Avatar } from '@inverse/components/common/Avatar';
 
 const NAV_ITEMS = [
   {
@@ -224,9 +225,11 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           pl={4}
           pr={4}
           _hover={{ bgColor: 'purple.600' }}
+          alignItems="center"
           data-testid={TEST_IDS.connectBtn}
         >
-          {connectBtnLabel}
+          {userAddress && <Avatar boxSize={'20px'} avatarSize={20} address={userAddress} />}
+          <Text ml="2">{connectBtnLabel}</Text>
         </Flex>
       </PopoverTrigger>
       <PopoverContent

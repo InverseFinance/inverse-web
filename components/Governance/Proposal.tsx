@@ -160,7 +160,7 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
             Details
           </Text>
           <Stack direction="row" align="center">
-            <Avatar address={proposer} boxSize={5} />
+            <Avatar address={proposer} boxSize={'20px'} avatarSize={20} />
             <Link fontSize="sm" href={`https://etherscan.io/address/${proposer}`}>
               {namedAddress(proposer, chainId)}
             </Link>

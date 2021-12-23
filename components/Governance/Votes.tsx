@@ -36,7 +36,7 @@ const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => {
         <NextLink key={voter} href={`/governance/delegates/${voter}`} passHref>
           <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
             <Stack direction="row" align="center">
-              <Avatar address={voter} boxSize={7} />
+              <Avatar address={voter} boxSize={'28px'} avatarSize={28} />
               <Text fontSize="sm" fontWeight="semibold">
                 {namedAddress(voter, chainId)}
               </Text>

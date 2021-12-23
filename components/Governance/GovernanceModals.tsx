@@ -65,7 +65,7 @@ export const VoteCountModal = ({ isOpen, onClose, proposal, voteType }: VoteCoun
             key={voter}
           >
             <Stack direction="row" align="center">
-              <Avatar address={voter} boxSize={7} />
+              <Avatar address={voter} boxSize={'28px'} avatarSize={28} />
               <Text fontSize="sm" fontWeight="semibold">
                 {namedAddress(voter, chainId)}
               </Text>
