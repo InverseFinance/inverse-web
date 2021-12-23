@@ -81,6 +81,7 @@ const mainnetConfig: NetworkConfig = {
     '0x08D816526BdC9d077DD685Bd9FA49F58A5Ab8e48': 'Kiwi',
     '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'Oracle',
     '0x4dCf7407AE5C07f8681e1659f626E114A7667339': 'Comptroller',
+    '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'BasedXeno',
   },
 }
 
