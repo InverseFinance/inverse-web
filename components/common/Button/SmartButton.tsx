@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@chakra-ui/react'
-import { showFailNotif, showToast } from '@inverse/util/notify';
+import { showFailNotif } from '@inverse/util/notify';
 import { handleTx } from '@inverse/util/transactions';
 import { SmartButtonProps } from '@inverse/types';
 import { useWeb3React } from '@web3-react/core';
@@ -41,12 +41,8 @@ export const SmartButton = (props: SmartButtonProps) => {
         // click returns a Promise
         if (returnedValueFromClick?.then) {
             if (query?.viewAddress) {
-                showToast({
-                    duration: null,
-                    status: 'error',
-                    title: 'Warning: Viewing Another Address',
-                    description: "You're using your wallet but are seeing another's account data! We strongly recommend to cancel the transaction",
-                })
+                alert("You're in View Address Mode: we are returning you to normal mode for safety");
+                window.location.search = '';
             }
             // when pending disable btn and show loader in btn
             setIsPending(true);
