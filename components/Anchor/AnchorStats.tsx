@@ -211,6 +211,12 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + (change < 0 ? change : 0)
 
+  const newBorrowLimit = (newBorrowable !== 0
+    ? (newBorrow / newBorrowable) * 100
+    : 0
+  )
+  const newBorrowLimitLabel = newBorrowLimit > 100 || newBorrowLimit < 0 ? '+100' : newBorrowLimit.toFixed(2)
+
   return (
     <StatBlock
       label="Borrow Limit Stats"
@@ -221,10 +227,9 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
         },
         {
           label: 'Borrow Limit Used',
-          value: `${(borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)}% -> ${(newBorrowable !== 0
-            ? (newBorrow / newBorrowable) * 100
-            : 0
-          ).toFixed(2)}%`,
+          value: <Text color={newBorrowLimit > 75 || newBorrowLimit < 0 ? 'red.500' : newBorrowLimit <= 75 && newBorrowLimit > 50 ? 'orange.500' : 'white'}>
+            {(borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)}% -> {newBorrowLimitLabel}%
+          </Text>,
         },
       ]}
     />

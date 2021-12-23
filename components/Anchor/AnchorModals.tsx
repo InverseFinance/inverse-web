@@ -162,7 +162,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${shortenNumber(max())} ${asset.underlying.symbol}`}
+                {`${shortenNumber(max(), 4)} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
