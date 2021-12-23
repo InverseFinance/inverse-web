@@ -70,7 +70,7 @@ export const dollarify = (value: number, precision = 2, showPlusSign = false): s
     return '$';
 }
 
-export const shortenNumber = (value: number, precision = 2) => {
+export const shortenNumber = (value: number, precision = 2, isDollar = false) => {
     if(!value) { return (0).toFixed(precision) }
     let suffix = ''
     const dividers: { [key: string]: number } = { 'k': 1000, 'M': 1000000, 'B': 1000000000, 'T': 1000000000000 };
@@ -79,7 +79,9 @@ export const shortenNumber = (value: number, precision = 2) => {
     else if(value >= 1000000) { suffix = 'M' }
     else if(value >= 1000) { suffix = 'k' }
     const divider: number = dividers[suffix] || 1
-    return `${(value/divider).toFixed(precision)}${suffix}`
+    const shortValue = value/divider;
+    const numResult = isDollar ? dollarify(shortValue, precision) : shortValue.toFixed(precision)
+    return `${numResult}${suffix}`
 }
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
