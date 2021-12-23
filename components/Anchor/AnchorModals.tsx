@@ -129,7 +129,7 @@ export const AnchorModal = ({
           <AnchorButton
             operation={operation}
             asset={asset}
-            amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+            amount={amount && !isNaN(amount as any) && asset?.underlying?.decimals ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
             isDisabled={!amount || !active || isNaN(amount as any) || parseFloat(amount) > max()}
           />
         </Box>
