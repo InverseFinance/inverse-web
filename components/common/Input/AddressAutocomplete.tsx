@@ -13,13 +13,12 @@ export const AddressAutocomplete = ({
     title = 'Known Addresses :',
     placeholder = '0x... or select an item from the list',
     list,
+    ...props
 }: AddressAutocompleteProps) => {
     const { PROPOSAL_AUTOCOMPLETE_ADDRESSES } = getNetworkConfigConstants(NetworkIds.mainnet)
 
     const addressesList = list || Object.entries(PROPOSAL_AUTOCOMPLETE_ADDRESSES)
         .map(([ad, name]) => ({ value: ad, label: name }));
-
-    addressesList.sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1)
 
     return (
         <Autocomplete
@@ -29,6 +28,7 @@ export const AddressAutocomplete = ({
             list={addressesList}
             title={title}
             placeholder={placeholder}
+            {...props}
         />
     )
 }

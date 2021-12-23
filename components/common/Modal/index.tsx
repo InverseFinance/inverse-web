@@ -6,6 +6,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  ModalProps as ChakraModalProps,
   useMediaQuery,
 } from '@chakra-ui/react'
 
@@ -15,14 +16,14 @@ export type ModalProps = {
   header?: React.ReactNode
   children?: React.ReactNode
   footer?: React.ReactNode
-}
+} & Partial<ChakraModalProps>
 
-export const Modal = ({ isOpen, onClose, header, children, footer, ...props }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, header, children, footer, scrollBehavior, ...props }: ModalProps) => {
   const [isLargerThan] = useMediaQuery('(min-width: 1200px)')
-  const scrollBehavior = isLargerThan ? 'outside' : 'inside';
+  const _scrollBehavior = scrollBehavior || (isLargerThan ? 'outside' : 'inside');
   const footerBorderProps = isLargerThan ? {} : { borderTopWidth: 2, borderTopColor: 'purple.850' }
   return (
-    <ChakraModal onClose={onClose} isOpen={isOpen} isCentered scrollBehavior={scrollBehavior}>
+    <ChakraModal onClose={onClose} isOpen={isOpen} isCentered scrollBehavior={_scrollBehavior}>
       <ModalOverlay />
       <ModalContent m={{ base: 4, sm: 32 }} backgroundColor="purple.800" color="#fff"  {...props}>
         <ModalHeader borderBottomWidth={2} borderBottomColor="purple.850">

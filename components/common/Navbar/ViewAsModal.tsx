@@ -5,8 +5,12 @@ import { SubmitButton } from '@inverse/components/common/Button';
 import { useRouter } from 'next/dist/client/router';
 import { useEffect } from 'react';
 import { isAddress } from 'ethers/lib/utils';
-import { Input } from '../Input';
-import { InfoMessage } from '../Messages';
+import { InfoMessage } from '@inverse/components/common/Messages';
+import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
+import { AutocompleteItem } from '@inverse/types';
+import { useTopDelegates } from '@inverse/hooks/useDelegates';
+import { namedAddress } from '@inverse/util';
+import { SearchIcon } from '@chakra-ui/icons';
 
 type Props = {
     isOpen: boolean
@@ -19,33 +23,53 @@ export const ViewAsModal = ({
 }: Props) => {
     const { query } = useRouter()
     const [address, setAddress] = useState<string>('');
+    const [addressList, setAddressList] = useState<AutocompleteItem[]>([]);
+    const { delegates } = useTopDelegates();
+
+    useEffect(() => {
+        if (!delegates || !delegates.length || addressList.length) { return }
+        setAddressList(
+            delegates
+                .slice(0, 100)
+                .map((d, i) => ({ value: d.address, label: `#${i + 1} ${namedAddress(d.address)}` }))
+        )
+    }, [delegates, addressList])
 
     useEffect(() => {
         if (query?.simAddress) { setAddress(query?.simAddress as string) }
     }, [query])
 
     const handleViewAs = () => {
-        window.location.search = '?simAddress='+address
+        window.location.search = '?simAddress=' + address
     }
 
     return (
         <Modal
             onClose={onClose}
             isOpen={isOpen}
+            scrollBehavior={'outside'}
             header={
-                <Stack minWidth={24} direction="row" align="center" >
-                    <Text>View as another Address</Text>
+                <Stack minWidth={24} direction="row" align="center">
+                    <SearchIcon color="blue.600" />
+                    <Text>View Address</Text>
                 </Stack>
             }
             footer={
                 <SubmitButton disabled={!address || !isAddress(address)} onClick={handleViewAs}>
-                    VIEW AS
+                    VIEW ADDRESS
                 </SubmitButton>
             }
         >
-            <Stack p={'5'} overflowY="auto">
-                <Input fontSize="14px" textAlign="left" placeholder="0x..." value={address} onChange={(e: any) => setAddress(e.target.value)} />
-                <InfoMessage description="Consult Inverse Finance through the eyes of another account" />
+            <Stack p={'5'}>
+                <AddressAutocomplete
+                    title="Top 100 Delegates"
+                    autoSort={false}
+                    placeholder="Paste an Address or Choose an example from the list"
+                    list={addressList}
+                    inputProps={{ isInvalid: !!address && !isAddress(address) }}
+                    onItemSelect={(item?: AutocompleteItem) => setAddress(item?.value || '')}
+                />
+                <InfoMessage alertProps={{ fontSize: '14px', w: 'full' }} description="You will be able to view live data for this address" />
             </Stack>
         </Modal>
     )

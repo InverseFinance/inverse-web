@@ -203,10 +203,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   return (
     <Popover onClose={close} onOpen={open} isOpen={isOpen} placement="bottom"
       trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
-      <ViewAsModal
-        isOpen={isViewAsOpen}
-        onClose={onViewAsClose}
-      />
+      {
+        isViewAsOpen && <ViewAsModal
+          isOpen={isViewAsOpen}
+          onClose={onViewAsClose}
+        />
+      }
       <PopoverTrigger>
         <Flex
           justify="center"
@@ -269,7 +271,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
             </ConnectionMenuItem>
             {
               query?.simAddress && <ConnectionMenuItem
-                onClick={() => window.location.search = '?' }
+                onClick={() => window.location.search = '?'}
               >
                 <CloseIcon color="blue.600" boxSize={3} />
                 <Text fontWeight="semibold">Clear View Address</Text>
@@ -340,7 +342,7 @@ export const AppNav = ({ active }: { active?: string }) => {
 
     const isSupported = isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
-    if(!isSupported) { onWrongNetOpen() }
+    if (!isSupported) { onWrongNetOpen() }
     else { onWrongNetClose() }
 
     if (!isSupported) {
