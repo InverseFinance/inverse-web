@@ -26,7 +26,7 @@ export const useMarkets = (): SWR & Markets => {
 export const useAccountMarkets = (): SWR & Markets => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { COMPTROLLER } = getNetworkConfigConstants(chainId)
 
   const { markets } = useMarkets()

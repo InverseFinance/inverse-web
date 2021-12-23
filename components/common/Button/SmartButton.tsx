@@ -6,6 +6,7 @@ import { SmartButtonProps } from '@inverse/types';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider, TransactionResponse } from '@ethersproject/providers';
 import { forceQuickAccountRefresh } from '@inverse/util/web3';
+import { useRouter } from 'next/dist/client/router';
 
 /**
  * "Smart" Button :
@@ -15,6 +16,7 @@ import { forceQuickAccountRefresh } from '@inverse/util/web3';
  *  **/
 export const SmartButton = (props: SmartButtonProps) => {
     const { deactivate, activate, connector } = useWeb3React<Web3Provider>();
+    const { query } = useRouter();
     const [isPending, setIsPending] = useState(false);
     const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
     const { onSuccess, onFail, onPending, refreshOnSuccess, ...btnProps } = props;
@@ -33,12 +35,15 @@ export const SmartButton = (props: SmartButtonProps) => {
     // wraps the onClick function given to handle promises/transactions automatically
     const handleClick = async (e: any) => {
         if (!btnProps.onClick) { return }
-
         const returnedValueFromClick: any = btnProps.onClick(e);
         if (!returnedValueFromClick) { return }
 
         // click returns a Promise
         if (returnedValueFromClick?.then) {
+            if (query?.viewAddress) {
+                alert("You're in View Address Mode: we are returning you to normal mode for safety");
+                window.location.search = '';
+            }
             // when pending disable btn and show loader in btn
             setIsPending(true);
 
@@ -47,15 +52,15 @@ export const SmartButton = (props: SmartButtonProps) => {
                 // it's a TransactionResponse => handle tx status
                 if (promiseResult?.hash) {
                     const handleSuccess = (tx: TransactionResponse) => {
-                        if(onSuccess) { onSuccess(tx) }
-                        if(refreshOnSuccess) { forceQuickAccountRefresh(connector, deactivate, activate) }
+                        if (onSuccess) { onSuccess(tx) }
+                        if (refreshOnSuccess) { forceQuickAccountRefresh(connector, deactivate, activate) }
                     }
                     await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
                 }
             } catch (e) {
                 showFailNotif(e)
             }
-            if(!isMountedRef.current) { return }
+            if (!isMountedRef.current) { return }
             setIsPending(false);
         }
     }

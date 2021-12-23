@@ -1,4 +1,4 @@
-import { CloseIcon } from '@chakra-ui/icons'
+import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -9,6 +9,7 @@ import {
   PopoverBody,
   Text,
   StackProps,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -29,6 +30,10 @@ import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
+import { useRouter } from 'next/dist/client/router'
+import { showToast } from '@inverse/util/notify'
+import { ViewAsModal } from './ViewAsModal'
+import { getEnsName, namedAddress } from '@inverse/util'
 
 const NAV_ITEMS = [
   {
@@ -108,7 +113,7 @@ const INVBalance = () => {
     return `${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`
   }
 
-  if(!formattedBalance) {
+  if (!formattedBalance) {
     return <></>
   }
 
@@ -126,7 +131,7 @@ const ETHBalance = () => {
     setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
   }, [balance, account], !account, 1000)
 
-  if(!formattedBalance) {
+  if (!formattedBalance) {
     return <></>
   }
 
@@ -149,15 +154,18 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
+  const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
-  const { addressName } = useNamedAddress(account, chainId)
+  const { addressName } = useNamedAddress(userAddress, chainId)
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
+  const { isOpen: isViewAsOpen, onOpen: onViewAsOpen, onClose: onViewAsClose } = useDisclosure()
 
   useDualSpeedEffect(() => {
-    setConnectBtnLabel(active && account ? addressName : 'Connect')
-  }, [active, account, addressName], !account, 1000)
+    setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
+  }, [active, userAddress, addressName], !userAddress, 1000)
 
   const disconnect = () => {
     close()
@@ -196,6 +204,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   return (
     <Popover onClose={close} onOpen={open} isOpen={isOpen} placement="bottom"
       trigger={useBreakpointValue({ base: 'click', md: 'hover' })}>
+      {
+        isViewAsOpen && <ViewAsModal
+          isOpen={isViewAsOpen}
+          onClose={onViewAsClose}
+        />
+      }
       <PopoverTrigger>
         <Flex
           justify="center"
@@ -250,6 +264,20 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               <CloseIcon color="red" boxSize={3} />
               <Text fontWeight="semibold">Disconnect</Text>
             </ConnectionMenuItem>
+            <ConnectionMenuItem
+              onClick={onViewAsOpen}
+            >
+              <ViewIcon color="blue.600" boxSize={3} />
+              <Text fontWeight="semibold">View Address</Text>
+            </ConnectionMenuItem>
+            {
+              query?.viewAddress && <ConnectionMenuItem
+                onClick={() => window.location.search = ''}
+              >
+                <ViewOffIcon color="blue.600" boxSize={3} />
+                <Text fontWeight="semibold">Clear View Address</Text>
+              </ConnectionMenuItem>
+            }
             {/* {
               !!chainId && chainId.toString() === NetworkIds.rinkeby ?
                 <>
@@ -276,14 +304,30 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 }
 
 export const AppNav = ({ active }: { active?: string }) => {
+  const { query } = useRouter()
   const [showMobileNav, setShowMobileNav] = useState(false)
-  const [showWrongNetModal, setShowWrongNetModal] = useState(false)
+  const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
+
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
-  
-  const showWrongNetworkModal = () => setShowWrongNetModal(true)
-  
+
+  useEffect(() => {
+    const init = async () => {
+      if (query?.viewAddress) {
+        const address = query?.viewAddress as string
+        const ens = await getEnsName(address);
+        showToast({
+          status: 'info',
+          title: 'Viewing Address:',
+          description: `${namedAddress(address)}${ens ? ` (${ens})`: ''}`,
+          duration: 15000,
+        })
+      }
+    }
+    init()
+  }, [query])
+
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
       activate(injectedConnector);
@@ -300,11 +344,12 @@ export const AppNav = ({ active }: { active?: string }) => {
 
   // badgeChainId exists if user is connected or there is an injected provider present like metamask
   useEffect(() => {
-    if(!badgeChainId) { return }
+    if (!badgeChainId) { return }
 
     const isSupported = isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
-    setShowWrongNetModal(!isSupported);
+    if (!isSupported) { onWrongNetOpen() }
+    else { onWrongNetClose() }
 
     if (!isSupported) {
       setIsPreviouslyConnected(false);
@@ -333,8 +378,8 @@ export const AppNav = ({ active }: { active?: string }) => {
   return (
     <>
       <WrongNetworkModal
-        isOpen={showWrongNetModal}
-        onClose={() => setShowWrongNetModal(false)}
+        isOpen={isWrongNetOpen}
+        onClose={onWrongNetClose}
       />
       <Flex
         w="full"
@@ -365,7 +410,7 @@ export const AppNav = ({ active }: { active?: string }) => {
           </Stack>
         </Stack>
         <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
-          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={showWrongNetworkModal} />
+          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
         </Stack>
         <Flex display={{ base: 'flex', lg: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
@@ -379,10 +424,10 @@ export const AppNav = ({ active }: { active?: string }) => {
           <ETHBalance />
           {
             badgeChainId ?
-              <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={showWrongNetworkModal} />
+              <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
               : null
           }
-          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={showWrongNetworkModal} />
+          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
         </Stack>
       </Flex>
       {showMobileNav && (

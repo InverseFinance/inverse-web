@@ -1,6 +1,6 @@
 import { InfoTooltip } from '@inverse/components/common/Tooltip';
 import { Text, TextProps } from '@chakra-ui/react';
-import { dollarify } from '@inverse/util/markets';
+import { dollarify, shortenNumber } from '@inverse/util/markets';
 import { capitalize } from '@inverse/util/misc';
 
 const BalanceTooltipContent = ({ value, priceUsd }: { value: number, priceUsd: number }) => {
@@ -65,8 +65,7 @@ export const AnchorPoolInfo = ({
     const bestPriceRef = invPriceUsd && (isReward || symbol === 'INV') ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
-    
-    const label = (value ? `${value.toFixed(2)}` : '0.00')+suffix
+    const label = (value ? `${isBalance ? shortenNumber(value, 2) : value.toFixed(2)}` : '0.00')+suffix
 
     return (
         <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5}>

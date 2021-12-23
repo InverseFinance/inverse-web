@@ -20,7 +20,7 @@ type AccountLiquidity = {
 export const useAccountLiquidity = (): SWR & AccountLiquidity => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { COMPTROLLER, UNDERLYING } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', userAddress])
   const { isLoading: marketsIsLoading } = useMarkets()

@@ -24,6 +24,7 @@ import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { getBalanceInInv, getMonthlyRate, getParsedBalance } from '@inverse/util/markets'
 import { forceQuickAccountRefresh } from '@inverse/util/web3'
+import { useRouter } from 'next/dist/client/router'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -113,6 +114,7 @@ const getColumn = (
 
 export const AnchorSupplied = () => {
   const { chainId, library, deactivate, activate, connector } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
@@ -170,6 +172,10 @@ export const AnchorSupplied = () => {
               e.stopPropagation()
               if (!double) {
                 setDouble(true)
+                if (query?.viewAddress) {
+                  alert("You're in View Address Mode: we are returning you to normal mode for safety");
+                  window.location.search = '';
+                }
                 try {
                   const contract = getComptrollerContract(library?.getSigner());
                   const method = isCollateral ? 'exitMarket' : 'enterMarkets';

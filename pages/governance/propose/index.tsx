@@ -14,7 +14,7 @@ import { useRouter } from 'next/dist/client/router'
 export const Propose = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = query?.simAddress || account
+  const userAddress = query?.viewAddress || account
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [XINV, 'exchangeRateStored'],

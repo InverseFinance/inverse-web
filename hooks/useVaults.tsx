@@ -33,7 +33,7 @@ export const useVaultRates = (): SWR & Rates => {
 export const useVaultRewards = (): SWR & Rewards => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { VAULT_TOKENS } = getNetworkConfigConstants(chainId)
 
   const { data, error } = useEtherSWR(VAULT_TOKENS.map((address: string) => [address, 'unclaimedProfit', userAddress]))

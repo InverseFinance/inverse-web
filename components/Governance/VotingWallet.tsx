@@ -50,7 +50,7 @@ const DelegatingTo = ({ label, delegate, account, chainId }: { label: string, de
 export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.simAddress as string) || account;
+  const userAddress = (query?.viewAddress as string) || account;
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [INV, 'balanceOf', userAddress],
