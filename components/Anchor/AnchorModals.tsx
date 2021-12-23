@@ -20,6 +20,7 @@ import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { Link } from '@inverse/components/common/Link';
+import { shortenNumber } from '@inverse/util/markets'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -163,7 +164,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${getMaxString(8)} ${asset.underlying.symbol}`}
+                {`${shortenNumber(max())} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>

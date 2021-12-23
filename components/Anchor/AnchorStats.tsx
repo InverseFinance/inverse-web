@@ -3,14 +3,14 @@ import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAnchorPrices } from '@inverse/hooks/usePrices'
-import { Market, AnchorOperations } from '@inverse/types'
+import { Market, AnchorOperations, BigNumberList } from '@inverse/types'
 import { BigNumber } from 'ethers'
-import { commify, formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'ethers/lib/utils'
 import { shortenNumber } from '@inverse/util/markets';
 
 type Stat = {
   label: string
-  value: string
+  value: React.ReactNode
 }
 
 type StatBlockProps = {
@@ -50,7 +50,7 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
   const supplyBalance =
     supplyBalances && exchangeRates
       ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
-        parseFloat(formatUnits(exchangeRates[asset.token]))
+      parseFloat(formatUnits(exchangeRates[asset.token]))
       : 0
 
   return (
@@ -63,7 +63,7 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
         },
         {
           label: 'Supply Balance',
-          value: `${Math.floor(supplyBalance * 1e8) / 1e8} ${asset.underlying.symbol}`,
+          value: `${shortenNumber(Math.floor(supplyBalance * 1e8) / 1e8)} ${asset.underlying.symbol}`,
         },
       ]}
     />
@@ -84,35 +84,22 @@ const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
   )
 }
 
+const formatUsdTotal = (value: number, prices: BigNumberList, asset: Market) => {
+  return prices && value
+    ? `${shortenNumber(
+      (
+        value *
+        parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+      ), 2, true
+    )}`
+    : '-'
+}
+
 const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
-  const totalBorrowsUsd =
-    prices && asset.totalBorrows
-      ? `$${commify(
-          (
-            asset.totalBorrows *
-            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
-          ).toFixed(2)
-        )}`
-      : '-'
-  const totalReservesUsd =
-    prices && asset.totalReserves
-      ? `$${commify(
-          (
-            asset.totalReserves *
-            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
-          ).toFixed(2)
-        )}`
-      : '-'
-  const totalSuppliedUsd =
-    prices && asset.supplied
-      ? `$${commify(
-          (
-            asset.supplied *
-            parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
-          ).toFixed(2)
-        )}`
-      : '-'
+  const totalBorrowsUsd = formatUsdTotal(asset.totalBorrows, prices, asset);
+  const totalReservesUsd = formatUsdTotal(asset.totalReserves, prices, asset);
+  const totalSuppliedUsd = formatUsdTotal(asset.supplied, prices, asset);
   const reserveFactor = asset.reserveFactor ? `${asset.reserveFactor * 100}%` : '-'
 
   return (
@@ -180,11 +167,18 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const change =
     prices && amount
       ? asset.collateralFactor *
-        amount *
-        parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+      amount *
+      parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
       : 0
+
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + change
+
+  const newBorrowLimit = (newBorrowable !== 0
+    ? (usdBorrow / newBorrowable) * 100
+    : 0
+  )
+  const newBorrowLimitLabel = newBorrowLimit > 100 || newBorrowLimit < 0 ? '+100' : newBorrowLimit.toFixed(2)
 
   return (
     <StatBlock
@@ -192,14 +186,13 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
       stats={[
         {
           label: 'Borrow Limit',
-          value: `$${borrowable.toFixed(2)} -> $${newBorrowable.toFixed(2)}`,
+          value: `${shortenNumber(borrowable, 2, true)} -> ${shortenNumber(newBorrowable, 2, true)}`,
         },
         {
           label: 'Borrow Limit Used',
-          value: `${(borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)}% -> ${(newBorrowable !== 0
-            ? (usdBorrow / newBorrowable) * 100
-            : 0
-          ).toFixed(2)}%`,
+          value: <Text color={newBorrowLimit > 75 || newBorrowLimit < 0 ? 'red.500' : newBorrowLimit <= 75 && newBorrowLimit > 50 ? 'orange.500' : 'white'}>
+            {(borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)}% -> {newBorrowLimitLabel}%
+          </Text>,
         },
       ]}
     />
