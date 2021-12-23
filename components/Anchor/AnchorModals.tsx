@@ -162,7 +162,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${shortenNumber(max())} ${asset.underlying.symbol}`}
+                {`${shortenNumber(max(), (amount.startsWith('0') ? 4 : 2))} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
@@ -172,7 +172,7 @@ export const AnchorModal = ({
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toString())}
+            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toFixed(8))}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>

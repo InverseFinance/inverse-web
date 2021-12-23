@@ -80,6 +80,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         <Modal
             onClose={onClose}
             isOpen={isOpen}
+            scrollBehavior={'outside'}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
                     <Text>Add a Common Proposal Action</Text>

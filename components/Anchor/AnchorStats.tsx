@@ -11,6 +11,7 @@ import { shortenNumber } from '@inverse/util/markets';
 type Stat = {
   label: string
   value: React.ReactNode
+  color?: string
 }
 
 type StatBlockProps = {
@@ -34,10 +35,10 @@ const StatBlock = ({ label, stats }: StatBlockProps) => (
     <Text fontSize="xs" fontWeight="semibold" color="purple.300" textTransform="uppercase">
       {label}
     </Text>
-    {stats.map(({ label, value }) => (
+    {stats.map(({ label, value, color }) => (
       <Flex key={label} justify="space-between" fontSize="sm" fontWeight="medium" pl={2}>
         <Text>{label}</Text>
-        <Text textAlign="end">{value}</Text>
+        <Text color={color} textAlign="end">{value}</Text>
       </Flex>
     ))}
   </Stack>
@@ -160,6 +161,14 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
   )
 }
 
+const getBorrowLimitLabel = (newBorrowLimit: number, isReduceLimitCase = false) => {
+  const newBorrowLimitLabel = newBorrowLimit > 100 || (newBorrowLimit < 0 && !isReduceLimitCase) ?
+    '+100' :
+    (newBorrowLimit < 0 && isReduceLimitCase) ?
+      '0' : newBorrowLimit.toFixed(2)
+  return newBorrowLimitLabel;
+}
+
 const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
@@ -178,7 +187,8 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
     ? (usdBorrow / newBorrowable) * 100
     : 0
   )
-  const newBorrowLimitLabel = newBorrowLimit > 100 || newBorrowLimit < 0 ? '+100' : newBorrowLimit.toFixed(2)
+  const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
+  const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
 
   return (
     <StatBlock
@@ -190,9 +200,8 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
         },
         {
           label: 'Borrow Limit Used',
-          value: <Text color={newBorrowLimit > 75 || newBorrowLimit < 0 ? 'red.500' : newBorrowLimit <= 75 && newBorrowLimit > 50 ? 'orange.500' : 'white'}>
-            {(borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)}% -> {newBorrowLimitLabel}%
-          </Text>,
+          value: `${(borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)}% -> ${newBorrowLimitLabel}%`,
+          color: cleanPerc > 75 ? 'red.500' : cleanPerc <= 75 && cleanPerc > 50 ? 'orange.500' : 'white',
         },
       ]}
     />
@@ -201,6 +210,7 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
 
 const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
+
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
   const change =
     prices && amount
@@ -211,20 +221,25 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + (change < 0 ? change : 0)
 
+  const newBorrowLimit = (newBorrowable !== 0
+    ? (newBorrow / newBorrowable) * 100
+    : 0
+  )
+  const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
+  const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
+
   return (
     <StatBlock
       label="Borrow Limit Stats"
       stats={[
         {
           label: 'Borrow Limit Remaining',
-          value: `$${usdBorrowable.toFixed(2)} -> $${(usdBorrowable + change).toFixed(2)}`,
+          value: `${shortenNumber(usdBorrowable, 2, true)} -> ${shortenNumber(usdBorrowable + change, 2, true)}`,
         },
         {
           label: 'Borrow Limit Used',
-          value: `${(borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)}% -> ${(newBorrowable !== 0
-            ? (newBorrow / newBorrowable) * 100
-            : 0
-          ).toFixed(2)}%`,
+          value: `${(borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)}% -> ${newBorrowLimitLabel}%`,
+          color: cleanPerc > 75 ? 'red.500' : cleanPerc <= 75 && cleanPerc > 50 ? 'orange.500' : 'white',
         },
       ]}
     />
