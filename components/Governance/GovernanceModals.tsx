@@ -3,12 +3,11 @@ import { Flex, Stack, Text, Box, Input as ChakraInput, InputGroup, InputRightEle
 import { Web3Provider } from '@ethersproject/providers'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
-import { Input } from '@inverse/components/common/Input'
 import Link from '@inverse/components/common/Link'
 import { Modal, ModalProps } from '@inverse/components/common/Modal'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ProposalVote, Proposal } from '@inverse/types'
+import { ProposalVote, Proposal, AutocompleteItem } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import { getGovernanceContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
@@ -18,6 +17,7 @@ import NextLink from 'next/link'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/governance'
 import { handleTx } from '@inverse/util/transactions'
+import { TopDelegatesAutocomplete } from '../common/Input/TopDelegatesAutocomplete'
 
 enum VoteType {
   for = 'For',
@@ -147,6 +147,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
 
   return (
     <Modal
+      scrollBehavior={'outside'}
       onClose={() => {
         onClose()
         setDelegate(address || '')
@@ -200,13 +201,9 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               <Text fontSize="xs" fontWeight="semibold" color="purple.100" mb="2">
                 Delegate Address :
               </Text>
-              <Input
-                textAlign="left"
-                value={delegate}
-                onChange={(e: React.MouseEvent<HTMLInputElement>) => setDelegate(e.currentTarget.value)}
+              <TopDelegatesAutocomplete
                 placeholder={currentDelegate}
-                fontSize="sm"
-                p={1.5}
+                onItemSelect={(item?: AutocompleteItem) => setDelegate(item?.value || '')}
               />
             </Flex>
           </Stack>}
