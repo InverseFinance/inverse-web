@@ -98,6 +98,7 @@ export const Notification = ({
             className={`blurred-container ${status}-bg`}
             {...boxProps}
             position="relative"
+            maxWidth={{ base: '300px', sm: '400px', md: '600px' }}
         >
             {
                 isClosable && handleClose ?

@@ -39,7 +39,7 @@ const DelegatingTo = ({ label, delegate, account, chainId }: { label: string, de
         <Text>Self</Text>
       ) : (
         <Stack direction="row" align="center">
-          <Avatar address={delegate} boxSize={5} />
+          <Avatar address={delegate} boxSize={'20px'} avatarSize={20} />
           <Text>{namedAddress(delegate, chainId)}</Text>
         </Stack>
       )}
@@ -78,7 +78,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
     <Container label="Your Current Voting Power">
       <Stack w="full">
         <Flex w="full" alignItems="center" justify="center">
-          <Avatar address={userAddress} boxSize={5} />
+          <Avatar address={userAddress} boxSize={'20px'} avatarSize={20} />
           <Link href={`/governance/delegates/${userAddress}`}
             ml="2"
             alignItems="center"

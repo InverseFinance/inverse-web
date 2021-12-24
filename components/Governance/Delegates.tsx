@@ -28,7 +28,7 @@ export const DelegatesPreview = () => {
           <NextLink key={address} href={`/governance/delegates/${address}`}>
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
               <Stack direction="row" align="center">
-                <Avatar address={address} boxSize={7} />
+                <Avatar address={address} boxSize={'28px'} avatarSize={28} />
                 <Flex direction="column" w={40}>
                   <Text fontSize="sm" fontWeight="semibold" isTruncated>
                     {namedAddress(address, chainId, ensName)}
@@ -99,7 +99,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
           <NextLink key={address} href={`/governance/delegates/${address}`}>
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
               <Stack direction="row" align="center">
-                <Avatar address={address} boxSize={7} />
+                <Avatar address={address} boxSize={'28px'} avatarSize={28} />
                 <Flex direction="column">
                   <Text fontSize="sm" fontWeight="semibold" isTruncated>
                     {namedAddress(address, chainId)}
