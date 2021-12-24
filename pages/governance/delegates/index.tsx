@@ -32,7 +32,7 @@ const DelegatesTable = () => {
             {rank}
           </Flex>
           <Stack direction="row" align="center">
-            <Avatar address={address} boxSize={'24px'} avatarSize={24} />
+            <Avatar address={address} sizePx={24} />
             <Flex>{namedAddress(address, chainId, ensName)}</Flex>
           </Stack>
         </Stack>
