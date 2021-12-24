@@ -21,6 +21,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { Link } from '@inverse/components/common/Link';
 import { shortenNumber } from '@inverse/util/markets'
+import { removeScientificFormat } from '@inverse/util/misc'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -172,7 +173,7 @@ export const AnchorModal = ({
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount((Math.floor(max() * 1e8) / 1e8).toFixed(8))}
+            onMaxClick={() => setAmount(removeScientificFormat(max()).toString())}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>
