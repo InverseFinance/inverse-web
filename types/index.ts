@@ -261,7 +261,9 @@ export type AutocompleteProps = {
   isOpenDefault?: boolean,
   autoSort?: boolean,
   highlightBeforeChar?: string,
+  limit?: number,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,
+  itemRenderer?: (value: string, label: string, filteredIndex: number, search: string, filteredList: AutocompleteItem[]) => JSX.Element;
 } & Partial<BoxProps>
 
 export type AddressAutocompleteProps = Omit<AutocompleteProps, "list"> & { list?: AutocompleteItem[] }

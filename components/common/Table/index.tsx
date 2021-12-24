@@ -15,10 +15,11 @@ export type Column = {
 type TableProps = {
   columns: Column[]
   items: any[]
+  keyName?: string
   onClick?: (e: any) => void
 }
 
-export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
+export const Table = ({ columns, items, keyName, onClick, ...props }: TableProps) => {
   const [sortBy, setSortBy] = useState(columns[0].field);
   const [sortDir, setSortDir] = useState('asc');
 
@@ -103,7 +104,7 @@ export const Table = ({ columns, items, onClick, ...props }: TableProps) => {
       </Flex>
       {sortedItems?.map((item, i) => (
         <Flex
-          key={i}
+          key={item[keyName] || i}
           bgColor={i % 2 === 0 ? 'purple.750' : 'purple.800'}
           justify="space-between"
           align="center"

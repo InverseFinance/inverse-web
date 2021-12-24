@@ -60,6 +60,7 @@ export const Autocomplete = ({
     isOpenDefault = false,
     autoSort = true,
     highlightBeforeChar = '',
+    itemRenderer,
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
@@ -147,14 +148,19 @@ export const Autocomplete = ({
 
     const listItems = filteredList
         .map((item, i) => {
-            const label = !highlightBeforeChar ? item.label : <HighlightBefore label={item.label} char={highlightBeforeChar} />
+            const itemContent = itemRenderer ?
+                itemRenderer(item.value, item.label, i, searchValue, filteredList)
+                : !highlightBeforeChar ?
+                    item.label
+                    :
+                    <HighlightBefore label={item.label} char={highlightBeforeChar} />
 
             return <AutocompleteListItem
-                key={i}
+                key={item.value}
                 onClick={() => handleSelect(item)}
                 fontWeight={item.value === selectedItem?.value ? 'bold' : 'normal'}
             >
-                {label}
+                {itemContent}
             </AutocompleteListItem>
         })
 

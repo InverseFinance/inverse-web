@@ -61,6 +61,12 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                                 Discord
                             </Link>
                         </Text>
+                        {
+                            account && <Text mt="3" fontSize="12px">
+                                If you're interested in seeing how the proposal creation works you can
+                                use the "View Address" feature in the connection menu and choose the "Deployer" address in the list
+                            </Text>
+                        }
                     </Box>
                     :
                     <Box w="full" textAlign="center">

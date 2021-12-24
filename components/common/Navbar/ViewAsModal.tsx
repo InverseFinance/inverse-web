@@ -11,6 +11,7 @@ import { AutocompleteItem } from '@inverse/types';
 import { useTopDelegates } from '@inverse/hooks/useDelegates';
 import { namedAddress } from '@inverse/util';
 import { ViewIcon } from '@chakra-ui/icons';
+import { TopDelegatesAutocomplete } from '../Input/TopDelegatesAutocomplete';
 
 type Props = {
     isOpen: boolean
@@ -23,17 +24,6 @@ export const ViewAsModal = ({
 }: Props) => {
     const { query } = useRouter()
     const [address, setAddress] = useState<string>('');
-    const [addressList, setAddressList] = useState<AutocompleteItem[]>([]);
-    const { delegates } = useTopDelegates();
-
-    useEffect(() => {
-        if (!delegates || !delegates.length || addressList.length) { return }
-        setAddressList(
-            delegates
-                .slice(0, 100)
-                .map((d, i) => ({ value: d.address, label: `#${i + 1} ${namedAddress(d.address)}` }))
-        )
-    }, [delegates, addressList])
 
     useEffect(() => {
         if (query?.viewAddress) { setAddress(query?.viewAddress as string) }
@@ -61,13 +51,7 @@ export const ViewAsModal = ({
             }
         >
             <Stack p={'5'}>
-                <AddressAutocomplete
-                    title={!addressList.length ? 'Loading...' : 'Top 100 Delegates'}
-                    autoSort={false}
-                    defaultValue={address}
-                    placeholder="Paste an Address or Choose an example from the list"
-                    list={addressList}
-                    inputProps={{ isInvalid: !!address && !isAddress(address) }}
+                <TopDelegatesAutocomplete
                     onItemSelect={(item?: AutocompleteItem) => setAddress(item?.value || '')}
                 />
                 <InfoMessage alertProps={{ fontSize: '14px', w: 'full' }} description="You will be able to view live data for this address" />
