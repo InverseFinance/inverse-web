@@ -79,6 +79,7 @@ const DelegatesTable = () => {
       <Table
         columns={columns}
         items={delegates.slice(0, 100)}
+        keyName={'address'}
         onClick={({ address }: Delegate) => router.push(`/governance/delegates/${address}`)}
       />
     </Container>
