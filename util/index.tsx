@@ -3,13 +3,13 @@ import localforage from 'localforage';
 import { getProvider } from '@inverse/util/providers';
 import { NetworkIds } from '@inverse/types';
 
-export const getEnsName = async (address: string): Promise<string> => {
+export const getEnsName = async (address: string, isBackendSide = false, specificProvider?: any): Promise<string> => {
   try {
-    const rememberedName: string = await localforage.getItem(`ensName-${address}`) || '';
+    const rememberedName: string = isBackendSide ? '' : await localforage.getItem(`ensName-${address}`) || '';
     if(rememberedName) { return rememberedName }
-    const provider = getProvider(NetworkIds.mainnet);
+    const provider = specificProvider || getProvider(NetworkIds.mainnet);
     const ensName = await provider.lookupAddress(address);
-    if(ensName) {
+    if(ensName && !isBackendSide) {
       localforage.setItem(`ensName-${address}`, ensName);
     }
     return ensName;
