@@ -7,6 +7,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider, TransactionResponse } from '@ethersproject/providers';
 import { forceQuickAccountRefresh } from '@inverse/util/web3';
 import { useRouter } from 'next/dist/client/router';
+import { gaEvent } from '@inverse/util/analytics';
 
 /**
  * "Smart" Button :
@@ -35,6 +36,10 @@ export const SmartButton = (props: SmartButtonProps) => {
     // wraps the onClick function given to handle promises/transactions automatically
     const handleClick = async (e: any) => {
         if (!btnProps.onClick) { return }
+        const btnAction = props.gaAction || e?.target.getAttribute('data-testid') || e?.target?.innerText || '';
+        if(btnAction) {
+            gaEvent({ action: btnAction })
+        }
         const returnedValueFromClick: any = btnProps.onClick(e);
         if (!returnedValueFromClick) { return }
 

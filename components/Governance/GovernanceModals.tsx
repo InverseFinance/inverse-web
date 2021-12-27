@@ -18,6 +18,7 @@ import { InfoMessage } from '@inverse/components/common/Messages'
 import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValidSignature, storeDelegationsCollected, submitMultiDelegation } from '@inverse/util/governance'
 import { handleTx } from '@inverse/util/transactions'
 import { TopDelegatesAutocomplete } from '../common/Input/TopDelegatesAutocomplete'
+import { TEST_IDS } from '@inverse/config/test-ids'
 
 enum VoteType {
   for = 'For',
@@ -299,7 +300,7 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: Modal
         </Stack>
       }
       footer={
-        <SubmitButton disabled={!signatures.length || hasInvalidSignature} onClick={handleSubmit}>
+        <SubmitButton data-testid={TEST_IDS.governance.submitSignatures} disabled={!signatures.length || hasInvalidSignature} onClick={handleSubmit}>
           {
             hasInvalidSignature ?
               'There is an invalid signature'
