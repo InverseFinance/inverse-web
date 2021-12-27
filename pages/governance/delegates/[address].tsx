@@ -113,7 +113,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
 
         <Divider mt="3" mb="5" />
         {hasEnsProfile && <VStack spacing="5" mb="5">
-          {ensProfile?.description && <i>&laquo; {ensProfile.description.replace(/"/g, '')} &raquo;</i>}
+          {ensProfile?.description && <i>&laquo; {ensProfile.description.replace(/"/g, '')} &raquo; - {ensName}</i>}
           {
             (ensProfile?.discord || ensProfile?.twitter || ensProfile?.github)
             && <Stack direction="row" spacing={5} align="center">
