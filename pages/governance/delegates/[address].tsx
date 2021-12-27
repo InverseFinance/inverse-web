@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Divider, Flex, Text, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, Image, Stack, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 import { Avatar } from '@inverse/components/common/Avatar'
 import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import Container from '@inverse/components/common/Container'
@@ -19,6 +19,8 @@ import { SignatureAnim } from '@inverse/components/common/Animation'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
+import { useEnsProfile } from '@inverse/hooks/useEnsProfile'
+import { Link } from '@inverse/components/common/Link';
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -29,12 +31,36 @@ const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   </Box>
 )
 
+const SOCIALS = [
+  {
+    type: 'twitter',
+    href: 'https://twitter.com/',
+    image: '/assets/socials/twitter.svg',
+  },
+  {
+    type: 'discord',
+    href: 'https://discord.gg/',
+    image: '/assets/socials/discord.svg',
+  },
+  {
+    type: 'telegram',
+    href: 'https://t.me/',
+    image: '/assets/socials/telegram.svg',
+  },
+  {
+    type: 'github',
+    href: 'https://github.com/',
+    image: '/assets/socials/github.svg',
+  },
+]
+
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates()
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
   const { INV, XINV } = getNetworkConfigConstants(chainId)
+  const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
 
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
@@ -58,7 +84,6 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
     )
   }
 
-  const { ensName } = delegate
   const rank = (topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1) || ''
 
   const signDisabled = !active || chainId?.toString() !== NetworkIds.mainnet;
@@ -87,6 +112,21 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         </Flex>
 
         <Divider mt="3" mb="5" />
+        {hasEnsProfile && <VStack spacing="5" mb="5">
+          {ensProfile?.description && <i>&laquo; {ensProfile.description.replace(/"/g, '')} &raquo;</i>}
+          {
+            (ensProfile?.discord || ensProfile?.twitter || ensProfile?.github)
+            && <Stack direction="row" spacing={5} align="center">
+              {SOCIALS
+                .filter(({ type }) => !!ensProfile[type])
+                .map(({ href, image, type }, i) => (
+                  <Link isExternal key={i} href={`${ensProfile[type]?.includes('http') ? '' : href}${ensProfile[type]}`}>
+                    <Image src={image} />
+                  </Link>
+                ))}
+            </Stack>
+          }
+        </VStack>}
         {delegationCases[delegationCase]}
 
       </Box>

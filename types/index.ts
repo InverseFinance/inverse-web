@@ -94,6 +94,15 @@ export type ProposalVote = {
   votes: number
 }
 
+export type EnsProfile = {
+  avatar?: string
+  description?: string
+  twitter?: string
+  discord?: string
+  github?: string
+  telegram?: string
+}
+
 export type Delegate = {
   rank: number
   address: string
@@ -101,6 +110,7 @@ export type Delegate = {
   votingPower: number
   delegators: Delegator[]
   votes: ProposalVote[]
+  ensProfile?: EnsProfile
 }
 
 export type Delegator = string

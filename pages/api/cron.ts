@@ -31,7 +31,6 @@ export default async function handler(req, res) {
       const { XINV, INV, governance: GOVERNANCE, governanceAlpha: GOV_ALPHA } = networkConfig!;
       // use specific AlchemyApiKey for the cron
       const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API, true);
-      const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API || 'H2RwjQnt6ADjGQX-IpA5jK7pBEqTKGJn', true);
       const inv = new Contract(INV, INV_ABI, provider);
       const xinv = new Contract(XINV, INV_ABI, provider);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
