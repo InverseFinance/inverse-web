@@ -119,8 +119,8 @@ export const AnchorModal = ({
     <Flex w={5}>
       <Image w={5} h={5} src={asset.underlying.image} />
     </Flex>
-    <Text fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
-      {asset.underlying.symbol}
+    <Text fontSize="sm" fontWeight="semibold" color="purple.100" align="center">
+      {asset.underlying.symbol.replace('-SLP', '')}
     </Text>
   </Stack>
 
