@@ -81,14 +81,14 @@ export const AnchorModal = ({
         return roundFloorString(Math.min(borrowable, asset.liquidity))
       case AnchorOperations.repay:
         const balance = balances
-          ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
-          : 0
+          ? (formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
+          : '0'
 
         const borrowed = borrowBalances
-          ? parseFloat(formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
-          : 0
+          ? (formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
+          : '0'
 
-        return roundFloorString(Math.min(balance, borrowed))
+        return parseFloat(balance) < parseFloat(borrowed) ? balance : borrowed
     }
   }
 
