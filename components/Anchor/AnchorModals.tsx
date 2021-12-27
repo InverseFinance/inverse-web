@@ -21,7 +21,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { Link } from '@inverse/components/common/Link';
 import { shortenNumber } from '@inverse/util/markets'
-import { removeScientificFormat } from '@inverse/util/misc'
+import { roundFloorString } from '@inverse/util/misc'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -48,33 +48,37 @@ export const AnchorModal = ({
     setOperation(operations[0])
   }
 
-  const max = () => {
+  const maxFloat = () => parseFloat(maxString())
+
+  const maxString = () => {
     switch (operation) {
       case AnchorOperations.supply:
         return balances
-          ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
-          : 0
+          ? (formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
+          : '0'
       case AnchorOperations.withdraw:
         const supply =
           supplyBalances && exchangeRates
             ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
             parseFloat(formatUnits(exchangeRates[asset.token]))
             : 0
+
         const withdrawable = prices
           ? usdBorrowable /
           (asset.collateralFactor *
             parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
+
         const isEnabled = accountMarkets.find((market: Market) => market.token === asset.token)
         const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isEnabled ? supply : withdrawable
-        return Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable)
+        return roundFloorString(Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable))
       case AnchorOperations.borrow:
         const borrowable =
           prices && usdBorrowable
             ? usdBorrowable /
             parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
             : 0
-        return Math.min(borrowable, asset.liquidity)
+        return roundFloorString(Math.min(borrowable, asset.liquidity))
       case AnchorOperations.repay:
         const balance = balances
           ? parseFloat(formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
@@ -84,7 +88,7 @@ export const AnchorModal = ({
           ? parseFloat(formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
           : 0
 
-        return Math.min(balance, borrowed)
+        return roundFloorString(Math.min(balance, borrowed))
     }
   }
 
@@ -131,7 +135,7 @@ export const AnchorModal = ({
             operation={operation}
             asset={asset}
             amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
-            isDisabled={!amount || !active || isNaN(amount as any) || parseFloat(amount) > max()}
+            isDisabled={!amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
           />
         </Box>
       }
@@ -163,7 +167,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${shortenNumber(max(), (amount.startsWith('0') ? 4 : 2))} ${asset.underlying.symbol}`}
+                {`${shortenNumber(maxFloat(), (amount.startsWith('0') ? 4 : 2))} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
@@ -173,7 +177,7 @@ export const AnchorModal = ({
             onChange={(e: React.MouseEvent<HTMLInputElement>) => {
               if (e.currentTarget.value.length < 20) setAmount(e.currentTarget.value)
             }}
-            onMaxClick={() => setAmount(removeScientificFormat(max()).toString())}
+            onMaxClick={() => setAmount(maxString())}
             label={
               asset.underlying.symbol !== 'ETH' ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>
