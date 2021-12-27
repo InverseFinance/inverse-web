@@ -17,7 +17,7 @@ export const Avatar = ({
   defaultAvatar?: 'blockies' | 'jazzicon',
 } & Partial<BoxProps>) => {
   // specific key for this usage only
-  const alchemyProvider = new AlchemyProvider(Number(NetworkIds.mainnet), 'Im06YX8gmXb3PDPLG7nv3ExIYGppGDvf');
+  const alchemyProvider = new AlchemyProvider(Number(NetworkIds.mainnet), process.env.NEXT_PUBLIC_ENS_ALCHEMY_API);
   const avatarAddress = !address || !isAddress(address) ? '0x0000000000000000000000000000000000000000' : address
   return (
     <Box boxSize={`${sizePx}px`} {...boxProps}>

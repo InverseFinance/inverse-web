@@ -27,6 +27,11 @@ type AnchorModalProps = ModalProps & {
   asset: Market
 }
 
+const LP_POOL_LINKS: { [key: string]: { name: string, url: string } } = {
+  'INV-DOLA-SLP': { name: 'Sushi', url: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014CcdED1e7d814EDC9ce4' },
+  'DOLA-3POOL': { name: 'Crv', url: 'https://crv.to/pool' },
+}
+
 export const AnchorModal = ({
   isOpen,
   onClose,
@@ -114,8 +119,8 @@ export const AnchorModal = ({
     <Flex w={5}>
       <Image w={5} h={5} src={asset.underlying.image} />
     </Flex>
-    <Text fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
-      {asset.underlying.symbol}
+    <Text fontSize="sm" fontWeight="semibold" color="purple.100" align="center">
+      {asset.underlying.symbol.replace('-SLP', '')}
     </Text>
   </Stack>
 
@@ -159,6 +164,22 @@ export const AnchorModal = ({
           operations.length > 1 ?
             <NavButtons options={operations} active={operation} onClick={setOperation} />
             : null
+        }
+        {
+          ['INV-DOLA-SLP', 'DOLA-3POOL'].includes(asset.underlying.symbol)
+          && operation === AnchorOperations.supply
+          && maxFloat() <= 1
+          && <InfoMessage
+            alertProps={{ w: 'full' }}
+            description={
+              <>
+                <Text>Get the {asset.underlying.symbol} token on
+                  <Link ml="1" isExternal href={LP_POOL_LINKS[asset.underlying.symbol].url}>
+                    {LP_POOL_LINKS[asset.underlying.symbol].name}
+                  </Link>
+                </Text>
+              </>
+            } />
         }
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
