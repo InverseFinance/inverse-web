@@ -19,3 +19,7 @@ export const removeScientificFormat = (x: number) => {
     }
     return v;
 }
+
+export const roundFloorString = (v: number, power = 1e8) => {
+    return removeScientificFormat(Math.floor(v * power) / power).toString()
+}
