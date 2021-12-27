@@ -16,8 +16,28 @@ import { Web3ReactProvider } from '@web3-react/core'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { SWRConfig } from 'swr'
+import { useEffect } from 'react';
+import { useRouter } from 'next/dist/client/router'
+import { gaPageview } from '@inverse/util/analytics'
 
 const App = ({ Component, pageProps }: AppProps) => {
+  const router = useRouter()
+
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      gaPageview(url)
+    }
+    //When the component is mounted, subscribe to router changes
+    //and log those page views
+    router.events.on('routeChangeComplete', handleRouteChange)
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
+
   return (
     <ChakraProvider theme={theme}>
       <Web3ReactProvider getLibrary={getLibrary}>
