@@ -210,7 +210,8 @@ export const ProposalForm = ({
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             {
                 previewMode && <Text textAlign="center">
-                    Preview / Recap <ProposalShareLink type="share" title={preview.title!} description={preview.description!} functions={preview.functions!} />
+                    Preview / Recap 
+                    <ProposalShareLink type="share" title={preview.title!} description={preview.description!} functions={preview.functions!} />
                 </Text>
             }
             {

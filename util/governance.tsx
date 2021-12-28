@@ -117,9 +117,9 @@ export const getCallData = (action: ProposalFormActionFields) => {
 export const getArgs = (fragment: FunctionFragment, calldata: string) => {
     const abiCoder = new AbiCoder()
     const types: any = fragment.inputs.map(v => ({ type: v.type, name: v.name }));
-    const values =  abiCoder.decode(
-       types,
-       calldata,
+    const values = abiCoder.decode(
+        types,
+        calldata,
     );
     return types.map((t, i) => {
         return { ...t, value: values[i] }
@@ -212,4 +212,21 @@ export const getProposalStatus = (
         return ProposalStatus.expired;
     }
     return ProposalStatus.queued
+}
+
+export const saveLocalDraft = async (title: string, description: string, functions: ProposalFunction[]) => {
+    try {
+        const drafts: any[] = await localforage.getItem('proposal-drafts') || []
+        const draftId = drafts.length + 1
+        const newDraft = { title, description, functions, draftId };
+        drafts.unshift(newDraft);
+        await localforage.setItem('proposal-drafts', drafts);
+        return draftId
+    } catch (e) {
+        return 0
+    }
+}
+
+export const getLocalDrafts = async () => {
+    return await localforage.getItem('proposal-drafts') || []
 }
