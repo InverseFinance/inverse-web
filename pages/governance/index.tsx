@@ -9,9 +9,13 @@ import {
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import { Link } from '@inverse/components/common/Link'
+import Head from 'next/head'
 
 export const Governance = () => (
   <Layout>
+    <Head>
+      <title>Inverse Finance - Governance</title>
+    </Head>
     <AppNav active="Governance" />
     <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
       <Flex direction="column">

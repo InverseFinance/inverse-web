@@ -10,6 +10,7 @@ import { formatUnits } from 'ethers/lib/utils';
 import { Web3Provider } from '@ethersproject/providers';
 import { ProposalFormContainer } from '@inverse/components/Governance/Propose/ProposalFormContainer'
 import { useRouter } from 'next/dist/client/router'
+import Head from 'next/head'
 
 export const Propose = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
@@ -23,11 +24,14 @@ export const Propose = () => {
   ])
 
   const [exchangeRate, currentVotes, currentVotesX] = data || [1, 0, 0];
-  const votingPower = parseFloat(formatUnits(currentVotes || 0)) + 
+  const votingPower = parseFloat(formatUnits(currentVotes || 0)) +
     parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   return (
     <Layout>
+      <Head>
+        <title>Inverse Finance - New Proposal</title>
+      </Head>
       <AppNav active="Propose" />
       <Breadcrumbs
         w="7xl"
