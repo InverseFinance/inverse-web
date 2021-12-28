@@ -12,6 +12,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { formatUnits } from 'ethers/lib/utils';
 import ScannerLink from '@inverse/components/common/ScannerLink';
 import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { useRouter } from 'next/dist/client/router';
 
 const DEFAULT_REQUIRED_VOTING_POWER = 1000;
 const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
@@ -20,6 +21,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
     const { library, account } = useWeb3React<Web3Provider>();
     const [requiredVotingPower, setRequiredVotingPower] = useState(DEFAULT_REQUIRED_VOTING_POWER);
     const [lastProposalId, setLastProposalId] = useState(0);
+    const { query } = useRouter();
 
     useEffect(() => {
         let isMounted = true;
@@ -36,6 +38,9 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
         init();
         return () => { isMounted = false }
     }, [library])
+
+    const { proposalLinkData } = (query || {})    
+    const { title = '', description = '', functions = [] } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : {})
 
     return (
         <Box w="full" p={6} pb={0} data-testid={TEST_IDS.governance.newProposalContainer}>
@@ -70,7 +75,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                     </Box>
                     :
                     <Box w="full" textAlign="center">
-                        <ProposalForm lastProposalId={lastProposalId} />
+                        <ProposalForm lastProposalId={lastProposalId} title={title as string} description={description as string} functions={functions} />
                     </Box>
             }
         </Box>
