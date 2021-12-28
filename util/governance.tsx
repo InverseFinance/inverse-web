@@ -3,7 +3,7 @@ import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds } from '@inverse/types';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal } from '@inverse/types';
 import { CURRENT_ERA, GRACE_PERIOD_MS } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
@@ -214,19 +214,25 @@ export const getProposalStatus = (
     return ProposalStatus.queued
 }
 
-export const saveLocalDraft = async (title: string, description: string, functions: ProposalFunction[]) => {
+export const saveLocalDraft = async (title: string, description: string, functions: ProposalFunction[], draftId?: number): Promise<number> => {
     try {
-        const drafts: any[] = await localforage.getItem('proposal-drafts') || []
-        const draftId = drafts.length + 1
-        const newDraft = { title, description, functions, draftId };
-        drafts.unshift(newDraft);
+        const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
+        const id = draftId || (drafts.length + 1)
+        const newDraft = { title, description, functions, draftId: id };
+        if(draftId) {
+            drafts[drafts.findIndex(d => d.draftId === draftId)] = newDraft;
+        } else {
+            drafts.unshift(newDraft);
+        }
         await localforage.setItem('proposal-drafts', drafts);
-        return draftId
+        return id;
     } catch (e) {
         return 0
     }
 }
 
-export const getLocalDrafts = async () => {
+export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
     return await localforage.getItem('proposal-drafts') || []
 }
+
+export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')

@@ -56,11 +56,13 @@ export const ProposalForm = ({
     lastProposalId = 0,
     title = '',
     description = '',
+    draftId,
     functions = DEFAULT_FUNCTIONS,
 }: {
     lastProposalId: number,
     title?: string,
     description?: string,
+    draftId?: number,
     functions?: ProposalFunction[]
 }) => {
     const isMountedRef = useRef(true)
@@ -211,7 +213,7 @@ export const ProposalForm = ({
             {
                 previewMode && <Text textAlign="center">
                     Preview / Recap 
-                    <ProposalShareLink type="share" title={preview.title!} description={preview.description!} functions={preview.functions!} />
+                    <ProposalShareLink draftId={draftId} type="share" title={preview.title!} description={preview.description!} functions={preview.functions!} />
                 </Text>
             }
             {

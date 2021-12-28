@@ -70,14 +70,24 @@ const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
   </Badge>
 )
 
-export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
+export const ProposalPreview = ({ proposal, isLocalDraft = false }: { proposal: Proposal, isLocalDraft?: boolean }) => {
   const { query } = useRouter()
-  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era } = proposal
+  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
 
   const totalVotes = forVotes + againstVotes
+  const href = !isLocalDraft ?
+    { pathname: `/governance/proposals/${era}/${id}`, query }
+    : {
+      pathname: `/governance/propose`, query: {
+        proposalLinkData: JSON.stringify({
+          title, description, functions, draftId: id
+        })
+      }
+    }
+
 
   return (
-    <NextLink href={{ pathname: `/governance/proposals/${era}/${id}`, query }}>
+    <NextLink href={href}>
       <Flex
         w="full"
         justify="space-between"
