@@ -1,6 +1,6 @@
 import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
 import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
-import { AbiCoder, isAddress, splitSignature, parseUnits } from 'ethers/lib/utils'
+import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds } from '@inverse/types';
@@ -114,6 +114,18 @@ export const getCallData = (action: ProposalFormActionFields) => {
     )
 }
 
+export const getArgs = (fragment: FunctionFragment, calldata: string) => {
+    const abiCoder = new AbiCoder()
+    const types: any = fragment.inputs.map(v => ({ type: v.type, name: v.name }));
+    const values =  abiCoder.decode(
+       types,
+       calldata,
+    );
+    return types.map((t, i) => {
+        return { ...t, value: values[i] }
+    })
+}
+
 export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalFormFields): Promise<TransactionResponse> => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -148,6 +160,18 @@ export const getFunctionFromProposalAction = (action: ProposalFormActionFields):
         target: action.contractAddress,
         callData: getCallData(action),
         signature: action.fragment?.format('sighash') || '',
+    }
+}
+
+export const getProposalActionFromFunction = (actionId: number, func: ProposalFunction): ProposalFormActionFields => {
+    const fragment = FunctionFragment.from(func.signature);
+    return {
+        actionId,
+        value: '',
+        contractAddress: func.target,
+        args: getArgs(fragment, func.callData),
+        fragment,
+        func: func.signature || '',
     }
 }
 
