@@ -17,6 +17,7 @@ import localforage from 'localforage';
 import { ActionTemplateModal } from './ActionTemplateModal';
 import { ProposalFormBtns } from './ProposalFormBtns';
 import { ProposalFunction } from '@inverse/types';
+import { ProposalShareLink } from '../ProposalShareLink';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -56,12 +57,12 @@ export const ProposalForm = ({
     title = '',
     description = '',
     functions = DEFAULT_FUNCTIONS,
-}: { 
+}: {
     lastProposalId: number,
     title?: string,
     description?: string,
     functions?: ProposalFunction[]
- }) => {
+}) => {
     const isMountedRef = useRef(true)
     const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
@@ -69,7 +70,7 @@ export const ProposalForm = ({
     const [form, setForm] = useState<ProposalFormFields>({
         title,
         description,
-        actions: functions.map((f, i) => getProposalActionFromFunction(i+1, f)),
+        actions: functions.map((f, i) => getProposalActionFromFunction(i + 1, f)),
     })
 
     const [isFormValid, setIsFormValid] = useState(!isFormInvalid(form));
@@ -79,11 +80,11 @@ export const ProposalForm = ({
 
     useEffect(() => {
         const validFormGiven = !isFormInvalid(form)
-        if(!validFormGiven) { return }
+        if (!validFormGiven) { return }
         setForm({
             title,
             description,
-            actions: functions.map((f, i) => getProposalActionFromFunction(i+1, f)),
+            actions: functions.map((f, i) => getProposalActionFromFunction(i + 1, f)),
         })
         setActionLastId(functions.length)
         setIsFormValid(validFormGiven)
@@ -202,12 +203,16 @@ export const ProposalForm = ({
         era: GovEra.mills,
         startTimestamp: now,
         endTimestamp: (new Date()).setDate(now.getDate() + 3),
-        status: ProposalStatus.active,
+        status: title ? ProposalStatus.draft : ProposalStatus.active,
     } : {}
 
     return (
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
-            {previewMode ? <Text textAlign="center">Preview / Recap</Text> : null}
+            {
+                previewMode && <Text textAlign="center">
+                    Preview / Recap <ProposalShareLink type="share" title={preview.title!} description={preview.description!} functions={preview.functions!} />
+                </Text>
+            }
             {
                 !isUnderstood ?
                     <ProposalWarningMessage onOk={() => warningUnderstood()} /> : null

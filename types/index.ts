@@ -71,6 +71,7 @@ export type Proposal = {
 }
 
 export enum ProposalStatus {
+  draft = 'Draft',
   pending = 'Pending',
   active = 'Active',
   canceled = 'Canceled',

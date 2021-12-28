@@ -13,7 +13,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
 import { GRACE_PERIOD_MS } from '@inverse/config/constants'
-import { LinkIcon } from '@chakra-ui/icons'
+import { ProposalShareLink } from './ProposalShareLink'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -142,8 +142,6 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
 
   const { title, description, proposer, status, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
 
-  const proposalLinkData = JSON.stringify({ title, description, functions })
-
   return (
     <Container
       label={title}
@@ -151,13 +149,14 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
         <Stack direction="row" align="center" spacing={1}>
           <StatusBadge status={status} />
           <EraBadge era={era} id={id} />
+          {
+            proposal.status !== ProposalStatus.draft
+            && <ProposalShareLink type="copy" title={title} description={description} functions={functions} />
+          }
           <Text fontSize="sm">
             {' - '}
             {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true)}
           </Text>
-          <Link href={{ pathname: `/governance/propose`, query: { ...(query||{}), proposalLinkData } }} isExternal>
-            <LinkIcon cursor="pointer"/>
-          </Link>
         </Stack>
       }
     >
