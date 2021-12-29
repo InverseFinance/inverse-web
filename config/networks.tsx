@@ -82,6 +82,9 @@ const mainnetConfig: NetworkConfig = {
     '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'Oracle',
     '0x4dCf7407AE5C07f8681e1659f626E114A7667339': 'Comptroller',
     '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'BasedXeno',
+    '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
+    '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
+    '0x32edDd879B199503c6Fc37DF95b8920Cd415358F': 'DolaPayroll',
   },
 }
 
@@ -572,6 +575,9 @@ export const getNetworkConfigConstants = (
     [GOVERNANCE_ALPHA]: 'GovAlpha',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
+    '0x32edDd879B199503c6Fc37DF95b8920Cd415358F': 'DolaPayroll',
+    '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
+    '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
   }
 
   const PROPOSAL_AUTOCOMPLETE_ADDRESSES = {
