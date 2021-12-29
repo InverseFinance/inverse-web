@@ -58,12 +58,14 @@ export const ProposalForm = ({
     description = '',
     draftId,
     functions = DEFAULT_FUNCTIONS,
+    isPreview = false,
 }: {
     lastProposalId: number,
     title?: string,
     description?: string,
     draftId?: number,
     functions?: ProposalFunction[]
+    isPreview?: boolean
 }) => {
     const isMountedRef = useRef(true)
     const [isUnderstood, setIsUnderstood] = useState(true);
@@ -76,7 +78,7 @@ export const ProposalForm = ({
     })
 
     const [isFormValid, setIsFormValid] = useState(!isFormInvalid(form));
-    const [previewMode, setPreviewMode] = useState(false);
+    const [previewMode, setPreviewMode] = useState(isPreview);
     const [actionLastId, setActionLastId] = useState(form.actions.length);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [newDraftId, setNewDraftId] = useState(draftId)
@@ -91,8 +93,8 @@ export const ProposalForm = ({
         })
         setActionLastId(functions.length)
         setIsFormValid(validFormGiven)
-        setPreviewMode(validFormGiven)
-    }, [title, description, functions])
+        setPreviewMode(validFormGiven && isPreview)
+    }, [title, description, functions, isPreview])
 
     useEffect(() => {
         const init = async () => {

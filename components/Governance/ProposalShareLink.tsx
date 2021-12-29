@@ -41,7 +41,7 @@ export const ProposalShareLink = ({
     useEffect(() => {
         if (!router) { return }
         const proposalLinkData = JSON.stringify({ title, description, functions })
-        setSharableLink(`${window.location.origin}/governance/propose?proposalLinkData=${encodeURIComponent(proposalLinkData)}`)
+        setSharableLink(`${window.location.origin}/governance/propose?isPreview=true&proposalLinkData=${encodeURIComponent(proposalLinkData)}`)
     }, [title, description, functions, router])
 
     const handleShareLink = () => {

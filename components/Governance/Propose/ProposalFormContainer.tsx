@@ -39,7 +39,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
         return () => { isMounted = false }
     }, [library])
 
-    const { proposalLinkData } = (query || {})    
+    const { proposalLinkData, isPreview } = (query || {})    
     const { title = '', description = '', functions = [], draftId = undefined } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : {})
 
     return (
@@ -75,7 +75,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                     </Box>
                     :
                     <Box w="full" textAlign="center">
-                        <ProposalForm lastProposalId={lastProposalId} title={title as string} description={description as string} functions={functions} draftId={draftId} />
+                        <ProposalForm isPreview={isPreview === 'true'} lastProposalId={lastProposalId} title={title as string} description={description as string} functions={functions} draftId={draftId} />
                     </Box>
             }
         </Box>
