@@ -7,6 +7,7 @@ import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
 import { AutocompleteItem, TemplateProposalFormActionFields, Token } from '@inverse/types'
 import { parseUnits } from '@ethersproject/units';
+import { shortenAddress } from '@inverse/util'
 
 export const TokenTemplate = ({
     defaultAddress = '',
@@ -39,7 +40,7 @@ export const TokenTemplate = ({
     useEffect(() => {
         const disabled = !amount || amount === '0' || !destination || !isAddress(destination)
         setIsDisabled(disabled)
-        if(disabled) { return }
+        if (disabled) { return }
         const addressVarName = type === 'transfer' ? 'destination' : 'spender'
         const action: TemplateProposalFormActionFields = {
             contractAddress: token.address,
@@ -67,8 +68,8 @@ export const TokenTemplate = ({
                 <FormLabel>
                     Destination Address :
                     {
-                        defaultAddress && isAddress(defaultAddress) ?
-                            <ScannerLink value={defaultAddress} shorten={true} /> : null
+                        destination && isAddress(destination) ?
+                            <ScannerLink ml="2" value={destination} label={shortenAddress(destination)} /> : null
                     }
                 </FormLabel>
                 <AddressAutocomplete
@@ -78,7 +79,7 @@ export const TokenTemplate = ({
             </FormControl>
             <FormControl>
                 <FormLabel>
-                    Amount in <b>{ token.symbol } to {type}</b> :
+                    Amount in <b>{token.symbol} to {type}</b> :
                 </FormLabel>
                 <Input type="number" min="0" defaultValue={defaultAmount} onChange={handleAmountChange} />
             </FormControl>
