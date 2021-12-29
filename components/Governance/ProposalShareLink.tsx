@@ -68,7 +68,7 @@ export const ProposalShareLink = ({
     return (
         <>
             {
-                type === 'copy' ? <Link mx='2' href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
+                type === 'copy' ? <Link px='1' href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
                     <AnimatedInfoTooltip message={labels[type]}>
                         <IconComp color="blue.500" fontSize="12px" cursor="pointer" />
                     </AnimatedInfoTooltip>
