@@ -150,7 +150,7 @@ export const Autocomplete = ({
         .map((item, i) => {
             const itemContent = itemRenderer ?
                 itemRenderer(item.value, item.label, i, searchValue, filteredList)
-                : !highlightBeforeChar ?
+                : !highlightBeforeChar || item.isSearchValue ?
                     item.label
                     :
                     <HighlightBefore label={item.label} char={highlightBeforeChar} />

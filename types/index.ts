@@ -146,6 +146,7 @@ export type NetworkConfig = {
   DOLA3POOLCRV: string,
   THREECRV: string,
   FLOKI: string,
+  DOLA_PAYROLL: string,
   escrow_v1: string,
   escrow: string,
   harvester: string,
@@ -286,6 +287,8 @@ export enum ProposalTemplates {
   dolaApprove = 'dolaApprove',
   daiTransfer = 'daiTransfer',
   daiApprove = 'daiApprove',
+  payrollAdd = 'payrollAdd',
+  payrollRemove = 'payrollRemove',
   // acnhor
   anchorLending = 'anchorLending',
   anchorBorrowing = 'anchorBorrowing',

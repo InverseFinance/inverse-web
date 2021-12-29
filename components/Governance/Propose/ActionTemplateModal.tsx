@@ -12,6 +12,7 @@ import { SubmitButton } from '@inverse/components/common/Button';
 import { AnchorPercTemplate } from './templates/AnchorPercTemplate';
 import { AnchorSupportMarketTemplate } from './templates/AnchorSupportMarkerTemplate';
 import { AnchorOracleTemplate } from './templates/AnchorOracleTemplate';
+import { DolaPayrollTemplate } from './templates/DolaPayrollTemplate';
 
 type Props = {
     isOpen: boolean
@@ -29,6 +30,8 @@ const templates = [
     { label: 'DOLA: Approve funding', value: ProposalTemplates.dolaApprove },
     { label: 'DAI: Send tokens', value: ProposalTemplates.daiTransfer },
     { label: 'DAI: Approve funding', value: ProposalTemplates.daiApprove },
+    { label: 'Payroll: Add', value: ProposalTemplates.payrollAdd },
+    { label: 'Payroll: Remove', value: ProposalTemplates.payrollRemove },
     // anchor
     { label: 'Anchor: Toggle Supply', value: ProposalTemplates.anchorLending },
     { label: 'Anchor: Toggle Borrow', value: ProposalTemplates.anchorBorrowing },
@@ -65,6 +68,8 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         [ProposalTemplates.dolaApprove]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'approve' } },
         [ProposalTemplates.daiTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'transfer' } },
         [ProposalTemplates.daiApprove]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'approve' } },
+        [ProposalTemplates.payrollAdd]: { comp: DolaPayrollTemplate, props: { type: 'add' } },
+        [ProposalTemplates.payrollRemove]: { comp: DolaPayrollTemplate, props: { type: 'remove' }  },
         // anchor
         [ProposalTemplates.anchorLending]:  { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorLending } },
         [ProposalTemplates.anchorBorrowing]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorBorrowing } },

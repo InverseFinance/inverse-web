@@ -17,6 +17,7 @@ const mainnetConfig: NetworkConfig = {
   DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
   THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
   FLOKI: '0x43f11c02439e2736800433b4594994Bd43Cd066D',
+  DOLA_PAYROLL: '0x32edDd879B199503c6Fc37DF95b8920Cd415358F',
   // old XINV
   XINV_V1: OLD_XINV,
   // new XINV
@@ -84,7 +85,6 @@ const mainnetConfig: NetworkConfig = {
     '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'BasedXeno',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
-    '0x32edDd879B199503c6Fc37DF95b8920Cd415358F': 'DolaPayroll',
   },
 }
 
@@ -403,6 +403,7 @@ export const getNetworkConfigConstants = (
   const DOLA3POOLCRV = config.DOLA3POOLCRV
   const THREECRV = config.THREECRV;
   const FLOKI = config.FLOKI;
+  const DOLA_PAYROLL = config.DOLA_PAYROLL;
 
   const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
 
@@ -573,9 +574,9 @@ export const getNetworkConfigConstants = (
     [XINV]: 'xINV',
     [GOVERNANCE]: 'GovMills',
     [GOVERNANCE_ALPHA]: 'GovAlpha',
+    [DOLA_PAYROLL]: 'DolaPayroll',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
-    '0x32edDd879B199503c6Fc37DF95b8920Cd415358F': 'DolaPayroll',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
   }
@@ -665,5 +666,6 @@ export const getNetworkConfigConstants = (
     CONTRACTS,
     NAMED_ADDRESSES,
     PROPOSAL_AUTOCOMPLETE_ADDRESSES,
+    DOLA_PAYROLL,
   }
 }
