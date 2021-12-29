@@ -1,8 +1,8 @@
-import { CopyIcon, DownloadIcon, LinkIcon } from '@chakra-ui/icons'
+import { CopyIcon, DeleteIcon, DownloadIcon, LinkIcon } from '@chakra-ui/icons'
 import Link from '@inverse/components/common/Link'
 import { ProposalFunction } from '@inverse/types'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { saveLocalDraft } from '@inverse/util/governance'
+import { removeLocalDraft, saveLocalDraft } from '@inverse/util/governance'
 import { showToast } from '@inverse/util/notify';
 import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody, useClipboard } from '@chakra-ui/react'
 import { useRouter } from 'next/dist/client/router'
@@ -58,20 +58,27 @@ export const ProposalShareLink = ({
         }
     }
 
+    const handleRemove = async () => {
+        if (!draftId) { return }
+        await removeLocalDraft(draftId);
+        if (onSaveSuccess) { onSaveSuccess(undefined); }
+        showToast({ status: 'success', title: `Draft "${title.substring(0, 20)}..."`, description: 'Draft removed from the local list' })
+    }
+
     return (
         <>
             {
                 type === 'copy' ? <Link mx='2' href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
                     <AnimatedInfoTooltip message={labels[type]}>
-                        <IconComp fontSize="12px" cursor="pointer" />
+                        <IconComp color="blue.500" fontSize="12px" cursor="pointer" />
                     </AnimatedInfoTooltip>
                 </Link>
                     :
-                    <HStack ml="2" spacing="2" display="inline-block">
+                    <HStack ml="3" spacing="3" display="inline-block">
                         <Popover isOpen={hasCopied} isLazy={true} placement="bottom">
                             <PopoverTrigger>
                                 <AnimatedInfoTooltip message={labels[type]}>
-                                    <IconComp fontSize="12px" cursor="pointer" onClick={handleShareLink} />
+                                    <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
                                 </AnimatedInfoTooltip>
                             </PopoverTrigger>
                             <PopoverContent fontSize="14px" width="fit-content" p="1" right="50%" className="blurred-container info-bg">
@@ -82,8 +89,13 @@ export const ProposalShareLink = ({
                             </PopoverContent>
                         </Popover>
                         <AnimatedInfoTooltip message={"Save the draft locally"}>
-                            <DownloadIcon fontSize="12px" cursor="pointer" onClick={handleSave} />
+                            <DownloadIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={handleSave} />
                         </AnimatedInfoTooltip>
+                        {
+                            draftId && <AnimatedInfoTooltip message={"Remove the draft from the local drafts"}>
+                                <DeleteIcon color="red.500" fontSize="12px" cursor="pointer" onClick={handleRemove} />
+                            </AnimatedInfoTooltip>
+                        }
                     </HStack>
             }
         </>

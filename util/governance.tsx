@@ -231,6 +231,17 @@ export const saveLocalDraft = async (title: string, description: string, functio
     }
 }
 
+export const removeLocalDraft = async (draftId: number): Promise<void> => {
+    try {
+        const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
+        const index = drafts.findIndex(d => d.draftId === draftId)
+        drafts.splice(index, 1)
+        await localforage.setItem('proposal-drafts', drafts);
+    } catch (e) {
+        
+    }
+}
+
 export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
     return await localforage.getItem('proposal-drafts') || []
 }
