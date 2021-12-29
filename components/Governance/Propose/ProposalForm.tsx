@@ -79,6 +79,7 @@ export const ProposalForm = ({
     const [previewMode, setPreviewMode] = useState(false);
     const [actionLastId, setActionLastId] = useState(form.actions.length);
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [newDraftId, setNewDraftId] = useState(draftId)
 
     useEffect(() => {
         const validFormGiven = !isFormInvalid(form)
@@ -212,8 +213,15 @@ export const ProposalForm = ({
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             {
                 previewMode && <Text textAlign="center">
-                    Preview / Recap 
-                    <ProposalShareLink draftId={draftId} type="share" title={preview.title!} description={preview.description!} functions={preview.functions!} />
+                    Preview / Recap
+                    <ProposalShareLink
+                        onSaveSuccess={(id) => setNewDraftId(id)}
+                        draftId={newDraftId}
+                        type="share"
+                        title={preview.title!}
+                        description={preview.description!}
+                        functions={preview.functions!}
+                    />
                 </Text>
             }
             {
