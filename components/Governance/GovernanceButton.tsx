@@ -14,6 +14,7 @@ import { useRouter } from 'next/dist/client/router';
 import { executeProposal, queueProposal } from '@inverse/util/governance';
 import { handleTx } from '@inverse/util/transactions';
 import { showToast } from '@inverse/util/notify';
+import { useEffect } from 'react';
 
 const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
@@ -30,6 +31,11 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const govAddress = getGovernanceAddress(proposal.era, chainId);
   const { data } = useEtherSWR([govAddress, 'getReceipt', proposal?.id, userAddress]);
   const [liveStatus, setLiveStatus] = useState<ProposalStatus>(proposal.status)
+
+  useEffect(() => {
+    if(!proposal.status) { return }
+    setLiveStatus(proposal.status)
+  }, [proposal.status])
 
   const { data: snapshotVotingPowerData } = useEtherSWR([
     // xinvExchangeRates exists in gov contract starting from mills only
