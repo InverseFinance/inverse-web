@@ -119,7 +119,7 @@ export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) =>
         </Stack>
       }
       footer={
-        <SubmitButton onClick={handleVote}>
+        <SubmitButton refreshOnSuccess={true} onClick={handleVote}>
           {support ? 'Vote For' : 'Vote Against'}
         </SubmitButton>
       }
