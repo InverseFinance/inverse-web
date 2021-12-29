@@ -13,6 +13,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
 import { GRACE_PERIOD_MS } from '@inverse/config/constants'
+import { ProposalShareLink } from './ProposalShareLink'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -69,14 +70,24 @@ const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
   </Badge>
 )
 
-export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
+export const ProposalPreview = ({ proposal, isLocalDraft = false }: { proposal: Proposal, isLocalDraft?: boolean }) => {
   const { query } = useRouter()
-  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era } = proposal
+  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
 
   const totalVotes = forVotes + againstVotes
+  const href = !isLocalDraft ?
+    { pathname: `/governance/proposals/${era}/${id}`, query }
+    : {
+      pathname: `/governance/propose`, query: {
+        proposalLinkData: JSON.stringify({
+          title, description, functions, draftId: id
+        })
+      }
+    }
+
 
   return (
-    <NextLink href={{ pathname: `/governance/proposals/${era}/${id}`, query }}>
+    <NextLink href={href}>
       <Flex
         w="full"
         justify="space-between"
@@ -129,6 +140,7 @@ export const ProposalPreview = ({ proposal }: { proposal: Proposal }) => {
 
 export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
   const { chainId } = useWeb3React<Web3Provider>()
+  const { query } = useRouter()
 
   if (!proposal?.id) {
     return (
@@ -138,7 +150,7 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
     )
   }
 
-  const { title, description, proposer, status, startTimestamp, etaTimestamp, endTimestamp, id, era } = proposal
+  const { title, description, proposer, status, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
 
   return (
     <Container
@@ -147,6 +159,10 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
         <Stack direction="row" align="center" spacing={1}>
           <StatusBadge status={status} />
           <EraBadge era={era} id={id} />
+          {
+            proposal.status !== ProposalStatus.draft
+            && <ProposalShareLink type="copy" title={title} description={description} functions={functions} />
+          }
           <Text fontSize="sm">
             {' - '}
             {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true)}

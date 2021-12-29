@@ -21,6 +21,7 @@ import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
 import { useEnsProfile } from '@inverse/hooks/useEnsProfile'
 import { Link } from '@inverse/components/common/Link';
+import Head from 'next/head'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -144,6 +145,9 @@ export const DelegateView = () => {
 
   return (
     <Layout>
+      <Head>
+        <title>Inverse Finance - Delegate Page</title>
+      </Head>
       <AppNav active="Governance" />
       <Breadcrumbs
         w="7xl"

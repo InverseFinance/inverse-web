@@ -3,9 +3,13 @@ import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import { Breakdown, DelegatesPreview, Proposals, VotingWallet } from '@inverse/components/Governance'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
+import Head from 'next/head'
 
 export const Governance = () => (
   <Layout>
+    <Head>
+      <title>Inverse Finance - Proposals</title>
+    </Head>
     <AppNav active="Governance" />
     <Breadcrumbs
       w="7xl"

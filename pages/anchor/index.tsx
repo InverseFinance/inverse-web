@@ -12,6 +12,7 @@ import Container from '@inverse/components/common/Container'
 import { ErrorBoundary } from '@inverse/components/common/ErrorBoundary'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
+import Head from 'next/head'
 import { useState } from 'react'
 
 export const Anchor = () => {
@@ -22,6 +23,9 @@ export const Anchor = () => {
 
   return (
     <Layout>
+      <Head>
+        <title>Inverse Finance - Anchor</title>
+      </Head>
       <AppNav active="Anchor" />
       <ErrorBoundary>
         <Flex w={{ base: 'full', xl: '84rem' }} justify="flex-start">
@@ -42,7 +46,7 @@ export const Anchor = () => {
             <Flex w={{ base: 'full', xl: '2xl', lg: '65%' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load supplied assets"><AnchorSupplied /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '2xl', lg:'35%' }} display={borrowDisplay}>
+            <Flex w={{ base: 'full', xl: '2xl', lg: '35%' }} display={borrowDisplay}>
               <ErrorBoundary description="Failed to load borrowed assets"><AnchorBorrowed /></ErrorBoundary>
             </Flex>
           </Flex>
@@ -50,7 +54,7 @@ export const Anchor = () => {
             <Flex w={{ base: 'full', xl: '2xl', lg: '65%' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load suppliable assets"><AnchorSupply /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '2xl', lg:'35%' }} display={borrowDisplay}>
+            <Flex w={{ base: 'full', xl: '2xl', lg: '35%' }} display={borrowDisplay}>
               <ErrorBoundary description="failed to load borrowable assets"><AnchorBorrow /></ErrorBoundary>
             </Flex>
           </Flex>

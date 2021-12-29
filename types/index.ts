@@ -71,6 +71,7 @@ export type Proposal = {
 }
 
 export enum ProposalStatus {
+  draft = 'Draft',
   pending = 'Pending',
   active = 'Active',
   canceled = 'Canceled',
@@ -295,3 +296,10 @@ export enum ProposalTemplates {
 }
 
 export type SmartButtonProps = ButtonProps & Partial<HandleTxOptions> & { refreshOnSuccess?: boolean }
+
+export type DraftProposal = {
+  draftId: number
+  title: string
+  description: string
+  functions: ProposalFunction[]
+}

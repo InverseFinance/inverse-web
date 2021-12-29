@@ -13,6 +13,7 @@ import { AppNav } from '@inverse/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
 import { Proposal, GovEra } from '@inverse/types';
 import { useProposals } from '@inverse/hooks/useProposals';
+import Head from 'next/head'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
 
@@ -37,6 +38,9 @@ export const Governance = () => {
 
   return (
     <Layout>
+      <Head>
+        <title>Inverse Finance - Proposal Details</title>
+      </Head>
       <AppNav active="Governance" />
       <Breadcrumbs
         w="7xl"

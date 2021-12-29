@@ -12,6 +12,7 @@ import { namedAddress } from '@inverse/util'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
+import Head from 'next/head'
 
 const DelegatesTable = () => {
   const { chainId } = useWeb3React<Web3Provider>()
@@ -25,7 +26,7 @@ const DelegatesTable = () => {
     {
       field: 'rank',
       label: 'Rank',
-      header: ({...props}) => <Flex minWidth={64} {...props} />,
+      header: ({ ...props }) => <Flex minWidth={64} {...props} />,
       value: ({ address, ensName, rank }: Delegate, i: number) => (
         <Stack direction="row" align="center" spacing={4} minWidth={64}>
           <Flex w={4} justify="center">
@@ -41,25 +42,25 @@ const DelegatesTable = () => {
     {
       field: 'delegators',
       label: 'Delegators',
-      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ delegators }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${delegators.length}`}</Flex>,
     },
     {
       field: 'votes',
       label: 'Proposals Voted',
-      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ votes }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${votes.length}`}</Flex>,
     },
     {
       field: 'votingPower',
       label: 'Votes',
-      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ votingPower }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${votingPower.toFixed(2)}`}</Flex>,
     },
     {
       field: 'votingPower',
       label: 'Vote weight',
-      header: ({...props}) => <Flex justify="flex-end" minWidth={32} {...props} />,
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
       value: ({ votingPower }: Delegate) => (
         <Flex justify="flex-end" minWidth={32}>{`${((votingPower / totalVotes) * 100).toFixed(2)}%`}</Flex>
       ),
@@ -88,6 +89,9 @@ const DelegatesTable = () => {
 
 export const Stake = () => (
   <Layout>
+    <Head>
+      <title>Inverse Finance - Delegates</title>
+    </Head>
     <AppNav active="Governance" />
     <Breadcrumbs
       w="7xl"
