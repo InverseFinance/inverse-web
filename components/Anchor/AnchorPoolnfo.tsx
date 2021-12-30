@@ -2,6 +2,7 @@ import { InfoTooltip } from '@inverse/components/common/Tooltip';
 import { Text, TextProps } from '@chakra-ui/react';
 import { dollarify, shortenNumber } from '@inverse/util/markets';
 import { capitalize } from '@inverse/util/misc';
+import { usePrices } from '@inverse/hooks/usePrices';
 
 const BalanceTooltipContent = ({ value, priceUsd }: { value: number, priceUsd: number }) => {
     return <>
@@ -40,7 +41,6 @@ export const AnchorPoolInfo = ({
     symbol,
     type,
     priceUsd,
-    invPriceUsd,
     isReward = false,
     isBalance = false,
     underlyingSymbol = '',
@@ -51,18 +51,19 @@ export const AnchorPoolInfo = ({
     value?: number,
     monthlyValue?: number,
     priceUsd?: number,
-    invPriceUsd?: number,
     isReward?: boolean,
     isBalance?: boolean,
     underlyingSymbol?: string,
     textProps?: TextProps,
 }) => {
+    const { prices } = usePrices()
+    const invPriceUsd = prices['inverse-finance']?.usd || 0;
     const needTooltip = (!!monthlyValue && monthlyValue > 0) || (isBalance && !!value && value > 0);
     const isSupplied = type === 'supply' && needTooltip;
     const emoji = isSupplied ? ' ✨' : '';
     const monthlyType = isSupplied ? 'rewards' : 'interests';
     // invPriceUsd (ref is coingecko) when INV is the asset supplied or it's a reward in INV
-    const bestPriceRef = invPriceUsd && (isReward || symbol === 'INV') ? invPriceUsd : priceUsd;
+    const bestPriceRef = invPriceUsd && (isReward || symbol === 'INV' || underlyingSymbol === 'INV') ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
     const label = (value ? `${isBalance ? shortenNumber(value, 2) : value.toFixed(2)}` : '0.00')+suffix
