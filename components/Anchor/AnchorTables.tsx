@@ -37,7 +37,6 @@ const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: B
 const getColumn = (
   colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 'balance' | 'wallet' | 'supplyBalance' | 'borrowBalance',
   minWidth = 24,
-  invPriceUsd?: number,
 ): Column => {
   const cols: { [key: string]: Column } = {
     asset: {
@@ -56,7 +55,7 @@ const getColumn = (
       tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd }: Market) => (
-        <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     rewardApy: {
@@ -65,7 +64,7 @@ const getColumn = (
       tooltip: <><Text fontWeight="bold">APY rewarded in INV token</Text>May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards, priceUsd, underlying }: Market) => (
-        <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} invPriceUsd={invPriceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     balance: {
@@ -73,7 +72,7 @@ const getColumn = (
       label: 'Balance',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ balance, underlying, priceUsd }: Market) => {
-        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} invPriceUsd={invPriceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       },
     },
     borrowApy: {
@@ -101,7 +100,7 @@ const getColumn = (
       Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated borrow Interests</b> over time.
     </Text>,
     value: ({ balance, underlying, priceUsd }: Market) => {
-      return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} invPriceUsd={invPriceUsd} symbol={underlying.symbol} type={'borrow'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+      return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'borrow'} textProps={{ textAlign: "end", minWidth: minWidth }} />
     },
   }
   cols.wallet = {
@@ -157,8 +156,8 @@ export const AnchorSupplied = () => {
 
   const columns = [
     getColumn('asset', 32),
-    getColumn('supplyApy', 24, invPriceUsd),
-    getColumn('rewardApy', 24, invPriceUsd),
+    getColumn('supplyApy', 24),
+    getColumn('rewardApy', 24),
     getColumn('supplyBalance', 24),
     {
       field: 'isCollateral',

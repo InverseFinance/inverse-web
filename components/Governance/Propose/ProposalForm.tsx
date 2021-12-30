@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure, Switch } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields, ProposalFormActionFields } from '@inverse/types';
@@ -30,17 +30,27 @@ const EMPTY_ACTION = {
 
 const PROPOSAL_WARNING_KEY = 'proposalWarningAgreed';
 
+const isActionInvalid = (action: ProposalFormActionFields) => {
+    if (action.contractAddress.length === 0) return true;
+    if (action.func.length === 0) return true;
+    if (action.fragment === undefined) return true;
+    for (const arg of action.args) {
+        if (arg.value.length === 0) return true;
+    }
+    try {
+        getFunctionsFromProposalActions([action]);
+    } catch (e) {
+        return true
+    }
+    return false
+}
+
 const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
     if (title.length === 0) return true;
     if (description.length === 0) return true;
-    if (actions.length === 0) return true;
+    if (actions.length >= 20) return true;
     for (const action of actions) {
-        if (action.contractAddress.length === 0) return true;
-        if (action.func.length === 0) return true;
-        if (action.fragment === undefined) return true;
-        for (const arg of action.args) {
-            if (arg.value.length === 0) return true;
-        }
+        if(isActionInvalid(action)) { return true }
     }
     try {
         getFunctionsFromProposalActions(actions);
@@ -199,11 +209,11 @@ export const ProposalForm = ({
 
     const now = new Date()
 
-    const preview: Partial<Proposal> = isFormValid && previewMode ? {
+    const preview: Partial<Proposal> = previewMode ? {
         id: lastProposalId + 1,
         title: form.title,
         description: form.description,
-        functions: getFunctionsFromProposalActions(form.actions),
+        functions: getFunctionsFromProposalActions(form.actions.filter(a => !isActionInvalid(a))),
         proposer: account || '',
         era: GovEra.mills,
         startTimestamp: now,
@@ -213,6 +223,22 @@ export const ProposalForm = ({
 
     return (
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
+            <Box
+                boxShadow="1px 2px 2px 2px #4299e199"
+                position="fixed"
+                left="15px"
+                top="180px"
+                p="4"
+                zIndex="1"
+                borderRadius="60px"
+                width="70px"
+                height="70px"
+                bgColor="info">
+                <Text fontSize="10px">
+                    Preview
+                </Text>
+                <Switch value="true" onChange={() => setPreviewMode(!previewMode)} isChecked={previewMode} size="sm" color="info" />
+            </Box>
             {
                 previewMode && <Text textAlign="center">
                     Preview / Recap
