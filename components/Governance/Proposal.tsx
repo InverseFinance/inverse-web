@@ -14,6 +14,7 @@ import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
 import { GRACE_PERIOD_MS } from '@inverse/config/constants'
 import { ProposalShareLink } from './ProposalShareLink'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -205,6 +206,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
   return (
     <Container label="Actions">
       <Stack w="full" spacing={6} p={2}>
+        { !functions.length && <InfoMessage description="At least one on-chain action is required" alertProps={{ w: 'full' }} /> }
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
           return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} />
         })}

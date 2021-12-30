@@ -50,7 +50,7 @@ export const ProposalFormBtns = ({
                             <SubmitButton mr="1" w="fit-content" onClick={() => setPreviewMode(false)}>
                                 Resume Editing
                             </SubmitButton>
-                            <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handleSubmitProposal}>
+                            <SubmitButton disabled={!isFormValid || !nbActions} ml="1" w="fit-content" onClick={handleSubmitProposal}>
                                 Submit the Proposal
                             </SubmitButton>
                         </>
