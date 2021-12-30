@@ -53,7 +53,7 @@ const getCollateralFactor = (market: Market): Stat => {
   return {
     label: 'Collateral Factor',
     value: `${market.collateralFactor * 100}%`,
-    tooltipMsg: "Defines how much you can borrow against your supplied collateral before reaching the liquidation limit. The Max Borrowable Limit Amount in USD = Collateral Factor X Collateral Worth in USD"
+    tooltipMsg: "Defines the max worth in USD you can borrow against your supplied collateral USD worth, if this max amount is reached then liquidation can be triggered. The Max Borrowable Limit Amount in USD = Collateral Factor X Collateral Worth in USD, this fluctuates with the assets prices."
   }
 }
 
