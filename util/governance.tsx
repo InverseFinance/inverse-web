@@ -247,3 +247,33 @@ export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
 }
 
 export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')
+
+export const isProposalActionInvalid = (action: ProposalFormActionFields) => {
+    if (action.contractAddress.length === 0) return true;
+    if (action.func.length === 0) return true;
+    if (action.fragment === undefined) return true;
+    for (const arg of action.args) {
+        if (arg.value.length === 0) return true;
+    }
+    try {
+        getFunctionsFromProposalActions([action]);
+    } catch (e) {
+        return true
+    }
+    return false
+}
+
+export const isProposalFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
+    if (title.length === 0) return true;
+    if (description.length === 0) return true;
+    if (actions.length >= 20) return true;
+    for (const action of actions) {
+        if(isProposalActionInvalid(action)) { return true }
+    }
+    try {
+        getFunctionsFromProposalActions(actions);
+    } catch (e) {
+        return true
+    }
+    return false;
+}

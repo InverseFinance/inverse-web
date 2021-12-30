@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure, Switch } from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
 import { Textarea } from '@inverse/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
-import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields, ProposalFormActionFields } from '@inverse/types';
+import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { getFunctionsFromProposalActions, getProposalActionFromFunction, submitProposal } from '@inverse/util/governance';
+import { getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
@@ -18,6 +18,7 @@ import { ActionTemplateModal } from './ActionTemplateModal';
 import { ProposalFormBtns } from './ProposalFormBtns';
 import { ProposalFunction } from '@inverse/types';
 import { ProposalShareLink } from '../ProposalShareLink';
+import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -29,36 +30,6 @@ const EMPTY_ACTION = {
 };
 
 const PROPOSAL_WARNING_KEY = 'proposalWarningAgreed';
-
-const isActionInvalid = (action: ProposalFormActionFields) => {
-    if (action.contractAddress.length === 0) return true;
-    if (action.func.length === 0) return true;
-    if (action.fragment === undefined) return true;
-    for (const arg of action.args) {
-        if (arg.value.length === 0) return true;
-    }
-    try {
-        getFunctionsFromProposalActions([action]);
-    } catch (e) {
-        return true
-    }
-    return false
-}
-
-const isFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
-    if (title.length === 0) return true;
-    if (description.length === 0) return true;
-    if (actions.length >= 20) return true;
-    for (const action of actions) {
-        if(isActionInvalid(action)) { return true }
-    }
-    try {
-        getFunctionsFromProposalActions(actions);
-    } catch (e) {
-        return true
-    }
-    return false;
-}
 
 const DEFAULT_FUNCTIONS: ProposalFunction[] = []
 
@@ -87,14 +58,14 @@ export const ProposalForm = ({
         actions: functions.map((f, i) => getProposalActionFromFunction(i + 1, f)),
     })
 
-    const [isFormValid, setIsFormValid] = useState(!isFormInvalid(form));
+    const [isFormValid, setIsFormValid] = useState(!isProposalFormInvalid(form));
     const [previewMode, setPreviewMode] = useState(isPreview);
     const [actionLastId, setActionLastId] = useState(form.actions.length);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [newDraftId, setNewDraftId] = useState(draftId)
 
     useEffect(() => {
-        const validFormGiven = !isFormInvalid(form)
+        const validFormGiven = !isProposalFormInvalid(form)
         if (!validFormGiven) { return }
         setForm({
             title,
@@ -117,7 +88,7 @@ export const ProposalForm = ({
     }, [])
 
     useEffect(() => {
-        setIsFormValid(!isFormInvalid(form))
+        setIsFormValid(!isProposalFormInvalid(form))
     }, [form])
 
     const handleFuncChange = (index: number, value: string) => {
@@ -213,7 +184,7 @@ export const ProposalForm = ({
         id: lastProposalId + 1,
         title: form.title,
         description: form.description,
-        functions: getFunctionsFromProposalActions(form.actions.filter(a => !isActionInvalid(a))),
+        functions: getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a))),
         proposer: account || '',
         era: GovEra.mills,
         startTimestamp: now,
@@ -223,22 +194,7 @@ export const ProposalForm = ({
 
     return (
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
-            <Box
-                boxShadow="1px 2px 2px 2px #4299e199"
-                position="fixed"
-                left="15px"
-                top="180px"
-                p="4"
-                zIndex="1"
-                borderRadius="60px"
-                width="70px"
-                height="70px"
-                bgColor="info">
-                <Text fontSize="10px">
-                    Preview
-                </Text>
-                <Switch value="true" onChange={() => setPreviewMode(!previewMode)} isChecked={previewMode} size="sm" color="info" />
-            </Box>
+            <ProposalFloatingPreviewBtn onChange={() => setPreviewMode(!previewMode)} isEnabled={previewMode} />
             {
                 previewMode && <Text textAlign="center">
                     Preview / Recap
