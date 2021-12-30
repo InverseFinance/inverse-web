@@ -168,6 +168,11 @@ export const DelegateView = () => {
             <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <Flex w="full" m={6} mb={0} mt="14">
+              <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description="Governance data is updated every 15 min" />
+            </Flex>
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <DelegatorsPreview address={address} />
           </Flex>
         </Flex>

@@ -12,6 +12,7 @@ import { AppNav } from '@inverse/components/common/Navbar'
 import { Link } from '@inverse/components/common/Link'
 import Head from 'next/head'
 import { useDraftProposals } from '@inverse/hooks/useProposals'
+import { InfoMessage } from '@inverse/components/common/Messages'
 
 export const Governance = () => {
   const { drafts } = useDraftProposals()
@@ -41,6 +42,11 @@ export const Governance = () => {
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <VotingWallet />
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <Flex w="full" m={6} mb={0} mt="14">
+              <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description="Governance data is updated every 15 min" />
+            </Flex>
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <Breakdown />
