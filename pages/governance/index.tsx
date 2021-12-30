@@ -25,7 +25,7 @@ export const Governance = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           {
-            drafts?.length && <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+            drafts?.length > 0 && <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
               <LocalDraftProposals drafts={drafts} />
             </Flex>
           }
