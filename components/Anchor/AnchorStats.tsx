@@ -37,7 +37,7 @@ const StatBlock = ({ label, stats }: StatBlockProps) => (
     </Text>
     {stats.map(({ label, value, color }) => (
       <Flex key={label} justify="space-between" fontSize="sm" fontWeight="medium" pl={2}>
-        <Text>{label}</Text>
+        <Text color={color}>{label}</Text>
         <Text color={color} textAlign="end">{value}</Text>
       </Flex>
     ))}
@@ -190,20 +190,30 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
   const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
 
+  const stats = [
+    {
+      label: 'Collateral Factor',
+      value: `${asset.collateralFactor * 100}%`,
+    },
+    {
+      label: 'Borrow Limit',
+      value: `${shortenNumber(borrowable, 2, true)} -> ${shortenNumber(newBorrowable, 2, true)}`,
+    },
+    {
+      label: 'Borrow Limit Used',
+      value: `${(borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)}% -> ${newBorrowLimitLabel}%`,
+      color: cleanPerc > 75 ? 'red.500' : cleanPerc <= 75 && cleanPerc > 50 ? 'orange.500' : 'white',
+    },
+  ]
+
+  if(cleanPerc > 75) {
+    stats.push({ label: 'Reminder:', value: 'Risk of liquidation if Borrow Limit reaches 100%', color: 'red.500' })
+  }
+
   return (
     <StatBlock
       label="Borrow Limit Stats"
-      stats={[
-        {
-          label: 'Borrow Limit',
-          value: `${shortenNumber(borrowable, 2, true)} -> ${shortenNumber(newBorrowable, 2, true)}`,
-        },
-        {
-          label: 'Borrow Limit Used',
-          value: `${(borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)}% -> ${newBorrowLimitLabel}%`,
-          color: cleanPerc > 75 ? 'red.500' : cleanPerc <= 75 && cleanPerc > 50 ? 'orange.500' : 'white',
-        },
-      ]}
+      stats={stats}
     />
   )
 }
@@ -228,20 +238,30 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
   const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
 
+  const stats = [
+    {
+      label: 'Collateral Factor',
+      value: `${asset.collateralFactor * 100}%`,
+    },
+    {
+      label: 'Borrow Limit Remaining',
+      value: `${shortenNumber(usdBorrowable, 2, true)} -> ${shortenNumber(usdBorrowable + change, 2, true)}`,
+    },
+    {
+      label: 'Borrow Limit Used',
+      value: `${(borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)}% -> ${newBorrowLimitLabel}%`,
+      color: cleanPerc > 75 ? 'red.500' : cleanPerc <= 75 && cleanPerc > 50 ? 'orange.500' : 'white',
+    },
+  ]
+
+  if(cleanPerc > 75) {
+    stats.push({ label: 'Reminder:', value: 'Risk of liquidation if Borrow Limit reaches 100%', color: 'red.500' })
+  }
+
   return (
     <StatBlock
       label="Borrow Limit Stats"
-      stats={[
-        {
-          label: 'Borrow Limit Remaining',
-          value: `${shortenNumber(usdBorrowable, 2, true)} -> ${shortenNumber(usdBorrowable + change, 2, true)}`,
-        },
-        {
-          label: 'Borrow Limit Used',
-          value: `${(borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)}% -> ${newBorrowLimitLabel}%`,
-          color: cleanPerc > 75 ? 'red.500' : cleanPerc <= 75 && cleanPerc > 50 ? 'orange.500' : 'white',
-        },
-      ]}
+      stats={stats}
     />
   )
 }
