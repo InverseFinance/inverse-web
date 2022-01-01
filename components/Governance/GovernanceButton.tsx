@@ -73,7 +73,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
     return handleTx(tx, { onSuccess: () => handleCompletionSuccess })
   }
 
-  const isExecuteDisabled = liveStatus !== ProposalStatus.queued || (Date.now() < proposal.etaTimestamp)
+  const isNextStepDisabled = liveStatus === ProposalStatus.queued && (Date.now() < proposal.etaTimestamp)
 
   return (
     <Flex w="full" m={6} mt={9} mb={0} flexDirection="column">
@@ -91,7 +91,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
           <>
             {
               liveStatus === ProposalStatus.succeeded || liveStatus === ProposalStatus.queued ?
-                <SubmitButton isDisabled={isExecuteDisabled} color="#fff" onClick={handleCompletion}>
+                <SubmitButton isDisabled={isNextStepDisabled} color="#fff" onClick={handleCompletion}>
                   {liveStatus === ProposalStatus.succeeded ? 'Queue Proposal' : 'Execute Proposal'}
                 </SubmitButton>
                 :
