@@ -171,7 +171,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               }}
               refreshOnSuccess={true}
               isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
-              rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind. May fail if you have the asset enabled collateral and have outstanding debt.' />}
+              rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind. May fail if you have the asset enabled as collateral and have outstanding debt.' />}
             >
               Withdraw ALL
             </SubmitButton>
