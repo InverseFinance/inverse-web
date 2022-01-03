@@ -18,7 +18,7 @@ import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem
 import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { InfoMessage } from '@inverse/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@inverse/components/common/Messages'
 import { Link } from '@inverse/components/common/Link';
 import { shortenNumber } from '@inverse/util/markets'
 import { roundFloorString } from '@inverse/util/misc'
@@ -45,13 +45,16 @@ export const AnchorModal = ({
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { prices } = useAnchorPrices()
-  const { usdBorrowable } = useAccountLiquidity()
+  const { usdBorrowable, usdBorrow } = useAccountLiquidity()
   const { exchangeRates } = useExchangeRates()
   const { markets: accountMarkets } = useAccountMarkets()
 
   if (!operations.includes(operation)) {
     setOperation(operations[0])
   }
+
+  const isCollateral = !!accountMarkets.find((market: Market) => market.token === asset.token)
+  const needWithdrawWarning = isCollateral && (usdBorrow > 0) && operation === AnchorOperations.withdraw
 
   const maxFloat = () => parseFloat(maxString())
 
@@ -128,6 +131,7 @@ export const AnchorModal = ({
     <Modal
       onClose={handleClose}
       isOpen={isOpen}
+      scrollBehavior={operation === AnchorOperations.withdraw ? 'inside' : undefined}
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
           <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
@@ -136,10 +140,16 @@ export const AnchorModal = ({
       }
       footer={
         <Box w="100%" data-testid={TEST_IDS.anchor.modalFooter}>
+          {
+            needWithdrawWarning
+            && <WarningMessage alertProps={{ mt: '1', fontSize: '12px', w: 'full' }}
+              description="Enabled as collateral, withdrawing reduces borrowing limit" />
+          }
           <AnchorButton
             operation={operation}
             asset={asset}
             amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+            needWithdrawWarning={needWithdrawWarning}
             isDisabled={!amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
           />
         </Box>
