@@ -23,6 +23,7 @@ type AnchorButtonProps = {
   asset: Market
   amount: BigNumber
   isDisabled: boolean
+  needWithdrawWarning?: boolean
 }
 
 const XINVEscrowAlert = ({ showDescription }: any) => (
@@ -90,7 +91,7 @@ const ApproveButton = ({
   )
 }
 
-export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorButtonProps) => {
+export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
   const { library, chainId, account } = useWeb3React<Web3Provider>()
   const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
   const isEthMarket = asset.token === ANCHOR_ETH;
@@ -170,7 +171,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled }: AnchorBut
               }}
               refreshOnSuccess={true}
               isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
-              rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind.' />}
+              rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind. May fail if you have the asset enabled collateral and have outstanding debt.' />}
             >
               Withdraw ALL
             </SubmitButton>
