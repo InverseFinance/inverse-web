@@ -54,7 +54,8 @@ export const AnchorModal = ({
   }
 
   const isCollateral = !!accountMarkets.find((market: Market) => market.token === asset.token)
-  const needWithdrawWarning = isCollateral && (usdBorrow > 0) && operation === AnchorOperations.withdraw
+  const hasSuppliedAsset = supplyBalances && supplyBalances[asset.token] && supplyBalances[asset.token].gt(BigNumber.from('0'));  
+  const needWithdrawWarning = isCollateral && (usdBorrow > 0) && hasSuppliedAsset && operation === AnchorOperations.withdraw
 
   const maxFloat = () => parseFloat(maxString())
 
@@ -70,7 +71,7 @@ export const AnchorModal = ({
             ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
             parseFloat(formatUnits(exchangeRates[asset.token]))
             : 0
-        
+
         const withdrawable = prices
           ? usdBorrowable /
           (asset.collateralFactor *
