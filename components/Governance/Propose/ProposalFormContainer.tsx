@@ -39,7 +39,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
         return () => { isMounted = false }
     }, [library])
 
-    const { proposalLinkData, isPreview } = (query || {})    
+    const { proposalLinkData, isPreview } = (query || {})
     const { title = '', description = '', functions = [], draftId = undefined } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : {})
 
     return (
@@ -68,8 +68,16 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                         </Text>
                         {
                             account && <Text mt="3" fontSize="12px">
-                                If you're interested in seeing how the proposal creation works you can
-                                use the "View Address" feature in the connection menu and choose the "Deployer" address in the list
+                                If you're interested in seeing how the proposal creation works or want to create a local draft please follow this
+                                <Link
+                                    ml="1"
+                                    display="inline-block"
+                                    href={{
+                                        pathname: `/governance/propose`,
+                                        query: { proposalLinkData: JSON.stringify({title: 'Draft', description: 'Draft content', actions:[] }) }
+                                    }}>
+                                    link
+                                </Link>
                             </Text>
                         }
                     </Box>
