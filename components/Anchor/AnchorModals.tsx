@@ -70,15 +70,14 @@ export const AnchorModal = ({
             ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
             parseFloat(formatUnits(exchangeRates[asset.token]))
             : 0
-
+        
         const withdrawable = prices
           ? usdBorrowable /
           (asset.collateralFactor *
             parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
 
-        const isEnabled = accountMarkets.find((market: Market) => market.token === asset.token)
-        const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isEnabled ? supply : withdrawable
+        const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isCollateral ? supply : withdrawable
         return roundFloorString(Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable))
       case AnchorOperations.borrow:
         const borrowable =
@@ -220,9 +219,24 @@ export const AnchorModal = ({
         </Stack>
         <AnchorStats operation={operation} asset={asset} amount={amount} />
         {
-          operation === AnchorOperations.borrow ?
-            <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
-            : null
+          operation === AnchorOperations.borrow &&
+          <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
+        }
+        {
+          needWithdrawWarning &&
+          <InfoMessage alertProps={{ fontSize: '12px' }}
+            description={
+              <>
+              <Text>Withdrawing using "max" is not the same as using "withdraw all" (tries to withdraw everything you own in the pool regardless of debts).</Text>
+              <Text mt="2">Withdrawing "max" can leave some "dust" not withdraw all.</Text>
+              <Text fontWeight="bold" mt="2">If the amount you try to withdraw leaves not enough collateral to cover the debts you have then the transaction may fail to send you the tokens.</Text>
+              </>
+            } />
+        }
+        {
+          !needWithdrawWarning && operation === AnchorOperations.withdraw &&
+          <InfoMessage alertProps={{ fontSize: '12px' }}
+            description='Withdrawing with "max" can leave some "dust" not "withdraw all".' />
         }
       </Stack>
     </Modal>
