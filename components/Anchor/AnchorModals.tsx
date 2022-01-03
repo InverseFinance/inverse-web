@@ -54,7 +54,7 @@ export const AnchorModal = ({
   }
 
   const isCollateral = !!accountMarkets.find((market: Market) => market.token === asset.token)
-  const needWithdrawWarning = isCollateral && (usdBorrow > 0)
+  const needWithdrawWarning = isCollateral && (usdBorrow > 0) && operation === AnchorOperations.withdraw
 
   const maxFloat = () => parseFloat(maxString())
 
@@ -141,7 +141,7 @@ export const AnchorModal = ({
       footer={
         <Box w="100%" data-testid={TEST_IDS.anchor.modalFooter}>
           {
-            operation === AnchorOperations.withdraw && isCollateral
+            needWithdrawWarning
             && <WarningMessage alertProps={{ mt: '1', fontSize: '12px', w: 'full' }}
               description="Enabled as collateral, withdrawing reduces borrowing limit" />
           }
