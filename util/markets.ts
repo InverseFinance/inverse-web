@@ -59,18 +59,26 @@ export const getTotalInterests = (markets: Market[], anSupplyBalances: BigNumber
     }, { supplyUsdInterests: 0, invUsdInterests: 0, borrowInterests: 0, total: 0, totalPositive: 0 });
 }
 
-export const dollarify = (value: number, precision = 2, showPlusSign = false): string => {
+export const dollarify = (value: number, precision = 2, showPlusSign = false, showMinPrecision = false): string => {
     if (typeof value !== 'number' && value !== NaN) { return '$' }
     const signPrefix = value > 0 ? showPlusSign ? '+' : '' : value < 0 ? '-' : ''
     try {
-        return `${signPrefix}$${commify(Math.abs(value)?.toFixed(precision))}`
+        const minValue = getValueOrMinPrecisionValue(value, precision)
+        const content = minValue !== Math.abs(value) && showMinPrecision ? `<$${minValue}` : `$${commify(Math.abs(value)?.toFixed(precision))}`
+        return `${signPrefix}${content}`
     } catch (e) {
         console.log(value);
     }
     return '$';
 }
 
-export const shortenNumber = (value: number, precision = 2, isDollar = false) => {
+export const getValueOrMinPrecisionValue = (value: number, precision = 2) => {
+    const minPrecisionValue = 1 / Math.pow(10, precision)
+    const isLowerThanMinPrecision = Math.abs(value) > 0 && Math.abs(value) < minPrecisionValue
+    return isLowerThanMinPrecision ? minPrecisionValue : value;
+}
+
+export const shortenNumber = (value: number, precision = 2, isDollar = false, showMinPrecision = false) => {
     if(!value) { return (0).toFixed(precision) }
     let suffix = ''
     const dividers: { [key: string]: number } = { 'k': 1000, 'M': 1000000, 'B': 1000000000, 'T': 1000000000000 };
@@ -80,8 +88,10 @@ export const shortenNumber = (value: number, precision = 2, isDollar = false) =>
     else if(value >= 1000) { suffix = 'k' }
     const divider: number = dividers[suffix] || 1
     const shortValue = value/divider;
-    const numResult = isDollar ? dollarify(shortValue, precision) : shortValue.toFixed(precision)
-    return `${numResult}${suffix}`
+    const numResult = isDollar ? dollarify(shortValue, precision, false, showMinPrecision) : shortValue.toFixed(precision)
+    const minValue = getValueOrMinPrecisionValue(value, precision)
+    const content = minValue !== Math.abs(value) && showMinPrecision && !isDollar ? `<${minValue}` : numResult;
+    return `${content}${suffix}`
 }
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {

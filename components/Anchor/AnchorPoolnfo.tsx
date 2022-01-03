@@ -6,7 +6,7 @@ import { usePrices } from '@inverse/hooks/usePrices';
 
 const BalanceTooltipContent = ({ value, priceUsd }: { value: number, priceUsd: number }) => {
     return <>
-        <Text>~ <b>{dollarify(value * priceUsd)}</b></Text>
+        <Text>~ <b>{shortenNumber(value * priceUsd, 2, true, true)}</b></Text>
     </>
 }
 
@@ -27,7 +27,7 @@ const ApyTooltipContent = ({
 }) => {
     return <>
         <Text>Monthly {capitalize(monthlyType)}{emoji}</Text>
-        ~ <b>{monthlyValue?.toFixed(5)} {symbol}</b> ({dollarify(monthlyValue * priceUsd!)})
+        ~ <b>{shortenNumber(monthlyValue, 5, false, true)} {symbol}</b> ({shortenNumber(monthlyValue * priceUsd!, 2, true, true)})
         {
             !isSupplied ?
                 <Text>This increases the debt to repay</Text> : null
@@ -66,7 +66,7 @@ export const AnchorPoolInfo = ({
     const bestPriceRef = invPriceUsd && (isReward || symbol === 'INV' || underlyingSymbol === 'INV') ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
-    const label = (value ? `${isBalance ? shortenNumber(value, 2) : value.toFixed(2)}` : '0.00')+suffix
+    const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00')+suffix
 
     return (
         <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5}>

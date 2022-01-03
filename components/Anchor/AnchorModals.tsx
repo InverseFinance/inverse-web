@@ -198,7 +198,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${shortenNumber(maxFloat(), (amount.startsWith('0') ? 4 : 2))} ${asset.underlying.symbol}`}
+                {`~ ${shortenNumber(maxFloat(), (maxFloat() < 1000 ? 4 : 2), false, true)} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
