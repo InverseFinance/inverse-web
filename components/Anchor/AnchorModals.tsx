@@ -131,6 +131,7 @@ export const AnchorModal = ({
     <Modal
       onClose={handleClose}
       isOpen={isOpen}
+      scrollBehavior={operation === AnchorOperations.withdraw ? 'inside' : undefined}
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
           <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
