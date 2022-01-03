@@ -15,14 +15,14 @@ import { Market } from '@inverse/types'
 import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
-import { commify, formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
 import { handleTx } from '@inverse/util/transactions'
 import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
-import { getBalanceInInv, getMonthlyRate, getParsedBalance } from '@inverse/util/markets'
+import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@inverse/util/markets'
 import { forceQuickAccountRefresh } from '@inverse/util/web3'
 import { useRouter } from 'next/dist/client/router'
 
@@ -212,7 +212,9 @@ export const AnchorSupplied = () => {
   }
 
   return (
-    <Container label={`$${commify(usdSupply.toFixed(2))}`} description="Your supplied assets">
+    <Container
+      label={`${usdSupply ? (usdSupply >= 0.01 ? dollarify(usdSupply, 2) : 'Less than $0.01 supplied') : '$0'}`}
+      description="Your supplied assets">
       <Table
         columns={columns}
         items={marketsWithBalance?.filter(
@@ -277,7 +279,7 @@ export const AnchorBorrowed = () => {
 
   return (
     <Container
-      label={`$${usdBorrow ? commify(usdBorrow.toFixed(2)) : usdBorrow.toFixed(2)}`}
+      label={`${usdBorrow ? (usdBorrow >= 0.01 ? dollarify(usdBorrow, 2) : 'Less than $0.01 debt') : '$0'}`}
       description="Your borrowed assets"
     >
       {usdBorrow ? (
@@ -384,7 +386,7 @@ export const AnchorBorrow = () => {
         <Text textAlign="end" minWidth={24}>
           {
             liquidityUsd
-              ? `$${commify((liquidityUsd / 1e6).toFixed(2))}M`
+              ? shortenNumber(liquidityUsd, 2, true)
               : '-'
           }
         </Text>

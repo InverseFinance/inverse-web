@@ -54,7 +54,8 @@ export const AnchorModal = ({
   }
 
   const isCollateral = !!accountMarkets.find((market: Market) => market.token === asset.token)
-  const needWithdrawWarning = isCollateral && (usdBorrow > 0) && operation === AnchorOperations.withdraw
+  const hasSuppliedAsset = supplyBalances && supplyBalances[asset.token] && supplyBalances[asset.token].gt(BigNumber.from('0'));  
+  const needWithdrawWarning = isCollateral && (usdBorrow > 0) && hasSuppliedAsset && operation === AnchorOperations.withdraw
 
   const maxFloat = () => parseFloat(maxString())
 
@@ -77,8 +78,7 @@ export const AnchorModal = ({
             parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals))))
           : 0
 
-        const isEnabled = accountMarkets.find((market: Market) => market.token === asset.token)
-        const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isEnabled ? supply : withdrawable
+        const userWithdrawable = (!usdBorrowable || withdrawable > supply) || !isCollateral ? supply : withdrawable
         return roundFloorString(Math.min(userWithdrawable, asset.liquidity ? asset.liquidity : userWithdrawable))
       case AnchorOperations.borrow:
         const borrowable =
@@ -198,7 +198,7 @@ export const AnchorModal = ({
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">
-                {`${shortenNumber(maxFloat(), (amount.startsWith('0') ? 4 : 2))} ${asset.underlying.symbol}`}
+                {`~ ${shortenNumber(maxFloat(), (maxFloat() < 1000 ? 4 : 2), false, true)} ${asset.underlying.symbol}`}
               </Text>
             </Stack>
           </Flex>
@@ -220,9 +220,24 @@ export const AnchorModal = ({
         </Stack>
         <AnchorStats operation={operation} asset={asset} amount={amount} />
         {
-          operation === AnchorOperations.borrow ?
-            <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
-            : null
+          operation === AnchorOperations.borrow &&
+          <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
+        }
+        {
+          needWithdrawWarning &&
+          <InfoMessage alertProps={{ fontSize: '12px' }}
+            description={
+              <>
+              <Text>Withdrawing using "max" is not the same as using "withdraw all" (tries to withdraw everything you own in the pool regardless of debts).</Text>
+              <Text mt="2">Withdrawing "max" can leave some "dust" not withdraw all.</Text>
+              <Text fontWeight="bold" mt="2">If the amount you try to withdraw leaves not enough collateral to cover the debts you have then the transaction may fail to send you the tokens.</Text>
+              </>
+            } />
+        }
+        {
+          !needWithdrawWarning && operation === AnchorOperations.withdraw &&
+          <InfoMessage alertProps={{ fontSize: '12px' }}
+            description='Withdrawing with "max" can leave some "dust" not "withdraw all".' />
         }
       </Stack>
     </Modal>
