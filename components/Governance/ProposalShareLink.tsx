@@ -4,7 +4,7 @@ import { ProposalFunction } from '@inverse/types'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { removeLocalDraft, saveLocalDraft } from '@inverse/util/governance'
 import { showToast } from '@inverse/util/notify';
-import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody, useClipboard } from '@chakra-ui/react'
+import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard } from '@chakra-ui/react'
 import { useRouter } from 'next/dist/client/router'
 import { useEffect, useState } from 'react';
 
@@ -77,12 +77,13 @@ export const ProposalShareLink = ({
                     <HStack ml="3" spacing="3" display="inline-block">
                         <Popover isOpen={hasCopied} isLazy={true} placement="bottom">
                             <PopoverTrigger>
-                                <AnimatedInfoTooltip message={labels[type]}>
-                                    <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
-                                </AnimatedInfoTooltip>
+                                <span>
+                                    <AnimatedInfoTooltip message={labels[type]}>
+                                        <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
+                                    </AnimatedInfoTooltip>
+                                </span>
                             </PopoverTrigger>
-                            <PopoverContent fontSize="14px" width="fit-content" p="1" right="50%" className="blurred-container info-bg">
-                                <PopoverArrow />
+                            <PopoverContent fontSize="14px" width="fit-content" p="1" className="blurred-container info-bg">
                                 <PopoverBody>
                                     <b>Sharable Link Copied !</b>
                                 </PopoverBody>
