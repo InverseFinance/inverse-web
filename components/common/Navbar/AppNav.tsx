@@ -17,7 +17,7 @@ import Link from '@inverse/components/common/Link'
 import Logo from '@inverse/components/common/Logo'
 import { ETH_MANTISSA } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ethereumReady, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector } from '@inverse/util/web3'
+import { ethereumReady, getPreviousConnectorType, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector, walletLinkConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '@inverse/components/common/Announcement'
@@ -186,7 +186,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       // visually better
       setTimeout(() => {
         activate(injectedConnector)
-        setIsPreviouslyConnected(true);
+        setIsPreviouslyConnected(true, 'injected');
       }, 100)
     }
   }
@@ -196,10 +196,10 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     activate(walletConnectConnector)
   }
 
-  let connectorName
-  if (connector) {
-    if (connector.walletConnectProvider) connectorName = 'WalletConnect'
-    else connectorName = 'Metamask'
+  const connectCoinbaseWallet = () => {
+    close()
+    activate(walletLinkConnector)
+    setIsPreviouslyConnected(true, 'coinbase');
   }
 
   return (
@@ -255,6 +255,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               >
                 <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
                 <Text fontWeight="semibold">WalletConnect</Text>
+              </ConnectionMenuItem>
+              <ConnectionMenuItem
+                onClick={connectCoinbaseWallet}
+              >
+                <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
+                <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
@@ -323,7 +329,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         showToast({
           status: 'info',
           title: 'Viewing Address:',
-          description: `${namedAddress(address)}${ens ? ` (${ens})`: ''}`,
+          description: `${namedAddress(address)}${ens ? ` (${ens})` : ''}`,
           duration: 15000,
         })
       }
@@ -333,8 +339,10 @@ export const AppNav = ({ active }: { active?: string }) => {
 
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
-      activate(injectedConnector);
-      setTimeout(() => activate(injectedConnector), 500);
+      const previousConnectorType = getPreviousConnectorType();
+      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector: injectedConnector
+      activate(connector);
+      setTimeout(() => activate(connector), 500);
     }
   }, [walletActive]);
 
@@ -372,7 +380,12 @@ export const AppNav = ({ active }: { active?: string }) => {
       setBadgeChainId(chainIdInWallet);
 
       if (window?.ethereum) {
-        window?.ethereum?.on('chainChanged', () => window.location.reload());
+        setTimeout(() => {
+          const before = Number(window?.ethereum?.chainId)
+          window?.ethereum?.on('chainChanged', (after) => {
+            if(before !== after) { window.location.reload() }
+          });
+        }, 0)
       }
     }
     init();

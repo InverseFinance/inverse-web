@@ -3,6 +3,7 @@ import { BLOCK_SCAN } from '@inverse/config/constants'
 import { getNetwork } from '@inverse/config/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { hexValue, formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
@@ -31,6 +32,14 @@ export const walletConnectConnector = new WalletConnectConnector({
   rpc: {
     1: "https://cloudflare-eth.com"
   }
+})
+
+export const walletLinkConnector = new WalletLinkConnector({
+  appName: 'Inverse Finance',
+  appLogoUrl: 'https://www.inverse.finance/assets/inverse.png',
+  url: 'https://cloudflare-eth.com',
+  supportedChainIds: [1, 4],
+  darkMode: true,
 })
 
 export async function fetchWithTimeout(input: RequestInfo, options: RequestInit = {}, timeout = 6000): Promise<Response> {
@@ -97,8 +106,14 @@ export const isPreviouslyConnected = (): boolean => {
   return JSON.parse(window.localStorage.getItem('previouslyConnected') || 'false');
 }
 
-export const setIsPreviouslyConnected = (value: boolean): void => {
+export const getPreviousConnectorType = () => {
+  if (typeof window === undefined) { return false }
+  return window.localStorage.getItem('previousConnectorType') || '';
+}
+
+export const setIsPreviouslyConnected = (value: boolean, connectorType = 'injected'): void => {
   if (typeof window === undefined) { return }
+  window.localStorage.setItem('previousConnectorType', connectorType);
   return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
 }
 

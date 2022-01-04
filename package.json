@@ -26,6 +26,7 @@
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/walletconnect-connector": "^6.2.4",
+    "@web3-react/walletlink-connector": "^6.2.8",
     "ethereum-blockies-base64": "^1.0.2",
     "ethers": "^5.3.1",
     "framer-motion": "^4.1.17",
