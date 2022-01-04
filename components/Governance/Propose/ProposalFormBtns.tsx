@@ -1,6 +1,7 @@
 import { SubmitButton } from '@inverse/components/common/Button';
 import { Flex } from '@chakra-ui/react';
 import { SuccessMessage } from '@inverse/components/common/Messages';
+import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon } from '@chakra-ui/icons';
 
 export const ProposalFormBtns = ({
     hasTitleAndDescrption,
@@ -40,29 +41,29 @@ export const ProposalFormBtns = ({
                             {
                                 nbActions < 20 ?
                                     <SubmitButton disabled={nbActions === 20 || !hasTitleAndDescrption} mr="1" w="fit-content" onClick={showTemplateModal}>
-                                        Add a Template Action
+                                        <PlusSquareIcon mr="1" /> Add a Template Action
                                     </SubmitButton>
                                     : null
                             }
                             <SubmitButton disabled={nbActions === 20 || !hasTitleAndDescrption} ml="1" mr="1" w="fit-content" onClick={() => addAction()}>
-                                {nbActions === 20 ? 'Max number of actions reached' : 'Add an Empty Action'}
+                            <PlusSquareIcon mr="1" /> {nbActions === 20 ? 'Max number of actions reached' : 'Add an Empty Action'}
                             </SubmitButton>
                             <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={() => setPreviewMode(true)}>
-                                Preview Proposal
+                                <ViewIcon mr="1" /> Preview Proposal
                             </SubmitButton>
                         </>
                         :
                         <>
                             <SubmitButton mr="1" w="fit-content" onClick={() => setPreviewMode(false)}>
-                                Resume Editing
+                                <EditIcon mr="1" />Resume Editing
                             </SubmitButton>
                             
                             <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handlePublishDraft}>
-                                Publish the Draft
+                                <CheckIcon mr="1" /> Publish the Draft
                             </SubmitButton>
                             
-                            <SubmitButton disabled={!isFormValid || !nbActions} ml="1" w="fit-content" onClick={handleSubmitProposal}>
-                                Submit the Proposal
+                            <SubmitButton disabled={!isFormValid || !nbActions} ml="2" w="fit-content" onClick={handleSubmitProposal}>
+                                <CheckCircleIcon mr="1" /> Submit the Proposal
                             </SubmitButton>
                         </>
             }

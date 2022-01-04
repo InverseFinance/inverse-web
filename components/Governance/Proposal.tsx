@@ -206,7 +206,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
   return (
     <Container label="Actions">
       <Stack w="full" spacing={6} p={2}>
-        { !functions.length && <InfoMessage description="At least one on-chain action is required" alertProps={{ w: 'full' }} /> }
+        { !functions.length && <InfoMessage description="At least one on-chain action is required to submit the proposal" alertProps={{ w: 'full' }} /> }
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
           return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} />
         })}
