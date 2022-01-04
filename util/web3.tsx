@@ -113,6 +113,7 @@ export const getPreviousConnectorType = () => {
 
 export const setIsPreviouslyConnected = (value: boolean, connectorType = 'injected'): void => {
   if (typeof window === undefined) { return }
+  if(!value) { window.localStorage.clear(); }
   window.localStorage.setItem('previousConnectorType', connectorType);
   return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
 }
@@ -191,11 +192,12 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
 export const forceQuickAccountRefresh = (
   connector: AbstractConnector | undefined,
   deactivate: () => void,
-  activate: (c: InjectedConnector, onError?: () => void) => Promise<void>,
+  activate: (c: InjectedConnector | WalletLinkConnector, onError?: () => void) => Promise<void>,
   onActivateError?: () => void,
 ) => {
-  const isViaInjected = connector instanceof InjectedConnector;
-  if (!isViaInjected) { return }
+  const isSupported = connector instanceof InjectedConnector || connector instanceof WalletLinkConnector;
+  if (!isSupported) { return }
   deactivate()
-  activate(injectedConnector, onActivateError)
+  const con = connector instanceof InjectedConnector ? injectedConnector : walletLinkConnector;
+  activate(con, onActivateError)
 }

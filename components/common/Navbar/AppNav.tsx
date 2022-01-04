@@ -174,6 +174,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     setTimeout(() => {
       setIsPreviouslyConnected(false);
       deactivate()
+      window.location.reload()
     }, 100)
   }
 
