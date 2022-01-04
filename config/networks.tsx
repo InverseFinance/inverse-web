@@ -34,6 +34,7 @@ const mainnetConfig: NetworkConfig = {
     oracle: '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4',
     stabilizer: '0x7eC0D931AFFBa01b77711C2cD07c76B970795CDd',
     treasury: '0x926df14a23be491164dcf93f4c468a50ef659d5b',
+    anEthRepayAll: '0xbE0C9650cf8Ce5279b990e7A6634c63323adfEAE',
     markets: {
       dola: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
       eth: '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
@@ -122,6 +123,7 @@ const rinkebyConfig: NetworkConfig = {
     oracle: '0x4ff3e3b2d1962fc1386af53216e6ea6f013a420c',
     stabilizer: '',
     treasury: '',
+    anEthRepayAll: '',
     markets: {
       dola: '0x7ddAabe73e48FEAE7AE28245609cE26580dF4130',
       eth: '0xd47579Dd1e6a45dF9354912E17AA33A56119508D',
@@ -363,6 +365,7 @@ export const getNetworkConfigConstants = (
   const ORACLE = config.anchor.oracle;
   const STABILIZER = config.anchor.stabilizer;
   const TREASURY = config.anchor.treasury;
+  const AN_ETH_REPAY_ALL = config.anchor.anEthRepayAll;
 
   const ANCHOR_ETH = config.anchor.markets.eth;
   const ANCHOR_DOLA = config.anchor.markets.dola;
@@ -623,6 +626,7 @@ export const getNetworkConfigConstants = (
     VAULT_DAI_ETH,
     VAULT_TOKENS,
     LENS,
+    AN_ETH_REPAY_ALL,
     COMPTROLLER,
     ORACLE,
     STABILIZER,

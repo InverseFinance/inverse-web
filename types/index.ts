@@ -169,6 +169,7 @@ export type NetworkConfig = {
     oracle: string,
     stabilizer: string,
     treasury: string,
+    anEthRepayAll: string,
     markets: {
       dola: string,
       eth: string,
