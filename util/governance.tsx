@@ -219,7 +219,7 @@ export const saveLocalDraft = async (title: string, description: string, functio
         const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
         const id = draftId || (drafts.length + 1)
         const newDraft = { title, description, functions, draftId: id };
-        if(draftId) {
+        if (draftId) {
             drafts[drafts.findIndex(d => d.draftId === draftId)] = newDraft;
         } else {
             drafts.unshift(newDraft);
@@ -238,7 +238,7 @@ export const removeLocalDraft = async (draftId: number): Promise<void> => {
         drafts.splice(index, 1)
         await localforage.setItem('proposal-drafts', drafts);
     } catch (e) {
-        
+
     }
 }
 
@@ -247,6 +247,22 @@ export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
 }
 
 export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')
+
+export const publishDraft = async (title: string, description: string, functions: ProposalFunction[], draftId?: number): Promise<any> => {
+    try {
+        const rawResponse = await fetch(`/api/drafts${draftId ? `/${draftId}` : ''}`, {
+            method: draftId ? 'PUT' : 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title, description, functions })
+        });
+        return await rawResponse.json();
+    } catch (e) {
+        return { status: 'error', message: 'An error occured' }
+    }
+}
 
 export const isProposalActionInvalid = (action: ProposalFormActionFields) => {
     if (action.contractAddress.length === 0) return true;
@@ -268,7 +284,7 @@ export const isProposalFormInvalid = ({ title, description, actions }: ProposalF
     if (description.length === 0) return true;
     if (actions.length >= 20) return true;
     for (const action of actions) {
-        if(isProposalActionInvalid(action)) { return true }
+        if (isProposalActionInvalid(action)) { return true }
     }
     try {
         getFunctionsFromProposalActions(actions);

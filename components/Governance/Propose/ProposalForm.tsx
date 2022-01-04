@@ -5,7 +5,7 @@ import { FunctionFragment } from 'ethers/lib/utils';
 import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, submitProposal } from '@inverse/util/governance';
+import { getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
@@ -40,6 +40,7 @@ export const ProposalForm = ({
     draftId,
     functions = DEFAULT_FUNCTIONS,
     isPreview = false,
+    isPublicDraft = false,
 }: {
     lastProposalId: number,
     title?: string,
@@ -47,6 +48,7 @@ export const ProposalForm = ({
     draftId?: number,
     functions?: ProposalFunction[]
     isPreview?: boolean
+    isPublicDraft?: boolean
 }) => {
     const isMountedRef = useRef(true)
     const [isUnderstood, setIsUnderstood] = useState(true);
@@ -164,6 +166,11 @@ export const ProposalForm = ({
         return handleTx(tx, { onSuccess: () => setHasSuccess(true) });
     }
 
+    const handlePublishDraft = async () => {
+        const functions = getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a)))
+        return publishDraft(form.title, form.description, functions)
+    }
+
     const warningUnderstood = () => {
         setIsUnderstood(true)
         localforage.setItem(PROPOSAL_WARNING_KEY, true)
@@ -196,8 +203,10 @@ export const ProposalForm = ({
         <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             <ProposalFloatingPreviewBtn onChange={() => setPreviewMode(!previewMode)} isEnabled={previewMode} />
             {
-                previewMode && <Text textAlign="center">
-                    Preview / Recap
+                previewMode && <Flex alignItems="center" justify="center">
+                    <Text textAlign="center" display="inline-block">
+                        Preview / Recap
+                    </Text>
                     <ProposalShareLink
                         onSaveSuccess={(id) => setNewDraftId(id)}
                         draftId={newDraftId}
@@ -206,7 +215,7 @@ export const ProposalForm = ({
                         description={preview.description!}
                         functions={preview.functions!}
                     />
-                </Text>
+                </Flex>
             }
             {
                 !isUnderstood ?
@@ -246,9 +255,12 @@ export const ProposalForm = ({
                 hasSuccess={hasSuccess}
                 previewMode={previewMode}
                 handleSubmitProposal={handleSubmitProposal}
+                handlePublishDraft={handlePublishDraft}
                 addAction={addAction}
                 setPreviewMode={setPreviewMode}
                 showTemplateModal={showTemplateModal}
+                draftId={draftId}
+                isPublicDraft={isPublicDraft}
             />
             <ActionTemplateModal isOpen={isOpen} onClose={onClose} onAddTemplate={handleAddTemplate} />
         </Stack>

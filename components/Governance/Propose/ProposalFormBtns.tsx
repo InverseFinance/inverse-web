@@ -7,8 +7,11 @@ export const ProposalFormBtns = ({
     hasSuccess,
     previewMode,
     isFormValid,
+    isPublicDraft,
     nbActions,
+    draftId,
     handleSubmitProposal,
+    handlePublishDraft,
     setPreviewMode,
     showTemplateModal,
     addAction,
@@ -17,8 +20,11 @@ export const ProposalFormBtns = ({
     hasSuccess: boolean,
     previewMode: boolean,
     isFormValid: boolean,
+    isPublicDraft?: boolean,
     nbActions: number,
+    draftId?: number,
     handleSubmitProposal: () => void,
+    handlePublishDraft: () => void,
     setPreviewMode: (v: boolean) => void,
     showTemplateModal: () => void,
     addAction: () => void,
@@ -50,6 +56,11 @@ export const ProposalFormBtns = ({
                             <SubmitButton mr="1" w="fit-content" onClick={() => setPreviewMode(false)}>
                                 Resume Editing
                             </SubmitButton>
+                            
+                            <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handlePublishDraft}>
+                                Publish the Draft
+                            </SubmitButton>
+                            
                             <SubmitButton disabled={!isFormValid || !nbActions} ml="1" w="fit-content" onClick={handleSubmitProposal}>
                                 Submit the Proposal
                             </SubmitButton>
