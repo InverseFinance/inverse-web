@@ -1,7 +1,7 @@
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length);
 
 export const removeScientificFormat = (x: number) => {
-    if(!x) { return x }
+    if (!x) { return x }
     let v: any = x;
     if (Math.abs(v) < 1.0) {
         var e = parseInt(v.toString().split('e-')[1]);
@@ -20,6 +20,16 @@ export const removeScientificFormat = (x: number) => {
     return v;
 }
 
-export const roundFloorString = (v: number, power = 1e8) => {
-    return removeScientificFormat(Math.floor(v * power) / power).toString()
+export const roundFloorString = (v: number, precision = 8) => {
+    return toFixed(v, precision);
+}
+
+function toFixed(num: number, fixed = 2) {
+    try {
+        var re = new RegExp('^-?\\d+(?:\.\\d{0,' + (fixed || -1) + '})?');
+        return (removeScientificFormat(num).toString() || '0').match(re)[0];
+    } catch (e) {
+        console.log(e);
+    }
+    return num.toFixed(fixed)
 }
