@@ -43,6 +43,42 @@ export const Proposals = () => {
   )
 }
 
+export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
+  const { account } = useWeb3React<Web3Provider>()
+  const [isCleared, setIsCleared] = useState(false)
+  const now = new Date()
+  const previews: Partial<Proposal>[] = drafts.map(d => {
+    return {
+      id: d.publicDraftId,
+      title: d.title,
+      description: d.description,
+      functions: d.functions,
+      proposer: account || '',
+      era: GovEra.mills,
+      startTimestamp: now,
+      endTimestamp: (new Date()).setDate(now.getDate() + 3),
+      status: ProposalStatus.draft,
+    }
+  })
+
+  return (
+    <Container
+      label="Draft Proposals"
+      description="Off-Chain Draft Proposals"
+    >
+      <Stack w="full" spacing={1}>
+        {
+          !isCleared ?
+            previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isPublicDraft={true} proposal={proposal} />)
+            : <Flex w="full" justify="center" color="purple.200" fontSize="sm">
+              Drafts have been removed.
+            </Flex>
+        }
+      </Stack>
+    </Container>
+  )
+}
+
 export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { account } = useWeb3React<Web3Provider>()
   const [isCleared, setIsCleared] = useState(false)

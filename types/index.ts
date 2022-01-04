@@ -306,3 +306,5 @@ export type DraftProposal = {
   description: string
   functions: ProposalFunction[]
 }
+
+export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & { publicDraftId: number }

@@ -4,6 +4,7 @@ import {
   Breakdown,
   DelegatesPreview,
   LocalDraftProposals,
+  PublicDraftProposals,
   RecentProposals,
   VotingWallet,
 } from '@inverse/components/Governance'
@@ -11,11 +12,12 @@ import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import { Link } from '@inverse/components/common/Link'
 import Head from 'next/head'
-import { useDraftProposals } from '@inverse/hooks/useProposals'
+import { useLocalDraftProposals, usePublicDraftProposals } from '@inverse/hooks/useProposals'
 import { InfoMessage } from '@inverse/components/common/Messages'
 
 export const Governance = () => {
-  const { drafts } = useDraftProposals()
+  const { drafts: localDratts } = useLocalDraftProposals()
+  const { drafts: publicDrafts } = usePublicDraftProposals()
   return (
     <Layout>
       <Head>
@@ -25,8 +27,13 @@ export const Governance = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           {
-            drafts?.length > 0 && <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-              <LocalDraftProposals drafts={drafts} />
+            localDratts?.length > 0 && <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+              <LocalDraftProposals drafts={localDratts} />
+            </Flex>
+          }
+          {
+            publicDrafts?.length > 0 && <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+              <PublicDraftProposals drafts={publicDrafts} />
             </Flex>
           }
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
