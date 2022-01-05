@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@chakra-ui/react'
-import { showFailNotif } from '@inverse/util/notify';
+import { showFailNotif, showToast } from '@inverse/util/notify';
 import { handleTx } from '@inverse/util/transactions';
 import { SmartButtonProps } from '@inverse/types';
 import { useWeb3React } from '@web3-react/core';
@@ -61,6 +61,11 @@ export const SmartButton = (props: SmartButtonProps) => {
                         if (refreshOnSuccess) { forceQuickAccountRefresh(connector, deactivate, activate) }
                     }
                     await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
+                } else {
+                    if(promiseResult?.status && promiseResult?.message) {
+                        const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
+                        showToast({ status: statusType, description: promiseResult?.message });
+                    }
                 }
             } catch (e) {
                 showFailNotif(e)
