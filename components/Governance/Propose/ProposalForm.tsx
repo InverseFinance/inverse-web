@@ -243,6 +243,7 @@ export const ProposalForm = ({
                     <ProposalShareLink
                         onSaveSuccess={(id) => setNewDraftId(id)}
                         draftId={newDraftId}
+                        isPublicDraft={isPublicDraft}
                         type="share"
                         title={preview.title!}
                         description={preview.description!}

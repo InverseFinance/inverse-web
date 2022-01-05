@@ -51,7 +51,7 @@ export const ProposalShareLink = ({
     }
 
     const handleSave = async () => {
-        const id = await saveLocalDraft(title, description, functions, draftId);
+        const id = await saveLocalDraft(title, description, functions, isPublicDraft ? undefined : draftId);
         if (id) {
             showToast({ status: 'success', title: `Draft "${title.substring(0, 20)}..."`, description: 'Saved locally' })
             if (onSaveSuccess) { onSaveSuccess(id); }
@@ -106,7 +106,7 @@ export const ProposalShareLink = ({
                                     <DownloadIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={handleSave} />
                                 </AnimatedInfoTooltip>
                                 {
-                                    draftId && <AnimatedInfoTooltip message={"Remove the draft from the local drafts"}>
+                                    draftId && !isPublicDraft && <AnimatedInfoTooltip message={"Remove the draft from the local drafts"}>
                                         <DeleteIcon color="red.500" fontSize="12px" cursor="pointer" onClick={handleRemove} />
                                     </AnimatedInfoTooltip>
                                 }
