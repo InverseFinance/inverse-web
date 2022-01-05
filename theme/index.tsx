@@ -33,6 +33,7 @@ const theme = extendTheme({
     secondaryAlpha: '#34E79522',
     success: '#25C9A1',
     successAlpha: '#25C9A122',
+    successLight: '#25C9A199',
     error: '#F44061',
     errorAlpha: '#F4406166',
     warning: '#ed8936',

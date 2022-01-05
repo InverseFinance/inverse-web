@@ -298,7 +298,7 @@ export enum ProposalTemplates {
   anchorOracleFeed = 'anchorOracleFeed',
 }
 
-export type SmartButtonProps = ButtonProps & Partial<HandleTxOptions> & { refreshOnSuccess?: boolean }
+export type SmartButtonProps = ButtonProps & Partial<HandleTxOptions> & { refreshOnSuccess?: boolean, themeColor?: string }
 
 export type DraftProposal = {
   draftId: number

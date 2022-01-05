@@ -112,12 +112,12 @@ export const SubmitButton = (props: SmartButtonProps) => {
   return (
     <SmartButton
       w="full"
-      bgColor="purple.600"
+      bgColor={ !props?.colorScheme ? 'purple.600' : undefined }
       fontSize="13px"
       fontWeight="semibold"
       textTransform="uppercase"
       _focus={{}}
-      _hover={{ bgColor: 'purple.700' }}
+      _hover={ !props?.colorScheme ? { bgColor: 'purple.700' } : undefined }
       {...props}
     />
   )

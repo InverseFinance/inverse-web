@@ -20,7 +20,7 @@ export const SmartButton = (props: SmartButtonProps) => {
     const { query } = useRouter();
     const [isPending, setIsPending] = useState(false);
     const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
-    const { onSuccess, onFail, onPending, refreshOnSuccess, ...btnProps } = props;
+    const { onSuccess, onFail, onPending, refreshOnSuccess, themeColor, ...btnProps } = props;
     const isMountedRef = useRef(true)
 
     useEffect(() => {
@@ -75,10 +75,14 @@ export const SmartButton = (props: SmartButtonProps) => {
         }
     }
 
+    const colorFactor = (Number((themeColor?.match(/\.(.*$)/) || ['', '500'])[1]) + 100).toString();
+    const themeColors = themeColor ? { bgColor: themeColor, _hover: { bgColor: `${themeColor.replace(/\..*$/, '')}.${colorFactor}` } } : {}
+
     return (
         <Button
             loadingText={loadingText}
             {...btnProps}
+            {...themeColors}
             // keep after {...props} :
             disabled={btnProps.disabled || btnProps.isDisabled || isPending}
             onClick={handleClick}
