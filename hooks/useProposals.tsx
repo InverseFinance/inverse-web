@@ -1,4 +1,4 @@
-import { DraftProposal, NetworkIds, Proposal, SWR } from '@inverse/types'
+import { DraftProposal, NetworkIds, Proposal, PublicDraftProposal, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
@@ -13,7 +13,7 @@ type SingleProposal = {
   proposal: Proposal
   isLoading?: boolean
 }
-export const useDraftProposals = (): SWR & { drafts: DraftProposal[] } => {
+export const useLocalDraftProposals = (): SWR & { drafts: DraftProposal[] } => {
   const { data, error } = useSWR(`get-local-drafts`, async () => {
     return {
       drafts: await getLocalDrafts() || []
@@ -26,6 +26,17 @@ export const useDraftProposals = (): SWR & { drafts: DraftProposal[] } => {
     isError: error,
   }
 }
+
+export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[] } => {
+  const { data, error } = useSWR(`/api/drafts`, fetcher)
+
+  return {
+    drafts: data?.drafts || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useProposals = (): SWR & Proposals => {
   // const router = useRouter()
   const { chainId } = useWeb3React<Web3Provider>()

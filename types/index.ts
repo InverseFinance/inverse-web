@@ -68,6 +68,8 @@ export type Proposal = {
   functions: ProposalFunction[]
   voters: ProposalVote[]
   era: GovEra
+  createdAt?: number
+  updatedAt?: number
 }
 
 export enum ProposalStatus {
@@ -298,11 +300,17 @@ export enum ProposalTemplates {
   anchorOracleFeed = 'anchorOracleFeed',
 }
 
-export type SmartButtonProps = ButtonProps & Partial<HandleTxOptions> & { refreshOnSuccess?: boolean }
+export type SmartButtonProps = ButtonProps & Partial<HandleTxOptions> & { refreshOnSuccess?: boolean, themeColor?: string }
 
 export type DraftProposal = {
   draftId: number
   title: string
   description: string
   functions: ProposalFunction[]
+  createdAt: number
+  updatedAt: number
+}
+
+export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
+  publicDraftId: number
 }

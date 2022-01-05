@@ -43,6 +43,44 @@ export const Proposals = () => {
   )
 }
 
+export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
+  const { account } = useWeb3React<Web3Provider>()
+  const [isCleared, setIsCleared] = useState(false)
+  const now = new Date()
+  const previews: Partial<Proposal>[] = drafts.map(d => {
+    return {
+      id: d.publicDraftId,
+      title: d.title,
+      description: d.description,
+      functions: d.functions,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
+      proposer: account || '',
+      era: GovEra.mills,
+      startTimestamp: now,
+      endTimestamp: (new Date()).setDate(now.getDate() + 3),
+      status: ProposalStatus.draft,
+    }
+  })
+
+  return (
+    <Container
+      label="Draft Proposals"
+      description="Off-Chain Draft Proposals"
+    >
+      <Stack w="full" spacing={1}>
+        {
+          !isCleared ?
+            previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isPublicDraft={true} proposal={proposal} />)
+            : <Flex w="full" justify="center" color="purple.200" fontSize="sm">
+              Drafts have been removed.
+            </Flex>
+        }
+      </Stack>
+    </Container>
+  )
+}
+
 export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { account } = useWeb3React<Web3Provider>()
   const [isCleared, setIsCleared] = useState(false)
@@ -53,6 +91,8 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
       title: d.title,
       description: d.description,
       functions: d.functions,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
       proposer: account || '',
       era: GovEra.mills,
       startTimestamp: now,
@@ -70,7 +110,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
     <Container
       label="Local Draft Proposals"
       description={<HStack alignItems="center" cursor="pointer" onClick={handleRemoveDrafts}>
-        <Text fontSize="sm" fontWeight="medium" color="purple.200">Remove all drafts</Text>
+        <Text fontSize="sm" fontWeight="medium" color="purple.200">Remove all local drafts</Text>
         <DeleteIcon ml="2" fontSize="10px" color="red.500" />
       </HStack>}
     >

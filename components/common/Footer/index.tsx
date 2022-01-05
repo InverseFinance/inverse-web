@@ -59,8 +59,8 @@ const LINK_GROUPS = [
         href: 'https://snapshot.org/#/inversefinance.eth',
       },
       {
-        label: 'Tally',
-        href: 'https://www.withtally.com/governance/inverse',
+        label: 'Forum',
+        href: 'https://forum.inverse.finance',
       },
     ],
   },

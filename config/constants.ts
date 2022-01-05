@@ -21,3 +21,9 @@ export const STABILIZER_FEE = 0.004
 
 export const GRACE_PERIOD_MS = 1209600000; // 14 days in milliseconds
 export const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
+export const DRAFT_SIGN_MSG = `Inverse Finance Draft Signature
+
+✅ This is to verify your rights regarding the publishing and edition of drafts
+
+✅ This action does not cost anything
+`

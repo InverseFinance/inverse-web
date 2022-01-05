@@ -8,11 +8,11 @@ import { SkeletonBlob } from '@inverse/components/common/Skeleton'
 import Table from '@inverse/components/common/Table'
 import { useTopDelegates } from '@inverse/hooks/useDelegates'
 import { Delegate } from '@inverse/types'
-import { namedAddress } from '@inverse/util'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import Head from 'next/head'
+import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 
 const DelegatesTable = () => {
   const { chainId } = useWeb3React<Web3Provider>()
@@ -27,17 +27,22 @@ const DelegatesTable = () => {
       field: 'rank',
       label: 'Rank',
       header: ({ ...props }) => <Flex minWidth={64} {...props} />,
-      value: ({ address, ensName, rank }: Delegate, i: number) => (
-        <Stack direction="row" align="center" spacing={4} minWidth={64}>
-          <Flex w={4} justify="center">
-            {rank}
-          </Flex>
-          <Stack direction="row" align="center">
-            <Avatar address={address} sizePx={24} />
-            <Flex>{namedAddress(address, chainId, ensName)}</Flex>
-          </Stack>
-        </Stack>
-      ),
+      value: ({ address, ensName, rank }: Delegate, i: number) => {
+        const { addressName } = useNamedAddress(address, chainId, ensName);
+        return (
+          (
+            <Stack direction="row" align="center" spacing={4} minWidth={64}>
+              <Flex w={4} justify="center">
+                {rank}
+              </Flex>
+              <Stack direction="row" align="center">
+                <Avatar address={address} sizePx={24} />
+                <Flex>{addressName}</Flex>
+              </Stack>
+            </Stack>
+          )
+        )
+      },
     },
     {
       field: 'delegators',

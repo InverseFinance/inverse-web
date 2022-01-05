@@ -4,7 +4,7 @@ import { ProposalForm } from './ProposalForm';
 import { Box, Text } from '@chakra-ui/react';
 import Link from '@inverse/components/common/Link';
 import { TEST_IDS } from '@inverse/config/test-ids';
-import { GovEra, NetworkIds } from '@inverse/types';
+import { GovEra, NetworkIds, Proposal } from '@inverse/types';
 import { useEffect } from 'react';
 import { getGovernanceContract } from '@inverse/util/contracts';
 import { useWeb3React } from '@web3-react/core';
@@ -13,11 +13,12 @@ import { formatUnits } from 'ethers/lib/utils';
 import ScannerLink from '@inverse/components/common/ScannerLink';
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { useRouter } from 'next/dist/client/router';
+import { publishDraft } from '@inverse/util/governance';
 
 const DEFAULT_REQUIRED_VOTING_POWER = 1000;
 const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
-export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) => {
+export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPower: number, publicDraft?: Partial<Proposal> }) => {
     const { library, account } = useWeb3React<Web3Provider>();
     const [requiredVotingPower, setRequiredVotingPower] = useState(DEFAULT_REQUIRED_VOTING_POWER);
     const [lastProposalId, setLastProposalId] = useState(0);
@@ -39,8 +40,8 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
         return () => { isMounted = false }
     }, [library])
 
-    const { proposalLinkData, isPreview } = (query || {})    
-    const { title = '', description = '', functions = [], draftId = undefined } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : {})
+    const { proposalLinkData, isPreview } = (query || {})
+    const { title = '', description = '', functions = [], draftId = undefined, createdAt, updatedAt } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : (publicDraft || {}))
 
     return (
         <Box w="full" p={6} pb={0} data-testid={TEST_IDS.governance.newProposalContainer}>
@@ -51,7 +52,7 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                 (Governance Contract : <ScannerLink value={GOVERNANCE} shorten={true} />)
             </Text>
             {
-                !proposalLinkData && (votingPower < requiredVotingPower || !account) ?
+                (!proposalLinkData && !publicDraft) && (votingPower < requiredVotingPower || !account) ?
                     <Box w="full" textAlign="center">
                         <InfoMessage
                             alertProps={{ textAlign: "center", p: '6' }}
@@ -68,14 +69,32 @@ export const ProposalFormContainer = ({ votingPower }: { votingPower: number }) 
                         </Text>
                         {
                             account && <Text mt="3" fontSize="12px">
-                                If you're interested in seeing how the proposal creation works you can
-                                use the "View Address" feature in the connection menu and choose the "Deployer" address in the list
+                                If you're interested in seeing how the proposal creation works or want to create a local draft please follow this
+                                <Link
+                                    ml="1"
+                                    display="inline-block"
+                                    href={{
+                                        pathname: `/governance/propose`,
+                                        query: { proposalLinkData: JSON.stringify({ title: 'Draft', description: 'Draft content', actions: [] }) }
+                                    }}>
+                                    link
+                                </Link>
                             </Text>
                         }
                     </Box>
                     :
                     <Box w="full" textAlign="center">
-                        <ProposalForm isPreview={isPreview === 'true'} lastProposalId={lastProposalId} title={title as string} description={description as string} functions={functions} draftId={draftId} />
+                        <ProposalForm
+                            isPreview={isPreview === 'true'}
+                            lastProposalId={lastProposalId}
+                            title={title as string}
+                            description={description as string}
+                            functions={functions}
+                            draftId={draftId || publicDraft?.id}
+                            isPublicDraft={!!publicDraft}
+                            createdAt={createdAt}
+                            updatedAt={updatedAt}
+                        />
                     </Box>
             }
         </Box>

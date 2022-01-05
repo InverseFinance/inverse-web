@@ -1,10 +1,10 @@
-import { CopyIcon, DeleteIcon, DownloadIcon, LinkIcon } from '@chakra-ui/icons'
+import { CopyIcon, DeleteIcon, DownloadIcon, EditIcon, LinkIcon } from '@chakra-ui/icons'
 import Link from '@inverse/components/common/Link'
 import { ProposalFunction } from '@inverse/types'
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { removeLocalDraft, saveLocalDraft } from '@inverse/util/governance'
 import { showToast } from '@inverse/util/notify';
-import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverBody, useClipboard } from '@chakra-ui/react'
+import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard } from '@chakra-ui/react'
 import { useRouter } from 'next/dist/client/router'
 import { useEffect, useState } from 'react';
 
@@ -23,6 +23,7 @@ export const ProposalShareLink = ({
     functions,
     draftId,
     type = 'copy',
+    isPublicDraft = false,
     onSaveSuccess,
 }: {
     title: string,
@@ -30,6 +31,7 @@ export const ProposalShareLink = ({
     functions: ProposalFunction[],
     draftId?: number,
     type?: 'copy' | 'share',
+    isPublicDraft?: boolean,
     onSaveSuccess?: (draftId?: number) => void
 }) => {
     const router = useRouter()
@@ -49,7 +51,7 @@ export const ProposalShareLink = ({
     }
 
     const handleSave = async () => {
-        const id = await saveLocalDraft(title, description, functions, draftId);
+        const id = await saveLocalDraft(title, description, functions, isPublicDraft ? undefined : draftId);
         if (id) {
             showToast({ status: 'success', title: `Draft "${title.substring(0, 20)}..."`, description: 'Saved locally' })
             if (onSaveSuccess) { onSaveSuccess(id); }
@@ -68,35 +70,49 @@ export const ProposalShareLink = ({
     return (
         <>
             {
-                type === 'copy' ? <Link px='1' href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
-                    <AnimatedInfoTooltip message={labels[type]}>
-                        <IconComp color="blue.500" fontSize="12px" cursor="pointer" />
-                    </AnimatedInfoTooltip>
-                </Link>
-                    :
-                    <HStack ml="3" spacing="3" display="inline-block">
-                        <Popover isOpen={hasCopied} isLazy={true} placement="bottom">
-                            <PopoverTrigger>
+                <HStack ml="3" spacing="3" display="inline-block">
+                    {
+                        type === 'copy' ? <>
+                            <Link display="inline-block" ml="2" mr="1" href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
                                 <AnimatedInfoTooltip message={labels[type]}>
-                                    <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
+                                    <IconComp color="blue.500" fontSize="12px" cursor="pointer" />
                                 </AnimatedInfoTooltip>
-                            </PopoverTrigger>
-                            <PopoverContent fontSize="14px" width="fit-content" p="1" right="50%" className="blurred-container info-bg">
-                                <PopoverArrow />
-                                <PopoverBody>
-                                    <b>Sharable Link Copied !</b>
-                                </PopoverBody>
-                            </PopoverContent>
-                        </Popover>
-                        <AnimatedInfoTooltip message={"Save the draft locally"}>
-                            <DownloadIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={handleSave} />
-                        </AnimatedInfoTooltip>
-                        {
-                            draftId && <AnimatedInfoTooltip message={"Remove the draft from the local drafts"}>
-                                <DeleteIcon color="red.500" fontSize="12px" cursor="pointer" onClick={handleRemove} />
-                            </AnimatedInfoTooltip>
-                        }
-                    </HStack>
+                            </Link>
+                            {
+                                isPublicDraft && <Link display="inline-block" pr="2" href={{ pathname: `/governance/drafts/edit/${draftId}` }}>
+                                    <AnimatedInfoTooltip message={"Edit the draft"}>
+                                        <EditIcon color="blue.500" fontSize="12px" cursor="pointer" />
+                                    </AnimatedInfoTooltip>
+                                </Link>
+                            }
+                        </>
+                            :
+                            <>
+                                <Popover isOpen={hasCopied} isLazy={true} placement="bottom">
+                                    <PopoverTrigger>
+                                        <span>
+                                            <AnimatedInfoTooltip message={labels[type]}>
+                                                <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
+                                            </AnimatedInfoTooltip>
+                                        </span>
+                                    </PopoverTrigger>
+                                    <PopoverContent fontSize="14px" width="fit-content" p="1" className="blurred-container info-bg">
+                                        <PopoverBody>
+                                            <b>Sharable Link Copied !</b>
+                                        </PopoverBody>
+                                    </PopoverContent>
+                                </Popover>
+                                <AnimatedInfoTooltip message={"Save the draft locally"}>
+                                    <DownloadIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={handleSave} />
+                                </AnimatedInfoTooltip>
+                                {
+                                    draftId && !isPublicDraft && <AnimatedInfoTooltip message={"Remove the draft from the local drafts"}>
+                                        <DeleteIcon color="red.500" fontSize="12px" cursor="pointer" onClick={handleRemove} />
+                                    </AnimatedInfoTooltip>
+                                }
+                            </>
+                    }
+                </HStack>
             }
         </>
     )

@@ -7,14 +7,17 @@ export const getEnsName = async (address: string, isBackendSide = false, specifi
   try {
     const rememberedName: string = isBackendSide ? '' : await localforage.getItem(`ensName-${address}`) || '';
     if(rememberedName) { return rememberedName }
-    const provider = specificProvider || getProvider(NetworkIds.mainnet);
+    const provider = specificProvider || getProvider(NetworkIds.mainnet, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
     const ensName = await provider.lookupAddress(address);
     if(ensName && !isBackendSide) {
-      localforage.setItem(`ensName-${address}`, ensName);
+      await localforage.setItem(`ensName-${address}`, ensName);
     }
     return ensName;
-  } catch (e) {
+  } catch (e: any) {
     console.log(e);
+    if(e.message === 'STRINGPREP_CONTAINS_UNASSIGNED') {
+      await localforage.setItem(`ensName-${address}`, '');
+    }
   }
   return '';
 }

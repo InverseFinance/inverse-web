@@ -4,7 +4,7 @@ import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } fro
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal } from '@inverse/types';
-import { CURRENT_ERA, GRACE_PERIOD_MS } from '@inverse/config/constants';
+import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -219,11 +219,14 @@ export const saveLocalDraft = async (title: string, description: string, functio
         const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
         const id = draftId || (drafts.length + 1)
         const newDraft = { title, description, functions, draftId: id };
-        if(draftId) {
-            drafts[drafts.findIndex(d => d.draftId === draftId)] = newDraft;
+
+        if (draftId) {
+            const oldDraft = drafts[drafts.findIndex(d => d.draftId === draftId)];
+            drafts[drafts.findIndex(d => d.draftId === draftId)] = { ...oldDraft, ...newDraft, updatedAt: Date.now() };
         } else {
-            drafts.unshift(newDraft);
+            drafts.unshift({ ...newDraft, createdAt: Date.now() });
         }
+
         await localforage.setItem('proposal-drafts', drafts);
         return id;
     } catch (e) {
@@ -238,7 +241,7 @@ export const removeLocalDraft = async (draftId: number): Promise<void> => {
         drafts.splice(index, 1)
         await localforage.setItem('proposal-drafts', drafts);
     } catch (e) {
-        
+
     }
 }
 
@@ -247,3 +250,80 @@ export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
 }
 
 export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')
+
+export const publishDraft = async (
+    title: string,
+    description: string,
+    functions: ProposalFunction[],
+    signer: JsonRpcSigner,
+    draftId?: number,
+    onSuccess?: (id: number) => void,
+): Promise<any> => {
+    try {
+        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        
+        const rawResponse = await fetch(`/api/drafts${draftId ? `/${draftId}` : ''}`, {
+            method: draftId ? 'PUT' : 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title, description, functions, sig })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess && !!result.publicDraftId) { onSuccess(result.publicDraftId) }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
+
+export const deleteDraft = async (publicDraftId: number, signer: JsonRpcSigner, onSuccess?: () => void) => {
+    try {
+        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        
+        const rawResponse = await fetch(`/api/drafts/${publicDraftId}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sig })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess) { onSuccess() }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
+
+export const isProposalActionInvalid = (action: ProposalFormActionFields) => {
+    if (action.contractAddress.length === 0) return true;
+    if (action.func.length === 0) return true;
+    if (action.fragment === undefined) return true;
+    for (const arg of action.args) {
+        if (arg.value.length === 0) return true;
+    }
+    try {
+        getFunctionsFromProposalActions([action]);
+    } catch (e) {
+        return true
+    }
+    return false
+}
+
+export const isProposalFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
+    if (title.length === 0) return true;
+    if (description.length === 0) return true;
+    if (actions.length >= 20) return true;
+    for (const action of actions) {
+        if (isProposalActionInvalid(action)) { return true }
+    }
+    try {
+        getFunctionsFromProposalActions(actions);
+    } catch (e) {
+        return true
+    }
+    return false;
+}

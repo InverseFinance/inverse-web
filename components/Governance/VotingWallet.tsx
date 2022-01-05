@@ -13,6 +13,7 @@ import { SubmitDelegationsModal } from './GovernanceModals'
 import Link from '@inverse/components/common/Link'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { useRouter } from 'next/dist/client/router'
+import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 
 type VotingWalletFieldProps = {
   label: string
@@ -51,6 +52,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const userAddress = (query?.viewAddress as string) || account;
+  const { addressName } = useNamedAddress(userAddress, chainId)
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [INV, 'balanceOf', userAddress],
@@ -86,7 +88,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             fontWeight="medium"
             color="purple.100"
             textDecoration="underline">
-            {namedAddress(userAddress, chainId)}
+            {addressName}
           </Link>
         </Flex>
         <VotingWalletField label="INV">

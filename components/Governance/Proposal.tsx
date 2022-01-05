@@ -3,7 +3,7 @@ import { Avatar } from '@inverse/components/common/Avatar'
 import Container from '@inverse/components/common/Container'
 import Link from '@inverse/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
+import { DraftProposal, GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import moment from 'moment'
 import NextLink from 'next/link'
@@ -34,7 +34,7 @@ const getDate = (timestamp: moment.MomentInput, addHours = false) => {
   )
 }
 
-const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false) => {
+const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number) => {
   switch (status) {
     case ProposalStatus.pending:
       return `Will be opened to votes on ${getDate(start, isDetails)}`
@@ -50,6 +50,8 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
       return text;
     case ProposalStatus.executed:
       return getDate(eta)
+    case ProposalStatus.draft:
+      return !createdAt ? '' : `Created ${getDate(createdAt)}${updatedAt ? ` - Last Update ${getDate(updatedAt)}` : ''}`
     default:
       return getDate(eta || end || start)
   }
@@ -71,17 +73,25 @@ const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
   </Badge>
 )
 
-export const ProposalPreview = ({ proposal, isLocalDraft = false }: { proposal: Proposal, isLocalDraft?: boolean }) => {
+export const ProposalPreview = ({
+  proposal,
+  isLocalDraft = false,
+  isPublicDraft = false,
+}: {
+  proposal: Proposal,
+  isLocalDraft?: boolean,
+  isPublicDraft?: boolean,
+}) => {
   const { query } = useRouter()
-  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
+  const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
 
   const totalVotes = forVotes + againstVotes
   const href = !isLocalDraft ?
-    { pathname: `/governance/proposals/${era}/${id}`, query }
+    { pathname: `/governance/${isPublicDraft ? 'drafts' : 'proposals'}/${era}/${id}`, query }
     : {
       pathname: `/governance/propose`, query: {
         proposalLinkData: JSON.stringify({
-          title, description, functions, draftId: id
+          title, description, functions, draftId: id, createdAt, updatedAt
         })
       }
     }
@@ -104,11 +114,13 @@ export const ProposalPreview = ({ proposal, isLocalDraft = false }: { proposal: 
           <Text fontWeight="semibold" fontSize="lg">
             {title}
           </Text>
-          <Stack direction="row" align="center">
-            <StatusBadge status={status} />
-            <EraBadge era={era} id={id} />
-            <Text fontSize="13px" color="purple.100" fontWeight="semibold">
-              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false)}
+          <Stack direction={{ base: 'column', sm: 'row' }} align="left">
+            <Stack direction="row" align="center">
+              <StatusBadge status={status} />
+              {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
+            </Stack>
+            <Text textAlign="left" fontSize="13px" color="purple.100" fontWeight="semibold">
+              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt)}
             </Text>
           </Stack>
         </Flex>
@@ -139,7 +151,7 @@ export const ProposalPreview = ({ proposal, isLocalDraft = false }: { proposal: 
   )
 }
 
-export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
+export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal: Proposal, isPublicDraft?: boolean }) => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
 
@@ -151,22 +163,30 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
     )
   }
 
-  const { title, description, proposer, status, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
+  const { title, description, proposer, status, createdAt, updatedAt, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
 
   return (
     <Container
       label={title}
       description={
-        <Stack direction="row" align="center" spacing={1}>
-          <StatusBadge status={status} />
-          <EraBadge era={era} id={id} />
-          {
-            proposal.status !== ProposalStatus.draft
-            && <ProposalShareLink type="copy" title={title} description={description} functions={functions} />
-          }
-          <Text fontSize="sm">
-            {' - '}
-            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true)}
+        <Stack direction={{ base: 'column', sm: 'row' }} justify="left" align="left" alignItems={{ base: 'flex-start', sm: 'center' }} spacing={1}>
+          <Stack direction="row" align="left" alignItems="center">
+            <StatusBadge status={status} />
+            <EraBadge era={era} id={id} />
+            {
+              (proposal.status !== ProposalStatus.draft || isPublicDraft)
+              && <ProposalShareLink
+                draftId={isPublicDraft ? proposal.id : undefined}
+                isPublicDraft={isPublicDraft}
+                type="copy"
+                title={title}
+                description={description}
+                functions={functions}
+              />
+            }
+          </Stack>
+          <Text textAlign="left" fontSize="sm">
+            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true, createdAt, updatedAt)}
           </Text>
         </Stack>
       }
@@ -176,12 +196,14 @@ export const ProposalDetails = ({ proposal }: { proposal: Proposal }) => {
           <Text fontSize="md" fontWeight="semibold">
             Details
           </Text>
-          <Stack direction="row" align="center">
-            <Avatar address={proposer} sizePx={20} />
-            <Link fontSize="sm" href={`https://etherscan.io/address/${proposer}`}>
-              {namedAddress(proposer, chainId)}
-            </Link>
-          </Stack>
+          {
+            !!proposer && <Stack direction="row" align="center">
+              <Avatar address={proposer} sizePx={20} />
+              <Link fontSize="sm" href={`https://etherscan.io/address/${proposer}`}>
+                {namedAddress(proposer, chainId)}
+              </Link>
+            </Stack>
+          }
         </Flex>
         <Flex w="full">
           <ReactMarkdown className="markdown-body">
@@ -206,7 +228,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
   return (
     <Container label="Actions">
       <Stack w="full" spacing={6} p={2}>
-        { !functions.length && <InfoMessage description="At least one on-chain action is required" alertProps={{ w: 'full' }} /> }
+        {!functions.length && <InfoMessage description="At least one on-chain action is required to submit the proposal" alertProps={{ w: 'full' }} />}
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
           return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} />
         })}
