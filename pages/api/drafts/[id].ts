@@ -35,6 +35,7 @@ export default async function handler(req, res) {
             res.status(200).json({ status: 'success', draft })
             break
         case 'PUT':
+        case 'DELETE':
             const { sig, ...updatedData } = req.body
             const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/, '').toLowerCase().split(',');
             const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
@@ -52,24 +53,28 @@ export default async function handler(req, res) {
                     return
                 }
 
-                const updatedDraft = { ...updatedData, publicDraftId: id };
-
-                const actions = updatedDraft.functions
-                    .map((f, i) => getProposalActionFromFunction(i + 1, f))
-                    .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
-
-                if (isProposalFormInvalid({ title: updatedDraft.title, description: updatedDraft.description, actions })) {
-                    res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
-                    return
-                }
-
                 drafts = JSON.parse(await client.get('drafts') || '[]');
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
-                drafts.splice(index, 1, updatedDraft);
+
+                if(method === 'PUT') {
+                    const updatedDraft = { ...updatedData, publicDraftId: id };
+
+                    const actions = updatedDraft.functions
+                        .map((f, i) => getProposalActionFromFunction(i + 1, f))
+                        .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
+    
+                    if (isProposalFormInvalid({ title: updatedDraft.title, description: updatedDraft.description, actions })) {
+                        res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
+                        return
+                    }
+                    drafts.splice(index, 1, updatedDraft);
+                } else {
+                    drafts.splice(index, 1);
+                }
 
                 await client.set('drafts', JSON.stringify(drafts));
 
-                res.status(200).json({ status: 'success', message: 'Draft updated' })
+                res.status(200).json({ status: 'success', message: `Draft ${method === 'PUT' ? 'updated' : 'removed'}` })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }

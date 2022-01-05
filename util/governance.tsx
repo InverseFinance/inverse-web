@@ -275,6 +275,26 @@ export const publishDraft = async (
     }
 }
 
+export const deleteDraft = async (publicDraftId: number, signer: JsonRpcSigner, onSuccess?: () => void) => {
+    try {
+        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        
+        const rawResponse = await fetch(`/api/drafts/${publicDraftId}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sig })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess) { onSuccess() }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
+
 export const isProposalActionInvalid = (action: ProposalFormActionFields) => {
     if (action.contractAddress.length === 0) return true;
     if (action.func.length === 0) return true;

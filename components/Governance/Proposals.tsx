@@ -106,7 +106,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
     <Container
       label="Local Draft Proposals"
       description={<HStack alignItems="center" cursor="pointer" onClick={handleRemoveDrafts}>
-        <Text fontSize="sm" fontWeight="medium" color="purple.200">Remove all drafts</Text>
+        <Text fontSize="sm" fontWeight="medium" color="purple.200">Remove all local drafts</Text>
         <DeleteIcon ml="2" fontSize="10px" color="red.500" />
       </HStack>}
     >

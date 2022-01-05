@@ -5,7 +5,7 @@ import { FunctionFragment } from 'ethers/lib/utils';
 import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@inverse/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, submitProposal } from '@inverse/util/governance';
+import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, submitProposal } from '@inverse/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@inverse/util/transactions';
@@ -174,7 +174,9 @@ export const ProposalForm = ({
             showToast({ description: 'Not connected', status: 'info' });
             return;
         }
-        const functions = getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a)))
+
+        const functions = getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a)));
+
         return publishDraft(
             form.title,
             form.description,
@@ -183,9 +185,17 @@ export const ProposalForm = ({
             isPublicDraft ? draftId : undefined,
             (newId) => {
                 if (newId) {
-                    router.push( '/governance/drafts/' + newId)
+                    router.push('/governance/drafts/' + newId);
                 }
             })
+    }
+
+    const handleDeleteDraft = async () => {
+        if (!library?.getSigner()) {
+            showToast({ description: 'Not connected', status: 'info' });
+            return;
+        }
+        return deleteDraft(draftId!, library.getSigner(), () => router.push('/governance'));
     }
 
     const warningUnderstood = () => {
@@ -273,6 +283,7 @@ export const ProposalForm = ({
                 previewMode={previewMode}
                 handleSubmitProposal={handleSubmitProposal}
                 handlePublishDraft={handlePublishDraft}
+                handleDeleteDraft={handleDeleteDraft}
                 addAction={addAction}
                 setPreviewMode={setPreviewMode}
                 showTemplateModal={showTemplateModal}

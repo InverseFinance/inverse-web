@@ -34,11 +34,17 @@ export default async function handler(req, res) {
                     .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
 
                 if (isProposalFormInvalid({ title: draft.title, description: draft.description, actions })) {
-                    res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
+                    res.status(400).json({ status: 'warning', message: "Invalid Draft Proposal" })
                     return
                 }
 
                 drafts = JSON.parse(await client.get('drafts') || '[]');
+
+                if(drafts.length === 10) {
+                    res.status(403).json({ status: 'warning', message: "Maximum number of public drafts is 10" })
+                    return
+                }
+
                 const id = (parseInt(await client.get('lastDraftId') || '0')) + 1;
 
                 drafts.unshift({ ...draft, publicDraftId: id });
