@@ -68,6 +68,8 @@ export type Proposal = {
   functions: ProposalFunction[]
   voters: ProposalVote[]
   era: GovEra
+  createdAt?: number
+  updatedAt?: number
 }
 
 export enum ProposalStatus {
@@ -307,4 +309,8 @@ export type DraftProposal = {
   functions: ProposalFunction[]
 }
 
-export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & { publicDraftId: number }
+export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
+  publicDraftId: number
+  createdAt: number
+  updatedAt: number
+}

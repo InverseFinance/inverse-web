@@ -57,7 +57,7 @@ export default async function handler(req, res) {
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
 
                 if(method === 'PUT') {
-                    const updatedDraft = { ...updatedData, publicDraftId: id };
+                    const updatedDraft = { ...updatedData, publicDraftId: id, createdAt: draft.createdAt, updatedAt: Date.now() };
 
                     const actions = updatedDraft.functions
                         .map((f, i) => getProposalActionFromFunction(i + 1, f))

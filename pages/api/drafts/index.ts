@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
                 const id = (parseInt(await client.get('lastDraftId') || '0')) + 1;
 
-                drafts.unshift({ ...draft, publicDraftId: id });
+                drafts.unshift({ ...draft, publicDraftId: id, createdAt: Date.now() });
 
                 await client.set('drafts', JSON.stringify(drafts));
                 await client.set('lastDraftId', id.toString());

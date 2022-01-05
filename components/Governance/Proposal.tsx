@@ -3,7 +3,7 @@ import { Avatar } from '@inverse/components/common/Avatar'
 import Container from '@inverse/components/common/Container'
 import Link from '@inverse/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { DraftProposal, GovEra, Proposal, ProposalFunction, ProposalStatus, PublicDraftProposal } from '@inverse/types'
+import { DraftProposal, GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import moment from 'moment'
 import NextLink from 'next/link'
@@ -50,6 +50,8 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
       return text;
     case ProposalStatus.executed:
       return getDate(eta)
+    case ProposalStatus.draft:
+      return `Created ${getDate(start)}`
     default:
       return getDate(eta || end || start)
   }
@@ -81,7 +83,7 @@ export const ProposalPreview = ({
   isPublicDraft?: boolean,
 }) => {
   const { query } = useRouter()
-  const { title, id, etaTimestamp, endTimestamp, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
+  const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
 
   const totalVotes = forVotes + againstVotes
   const href = !isLocalDraft ?
@@ -112,11 +114,13 @@ export const ProposalPreview = ({
           <Text fontWeight="semibold" fontSize="lg">
             {title}
           </Text>
-          <Stack direction="row" align="center">
-            <StatusBadge status={status} />
-            {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
-            <Text fontSize="13px" color="purple.100" fontWeight="semibold">
-              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false)}
+          <Stack direction={{ base: 'column', sm: 'row' }} align="left">
+            <Stack direction="row" align="center">
+              <StatusBadge status={status} />
+              {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
+            </Stack>
+            <Text textAlign="left" fontSize="13px" color="purple.100" fontWeight="semibold">
+              {getStatusInfos(proposal.status, createdAt || startTimestamp, endTimestamp, etaTimestamp, false)}
             </Text>
           </Stack>
         </Flex>
@@ -159,28 +163,29 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
     )
   }
 
-  const { title, description, proposer, status, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
+  const { title, description, proposer, status, createdAt, updatedAt, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
 
   return (
     <Container
       label={title}
       description={
-        <Stack direction="row" align="center" spacing={1}>
-          <StatusBadge status={status} />
-          <EraBadge era={era} id={id} />
-          {
-            (proposal.status !== ProposalStatus.draft || isPublicDraft)
-            && <ProposalShareLink
-              draftId={isPublicDraft ? proposal.id : undefined}
-              isPublicDraft={isPublicDraft}
-              type="copy"
-              title={title}
-              description={description}
-              functions={functions}
-            />
-          }
-          <Text fontSize="sm">
-            {' - '}
+        <Stack direction={{ base: 'column', sm: 'row' }} justify="left" align="left" alignItems={{ base: 'flex-start', sm: 'center' }} spacing={1}>
+          <Stack direction="row" align="left" alignItems="center">
+            <StatusBadge status={status} />
+            <EraBadge era={era} id={id} />
+            {
+              (proposal.status !== ProposalStatus.draft || isPublicDraft)
+              && <ProposalShareLink
+                draftId={isPublicDraft ? proposal.id : undefined}
+                isPublicDraft={isPublicDraft}
+                type="copy"
+                title={title}
+                description={description}
+                functions={functions}
+              />
+            }
+          </Stack>
+          <Text textAlign="left" fontSize="sm">
             {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true)}
           </Text>
         </Stack>
