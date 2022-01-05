@@ -25,6 +25,8 @@ export const Drafts = () => {
       title: d.title,
       description: d.description,
       functions: d.functions,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
       proposer: '',
       era: GovEra.mills,
       startTimestamp: Date.now(),

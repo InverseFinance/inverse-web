@@ -219,11 +219,14 @@ export const saveLocalDraft = async (title: string, description: string, functio
         const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
         const id = draftId || (drafts.length + 1)
         const newDraft = { title, description, functions, draftId: id };
+
         if (draftId) {
-            drafts[drafts.findIndex(d => d.draftId === draftId)] = newDraft;
+            const oldDraft = drafts[drafts.findIndex(d => d.draftId === draftId)];
+            drafts[drafts.findIndex(d => d.draftId === draftId)] = { ...oldDraft, ...newDraft, updatedAt: Date.now() };
         } else {
-            drafts.unshift(newDraft);
+            drafts.unshift({ ...newDraft, createdAt: Date.now() });
         }
+
         await localforage.setItem('proposal-drafts', drafts);
         return id;
     } catch (e) {

@@ -41,7 +41,7 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
     }, [library])
 
     const { proposalLinkData, isPreview } = (query || {})
-    const { title = '', description = '', functions = [], draftId = undefined } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : (publicDraft || {}))
+    const { title = '', description = '', functions = [], draftId = undefined, createdAt, updatedAt } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : (publicDraft || {}))
 
     return (
         <Box w="full" p={6} pb={0} data-testid={TEST_IDS.governance.newProposalContainer}>
@@ -92,6 +92,8 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                             functions={functions}
                             draftId={draftId || publicDraft?.id}
                             isPublicDraft={!!publicDraft}
+                            createdAt={createdAt}
+                            updatedAt={updatedAt}
                         />
                     </Box>
             }

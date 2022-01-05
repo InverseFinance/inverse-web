@@ -34,7 +34,7 @@ const getDate = (timestamp: moment.MomentInput, addHours = false) => {
   )
 }
 
-const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false) => {
+const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number) => {
   switch (status) {
     case ProposalStatus.pending:
       return `Will be opened to votes on ${getDate(start, isDetails)}`
@@ -51,7 +51,7 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
     case ProposalStatus.executed:
       return getDate(eta)
     case ProposalStatus.draft:
-      return `Created ${getDate(start)}`
+      return !createdAt ? '' : `Created ${getDate(createdAt)}${updatedAt ? ` - Last Update ${getDate(updatedAt)}` : ''}`
     default:
       return getDate(eta || end || start)
   }
@@ -91,7 +91,7 @@ export const ProposalPreview = ({
     : {
       pathname: `/governance/propose`, query: {
         proposalLinkData: JSON.stringify({
-          title, description, functions, draftId: id
+          title, description, functions, draftId: id, createdAt, updatedAt
         })
       }
     }
@@ -120,7 +120,7 @@ export const ProposalPreview = ({
               {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
             </Stack>
             <Text textAlign="left" fontSize="13px" color="purple.100" fontWeight="semibold">
-              {getStatusInfos(proposal.status, createdAt || startTimestamp, endTimestamp, etaTimestamp, false)}
+              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt)}
             </Text>
           </Stack>
         </Flex>
@@ -186,7 +186,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
             }
           </Stack>
           <Text textAlign="left" fontSize="sm">
-            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true)}
+            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true, createdAt, updatedAt)}
           </Text>
         </Stack>
       }

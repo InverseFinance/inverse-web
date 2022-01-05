@@ -42,6 +42,8 @@ export const ProposalForm = ({
     functions = DEFAULT_FUNCTIONS,
     isPreview = false,
     isPublicDraft = false,
+    createdAt,
+    updatedAt,
 }: {
     lastProposalId: number,
     title?: string,
@@ -50,6 +52,8 @@ export const ProposalForm = ({
     functions?: ProposalFunction[]
     isPreview?: boolean
     isPublicDraft?: boolean
+    createdAt?: number
+    updatedAt?: number
 }) => {
     const router = useRouter()
     const isMountedRef = useRef(true)
@@ -220,6 +224,8 @@ export const ProposalForm = ({
         description: form.description,
         functions: getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a))),
         proposer: account || '',
+        createdAt,
+        updatedAt,
         era: GovEra.mills,
         startTimestamp: now,
         endTimestamp: (new Date()).setDate(now.getDate() + 3),

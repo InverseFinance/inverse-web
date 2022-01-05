@@ -307,10 +307,10 @@ export type DraftProposal = {
   title: string
   description: string
   functions: ProposalFunction[]
+  createdAt: number
+  updatedAt: number
 }
 
 export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
   publicDraftId: number
-  createdAt: number
-  updatedAt: number
 }

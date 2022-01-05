@@ -56,13 +56,20 @@ export default async function handler(req, res) {
                 drafts = JSON.parse(await client.get('drafts') || '[]');
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
 
-                if(method === 'PUT') {
-                    const updatedDraft = { ...updatedData, publicDraftId: id, createdAt: draft.createdAt, updatedAt: Date.now() };
+                if (method === 'PUT') {
+                    const updatedDraft = {
+                        ...updatedData,
+                        publicDraftId: id,
+                        createdAt: draft.createdAt,
+                        updatedAt: Date.now(),
+                        updatedBy: sigAddress,
+                        createdBy: draft.createdBy,
+                    };
 
                     const actions = updatedDraft.functions
                         .map((f, i) => getProposalActionFromFunction(i + 1, f))
                         .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
-    
+
                     if (isProposalFormInvalid({ title: updatedDraft.title, description: updatedDraft.description, actions })) {
                         res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
                         return

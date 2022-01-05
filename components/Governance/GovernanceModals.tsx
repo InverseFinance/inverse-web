@@ -202,10 +202,12 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               <Text fontSize="xs" fontWeight="semibold" color="purple.100" mb="2">
                 Delegate Address :
               </Text>
-              <TopDelegatesAutocomplete
-                placeholder={currentDelegate}
-                onItemSelect={(item?: AutocompleteItem) => setDelegate(item?.value || '')}
-              />
+              {
+                isOpen && <TopDelegatesAutocomplete
+                  placeholder={currentDelegate}
+                  onItemSelect={(item?: AutocompleteItem) => setDelegate(item?.value || '')}
+                />
+              }
             </Flex>
           </Stack>}
       </Stack>
