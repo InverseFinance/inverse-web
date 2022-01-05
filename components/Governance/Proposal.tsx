@@ -3,7 +3,7 @@ import { Avatar } from '@inverse/components/common/Avatar'
 import Container from '@inverse/components/common/Container'
 import Link from '@inverse/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { DraftProposal, GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
+import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
 import { namedAddress } from '@inverse/util'
 import moment from 'moment'
 import NextLink from 'next/link'
@@ -205,7 +205,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
             </Stack>
           }
         </Flex>
-        <Flex w="full">
+        <Flex w="full" overflow="auto">
           <ReactMarkdown className="markdown-body">
             {description.replace(
               /(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+/,
