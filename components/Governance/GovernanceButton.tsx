@@ -70,7 +70,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
 
   const handleCompletion = async () => {
     const tx = await proposalCompletionMethods[liveStatus](library?.getSigner(), proposal.era, proposal.id);
-    return handleTx(tx, { onSuccess: () => handleCompletionSuccess })
+    return handleTx(tx, { onSuccess: () => handleCompletionSuccess() })
   }
 
   const isNextStepDisabled = liveStatus === ProposalStatus.queued && (Date.now() < proposal.etaTimestamp)
