@@ -90,8 +90,8 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                             title={title as string}
                             description={description as string}
                             functions={functions}
-                            draftId={draftId}
-                            isPublicDraft={!!publishDraft}
+                            draftId={draftId || publicDraft?.id}
+                            isPublicDraft={!!publicDraft}
                         />
                     </Box>
             }

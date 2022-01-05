@@ -1,7 +1,9 @@
 
-import { isProposalFormInvalid, getProposalActionFunction, isProposalActionInvalid, getProposalActionFromFunction } from '@inverse/util/governance';
+import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@inverse/util/governance';
 import { getRedisClient } from '@inverse/util/redis';
 import { ProposalFormActionFields } from '@inverse/types';
+import { verifyMessage } from 'ethers/lib/utils';
+import { DRAFT_SIGN_MSG } from '@inverse/config/constants';
 
 const client = getRedisClient();
 
@@ -17,15 +19,18 @@ export default async function handler(req, res) {
             res.status(200).json({ status: 'success', drafts: JSON.parse(drafts) })
             break
         case 'POST':
-            if (req.headers.authorization !== `Bearer ${process.env.DRAFT_PROPOSAL_PUBLISH_KEY}`) {
-                res.status(401).json({ status: 'error', message: 'Unauthorized' })
-                return
-            };
-
             try {
-                const draft = req.body
+                const { sig, ...draft } = req.body
+                const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/, '').toLowerCase().split(',');
+                const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
+
+                if (!whitelisted.includes(sigAddress)) {
+                    res.status(401).json({ status: 'warning', message: 'Unauthorized' })
+                    return
+                };
+
                 const actions = draft.functions
-                    .map(getProposalActionFromFunction)
+                    .map((f, i) => getProposalActionFromFunction(i + 1, f))
                     .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
 
                 if (isProposalFormInvalid({ title: draft.title, description: draft.description, actions })) {
@@ -41,7 +46,7 @@ export default async function handler(req, res) {
                 await client.set('drafts', JSON.stringify(drafts));
                 await client.set('lastDraftId', id.toString());
 
-                res.status(200).json({ status: 'success', publicDraftId: id })
+                res.status(200).json({ status: 'success', publicDraftId: id, message: 'Draft Published' })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }

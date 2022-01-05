@@ -53,8 +53,8 @@ export const Drafts = () => {
 
   const proposal = previews?.find((p: Proposal) => {
     return slug.length === 1 ?
-      p.id.toString() === slug[0] :
-      p.era === slug[0] && p.id.toString() === slug[1]
+      p.id?.toString() === slug[0] :
+      p.era === slug[0] && p.id?.toString() === slug[1]
   }) || {} as Proposal;
 
   const { id = '', era = '' } = proposal;

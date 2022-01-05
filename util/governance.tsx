@@ -4,7 +4,7 @@ import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } fro
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal } from '@inverse/types';
-import { CURRENT_ERA, GRACE_PERIOD_MS } from '@inverse/config/constants';
+import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS } from '@inverse/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -248,21 +248,30 @@ export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
 
 export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')
 
-export const publishDraft = async (title: string, description: string, functions: ProposalFunction[], draftId?: number, onSuccess?: (id: number) => void): Promise<any> => {
+export const publishDraft = async (
+    title: string,
+    description: string,
+    functions: ProposalFunction[],
+    signer: JsonRpcSigner,
+    draftId?: number,
+    onSuccess?: (id: number) => void,
+): Promise<any> => {
     try {
+        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        
         const rawResponse = await fetch(`/api/drafts${draftId ? `/${draftId}` : ''}`, {
             method: draftId ? 'PUT' : 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ title, description, functions })
+            body: JSON.stringify({ title, description, functions, sig })
         });
-        const result =  await rawResponse.json();
-        if(onSuccess && result.status === 'ok') { onSuccess(result.publicDraftId) }
+        const result = await rawResponse.json();
+        if (onSuccess && !!result.publicDraftId) { onSuccess(result.publicDraftId) }
         return result;
-    } catch (e) {
-        return { status: 'error', message: 'An error occured' }
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
     }
 }
 

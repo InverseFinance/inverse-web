@@ -59,7 +59,7 @@ export const ProposalFormBtns = ({
                             </SubmitButton>
                             
                             <SubmitButton disabled={!isFormValid} ml="1" w="fit-content" onClick={handlePublishDraft}>
-                                <CheckIcon mr="1" /> Publish the Draft
+                                <CheckIcon mr="1" /> { isPublicDraft && draftId ? 'Update' : 'Publish' } the Draft
                             </SubmitButton>
                             
                             <SubmitButton disabled={!isFormValid || !nbActions} ml="2" w="fit-content" onClick={handleSubmitProposal}>

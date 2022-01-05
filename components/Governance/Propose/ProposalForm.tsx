@@ -19,6 +19,7 @@ import { ProposalFormBtns } from './ProposalFormBtns';
 import { ProposalFunction } from '@inverse/types';
 import { ProposalShareLink } from '../ProposalShareLink';
 import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
+import { useRouter } from 'next/dist/client/router';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -50,6 +51,7 @@ export const ProposalForm = ({
     isPreview?: boolean
     isPublicDraft?: boolean
 }) => {
+    const router = useRouter()
     const isMountedRef = useRef(true)
     const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
@@ -67,12 +69,13 @@ export const ProposalForm = ({
     const [newDraftId, setNewDraftId] = useState(draftId)
 
     useEffect(() => {
-        const validFormGiven = !isProposalFormInvalid(form)
+        const actions = functions.map((f, i) => getProposalActionFromFunction(i + 1, f));
+        const validFormGiven = !isProposalFormInvalid({ title, description, actions });
         if (!validFormGiven) { return }
         setForm({
             title,
             description,
-            actions: functions.map((f, i) => getProposalActionFromFunction(i + 1, f)),
+            actions,
         })
         setActionLastId(functions.length)
         setIsFormValid(validFormGiven)
@@ -167,12 +170,22 @@ export const ProposalForm = ({
     }
 
     const handlePublishDraft = async () => {
+        if (!library?.getSigner()) {
+            showToast({ description: 'Not connected', status: 'info' });
+            return;
+        }
         const functions = getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a)))
-        return publishDraft(form.title, form.description, functions, draftId, (newId) => {
-            if(!draftId && newId) {
-                window.location.pathname = '/governance/drafts/'+newId
-            }
-        })
+        return publishDraft(
+            form.title,
+            form.description,
+            functions,
+            library?.getSigner(),
+            isPublicDraft ? draftId : undefined,
+            (newId) => {
+                if (newId) {
+                    router.push( '/governance/drafts/' + newId)
+                }
+            })
     }
 
     const warningUnderstood = () => {

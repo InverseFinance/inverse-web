@@ -1,5 +1,8 @@
-import { isProposalFormInvalid } from '@inverse/util/governance';
+import { DRAFT_SIGN_MSG } from '@inverse/config/constants';
+import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@inverse/util/governance';
 import { getRedisClient } from '@inverse/util/redis';
+import { verifyMessage } from 'ethers/lib/utils';
+import { ProposalFormActionFields } from '@inverse/types';
 
 const client = getRedisClient();
 
@@ -32,8 +35,12 @@ export default async function handler(req, res) {
             res.status(200).json({ status: 'success', draft })
             break
         case 'PUT':
-            if (req.headers.authorization !== `Bearer ${process.env.DRAFT_PROPOSAL_PUBLISH_KEY}`) {
-                res.status(401).json({ success: false, message: 'Unauthorized' })
+            const { sig, ...updatedData } = req.body
+            const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/, '').toLowerCase().split(',');
+            const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
+
+            if (!whitelisted.includes(sigAddress)) {
+                res.status(401).json({ status: 'warning', message: 'Unauthorized' })
                 return
             };
 
@@ -41,22 +48,28 @@ export default async function handler(req, res) {
                 draft = await getDraft(id);
 
                 if (!draft) {
-                    res.status(404).json({ status: 'error', message: 'Draft not found' })
+                    res.status(404).json({ status: 'warning', message: 'Draft not found' })
                     return
                 }
 
-                if (isProposalFormInvalid(draft)) {
+                const updatedDraft = { ...updatedData, publicDraftId: id };
+
+                const actions = updatedDraft.functions
+                    .map((f, i) => getProposalActionFromFunction(i + 1, f))
+                    .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
+
+                if (isProposalFormInvalid({ title: updatedDraft.title, description: updatedDraft.description, actions })) {
                     res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
                     return
                 }
 
                 drafts = JSON.parse(await client.get('drafts') || '[]');
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
-                drafts.splice(index, 1, draft);
+                drafts.splice(index, 1, updatedDraft);
 
                 await client.set('drafts', JSON.stringify(drafts));
 
-                res.status(200).json({ status: 'success' })
+                res.status(200).json({ status: 'success', message: 'Draft updated' })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }
