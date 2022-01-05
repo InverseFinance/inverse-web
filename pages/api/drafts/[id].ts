@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
                 await client.set('drafts', JSON.stringify(drafts));
 
-                res.status(200).json({ status: 'ok' })
+                res.status(200).json({ status: 'success' })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }

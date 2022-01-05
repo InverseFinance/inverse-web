@@ -18,7 +18,7 @@ export default async function handler(req, res) {
             break
         case 'POST':
             if (req.headers.authorization !== `Bearer ${process.env.DRAFT_PROPOSAL_PUBLISH_KEY}`) {
-                res.status(401).json({ success: false, message: 'Unauthorized' })
+                res.status(401).json({ status: 'error', message: 'Unauthorized' })
                 return
             };
 
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                 await client.set('drafts', JSON.stringify(drafts));
                 await client.set('lastDraftId', id.toString());
 
-                res.status(200).json({ status: 'ok', publicDraftId: id })
+                res.status(200).json({ status: 'success', publicDraftId: id })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }

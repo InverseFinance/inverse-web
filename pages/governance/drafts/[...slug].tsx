@@ -19,7 +19,7 @@ export const Drafts = () => {
 
   const now = new Date();
 
-  const previews: Partial<PublicDraftProposal>[] = drafts.map(d => {
+  const previews: Partial<Proposal>[] = drafts.map(d => {
     return {
       id: d.publicDraftId,
       title: d.title,
@@ -27,7 +27,7 @@ export const Drafts = () => {
       functions: d.functions,
       proposer: '',
       era: GovEra.mills,
-      startTimestamp: now,
+      startTimestamp: Date.now(),
       endTimestamp: (new Date()).setDate(now.getDate() + 3),
       status: ProposalStatus.draft,
     }
@@ -54,7 +54,6 @@ export const Drafts = () => {
         w="7xl"
         breadcrumbs={[
           { label: 'Governance', href: '/governance' },
-          { label: 'Drafts', href: '/governance/drafts' },
           { label: `Draft ${proposalBreadLabel}`, href: '#' },
         ]}
       />

@@ -169,8 +169,15 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
           <StatusBadge status={status} />
           <EraBadge era={era} id={id} />
           {
-            proposal.status !== ProposalStatus.draft || isPublicDraft
-            && <ProposalShareLink type="copy" title={title} description={description} functions={functions} />
+            (proposal.status !== ProposalStatus.draft || isPublicDraft)
+            && <ProposalShareLink
+              draftId={isPublicDraft ? proposal.id : undefined}
+              isPublicDraft={isPublicDraft}
+              type="copy"
+              title={title}
+              description={description}
+              functions={functions}
+            />
           }
           <Text fontSize="sm">
             {' - '}

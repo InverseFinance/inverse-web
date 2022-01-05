@@ -168,7 +168,11 @@ export const ProposalForm = ({
 
     const handlePublishDraft = async () => {
         const functions = getFunctionsFromProposalActions(form.actions.filter(a => !isProposalActionInvalid(a)))
-        return publishDraft(form.title, form.description, functions)
+        return publishDraft(form.title, form.description, functions, draftId, (newId) => {
+            if(!draftId && newId) {
+                window.location.pathname = '/governance/drafts/'+newId
+            }
+        })
     }
 
     const warningUnderstood = () => {

@@ -248,7 +248,7 @@ export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
 
 export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')
 
-export const publishDraft = async (title: string, description: string, functions: ProposalFunction[], draftId?: number): Promise<any> => {
+export const publishDraft = async (title: string, description: string, functions: ProposalFunction[], draftId?: number, onSuccess?: (id: number) => void): Promise<any> => {
     try {
         const rawResponse = await fetch(`/api/drafts${draftId ? `/${draftId}` : ''}`, {
             method: draftId ? 'PUT' : 'POST',
@@ -258,7 +258,9 @@ export const publishDraft = async (title: string, description: string, functions
             },
             body: JSON.stringify({ title, description, functions })
         });
-        return await rawResponse.json();
+        const result =  await rawResponse.json();
+        if(onSuccess && result.status === 'ok') { onSuccess(result.publicDraftId) }
+        return result;
     } catch (e) {
         return { status: 'error', message: 'An error occured' }
     }
