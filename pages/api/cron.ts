@@ -1,14 +1,12 @@
 import "source-map-support";
 
-import { Contract, BigNumber } from "ethers";
+import { Contract } from "ethers";
 import { GOVERNANCE_ABI, INV_ABI } from "@inverse/config/abis";
 import { formatUnits } from "ethers/lib/utils";
 import { getNetworkConfig } from '@inverse/config/networks';
 import { getProvider } from '@inverse/util/providers';
 import { getRedisClient } from '@inverse/util/redis';
-import { GovEra, Delegate } from '@inverse/types';
-import { PROPOSAL_DURATION } from '@inverse/config/constants';
-import { getProposalStatus } from '@inverse/util/governance';
+import { Delegate } from '@inverse/types';
 
 const client = getRedisClient();
 
@@ -45,14 +43,8 @@ export default async function handler(req, res) {
         xinvDelegateChanged,
         // gov mills
         votesCast,
-        proposalCount,
-        quorumVotes,
-        proposalsCreated,
         // gov Alpha (old)
         votesCastAlpha,
-        proposalCountAlpha,
-        quorumVotesAlpha,
-        proposalsCreatedAlpha,
       ] = await Promise.all([
         inv.queryFilter(inv.filters.DelegateVotesChanged()),
         inv.queryFilter(inv.filters.DelegateChanged()),
@@ -60,14 +52,8 @@ export default async function handler(req, res) {
         xinv.queryFilter(xinv.filters.DelegateChanged()),
         // gov mills
         governance.queryFilter(governance.filters.VoteCast()),
-        governance.proposalCount(),
-        governance.quorumVotes(),
-        governance.queryFilter(governance.filters.ProposalCreated()),
         // gov Alpha (old)
         governanceAlpha.queryFilter(governanceAlpha.filters.VoteCast()),
-        governanceAlpha.proposalCount(),
-        governanceAlpha.quorumVotes(),
-        governanceAlpha.queryFilter(governanceAlpha.filters.ProposalCreated()),
       ]);
 
       const invDelegates: { [key: string]: Delegate } = delegateVotesChanged.reduce(
@@ -146,96 +132,6 @@ export default async function handler(req, res) {
         blockNumber,
         timestamp: Date.now(),
         data: delegates,
-      }))
-
-      const getProposals = async (
-        proposalCount: BigNumber,
-        govContract: Contract,
-        proposalsCreated: any[],
-        votesCast: any[],
-        quorumVotes: BigNumber,
-        era: GovEra,
-      ) => {
-        const proposalData = await Promise.all(
-          [...Array(proposalCount.toNumber()).keys()].map((i) =>
-            govContract.proposals(i + 1)
-          )
-        );
-
-        const startBlocks = await Promise.all(
-          proposalData.map(({ startBlock }) =>
-            provider.getBlock(startBlock.toNumber())
-          )
-        );
-
-        const endBlocks = await Promise.all(
-          proposalData.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))
-        );
-
-        return proposalData.map(
-          (
-            {
-              id,
-              proposer,
-              eta,
-              startBlock,
-              endBlock,
-              forVotes,
-              againstVotes,
-              canceled,
-              executed,
-            },
-            i
-          ) => {
-            const { args } = proposalsCreated.find(({ args }) => args.id.eq(id));
-            const votes = votesCast.filter(({ args }) => args?.proposalId.eq(id));
-
-            const etaTimestamp = eta.toNumber() * 1000
-
-            let status = getProposalStatus(canceled, executed, eta, startBlock, endBlock, blockNumber, againstVotes, forVotes, quorumVotes)
-
-            return {
-              id: id.toNumber(),
-              proposalNum: id.toNumber() + (era === GovEra.alpha ? 0 : proposalCountAlpha.toNumber()),
-              era,
-              proposer: proposer,
-              etaTimestamp: etaTimestamp,
-              startTimestamp: startBlocks[i].timestamp * 1000,
-              endTimestamp: blockNumber > endBlock.toNumber() ? endBlocks[i].timestamp * 1000 : (startBlocks[i].timestamp * 1000) + PROPOSAL_DURATION,
-              startBlock: startBlock.toNumber(),
-              endBlock: endBlock.toNumber(),
-              forVotes: parseFloat(formatUnits(forVotes)),
-              againstVotes: parseFloat(formatUnits(againstVotes)),
-              canceled: canceled,
-              executed: executed,
-              title: args.description.split("\n")[0].split("# ")[1],
-              description: args.description.split("\n").slice(1).join("\n"),
-              status,
-              functions: args.targets.map((target: any, i: number) => ({
-                target,
-                signature: args.signatures[i],
-                callData: args.calldatas[i],
-              })),
-              voters: votes.map((vote: any) => ({
-                id: vote.args[1].toNumber(),
-                voter: vote.args[0],
-                support: vote.args[2],
-                votes: parseFloat(formatUnits(vote.args[3])),
-              })),
-            };
-          }
-        );
-      }
-
-      const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mills);
-      const proposalsAlpha = await getProposals(proposalCountAlpha, governanceAlpha, proposalsCreatedAlpha, votesCastAlpha, quorumVotesAlpha, GovEra.alpha);
-
-      const totalProposals = proposals.concat(proposalsAlpha);
-
-      await client.set(`${chainId}-proposals`, JSON.stringify({
-        blockNumber,
-        timestamp: Date.now(),
-        proposals: totalProposals,
       }))
 
       res.status(200).json({ success: true });
