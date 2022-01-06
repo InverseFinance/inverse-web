@@ -61,14 +61,14 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                                     At least <b>1000 voting power</b> is required to make a new proposal.
                                 </>
                             } />
-                        <Text mt="3">
+                        <Box color="white" mt="3">
                             You can share your proposal idea in our
                             <Link fontWeight="bold" ml="1" href="https://discord.gg/YpYJC7R5nv" isExternal>
                                 Discord
                             </Link>
-                        </Text>
+                        </Box>
                         {
-                            account && <Text mt="3" fontSize="12px">
+                            account && <Box color="white" mt="3" fontSize="12px">
                                 If you're interested in seeing how the proposal creation works or want to create a local draft please follow this
                                 <Link
                                     ml="1"
@@ -77,9 +77,9 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                                         pathname: `/governance/propose`,
                                         query: { proposalLinkData: JSON.stringify({ title: 'Draft', description: 'Draft content', actions: [] }) }
                                     }}>
-                                    link
+                                    Link
                                 </Link>
-                            </Text>
+                            </Box>
                         }
                     </Box>
                     :
