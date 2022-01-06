@@ -115,7 +115,7 @@ export const AnchorSupplied = () => {
   const { chainId, library, deactivate, activate, connector } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const { markets, isLoading: marketsLoading } = useMarkets()
-  const { usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
+  const { usdSupplyCoingecko ,isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
@@ -199,7 +199,7 @@ export const AnchorSupplied = () => {
     },
   ]
 
-  if (!active || !usdSupply) {
+  if (!active || !usdSupplyCoingecko) {
     return <></>
   }
 
@@ -213,7 +213,7 @@ export const AnchorSupplied = () => {
 
   return (
     <Container
-      label={`${usdSupply ? (usdSupply >= 0.01 ? dollarify(usdSupply, 2) : 'Less than $0.01 supplied') : '$0'}`}
+      label={`${usdSupplyCoingecko ? (usdSupplyCoingecko >= 0.01 ? dollarify(usdSupplyCoingecko, 2) : 'Less than $0.01 supplied') : '$0'}`}
       description="Your supplied assets">
       <Table
         columns={columns}

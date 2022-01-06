@@ -20,6 +20,7 @@ import { ProposalFunction } from '@inverse/types';
 import { ProposalShareLink } from '../ProposalShareLink';
 import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 import { useRouter } from 'next/dist/client/router';
+import { Link } from '@inverse/components/common/Link';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -273,8 +274,12 @@ export const ProposalForm = ({
                                 <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
                             </FormControl>
                             <FormControl mt="2">
-                                <FormLabel>Details</FormLabel>
-                                <Textarea minHeight="200px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder="Proposal's description and summary of main actions" />
+                                <FormLabel>
+                                    Details (<Link isExternal href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">
+                                        Markdown
+                                    </Link> compatible except for some exceptions)
+                                </FormLabel>
+                                <Textarea minHeight="200px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder={"Proposal's description and summary of main actions"} />
                             </FormControl>
                         </Box>
                         {

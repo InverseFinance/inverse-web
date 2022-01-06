@@ -8,6 +8,8 @@ import { namedAddress } from '@inverse/util'
 import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import gfm from 'remark-gfm'
+
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
@@ -206,11 +208,13 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
           }
         </Flex>
         <Flex w="full" overflow="auto">
-          <ReactMarkdown className="markdown-body">
-            {description.replace(
-              /(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+/,
-              (m: string) => `[(Link)](${m})`
-            )}
+          <ReactMarkdown className="markdown-body" remarkPlugins={era !== GovEra.alpha ? [gfm] : undefined}>
+            {
+              era === GovEra.alpha ? description.replace(
+                /(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+/,
+                (m: string) => `[(Link)](${m})`
+              ) : description
+            }
           </ReactMarkdown>
         </Flex>
       </Stack>
