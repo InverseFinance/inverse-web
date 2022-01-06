@@ -54,7 +54,7 @@ export const AnchorModal = ({
   }
 
   const isCollateral = !!accountMarkets.find((market: Market) => market.token === asset.token)
-  const hasSuppliedAsset = supplyBalances && supplyBalances[asset.token] && supplyBalances[asset.token].gt(BigNumber.from('0'));  
+  const hasSuppliedAsset = supplyBalances && supplyBalances[asset.token] && supplyBalances[asset.token].gt(BigNumber.from('0'));
   const needWithdrawWarning = isCollateral && (usdBorrow > 0) && hasSuppliedAsset && operation === AnchorOperations.withdraw
 
   const maxFloat = () => parseFloat(maxString())
@@ -224,13 +224,17 @@ export const AnchorModal = ({
           <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
         }
         {
+          operation === AnchorOperations.repay &&
+          <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description='To repay all your debt for this market use the Repay All button' />
+        }
+        {
           needWithdrawWarning &&
           <InfoMessage alertProps={{ fontSize: '12px' }}
             description={
               <>
-              <Text>Withdrawing using "max" is not the same as using "withdraw all" (tries to withdraw everything you own in the pool regardless of debts).</Text>
-              <Text mt="2">Withdrawing "max" can leave some "dust" not withdraw all.</Text>
-              <Text fontWeight="bold" mt="2">If the amount you try to withdraw leaves not enough collateral to cover the debts you have then the transaction may fail to send you the tokens.</Text>
+                <Text>Withdrawing using "max" is not the same as using "withdraw all" (tries to withdraw everything you own in the pool regardless of debts).</Text>
+                <Text mt="2">Withdrawing "max" can leave some "dust" not withdraw all.</Text>
+                <Text fontWeight="bold" mt="2">If the amount you try to withdraw leaves not enough collateral to cover the debts you have then the transaction may fail to send you the tokens.</Text>
               </>
             } />
         }

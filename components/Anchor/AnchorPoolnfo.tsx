@@ -6,7 +6,7 @@ import { usePrices } from '@inverse/hooks/usePrices';
 
 const BalanceTooltipContent = ({ value, priceUsd }: { value: number, priceUsd: number }) => {
     return <>
-        <Text>~ <b>{shortenNumber(value * priceUsd, 2, true, true)}</b></Text>
+        <Text fontWeight="bold">~ {shortenNumber(value, 4, false, true)} ({shortenNumber(value * priceUsd, 2, true, true)})</Text>
     </>
 }
 

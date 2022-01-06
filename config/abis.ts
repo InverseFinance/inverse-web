@@ -54,6 +54,10 @@ export const CETHER_ABI = [
   "function balanceOf(address) external view returns (uint256)",
 ];
 
+export const AN_ETH_REPAY_ALL_ABI = [
+  "function repayAll() payable",
+];
+
 export const ERC20_ABI = [
   "function allowance(address, address) external view returns (uint256)",
   "function approve(address, uint256)",
@@ -170,6 +174,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     HARVESTER,
     INV,
     LENS,
+    AN_ETH_REPAY_ALL,
     ORACLE,
     TOKENS,
     VAULT_TOKENS,
@@ -191,6 +196,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [GOVERNANCE, GOVERNANCE_ABI],
         [GOVERNANCE_ALPHA, GOVERNANCE_ABI],
         [LENS, LENS_ABI],
+        [AN_ETH_REPAY_ALL, AN_ETH_REPAY_ALL_ABI],
         [ORACLE, ORACLE_ABI],
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),

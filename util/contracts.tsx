@@ -13,6 +13,7 @@ import {
   ESCROW_ABI,
   MULTIDELEGATOR_ABI,
   DOLA3POOLCRV_ABI,
+  AN_ETH_REPAY_ALL_ABI,
 } from '@inverse/config/abis'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { GovEra, NetworkIds, Token } from '@inverse/types'
@@ -76,6 +77,11 @@ export const getCEtherContract = (
   address: string,
   signer: JsonRpcSigner | undefined
 ) => getNewContract(address, CETHER_ABI, signer)
+
+export const getEthRepayAllContract = (
+  address: string,
+  signer: JsonRpcSigner | undefined
+) => getNewContract(address, AN_ETH_REPAY_ALL_ABI, signer)
 
 export const getERC20Contract = (
   address: string,

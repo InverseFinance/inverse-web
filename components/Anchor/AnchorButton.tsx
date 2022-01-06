@@ -6,17 +6,19 @@ import { useApprovals } from '@inverse/hooks/useApprovals'
 import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
 import { useEscrow } from '@inverse/hooks/useEscrow'
 import { Market, AnchorOperations } from '@inverse/types'
-import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract } from '@inverse/util/contracts'
+import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@inverse/util/contracts'
 import { timeUntil } from '@inverse/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatEther, formatUnits, parseEther } from 'ethers/lib/utils'
 import moment from 'moment'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { handleTx } from '@inverse/util/transactions';
 import { hasAllowance } from '@inverse/util/web3';
+import { getMonthlyRate, getParsedBalance } from '@inverse/util/markets';
+import { removeScientificFormat, roundFloorString } from '@inverse/util/misc';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -84,7 +86,7 @@ const ApproveButton = ({
           { onSuccess },
         )
       }
-    isDisabled={isDisabled}
+      isDisabled={isDisabled}
     >
       Approve
     </SubmitButton>
@@ -93,7 +95,7 @@ const ApproveButton = ({
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
   const { library, chainId, account } = useWeb3React<Web3Provider>()
-  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId);
+  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1, AN_ETH_REPAY_ALL } = getNetworkConfigConstants(chainId);
   const isEthMarket = asset.token === ANCHOR_ETH;
   const { approvals } = useApprovals()
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
@@ -107,6 +109,28 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
 
   const handleApproveSuccess = () => {
     setFreshApprovals({ ...freshApprovals, [asset?.token]: true });
+  }
+
+  const handleRepayAll = () => {
+    return isEthMarket ? handleEthRepayAll() : handleStandardRepayAll()
+  }
+
+  const handleEthRepayAll = () => {
+    const repayAllContract = getEthRepayAllContract(AN_ETH_REPAY_ALL, library?.getSigner())
+
+    const parsedBal = getParsedBalance(borrowBalances, asset.token, asset.underlying.decimals)
+    const dailyInterests = removeScientificFormat(getMonthlyRate(parsedBal, asset.borrowApy) / 30);
+
+    const marginForOneDayInterests = roundFloorString(dailyInterests, 18)
+
+    const value = borrowBalances[asset.token].add(parseEther(marginForOneDayInterests))
+
+    return repayAllContract.repayAll({ value })
+  }
+
+  const handleStandardRepayAll = () => {
+    const repayAllContract = getAnchorContract(asset.token, library?.getSigner())
+    return repayAllContract.repayBorrow(constants.MaxUint256)
   }
 
   const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
@@ -200,22 +224,13 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
           </SubmitButton>
 
           <SubmitButton
-            isDisabled={!borrowBalances || isEthMarket || !parseFloat(formatUnits(borrowBalances[asset.token]))}
-            onClick={() => contract.repayBorrow(constants.MaxUint256)}
+            isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            onClick={handleRepayAll}
             refreshOnSuccess={true}
-            rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt and avoid "debt dust" being left behind.' />}
+            rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt for this market and avoid "debt dust" being left behind.' />}
           >
             Repay ALL
           </SubmitButton>
-          {
-            isEthMarket ?
-              <GridItem colSpan={2}>
-                <InfoMessage
-                  alertProps={{ fontSize: '12px', mt: "2", w: 'full' }}
-                  description="Repay ALL is not supported in the borrow ETH market." />
-              </GridItem>
-              : null
-          }
         </SimpleGrid>
       )
   }
