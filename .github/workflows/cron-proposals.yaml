@@ -1,0 +1,13 @@
+name: 5-minute-cron
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call our proposals cron API - Mainnet
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-proposals?chainId=1' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
