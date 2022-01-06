@@ -654,7 +654,7 @@
 
 .markdown-body blockquote {
   padding: 0 1em;
-  color: #6a737d;
+  color: #ccc;
   border-left: 0.25em solid #dfe2e5;
 }
 
@@ -759,6 +759,7 @@
 
 .markdown-body table th {
   font-weight: 600;
+  background-color: #f6f8fa66;
 }
 
 .markdown-body table td,
@@ -773,7 +774,7 @@
 }
 
 .markdown-body table tr:nth-child(2n) {
-  background-color: #f6f8fa;
+  background-color: #f6f8fa33;
 }
 
 .markdown-body img {
@@ -827,7 +828,7 @@
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
-  background-color: #f6f8fa;
+  background-color: #f6f8fa22;
   border-radius: 3px;
 }
 
