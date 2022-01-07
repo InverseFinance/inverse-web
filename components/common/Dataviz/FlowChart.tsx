@@ -136,8 +136,8 @@ export const FlowChart = () => {
     {
       label: <ElementLabel label="Escrow" address={escrow} />,
       id: escrow,
-      y: 0,
-      deltaX: 400,
+      y: 250,
+      deltaX: 250,
       targets: [
         { label: <ElementLabel label="Governor Mills" address={escrowGov} />, id: escrowGov, linkLabel: 'Escrow Admin' },
       ]
@@ -152,8 +152,8 @@ export const FlowChart = () => {
     {
       label: <ElementLabel label="xINV" address={XINV} />,
       id: XINV,
-      // y: 0,
-      deltaX: 400,
+      y: 350,
+      deltaX: 650,
       targets: [
         { label: <ElementLabel label="Anchor (Comptroller)" address={comptroller} />, id: comptroller, linkLabel: 'xINV Comptroller' },
         { label: <ElementLabel label={namedAddress(xinvAdmin)} address={xinvAdmin} />, id: xinvAdmin, linkLabel: 'xINV Admin' },
