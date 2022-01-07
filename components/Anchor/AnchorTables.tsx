@@ -52,7 +52,7 @@ const getColumn = (
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text>May vary over time</>,
+      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd }: Market) => (
         <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -61,7 +61,7 @@ const getColumn = (
     rewardApy: {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: <><Text fontWeight="bold">APY rewarded in INV token</Text>May vary over time</>,
+      tooltip: <><Text fontWeight="bold">APY rewarded in INV tokens</Text><Text>Accrues INV in a reward pool</Text><Text>Total rewards near <b>Claim</b> button</Text>Reward APY May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards, priceUsd, underlying }: Market) => (
         <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />

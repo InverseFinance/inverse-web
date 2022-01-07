@@ -70,11 +70,15 @@ export const AnchorOverview = () => {
         <Stack direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
           <Flex flexDirection="row" alignItems="center">
             <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
-              {`${rewardAmount.toFixed(4)} INV`}
+              {`${rewardAmount.toFixed(4)} INV rewards`}
             </Text>
             <AnimatedInfoTooltip
               iconProps={{ boxSize: 3, mt: '2px' }}
-              message="This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive Reward APY." />
+              message={
+                <>
+                This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APY</b>.
+                </>
+              } />
           </Flex>
           <StyledButton
             isDisabled={!rewardAmount}
