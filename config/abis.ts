@@ -18,6 +18,8 @@ export const COMPTROLLER_ABI = [
   "function markets(address) external view returns (bool, uint256, bool)",
   "function borrowGuardianPaused(address) external view returns (bool)",
   "function mintGuardianPaused(address) external view returns (bool)",
+  "function pauseGuardian() public view returns (address)",
+  "function admin() public view returns (address)",
 ];
 
 export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
@@ -74,6 +76,7 @@ export const FAUCET_ABI = [
 export const ESCROW_ABI = [
   'function pendingWithdrawals(address user) public view returns (uint withdrawalTimestamp, uint amount)',
   'function withdraw() public',
+  'function governance() public view returns (address)',
 ]
 
 export const HARVESTER_ABI = [
@@ -106,6 +109,10 @@ export const GOVERNANCE_ABI = [
   "function state(uint256) public view returns (uint256)",
   "function queue(uint256)",
   "function execute(uint256)",
+  "function guardian() public view returns (address)",
+  "function inv() public view returns (address)",
+  "function xinv() public view returns (address)",
+  "function timelock() public view returns (address)",
   "function propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)",
   "event ProposalCreated (uint256 id, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)",
   "event VoteCast (address voter, uint256 proposalId, bool support, uint256 votes)",
@@ -143,6 +150,13 @@ export const XINV_ABI = [
   "function getPriorVotes(address, uint256) external view returns (uint96)",
   "function delegate(address)",
   "function delegates(address) external view returns (address)",
+  "function admin() public view returns (address)",
+  "function escrow() public view returns (address)",
+  "function comptroller() public view returns (address)",
+];
+
+export const TREASURY_ABI = [
+  "function admin() public view returns (address)",
 ];
 
 export const MULTIDELEGATOR_ABI = [
@@ -181,6 +195,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     XINV_V1,
     XINV,
     DOLA3POOLCRV,
+    TREASURY,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -199,6 +214,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [AN_ETH_REPAY_ALL, AN_ETH_REPAY_ALL_ABI],
         [ORACLE, ORACLE_ABI],
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
+        [TREASURY, TREASURY_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
