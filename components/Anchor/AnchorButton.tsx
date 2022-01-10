@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, GridItem, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@inverse/components/common/Button'
 import { useApprovals } from '@inverse/hooks/useApprovals'
@@ -10,11 +10,10 @@ import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContra
 import { timeUntil } from '@inverse/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
-import { formatEther, formatUnits, parseEther } from 'ethers/lib/utils'
+import { formatUnits, parseEther } from 'ethers/lib/utils'
 import moment from 'moment'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { InfoMessage } from '@inverse/components/common/Messages'
 import { handleTx } from '@inverse/util/transactions';
 import { hasAllowance } from '@inverse/util/web3';
 import { getMonthlyRate, getParsedBalance } from '@inverse/util/markets';

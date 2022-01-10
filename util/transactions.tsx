@@ -1,7 +1,9 @@
 import { UseToastOptions } from "@chakra-ui/react"
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import ScannerLink from '@inverse/components/common/ScannerLink';
+import { getAbis } from '@inverse/config/abis';
 import { CustomToastOptions, NetworkIds } from '@inverse/types';
+import { Interface, LogDescription } from 'ethers/lib/utils';
 import { showFailNotif, showToast } from './notify';
 
 const txStatusMessages: { [key: string]: { txStatus: string, toastStatus: UseToastOptions["status"] } } = {
@@ -12,6 +14,10 @@ const txStatusMessages: { [key: string]: { txStatus: string, toastStatus: UseToa
     '1': {
         txStatus: 'success',
         toastStatus: 'success',
+    },
+    'opaqueFailure': {
+        txStatus: '"success" but with a Failure event: no funds have been moved to avoid liquidation',
+        toastStatus: 'warning',
     }
 }
 
@@ -42,12 +48,41 @@ export const handleTx = async (
         if (options?.onPending) { options.onPending(tx) }
         showTxToast(tx.hash, "pending", "loading");
         const receipt: TransactionReceipt = await tx.wait();
-        const msgObj = txStatusMessages[receipt?.status || '0'];
+
+        let hasOpaqueFailure = false;
+        if (receipt?.logs?.length) {
+            const events = getTransactionEvents(receipt, NetworkIds.mainnet);
+            hasOpaqueFailure = !!events.find(event => event?.name === 'Failure');
+        }
+        const msgObj = txStatusMessages[hasOpaqueFailure ? 'opaqueFailure' : (receipt?.status || '0')];
         showTxToast(tx.hash, msgObj.txStatus, msgObj.toastStatus);
-        if (options?.onSuccess && receipt?.status === 1) { options.onSuccess(tx) }
-        if (options?.onFail && receipt?.status === 0) { options.onFail(tx) }
+
+        if (options?.onFail && (receipt?.status === 0 || hasOpaqueFailure)) { options.onFail(tx) }
+        else if (options?.onSuccess && receipt?.status === 1) { options.onSuccess(tx) }
     } catch (e: any) {
         if (options?.onFail) { options.onFail(tx) }
         showFailNotif(e, true);
+    }
+}
+
+export const getTransactionEvents = (receipt: TransactionReceipt, chainId: string): Partial<LogDescription>[] => {
+    try {
+        const abi = getAbis(chainId)?.get(receipt.to);
+        if (!abi) { return [] }
+        const iface = new Interface(abi);
+
+        const events = receipt.logs.map(log => {
+            try {
+                return iface.parseLog(log);
+            } catch (e) {
+                // event abi missing for this log
+                return {};
+            }
+        });
+
+        return events
+    }
+    catch (e) {
+        return []
     }
 }
