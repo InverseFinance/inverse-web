@@ -8,13 +8,22 @@ import useEtherSWR from '@inverse/hooks/useEtherSWR';
 import { Box, Text, VStack } from '@chakra-ui/react';
 import { namedAddress, shortenAddress } from '@inverse/util';
 import ScannerLink from '../ScannerLink';
+import { parseEther } from '@ethersproject/units';
 
 const onLoad = (reactFlowInstance: OnLoadParams) => reactFlowInstance.fitView();
 
 type FlowLink = {
   id: string
   label: string
-  targets: { label: string, id: string, linkLabel?: string }[]
+  targets: {
+    label: string,
+    id: string,
+    linkLabel?: string,
+    x?: number,
+    y?: number,
+    deltaX?:number
+    deltaY?:number
+  }[]
   x?: number
   y?: number
   deltaX?: number
@@ -54,11 +63,12 @@ const toElements = (links: FlowLink[]) => {
     // src targets
     link.targets?.forEach((target, j) => {
       if (!elements.find((el) => el.id === target.id)) {
-        const x = -xDelta + originX + (xDelta * j)
+        const x = target.x ?? ((-xDelta + originX + (xDelta * j)) + (target.deltaX||0))
+        const y = target.y ?? (yDelta * (i + 1) + (target.deltaY||0))
         elements.push({
           data: { label: target.label },
           id: target.id,
-          position: { x, y: yDelta * (i + 1) },
+          position: { x, y },
           style: nodeStyle,
         })
       }
@@ -96,7 +106,7 @@ const ElementLabel = ({ label, address }: { label: string, address: string }) =>
 
 export const FlowChart = () => {
   // const [elements, setElements] = useState([])
-  const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -116,9 +126,11 @@ export const FlowChart = () => {
     [GOVERNANCE, 'inv'],
     [GOVERNANCE, 'xinv'],
     [GOVERNANCE, 'timelock'],
+    [GOVERNANCE, 'quorumVotes'],
+    [DOLA, 'operator'],
   ])
 
-  const [escrowGov, compAdmin, compGuard, treasuryAdmin, govGuard, govInv, govXinv, govTreasury] = daoData || ['', '', '', '', '', '', '', ''];
+  const [escrowGov, compAdmin, compGuard, treasuryAdmin, govGuard, govInv, govXinv, govTreasury, quorumVotes, dolaOperator] = daoData || ['', '', '', '', '', '', '', '', parseEther('4000')];
 
   if (!daoData || !xinvData) {
     return <Text mt="5">Loading...</Text>
@@ -153,11 +165,11 @@ export const FlowChart = () => {
       label: <ElementLabel label="xINV" address={XINV} />,
       id: XINV,
       y: 350,
-      deltaX: 650,
+      deltaX: 700,
       targets: [
         { label: <ElementLabel label="Anchor (Comptroller)" address={comptroller} />, id: comptroller, linkLabel: 'xINV Comptroller' },
         { label: <ElementLabel label={namedAddress(xinvAdmin)} address={xinvAdmin} />, id: xinvAdmin, linkLabel: 'xINV Admin' },
-        { label: <ElementLabel label="INV" address={xinvUnderlying} />, id: xinvUnderlying, linkLabel: 'xINV Underlying' },
+        { label: <ElementLabel label="INV" address={xinvUnderlying} />, id: xinvUnderlying, linkLabel: 'xINV Underlying', deltaX: 400 },
         { label: <ElementLabel label="Escrow" address={escrow} />, id: escrow, linkLabel: 'xINV Escrow' },
       ]
     },
@@ -169,6 +181,15 @@ export const FlowChart = () => {
         // { label: <ElementLabel label={namedAddress(govTreasury)} address={govTreasury} />, id: govTreasury, linkLabel: "Governor Treasury" },
         { label: <ElementLabel label={namedAddress(govInv)} address={govInv} />, id: govInv, linkLabel: 'GOV Token' },
         { label: <ElementLabel label={namedAddress(govXinv)} address={govXinv} />, id: govXinv, linkLabel: 'GOV staked token' },
+      ]
+    },
+    {
+      label: <ElementLabel label="Dola" address={DOLA} />,
+      id: DOLA,
+      deltaX: 350,
+      y: 475,
+      targets: [
+        { label: <ElementLabel label={namedAddress(dolaOperator)} address={dolaOperator} />, id: dolaOperator, linkLabel: "DOLA Operator" },
       ]
     },
   ]

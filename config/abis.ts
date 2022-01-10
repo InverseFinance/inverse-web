@@ -71,6 +71,10 @@ export const ERC20_ABI = [
   "event Transfer(address indexed from, address indexed to, uint256 amount)",
 ];
 
+export const DOLA_ABI = ERC20_ABI.concat([
+  "function operator() public view returns(address)"
+])
+
 export const FAUCET_ABI = [
   // will depend on contract
 ];
@@ -198,6 +202,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     XINV,
     DOLA3POOLCRV,
     TREASURY,
+    DOLA,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -219,7 +224,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [TREASURY, TREASURY_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
       ],
-      Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : ERC20_ABI])
+      Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])
     )
   )
 }
