@@ -45,6 +45,7 @@ export const CTOKEN_ABI = [
   "function reserveFactorMantissa() external view returns (uint256)",
   "function underlying() external view returns (address)",
   "function decimals() view returns (uint8)",
+  "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 
 export const CETHER_ABI = [
@@ -54,6 +55,7 @@ export const CETHER_ABI = [
   "function redeem(uint256) returns (uint256)",
   "function repayBorrow() payable",
   "function balanceOf(address) external view returns (uint256)",
+  "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 
 export const AN_ETH_REPAY_ALL_ABI = [
