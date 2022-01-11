@@ -181,6 +181,13 @@ export const DOLA3POOLCRV_ABI = [
   "function get_dy_underlying(int128 i, int128 j, uint256 _dx) external view returns (uint256)",
 ];
 
+export const FED_ABI = [
+  "function chair() public view returns (address)",
+  "function ctoken() public view returns (address)",
+  "function gov() public view returns (address)",
+  "function underlying() public view returns (address)",
+  "function supply() public view returns (uint256)",
+]
 
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
@@ -203,6 +210,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     DOLA3POOLCRV,
     TREASURY,
     DOLA,
+    FEDS,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -223,6 +231,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
+        ...FEDS.map((address) => [address, FED_ABI]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])
     )

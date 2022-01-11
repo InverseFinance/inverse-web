@@ -163,6 +163,10 @@ export type NetworkConfig = {
     vaultDaiYfi: string,
     vaultDaiEth: string,
   };
+  feds: {
+    fusepool6: string,
+    anchor: string,
+  }
   anchor: {
     lens: string,
     comptroller: string,

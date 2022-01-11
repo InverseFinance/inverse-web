@@ -84,7 +84,7 @@ const toElements = (links: FlowChartData[]) => {
         animated: true,
         label: target.linkLabel,
         className: 'info-bg',
-        labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-4px)' },
+        labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)' },
         // labelShowBg: false,
         labelBgPadding: [18, 4],
         labelBgBorderRadius: 4,
