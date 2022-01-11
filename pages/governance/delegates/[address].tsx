@@ -22,6 +22,7 @@ import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
 import { useEnsProfile } from '@inverse/hooks/useEnsProfile'
 import { Link } from '@inverse/components/common/Link';
 import Head from 'next/head'
+import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -169,7 +170,7 @@ export const DelegateView = () => {
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <Flex w="full" m={6} mb={0} mt="14">
-              <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description="Governance data is updated every 15 min" />
+              <GovernanceInfos />
             </Flex>
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
