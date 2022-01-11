@@ -68,16 +68,17 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                             </Link>
                         </Box>
                         {
-                            account && <Box color="white" mt="3" fontSize="12px">
-                                If you're interested in seeing how the proposal creation works or want to create a local draft please follow this
+                            account && <Box color="white" mt="3" fontSize="14px">
+                                Or you can 
                                 <Link
                                     ml="1"
+                                    fontWeight="bold"
                                     display="inline-block"
                                     href={{
                                         pathname: `/governance/propose`,
                                         query: { proposalLinkData: JSON.stringify({ title: 'Draft', description: 'Draft content', actions: [] }) }
                                     }}>
-                                    Link
+                                    Create a Draft
                                 </Link>
                             </Box>
                         }
