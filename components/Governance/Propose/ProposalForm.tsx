@@ -275,9 +275,11 @@ export const ProposalForm = ({
                             </FormControl>
                             <FormControl mt="2">
                                 <FormLabel>
-                                    Details (<Link isExternal href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">
-                                        Markdown
-                                    </Link> compatible except for some exceptions)
+                                    Details (Markdown <Link isExternal href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">
+                                         cheatsheet
+                                    </Link>, Excel table to markdown <Link isExternal href="https://tabletomarkdown.com/convert-spreadsheet-to-markdown/">
+                                        table converter
+                                    </Link>)
                                 </FormLabel>
                                 <Textarea minHeight="200px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder={"Proposal's description and summary of main actions"} />
                             </FormControl>
