@@ -7,12 +7,15 @@ import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { GovernanceFlowChart } from '@inverse/components/common/Dataviz/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types'
+import { NetworkIds, TokenList } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { parseEther } from '@ethersproject/units'
+import { commify, formatUnits, parseEther } from '@ethersproject/units'
 import { formatEther } from 'ethers/lib/utils';
+import { BigNumber } from 'ethers';
+import { usePrices } from '@inverse/hooks/usePrices'
+import { shortenNumber } from '@inverse/util/markets'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   comptroller: COMPTROLLER,
@@ -38,7 +41,50 @@ const defaultValues = {
 
 const DEPLOYER = '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'
 
+const getBalanceInfos = (bn: BigNumber, decimals: number, usdPrice = 0): {
+  qty: number, usdValue: number, formatted: string
+} => {
+  const qty = parseFloat(formatUnits(bn, decimals));
+  const usdValue = qty * usdPrice;
+  return { qty, usdValue, formatted: `${shortenNumber(qty, 2)} (${shortenNumber(usdValue, 2, true)})` };
+}
+
+const TreasuryFunds = ({
+  addresses,
+  values,
+  tokens,
+  prices,
+}: {
+  addresses: string[],
+  values: BigNumber[],
+  tokens: TokenList,
+  prices: { [key: string]: { usd: number } },
+}) => {
+  let totalUsd = 0;
+  const content = addresses.map((address, i) => {
+    const token = tokens[address];
+    const balanceInfos = getBalanceInfos(values[i], token.decimals, (prices[token.coingeckoId!] || { usd: 0 }).usd);
+    totalUsd += balanceInfos.usdValue;
+
+    return <Flex key={address} direction="row" w='full' justify="space-between">
+      <Text>- {token.symbol}s:</Text>
+      {!!token && <Text>{balanceInfos.formatted}</Text>}
+    </Flex>
+  })
+  return (
+    <>
+      {content}
+      <Flex fontWeight="bold" direction="row" w='full' justify="space-between">
+        <Text>- TOTAL worth in USD:</Text>
+        {!!totalUsd && <Text>{shortenNumber(totalUsd, 2, true)}</Text>}
+      </Flex>
+    </>
+  )
+}
+
 export const Governance = () => {
+  const { prices } = usePrices()
+
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
     [XINV, 'escrow'],
@@ -69,9 +115,14 @@ export const Governance = () => {
   const { data: otherData } = useEtherSWR([
     [GOVERNANCE, 'quorumVotes'],
     [GOVERNANCE, 'proposalThreshold'],
+    [INV, 'balanceOf', TREASURY],
+    [XINV, 'balanceOf', TREASURY],
+    [DOLA, 'balanceOf', TREASURY],
+    [DAI, 'balanceOf', TREASURY],
   ])
 
-  const [quorumVotes, proposalThreshold] = otherData || [parseEther('4000'), parseEther('1000')];
+  const [quorumVotes, proposalThreshold, invBal, xinvBal, dolaBal, daiBal] =
+    otherData || [parseEther('4000'), parseEther('1000'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')];
 
   return (
     <Layout>
@@ -90,24 +141,35 @@ export const Governance = () => {
         <Flex direction="column">
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
-        <Flex direction="column">
+        <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <InfoMessage
               alertProps={{ fontSize: '12px', w: 'full' }}
-              title="Governance Data"
+              title="🏛️ Governance Rules"
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Quorum required for a vote to pass:</Text>
-                    <Text>{formatEther(quorumVotes)}</Text>
+                    <Text>- Min. Quorum required for a vote to pass:</Text>
+                    <Text>{commify(parseFloat(formatEther(quorumVotes)))}</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Voting Power required to create proposals:</Text>
-                    <Text>{formatEther(proposalThreshold)}</Text>
+                    <Text>- Min. Voting Power required to create proposals:</Text>
+                    <Text>{commify(parseFloat(formatEther(proposalThreshold)))}</Text>
                   </Flex>
                 </>
               }
             />
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+            {!!otherData && <InfoMessage
+              alertProps={{ fontSize: '12px', w: 'full' }}
+              title="🏦 Treasury Funds"
+              description={
+                <>
+                  <TreasuryFunds addresses={[INV, DOLA, DAI]} values={[invBal, dolaBal, daiBal]} prices={prices} tokens={TOKENS} />
+                </>
+              }
+            />}
           </Flex>
         </Flex>
       </Flex>

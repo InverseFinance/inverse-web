@@ -2,10 +2,11 @@ import ReactFlow, {
   OnLoadParams,
   Controls,
   ArrowHeadType,
+  Background,
 } from 'react-flow-renderer';
 
 import { FlowChartData, FlowChartOptions } from '@inverse/types';
-import { Box, VStack, Flex } from '@chakra-ui/react';
+import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@inverse/util';
 import ScannerLink from '@inverse/components/common/ScannerLink';
 
@@ -82,8 +83,10 @@ const toElements = (links: FlowChartData[]) => {
         target: targetId,
         animated: true,
         label: target.linkLabel,
-        labelStyle: { fontSize: '14px', width: 'fit-content' },
-        labelBgPadding: [8, 4],
+        className: 'info-bg',
+        labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-4px)' },
+        // labelShowBg: false,
+        labelBgPadding: [18, 4],
         labelBgBorderRadius: 4,
         arrowHeadColor: '#F00',
         labelBgStyle: { fill: '#FFCC00', color: '#fff' },
@@ -96,9 +99,11 @@ const toElements = (links: FlowChartData[]) => {
 export const FlowChart = ({
   flowData,
   options,
+  boxProps,
 }: {
   flowData: FlowChartData[],
   options?: FlowChartOptions,
+  boxProps?: BoxProps
 }) => {
   if(!flowData?.length) {
     return <>Loading...</>
@@ -107,7 +112,7 @@ export const FlowChart = ({
   const elements = toElements(flowData)
 
   return (
-    <Box w='1000px' h='600px'>
+    <Box {...boxProps}>
       {
         !!elements?.length
         && <ReactFlow
@@ -115,6 +120,7 @@ export const FlowChart = ({
           onLoad={onLoad}
         >
           { options?.showControls && <Controls /> }
+          { options?.showBackground && <Background /> }
         </ReactFlow>
       }
     </Box>

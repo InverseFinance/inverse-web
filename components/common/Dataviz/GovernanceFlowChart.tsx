@@ -1,9 +1,10 @@
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { FlowChartData, NetworkIds } from '@inverse/types';
 
-import { Image } from '@chakra-ui/react';
+import { Image, useMediaQuery } from '@chakra-ui/react';
 import { namedAddress } from '@inverse/util';
 import { FlowChart } from './FlowChart';
+import { useEffect, useState } from 'react';
 
 const { INV, DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -53,6 +54,12 @@ export const GovernanceFlowChart = ({
   dola: string,
   dolaOperator: string,
 }) => {
+  const [baseWidth, setBaseWidth] = useState('');
+  const [isLargerThan] = useMediaQuery('(min-width: 600px)')
+
+  useEffect(() => {
+    setBaseWidth(`${window.innerWidth || screen.availWidth}px`)
+  }, []);
 
   const links: FlowChartData[] = [
     {
@@ -60,15 +67,15 @@ export const GovernanceFlowChart = ({
       id: comptroller,
       style: primaryStyle,
       targets: [
-        { label: `🔐 ${namedAddress(compGuard)}`, id: compGuard, y: 400, linkLabel: 'Market Pause Guardian' },
+        { label: `🔐 ${namedAddress(compGuard)}`, id: compGuard, y: 400, linkLabel: 'Pause Guardian' },
         { label: namedAddress(compAdmin), id: compAdmin, linkLabel: 'Anchor Admin' },
       ]
     },
     {
       label: '⏱️ Escrow',
       id: escrow,
-      y: 250,
-      deltaX: 350,
+      y: 270,
+      deltaX: 300,
       style: primaryStyle,
       targets: [
         { label: 'Escrow Admin', id: escrowGov, linkLabel: 'Escrow Admin' },
@@ -100,15 +107,15 @@ export const GovernanceFlowChart = ({
       id: governance,
       style: primaryStyle,
       targets: [
-        { label: `🔐 ${namedAddress(govGuard)}`, id: govGuard, linkLabel: "Governor Guardian" },
+        { label: `🔐 ${namedAddress(govGuard)}`, id: govGuard, linkLabel: "Gov Guardian" },
         { label: namedAddress(govToken), id: govToken, linkLabel: 'GOV Token' },
-        { label: namedAddress(govStakedToken), id: govStakedToken, linkLabel: 'GOV staked token' },
+        { label: namedAddress(govStakedToken), id: govStakedToken, linkLabel: 'Staked Token' },
       ]
     },
     {
       label: <>{dolaImg}DOLA</>,
       id: dola,
-      deltaX: 350,
+      deltaX: 300,
       y: 475,
       style: blueStyle,
       targets: [
@@ -117,7 +124,15 @@ export const GovernanceFlowChart = ({
     },
   ]
 
+  if (!baseWidth) {
+    return <></>
+  }
+
   return (
-    <FlowChart flowData={links} />
+    <FlowChart
+      options={{ showControls: !isLargerThan, showBackground: !isLargerThan }}
+      flowData={links}
+      boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: '600px' }}
+    />
   )
 };

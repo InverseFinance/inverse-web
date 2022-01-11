@@ -338,4 +338,13 @@ export type FlowChartData = {
 
 export type FlowChartOptions = {
   showControls?: boolean
+  showBackground?: boolean
+}
+
+export type Prices = {
+  prices: {
+    [key: string]: {
+      usd: number
+    }
+  }
 }

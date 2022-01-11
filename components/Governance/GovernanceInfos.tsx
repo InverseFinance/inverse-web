@@ -8,7 +8,7 @@ export const GovernanceInfos = () => {
             title="Governance data is updated every 15 min"
             description={
                 <Link href="/governance/diagrams">
-                    See Governance Diagram
+                    See the Governance Diagram
                 </Link>
             } />
     )
