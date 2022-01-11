@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Image, Text } from '@chakra-ui/react'
 
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
@@ -7,13 +7,15 @@ import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { GovernanceFlowChart } from '@inverse/components/common/Dataviz/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds, TokenList } from '@inverse/types'
+import { NetworkIds, TokenList, TokenWithBalance } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { commify, formatUnits, parseEther } from '@ethersproject/units'
 import { formatEther } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { usePrices } from '@inverse/hooks/usePrices'
 import { shortenNumber } from '@inverse/util/markets'
+import { useTVL } from '@inverse/hooks/useTVL'
+import { OLD_XINV } from '@inverse/config/constants'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -47,6 +49,28 @@ const getBalanceInfos = (bn: BigNumber, decimals: number, usdPrice = 0): {
   const qty = parseFloat(formatUnits(bn, decimals));
   const usdValue = qty * usdPrice;
   return { qty, usdValue, formatted: `${shortenNumber(qty, 2)} (${shortenNumber(usdValue, 2, true)})` };
+}
+
+const AnchorFunds = ({ tvlData }: { tvlData: { tvl: number, anchor: { tvl: number, assets: TokenWithBalance[] } } }) => {
+  const content = tvlData?.anchor?.assets
+    .sort((a, b) => b.usdBalance - a.usdBalance)
+    .map(asset => {
+      return <Flex key={asset.address} direction="row" w='full' justify="space-between">
+        <Text>- <Image display="inline-block" src={asset.image} ignoreFallback={true} w='15px' h='15px' mr="2" ml="1" />
+          {asset.symbol}{asset.address === OLD_XINV && ' (old)'}:
+        </Text>
+        <Text>{shortenNumber(asset.balance, 2)} ({shortenNumber(asset.usdBalance, 2, true)})</Text>
+      </Flex>
+    })
+  return (
+    <>
+      {content}
+      <Flex fontWeight="bold" direction="row" w='full' justify="space-between">
+        <Text>- TOTAL worth in USD:</Text>
+        {!!tvlData && <Text>{shortenNumber(tvlData?.anchor?.tvl, 2, true)}</Text>}
+      </Flex>
+    </>
+  )
 }
 
 const TreasuryFunds = ({
@@ -84,6 +108,7 @@ const TreasuryFunds = ({
 
 export const Governance = () => {
   const { prices } = usePrices()
+  const { data: tvlData } = useTVL()
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -167,6 +192,17 @@ export const Governance = () => {
               description={
                 <>
                   <TreasuryFunds addresses={[INV, DOLA, DAI]} values={[invBal, dolaBal, daiBal]} prices={prices} tokens={TOKENS} />
+                </>
+              }
+            />}
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+            {!!tvlData && <InfoMessage
+              alertProps={{ fontSize: '12px', w: 'full' }}
+              title="⚓ Anchor Total Value Locked"
+              description={
+                <>
+                  <AnchorFunds tvlData={tvlData} />
                 </>
               }
             />}

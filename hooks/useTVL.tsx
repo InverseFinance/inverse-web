@@ -1,4 +1,4 @@
-import { NetworkIds, SWR } from '@inverse/types'
+import { NetworkIds, SWR, TokenWithBalance } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
@@ -6,6 +6,7 @@ import { Web3Provider } from '@ethersproject/providers';
 
 type TVL = {
   tvl: number
+  data: { tvl: number, anchor: { tvl: number, assets: TokenWithBalance[] } }
 }
 
 export const useTVL = (): SWR & TVL => {
@@ -15,6 +16,7 @@ export const useTVL = (): SWR & TVL => {
 
   return {
     tvl: data?.tvl,
+    data: data || {},
     isLoading: !error && !data,
     isError: error,
   }
