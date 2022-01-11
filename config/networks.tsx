@@ -22,6 +22,10 @@ const mainnetConfig: NetworkConfig = {
   XINV_V1: OLD_XINV,
   // new XINV
   XINV: '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B',
+  feds: {
+    fusepool6: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664',
+    anchor: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7',
+  },
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
     vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
@@ -361,6 +365,9 @@ export const getNetworkConfigConstants = (
   const VAULT_DAI_ETH = config.vaults.vaultDaiEth;
   const VAULT_TOKENS = Object.values(config.vaults);
 
+  // FEDS
+  const FEDS = Object.values(config.feds);
+
   // Anchor
   const LENS = config.anchor.lens;
   const COMPTROLLER = config.anchor.comptroller;
@@ -673,5 +680,6 @@ export const getNetworkConfigConstants = (
     NAMED_ADDRESSES,
     PROPOSAL_AUTOCOMPLETE_ADDRESSES,
     DOLA_PAYROLL,
+    FEDS,
   }
 }

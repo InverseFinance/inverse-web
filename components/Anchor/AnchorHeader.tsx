@@ -16,7 +16,7 @@ export const AnchorHeader = () => {
   const DOLA = markets?.find((v) => v.underlying.name === 'Dola')
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
-  const { tvl } = useTVL()
+  const { tvl, data: tvlData } = useTVL()
 
   if (isLoading || !DOLA) {
     return <></>
@@ -35,7 +35,7 @@ export const AnchorHeader = () => {
       <Stack spacing={4} p={4}>
         <Flex direction="column">
           <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(tvl?.toFixed(2) || 0)}
+            ${commify(tvlData?.anchor?.tvl.toFixed(2) || 0)}
           </Text>
           <Text color="secondary" fontSize="sm" fontWeight="semibold">
             Total Value Locked

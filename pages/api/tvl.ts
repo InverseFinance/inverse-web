@@ -167,12 +167,17 @@ const anchorTVL = async (
       parseFloat(formatUnits(cash, token.decimals));
   });
 
-  return Object.entries(balances).map(([address, amount]: any) => {
-    const token = tokens[address];
+  return Object.entries(balances).map(([anchorAddress, amount]: any) => {
+    const token =
+    anchorAddress !== anchorEthAddress
+        ? underlying[anchorAddress]
+        : tokens[wethAddress];
     return {
       ...token,
+      address: anchorAddress,
+      underlyingAddress: token.address,
       balance: amount,
-      usdBalance: amount * prices[address] || 0,
+      usdBalance: amount * prices[anchorAddress] || 0,
     };
   });
 };

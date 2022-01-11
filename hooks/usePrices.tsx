@@ -1,19 +1,11 @@
 import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { SWR } from '@inverse/types'
+import { Prices, SWR } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import { BigNumber } from 'ethers'
 import useSWR from 'swr'
 import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-
-type Prices = {
-  prices: {
-    [key: string]: {
-      usd: number
-    }
-  }
-}
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)

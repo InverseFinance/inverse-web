@@ -4,7 +4,7 @@ import { Breakdown, DelegatesPreview, Proposals, VotingWallet } from '@inverse/c
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage } from '@inverse/components/common/Messages'
+import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
 
 export const Governance = () => (
   <Layout>
@@ -31,7 +31,7 @@ export const Governance = () => (
         </Flex>
         <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
           <Flex w="full" m={6} mb={0} mt="14">
-            <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description="Governance data is updated every 15 min" />
+            <GovernanceInfos />
           </Flex>
         </Flex>
         <Flex w={{ base: 'full', xl: 'sm' }} justify="center">

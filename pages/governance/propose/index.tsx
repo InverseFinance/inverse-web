@@ -11,7 +11,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { ProposalFormContainer } from '@inverse/components/Governance/Propose/ProposalFormContainer'
 import { useRouter } from 'next/dist/client/router'
 import Head from 'next/head'
-import { InfoMessage } from '@inverse/components/common/Messages'
+import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
 
 export const Propose = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
@@ -53,7 +53,7 @@ export const Propose = () => {
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <Flex w="full" m={6} mb={0} mt="14">
-              <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description="Governance data is updated every 15 min" />
+              <GovernanceInfos />
             </Flex>
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">

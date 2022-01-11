@@ -8,15 +8,15 @@ export const Link = (props: any) => {
   const { href, isExternal, ...otherProps } = props
 
   const urlParamsToKeepWhenChangingPage = ((q) => {
-    if(!q) { return {} }
+    if (!q) { return {} }
     const { viewAddress } = q;
     const params: any = {}
-    if(viewAddress) { params['viewAddress'] = viewAddress }
+    if (viewAddress) { params['viewAddress'] = viewAddress }
     return params
   })(query);
 
   return (
-    <NextLink href={{
+    <NextLink href={typeof href === 'string' && href.includes('#') ? href : {
       pathname: href?.pathname || href,
       query: href?.query || urlParamsToKeepWhenChangingPage,
     }} passHref>
