@@ -315,3 +315,27 @@ export type DraftProposal = {
 export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
   publicDraftId: number
 }
+
+export type FlowChartData = {
+  id: string
+  label: React.ReactNode
+  targets: {
+    label: React.ReactNode,
+    id: string,
+    linkLabel?: string,
+    x?: number,
+    y?: number,
+    deltaX?: number
+    deltaY?: number
+    style?: Object
+  }[]
+  x?: number
+  y?: number
+  deltaX?: number
+  deltaY?: number
+  style?: Object
+}
+
+export type FlowChartOptions = {
+  showControls?: boolean
+}
