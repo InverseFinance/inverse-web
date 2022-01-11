@@ -106,7 +106,7 @@ const TreasuryFunds = ({
   )
 }
 
-export const Governance = () => {
+export const Overview = () => {
   const { prices } = usePrices()
   const { data: tvlData } = useTVL()
 
@@ -159,7 +159,7 @@ export const Governance = () => {
         w="7xl"
         breadcrumbs={[
           { label: 'Governance', href: '/governance' },
-          { label: 'Diagrams', href: '#' },
+          { label: 'Overview', href: '#' },
         ]}
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
@@ -213,4 +213,4 @@ export const Governance = () => {
   )
 }
 
-export default Governance
+export default Overview
