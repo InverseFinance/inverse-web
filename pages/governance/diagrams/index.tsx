@@ -87,7 +87,8 @@ const TreasuryFunds = ({
   let totalUsd = 0;
   const content = addresses.map((address, i) => {
     const token = tokens[address];
-    const balanceInfos = getBalanceInfos(values[i], token.decimals, (prices[token.coingeckoId!] || { usd: 0 }).usd);
+    const price = ['DOLA', 'DAI'].includes(token.symbol) ? 1 : (prices[token.coingeckoId!] || { usd: 0 }).usd
+    const balanceInfos = getBalanceInfos(values[i], token.decimals, price);
     totalUsd += balanceInfos.usdValue;
 
     return <Flex key={address} direction="row" w='full' justify="space-between">
