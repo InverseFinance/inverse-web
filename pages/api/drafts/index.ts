@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         case 'POST':
             try {
                 const { sig, ...draft } = req.body
-                const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/, '').toLowerCase().split(',');
+                const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/g, '').toLowerCase().split(',');
                 const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
 
                 if (!whitelisted.includes(sigAddress)) {
