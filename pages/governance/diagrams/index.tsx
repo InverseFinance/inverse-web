@@ -217,7 +217,7 @@ export const Overview = () => {
                 <>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text>- Pause Guardian:</Text>
-                    <Text>pause/unpause an Anchor Market</Text>
+                    <Text>pause (but not unpause) an Anchor Market</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text>- Anchor Admin:</Text>
