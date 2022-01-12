@@ -65,6 +65,11 @@ const mainnetConfig: NetworkConfig = {
   multiDelegator: '0x1ba87bE4C20Fa2d4cbD8e4Ae9998649226207F76',
 }
 
+const ftmConfig: NetworkConfig = {
+  DOLA: '0x3129662808bEC728a27Ab6a6b9AFd3cBacA8A43c',
+  INV: '0xb84527D59b6Ecb96F433029ECc890D4492C5dCe1',
+}
+
 // TODO: fill in all values
 const rinkebyConfig: NetworkConfig = {
   chainId: '4',
@@ -261,6 +266,7 @@ export const NETWORKS: Network[] = [
   {
     id: '250',
     codename: NETWORK_CODENAMES.fantom,
+    config: ftmConfig,
     name: 'Fantom',
     coinSymbol: 'ftm',
     isTestnet: false,

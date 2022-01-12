@@ -126,6 +126,7 @@ export type SWR = {
 export enum NetworkIds {
   mainnet = '1',
   rinkeby = '4',
+  ftm = '250',
 }
 
 export type KeyString = { [key: string]: string };
