@@ -55,11 +55,13 @@ export const GovernanceFlowChart = ({
   dolaOperator: string,
 }) => {
   const [baseWidth, setBaseWidth] = useState('');
-  const [isLargerThan] = useMediaQuery('(min-width: 600px)')
+  const [baseheight, setBaseHeight] = useState('');
+  const [isLargerThan] = useMediaQuery('(min-width: 400px)')
 
   useEffect(() => {
-    setBaseWidth(`${window.innerWidth || screen.availWidth}px`)
-  }, []);
+    setBaseWidth(`${screen.availWidth || screen.width}px`)
+    setBaseHeight(`${(screen.availHeight || screen.height) / 2}px`)
+  }, [isLargerThan]);
 
   const links: FlowChartData[] = [
     {
@@ -132,7 +134,7 @@ export const GovernanceFlowChart = ({
     <FlowChart
       options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: true }}
       flowData={links}
-      boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: '600px' }}
+      boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: { base: baseheight, lg: '600px' } }}
     />
   )
 };

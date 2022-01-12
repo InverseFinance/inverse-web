@@ -3,12 +3,12 @@ import { Flex, Text } from '@chakra-ui/react'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { NetworkIds } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { DolaFlowChart } from '@inverse/components/common/Dataviz/DolaFlowChart'
+import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs'
 
 const { DOLA, TREASURY, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -36,24 +36,17 @@ export const DolaDiagram = () => {
     }
   }))
 
-  const [dolaOperator] = dolaData || [DEPLOYER];
+  const [dolaOperator] = dolaData || [TREASURY];
 
   return (
     <Layout>
       <Head>
         <title>Inverse Finance - Dola FlowChart</title>
       </Head>
-      <AppNav active="Governance" />
-      <Breadcrumbs
-        w="7xl"
-        breadcrumbs={[
-          { label: 'Governance', href: '/governance' },
-          { label: 'Diagrams', href: '/governance/diagrams' },
-          { label: 'DOLA', href: '#' },
-        ]}
-      />
+      <AppNav active="Diagrams" />
+      <DatavizTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-        <Flex direction="column">
+        <Flex direction="column" py="2">
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator} feds={feds} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>

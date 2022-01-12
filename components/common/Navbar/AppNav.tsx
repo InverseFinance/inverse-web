@@ -53,12 +53,17 @@ const NAV_ITEMS = [
     label: 'Governance',
     href: '/governance',
   },
+  {
+    label: 'Diagrams',
+    href: '/diagrams',
+  },
 ]
 
 const NavBadge = (props: any) => (
   <Flex
     justify="center"
-    fontSize="sm"
+    fontSize="12px"
+    h="40px"
     align="center"
     bgColor="purple.800"
     borderRadius={4}
@@ -448,7 +453,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         </Stack>
       </Flex>
       {showMobileNav && (
-        <Flex w="full" position="absolute" zIndex="1" transitionDuration="0.1s" transitionTimingFunction="ease">
+        <Flex w="full" position="absolute" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
           <Stack
             w="full"
             bgColor="purple.900"

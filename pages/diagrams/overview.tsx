@@ -3,7 +3,6 @@ import { Flex, Image, Text } from '@chakra-ui/react'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { GovernanceFlowChart } from '@inverse/components/common/Dataviz/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
@@ -16,6 +15,7 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { shortenNumber } from '@inverse/util/markets'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { OLD_XINV } from '@inverse/config/constants'
+import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs';
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -153,19 +153,12 @@ export const Overview = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Governance FlowChart</title>
+        <title>Inverse Finance - Overview FlowChart</title>
       </Head>
-      <AppNav active="Governance" />
-      <Breadcrumbs
-        w="7xl"
-        breadcrumbs={[
-          { label: 'Governance', href: '/governance' },
-          { label: 'Diagrams', href: '/governance/diagrams' },
-          { label: 'Overview', href: '#' },
-        ]}
-      />
+      <AppNav active="Diagrams" />
+      <DatavizTabs active="overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-        <Flex direction="column">
+        <Flex direction="column" py="2">
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
@@ -217,7 +210,7 @@ export const Overview = () => {
                 <>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text>- Pause Guardian:</Text>
-                    <Text>pause (but not unpause) an Anchor Market</Text>
+                    <Text>pause (but not unpause) a Market</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text>- Anchor Admin:</Text>

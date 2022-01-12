@@ -9,8 +9,7 @@ import { FlowChartData, FlowChartOptions } from '@inverse/types';
 import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@inverse/util';
 import ScannerLink from '@inverse/components/common/ScannerLink';
-
-const onLoad = (reactFlowInstance: OnLoadParams) => reactFlowInstance.fitView();
+import { useEffect, useState } from 'react';
 
 const defaultNodeSyle = {
   background: '#bbb7e0cc',
@@ -110,11 +109,25 @@ export const FlowChart = ({
   options?: FlowChartOptions,
   boxProps?: BoxProps
 }) => {
-  if(!flowData?.length) {
+  const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams | undefined>(undefined)
+
+  const handleLoad = (instance: OnLoadParams) => {
+    instance.fitView();
+    if (!reactFlowInstance) {
+      setReactFlowInstance(instance);
+    }
+  }
+
+  useEffect(() => {
+    if (!reactFlowInstance || !options?.autofit) { return }
+    handleLoad(reactFlowInstance);
+  }, [flowData, options, boxProps]);
+
+  if (!flowData?.length) {
     return <>Loading...</>
   }
 
-  const elements = toElements(flowData)
+  const elements = toElements(flowData);
 
   return (
     <Box {...boxProps}>
@@ -122,10 +135,10 @@ export const FlowChart = ({
         !!elements?.length
         && <ReactFlow
           elements={elements}
-          onLoad={options?.autofit ? onLoad : undefined}
+          onLoad={options?.autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
         >
-          { options?.showControls && <Controls /> }
-          { options?.showBackground && <Background /> }
+          {options?.showControls && <Controls />}
+          {options?.showBackground && <Background />}
         </ReactFlow>
       }
     </Box>

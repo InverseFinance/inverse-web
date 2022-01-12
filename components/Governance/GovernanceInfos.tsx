@@ -7,7 +7,7 @@ export const GovernanceInfos = () => {
             alertProps={{ fontSize: '12px', w: 'full' }}
             title="Governance data is updated every 15 min"
             description={
-                <Link href="/governance/diagrams">
+                <Link href="/diagrams/overview">
                     See the Governance Overview
                 </Link>
             } />

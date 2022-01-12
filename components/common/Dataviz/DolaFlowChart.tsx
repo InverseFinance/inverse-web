@@ -10,6 +10,7 @@ const { DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const blueStyle = { backgroundColor: '#4299e1cc', color: 'white' }
 const primaryStyle = { backgroundColor: '#5E17EBcc', color: 'white' }
+const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white' }
 
 const dolaImg = <Image mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} width={'20px'} height={'20px'} />
 
@@ -23,11 +24,13 @@ export const DolaFlowChart = ({
   dolaOperator: string,
 }) => {
   const [baseWidth, setBaseWidth] = useState('');
-  const [isLargerThan] = useMediaQuery('(min-width: 600px)')
+  const [baseheight, setBaseHeight] = useState('');
+  const [isLargerThan] = useMediaQuery('(min-width: 400px)')
 
   useEffect(() => {
-    setBaseWidth(`${window.innerWidth || screen.availWidth}px`)
-  }, []);
+    setBaseWidth(`${screen.availWidth || screen.width}px`)
+    setBaseHeight(`${(screen.availHeight || screen.height) / 2}px`)
+  }, [isLargerThan]);
 
   const fedLinks = feds?.map(fed => {
     return {
@@ -36,7 +39,7 @@ export const DolaFlowChart = ({
       style: primaryStyle,
       targets: [
         { label: `🔐 ${namedAddress(fed.chair)}`, id: fed.chair, linkLabel: 'Fed Chair', deltaX: 600, y: 200 },
-        { label: `🏦 ${namedAddress(fed.gov)}`, id: fed.gov, linkLabel: 'Fed Gov' },
+        { label: `🏦 ${namedAddress(fed.gov)}`, id: fed.gov, linkLabel: 'Fed Gov', style: greenStyle },
         // { label: namedAddress(fed.ctoken), id: fed.ctoken, linkLabel: 'Token' },
       ]
     }
@@ -48,7 +51,7 @@ export const DolaFlowChart = ({
       id: dola,
       style: blueStyle,
       targets: [
-        { label: `🏦 ${namedAddress(dolaOperator)}`, id: dolaOperator, linkLabel: "DOLA Operator" },
+        { label: `🏦 ${namedAddress(dolaOperator)}`, id: dolaOperator, linkLabel: "DOLA Operator", style: greenStyle },
       ]
     },
     ...fedLinks,
@@ -62,7 +65,7 @@ export const DolaFlowChart = ({
     <FlowChart
       options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: false }}
       flowData={links}
-      boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: '600px' }}
+      boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: { base: baseheight, lg: '600px' } }}
     />
   )
 };
