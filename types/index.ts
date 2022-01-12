@@ -149,6 +149,7 @@ export type NetworkConfig = {
   THREECRV: string,
   FLOKI: string,
   DOLA_PAYROLL: string,
+  DEPLOYER: string,
   escrow_v1: string,
   escrow: string,
   harvester: string,
@@ -186,7 +187,6 @@ export type NetworkConfig = {
       floki: string,
     };
   }
-  namedAddresses: KeyString;
   [key: string]: string | any;
 }
 

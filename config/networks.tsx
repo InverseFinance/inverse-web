@@ -18,6 +18,7 @@ const mainnetConfig: NetworkConfig = {
   THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
   FLOKI: '0x43f11c02439e2736800433b4594994Bd43Cd066D',
   DOLA_PAYROLL: '0x32edDd879B199503c6Fc37DF95b8920Cd415358F',
+  DEPLOYER: '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28',
   // old XINV
   XINV_V1: OLD_XINV,
   // new XINV
@@ -62,39 +63,6 @@ const mainnetConfig: NetworkConfig = {
   governance: '0xBeCCB6bb0aa4ab551966A7E4B97cec74bb359Bf6',
   // multiDelegator
   multiDelegator: '0x1ba87bE4C20Fa2d4cbD8e4Ae9998649226207F76',
-  namedAddresses: {
-    '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Treasury',
-    '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68': 'INV',
-    '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B': 'xINV',
-    '0x44814bf90ea659369a28633c3bd46ab52d8f73f7': 'Escrow',
-    '0x43f11c02439e2736800433b4594994Bd43Cd066D': 'FLOKI',
-    '0x0000000000000000000000000000000000000000': 'Burn address',
-    '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28': 'Deployer',
-    '0x7165ac4008c3603AfE432787419eB61B3a2CEe8B': 'BenLavabo',
-    '0x4db09171350Be4f317a67223825abeCC65482E32': 'Mr Brown Whale',
-    '0x2f80E5163A7A774038753593010173322eA6f9fe': 'Alan',
-    '0x724F321C4efeD5e3C7CcA40168610c258c82d02F': 'Somer',
-    '0x46B14628fFBC01a87AB2d66e95600b8dC4A49Ce2': 'Keen',
-    '0x23E01e05AA1376FA3AC83C954816B967A7302891': 'zombiehobbes',
-    '0x575F5b61D3e5a011080A0Df0865b81f2352DB83b': 'adamQ',
-    '0x00A5af2D7DA07dF76073A6f478f0fB4942D2659a': 'cs',
-    '0x7705E47BD6Eb6Dc5a11aA1839639F3Dc6E1a6EaF': 'DefiChad',
-    '0x2492897E6138ae7E56D3d3ceB5AD76B801ec7d3f': 'ees2oo',
-    '0xB12bc4A0c497F1C3BaEe7031c5bfD119ECc0c906': 'goldenandy73',
-    '0xfe97B38192Cb30aDD0bBe5e01E6a617562CC8318': 'Key',
-    '0x99f18ae1543A2B952180AAe9DbFBC3c594D14293': 'Block Dance',
-    '0xD72B03B7F2E0b8D92b868E73e12b1f888BEFBeDA': 'Longinverse',
-    '0x7eC0D931AFFBa01b77711C2cD07c76B970795CDd': 'Stabilizer',
-    '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89': 'ETHDOLAStakingPool',
-    '0x08D816526BdC9d077DD685Bd9FA49F58A5Ab8e48': 'Kiwi',
-    '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'Oracle',
-    '0x4dCf7407AE5C07f8681e1659f626E114A7667339': 'Comptroller',
-    '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'BasedXeno',
-    '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
-    '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
-    '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
-    '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
-  },
 }
 
 // TODO: fill in all values
@@ -115,6 +83,8 @@ const rinkebyConfig: NetworkConfig = {
   DOLA3POOLCRV: '',
   THREECRV: '',
   FLOKI: '',
+  DOLA_PAYROLL: '',
+  DEPLOYER: '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28',
   escrow_v1: '',
   escrow: '',
   harvester: '0x6dE45B9a80847Ce6Fd53819bA31cf296Ecc346bC',
@@ -144,7 +114,6 @@ const rinkebyConfig: NetworkConfig = {
       floki: '',
     },
   },
-  namedAddresses: {},
 }
 
 export enum NETWORK_CODENAMES {
@@ -418,8 +387,7 @@ export const getNetworkConfigConstants = (
   const THREECRV = config.THREECRV;
   const FLOKI = config.FLOKI;
   const DOLA_PAYROLL = config.DOLA_PAYROLL;
-
-  const NAMED_ADDRESSES: { [key: string]: string } = config.namedAddresses
+  const DEPLOYER = config.DEPLOYER;
 
   const TOKENS: TokenList = {
     ETH: {
@@ -563,7 +531,7 @@ export const getNetworkConfigConstants = (
     [THREECRV]: TOKENS[THREECRV],
   }
 
-  const CONTRACTS: { [key: string]: string } = {
+  const NAMED_ADDRESSES: { [key: string]: string } = {
     [ANCHOR_ETH]: 'anETH',
     [ANCHOR_DOLA]: 'anDOLA',
     [ANCHOR_XSUSHI]: 'anXSUSHI',
@@ -573,31 +541,52 @@ export const getNetworkConfigConstants = (
     [ANCHOR_INVDOLASLP]: 'INV-DOLA SLP',
     [ANCHOR_DOLA3POOLCRV]: 'Dola-3pool LP',
     [ANCHOR_FLOKI]: 'anFloki',
-    [COMPTROLLER]: 'Comptroller',
     [DAI]: 'Dai',
     [DOLA]: 'DOLA',
     [INV]: 'INV',
-    [ORACLE]: 'Oracle',
-    [STABILIZER]: 'Stabilizer',
+    [XINV_V1]: 'xINV-v1',
+    [XINV]: 'xINV',
     [FLOKI]: 'Floki',
     [VAULT_USDC_ETH]: 'vaultUsdcEth',
     [VAULT_DAI_ETH]: 'vaultDaiEth',
     [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
     [VAULT_DAI_YFI]: 'vaultDaiYfi',
-    [XINV_V1]: 'xINV-v1',
-    [XINV]: 'xINV',
+    [DEPLOYER]: 'Deployer',
+    [ESCROW]: 'Escrow',
+    [COMPTROLLER]: 'Comptroller',
+    [STABILIZER]: 'Stabilizer',
+    [TREASURY]: 'Treasury',
     [GOVERNANCE]: 'GovMills',
     [GOVERNANCE_ALPHA]: 'GovAlpha',
     [DOLA_PAYROLL]: 'DolaPayroll',
+    '0x0000000000000000000000000000000000000000': 'BurnAddress',
+    '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89': 'ETHDOLAStakingPool',
+    '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
+    '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
+    '0x6128ED9EE07D89Ba3a1E6E0e16C69488112Fc925': 'MarketingCommittee',
+    '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'RewardsCommittee',
+    '0x07de0318c24D67141e6758370e9D7B6d863635AA': 'PolicyCommittee',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
+     // dao members
+    '0x7165ac4008c3603AfE432787419eB61B3a2CEe8B': 'BenLavabo',
+    '0x4db09171350Be4f317a67223825abeCC65482E32': 'Mr Brown Whale',
+    '0x2f80E5163A7A774038753593010173322eA6f9fe': 'Alan',
+    '0x724F321C4efeD5e3C7CcA40168610c258c82d02F': 'Somer',
+    '0x46B14628fFBC01a87AB2d66e95600b8dC4A49Ce2': 'Keen',
+    '0x23E01e05AA1376FA3AC83C954816B967A7302891': 'zombiehobbes',
+    '0x575F5b61D3e5a011080A0Df0865b81f2352DB83b': 'adamQ',
+    '0x00A5af2D7DA07dF76073A6f478f0fB4942D2659a': 'cs',
+    '0x7705E47BD6Eb6Dc5a11aA1839639F3Dc6E1a6EaF': 'DefiChad',
+    '0x2492897E6138ae7E56D3d3ceB5AD76B801ec7d3f': 'ees2oo',
+    '0xB12bc4A0c497F1C3BaEe7031c5bfD119ECc0c906': 'goldenandy73',
+    '0xfe97B38192Cb30aDD0bBe5e01E6a617562CC8318': 'Key',
+    '0x99f18ae1543A2B952180AAe9DbFBC3c594D14293': 'Block Dance',
+    '0xD72B03B7F2E0b8D92b868E73e12b1f888BEFBeDA': 'Longinverse',
+    '0x08D816526BdC9d077DD685Bd9FA49F58A5Ab8e48': 'Kiwi',
+    '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'BasedXeno',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
-  }
-
-  const PROPOSAL_AUTOCOMPLETE_ADDRESSES = {
-    ...CONTRACTS,
-    '0x0000000000000000000000000000000000000000': 'BurnAddress',
   }
 
   const VAULT_TREE: VaultTree = {
@@ -678,10 +667,9 @@ export const getNetworkConfigConstants = (
     TOKENS,
     VAULTS,
     VAULT_TREE,
-    CONTRACTS,
     NAMED_ADDRESSES,
-    PROPOSAL_AUTOCOMPLETE_ADDRESSES,
     DOLA_PAYROLL,
     FEDS,
+    DEPLOYER,
   }
 }
