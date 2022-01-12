@@ -130,7 +130,7 @@ export const GovernanceFlowChart = ({
 
   return (
     <FlowChart
-      options={{ showControls: !isLargerThan, showBackground: !isLargerThan }}
+      options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: true }}
       flowData={links}
       boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: '600px' }}
     />

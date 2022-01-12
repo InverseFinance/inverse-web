@@ -343,6 +343,7 @@ export type FlowChartData = {
 export type FlowChartOptions = {
   showControls?: boolean
   showBackground?: boolean
+  autofit?: boolean
 }
 
 export type Prices = {

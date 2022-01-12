@@ -92,6 +92,8 @@ const mainnetConfig: NetworkConfig = {
     '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'BasedXeno',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
+    '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
+    '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
   },
 }
 

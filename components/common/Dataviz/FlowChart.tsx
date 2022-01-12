@@ -71,26 +71,31 @@ const toElements = (links: FlowChartData[]) => {
       }
     });
 
-    const linkId = link.id.toLowerCase();
+    const srcId = link.id.toLowerCase();
     // arrows (egdes)
     link.targets?.forEach(target => {
       const targetId = target.id.toLowerCase();
-      elements.push({
-        arrowHeadType: ArrowHeadType.ArrowClosed,
-        // type: 'step',
-        id: `${linkId}-${targetId}`,
-        source: linkId,
-        target: targetId,
-        animated: true,
-        label: target.linkLabel,
-        className: 'info-bg',
-        labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)' },
-        // labelShowBg: false,
-        labelBgPadding: [18, 4],
-        labelBgBorderRadius: 4,
-        arrowHeadColor: '#F00',
-        labelBgStyle: { fill: '#FFCC00', color: '#fff' },
-      })
+      const bridgeId = `${srcId}-${targetId}`
+      if (!elements.find((el) => el.id === bridgeId)) {
+        elements.push({
+          arrowHeadType: ArrowHeadType.ArrowClosed,
+          // type: 'step',
+          id: bridgeId,
+          source: srcId,
+          target: targetId,
+          animated: true,
+          label: target.linkLabel,
+          className: 'info-bg',
+          labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)' },
+          // labelShowBg: false,
+          labelBgPadding: [18, 4],
+          labelBgBorderRadius: 4,
+          arrowHeadColor: '#F00',
+          labelBgStyle: { fill: '#FFCC00', color: '#fff' },
+        })
+      } else {
+        elements[elements.findIndex((el) => el.id === bridgeId)].label += ` & ${target.linkLabel}`
+      }
     });
   });
   return elements;
@@ -117,7 +122,7 @@ export const FlowChart = ({
         !!elements?.length
         && <ReactFlow
           elements={elements}
-          onLoad={onLoad}
+          onLoad={options?.autofit ? onLoad : undefined}
         >
           { options?.showControls && <Controls /> }
           { options?.showBackground && <Background /> }

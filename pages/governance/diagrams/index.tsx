@@ -160,6 +160,7 @@ export const Overview = () => {
         w="7xl"
         breadcrumbs={[
           { label: 'Governance', href: '/governance' },
+          { label: 'Diagrams', href: '/governance/diagrams' },
           { label: 'Overview', href: '#' },
         ]}
       />
