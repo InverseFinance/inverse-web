@@ -209,6 +209,44 @@ export const Overview = () => {
               }
             />}
           </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+            <InfoMessage
+              title="⚡ Roles & Powers"
+              alertProps={{ fontSize: '12px', w: 'full' }}
+              description={
+                <>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text>- Pause Guardian:</Text>
+                    <Text>pause/unpause an Anchor Market</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text>- Anchor Admin:</Text>
+                    <Text>all rights on Anchor</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text>- xINV Admin:</Text>
+                    <Text>change INV APY</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text>- Escrow Admin:</Text>
+                    <Text>change xINV escrow duration</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text>- Dola operator:</Text>
+                    <Text>add/remove DOLA minters</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text whiteSpace="nowrap">- Gov Guardian:</Text>
+                    <Text>update Gov. rules, cancel a proposal</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text whiteSpace="nowrap">- Treasury Admin:</Text>
+                    <Text>use treasury funds</Text>
+                  </Flex>
+                </>
+              }
+            />
+          </Flex>
         </Flex>
       </Flex>
     </Layout>
