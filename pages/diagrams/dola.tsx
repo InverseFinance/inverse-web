@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Image, Text } from '@chakra-ui/react'
 
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
@@ -9,12 +9,16 @@ import { NetworkIds } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { DolaFlowChart } from '@inverse/components/common/Dataviz/DolaFlowChart'
 import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs'
+import { useDOLA } from '@inverse/hooks/useDOLA'
+import { shortenNumber } from '@inverse/util/markets'
 
-const { DOLA, TREASURY, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TREASURY, FEDS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const DEPLOYER = '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'
 
 export const DolaDiagram = () => {
+  const { totalSupply, ftmTotalSupply, fedSupplies } = useDOLA();
+
   const { data: dolaData } = useEtherSWR([
     [DOLA, 'operator'],
   ])
@@ -50,30 +54,72 @@ export const DolaDiagram = () => {
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator} feds={feds} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage
-              title="⚡ Roles & Powers"
+              title={<>
+                <Image mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} w='15px' h='15px' />
+                DOLA Total Supplies</>
+              }
               alertProps={{ fontSize: '12px', w: 'full' }}
               description={
                 <>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Dola operator:</Text>
-                    <Text>Can add/remove DOLA minters</Text>
+                  <Flex direction="row" w='full' justify="space-between" alignItems="center">
+                    <Text>- <Image mr="1" display="inline-block" src={'/assets/networks/ethereum.png'} ignoreFallback={true} w='15px' h='15px' />On Ethereum:</Text>
+                    <Text>{shortenNumber(totalSupply)}</Text>
                   </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Fed Chair:</Text>
-                    <Text>Can resize the amount of DOLA supplied</Text>
+                  <Flex direction="row" w='full' justify="space-between" alignItems="center">
+                    <Text>- <Image mr="1" display="inline-block" src={'/assets/networks/fantom.webp'} ignoreFallback={true} w='15px' h='15px' />On Fantom:</Text>
+                    <Text>{shortenNumber(ftmTotalSupply)}</Text>
                   </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Fed Gov:</Text>
-                    <Text>Can change the Fed Chair</Text>
+                  <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
+                    <Text>- Total:</Text>
+                    <Text>{shortenNumber(totalSupply + ftmTotalSupply)}</Text>
                   </Flex>
                 </>
               }
             />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-
+            <InfoMessage
+              title="🦅&nbsp;&nbsp;DOLA Feds Supply"
+              alertProps={{ fontSize: '12px', w: 'full' }}
+              description={
+                <>
+                  {fedSupplies.map(fed => {
+                    return <Flex key={fed.address} direction="row" w='full' justify="space-between">
+                      <Text>- {fed.name}:</Text>
+                      <Text>{shortenNumber(fed.supply)}</Text>
+                    </Flex>
+                  })}
+                  <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
+                    <Text>- Total:</Text>
+                    <Text>{shortenNumber(fedSupplies.reduce((prev, curr) => curr.supply + prev, 0))}</Text>
+                  </Flex>
+                </>
+              }
+            />
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }}  mt="5" justify="center">
+            <InfoMessage
+              title="⚡&nbsp;&nbsp;Roles & Powers"
+              alertProps={{ fontSize: '12px', w: 'full' }}
+              description={
+                <>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Dola operator:</Text>
+                    <Text>Add/remove DOLA minters</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Fed Chair:</Text>
+                    <Text>Resize the amount of DOLA supplied</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Fed Gov:</Text>
+                    <Text>Change the Fed Chair</Text>
+                  </Flex>
+                </>
+              }
+            />
           </Flex>
         </Flex>
       </Flex>

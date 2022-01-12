@@ -6,6 +6,12 @@ import { Web3Provider } from '@ethersproject/providers';
 
 type DOLA = {
   totalSupply: number
+  ftmTotalSupply: number
+  fedSupplies: {
+    address: string
+    name: string
+    supply: number
+  }[]
 }
 
 export const useDOLA = (): SWR & DOLA => {
@@ -15,6 +21,8 @@ export const useDOLA = (): SWR & DOLA => {
 
   return {
     totalSupply: data?.totalSupply || 0,
+    ftmTotalSupply: data?.ftmTotalSupply || 0,
+    fedSupplies: data?.fedSupplies || [],
     isLoading: !error && !data,
     isError: error,
   }

@@ -24,8 +24,8 @@ const mainnetConfig: NetworkConfig = {
   // new XINV
   XINV: '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B',
   feds: {
-    fusepool6: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664',
     anchor: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7',
+    fusepool6: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664',
   },
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
