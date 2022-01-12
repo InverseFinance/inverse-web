@@ -16,6 +16,8 @@ import { shortenNumber } from '@inverse/util/markets'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { OLD_XINV } from '@inverse/config/constants'
 import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs';
+import Link from '@inverse/components/common/Link'
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -194,7 +196,14 @@ export const Overview = () => {
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             {!!tvlData && <InfoMessage
               alertProps={{ fontSize: '12px', w: 'full' }}
-              title="⚓ Anchor Total Value Locked"
+              title={<Flex alignItems="center">
+                ⚓ Anchor Total Value Locked (
+                <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
+                  Analytics <ExternalLinkIcon mb="1px" fontSize="10px" />
+                </Link>
+                )
+              </Flex>
+              }
               description={
                 <>
                   <AnchorFunds tvlData={tvlData} />
@@ -209,32 +218,32 @@ export const Overview = () => {
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Pause Guardian:</Text>
-                    <Text>pause (but not unpause) a Market</Text>
+                    <Text fontWeight="bold">- Pause Guardian:</Text>
+                    <Text>Pause (but not unpause) a Market</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Anchor Admin:</Text>
-                    <Text>all rights on Anchor</Text>
+                    <Text  fontWeight="bold">- Anchor Admin:</Text>
+                    <Text>All rights on Anchor</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- xINV Admin:</Text>
-                    <Text>change INV APY</Text>
+                    <Text  fontWeight="bold">- xINV Admin:</Text>
+                    <Text>Change INV APY</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Escrow Admin:</Text>
-                    <Text>change xINV escrow duration</Text>
+                    <Text  fontWeight="bold">- Escrow Admin:</Text>
+                    <Text>Change xINV escrow duration</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Dola operator:</Text>
-                    <Text>add/remove DOLA minters</Text>
+                    <Text  fontWeight="bold">- Dola operator:</Text>
+                    <Text>Add/remove DOLA minters</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text whiteSpace="nowrap">- Gov Guardian:</Text>
-                    <Text>update Gov. rules, cancel a proposal</Text>
+                    <Text  fontWeight="bold" whiteSpace="nowrap">- Gov Guardian:</Text>
+                    <Text>Update Gov. rules, cancel a proposal</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text whiteSpace="nowrap">- Treasury Admin:</Text>
-                    <Text>use treasury funds</Text>
+                    <Text  fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
+                    <Text>Use treasury funds</Text>
                   </Flex>
                 </>
               }
