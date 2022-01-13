@@ -14,8 +14,11 @@ import { getTotalInterests } from '@inverse/util/markets';
 import { AnchorInterests } from './AnchorInterests'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { AnchorClaimModal } from './AnchorClaimModal'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 export const AnchorOverview = () => {
+  const { account } = useWeb3React<Web3Provider>()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
   const { rewards } = useAnchorRewards()
   const { balances: supplyBalances } = useSupplyBalances()
@@ -36,7 +39,7 @@ export const AnchorOverview = () => {
   let badgeColorScheme
   let health
 
-  if(usdBorrowable === 0 && usdBorrow > 0) {
+  if (usdBorrowable === 0 && usdBorrow > 0) {
     badgeColorScheme = 'gray'
     health = 'NO COLLATERAL'
   } else if (borrowLimitPercent <= 25) {
@@ -67,7 +70,7 @@ export const AnchorOverview = () => {
         </Flex>
       }
       right={
-        <Stack direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
+        !!account ? <Stack direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
           <Flex flexDirection="row" alignItems="center">
             <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
               {`${rewardAmount.toFixed(4)} INV rewards`}
@@ -76,7 +79,7 @@ export const AnchorOverview = () => {
               iconProps={{ boxSize: 3, mt: '2px' }}
               message={
                 <>
-                This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APY</b>.
+                  This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APY</b>.
                 </>
               } />
           </Flex>
@@ -87,7 +90,7 @@ export const AnchorOverview = () => {
           >
             Claim
           </StyledButton>
-        </Stack>
+        </Stack> : null
       }
     >
       <Flex w="full" justify="center">

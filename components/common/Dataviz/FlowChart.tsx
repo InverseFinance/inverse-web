@@ -5,12 +5,11 @@ import ReactFlow, {
   Background,
 } from 'react-flow-renderer';
 
-import { FlowChartData, FlowChartOptions } from '@inverse/types';
+import { FlowChartData, FlowChartElementsOptions, FlowChartOptions } from '@inverse/types';
 import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@inverse/util';
 import ScannerLink from '@inverse/components/common/ScannerLink';
-
-const onLoad = (reactFlowInstance: OnLoadParams) => reactFlowInstance.fitView();
+import { useEffect, useState } from 'react';
 
 const defaultNodeSyle = {
   background: '#bbb7e0cc',
@@ -32,15 +31,15 @@ const ElementLabel = ({ label, address }: { label: React.ReactNode, address: str
   )
 }
 
-const toElements = (links: FlowChartData[]) => {
+const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) => {
   const elements: any = [];
 
-  const width = 1000;
-  const height = 1000;
-  const originX = width / 2;
-  const originY = height / 2;
-  const xDelta = 300;
-  const yDelta = 200;
+  const width = options?.width || 1000;
+  const height = options?.height || 1000;
+  const originX = options?.originX || width / 2;
+  const originY = options?.originY || 0;
+  const xGap = options?.xGap || 300;
+  const yGap = options?.yGap || 200;
   // main sources
   links.forEach((link, i) => {
     const id = link.id.toLowerCase();
@@ -48,7 +47,7 @@ const toElements = (links: FlowChartData[]) => {
       elements.push({
         id,
         data: { label: <ElementLabel label={link.label} address={id} /> },
-        position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (yDelta * i) },
+        position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (originY + yGap * i) },
         style: { ...defaultNodeSyle, ...(link.style || {}) },
       })
     }
@@ -60,8 +59,8 @@ const toElements = (links: FlowChartData[]) => {
     link.targets?.forEach((target, j) => {
       const targetId = target.id.toLowerCase();
       if (!elements.find((el) => el.id === targetId)) {
-        const x = target.x ?? ((-xDelta + originX + (xDelta * j)) + (target.deltaX || 0))
-        const y = target.y ?? (yDelta * (i + 1) + (target.deltaY || 0))
+        const x = target.x ?? ((-xGap + originX + (xGap * j)) + (target.deltaX || 0))
+        const y = target.y ?? (yGap * (i + 1) + (target.deltaY || 0))
         elements.push({
           data: { label: <ElementLabel label={target.label} address={targetId} /> },
           id: targetId,
@@ -71,26 +70,31 @@ const toElements = (links: FlowChartData[]) => {
       }
     });
 
-    const linkId = link.id.toLowerCase();
+    const srcId = link.id.toLowerCase();
     // arrows (egdes)
     link.targets?.forEach(target => {
       const targetId = target.id.toLowerCase();
-      elements.push({
-        arrowHeadType: ArrowHeadType.ArrowClosed,
-        // type: 'step',
-        id: `${linkId}-${targetId}`,
-        source: linkId,
-        target: targetId,
-        animated: true,
-        label: target.linkLabel,
-        className: 'info-bg',
-        labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)' },
-        // labelShowBg: false,
-        labelBgPadding: [18, 4],
-        labelBgBorderRadius: 4,
-        arrowHeadColor: '#F00',
-        labelBgStyle: { fill: '#FFCC00', color: '#fff' },
-      })
+      const bridgeId = `${srcId}-${targetId}`
+      if (!elements.find((el) => el.id === bridgeId)) {
+        elements.push({
+          arrowHeadType: ArrowHeadType.ArrowClosed,
+          // type: 'step',
+          id: bridgeId,
+          source: srcId,
+          target: targetId,
+          animated: true,
+          label: target.linkLabel,
+          className: 'info-bg',
+          labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)' },
+          // labelShowBg: false,
+          labelBgPadding: [18, 4],
+          labelBgBorderRadius: 4,
+          arrowHeadColor: '#F00',
+          labelBgStyle: { fill: '#FFCC00', color: '#fff' },
+        })
+      } else {
+        elements[elements.findIndex((el) => el.id === bridgeId)].label += ` & ${target.linkLabel}`
+      }
     });
   });
   return elements;
@@ -105,11 +109,25 @@ export const FlowChart = ({
   options?: FlowChartOptions,
   boxProps?: BoxProps
 }) => {
-  if(!flowData?.length) {
+  const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams | undefined>(undefined)
+
+  const handleLoad = (instance: OnLoadParams) => {
+    instance.fitView();
+    if (!reactFlowInstance) {
+      setReactFlowInstance(instance);
+    }
+  }
+
+  useEffect(() => {
+    if (!reactFlowInstance || !options?.autofit) { return }
+    handleLoad(reactFlowInstance);
+  }, [flowData, options, boxProps]);
+
+  if (!flowData?.length) {
     return <>Loading...</>
   }
 
-  const elements = toElements(flowData)
+  const elements = toElements(flowData, options?.elementsOptions);
 
   return (
     <Box {...boxProps}>
@@ -117,10 +135,10 @@ export const FlowChart = ({
         !!elements?.length
         && <ReactFlow
           elements={elements}
-          onLoad={onLoad}
+          onLoad={options?.autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
         >
-          { options?.showControls && <Controls /> }
-          { options?.showBackground && <Background /> }
+          {options?.showControls && <Controls />}
+          {options?.showBackground && <Background />}
         </ReactFlow>
       }
     </Box>

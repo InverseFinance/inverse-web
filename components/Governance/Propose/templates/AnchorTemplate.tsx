@@ -5,14 +5,13 @@ import ScannerLink from '@inverse/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
 import { AutocompleteItem, NetworkIds  } from '@inverse/types'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { namedAddress } from '@inverse/util'
 
-const { CONTRACTS } = getNetworkConfigConstants(NetworkIds.mainnet)
+const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(NetworkIds.mainnet)
 
-const anchorContractsList = Object.entries(CONTRACTS)
-    .filter(([address, label]) => label.startsWith('an'))
-    .map(([address, label]) => {
-        return { value: address, label }
-    })
+const anchorContractsList = Object.values(ANCHOR_TOKENS)
+    .map(address => ({ value: address, label: namedAddress(address) }))
+    .concat([{ value: XINV, label: 'xINV' }, { value: XINV_V1, label: 'xINV-v1'  }])
 
 export const AnchorTemplate = ({
     defaultAddress = '',

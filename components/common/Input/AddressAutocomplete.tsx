@@ -15,9 +15,9 @@ export const AddressAutocomplete = ({
     list,
     ...props
 }: AddressAutocompleteProps) => {
-    const { PROPOSAL_AUTOCOMPLETE_ADDRESSES } = getNetworkConfigConstants(NetworkIds.mainnet)
+    const { NAMED_ADDRESSES } = getNetworkConfigConstants(NetworkIds.mainnet)
 
-    const addressesList = list || Object.entries(PROPOSAL_AUTOCOMPLETE_ADDRESSES)
+    const addressesList = list || Object.entries(NAMED_ADDRESSES)
         .map(([ad, name]) => ({ value: ad, label: name }));
 
     return (

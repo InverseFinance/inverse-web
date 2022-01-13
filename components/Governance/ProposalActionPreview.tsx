@@ -1,10 +1,8 @@
-import { ProposalFunction, NetworkIds } from '@inverse/types'
+import { ProposalFunction } from '@inverse/types'
 import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils';
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@inverse/components/common/Link'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-
-const { CONTRACTS } = getNetworkConfigConstants(NetworkIds.mainnet);
+import { namedAddress } from '@inverse/util';
 
 export const ProposalActionPreview = (({
     target,
@@ -30,7 +28,7 @@ export const ProposalActionPreview = (({
             <Flex w="full" overflowX="auto" direction="column" bgColor="purple.850" borderRadius={8} p={3}>
                 <Flex fontSize="15px">
                     <Link isExternal href={`https://etherscan.io/address/${target}`} color="purple.200" fontWeight="semibold">
-                        {CONTRACTS[target] || target}
+                        {namedAddress(target)}
                     </Link>
                     <Flex>{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>
                 </Flex>
@@ -38,7 +36,7 @@ export const ProposalActionPreview = (({
                     {callDatas.map((data: string, i) =>
                         isAddress(data) ? (
                             <Link isExternal key={i} href={`https://etherscan.io/address/${data}`} whiteSpace="nowrap">
-                                {CONTRACTS[data] || data}
+                                {namedAddress(data)}
                                 {i + 1 !== callDatas.length ? ',' : ''}
                             </Link>
                         ) : (

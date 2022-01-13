@@ -189,6 +189,20 @@ export const FED_ABI = [
   "function supply() public view returns (uint256)",
 ]
 
+// Cross-chain fed contract
+export const XCHAIN_FED_ABI = [
+  "function chair() public view returns (address)",
+  "function dstIsChairSuspended() public view returns (address)",
+  "function dstBoard() public view returns (address)",
+  "function dstSupply() public view returns (uint256)",
+  "function dstLastSuspendTimestamp() public view returns (uint256)",
+  "function GOV() public view returns (address)",
+  "function SRC_BRIDGE() public view returns (address)",
+  "function SRC_DOLA() public view returns (address)",
+  "function DST_DOLA() public view returns (address)",
+  "function DST_MARKET() public view returns (address)",
+]
+
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
