@@ -8,9 +8,8 @@ import { GovernanceFlowChart } from '@inverse/components/common/Dataviz/Governan
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { NetworkIds, TokenList, TokenWithBalance } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { commify, formatUnits, parseEther } from '@ethersproject/units'
+import { commify, parseEther } from '@ethersproject/units'
 import { formatEther } from 'ethers/lib/utils';
-import { BigNumber } from 'ethers';
 import { usePrices } from '@inverse/hooks/usePrices'
 import { shortenNumber } from '@inverse/util/markets'
 import { useTVL } from '@inverse/hooks/useTVL'
@@ -18,6 +17,8 @@ import { OLD_XINV } from '@inverse/config/constants'
 import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs';
 import Link from '@inverse/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { useDAO } from '@inverse/hooks/useDAO'
+import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -45,12 +46,11 @@ const defaultValues = {
 
 const DEPLOYER = '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'
 
-const getBalanceInfos = (bn: BigNumber, decimals: number, usdPrice = 0): {
-  qty: number, usdValue: number, formatted: string
+const getBalanceInfos = (value: number, usdPrice = 0): {
+  value: number, usdValue: number, formatted: string
 } => {
-  const qty = parseFloat(formatUnits(bn, decimals));
-  const usdValue = qty * usdPrice;
-  return { qty, usdValue, formatted: `${shortenNumber(qty, 2)} (${shortenNumber(usdValue, 2, true)})` };
+  const usdValue = value * usdPrice;
+  return { value, usdValue, formatted: `${shortenNumber(value, 2)} (${shortenNumber(usdValue, 2, true)})` };
 }
 
 const AnchorFunds = ({ tvlData }: { tvlData: { tvl: number, anchor: { tvl: number, assets: TokenWithBalance[] } } }) => {
@@ -82,7 +82,7 @@ const TreasuryFunds = ({
   prices,
 }: {
   addresses: string[],
-  values: BigNumber[],
+  values: number[],
   tokens: TokenList,
   prices: { [key: string]: { usd: number } },
 }) => {
@@ -90,7 +90,7 @@ const TreasuryFunds = ({
   const content = addresses.map((address, i) => {
     const token = tokens[address];
     const price = ['DOLA', 'DAI'].includes(token.symbol) ? 1 : (prices[token.coingeckoId!] || { usd: 0 }).usd
-    const balanceInfos = getBalanceInfos(values[i], token.decimals, price);
+    const balanceInfos = getBalanceInfos(values[i], price);
     totalUsd += balanceInfos.usdValue;
 
     return <Flex key={address} direction="row" w='full' justify="space-between">
@@ -112,6 +112,7 @@ const TreasuryFunds = ({
 export const Overview = () => {
   const { prices } = usePrices()
   const { data: tvlData } = useTVL()
+  const { dolaTotalSupply, invTotalSupply, fantom, treasury } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -143,14 +144,10 @@ export const Overview = () => {
   const { data: otherData } = useEtherSWR([
     [GOVERNANCE, 'quorumVotes'],
     [GOVERNANCE, 'proposalThreshold'],
-    [INV, 'balanceOf', TREASURY],
-    [XINV, 'balanceOf', TREASURY],
-    [DOLA, 'balanceOf', TREASURY],
-    [DAI, 'balanceOf', TREASURY],
   ])
 
-  const [quorumVotes, proposalThreshold, invBal, xinvBal, dolaBal, daiBal] =
-    otherData || [parseEther('4000'), parseEther('1000'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')];
+  const [quorumVotes, proposalThreshold] =
+    otherData || [parseEther('4000'), parseEther('1000')];
 
   return (
     <Layout>
@@ -182,17 +179,24 @@ export const Overview = () => {
               }
             />
           </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            {!!otherData && <InfoMessage
-              alertProps={{ fontSize: '12px', w: 'full' }}
-              title="🏦 Treasury Funds"
-              description={
-                <>
-                  <TreasuryFunds addresses={[INV, DOLA, DAI]} values={[invBal, dolaBal, daiBal]} prices={prices} tokens={TOKENS} />
-                </>
-              }
-            />}
-          </Flex>
+          {
+            !!treasury && <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+              <InfoMessage
+                alertProps={{ fontSize: '12px', w: 'full' }}
+                title="🏦 Treasury Funds"
+                description={
+                  <>
+                    <TreasuryFunds
+                      addresses={[INV, DOLA, DAI]}
+                      values={[treasury.invBalance, treasury.dolaBalance, treasury.daiBalance]}
+                      prices={prices}
+                      tokens={TOKENS}
+                    />
+                  </>
+                }
+              />
+            </Flex>
+          }
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             {!!tvlData && <InfoMessage
               alertProps={{ fontSize: '12px', w: 'full' }}
@@ -212,6 +216,12 @@ export const Overview = () => {
             />}
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+            <SuppplyInfos token={TOKENS[INV]} mainnetSupply={invTotalSupply} fantomSupply={fantom?.invTotalSupply} />
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+            <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage
               title="⚡ Roles & Powers"
               alertProps={{ fontSize: '12px', w: 'full' }}
@@ -222,27 +232,27 @@ export const Overview = () => {
                     <Text>Pause (but not unpause) a Market</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text  fontWeight="bold">- Anchor Admin:</Text>
+                    <Text fontWeight="bold">- Anchor Admin:</Text>
                     <Text>All rights on Anchor</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text  fontWeight="bold">- xINV Admin:</Text>
+                    <Text fontWeight="bold">- xINV Admin:</Text>
                     <Text>Change INV APY</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text  fontWeight="bold">- Escrow Admin:</Text>
+                    <Text fontWeight="bold">- Escrow Admin:</Text>
                     <Text>Change xINV escrow duration</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text  fontWeight="bold">- Dola operator:</Text>
+                    <Text fontWeight="bold">- Dola operator:</Text>
                     <Text>Add/remove DOLA minters</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text  fontWeight="bold" whiteSpace="nowrap">- Gov Guardian:</Text>
+                    <Text fontWeight="bold" whiteSpace="nowrap">- Gov Guardian:</Text>
                     <Text>Update Gov. rules, cancel a proposal</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text  fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
+                    <Text fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
                     <Text>Use treasury funds</Text>
                   </Flex>
                 </>

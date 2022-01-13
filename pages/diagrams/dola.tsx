@@ -1,4 +1,4 @@
-import { Flex, Image, Text } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
@@ -9,15 +9,16 @@ import { NetworkIds } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { DolaFlowChart } from '@inverse/components/common/Dataviz/DolaFlowChart'
 import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs'
-import { useDOLA } from '@inverse/hooks/useDOLA'
+import { useDAO } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
+import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
 const { DOLA, TREASURY, FEDS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const DEPLOYER = '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'
 
 export const DolaDiagram = () => {
-  const { totalSupply, ftmTotalSupply, fedSupplies } = useDOLA();
+  const { dolaTotalSupply, fantom, fedSupplies } = useDAO();
 
   const { data: dolaData } = useEtherSWR([
     [DOLA, 'operator'],
@@ -55,29 +56,7 @@ export const DolaDiagram = () => {
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <InfoMessage
-              title={<>
-                <Image mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} w='15px' h='15px' />
-                DOLA Total Supplies</>
-              }
-              alertProps={{ fontSize: '12px', w: 'full' }}
-              description={
-                <>
-                  <Flex direction="row" w='full' justify="space-between" alignItems="center">
-                    <Text>- <Image mr="1" display="inline-block" src={'/assets/networks/ethereum.png'} ignoreFallback={true} w='15px' h='15px' />On Ethereum:</Text>
-                    <Text>{shortenNumber(totalSupply)}</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between" alignItems="center">
-                    <Text>- <Image mr="1" display="inline-block" src={'/assets/networks/fantom.webp'} ignoreFallback={true} w='15px' h='15px' />On Fantom:</Text>
-                    <Text>{shortenNumber(ftmTotalSupply)}</Text>
-                  </Flex>
-                  <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
-                    <Text>- Total:</Text>
-                    <Text>{shortenNumber(totalSupply + ftmTotalSupply)}</Text>
-                  </Flex>
-                </>
-              }
-            />
+            <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage
