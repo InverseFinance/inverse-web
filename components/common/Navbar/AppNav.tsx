@@ -55,7 +55,7 @@ const NAV_ITEMS = [
   },
   {
     label: 'Transparency',
-    href: '/transparency',
+    href: '/transparency/overview',
   },
 ]
 
