@@ -16,7 +16,7 @@ export const DatavizTabs = ({ active }: { active: DatavizTabs}) => {
     const activeIndex = tabs.findIndex(tab => tab.page === active);
 
     return (
-        <Tabs onChange={handleTab} my="5" defaultIndex={activeIndex} colorScheme="white" variant='solid-rounded'>
+        <Tabs onChange={handleTab} mt="5" mb="2" defaultIndex={activeIndex} colorScheme="white" variant='solid-rounded'>
             <TabList>
                 {tabs.map(tab => <Tab key={tab.page}>{tab.label}</Tab>)}
             </TabList>

@@ -1,23 +1,22 @@
 import { BigNumber, Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { ERC20_ABI, FED_ABI } from '@inverse/config/abis'
+import { ERC20_ABI, FED_ABI, XCHAIN_FED_ABI } from '@inverse/config/abis'
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks'
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { NetworkIds } from '@inverse/types';
+import { NetworkIds, xChainFed } from '@inverse/types';
 import { namedAddress } from '@inverse/util'
-import { JsonRpcProvider } from '@ethersproject/providers'
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, FEDS, XCHAIN_FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
   const cacheKey = `dao-cache`;
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(cacheKey, true, 300);
     if(validCache) {
       res.status(200).json(validCache);
       return
@@ -33,7 +32,7 @@ export default async function handler(req, res) {
 
     // public rpc for fantom, less reliable
     try {
-      const ftmProvider = new JsonRpcProvider('https://rpc.ftm.tools/');
+      const ftmProvider = getProvider(NetworkIds.ftm);
       const dolaFtmContract = new Contract(ftmConfig?.DOLA, ERC20_ABI, ftmProvider);
       const invFtmContract = new Contract(ftmConfig?.INV, ERC20_ABI, ftmProvider);
       dolaFtmTotalSupply = await dolaFtmContract.totalSupply();
@@ -58,8 +57,18 @@ export default async function handler(req, res) {
       ...FEDS.map((fedAddress: string) => {
         const fedContract = new Contract(fedAddress, FED_ABI, provider);
         return fedContract.supply();
-      })
+      }),
     ])
+
+    const xChainFedsResults = await Promise.allSettled([
+      ...XCHAIN_FEDS.map((xChainFed: xChainFed) => {
+        const xChainProvider = getProvider(xChainFed.chainId);
+        const xChainFedContract = new Contract(xChainFed.address, XCHAIN_FED_ABI, xChainProvider);
+        return xChainFedContract.dstSupply();
+      })
+    ]);
+
+    const xChainFedsSupplies = xChainFedsResults.map(r => r.status === 'fulfilled' ? r.value : BigNumber.from('0'))
 
     const resultData = {
       dolaTotalSupply: parseFloat(formatEther(dolaTotalSupply)),
@@ -75,9 +84,17 @@ export default async function handler(req, res) {
       },
       fedSupplies: FEDS.map((fedAd, i) => ({
         address: fedAd,
+        chainId: NetworkIds.mainnet,
         name: namedAddress(fedAd),
         supply: parseFloat(formatEther(fedSupplies[i])),
-      }))
+      })).concat(
+        XCHAIN_FEDS.map((xChainFed, i) => {
+          return {
+            ...xChainFed,
+            supply: parseFloat(formatEther(xChainFedsSupplies[i])),
+          }
+        })
+      )
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

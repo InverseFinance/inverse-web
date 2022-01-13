@@ -1,4 +1,4 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { getNetworkConfigConstants, getNetworkImage } from '@inverse/config/networks';
 import { FlowChartData, NetworkIds } from '@inverse/types';
 
 import { Box, Image, useMediaQuery } from '@chakra-ui/react';
@@ -14,12 +14,16 @@ const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white' }
 
 const dolaImg = <Image mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} width={'20px'} height={'20px'} />
 
+const elementsOptions = {
+  yGap: 150,
+};
+
 export const DolaFlowChart = ({
   dola,
   dolaOperator,
   feds,
 }: {
-  feds: { address: string, chair: string, gov: string, ctoken: string }[]
+  feds: { address: string, chair: string, gov: string, chainId: NetworkIds }[]
   dola: string,
   dolaOperator: string,
 }) => {
@@ -34,11 +38,11 @@ export const DolaFlowChart = ({
 
   const fedLinks = feds?.map(fed => {
     return {
-      label: `🦅 ${namedAddress(fed.address)}`,
+      label: <>🦅 {namedAddress(fed.address)} <Image position="absolute" left="0" right="0" top="5px" m="auto" h="15px" w="15px" src={getNetworkImage(fed.chainId)} /></>,
       id: fed.address,
       style: primaryStyle,
       targets: [
-        { label: `🔐 ${namedAddress(fed.chair)}`, id: fed.chair, linkLabel: 'Fed Chair', deltaX: 600, y: 200 },
+        { label: `🔐 ${namedAddress(fed.chair)}`, id: fed.chair, linkLabel: 'Fed Chair', deltaX: 600, y: elementsOptions.yGap },
         { label: `🏦 ${namedAddress(fed.gov)}`, id: fed.gov, linkLabel: 'Fed Gov', style: greenStyle },
         // { label: namedAddress(fed.ctoken), id: fed.ctoken, linkLabel: 'Token' },
       ]
@@ -65,7 +69,12 @@ export const DolaFlowChart = ({
 
   return (
     <FlowChart
-      options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: false }}
+      options={{
+        showControls: !isLargerThan,
+        showBackground: !isLargerThan,
+        autofit: true,
+        elementsOptions,
+      }}
       flowData={links}
       boxProps={boxProps}
     />

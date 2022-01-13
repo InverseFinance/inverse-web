@@ -1,4 +1,4 @@
-import { NetworkConfig, Network, NetworkIds, TokenList, Vaults, VaultTree } from '@inverse/types'
+import { NetworkConfig, Network, NetworkIds, TokenList, Vaults, VaultTree, xChainFed } from '@inverse/types'
 import { OLD_XINV } from './constants';
 
 const mainnetConfig: NetworkConfig = {
@@ -344,6 +344,10 @@ export const getNetworkConfigConstants = (
 
   // FEDS
   const FEDS = Object.values(config.feds);
+  // xChainFeds have a different abi
+  const XCHAIN_FEDS: xChainFed[] = [
+    { chainId: NetworkIds.ftm, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Fed Scream' },
+  ];
 
   // Anchor
   const LENS = config.anchor.lens;
@@ -567,13 +571,17 @@ export const getNetworkConfigConstants = (
     [DOLA_PAYROLL]: 'DolaPayroll',
     '0x0000000000000000000000000000000000000000': 'BurnAddress',
     '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89': 'ETHDOLAStakingPool',
+    '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
+    '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
+    // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
+    // Cross-Chain Feds
+    '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
+    // Multisigs
     '0x6128ED9EE07D89Ba3a1E6E0e16C69488112Fc925': 'MarketingCommittee',
     '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'RewardsCommittee',
     '0x07de0318c24D67141e6758370e9D7B6d863635AA': 'PolicyCommittee',
-    '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
-    '0x926dF14a23BE491164dCF93f4c468A50ef659D5B': 'Timelock',
      // dao members
     '0x7165ac4008c3603AfE432787419eB61B3a2CEe8B': 'BenLavabo',
     '0x4db09171350Be4f317a67223825abeCC65482E32': 'Mr Brown Whale',
@@ -676,6 +684,7 @@ export const getNetworkConfigConstants = (
     NAMED_ADDRESSES,
     DOLA_PAYROLL,
     FEDS,
+    XCHAIN_FEDS,
     DEPLOYER,
   }
 }

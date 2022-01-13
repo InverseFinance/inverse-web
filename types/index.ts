@@ -341,10 +341,20 @@ export type FlowChartData = {
   style?: Object
 }
 
+export type FlowChartElementsOptions = {
+  width?: number,
+  height?: number,
+  originX?: number,
+  originY?: number,
+  xGap?: number,
+  yGap?: number,
+}
+
 export type FlowChartOptions = {
   showControls?: boolean
   showBackground?: boolean
   autofit?: boolean
+  elementsOptions?: FlowChartElementsOptions
 }
 
 export type Prices = {
@@ -353,4 +363,10 @@ export type Prices = {
       usd: number
     }
   }
+}
+
+export type xChainFed = {
+  address: string,
+  chainId: NetworkIds,
+  name: string,
 }

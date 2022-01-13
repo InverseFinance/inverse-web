@@ -20,7 +20,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@inverse/hooks/useDAO'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   comptroller: COMPTROLLER,
@@ -43,8 +43,6 @@ const defaultValues = {
   dola: DOLA,
   dolaOperator: TREASURY,
 }
-
-const DEPLOYER = '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'
 
 const getBalanceInfos = (value: number, usdPrice = 0): {
   value: number, usdValue: number, formatted: string

@@ -1,6 +1,10 @@
-import { AlchemyProvider, InfuraProvider, CloudflareProvider, FallbackProvider } from "@ethersproject/providers";
+import { AlchemyProvider, InfuraProvider, CloudflareProvider, JsonRpcProvider, FallbackProvider } from "@ethersproject/providers";
+import { NetworkIds } from '@inverse/types';
 
-export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider => {
+export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
+    if(chainId === NetworkIds.ftm) {
+        return new JsonRpcProvider('https://rpc.ftm.tools/');
+    }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || process.env.ALCHEMY_API)];
 

@@ -13,9 +13,7 @@ import { useDAO } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
-const { DOLA, TREASURY, FEDS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-
-const DEPLOYER = '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'
+const { DOLA, TREASURY, FEDS, XCHAIN_FEDS, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DolaDiagram = () => {
   const { dolaTotalSupply, fantom, fedSupplies } = useDAO();
@@ -27,19 +25,29 @@ export const DolaDiagram = () => {
   const { data: fetchedFedData } = useEtherSWR([
     ...FEDS.map(fed => [fed, 'chair']),
     ...FEDS.map(fed => [fed, 'gov']),
-    ...FEDS.map(fed => [fed, 'ctoken']),
+    // ...FEDS.map(fed => [fed, 'ctoken']),
   ])
 
-  const fedData = fetchedFedData || [DEPLOYER, DEPLOYER, TREASURY, TREASURY, '', ''];
+  const fedData = fetchedFedData || [DEPLOYER, DEPLOYER, TREASURY, TREASURY];
 
   const feds = FEDS.map(((fed, i) => {
     return {
       address: fed,
       chair: fedData[i],
       gov: fedData[FEDS.length + i],
-      ctoken: fedData[2 * FEDS.length + i],
+      chainId: NetworkIds.mainnet,
+      // ctoken: fedData[2 * FEDS.length + i],
     }
-  }))
+  })).concat(
+    XCHAIN_FEDS.map(xChainFed => {
+      return {
+        address: xChainFed.address,
+        chair: DEPLOYER,
+        gov: TREASURY,
+        chainId: xChainFed.chainId,
+      }
+    })
+  )
 
   const [dolaOperator] = dolaData || [TREASURY];
 
@@ -55,7 +63,7 @@ export const DolaDiagram = () => {
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator} feds={feds} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
             <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">

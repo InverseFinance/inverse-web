@@ -5,7 +5,7 @@ import ReactFlow, {
   Background,
 } from 'react-flow-renderer';
 
-import { FlowChartData, FlowChartOptions } from '@inverse/types';
+import { FlowChartData, FlowChartElementsOptions, FlowChartOptions } from '@inverse/types';
 import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@inverse/util';
 import ScannerLink from '@inverse/components/common/ScannerLink';
@@ -31,15 +31,15 @@ const ElementLabel = ({ label, address }: { label: React.ReactNode, address: str
   )
 }
 
-const toElements = (links: FlowChartData[]) => {
+const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) => {
   const elements: any = [];
 
-  const width = 1000;
-  const height = 1000;
-  const originX = width / 2;
-  const originY = height / 2;
-  const xDelta = 300;
-  const yDelta = 200;
+  const width = options?.width || 1000;
+  const height = options?.height || 1000;
+  const originX = options?.originX || width / 2;
+  const originY = options?.originY || 0;
+  const xGap = options?.xGap || 300;
+  const yGap = options?.yGap || 200;
   // main sources
   links.forEach((link, i) => {
     const id = link.id.toLowerCase();
@@ -47,7 +47,7 @@ const toElements = (links: FlowChartData[]) => {
       elements.push({
         id,
         data: { label: <ElementLabel label={link.label} address={id} /> },
-        position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (yDelta * i) },
+        position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (originY + yGap * i) },
         style: { ...defaultNodeSyle, ...(link.style || {}) },
       })
     }
@@ -59,8 +59,8 @@ const toElements = (links: FlowChartData[]) => {
     link.targets?.forEach((target, j) => {
       const targetId = target.id.toLowerCase();
       if (!elements.find((el) => el.id === targetId)) {
-        const x = target.x ?? ((-xDelta + originX + (xDelta * j)) + (target.deltaX || 0))
-        const y = target.y ?? (yDelta * (i + 1) + (target.deltaY || 0))
+        const x = target.x ?? ((-xGap + originX + (xGap * j)) + (target.deltaX || 0))
+        const y = target.y ?? (yGap * (i + 1) + (target.deltaY || 0))
         elements.push({
           data: { label: <ElementLabel label={target.label} address={targetId} /> },
           id: targetId,
@@ -127,7 +127,7 @@ export const FlowChart = ({
     return <>Loading...</>
   }
 
-  const elements = toElements(flowData);
+  const elements = toElements(flowData, options?.elementsOptions);
 
   return (
     <Box {...boxProps}>
