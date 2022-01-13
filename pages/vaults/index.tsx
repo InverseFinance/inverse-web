@@ -11,7 +11,7 @@ export const Vaults = () => (
     </Head>
     <AppNav active="Vaults" />
     <Flex justify="center" direction="column">
-      <Flex minW={{ base: '500px' }} w={{ base: 'full', xl: 'xl' }}>
+      <Flex minW={{ base: '300px', lg: '600px' }} w={{ base: 'full', xl: 'xl' }}>
         <VaultsView />
       </Flex>
     </Flex>
