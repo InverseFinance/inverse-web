@@ -10,7 +10,7 @@ const tabs = [
 export const DatavizTabs = ({ active }: { active: DatavizTabs}) => {
     const handleTab = (newIndex: number) => {
         // cleaner visually than router.push
-        window.location.pathname = `/diagrams/${tabs[newIndex].page}`
+        window.location.pathname = `/transparency/${tabs[newIndex].page}`
     }
 
     const activeIndex = tabs.findIndex(tab => tab.page === active);

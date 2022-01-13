@@ -154,9 +154,9 @@ export const Overview = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Overview FlowChart</title>
+        <title>Inverse Finance - Transparency Overview</title>
       </Head>
-      <AppNav active="Diagrams" />
+      <AppNav active="Transparency" />
       <DatavizTabs active="overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">

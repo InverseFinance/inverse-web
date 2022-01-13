@@ -54,8 +54,8 @@ const NAV_ITEMS = [
     href: '/governance',
   },
   {
-    label: 'Diagrams',
-    href: '/diagrams',
+    label: 'Transparency',
+    href: '/transparency',
   },
 ]
 

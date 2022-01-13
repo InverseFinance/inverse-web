@@ -46,9 +46,9 @@ export const DolaDiagram = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Dola FlowChart</title>
+        <title>Inverse Finance - Transparency Dola</title>
       </Head>
-      <AppNav active="Diagrams" />
+      <AppNav active="Transparency" />
       <DatavizTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
