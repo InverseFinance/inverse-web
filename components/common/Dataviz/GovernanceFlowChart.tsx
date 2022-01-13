@@ -1,7 +1,7 @@
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { FlowChartData, NetworkIds } from '@inverse/types';
 
-import { Image, useMediaQuery } from '@chakra-ui/react';
+import { Box, Image, useMediaQuery } from '@chakra-ui/react';
 import { namedAddress } from '@inverse/util';
 import { FlowChart } from './FlowChart';
 import { useEffect, useState } from 'react';
@@ -126,15 +126,17 @@ export const GovernanceFlowChart = ({
     },
   ]
 
+  const boxProps = { w: { base: baseWidth, lg: '1000px' }, h: { base: baseheight, lg: '600px' } }
+
   if (!baseWidth) {
-    return <></>
+    return <Box {...boxProps}>&nbsp;</Box>
   }
 
   return (
     <FlowChart
       options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: true }}
       flowData={links}
-      boxProps={{ w: { base: baseWidth, lg: '1000px' }, h: { base: baseheight, lg: '600px' } }}
+      boxProps={boxProps}
     />
   )
 };
