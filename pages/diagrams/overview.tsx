@@ -57,10 +57,12 @@ const AnchorFunds = ({ tvlData }: { tvlData: { tvl: number, anchor: { tvl: numbe
   const content = tvlData?.anchor?.assets
     .sort((a, b) => b.usdBalance - a.usdBalance)
     .map(asset => {
-      return <Flex key={asset.address} direction="row" w='full' justify="space-between">
-        <Text>- <Image display="inline-block" src={asset.image} ignoreFallback={true} w='15px' h='15px' mr="2" ml="1" />
-          {asset.symbol}{asset.address === OLD_XINV && ' (old)'}:
-        </Text>
+      return <Flex key={asset.address} direction="row" w='full' alignItems="center" justify="space-between">
+        <Flex alignItems="center">
+          <Text>-</Text>
+          <Image display="inline-block" src={asset.image} ignoreFallback={true} w='15px' h='15px' mr="2" ml="1" />
+          <Text lineHeight="15px">{asset.symbol}{asset.address === OLD_XINV && ' (old)'}:</Text>
+        </Flex>
         <Text>{shortenNumber(asset.balance, 2)} ({shortenNumber(asset.usdBalance, 2, true)})</Text>
       </Flex>
     })
