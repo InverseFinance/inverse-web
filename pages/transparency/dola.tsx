@@ -64,7 +64,7 @@ export const DolaDiagram = () => {
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-            <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
+            <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply - fantom?.dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage

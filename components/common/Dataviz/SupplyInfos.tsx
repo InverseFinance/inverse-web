@@ -41,7 +41,7 @@ export const SuppplyInfos = ({
                         <Text>{shortenNumber(fantomSupply)}</Text>
                     </Flex>
                     <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
-                        <Text>- Total:</Text>
+                        <Text>- Total Cross-Chain:</Text>
                         <Text>{shortenNumber(mainnetSupply + fantomSupply)}</Text>
                     </Flex>
                 </>
