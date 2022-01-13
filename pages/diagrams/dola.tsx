@@ -60,7 +60,7 @@ export const DolaDiagram = () => {
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage
-              title="🦅&nbsp;&nbsp;DOLA Feds Supply"
+              title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
               alertProps={{ fontSize: '12px', w: 'full' }}
               description={
                 <>
