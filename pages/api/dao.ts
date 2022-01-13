@@ -11,9 +11,9 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 
 export default async function handler(req, res) {
 
-  const { DOLA, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-  const cacheKey = `dola-cache`;
+  const cacheKey = `dao-cache`;
 
   try {
 
@@ -25,23 +25,36 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
     const dolaContract = new Contract(DOLA, ERC20_ABI, provider);
+    const invContract = new Contract(INV, ERC20_ABI, provider);
+    const daiContract = new Contract(DAI, ERC20_ABI, provider);
 
-    let ftmTotalSupply = BigNumber.from('0');
+    let invFtmTotalSupply = BigNumber.from('0');
+    let dolaFtmTotalSupply = BigNumber.from('0');
 
     // public rpc for fantom, less reliable
     try {
       const ftmProvider = new JsonRpcProvider('https://rpc.ftm.tools/');
       const dolaFtmContract = new Contract(ftmConfig?.DOLA, ERC20_ABI, ftmProvider);
-      ftmTotalSupply = await dolaFtmContract.totalSupply();
+      const invFtmContract = new Contract(ftmConfig?.INV, ERC20_ABI, ftmProvider);
+      dolaFtmTotalSupply = await dolaFtmContract.totalSupply();
+      invFtmTotalSupply = await invFtmContract.totalSupply();
     } catch(e) {
 
     }
     
     const [
-      totalSupply,
+      dolaTotalSupply,
+      invTotalSupply,
+      dolaTreasuryBal,
+      invTreasuryBal,
+      daiTreasuryBal,
       ...fedSupplies
     ] = await Promise.all([
       dolaContract.totalSupply(),
+      invContract.totalSupply(),
+      dolaContract.balanceOf(TREASURY),
+      invContract.balanceOf(TREASURY),
+      daiContract.balanceOf(TREASURY),
       ...FEDS.map((fedAddress: string) => {
         const fedContract = new Contract(fedAddress, FED_ABI, provider);
         return fedContract.supply();
@@ -49,8 +62,17 @@ export default async function handler(req, res) {
     ])
 
     const resultData = {
-      totalSupply: parseFloat(formatEther(totalSupply)),
-      ftmTotalSupply: parseFloat(formatEther(ftmTotalSupply)),
+      dolaTotalSupply: parseFloat(formatEther(dolaTotalSupply)),
+      invTotalSupply: parseFloat(formatEther(invTotalSupply)),
+      treasury: {
+        dolaBalance: parseFloat(formatEther(dolaTreasuryBal)),
+        invBalance: parseFloat(formatEther(invTreasuryBal)),
+        daiBalance: parseFloat(formatEther(daiTreasuryBal)),
+      },
+      fantom: {
+        dolaTotalSupply: parseFloat(formatEther(dolaFtmTotalSupply)),
+        invTotalSupply: parseFloat(formatEther(invFtmTotalSupply)),
+      },
       fedSupplies: FEDS.map((fedAd, i) => ({
         address: fedAd,
         name: namedAddress(fedAd),
