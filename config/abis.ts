@@ -203,6 +203,10 @@ export const XCHAIN_FED_ABI = [
   "function DST_MARKET() public view returns (address)",
 ]
 
+export const MULTISIG_ABI = [
+  "function getOwners() public view returns (address[])",
+]
+
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -225,6 +229,8 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     TREASURY,
     DOLA,
     FEDS,
+    XCHAIN_FEDS,
+    MULTISIGS,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -246,6 +252,8 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [TREASURY, TREASURY_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
         ...FEDS.map((address) => [address, FED_ABI]),
+        ...XCHAIN_FEDS.map((xChainFed) => [xChainFed.address, XCHAIN_FED_ABI]),
+        ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])
     )

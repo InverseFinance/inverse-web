@@ -349,6 +349,12 @@ export const getNetworkConfigConstants = (
     { chainId: NetworkIds.ftm, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Fed Scream' },
   ];
 
+  const MULTISIGS = {
+    '0x6128ED9EE07D89Ba3a1E6E0e16C69488112Fc925': 'MarketingCommittee',
+    '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'RewardsCommittee',
+    '0x07de0318c24D67141e6758370e9D7B6d863635AA': 'PolicyCommittee',
+  }
+  
   // Anchor
   const LENS = config.anchor.lens;
   const COMPTROLLER = config.anchor.comptroller;
@@ -579,9 +585,7 @@ export const getNetworkConfigConstants = (
     // Cross-Chain Feds
     '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // Multisigs
-    '0x6128ED9EE07D89Ba3a1E6E0e16C69488112Fc925': 'MarketingCommittee',
-    '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'RewardsCommittee',
-    '0x07de0318c24D67141e6758370e9D7B6d863635AA': 'PolicyCommittee',
+    ...MULTISIGS,
      // dao members
     '0x7165ac4008c3603AfE432787419eB61B3a2CEe8B': 'BenLavabo',
     '0x4db09171350Be4f317a67223825abeCC65482E32': 'Mr Brown Whale',
@@ -686,5 +690,6 @@ export const getNetworkConfigConstants = (
     FEDS,
     XCHAIN_FEDS,
     DEPLOYER,
+    MULTISIGS,
   }
 }
