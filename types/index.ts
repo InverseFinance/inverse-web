@@ -16,6 +16,7 @@ export interface Token {
 export interface TokenWithBalance extends Token {
   balance: number;
   usdBalance: number;
+  usdPrice: number;
 }
 
 export interface TokenList { [key: string]: Token };

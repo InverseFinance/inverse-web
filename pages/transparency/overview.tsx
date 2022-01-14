@@ -147,7 +147,7 @@ export const Overview = () => {
               description={
                 <Funds prices={
                   Object.fromEntries(new Map(tvlData?.anchor?.assets.map(assetWithBalance => {
-                    return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.oraclePrice }]
+                    return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.usdPrice }]
                   })))
                 }
                 funds={
