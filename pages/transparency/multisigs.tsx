@@ -49,9 +49,18 @@ export const MultisigsDiagram = () => {
               return <Flex my="2" w={{ base: 'full', xl: 'sm' }} justify="center">
                 <InfoMessage
                   alertProps={{ fontSize: '12px', w: 'full' }}
-                  title={`👥 ${multisig.name} Funds`}
+                  title={`👥 ${multisig.name}`}
                   description={
-                    <Funds prices={prices} funds={multisig.funds} />
+                    <>
+                      <Flex direction="row" w='full' justify="space-between">
+                        <Text>- Required approvals to act:</Text>
+                        <Text>{multisig.threshold} out of {multisig.owners.length} the members</Text>
+                      </Flex>
+                      <Flex mt="5" direction="row" w='full' justify="space-between">
+                        <Text fontWeight="bold">Multisig Wallet Funds:</Text>
+                      </Flex>
+                      <Funds prices={prices} funds={multisig.funds} />
+                    </>
                   }
                 />
               </Flex>
