@@ -1,6 +1,3 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types';
-
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { namedAddress } from '@inverse/util';
 import { FlowChart } from '@inverse/components/common/Dataviz/FlowChart';
@@ -75,7 +72,7 @@ export const MultisigsFlowChart = ({
     <FlowChart
       options={{
         showControls: !isLargerThan,
-        showBackground: true,
+        showBackground: !isLargerThan,
         autofit: true,
         elementsOptions,
       }}

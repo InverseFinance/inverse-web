@@ -205,6 +205,7 @@ export const XCHAIN_FED_ABI = [
 
 export const MULTISIG_ABI = [
   "function getOwners() public view returns (address[])",
+  "function getThreshold() public view returns (uint256)",
 ]
 
 export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {

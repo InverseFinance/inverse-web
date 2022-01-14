@@ -7,9 +7,12 @@ import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyT
 import { useDAO } from '@inverse/hooks/useDAO'
 import { MultisigsFlowChart } from '@inverse/components/Transparency/MultisigsFlowChart'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { usePrices } from '@inverse/hooks/usePrices'
+import { Funds } from '@inverse/components/Transparency/Funds'
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
+  const { prices } = usePrices();
 
   return (
     <Layout>
@@ -23,24 +26,37 @@ export const MultisigsDiagram = () => {
           <MultisigsFlowChart multisigs={multisigs} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          <Flex mb="2" w={{ base: 'full', xl: 'sm' }} justify="center">
             <InfoMessage
               alertProps={{ fontSize: '12px', w: 'full' }}
               title="🏛️ Multisigs Purposes"
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Rewards Committee:</Text>
+                    <Text fontWeight="bold">- Rewards Committee:</Text>
                     <Text>Compensate contributors</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text>- GWG:</Text>
+                    <Text fontWeight="bold">- GWG:</Text>
                     <Text>Investments & Costs regarding Growth</Text>
                   </Flex>
                 </>
               }
             />
           </Flex>
+          {
+            multisigs?.map(multisig => {
+              return <Flex my="2" w={{ base: 'full', xl: 'sm' }} justify="center">
+                <InfoMessage
+                  alertProps={{ fontSize: '12px', w: 'full' }}
+                  title={`👥 ${multisig.name} Funds`}
+                  description={
+                    <Funds prices={prices} funds={multisig.funds} />
+                  }
+                />
+              </Flex>
+            })
+          }
         </Flex>
       </Flex>
     </Layout>

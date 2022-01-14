@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
-  const cacheKey = `${networkConfig.chainId}-tvl-cache`;
+  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.0`;
 
   try {
     const {
@@ -177,6 +177,7 @@ const anchorTVL = async (
       address: anchorAddress,
       underlyingAddress: token.address,
       balance: amount,
+      oraclePrice: prices[anchorAddress] || 0,
       usdBalance: amount * prices[anchorAddress] || 0,
     };
   });
