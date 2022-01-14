@@ -5,7 +5,7 @@ type TabsType = 'overview' | 'dola' | 'multisigs';
 const tabs = [
     { page: 'overview', label: 'Overview' },
     { page: 'dola', label: 'DOLA & the Feds' },
-    { page: 'multisigs', label: 'Multisigs' },
+    { page: 'multisigs', label: 'Multisig Wallets' },
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {

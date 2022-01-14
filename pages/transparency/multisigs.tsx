@@ -9,6 +9,8 @@ import { MultisigsFlowChart } from '@inverse/components/Transparency/MultisigsFl
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { Funds } from '@inverse/components/Transparency/Funds'
+import Link from '@inverse/components/common/Link'
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
@@ -29,7 +31,7 @@ export const MultisigsDiagram = () => {
           <Flex mb="2" w={{ base: 'full', xl: 'sm' }} justify="center">
             <InfoMessage
               alertProps={{ fontSize: '12px', w: 'full' }}
-              title="🏛️ Multisigs Purposes"
+              title={<>🏛️ Multisig Wallets Purposes (<Link isExternal display="inline-block" href="https://help.gnosis-safe.io/en/articles/3876456-what-is-gnosis-safe">More Infos <ExternalLinkIcon mb="2px" /></Link>)</>}
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">
