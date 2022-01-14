@@ -4,7 +4,7 @@ import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
 import { InfoMessage } from '@inverse/components/common/Messages'
-import { GovernanceFlowChart } from '@inverse/components/common/Dataviz/GovernanceFlowChart'
+import { GovernanceFlowChart } from '@inverse/components/Transparency/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { NetworkIds, TokenList, TokenWithBalance } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
@@ -14,7 +14,7 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { shortenNumber } from '@inverse/util/markets'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { OLD_XINV } from '@inverse/config/constants'
-import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs';
+import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs';
 import Link from '@inverse/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@inverse/hooks/useDAO'
@@ -155,7 +155,7 @@ export const Overview = () => {
         <title>Inverse Finance - Transparency Overview</title>
       </Head>
       <AppNav active="Transparency" />
-      <DatavizTabs active="overview" />
+      <TransparencyTabs active="overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
           <GovernanceFlowChart {...govFlowChartData} />
