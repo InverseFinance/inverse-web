@@ -38,8 +38,8 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) 
   const height = options?.height || 1000;
   const originX = options?.originX || width / 2;
   const originY = options?.originY || 0;
-  const xGap = options?.xGap || 300;
-  const yGap = options?.yGap || 200;
+  const xGap = options?.xGap ?? 300;
+  const yGap = options?.yGap ?? 200;
   // main sources
   links.forEach((link, i) => {
     const id = link.id.toLowerCase();
@@ -124,7 +124,7 @@ export const FlowChart = ({
   }, [flowData, options, boxProps]);
 
   if (!flowData?.length) {
-    return <>Loading...</>
+    return     <Box {...boxProps}></Box>
   }
 
   const elements = toElements(flowData, options?.elementsOptions);

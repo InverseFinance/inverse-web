@@ -20,6 +20,11 @@ type DAO = {
     address: string
     name: string
     supply: number
+  }[],
+  multisigs: {
+    address: string,
+    name: string,
+    owners: string[],
   }[]
 }
 
@@ -41,6 +46,7 @@ export const useDAO = (): SWR & DAO => {
       invTotalSupply: data?.fantom?.invTotalSupply || 0,
     },
     fedSupplies: data?.fedSupplies || [],
+    multisigs: data?.multisigs || [],
     isLoading: !error && !data,
     isError: error,
   }
