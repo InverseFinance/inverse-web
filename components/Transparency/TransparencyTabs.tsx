@@ -1,13 +1,14 @@
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
-type DatavizTabs = 'overview' | 'dola';
+type TabsType = 'overview' | 'dola' | 'multisigs';
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
     { page: 'dola', label: 'DOLA & the Feds' },
+    { page: 'multisigs', label: 'Multisigs' },
 ]
 
-export const DatavizTabs = ({ active }: { active: DatavizTabs}) => {
+export const TransparencyTabs = ({ active }: { active: TabsType}) => {
     const handleTab = (newIndex: number) => {
         // cleaner visually than router.push
         window.location.pathname = `/transparency/${tabs[newIndex].page}`

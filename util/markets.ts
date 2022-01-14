@@ -1,8 +1,13 @@
 import { BigNumberList, Market, TokenList } from '@inverse/types';
+import { BigNumber } from 'ethers';
 import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
+}
+
+export const getBnToNumber = (bn: BigNumber, decimals = 18) => {
+    return bn ? parseFloat(formatUnits(bn, decimals)) : 0;
 }
 
 export const getParsedBalance = (balances: BigNumberList, address: string, decimals = 18) => {

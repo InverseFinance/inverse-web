@@ -3,7 +3,7 @@ import { FlowChartData, NetworkIds } from '@inverse/types';
 
 import { Box, Image, useMediaQuery } from '@chakra-ui/react';
 import { namedAddress } from '@inverse/util';
-import { FlowChart } from './FlowChart';
+import { FlowChart } from '@inverse/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 
 const { INV, DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);

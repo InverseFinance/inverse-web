@@ -5,7 +5,7 @@ import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
 import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abis";
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds, StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
+import { NetworkIds, Prices, StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
 
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
-  const cacheKey = `${networkConfig.chainId}-tvl-cache`;
+  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.0`;
 
   try {
     const {
@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       WETH,
       XINV_V1,
       XINV,
+      ANCHOR_DOLA,
     } = getNetworkConfigConstants(networkConfig);
 
     const validCache = await getCacheFromRedis(cacheKey, true, 600);
@@ -44,12 +45,32 @@ export default async function handler(req, res) {
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const oraclePrices = await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address)));
 
-    let prices: StringNumMap = oraclePrices
+    let parsedOraclePrices: StringNumMap = oraclePrices
       .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
       .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
+  
+    const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId)
+    let geckoPrices: Prices["prices"] = {};
+
+    const prices = { ...parsedOraclePrices };
+
+    try {
+      const res = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`);
+      geckoPrices = await res.json();
+
+      Object.values(addresses).forEach(anchorAddress => {
+        const token = UNDERLYING[anchorAddress];
+        if(token?.coingeckoId) {
+          prices[anchorAddress] = geckoPrices[token.coingeckoId].usd;
+        }
+      })
+    } catch (e) {
+      console.log('Error fetching gecko prices');
+    }
 
     prices[DAI] = 1
     prices[USDC] = 1
+    prices[ANCHOR_DOLA] = 1
 
     const [
       vaultBalances,
@@ -177,6 +198,7 @@ const anchorTVL = async (
       address: anchorAddress,
       underlyingAddress: token.address,
       balance: amount,
+      usdPrice: prices[anchorAddress] || 0,
       usdBalance: amount * prices[anchorAddress] || 0,
     };
   });

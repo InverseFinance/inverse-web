@@ -4,7 +4,7 @@ import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
 import { InfoMessage } from '@inverse/components/common/Messages'
-import { GovernanceFlowChart } from '@inverse/components/common/Dataviz/GovernanceFlowChart'
+import { GovernanceFlowChart } from '@inverse/components/Transparency/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { NetworkIds, TokenList, TokenWithBalance } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
@@ -14,11 +14,12 @@ import { usePrices } from '@inverse/hooks/usePrices'
 import { shortenNumber } from '@inverse/util/markets'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { OLD_XINV } from '@inverse/config/constants'
-import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs';
+import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs';
 import Link from '@inverse/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@inverse/hooks/useDAO'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
+import { Funds } from '@inverse/components/Transparency/Funds'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -42,71 +43,6 @@ const defaultValues = {
   govStakedToken: XINV,
   dola: DOLA,
   dolaOperator: TREASURY,
-}
-
-const getBalanceInfos = (value: number, usdPrice = 0): {
-  value: number, usdValue: number, formatted: string
-} => {
-  const usdValue = value * usdPrice;
-  return { value, usdValue, formatted: `${shortenNumber(value, 2)} (${shortenNumber(usdValue, 2, true)})` };
-}
-
-const AnchorFunds = ({ tvlData }: { tvlData: { tvl: number, anchor: { tvl: number, assets: TokenWithBalance[] } } }) => {
-  const content = tvlData?.anchor?.assets
-    .sort((a, b) => b.usdBalance - a.usdBalance)
-    .map(asset => {
-      return <Flex key={asset.address} direction="row" w='full' alignItems="center" justify="space-between">
-        <Flex alignItems="center">
-          <Text>-</Text>
-          <Image display="inline-block" src={asset.image} ignoreFallback={true} w='15px' h='15px' mr="2" ml="1" />
-          <Text lineHeight="15px">{asset.symbol}{asset.address === OLD_XINV && ' (old)'}:</Text>
-        </Flex>
-        <Text>{shortenNumber(asset.balance, 2)} ({shortenNumber(asset.usdBalance, 2, true)})</Text>
-      </Flex>
-    })
-  return (
-    <>
-      {content}
-      <Flex fontWeight="bold" direction="row" w='full' justify="space-between">
-        <Text>- TOTAL worth in USD:</Text>
-        {!!tvlData && <Text>{shortenNumber(tvlData?.anchor?.tvl, 2, true)}</Text>}
-      </Flex>
-    </>
-  )
-}
-
-const TreasuryFunds = ({
-  addresses,
-  values,
-  tokens,
-  prices,
-}: {
-  addresses: string[],
-  values: number[],
-  tokens: TokenList,
-  prices: { [key: string]: { usd: number } },
-}) => {
-  let totalUsd = 0;
-  const content = addresses.map((address, i) => {
-    const token = tokens[address];
-    const price = ['DOLA', 'DAI'].includes(token.symbol) ? 1 : (prices[token.coingeckoId!] || { usd: 0 }).usd
-    const balanceInfos = getBalanceInfos(values[i], price);
-    totalUsd += balanceInfos.usdValue;
-
-    return <Flex key={address} direction="row" w='full' justify="space-between">
-      <Text>- {token.symbol}s:</Text>
-      {!!token && <Text>{balanceInfos.formatted}</Text>}
-    </Flex>
-  })
-  return (
-    <>
-      {content}
-      <Flex fontWeight="bold" direction="row" w='full' justify="space-between">
-        <Text>- TOTAL worth in USD:</Text>
-        {!!totalUsd && <Text>{shortenNumber(totalUsd, 2, true)}</Text>}
-      </Flex>
-    </>
-  )
 }
 
 export const Overview = () => {
@@ -155,7 +91,7 @@ export const Overview = () => {
         <title>Inverse Finance - Transparency Overview</title>
       </Head>
       <AppNav active="Transparency" />
-      <DatavizTabs active="overview" />
+      <TransparencyTabs active="overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
           <GovernanceFlowChart {...govFlowChartData} />
@@ -185,14 +121,14 @@ export const Overview = () => {
                 alertProps={{ fontSize: '12px', w: 'full' }}
                 title="🏦 Treasury Funds"
                 description={
-                  <>
-                    <TreasuryFunds
-                      addresses={[INV, DOLA, DAI]}
-                      values={[treasury.invBalance, treasury.dolaBalance, treasury.daiBalance]}
-                      prices={prices}
-                      tokens={TOKENS}
-                    />
-                  </>
+                  <Funds
+                    prices={prices}
+                    funds={[
+                      { token: TOKENS[INV], balance: treasury.invBalance },
+                      { token: TOKENS[DOLA], balance: treasury.dolaBalance },
+                      { token: TOKENS[DAI], balance: treasury.daiBalance },
+                    ]}
+                  />
                 }
               />
             </Flex>
@@ -209,9 +145,16 @@ export const Overview = () => {
               </Flex>
               }
               description={
-                <>
-                  <AnchorFunds tvlData={tvlData} />
-                </>
+                <Funds prices={
+                  Object.fromEntries(new Map(tvlData?.anchor?.assets.map(assetWithBalance => {
+                    return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.usdPrice }]
+                  })))
+                }
+                funds={
+                  tvlData?.anchor?.assets.map(assetWithBalance => {
+                    return { balance: assetWithBalance.balance, token: assetWithBalance }
+                  })
+                } />
               }
             />}
           </Flex>

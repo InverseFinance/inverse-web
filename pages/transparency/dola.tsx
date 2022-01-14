@@ -7,8 +7,8 @@ import { InfoMessage } from '@inverse/components/common/Messages'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { NetworkIds } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { DolaFlowChart } from '@inverse/components/common/Dataviz/DolaFlowChart'
-import { DatavizTabs } from '@inverse/components/common/Dataviz/DatavizTabs'
+import { DolaFlowChart } from '@inverse/components/Transparency/DolaFlowChart'
+import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
 import { useDAO } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
@@ -57,7 +57,7 @@ export const DolaDiagram = () => {
         <title>Inverse Finance - Transparency Dola</title>
       </Head>
       <AppNav active="Transparency" />
-      <DatavizTabs active="dola" />
+      <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator} feds={feds} />

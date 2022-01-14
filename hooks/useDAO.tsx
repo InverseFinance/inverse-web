@@ -1,4 +1,4 @@
-import { NetworkIds, SWR } from '@inverse/types'
+import { NetworkIds, SWR, Token } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
@@ -20,6 +20,13 @@ type DAO = {
     address: string
     name: string
     supply: number
+  }[],
+  multisigs: {
+    address: string,
+    name: string,
+    owners: string[],
+    funds: { token: Token, balance: number }[],
+    threshold: number,
   }[]
 }
 
@@ -41,6 +48,7 @@ export const useDAO = (): SWR & DAO => {
       invTotalSupply: data?.fantom?.invTotalSupply || 0,
     },
     fedSupplies: data?.fedSupplies || [],
+    multisigs: data?.multisigs || [],
     isLoading: !error && !data,
     isError: error,
   }
