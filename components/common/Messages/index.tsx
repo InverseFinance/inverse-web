@@ -19,7 +19,7 @@ const statusAnims = {
     error: ErrorAnimIcon,
 }
 
-const StatusMessage = ({ title, description, status = 'info', alertProps }: Partial<MessageProps>) => {
+export const StatusMessage = ({ title, description, status = 'info', alertProps }: Partial<MessageProps>) => {
     const alertPropsExtended = {
         className: `blurred-container ${status}-bg`,
         ...alertProps,

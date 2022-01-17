@@ -12,16 +12,18 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { NavButtons } from '@inverse/components/common/Button'
+import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem';
 import { useAccountMarkets } from '@inverse/hooks/useMarkets'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { InfoMessage, WarningMessage } from '@inverse/components/common/Messages'
+import { InfoMessage, StatusMessage, WarningMessage } from '@inverse/components/common/Messages'
 import { Link } from '@inverse/components/common/Link';
-import { shortenNumber } from '@inverse/util/markets'
+import { shortenNumber, getBorrowInfosAfterSupplyChange } from '@inverse/util/markets'
 import { roundFloorString } from '@inverse/util/misc'
+import { getComptrollerContract } from '@inverse/util/contracts'
+import { Web3Provider } from '@ethersproject/providers';
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -243,6 +245,89 @@ export const AnchorModal = ({
           <InfoMessage alertProps={{ fontSize: '12px' }}
             description='Withdrawing with "max" can leave some "dust" not "withdraw all".' />
         }
+      </Stack>
+    </Modal>
+  )
+}
+
+export const AnchorCollateralModal = ({
+  isOpen,
+  onClose,
+  asset,
+}: AnchorModalProps) => {
+  const { library } = useWeb3React<Web3Provider>();
+  const { prices: anchorPrices } = useAnchorPrices()
+  const { usdBorrowable, usdBorrow } = useAccountLiquidity()
+
+  const actionName = asset.isCollateral ? 'Stop using' : 'Enable';
+  const status = asset.isCollateral ? 'warning' : 'info';
+  const consequence = asset.isCollateral ? 'decrease' : 'increase';
+
+  const { newPerc } = getBorrowInfosAfterSupplyChange({ market: asset, prices: anchorPrices, usdBorrow, usdBorrowable, amount: -(asset.balance || 0) });
+
+  const preventDisabling = newPerc >= 99;
+
+  const handleConfirm = async () => {
+    const contract = getComptrollerContract(library?.getSigner());
+    const method = asset.isCollateral ? 'exitMarket' : 'enterMarkets';
+    const target = asset.isCollateral ? asset.token : [asset.token];
+    return contract[method](target);
+  }
+
+  return (
+    <Modal
+      onClose={onClose}
+      isOpen={isOpen}
+      scrollBehavior="inside"
+      header={
+        <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center">
+          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
+          <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
+        </Stack>
+      }
+      footer={
+        <Box w="100%">
+          {
+            preventDisabling ?
+              <WarningMessage
+                title={`Borrow Limit Check: Can't Disable ${asset.underlying.symbol} as Collaterals`}
+                alertProps={{ fontSize: '12px', w: 'full' }}
+                description={
+                  <>
+                    Your <b>{shortenNumber(usdBorrow, 2, true)} debt</b> needs to be covered by enough collaterals.
+                    <Text fontWeight="bold" mt="2">You first need to repay enough debt or add another collateral to cover more than your debt.</Text>
+                  </>
+                }
+              />
+              :
+              <SubmitButton onClick={handleConfirm} refreshOnSuccess={true} onSuccess={() => onClose()}>
+                {actionName} {asset.underlying.symbol} as Collateral
+              </SubmitButton>
+          }
+        </Box>
+      }
+    >
+      <Stack p={4} w="full" spacing={4}>
+        {
+          !preventDisabling && <StatusMessage
+            alertProps={{ fontSize: '12px', w: 'full' }}
+            status={status}
+            title={`${actionName} your supplied ${asset.underlying.symbol} as Collaterals ?`}
+            description={<>
+              {
+                usdBorrow > 0 || asset.isCollateral ? `This will ${consequence} your borrowing capacity`
+                  : 'This will allow you to borrow assets against your collaterals'
+              }
+              <Text>See changes in Borrow Limit Stats below</Text>
+            </>}
+          />
+        }
+
+        <AnchorStats
+          operation={asset.isCollateral ? AnchorOperations.withdraw : AnchorOperations.supply}
+          asset={asset} amount={(asset?.balance || 0).toString()}
+          isCollateralModal={true}
+        />
       </Stack>
     </Modal>
   )
