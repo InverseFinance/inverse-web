@@ -1,6 +1,6 @@
 import { Flex, Stack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { AnchorBorrowModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
+import { AnchorBorrowModal, AnchorCollateralModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
 import Container from '@inverse/components/common/Container'
 import { SkeletonBlob, SkeletonList } from '@inverse/components/common/Skeleton'
 import Table, { Column } from '@inverse/components/common/Table'
@@ -12,19 +12,14 @@ import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { Market } from '@inverse/types'
-import { getComptrollerContract } from '@inverse/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { handleTx } from '@inverse/util/transactions'
-import { showFailNotif } from '@inverse/util/notify'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@inverse/util/markets'
-import { forceQuickAccountRefresh } from '@inverse/util/web3'
-import { useRouter } from 'next/dist/client/router'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -112,16 +107,17 @@ const getColumn = (
 }
 
 export const AnchorSupplied = () => {
-  const { chainId, library, deactivate, activate, connector } = useWeb3React<Web3Provider>()
-  const { query } = useRouter()
+  const { chainId } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdSupplyCoingecko ,isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
+
   const { markets: accountMarkets } = useAccountMarkets()
   const { active } = useWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: isCollateralOpen, onOpen: onCollateralOpen, onClose: onCollateralClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
   const [double, setDouble] = useState(false)
   const { XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId)
@@ -162,32 +158,20 @@ export const AnchorSupplied = () => {
     {
       field: 'isCollateral',
       label: 'Collateral',
-      tooltip: 'If enabled, your asset will be used as collateral to increase your borrow limit. Collaterals can be liquidated if the borrow limit reaches 100%.',
+      tooltip: 'If enabled, your asset will be used as collateral to increase your borrow capacity. Collaterals can be liquidated if the borrow limit reaches 100%.',
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
-      value: ({ token, isCollateral }: Market) => {
+      value: (market: Market) => {
+        const { isCollateral } = market;
         return (
           <Stack minWidth={24} direction="row" align="center"
             onClick={async (e: React.MouseEvent<HTMLElement>) => {
-              if(!e.target.className.includes("switch")){ return }
-              e.stopPropagation()
+              if (!e.target.className.includes("switch")) { return }
+              e.stopPropagation();
               if (!double) {
                 setDouble(true)
-                if (query?.viewAddress) {
-                  alert("You're in View Address Mode: we are returning you to normal mode for safety");
-                  window.location.search = '';
-                }
-                try {
-                  const contract = getComptrollerContract(library?.getSigner());
-                  const method = isCollateral ? 'exitMarket' : 'enterMarkets';
-                  const target = isCollateral ? token : [token];
-                  await handleTx(await contract[method](target), {
-                    onSuccess: () => forceQuickAccountRefresh(connector, deactivate, activate)
-                  })
-                } catch (e) {
-                  showFailNotif(e, true);
-                } finally {
-                  setDouble(false)
-                }
+                setModalAsset(market);
+                onCollateralOpen();
+                setDouble(false);
               }
             }}
           >
@@ -235,6 +219,7 @@ export const AnchorSupplied = () => {
         onClick={handleSupply}
       />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
+      {modalAsset && <AnchorCollateralModal isOpen={isCollateralOpen} onClose={onCollateralClose} asset={modalAsset} /> }
     </Container>
   )
 }

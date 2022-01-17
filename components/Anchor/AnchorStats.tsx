@@ -6,7 +6,7 @@ import { useAnchorPrices } from '@inverse/hooks/usePrices'
 import { Market, AnchorOperations, BigNumberList } from '@inverse/types'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { shortenNumber } from '@inverse/util/markets';
+import { getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@inverse/util/markets';
 import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
 
 type Stat = {
@@ -24,12 +24,14 @@ type StatBlockProps = {
 type AnchorStatBlockProps = {
   asset: Market
   amount?: number
+  isCollateralModal?: boolean
 }
 
 type AnchorStatsProps = {
   asset: Market
   amount: string
   operation: AnchorOperations
+  isCollateralModal?: boolean
 }
 
 const StatBlock = ({ label, stats }: StatBlockProps) => (
@@ -118,35 +120,41 @@ const formatUsdTotal = (value: number, prices: BigNumberList, asset: Market) => 
     : '-'
 }
 
-const MarketDetails = ({ asset }: AnchorStatBlockProps) => {
+const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
   const totalBorrowsUsd = formatUsdTotal(asset.totalBorrows, prices, asset);
   const totalReservesUsd = formatUsdTotal(asset.totalReserves, prices, asset);
   const totalSuppliedUsd = formatUsdTotal(asset.supplied, prices, asset);
   const reserveFactor = asset.reserveFactor ? `${asset.reserveFactor * 100}%` : '-'
 
+  const stats = [
+    getCollateralFactor(asset),
+  ];
+  if(!isCollateralModal) {
+    stats.concat([
+      {
+        label: 'Reserve Factor',
+        value: reserveFactor,
+      },
+      {
+        label: 'Total Supplied',
+        value: totalSuppliedUsd,
+      },
+      {
+        label: 'Total Borrows',
+        value: totalBorrowsUsd,
+      },
+      {
+        label: 'Total Reserves',
+        value: totalReservesUsd,
+      },
+    ]);
+  }
+
   return (
     <StatBlock
       label="Market Stats"
-      stats={[
-        getCollateralFactor(asset),
-        {
-          label: 'Reserve Factor',
-          value: reserveFactor,
-        },
-        {
-          label: 'Total Supplied',
-          value: totalSuppliedUsd,
-        },
-        {
-          label: 'Total Borrows',
-          value: totalBorrowsUsd,
-        },
-        {
-          label: 'Total Reserves',
-          value: totalReservesUsd,
-        },
-      ]}
+      stats={stats}
     />
   )
 }
@@ -180,34 +188,11 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
   )
 }
 
-const getBorrowLimitLabel = (newBorrowLimit: number, isReduceLimitCase = false) => {
-  const newBorrowLimitLabel = newBorrowLimit > 100 || (newBorrowLimit < 0 && !isReduceLimitCase) ?
-    '+100' :
-    (newBorrowLimit < 0 && isReduceLimitCase) ?
-      '0' : newBorrowLimit.toFixed(2)
-  return newBorrowLimitLabel;
-}
-
 const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
   const { usdBorrow, usdBorrowable } = useAccountLiquidity()
 
-  const change =
-    prices && amount
-      ? asset.collateralFactor *
-      amount *
-      parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
-      : 0
-
-  const borrowable = usdBorrow + usdBorrowable
-  const newBorrowable = borrowable + change
-
-  const newBorrowLimit = (newBorrowable !== 0
-    ? (usdBorrow / newBorrowable) * 100
-    : 0
-  )
-  const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
-  const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
+  const { borrowable, newBorrowable, newBorrowLimitLabel, newPerc } = getBorrowInfosAfterSupplyChange({ market: asset, prices, usdBorrow, usdBorrowable, amount })
 
   const before = (borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)
 
@@ -217,10 +202,10 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
       label: 'Borrow Limit',
       value: `${shortenNumber(borrowable, 2, true)} -> ${shortenNumber(newBorrowable, 2, true)}`,
     },
-    getBorrowLimitUsed(cleanPerc, before , newBorrowLimitLabel),
+    getBorrowLimitUsed(newPerc, before , newBorrowLimitLabel),
   ]
 
-  if (cleanPerc > 75) {
+  if (newPerc > 75) {
     stats.push({ label: 'Reminder:', value: 'Risk of liquidation if Borrow Limit reaches 100%', color: 'red.500' })
   }
 
@@ -274,7 +259,7 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
   )
 }
 
-export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
+export const AnchorStats = ({ operation, asset, amount, isCollateralModal = false }: AnchorStatsProps) => {
   const parsedAmount = amount && !isNaN(amount as any) ? parseFloat(amount) : 0
   switch (operation) {
     case AnchorOperations.supply:
@@ -289,9 +274,9 @@ export const AnchorStats = ({ operation, asset, amount }: AnchorStatsProps) => {
       return (
         <>
           {asset.underlying.symbol !== 'INV' && <WithdrawDetails asset={asset} />}
-          <SupplyDetails asset={asset} />
-          <BorrowLimit asset={asset} amount={-1 * parsedAmount} />
-          <MarketDetails asset={asset} />
+          <SupplyDetails asset={asset} isCollateralModal={isCollateralModal} />
+          <BorrowLimit asset={asset} amount={-1 * parsedAmount} isCollateralModal={isCollateralModal} />
+          <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />
         </>
       )
     case AnchorOperations.borrow:

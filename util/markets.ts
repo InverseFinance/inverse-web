@@ -104,3 +104,45 @@ export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
         .map(([address, token]) => token)
         .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
 }
+
+export const getBorrowLimitLabel = (newBorrowLimit: number, isReduceLimitCase = false) => {
+    const newBorrowLimitLabel = newBorrowLimit > 100 || (newBorrowLimit < 0 && !isReduceLimitCase) ?
+      '+100' :
+      (newBorrowLimit < 0 && isReduceLimitCase) ?
+        '0' : newBorrowLimit.toFixed(2)
+    return newBorrowLimitLabel;
+  }
+
+export const getBorrowInfosAfterSupplyChange = ({
+    market,
+    amount,
+    prices,
+    usdBorrow,
+    usdBorrowable,
+  }: {
+    market: Market,
+    amount: number | undefined,
+    prices: { [key: string]: BigNumber },
+    usdBorrow: number,
+    usdBorrowable: number,
+  }) => {
+    const change =
+      prices && amount
+        ? market.collateralFactor *
+        amount *
+        parseFloat(formatUnits(prices[market.token], BigNumber.from(36).sub(market.underlying.decimals)))
+        : 0
+  
+    const borrowable = usdBorrow + usdBorrowable
+    const newBorrowable = borrowable + change
+  
+    const newBorrowLimit =  (newBorrowable !== 0
+      ? (usdBorrow / newBorrowable) * 100
+      : 0
+    )
+
+    const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
+    const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
+
+    return { newBorrowLimit, borrowable, newBorrowable, newBorrowLimitLabel, newPerc: cleanPerc }
+  }
