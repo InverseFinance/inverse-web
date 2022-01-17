@@ -163,10 +163,10 @@ export const AnchorSupplied = () => {
       value: (market: Market) => {
         const { isCollateral } = market;
         return (
-          <Stack minWidth={24} direction="row" align="center"
+          <Stack cursor="default" minWidth={24} direction="row" align="center"
             onClick={async (e: React.MouseEvent<HTMLElement>) => {
-              if (!e.target.className.includes("switch")) { return }
               e.stopPropagation();
+              if (!e.target.className.includes("switch")) { return }
               if (!double) {
                 setDouble(true)
                 setModalAsset(market);

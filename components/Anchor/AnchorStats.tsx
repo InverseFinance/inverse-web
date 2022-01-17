@@ -265,15 +265,15 @@ export const AnchorStats = ({ operation, asset, amount, isCollateralModal = fals
     case AnchorOperations.supply:
       return (
         <>
-          <SupplyDetails asset={asset} />
-          <BorrowLimit asset={asset} amount={parsedAmount} />
-          <MarketDetails asset={asset} />
+          <SupplyDetails asset={asset} isCollateralModal={isCollateralModal}  />
+          <BorrowLimit asset={asset} amount={parsedAmount} isCollateralModal={isCollateralModal}  />
+          <MarketDetails asset={asset} isCollateralModal={isCollateralModal}  />
         </>
       )
     case AnchorOperations.withdraw:
       return (
         <>
-          {asset.underlying.symbol !== 'INV' && <WithdrawDetails asset={asset} />}
+          {asset.underlying.symbol !== 'INV' && !isCollateralModal && <WithdrawDetails asset={asset} />}
           <SupplyDetails asset={asset} isCollateralModal={isCollateralModal} />
           <BorrowLimit asset={asset} amount={-1 * parsedAmount} isCollateralModal={isCollateralModal} />
           <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />

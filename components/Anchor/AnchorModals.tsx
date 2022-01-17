@@ -259,11 +259,13 @@ export const AnchorCollateralModal = ({
   const { prices: anchorPrices } = useAnchorPrices()
   const { usdBorrowable, usdBorrow } = useAccountLiquidity()
 
-  const actionName = asset.isCollateral ? 'Disable' : 'Enable';
+  const actionName = asset.isCollateral ? 'Stop using' : 'Enable';
   const status = asset.isCollateral ? 'warning' : 'info';
   const consequence = asset.isCollateral ? 'decrease' : 'increase';
 
   const { newPerc } = getBorrowInfosAfterSupplyChange({ market: asset, prices: anchorPrices, usdBorrow, usdBorrowable, amount: -(asset.balance || 0) });
+
+  const preventDisabling = newPerc >= 99;
 
   const handleConfirm = async () => {
     const contract = getComptrollerContract(library?.getSigner());
@@ -276,6 +278,7 @@ export const AnchorCollateralModal = ({
     <Modal
       onClose={onClose}
       isOpen={isOpen}
+      scrollBehavior="inside"
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center">
           <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
@@ -285,13 +288,14 @@ export const AnchorCollateralModal = ({
       footer={
         <Box w="100%">
           {
-            newPerc >= 99 ?
+            preventDisabling ?
               <WarningMessage
-                title="Can't Disable Asset as Collateral"
+                title={`Borrow Limit Check: Can't Disable ${asset.underlying.symbol} as Collaterals`}
+                alertProps={{ fontSize: '12px', w: 'full' }}
                 description={
                   <>
                     Your <b>{shortenNumber(usdBorrow, 2, true)} debt</b> needs to be covered by enough collaterals.
-                    <Text fontWeight="bold" mt="2">You can repay your debt first or add another collateral to cover it.</Text>
+                    <Text fontWeight="bold" mt="2">You first need to repay enough debt or add another collateral to cover more than your debt.</Text>
                   </>
                 }
               />
@@ -305,18 +309,25 @@ export const AnchorCollateralModal = ({
     >
       <Stack p={4} w="full" spacing={4}>
         {
-          <StatusMessage
+          !preventDisabling && <StatusMessage
             alertProps={{ fontSize: '12px', w: 'full' }}
             status={status}
-            title={`${actionName} your supplied ${asset.underlying.symbol} as Collateral ?`}
+            title={`${actionName} your supplied ${asset.underlying.symbol} as Collaterals ?`}
             description={<>
-              This will {consequence} your borrowing capacity
+              {
+                usdBorrow > 0 || asset.isCollateral ? `This will ${consequence} your borrowing capacity`
+                  : 'This will allow you to borrow assets against your collaterals'
+              }
               <Text>See changes in Borrow Limit Stats below</Text>
-            </>} />
+            </>}
+          />
         }
+
         <AnchorStats
           operation={asset.isCollateral ? AnchorOperations.withdraw : AnchorOperations.supply}
-          asset={asset} amount={(asset?.balance || 0).toString()} />
+          asset={asset} amount={(asset?.balance || 0).toString()}
+          isCollateralModal={true}
+        />
       </Stack>
     </Modal>
   )
