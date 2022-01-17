@@ -48,7 +48,7 @@ export const MultisigsDiagram = () => {
           </Flex>
           {
             multisigs?.map(multisig => {
-              return <Flex my="2" w={{ base: 'full', xl: 'sm' }} justify="center">
+              return <Flex key={multisig.name} my="2" w={{ base: 'full', xl: 'sm' }} justify="center">
                 <InfoMessage
                   alertProps={{ fontSize: '12px', w: 'full' }}
                   title={`👥 ${multisig.name}`}

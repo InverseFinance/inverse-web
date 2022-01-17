@@ -143,7 +143,9 @@ export const Overview = () => {
                       <Text fontWeight="bold">
                         {
                           shortenNumber(treasury.concat(anchorReserves).reduce((prev, curr) => {
-                            return prev + curr.balance * prices[curr.token.coingeckoId || curr.token.symbol].usd
+                            const priceKey = curr.token.coingeckoId || curr.token.symbol;
+                            const usdBalance = !!prices && !!priceKey && !!prices[priceKey] && curr.balance ? curr.balance * prices[priceKey].usd : 0;
+                            return prev + usdBalance;
                           }, 0), 2, true)
                         }
                       </Text>
