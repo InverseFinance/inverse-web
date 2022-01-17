@@ -18,7 +18,17 @@ const FundLine = ({ token, value, usdValue }: { token: Token, value: number, usd
     )
 }
 
-export const Funds = ({ funds, prices }: { prices: Prices["prices"], funds: { token: Token, balance: number, allowance?: number }[] }) => {
+export const Funds = ({
+    funds,
+    prices,
+    totalLabel = '- TOTAL worth in USD:',
+    boldTotal = true,
+}: {
+    prices: Prices["prices"],
+    funds: { token: Token, balance: number, allowance?: number }[],
+    totalLabel?: string
+    boldTotal?: boolean,
+}) => {
     const positiveFunds = (funds || [])
         .map(({ token, balance, allowance }) => {
             const priceKey = token.coingeckoId || token.symbol;
@@ -42,7 +52,7 @@ export const Funds = ({ funds, prices }: { prices: Prices["prices"], funds: { to
             return <FundLine key={token.symbol} token={token} value={balance} usdValue={usdBalance} />
         })
 
-    const positiveAllowances = positiveFunds.filter(({ allowance }) => (allowance||0) > 0);
+    const positiveAllowances = positiveFunds.filter(({ allowance }) => (allowance || 0) > 0);
     positiveAllowances.sort((a, b) => b.usdAllowance - a.usdAllowance);
 
     const allowancesContent = positiveAllowances
@@ -67,8 +77,8 @@ export const Funds = ({ funds, prices }: { prices: Prices["prices"], funds: { to
                         <Text>No funds at the moment</Text>
                     </Flex>
                     :
-                    <Flex fontWeight="bold" direction="row" w='full' justify="space-between">
-                        <Text>- TOTAL worth in USD:</Text>
+                    <Flex fontWeight={ boldTotal ? 'bold' : undefined } direction="row" w='full' justify="space-between">
+                        <Text>{totalLabel}</Text>
                         <Text>{shortenNumber(totalUsdWorth, 2, true, true)}</Text>
                     </Flex>
             }

@@ -130,11 +130,13 @@ export const Overview = () => {
                     <Funds
                       prices={prices}
                       funds={treasury}
+                      boldTotal={false}
                     />
                     <Text mt="2">Treasury-Owned Anchor Reserves:</Text>
                     <Funds
                       prices={prices}
                       funds={anchorReserves}
+                      boldTotal={false}
                     />
                     <Flex mt="2" direction="row" w='full' justify="space-between">
                       <Text fontWeight="bold">COMBINED TOTAL:</Text>
