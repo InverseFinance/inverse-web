@@ -49,7 +49,7 @@ export const Funds = ({
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance }) => {
             totalUsdWorth += usdBalance;
-            return <FundLine key={token.symbol} token={token} value={balance} usdValue={usdBalance} />
+            return <FundLine key={token.address||token.symbol} token={token} value={balance} usdValue={usdBalance} />
         })
 
     const positiveAllowances = positiveFunds.filter(({ allowance }) => (allowance || 0) > 0);
@@ -58,7 +58,7 @@ export const Funds = ({
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance }) => {
             totalUsdWorth += usdAllowance;
-            return <FundLine key={token.symbol} token={token} value={allowance!} usdValue={usdAllowance} />
+            return <FundLine key={token.address||token.symbol} token={token} value={allowance!} usdValue={usdAllowance} />
         })
 
     return (
