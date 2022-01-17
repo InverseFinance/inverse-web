@@ -11,7 +11,7 @@ import { getBnToNumber } from '@inverse/util/markets'
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, INVDOLASLP, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, INVDOLASLP, USDC, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
   const cacheKey = `dao-cache-v1.0.0`;
 
@@ -26,8 +26,6 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
     const dolaContract = new Contract(DOLA, ERC20_ABI, provider);
     const invContract = new Contract(INV, ERC20_ABI, provider);
-    const daiContract = new Contract(DAI, ERC20_ABI, provider);
-    const invdolaslpContract = new Contract(INVDOLASLP, ERC20_ABI, provider);
 
     let invFtmTotalSupply = BigNumber.from('0');
     let dolaFtmTotalSupply = BigNumber.from('0');
@@ -46,21 +44,21 @@ export default async function handler(req, res) {
     const [
       dolaTotalSupply,
       invTotalSupply,
-      dolaTreasuryBal,
-      invTreasuryBal,
-      daiTreasuryBal,
-      invdolaslpTreasuryBal,
       ...fedSupplies
     ] = await Promise.all([
       dolaContract.totalSupply(),
       invContract.totalSupply(),
-      dolaContract.balanceOf(TREASURY),
-      invContract.balanceOf(TREASURY),
-      daiContract.balanceOf(TREASURY),
-      invdolaslpContract.balanceOf(TREASURY),
       ...FEDS.map((fedAddress: string) => {
         const fedContract = new Contract(fedAddress, FED_ABI, provider);
         return fedContract.supply();
+      }),
+    ])
+
+    const treasuryFundsToCheck = [DOLA, INV, DAI, USDC, INVDOLASLP];
+    const treasuryBalances = await Promise.all([
+      ...treasuryFundsToCheck.map((ad: string) => {
+        const contract = new Contract(ad, ERC20_ABI, provider);
+        return contract.balanceOf(TREASURY);
       }),
     ])
 
@@ -130,12 +128,10 @@ export default async function handler(req, res) {
     const resultData = {
       dolaTotalSupply: parseFloat(formatEther(dolaTotalSupply)),
       invTotalSupply: parseFloat(formatEther(invTotalSupply)),
-      treasury: {
-        dolaBalance: parseFloat(formatEther(dolaTreasuryBal)),
-        invBalance: parseFloat(formatEther(invTreasuryBal)),
-        daiBalance: parseFloat(formatEther(daiTreasuryBal)),
-        invdolaslpBalance: parseFloat(formatEther(invdolaslpTreasuryBal)),
-      },
+      treasury: treasuryBalances.map((bn, i) => {
+        const token = TOKENS[treasuryFundsToCheck[i]];
+        return { token, balance: getBnToNumber(bn, token.decimals) }
+      }),
       fantom: {
         dolaTotalSupply: parseFloat(formatEther(dolaFtmTotalSupply)),
         invTotalSupply: parseFloat(formatEther(invFtmTotalSupply)),

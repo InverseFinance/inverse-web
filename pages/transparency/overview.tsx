@@ -87,8 +87,6 @@ export const Overview = () => {
     return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.usdPrice }]
   })));
   const prices = { ...geckoPrices, ...tvlprices };
-  console.log({ token: TOKENS[INVDOLASLP], balance: treasury.invdolaslpBalance });
-  
 
   return (
     <Layout>
@@ -128,12 +126,7 @@ export const Overview = () => {
                 description={
                   <Funds
                     prices={prices}
-                    funds={[
-                      { token: TOKENS[INV], balance: treasury.invBalance },
-                      { token: TOKENS[DOLA], balance: treasury.dolaBalance },
-                      { token: TOKENS[DAI], balance: treasury.daiBalance },
-                      { token: TOKENS[INVDOLASLP], balance: treasury.invdolaslpBalance },
-                    ]}
+                    funds={treasury}
                   />
                 }
               />

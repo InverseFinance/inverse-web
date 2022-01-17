@@ -11,12 +11,7 @@ type DAO = {
     dolaTotalSupply: number
     invTotalSupply: number
   }
-  treasury: {
-    dolaBalance: number  
-    invBalance: number  
-    daiBalance: number  
-    invdolaslpBalance: number  
-  }
+  treasury: { token: Token, balance: number }[],
   fedSupplies: {
     address: string
     name: string
@@ -26,7 +21,7 @@ type DAO = {
     address: string,
     name: string,
     owners: string[],
-    funds: { token: Token, balance: number }[],
+    funds: { token: Token, balance: number, allowance?: number }[],
     threshold: number,
   }[]
 }
@@ -39,7 +34,7 @@ export const useDAO = (): SWR & DAO => {
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
     invTotalSupply: data?.invTotalSupply || 0,
-    treasury: data?.treasury || {},
+    treasury: data?.treasury || [],
     fantom: {
       dolaTotalSupply: data?.fantom?.dolaTotalSupply || 0,
       invTotalSupply: data?.fantom?.invTotalSupply || 0,
