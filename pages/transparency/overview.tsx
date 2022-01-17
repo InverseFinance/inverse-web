@@ -132,7 +132,7 @@ export const Overview = () => {
                       funds={treasury}
                       boldTotal={false}
                     />
-                    <Text mt="2">Treasury-Owned Anchor Reserves:</Text>
+                    <Text mt="2">In Anchor Reserves:</Text>
                     <Funds
                       prices={prices}
                       funds={anchorReserves}
