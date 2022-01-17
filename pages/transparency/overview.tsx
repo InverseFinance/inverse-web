@@ -1,4 +1,4 @@
-import { Flex, Image, Text } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
@@ -6,22 +6,21 @@ import Head from 'next/head'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { GovernanceFlowChart } from '@inverse/components/Transparency/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds, TokenList, TokenWithBalance } from '@inverse/types'
+import { NetworkIds } from '@inverse/types'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { commify, parseEther } from '@ethersproject/units'
 import { formatEther } from 'ethers/lib/utils';
 import { usePrices } from '@inverse/hooks/usePrices'
-import { shortenNumber } from '@inverse/util/markets'
 import { useTVL } from '@inverse/hooks/useTVL'
-import { OLD_XINV } from '@inverse/config/constants'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs';
 import Link from '@inverse/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@inverse/hooks/useDAO'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@inverse/components/Transparency/Funds'
+import { shortenNumber } from '@inverse/util/markets'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   comptroller: COMPTROLLER,
@@ -46,9 +45,9 @@ const defaultValues = {
 }
 
 export const Overview = () => {
-  const { prices } = usePrices()
+  const { prices: geckoPrices } = usePrices()
   const { data: tvlData } = useTVL()
-  const { dolaTotalSupply, invTotalSupply, fantom, treasury } = useDAO();
+  const { dolaTotalSupply, invTotalSupply, fantom, treasury, anchorReserves } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -84,6 +83,11 @@ export const Overview = () => {
 
   const [quorumVotes, proposalThreshold] =
     otherData || [parseEther('4000'), parseEther('1000')];
+
+  const tvlprices = Object.fromEntries(new Map(tvlData?.anchor?.assets.map(assetWithBalance => {
+    return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.usdPrice }]
+  })));
+  const prices = { ...geckoPrices, ...tvlprices };
 
   return (
     <Layout>
@@ -121,14 +125,30 @@ export const Overview = () => {
                 alertProps={{ fontSize: '12px', w: 'full' }}
                 title="🏦 Treasury Funds"
                 description={
-                  <Funds
-                    prices={prices}
-                    funds={[
-                      { token: TOKENS[INV], balance: treasury.invBalance },
-                      { token: TOKENS[DOLA], balance: treasury.dolaBalance },
-                      { token: TOKENS[DAI], balance: treasury.daiBalance },
-                    ]}
-                  />
+                  <>
+                    <Text>In Treasury Contract:</Text>
+                    <Funds
+                      prices={prices}
+                      funds={treasury}
+                      boldTotal={false}
+                    />
+                    <Text mt="2">In Anchor Reserves:</Text>
+                    <Funds
+                      prices={prices}
+                      funds={anchorReserves}
+                      boldTotal={false}
+                    />
+                    <Flex mt="2" direction="row" w='full' justify="space-between">
+                      <Text fontWeight="bold">COMBINED TOTAL:</Text>
+                      <Text fontWeight="bold">
+                        {
+                          shortenNumber(treasury.concat(anchorReserves).reduce((prev, curr) => {
+                            return prev + curr.balance * prices[curr.token.coingeckoId || curr.token.symbol].usd
+                          }, 0), 2, true)
+                        }
+                      </Text>
+                    </Flex>
+                  </>
                 }
               />
             </Flex>
@@ -145,16 +165,12 @@ export const Overview = () => {
               </Flex>
               }
               description={
-                <Funds prices={
-                  Object.fromEntries(new Map(tvlData?.anchor?.assets.map(assetWithBalance => {
-                    return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.usdPrice }]
-                  })))
-                }
-                funds={
-                  tvlData?.anchor?.assets.map(assetWithBalance => {
-                    return { balance: assetWithBalance.balance, token: assetWithBalance }
-                  })
-                } />
+                <Funds prices={prices}
+                  funds={
+                    tvlData?.anchor?.assets.map(assetWithBalance => {
+                      return { balance: assetWithBalance.balance, token: assetWithBalance }
+                    })
+                  } />
               }
             />}
           </Flex>
