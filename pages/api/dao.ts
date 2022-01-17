@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { ERC20_ABI, FED_ABI, MULTISIG_ABI, XCHAIN_FED_ABI } from '@inverse/config/abis'
+import { CTOKEN_ABI, ERC20_ABI, FED_ABI, MULTISIG_ABI, XCHAIN_FED_ABI } from '@inverse/config/abis'
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks'
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
@@ -11,9 +11,9 @@ import { getBnToNumber } from '@inverse/util/markets'
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, INVDOLASLP, USDC, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-  const cacheKey = `dao-cache-v1.0.0`;
+  const cacheKey = `dao-cache-v1.1.0`;
 
   try {
 
@@ -61,6 +61,13 @@ export default async function handler(req, res) {
         return contract.balanceOf(TREASURY);
       }),
     ])
+
+    const anchorReserves = await Promise.all([
+      ...ANCHOR_TOKENS.map((ad: string) => {
+        const contract = new Contract(ad, CTOKEN_ABI, provider);
+        return contract.totalReserves();
+      }),
+    ]);
 
     const xChainFedsResults = await Promise.allSettled([
       ...XCHAIN_FEDS.map((xChainFed: xChainFed) => {
@@ -128,6 +135,10 @@ export default async function handler(req, res) {
     const resultData = {
       dolaTotalSupply: parseFloat(formatEther(dolaTotalSupply)),
       invTotalSupply: parseFloat(formatEther(invTotalSupply)),
+      anchorReserves: anchorReserves.map((bn, i) => {
+        const token = UNDERLYING[ANCHOR_TOKENS[i]];
+        return { token, balance: getBnToNumber(bn, token.decimals) }
+      }),
       treasury: treasuryBalances.map((bn, i) => {
         const token = TOKENS[treasuryFundsToCheck[i]];
         return { token, balance: getBnToNumber(bn, token.decimals) }

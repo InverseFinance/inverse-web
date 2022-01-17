@@ -18,8 +18,9 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@inverse/hooks/useDAO'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@inverse/components/Transparency/Funds'
+import { shortenNumber } from '@inverse/util/markets'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DAI, INVDOLASLP, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   comptroller: COMPTROLLER,
@@ -46,7 +47,7 @@ const defaultValues = {
 export const Overview = () => {
   const { prices: geckoPrices } = usePrices()
   const { data: tvlData } = useTVL()
-  const { dolaTotalSupply, invTotalSupply, fantom, treasury } = useDAO();
+  const { dolaTotalSupply, invTotalSupply, fantom, treasury, anchorReserves } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -124,10 +125,28 @@ export const Overview = () => {
                 alertProps={{ fontSize: '12px', w: 'full' }}
                 title="🏦 Treasury Funds"
                 description={
-                  <Funds
-                    prices={prices}
-                    funds={treasury}
-                  />
+                  <>
+                    <Text>In Treasury Contract:</Text>
+                    <Funds
+                      prices={prices}
+                      funds={treasury}
+                    />
+                    <Text mt="2">Treasury-Owned Anchor Reserves:</Text>
+                    <Funds
+                      prices={prices}
+                      funds={anchorReserves}
+                    />
+                    <Flex mt="2" direction="row" w='full' justify="space-between">
+                      <Text fontWeight="bold">COMBINED TOTAL:</Text>
+                      <Text fontWeight="bold">
+                        {
+                          shortenNumber(treasury.concat(anchorReserves).reduce((prev, curr) => {
+                            return prev + curr.balance * prices[curr.token.coingeckoId || curr.token.symbol].usd
+                          }, 0), 2, true)
+                        }
+                      </Text>
+                    </Flex>
+                  </>
                 }
               />
             </Flex>

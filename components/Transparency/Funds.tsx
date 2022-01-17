@@ -5,7 +5,7 @@ import { shortenNumber } from '@inverse/util/markets';
 
 const FundLine = ({ token, value, usdValue }: { token: Token, value: number, usdValue: number }) => {
     return (
-        <Flex key={token.address} direction="row" w='full' alignItems="center" justify="space-between">
+        <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
                 <Text>-</Text>
                 <Image display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' mr="2" ml="1" />
@@ -39,7 +39,7 @@ export const Funds = ({ funds, prices }: { prices: Prices["prices"], funds: { to
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance }) => {
             totalUsdWorth += usdBalance;
-            return <FundLine token={token} value={balance} usdValue={usdBalance} />
+            return <FundLine key={token.symbol} token={token} value={balance} usdValue={usdBalance} />
         })
 
     const positiveAllowances = positiveFunds.filter(({ allowance }) => (allowance||0) > 0);
@@ -48,7 +48,7 @@ export const Funds = ({ funds, prices }: { prices: Prices["prices"], funds: { to
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance }) => {
             totalUsdWorth += usdAllowance;
-            return <FundLine token={token} value={allowance!} usdValue={usdAllowance} />
+            return <FundLine key={token.symbol} token={token} value={allowance!} usdValue={usdAllowance} />
         })
 
     return (
