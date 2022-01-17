@@ -168,6 +168,7 @@ export const AnchorSupplied = () => {
         return (
           <Stack minWidth={24} direction="row" align="center"
             onClick={async (e: React.MouseEvent<HTMLElement>) => {
+              if(!e.target.className.includes("switch")){ return }
               e.stopPropagation()
               if (!double) {
                 setDouble(true)
