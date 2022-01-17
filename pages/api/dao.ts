@@ -11,14 +11,14 @@ import { getBnToNumber } from '@inverse/util/markets'
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, INVDOLASLP, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
   const cacheKey = `dao-cache-v1.0.0`;
 
   try {
 
     const validCache = await getCacheFromRedis(cacheKey, true, 300);
-    if(validCache) {
+    if (validCache) {
       res.status(200).json(validCache);
       return
     }
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     const dolaContract = new Contract(DOLA, ERC20_ABI, provider);
     const invContract = new Contract(INV, ERC20_ABI, provider);
     const daiContract = new Contract(DAI, ERC20_ABI, provider);
+    const invdolaslpContract = new Contract(INVDOLASLP, ERC20_ABI, provider);
 
     let invFtmTotalSupply = BigNumber.from('0');
     let dolaFtmTotalSupply = BigNumber.from('0');
@@ -48,6 +49,7 @@ export default async function handler(req, res) {
       dolaTreasuryBal,
       invTreasuryBal,
       daiTreasuryBal,
+      invdolaslpTreasuryBal,
       ...fedSupplies
     ] = await Promise.all([
       dolaContract.totalSupply(),
@@ -55,6 +57,7 @@ export default async function handler(req, res) {
       dolaContract.balanceOf(TREASURY),
       invContract.balanceOf(TREASURY),
       daiContract.balanceOf(TREASURY),
+      invdolaslpContract.balanceOf(TREASURY),
       ...FEDS.map((fedAddress: string) => {
         const fedContract = new Contract(fedAddress, FED_ABI, provider);
         return fedContract.supply();
@@ -87,7 +90,7 @@ export default async function handler(req, res) {
     ])
 
     const fundsToCheck = [INV, DOLA, DAI, WETH];
-    const multisigsFundsValues: BigNumber[][] = await Promise.all([
+    const multisigsBalanceValues: BigNumber[][] = await Promise.all([
       ...Object.entries(MULTISIGS).map(([multisigAd, name]) => {
         return Promise.all(
           fundsToCheck.map(tokenAddress => {
@@ -101,10 +104,26 @@ export default async function handler(req, res) {
       })
     ])
 
-    const multisigsFunds = multisigsFundsValues.map((bns, i) => {
+    const multisigsAllowanceValues: BigNumber[][] = await Promise.all([
+      ...Object.entries(MULTISIGS).map(([multisigAd, name]) => {
+        return Promise.all(
+          fundsToCheck.map(tokenAddress => {
+            const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+            return contract.allowance(TREASURY, multisigAd);
+          })
+        )
+      })
+    ])
+
+    const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
       return bns.map((bn, j) => {
         const token = TOKENS[fundsToCheck[j]] || TOKENS['ETH'];
-        return { token, balance: getBnToNumber(bn, token.decimals) }
+        const allowance = multisigsAllowanceValues[i][j]
+        return {
+          token,
+          balance: getBnToNumber(bn, token.decimals),
+          allowance: allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null,
+        }
       })
     })
 
@@ -115,6 +134,7 @@ export default async function handler(req, res) {
         dolaBalance: parseFloat(formatEther(dolaTreasuryBal)),
         invBalance: parseFloat(formatEther(invTreasuryBal)),
         daiBalance: parseFloat(formatEther(daiTreasuryBal)),
+        invdolaslpBalance: parseFloat(formatEther(invdolaslpTreasuryBal)),
       },
       fantom: {
         dolaTotalSupply: parseFloat(formatEther(dolaFtmTotalSupply)),
