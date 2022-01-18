@@ -10,6 +10,7 @@ import {
   Text,
   StackProps,
   useDisclosure,
+  Badge,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -17,7 +18,7 @@ import Link from '@inverse/components/common/Link'
 import Logo from '@inverse/components/common/Logo'
 import { ETH_MANTISSA } from '@inverse/config/constants'
 import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ethereumReady, getPreviousConnectorType, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector, walletLinkConnector } from '@inverse/util/web3'
+import { ethereumReady, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector } from '@inverse/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '@inverse/components/common/Announcement'
@@ -35,6 +36,7 @@ import { showToast } from '@inverse/util/notify'
 import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@inverse/util'
 import { Avatar } from '@inverse/components/common/Avatar';
+import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals';
 
 const NAV_ITEMS = [
   {
@@ -53,17 +55,12 @@ const NAV_ITEMS = [
     label: 'Governance',
     href: '/governance',
   },
-  {
-    label: 'Transparency',
-    href: '/transparency/overview',
-  },
 ]
 
 const NavBadge = (props: any) => (
   <Flex
     justify="center"
-    fontSize="12px"
-    h="40px"
+    fontSize="sm"
     align="center"
     bgColor="purple.800"
     borderRadius={4}
@@ -179,7 +176,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     setTimeout(() => {
       setIsPreviouslyConnected(false);
       deactivate()
-      window.location.reload()
     }, 100)
   }
 
@@ -192,7 +188,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       // visually better
       setTimeout(() => {
         activate(injectedConnector)
-        setIsPreviouslyConnected(true, 'injected');
+        setIsPreviouslyConnected(true);
       }, 100)
     }
   }
@@ -202,10 +198,10 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     activate(walletConnectConnector)
   }
 
-  const connectCoinbaseWallet = () => {
-    close()
-    activate(walletLinkConnector)
-    setIsPreviouslyConnected(true, 'coinbase');
+  let connectorName
+  if (connector) {
+    if (connector.walletConnectProvider) connectorName = 'WalletConnect'
+    else connectorName = 'Metamask'
   }
 
   return (
@@ -234,8 +230,8 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           alignItems="center"
           data-testid={TEST_IDS.connectBtn}
         >
-          {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
-          <Text>{connectBtnLabel}</Text>
+          {userAddress && <Avatar sizePx={20} address={userAddress} />}
+          <Text ml="2">{connectBtnLabel}</Text>
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -261,12 +257,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               >
                 <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
                 <Text fontWeight="semibold">WalletConnect</Text>
-              </ConnectionMenuItem>
-              <ConnectionMenuItem
-                onClick={connectCoinbaseWallet}
-              >
-                <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
-                <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
@@ -326,6 +316,9 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
+  const { keys, nbNotif } = useGovernanceNotifs();
+  console.log(keys);
+  console.log(nbNotif);
 
   useEffect(() => {
     const init = async () => {
@@ -345,10 +338,8 @@ export const AppNav = ({ active }: { active?: string }) => {
 
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
-      const previousConnectorType = getPreviousConnectorType();
-      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector: injectedConnector
-      activate(connector);
-      setTimeout(() => activate(connector), 500);
+      activate(injectedConnector);
+      setTimeout(() => activate(injectedConnector), 500);
     }
   }, [walletActive]);
 
@@ -386,12 +377,7 @@ export const AppNav = ({ active }: { active?: string }) => {
       setBadgeChainId(chainIdInWallet);
 
       if (window?.ethereum) {
-        setTimeout(() => {
-          const before = Number(window?.ethereum?.chainId)
-          window?.ethereum?.on('chainChanged', (after) => {
-            if(before !== after) { window.location.reload() }
-          });
-        }, 0)
+        window?.ethereum?.on('chainChanged', () => window.location.reload());
       }
     }
     init();
@@ -425,8 +411,13 @@ export const AppNav = ({ active }: { active?: string }) => {
                 fontWeight="medium"
                 color={active === label ? '#fff' : 'purple.200'}
                 _hover={{ color: '#fff' }}
+                position="relative"
               >
                 {label}
+                {
+                  href === '/governance' &&
+                  <Badge position="absolute" borderRadius="10px" top="-5px" bgColor="secondary">{nbNotif}</Badge>
+                }
               </Link>
             ))}
           </Stack>
@@ -453,7 +444,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         </Stack>
       </Flex>
       {showMobileNav && (
-        <Flex w="full" position="absolute" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
+        <Flex w="full" position="absolute" zIndex="1" transitionDuration="0.1s" transitionTimingFunction="ease">
           <Stack
             w="full"
             bgColor="purple.900"

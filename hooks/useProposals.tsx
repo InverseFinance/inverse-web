@@ -3,7 +3,7 @@ import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { getLocalDrafts } from '@inverse/util/governance';
+import { getLocalDrafts, getReadGovernanceNotifs } from '@inverse/util/governance';
 
 type Proposals = {
   proposals: Proposal[]
@@ -37,11 +37,36 @@ export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[]
   }
 }
 
+export const useGovernanceNotifs = (): SWR & {
+  draftKeys: string[],
+  activeProposalKeys: string[],
+  keys: string[],
+  nbNotif: number,
+} => {
+  const { data, error } = useSWR(`/api/governance-notifs`, fetcher)
+  const { data: readData, error: readError } = useSWR(`read-governance-notifs`, async () => {
+    return {
+      keys: await getReadGovernanceNotifs() || []
+    }
+  })
+
+  let nbNotif = data && readData ? data.keys.filter((key: string) => !readData.keys.includes(key)).length : 0;
+
+  return {
+    draftKeys: data?.draftKeys || [],
+    activeProposalKeys: data?.activeProposalKeys || [],
+    keys: data?.keys || [],
+    nbNotif,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useProposals = (): SWR & Proposals => {
   // const router = useRouter()
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/proposals?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/proposals?chainId=${chainId || NetworkIds.mainnet}`, fetcher)
 
   return {
     proposals: data?.proposals || [],

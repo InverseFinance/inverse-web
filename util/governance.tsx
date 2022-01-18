@@ -327,3 +327,7 @@ export const isProposalFormInvalid = ({ title, description, actions }: ProposalF
     }
     return false;
 }
+
+export const getReadGovernanceNotifs = async (): Promise<string[]> => {
+    return await localforage.getItem('read-governance-notifs') || [];
+}
