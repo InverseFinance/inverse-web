@@ -52,7 +52,7 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, s
         fontSize={ showBalance ? 'xs' : 'sm' }
         ml={4}
         color="purple.200"
-        zIndex="docked"
+        zIndex="1"
         onClick={onMaxClick}
         _hover={{ color: '#fff' }}
       >

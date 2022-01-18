@@ -444,12 +444,17 @@ export const AppNav = ({ active }: { active?: string }) => {
         <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
           <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
         </Stack>
-        <Flex display={{ base: 'flex', lg: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
+        <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
             <Image w={4} h={4} src="/assets/cancel.svg" />
           ) : (
             <Image w={6} h={6} src="/assets/hamburger.svg" />
           )}
+          {
+            active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>
+              {nbNotif}
+            </NotifBadge>
+          }
         </Flex>
         <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
           <INVBalance />
@@ -475,7 +480,7 @@ export const AppNav = ({ active }: { active?: string }) => {
             borderColor="purple.800"
           >
             {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link key={i} href={href} color={active === label ? '#fff' : 'purple.200'}>
+              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? '#fff' : 'purple.200'}>
                 {label}
                 {
                   href === '/governance' && nbNotif > 0 &&
