@@ -8,9 +8,11 @@ import {
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
-import { Proposal, GovEra, ProposalStatus, PublicDraftProposal } from '@inverse/types';
+import { Proposal, GovEra, ProposalStatus } from '@inverse/types';
 import { usePublicDraftProposals } from '@inverse/hooks/useProposals';
 import Head from 'next/head'
+import { updateReadGovernanceNotifs } from '@inverse/util/governance'
+import { useEffect } from 'react';
 
 export const Drafts = () => {
   const { asPath } = useRouter();
@@ -45,6 +47,11 @@ export const Drafts = () => {
 
   const notFound = !isLoading && !id;
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
+
+  useEffect(() => {
+    if(!proposal?.id) { return }
+    updateReadGovernanceNotifs(`draft-${proposal.id}`);
+  }, [proposal?.id]);
 
   return (
     <Layout>

@@ -2,7 +2,7 @@ import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import Container from '@inverse/components/common/Container'
 import { ProposalPreview } from '@inverse/components/Governance/Proposal'
 import { SkeletonBlob } from '@inverse/components/common/Skeleton'
-import { useProposals } from '@inverse/hooks/useProposals'
+import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals'
 import { GovEra, Proposal, ProposalStatus } from '@inverse/types'
 import NextLink from 'next/link'
 import { useWeb3React } from '@web3-react/core'
@@ -45,8 +45,9 @@ export const Proposals = () => {
 
 export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { account } = useWeb3React<Web3Provider>()
-  const [isCleared, setIsCleared] = useState(false)
+  const { nbDraftNotif } = useGovernanceNotifs()
   const now = new Date()
+
   const previews: Partial<Proposal>[] = drafts.map(d => {
     return {
       id: d.publicDraftId,
@@ -66,15 +67,12 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   return (
     <Container
       label="Draft Proposals"
+      nbNotif={nbDraftNotif}
       description="Off-Chain Draft Proposals"
     >
       <Stack w="full" spacing={1}>
         {
-          !isCleared ?
-            previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isPublicDraft={true} proposal={proposal} />)
-            : <Flex w="full" justify="center" color="purple.200" fontSize="sm">
-              Drafts have been removed.
-            </Flex>
+          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isPublicDraft={true} proposal={proposal} />)
         }
       </Stack>
     </Container>
@@ -129,6 +127,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
 
 export const ActiveProposals = () => {
   const { proposals } = useProposals()
+  const { nbActiveNotif } = useGovernanceNotifs()
 
   const active = proposals
     ?.filter((proposal: Proposal) => proposal.status === ProposalStatus.active)
@@ -137,6 +136,7 @@ export const ActiveProposals = () => {
   return (
     <Container
       label="Active Proposals"
+      nbNotif={nbActiveNotif}
       description="Participate in governance of the DAO"
       href="https://docs.inverse.finance/governance"
     >

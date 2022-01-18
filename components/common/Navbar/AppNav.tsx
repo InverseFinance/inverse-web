@@ -32,6 +32,8 @@ import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
 import { showToast } from '@inverse/util/notify'
+import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals';
+import { NotifBadge } from '../NotifBadge'
 import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@inverse/util'
 import { Avatar } from '@inverse/components/common/Avatar';
@@ -326,6 +328,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
+  const { nbNotif } = useGovernanceNotifs();
 
   useEffect(() => {
     const init = async () => {
@@ -346,7 +349,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
-      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector: injectedConnector
+      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector : injectedConnector
       activate(connector);
       setTimeout(() => activate(connector), 500);
     }
@@ -389,7 +392,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
           window?.ethereum?.on('chainChanged', (after) => {
-            if(before !== after) { window.location.reload() }
+            if (before !== after) { window.location.reload() }
           });
         }, 0)
       }
@@ -425,8 +428,15 @@ export const AppNav = ({ active }: { active?: string }) => {
                 fontWeight="medium"
                 color={active === label ? '#fff' : 'purple.200'}
                 _hover={{ color: '#fff' }}
+                position="relative"
               >
                 {label}
+                {
+                  href === '/governance' && nbNotif > 0 &&
+                  <NotifBadge>
+                    {nbNotif}
+                  </NotifBadge>
+                }
               </Link>
             ))}
           </Stack>
@@ -467,6 +477,12 @@ export const AppNav = ({ active }: { active?: string }) => {
             {NAV_ITEMS.map(({ label, href }, i) => (
               <Link key={i} href={href} color={active === label ? '#fff' : 'purple.200'}>
                 {label}
+                {
+                  href === '/governance' && nbNotif > 0 &&
+                  <NotifBadge>
+                    {nbNotif}
+                  </NotifBadge>
+                }
               </Link>
             ))}
           </Stack>

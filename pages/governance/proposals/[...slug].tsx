@@ -1,4 +1,5 @@
 import { Flex, Text } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
 import {
   AgainstVotes,
@@ -15,6 +16,7 @@ import { Proposal, GovEra } from '@inverse/types';
 import { useProposals } from '@inverse/hooks/useProposals';
 import Head from 'next/head'
 import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
+import { updateReadGovernanceNotifs } from '@inverse/util/governance'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
 
@@ -36,6 +38,11 @@ export const Governance = () => {
 
   const notFound = !isLoading && !id;
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
+
+  useEffect(() => {
+    if(!proposal?.proposalNum) { return }
+    updateReadGovernanceNotifs(`active-${proposal.proposalNum}`);
+  }, [proposal?.proposalNum]);
 
   return (
     <Layout>
