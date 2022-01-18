@@ -32,6 +32,8 @@ import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
 import { showToast } from '@inverse/util/notify'
+import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals';
+import { NotifBadge } from '../NotifBadge'
 import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@inverse/util'
 import { Avatar } from '@inverse/components/common/Avatar';
@@ -326,6 +328,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
+  const { nbNotif } = useGovernanceNotifs();
 
   useEffect(() => {
     const init = async () => {
@@ -346,7 +349,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
-      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector: injectedConnector
+      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector : injectedConnector
       activate(connector);
       setTimeout(() => activate(connector), 500);
     }
@@ -389,7 +392,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
           window?.ethereum?.on('chainChanged', (after) => {
-            if(before !== after) { window.location.reload() }
+            if (before !== after) { window.location.reload() }
           });
         }, 0)
       }
@@ -425,8 +428,15 @@ export const AppNav = ({ active }: { active?: string }) => {
                 fontWeight="medium"
                 color={active === label ? '#fff' : 'purple.200'}
                 _hover={{ color: '#fff' }}
+                position="relative"
               >
                 {label}
+                {
+                  href === '/governance' && nbNotif > 0 &&
+                  <NotifBadge>
+                    {nbNotif}
+                  </NotifBadge>
+                }
               </Link>
             ))}
           </Stack>
@@ -434,12 +444,17 @@ export const AppNav = ({ active }: { active?: string }) => {
         <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
           <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
         </Stack>
-        <Flex display={{ base: 'flex', lg: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
+        <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
             <Image w={4} h={4} src="/assets/cancel.svg" />
           ) : (
             <Image w={6} h={6} src="/assets/hamburger.svg" />
           )}
+          {
+            active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>
+              {nbNotif}
+            </NotifBadge>
+          }
         </Flex>
         <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
           <INVBalance />
@@ -465,8 +480,14 @@ export const AppNav = ({ active }: { active?: string }) => {
             borderColor="purple.800"
           >
             {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link key={i} href={href} color={active === label ? '#fff' : 'purple.200'}>
+              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? '#fff' : 'purple.200'}>
                 {label}
+                {
+                  href === '/governance' && nbNotif > 0 &&
+                  <NotifBadge>
+                    {nbNotif}
+                  </NotifBadge>
+                }
               </Link>
             ))}
           </Stack>

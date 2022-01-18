@@ -22,7 +22,7 @@ const txStatusMessages: { [key: string]: { txStatus: string, toastStatus: UseToa
 }
 
 export const showTxToast = (txHash: string, txStatus: string, toastStatus: CustomToastOptions["status"]) => {
-    const chainId = localStorage.getItem('signerChainId') || NetworkIds.mainnet;
+    const chainId = window.localStorage.getItem('signerChainId') || NetworkIds.mainnet;
     const options: CustomToastOptions = {
         id: txHash,
         title: `Transaction ${txStatus}`,

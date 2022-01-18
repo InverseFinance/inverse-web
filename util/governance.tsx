@@ -327,3 +327,26 @@ export const isProposalFormInvalid = ({ title, description, actions }: ProposalF
     }
     return false;
 }
+
+export const getReadGovernanceNotifs = async (): Promise<string[]> => {
+    return await localforage.getItem('read-governance-notifs') || [];
+}
+
+export const getLastNbNotif = async (): Promise<number> => {
+    const lastFromStorage = window.localStorage.getItem('last-nb-notifs');
+    return Number((lastFromStorage !== null ? lastFromStorage : await localforage.getItem('last-nb-notifs')) || 0);
+}
+
+export const setLastNbNotif = (nbNotif: number): void => {
+    localforage.setItem('last-nb-notifs', nbNotif);
+    try {
+        window.localStorage.setItem('last-nb-notifs', nbNotif.toString());
+    } catch (e) {}
+}
+
+export const updateReadGovernanceNotifs = async (readKey: string): Promise<void> => {
+    const current = await getReadGovernanceNotifs();
+    if(current.includes(readKey)) { return }
+    current.push(readKey);
+    await localforage.setItem('read-governance-notifs', current);
+}

@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
 import Link from '@inverse/components/common/Link'
+import { NotifBadge } from '../NotifBadge'
 
 export const Container = ({
   label,
@@ -10,6 +11,7 @@ export const Container = ({
   image,
   noPadding,
   children,
+  nbNotif,
   ...props
 }: Partial<Omit<FlexProps, "right">> & {
   label?: React.ReactNode
@@ -18,17 +20,21 @@ export const Container = ({
   right?: React.ReactNode
   image?: React.ReactNode
   noPadding?: boolean
+  nbNotif?: number
   children?: React.ReactNode
 }) => {
   const title = (
-    <Flex>
+    <Flex position="relative" w="fit-content">
       {typeof label === 'string' ? (
-        <Text fontSize="xl" fontWeight="bold">
+        <Text fontSize="xl" fontWeight="bold" position="relative">
           {label}
         </Text>
       ) : (
         label
       )}
+      {
+        !!nbNotif && <NotifBadge>{nbNotif}</NotifBadge>
+      }
     </Flex>
   )
 
