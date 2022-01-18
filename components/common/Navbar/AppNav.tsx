@@ -37,6 +37,8 @@ import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@inverse/util'
 import { Avatar } from '@inverse/components/common/Avatar';
 import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals';
+import { NotifBadge } from '../NotifBadge'
+import { useDebouncedEffect } from '@inverse/hooks/useDebouncedEffect'
 
 const NAV_ITEMS = [
   {
@@ -316,9 +318,7 @@ export const AppNav = ({ active }: { active?: string }) => {
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
   const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
   const [badgeChainId, setBadgeChainId] = useState(chainId)
-  const { keys, nbNotif } = useGovernanceNotifs();
-  console.log(keys);
-  console.log(nbNotif);
+  const { nbNotif } = useGovernanceNotifs();
 
   useEffect(() => {
     const init = async () => {
@@ -415,8 +415,10 @@ export const AppNav = ({ active }: { active?: string }) => {
               >
                 {label}
                 {
-                  href === '/governance' &&
-                  <Badge position="absolute" borderRadius="10px" top="-5px" bgColor="secondary">{nbNotif}</Badge>
+                  href === '/governance' && nbNotif > 0 &&
+                  <NotifBadge>
+                    {nbNotif}
+                  </NotifBadge>
                 }
               </Link>
             ))}

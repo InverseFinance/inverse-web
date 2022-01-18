@@ -17,6 +17,7 @@ import { ProposalActionPreview } from './ProposalActionPreview'
 import { GRACE_PERIOD_MS } from '@inverse/config/constants'
 import { ProposalShareLink } from './ProposalShareLink'
 import { InfoMessage } from '@inverse/components/common/Messages'
+import { useGovernanceNotifs } from '@inverse/hooks/useProposals'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -85,6 +86,7 @@ export const ProposalPreview = ({
   isPublicDraft?: boolean,
 }) => {
   const { query } = useRouter()
+  const { unreadKeys } = useGovernanceNotifs()
   const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
 
   const totalVotes = forVotes + againstVotes
@@ -98,6 +100,7 @@ export const ProposalPreview = ({
       }
     }
 
+  const isUnread = unreadKeys.includes(isPublicDraft ? `draft-${proposal.id}` : `active-${proposal.proposalNum}`);
 
   return (
     <NextLink href={href}>
@@ -113,7 +116,7 @@ export const ProposalPreview = ({
         _hover={{ bgColor: 'purple.850' }}
       >
         <Flex direction="column" overflowX="auto">
-          <Text fontWeight="semibold" fontSize="lg">
+          <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'white'}>
             {title}
           </Text>
           <Stack direction={{ base: 'column', sm: 'row' }} align="left">
