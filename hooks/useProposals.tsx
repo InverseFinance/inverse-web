@@ -3,7 +3,9 @@ import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { getLocalDrafts, getReadGovernanceNotifs } from '@inverse/util/governance';
+import { getLastNbNotif, getLocalDrafts, getReadGovernanceNotifs, setLastNbNotif } from '@inverse/util/governance';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 type Proposals = {
   proposals: Proposal[]
@@ -39,24 +41,47 @@ export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[]
 
 export const useGovernanceNotifs = (): SWR & {
   draftKeys: string[],
-  activeProposalKeys: string[],
+  activeProposalsKeys: string[],
   keys: string[],
+  unreadKeys: string[],
   nbNotif: number,
+  nbActiveNotif: number,
+  nbDraftNotif: number,
 } => {
+  const { pathname } = useRouter()
+
   const { data, error } = useSWR(`/api/governance-notifs`, fetcher)
-  const { data: readData, error: readError } = useSWR(`read-governance-notifs`, async () => {
-    return {
-      keys: await getReadGovernanceNotifs() || []
-    }
+
+  const { data: lastNbNotif } = useSWR(`last-nb-notifs${pathname}`, async () => {
+    return await getLastNbNotif()
   })
 
-  let nbNotif = data && readData ? data.keys.filter((key: string) => !readData.keys.includes(key)).length : 0;
+  const { data: readData } = useSWR(`read-governance-notifs${pathname}`, async () => {
+    return new Promise((resolve) => {
+      setTimeout(async() => {
+        resolve({ keys: await getReadGovernanceNotifs() || [] })
+      }, 1000);
+    });
+  })
+
+  const unreadKeys = data && readData ? data.keys.filter((key: string) => !readData.keys.includes(key)) : [];
+  const nbNotif = data && readData ? unreadKeys.length : lastNbNotif;
+  const nbDraftNotif = data && readData ? data.draftKeys.filter((key: string) => !readData.keys.includes(key)).length : 0;
+  const nbActiveNotif = data && readData ? data.activeProposalsKeys.filter((key: string) => !readData.keys.includes(key)).length : 0;
+
+  useEffect(() => {
+    if(nbNotif === lastNbNotif) { return }
+    setLastNbNotif(nbNotif);
+  }, [data, readData, nbNotif]);
 
   return {
     draftKeys: data?.draftKeys || [],
-    activeProposalKeys: data?.activeProposalKeys || [],
+    activeProposalsKeys: data?.activeProposalsKeys || [],
     keys: data?.keys || [],
+    unreadKeys,
     nbNotif,
+    nbActiveNotif,
+    nbDraftNotif,
     isLoading: !error && !data,
     isError: error,
   }

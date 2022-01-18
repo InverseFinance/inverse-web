@@ -233,7 +233,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           data-testid={TEST_IDS.connectBtn}
         >
           {userAddress && <Avatar sizePx={20} address={userAddress} />}
-          <Text ml="2">{connectBtnLabel}</Text>
+          <Text ml={ !!userAddress ? '2' : undefined}>{connectBtnLabel}</Text>
         </Flex>
       </PopoverTrigger>
       <PopoverContent
