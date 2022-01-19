@@ -373,3 +373,9 @@ export type Fed = {
   name: string,
   isXchain?: boolean,
 }
+
+export type FedWithData = Fed & {
+  supply: number,
+  chair: string,
+  gov: string,
+}

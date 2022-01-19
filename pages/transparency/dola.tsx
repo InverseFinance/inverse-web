@@ -6,31 +6,27 @@ import Head from 'next/head'
 import { InfoMessage } from '@inverse/components/common/Messages'
 import { getNetworkConfigConstants } from '@inverse/config/networks';
 import { NetworkIds } from '@inverse/types'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
 import { DolaFlowChart } from '@inverse/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
 import { useDAO } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
-const { DOLA, TREASURY, FEDS, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+const defaultFeds = FEDS.map(((fed) => {
+  return {
+    ...fed,
+    supply: 0,
+    chair: DEPLOYER,
+    gov: TREASURY,
+  }
+}))
 
 export const DolaDiagram = () => {
-  const { dolaTotalSupply, fantom, fedSupplies } = useDAO();
+  const { dolaTotalSupply, dolaOperator, fantom, feds } = useDAO();
 
-  const { data: dolaData } = useEtherSWR([
-    [DOLA, 'operator'],
-  ])
-
-  const feds = FEDS.map(((fed, i) => {
-    return {
-      ...fed,
-      chair: DEPLOYER,
-      gov: TREASURY,
-    }
-  }))
-
-  const [dolaOperator] = dolaData || [TREASURY];
+  const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
   return (
     <Layout>
@@ -41,7 +37,7 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
-          <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator} feds={feds} />
+          <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator||TREASURY} feds={fedsWithData} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
@@ -53,7 +49,7 @@ export const DolaDiagram = () => {
               alertProps={{ fontSize: '12px', w: 'full' }}
               description={
                 <>
-                  {fedSupplies.map(fed => {
+                  {fedsWithData.map(fed => {
                     return <Flex key={fed.address} direction="row" w='full' justify="space-between">
                       <Text>- {fed.name}:</Text>
                       <Text>{shortenNumber(fed.supply)}</Text>
@@ -61,13 +57,13 @@ export const DolaDiagram = () => {
                   })}
                   <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
                     <Text>- Total:</Text>
-                    <Text>{shortenNumber(fedSupplies.reduce((prev, curr) => curr.supply + prev, 0))}</Text>
+                    <Text>{shortenNumber(fedsWithData.reduce((prev, curr) => curr.supply + prev, 0))}</Text>
                   </Flex>
                 </>
               }
             />
           </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }}  mt="5" justify="center">
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage
               title="⚡&nbsp;&nbsp;Roles & Powers"
               alertProps={{ fontSize: '12px', w: 'full' }}
