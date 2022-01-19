@@ -61,7 +61,7 @@ export const MultisigsDiagram = () => {
                       <Flex mt="5" direction="row" w='full' justify="space-between">
                         <Text fontWeight="bold">Multisig Wallet Funds:</Text>
                       </Flex>
-                      <Funds prices={prices} funds={multisig.funds} />
+                      <Funds prices={prices} funds={multisig.funds} showPerc={false} />
                     </>
                   }
                 />
