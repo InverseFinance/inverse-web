@@ -234,7 +234,6 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     TREASURY,
     DOLA,
     FEDS,
-    XCHAIN_FEDS,
     MULTISIGS,
   } = getNetworkConfigConstants(networkConfig);
 
@@ -256,8 +255,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
-        ...FEDS.map((address) => [address, FED_ABI]),
-        ...XCHAIN_FEDS.map((xChainFed) => [xChainFed.address, XCHAIN_FED_ABI]),
+        ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])

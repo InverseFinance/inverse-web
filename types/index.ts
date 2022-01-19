@@ -366,8 +366,10 @@ export type Prices = {
   }
 }
 
-export type xChainFed = {
+export type Fed = {
   address: string,
+  abi: string[],
   chainId: NetworkIds,
   name: string,
+  isXchain?: boolean,
 }

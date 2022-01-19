@@ -13,7 +13,7 @@ import { useDAO } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
-const { DOLA, TREASURY, FEDS, XCHAIN_FEDS, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TREASURY, FEDS, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DolaDiagram = () => {
   const { dolaTotalSupply, fantom, fedSupplies } = useDAO();
@@ -22,32 +22,13 @@ export const DolaDiagram = () => {
     [DOLA, 'operator'],
   ])
 
-  const { data: fetchedFedData } = useEtherSWR([
-    ...FEDS.map(fed => [fed, 'chair']),
-    ...FEDS.map(fed => [fed, 'gov']),
-    // ...FEDS.map(fed => [fed, 'ctoken']),
-  ])
-
-  const fedData = fetchedFedData || [DEPLOYER, DEPLOYER, TREASURY, TREASURY];
-
   const feds = FEDS.map(((fed, i) => {
     return {
-      address: fed,
-      chair: fedData[i],
-      gov: fedData[FEDS.length + i],
-      chainId: NetworkIds.mainnet,
-      // ctoken: fedData[2 * FEDS.length + i],
+      ...fed,
+      chair: DEPLOYER,
+      gov: TREASURY,
     }
-  })).concat(
-    XCHAIN_FEDS.map(xChainFed => {
-      return {
-        address: xChainFed.address,
-        chair: DEPLOYER,
-        gov: TREASURY,
-        chainId: xChainFed.chainId,
-      }
-    })
-  )
+  }))
 
   const [dolaOperator] = dolaData || [TREASURY];
 
