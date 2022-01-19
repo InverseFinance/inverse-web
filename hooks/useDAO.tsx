@@ -30,7 +30,7 @@ type DAO = {
 export const useDAO = (): SWR & DAO => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/dao?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/transparency/dao?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,

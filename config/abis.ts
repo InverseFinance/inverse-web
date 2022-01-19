@@ -187,6 +187,8 @@ export const FED_ABI = [
   "function gov() public view returns (address)",
   "function underlying() public view returns (address)",
   "function supply() public view returns (uint256)",
+  "event Expansion (uint256 amount)",
+  "event Contraction (uint256 amount)",
 ]
 
 // Cross-chain fed contract
@@ -201,6 +203,8 @@ export const XCHAIN_FED_ABI = [
   "function SRC_DOLA() public view returns (address)",
   "function DST_DOLA() public view returns (address)",
   "function DST_MARKET() public view returns (address)",
+  "event Expansion (uint256 amount)",
+  "event Contraction (uint256 amount)",
 ]
 
 export const MULTISIG_ABI = [
