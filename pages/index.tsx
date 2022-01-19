@@ -4,7 +4,7 @@ import LinkButton, { LinkOutlineButton } from '@inverse/components/common/Button
 import Layout from '@inverse/components/common/Layout'
 import { LandingNav } from '@inverse/components/common/Navbar'
 import { TEST_IDS } from '@inverse/config/test-ids'
-import { useDAO } from '@inverse/hooks/useDAO'
+import { useDOLA } from '@inverse/hooks/useDOLA'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useTVL } from '@inverse/hooks/useTVL'
 
@@ -63,7 +63,7 @@ const formatStat = ({ value, showDollar, showPercentage }: any): string => {
 }
 
 export const Landing = () => {
-  const { dolaTotalSupply } = useDAO()
+  const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { tvl } = useTVL()
 
@@ -75,7 +75,7 @@ export const Landing = () => {
     },
     {
       label: 'DOLA Supply',
-      value: dolaTotalSupply,
+      value: totalSupply,
       showDollar: true,
     },
     {
