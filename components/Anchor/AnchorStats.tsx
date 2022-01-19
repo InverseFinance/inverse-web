@@ -130,8 +130,9 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
   const stats = [
     getCollateralFactor(asset),
   ];
+
   if(!isCollateralModal) {
-    stats.concat([
+    Array.prototype.push.apply(stats, [
       {
         label: 'Reserve Factor',
         value: reserveFactor,
