@@ -1,14 +1,10 @@
-import { BigNumber, Contract } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
+import { Contract, Event } from 'ethers'
 import 'source-map-support'
-import { CTOKEN_ABI, ERC20_ABI, FED_ABI, MULTISIG_ABI, XCHAIN_FED_ABI } from '@inverse/config/abis'
-import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks'
+import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { NetworkIds, xChainFed } from '@inverse/types';
-import { namedAddress } from '@inverse/util'
+import { NetworkIds } from '@inverse/types';
 import { getBnToNumber } from '@inverse/util/markets'
-import { Provider } from '@ethersproject/providers';
 
 const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds) => {
   const provider = getProvider(chainId);
@@ -19,44 +15,44 @@ const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds) => {
   ])
 }
 
+const getEventDetails = (log: Event) => {
+  const { event, blockNumber, transactionHash, args } = log;
+  return {
+    event,
+    isContraction: event === 'Contraction',
+    blockNumber,
+    transactionHash,
+    value: getBnToNumber(args![0]),
+  }
+}
+
 export default async function handler(req, res) {
 
-  const { DOLA, FEDS, XCHAIN_FEDS, TREASURY, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
+  const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `fed-history-cache-v1.0.0`;
 
   try {
 
-    // const validCache = await getCacheFromRedis(cacheKey, true, 300);
-    // if (validCache) {
-    //   res.status(200).json(validCache);
-    //   return
-    // }
-
-    const provider = getProvider(NetworkIds.mainnet);
-    const dolaContract = new Contract(DOLA, ERC20_ABI, provider);
-
-    // public rpc for fantom, less reliable
-    try {
-      // const ftmProvider = getProvider(NetworkIds.ftm);
-      // const dolaFtmContract = new Contract(ftmConfig?.DOLA, ERC20_ABI, ftmProvider);
-      // invFtmTotalSupply = await invFtmContract.totalSupply();
-    } catch (e) {
-
+    const validCache = await getCacheFromRedis(cacheKey, true, 300);
+    if (validCache) {
+      res.status(200).json(validCache);
+      return
     }
 
-    // fetch chain data
-    const re = await Promise.all([
-      ...FEDS.map(fedAd => getEvents(fedAd, FED_ABI, NetworkIds.mainnet))
-        .concat(
-          ...XCHAIN_FEDS.map(fedAd => getEvents(fedAd.address, XCHAIN_FED_ABI, fedAd.chainId))
-        )
+    const rawEvents = await Promise.all([
+      ...FEDS.map(fed => getEvents(fed.address, fed.abi, fed.chainId))
     ]);
 
-    console.log(re);
-
     const resultData = {
-      re,
+      feds: FEDS.map((fed, i) => {
+        const events = rawEvents[i][0].concat(rawEvents[i][1]).map(event => getEventDetails(event));
+        events.sort((a, b) => b.blockNumber - a.blockNumber);
+        return {
+          ...fed,
+          abi: undefined,
+          events,
+        }
+      })
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

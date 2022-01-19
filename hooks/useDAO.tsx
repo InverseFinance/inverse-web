@@ -45,3 +45,13 @@ export const useDAO = (): SWR & DAO => {
     isError: error,
   }
 }
+
+export const useFedHistory = (): SWR & { data: any } => {
+  const { data, error } = useSWR(`/api/transparency/fed-history`, fetcher)
+
+  return {
+    data,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
