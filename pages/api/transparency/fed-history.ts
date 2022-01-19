@@ -17,12 +17,13 @@ const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds) => {
 
 const getEventDetails = (log: Event) => {
   const { event, blockNumber, transactionHash, args } = log;
+  const isContraction = event === 'Contraction';
   return {
     event,
-    isContraction: event === 'Contraction',
+    isContraction,
     blockNumber,
     transactionHash,
-    value: getBnToNumber(args![0]),
+    value: getBnToNumber(args![0]) * (isContraction ? -1 : 1),
   }
 }
 
@@ -33,7 +34,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 300);
+    const validCache = await getCacheFromRedis(cacheKey, true, 600);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -45,8 +46,19 @@ export default async function handler(req, res) {
 
     const resultData = {
       feds: FEDS.map((fed, i) => {
-        const events = rawEvents[i][0].concat(rawEvents[i][1]).map(event => getEventDetails(event));
-        events.sort((a, b) => b.blockNumber - a.blockNumber);
+        let accumulatedSupply = 0;
+
+        const events = rawEvents[i][0]
+          .concat(rawEvents[i][1])
+          .map(event => getEventDetails(event))
+          .sort((a, b) => a.blockNumber - b.blockNumber)
+          .map(event => {
+            accumulatedSupply += event.value;
+            return { ...event, newSupply: accumulatedSupply }
+          })
+
+          events.sort((a, b) => b.blockNumber - a.blockNumber);
+
         return {
           ...fed,
           abi: undefined,

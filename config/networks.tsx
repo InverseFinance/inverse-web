@@ -268,6 +268,7 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'ftm',
     isTestnet: false,
     isSupported: false,
+    scan: 'https://ftmscan.com',
     image: `/assets/networks/${NETWORK_CODENAMES.fantom}.webp`,
   },
   {

@@ -16,12 +16,13 @@ type TableProps = {
   columns: Column[]
   items: any[]
   keyName?: string
+  defaultSortDir?: string
   onClick?: (e: any) => void
 }
 
-export const Table = ({ columns, items, keyName, onClick, ...props }: TableProps) => {
+export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', onClick, ...props }: TableProps) => {
   const [sortBy, setSortBy] = useState(columns[0].field);
-  const [sortDir, setSortDir] = useState('asc');
+  const [sortDir, setSortDir] = useState(defaultSortDir);
 
   const [sortedItems, setSortedItems] = useState(items?.map((item) => {
     return ({ ...item, symbol: item?.underlying?.symbol })
