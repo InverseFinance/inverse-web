@@ -17,6 +17,7 @@ import ScannerLink from '@inverse/components/common/ScannerLink'
 import { useState } from 'react'
 import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@inverse/components/common/Skeleton';
+import { shortenAddress } from '@inverse/util'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -81,13 +82,13 @@ const columns = [
     },
 ]
 
-export const DolaDiagram = () => {
+export const FedHistory = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const { feds: fedsHistory } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<any>(0);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
-    const chosenFedHistory = (fedsHistory?.length > 0 ? fedsHistory[chosenFedIndex] : { events: [] });
+    const chosenFedHistory = (fedsHistory?.length > 0 ? fedsHistory[chosenFedIndex] : { ...FEDS[chosenFedIndex], events: []});
     const fedHistoricalEvents = chosenFedHistory.events.map(event => ({ ...event, chainId: chosenFedHistory.chainId }));
 
     const fedOptionList = FEDS.map((fed, i) => ({
@@ -113,7 +114,7 @@ export const DolaDiagram = () => {
                         label="Fed Supplies Contractions and Expansions"
                         description={<Box w='full' overflow="auto">
                             <RadioCardGroup
-                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', w: { base: '90vw', sm: '100%' } }}
+                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb:'2', w: { base: '90vw', sm: '100%' } }}
                                 group={{
                                     name: 'bool',
                                     defaultValue: '0',
@@ -122,6 +123,7 @@ export const DolaDiagram = () => {
                                 radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
                                 options={fedOptionList}
                             />
+                            Contract: <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
                         </Box>}
                     >
                         {
@@ -156,4 +158,4 @@ export const DolaDiagram = () => {
     )
 }
 
-export default DolaDiagram
+export default FedHistory

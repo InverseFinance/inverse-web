@@ -379,3 +379,13 @@ export type FedWithData = Fed & {
   chair: string,
   gov: string,
 }
+
+export type FedEvent = {
+  blockNumber: number
+  event: "Expansion" | "Contraction"
+  isContraction: boolean
+  newSupply: number
+  timestamp: number// in secs
+  transactionHash: string
+  value: number
+}
