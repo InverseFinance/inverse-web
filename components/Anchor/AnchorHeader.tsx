@@ -2,7 +2,7 @@ import { Text, Stack, Flex } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@inverse/components/common/Button'
 import { CheckIcon } from '@chakra-ui/icons'
 import { useMarkets } from '@inverse/hooks/useMarkets'
-import { useDAO } from '@inverse/hooks/useDAO'
+import { useDOLA } from '@inverse/hooks/useDOLA'
 import { usePrices } from '@inverse/hooks/usePrices'
 import { useTVL } from '@inverse/hooks/useTVL'
 import { commify } from '@ethersproject/units'
@@ -14,9 +14,9 @@ export const AnchorHeader = () => {
   const [isSmallerThan728] = useMediaQuery('(max-width: 728px)')
   const { markets, isLoading } = useMarkets()
   const DOLA = markets?.find((v) => v.underlying.name === 'Dola')
-  const { dolaTotalSupply } = useDAO()
+  const { totalSupply } = useDOLA()
   const { prices } = usePrices()
-  const { tvl, data: tvlData } = useTVL()
+  const { data: tvlData } = useTVL()
 
   if (isLoading || !DOLA) {
     return <></>
@@ -43,7 +43,7 @@ export const AnchorHeader = () => {
         </Flex>
         <Flex direction="column">
           <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(dolaTotalSupply?.toFixed(2) || 0)}
+            ${commify(totalSupply?.toFixed(2) || 0)}
           </Text>
           <Text color="secondary" fontSize="sm" fontWeight="semibold">
             DOLA Supply

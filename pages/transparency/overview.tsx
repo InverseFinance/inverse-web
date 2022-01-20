@@ -177,10 +177,18 @@ export const Overview = () => {
             />}
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <SuppplyInfos token={TOKENS[INV]} mainnetSupply={invTotalSupply - fantom?.invTotalSupply} fantomSupply={fantom?.invTotalSupply} />
+            <SuppplyInfos token={TOKENS[INV]} supplies={[
+              { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
+              { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
+            ]}
+            />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply - fantom?.dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
+            <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+              { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+              { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+            ]}
+            />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <InfoMessage

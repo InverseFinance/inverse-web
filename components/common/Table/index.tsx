@@ -16,12 +16,14 @@ type TableProps = {
   columns: Column[]
   items: any[]
   keyName?: string
+  defaultSortDir?: string
+  alternateBg?: boolean
   onClick?: (e: any) => void
 }
 
-export const Table = ({ columns, items, keyName, onClick, ...props }: TableProps) => {
+export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', alternateBg = true, onClick, ...props }: TableProps) => {
   const [sortBy, setSortBy] = useState(columns[0].field);
-  const [sortDir, setSortDir] = useState('asc');
+  const [sortDir, setSortDir] = useState(defaultSortDir);
 
   const [sortedItems, setSortedItems] = useState(items?.map((item) => {
     return ({ ...item, symbol: item?.underlying?.symbol })
@@ -105,7 +107,7 @@ export const Table = ({ columns, items, keyName, onClick, ...props }: TableProps
       {sortedItems?.map((item, i) => (
         <Flex
           key={item[keyName] || i}
-          bgColor={i % 2 === 0 ? 'purple.750' : 'purple.800'}
+          bgColor={!alternateBg || (i % 2 === 0) ? 'purple.750' : 'purple.800'}
           justify="space-between"
           align="center"
           fontWeight="semibold"

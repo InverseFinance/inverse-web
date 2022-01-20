@@ -1,19 +1,17 @@
 import { BigNumber, Contract } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { CTOKEN_ABI, ERC20_ABI, FED_ABI, MULTISIG_ABI, XCHAIN_FED_ABI } from '@inverse/config/abis'
+import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@inverse/config/abis'
 import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks'
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { NetworkIds, xChainFed } from '@inverse/types';
-import { namedAddress } from '@inverse/util'
+import { Fed, NetworkIds } from '@inverse/types';
 import { getBnToNumber } from '@inverse/util/markets'
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WETH, FEDS, XCHAIN_FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WETH, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-  const cacheKey = `dao-cache-v1.1.0`;
+  const cacheKey = `dao-cache-v1.1.1`;
 
   try {
 
@@ -24,8 +22,8 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(NetworkIds.mainnet);
-    const dolaContract = new Contract(DOLA, ERC20_ABI, provider);
-    const invContract = new Contract(INV, ERC20_ABI, provider);
+    const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
+    const invContract = new Contract(INV, INV_ABI, provider);
 
     let invFtmTotalSupply = BigNumber.from('0');
     let dolaFtmTotalSupply = BigNumber.from('0');
@@ -44,13 +42,19 @@ export default async function handler(req, res) {
     const [
       dolaTotalSupply,
       invTotalSupply,
-      ...fedSupplies
+      dolaOperator,
+      ...fedData
     ] = await Promise.all([
       dolaContract.totalSupply(),
       invContract.totalSupply(),
-      ...FEDS.map((fedAddress: string) => {
-        const fedContract = new Contract(fedAddress, FED_ABI, provider);
-        return fedContract.supply();
+      dolaContract.operator(),
+      ...FEDS.map((fed: Fed) => {
+        const fedContract = new Contract(fed.address, fed.abi, getProvider(fed.chainId));
+        return Promise.all([
+          fedContract[fed.isXchain ? 'dstSupply' : 'supply'](),
+          fedContract[fed.isXchain ? 'GOV' : 'gov'](),
+          fedContract['chair'](),
+        ]);
       }),
     ])
 
@@ -68,16 +72,6 @@ export default async function handler(req, res) {
         return contract.totalReserves();
       }),
     ]);
-
-    const xChainFedsResults = await Promise.allSettled([
-      ...XCHAIN_FEDS.map((xChainFed: xChainFed) => {
-        const xChainProvider = getProvider(xChainFed.chainId);
-        const xChainFedContract = new Contract(xChainFed.address, XCHAIN_FED_ABI, xChainProvider);
-        return xChainFedContract.dstSupply();
-      })
-    ]);
-
-    const xChainFedsSupplies = xChainFedsResults.map(r => r.status === 'fulfilled' ? r.value : BigNumber.from('0'))
 
     // Multisigs
     const multisigsOwners = await Promise.all([
@@ -133,8 +127,9 @@ export default async function handler(req, res) {
     })
 
     const resultData = {
-      dolaTotalSupply: parseFloat(formatEther(dolaTotalSupply)),
-      invTotalSupply: parseFloat(formatEther(invTotalSupply)),
+      dolaTotalSupply: getBnToNumber(dolaTotalSupply),
+      invTotalSupply: getBnToNumber(invTotalSupply),
+      dolaOperator,
       anchorReserves: anchorReserves.map((bn, i) => {
         const token = UNDERLYING[ANCHOR_TOKENS[i]];
         return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -144,25 +139,19 @@ export default async function handler(req, res) {
         return { token, balance: getBnToNumber(bn, token.decimals) }
       }),
       fantom: {
-        dolaTotalSupply: parseFloat(formatEther(dolaFtmTotalSupply)),
-        invTotalSupply: parseFloat(formatEther(invFtmTotalSupply)),
+        dolaTotalSupply: getBnToNumber(dolaFtmTotalSupply),
+        invTotalSupply: getBnToNumber(invFtmTotalSupply),
       },
       multisigs: Object.entries(MULTISIGS).map(([address, name], i) => ({
         address, name, owners: multisigsOwners[i], funds: multisigsFunds[i], threshold: parseInt(multisigsThresholds[i].toString()),
       })),
-      fedSupplies: FEDS.map((fedAd, i) => ({
-        address: fedAd,
-        chainId: NetworkIds.mainnet,
-        name: namedAddress(fedAd),
-        supply: parseFloat(formatEther(fedSupplies[i])),
-      })).concat(
-        XCHAIN_FEDS.map((xChainFed, i) => {
-          return {
-            ...xChainFed,
-            supply: parseFloat(formatEther(xChainFedsSupplies[i])),
-          }
-        })
-      )
+      feds: FEDS.map((fed, i) => ({
+        ...fed,
+        abi: undefined,
+        supply: getBnToNumber(fedData[i][0]),
+        gov: fedData[i][1],
+        chair: fedData[i][2],
+      }))
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

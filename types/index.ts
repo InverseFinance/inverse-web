@@ -366,8 +366,26 @@ export type Prices = {
   }
 }
 
-export type xChainFed = {
+export type Fed = {
   address: string,
+  abi: string[],
   chainId: NetworkIds,
   name: string,
+  isXchain?: boolean,
+}
+
+export type FedWithData = Fed & {
+  supply: number,
+  chair: string,
+  gov: string,
+}
+
+export type FedEvent = {
+  blockNumber: number
+  event: "Expansion" | "Contraction"
+  isContraction: boolean
+  newSupply: number
+  timestamp: number// in secs
+  transactionHash: string
+  value: number
 }

@@ -87,10 +87,11 @@ export const shortenNumber = (value: number, precision = 2, isDollar = false, sh
     if(!value) { return (0).toFixed(precision) }
     let suffix = ''
     const dividers: { [key: string]: number } = { 'k': 1000, 'M': 1000000, 'B': 1000000000, 'T': 1000000000000 };
-    if(value >= 1000000000000) { suffix = 'T' }
-    else if(value >= 1000000000) { suffix = 'B' }
-    else if(value >= 1000000) { suffix = 'M' }
-    else if(value >= 1000) { suffix = 'k' }
+    const absValue = Math.abs(value);
+    if(absValue >= 1000000000000) { suffix = 'T' }
+    else if(absValue >= 1000000000) { suffix = 'B' }
+    else if(absValue >= 1000000) { suffix = 'M' }
+    else if(absValue >= 1000) { suffix = 'k' }
     const divider: number = dividers[suffix] || 1
     const shortValue = value/divider;
     const numResult = isDollar ? dollarify(shortValue, precision, false, showMinPrecision) : shortValue.toFixed(precision)

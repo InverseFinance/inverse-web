@@ -1,4 +1,5 @@
-import { NetworkConfig, Network, NetworkIds, TokenList, Vaults, VaultTree, xChainFed } from '@inverse/types'
+import { NetworkConfig, Network, NetworkIds, TokenList, Vaults, VaultTree, Fed } from '@inverse/types'
+import { FED_ABI, XCHAIN_FED_ABI } from './abis';
 import { OLD_XINV } from './constants';
 
 const mainnetConfig: NetworkConfig = {
@@ -23,10 +24,6 @@ const mainnetConfig: NetworkConfig = {
   XINV_V1: OLD_XINV,
   // new XINV
   XINV: '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B',
-  feds: {
-    anchor: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7',
-    fusepool6: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664',
-  },
   vaults: {
     vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
     vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
@@ -151,6 +148,7 @@ export const NETWORKS: Network[] = [
     isTestnet: false,
     isSupported: true,
     scan: 'https://etherscan.io',
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
     // bgColor: '',
     config: mainnetConfig,
   },
@@ -271,6 +269,7 @@ export const NETWORKS: Network[] = [
     coinSymbol: 'ftm',
     isTestnet: false,
     isSupported: false,
+    scan: 'https://ftmscan.com',
     image: `/assets/networks/${NETWORK_CODENAMES.fantom}.webp`,
   },
   {
@@ -343,10 +342,10 @@ export const getNetworkConfigConstants = (
   const VAULT_TOKENS = Object.values(config.vaults);
 
   // FEDS
-  const FEDS = Object.values(config.feds);
-  // xChainFeds have a different abi
-  const XCHAIN_FEDS: xChainFed[] = [
-    { chainId: NetworkIds.ftm, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Fed Scream' },
+  const FEDS: Fed[] = [
+    { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Fed Anchor' },
+    { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fed Fuse6' },
+    { chainId: NetworkIds.ftm, isXchain: true, abi: XCHAIN_FED_ABI, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Fed Scream' },
   ];
 
   const MULTISIGS = {
@@ -688,7 +687,6 @@ export const getNetworkConfigConstants = (
     NAMED_ADDRESSES,
     DOLA_PAYROLL,
     FEDS,
-    XCHAIN_FEDS,
     DEPLOYER,
     MULTISIGS,
   }

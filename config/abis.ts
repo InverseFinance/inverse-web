@@ -89,20 +89,16 @@ export const HARVESTER_ABI = [
   "function ratePerToken(address) external view returns (uint256)",
 ];
 
-export const INV_ABI = [
-  "function allowance(address, address) external view returns (uint256)",
-  "function approve(address, uint256)",
-  "function balanceOf(address) external view returns (uint256)",
+export const INV_ABI = ERC20_ABI.concat([
   "function delegate(address)",
   "function delegates(address) external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
   "function getPriorVotes(address, uint256) external view returns (uint96)",
   "function nonces(address) external view returns (uint256)",
   "function exchangeRateCurrent() external returns (uint256)",
-  "event Transfer(address indexed from, address indexed to, uint256 amount)",
   "event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate)",
   "event DelegateVotesChanged(address indexed delegate, uint previousBalance, uint newBalance)",
-];
+]);
 
 export const GOVERNANCE_ABI = [
   "function xinvExchangeRates(uint256) public view returns (uint256)",
@@ -187,6 +183,8 @@ export const FED_ABI = [
   "function gov() public view returns (address)",
   "function underlying() public view returns (address)",
   "function supply() public view returns (uint256)",
+  "event Expansion (uint256 amount)",
+  "event Contraction (uint256 amount)",
 ]
 
 // Cross-chain fed contract
@@ -201,6 +199,8 @@ export const XCHAIN_FED_ABI = [
   "function SRC_DOLA() public view returns (address)",
   "function DST_DOLA() public view returns (address)",
   "function DST_MARKET() public view returns (address)",
+  "event Expansion (uint256 amount)",
+  "event Contraction (uint256 amount)",
 ]
 
 export const MULTISIG_ABI = [
@@ -230,7 +230,6 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
     TREASURY,
     DOLA,
     FEDS,
-    XCHAIN_FEDS,
     MULTISIGS,
   } = getNetworkConfigConstants(networkConfig);
 
@@ -252,8 +251,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
-        ...FEDS.map((address) => [address, FED_ABI]),
-        ...XCHAIN_FEDS.map((xChainFed) => [xChainFed.address, XCHAIN_FED_ABI]),
+        ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])
