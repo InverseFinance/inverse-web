@@ -148,6 +148,7 @@ export const NETWORKS: Network[] = [
     isTestnet: false,
     isSupported: true,
     scan: 'https://etherscan.io',
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
     // bgColor: '',
     config: mainnetConfig,
   },

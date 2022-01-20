@@ -9,7 +9,6 @@ import { NetworkIds } from '@inverse/types'
 import { DolaFlowChart } from '@inverse/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
 import { useDAO } from '@inverse/hooks/useDAO'
-import { shortenNumber } from '@inverse/util/markets'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -37,30 +36,20 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
-          <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator||TREASURY} feds={fedsWithData} />
+          <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-            <SuppplyInfos token={TOKENS[DOLA]} mainnetSupply={dolaTotalSupply - fantom?.dolaTotalSupply} fantomSupply={fantom?.dolaTotalSupply} />
+            <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+              { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+              { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+            ]}
+            />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <InfoMessage
+            <SuppplyInfos
               title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-              alertProps={{ fontSize: '12px', w: 'full' }}
-              description={
-                <>
-                  {fedsWithData.map(fed => {
-                    return <Flex key={fed.address} direction="row" w='full' justify="space-between">
-                      <Text>- {fed.name}:</Text>
-                      <Text>{shortenNumber(fed.supply)}</Text>
-                    </Flex>
-                  })}
-                  <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
-                    <Text>- Total:</Text>
-                    <Text>{shortenNumber(fedsWithData.reduce((prev, curr) => curr.supply + prev, 0))}</Text>
-                  </Flex>
-                </>
-              }
+              supplies={fedsWithData}
             />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">

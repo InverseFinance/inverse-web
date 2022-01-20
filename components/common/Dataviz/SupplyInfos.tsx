@@ -1,48 +1,49 @@
 import { Flex, Image, Text } from '@chakra-ui/react'
 import { shortenNumber } from '@inverse/util/markets'
 import { InfoMessage } from '@inverse/components/common/Messages'
-import { Token } from '@inverse/types';
+import { Token, NetworkIds } from '@inverse/types';
+import { getNetwork } from '@inverse/config/networks';
 
-const Img = ({ filename }: { filename: string }) =>
-    <Image display="inline-block" src={`/assets/networks/${filename}`} ignoreFallback={true} w='15px' h='15px' />
+const Img = ({ src }: { src: string }) =>
+    <Image display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />
 
 export const SuppplyInfos = ({
-    mainnetSupply,
-    fantomSupply,
+    title,
+    supplies,
     token,
 }: {
-    mainnetSupply: number,
-    fantomSupply: number,
-    token: Token,
+    title?: React.ReactNode,
+    supplies: { supply: number, chainId: NetworkIds, name?: string }[],
+    token?: Token,
 }) => {
-    const totalSupply = mainnetSupply + fantomSupply;
-    const mainnetPerc = totalSupply ? mainnetSupply/totalSupply * 100 : 0;
-    const ftmPerc = totalSupply ? fantomSupply/totalSupply * 100 : 0;
+    const totalSupply = supplies.reduce((prev, curr) => prev + curr.supply, 0);
     return (
         <InfoMessage
-            title={<>
-                <Image mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
-                {token.symbol} Total Supplies</>
+            title={
+                token ? <>
+                    <Image mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
+                    {token.symbol} Total Supplies : 
+                </>
+                : title
             }
             alertProps={{ fontSize: '12px', w: 'full' }}
             description={
                 <>
-                    <Flex position="relative" direction="row" w='full' justify="space-between" alignItems="center">
-                        <Flex alignItems="center">
-                            <Text>-</Text>
-                            <Text mx="1"><Img filename="ethereum.png" /></Text>
-                            <Text lineHeight="15px">On Ethereum:</Text>
-                        </Flex>
-                        <Text>{shortenNumber(mainnetSupply)} ({shortenNumber(mainnetPerc)}%)</Text>
-                    </Flex>
-                    <Flex direction="row" w='full' justify="space-between" alignItems="center">
-                        <Flex alignItems="center">
-                            <Text>-</Text>
-                            <Text mx="1"><Img filename="fantom.webp" /></Text>
-                            <Text lineHeight="15px">On Fantom:</Text>
-                        </Flex>
-                        <Text>{shortenNumber(fantomSupply)} ({shortenNumber(ftmPerc)}%)</Text>
-                    </Flex>
+                    {
+                        supplies.map(({ supply, chainId, name }, i) => {
+                            const network = getNetwork(chainId);
+                            return (
+                                <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
+                                    <Flex alignItems="center">
+                                        <Text>-</Text>
+                                        <Text mx="1"><Img src={network.image!} /></Text>
+                                        <Text lineHeight="15px">On {name || network.name}:</Text>
+                                    </Flex>
+                                    <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
+                                </Flex>
+                            )
+                        })
+                    }
                     <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
                         <Text>- Total Cross-Chain:</Text>
                         <Text>{shortenNumber(totalSupply)}</Text>
