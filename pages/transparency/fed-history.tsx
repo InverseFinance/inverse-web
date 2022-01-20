@@ -1,4 +1,4 @@
-import { Flex, Image, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Text } from '@chakra-ui/react'
 
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
@@ -46,23 +46,25 @@ const columns = [
     {
         field: 'event',
         label: 'Resize Event',
-        header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ event, isContraction }) => <Flex w="120px" justify="center" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
+        header: ({ ...props }) => <Flex justify="flex-start" minW="80px" {...props} />,
+        value: ({ event, isContraction }) => <Flex minW="80px" justify="flex-start" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
             {event}{isContraction ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Flex>,
     },
     {
         field: 'value',
-        label: 'Resize Amount',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="120px" {...props} />,
-        value: ({ value, isContraction }) => <Flex justify="flex-end" minW="120px" color={isContraction ? 'info' : 'secondary'}>{shortenNumber(value, 0)}</Flex>,
+        label: 'Amount',
+        header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
+        value: ({ value, isContraction }) => <Flex justify="flex-end" minW="60px" color={isContraction ? 'info' : 'secondary'}>
+            {shortenNumber(value, 0)}
+        </Flex>,
     },
     {
         field: 'newSupply',
         label: 'New Supply',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="120px" {...props} />,
+        header: ({ ...props }) => <Flex justify="flex-end" minW="100px" {...props} />,
         value: ({ newSupply, value, isContraction }) =>
-            <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} minW="120px">
+            <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="100px">
                 <Text textAlign="left" w="40px">{shortenNumber(newSupply - value, 0)}</Text>
                 <ArrowForwardIcon />
                 <Text textAlign="right" w="40px">{shortenNumber(newSupply, 0)}</Text>
@@ -100,9 +102,9 @@ export const DolaDiagram = () => {
                         noPadding={true}
                         w={{ base: 'full', lg: '1000px' }}
                         label="Fed Supplies Contractions and Expansions"
-                        description={<>
+                        description={<Box w='full' overflow="auto">
                             <RadioCardGroup
-                                wrapperProps={{ w: 'full', justify: 'center', mt: '2' }}
+                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', w: { base: '90vw', sm: '100%' } }}
                                 group={{
                                     name: 'bool',
                                     defaultValue: '0',
@@ -111,11 +113,12 @@ export const DolaDiagram = () => {
                                 radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
                                 options={fedOptionList}
                             />
-                        </>}
+                        </Box>}
                     >
                         <Table
                             keyName="transactionHash"
                             defaultSortDir="desc"
+                            alternateBg={false}
                             columns={columns}
                             items={fedHistoricalEvents}
                         />

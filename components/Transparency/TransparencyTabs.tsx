@@ -18,7 +18,7 @@ export const TransparencyTabs = ({ active }: { active: TabsType}) => {
     const activeIndex = tabs.findIndex(tab => tab.page === active);
 
     return (
-        <Tabs onChange={handleTab} mt="5" mb="2" defaultIndex={activeIndex} colorScheme="white" variant='solid-rounded'>
+        <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme="white" variant='solid-rounded'>
             <TabList>
                 {tabs.map(tab => <Tab key={tab.page}>{tab.label}</Tab>)}
             </TabList>
