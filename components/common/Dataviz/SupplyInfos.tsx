@@ -15,6 +15,9 @@ export const SuppplyInfos = ({
     fantomSupply: number,
     token: Token,
 }) => {
+    const totalSupply = mainnetSupply + fantomSupply;
+    const mainnetPerc = totalSupply ? mainnetSupply/totalSupply * 100 : 0;
+    const ftmPerc = totalSupply ? fantomSupply/totalSupply * 100 : 0;
     return (
         <InfoMessage
             title={<>
@@ -30,7 +33,7 @@ export const SuppplyInfos = ({
                             <Text mx="1"><Img filename="ethereum.png" /></Text>
                             <Text lineHeight="15px">On Ethereum:</Text>
                         </Flex>
-                        <Text>{shortenNumber(mainnetSupply)}</Text>
+                        <Text>{shortenNumber(mainnetSupply)} ({shortenNumber(mainnetPerc)}%)</Text>
                     </Flex>
                     <Flex direction="row" w='full' justify="space-between" alignItems="center">
                         <Flex alignItems="center">
@@ -38,11 +41,11 @@ export const SuppplyInfos = ({
                             <Text mx="1"><Img filename="fantom.webp" /></Text>
                             <Text lineHeight="15px">On Fantom:</Text>
                         </Flex>
-                        <Text>{shortenNumber(fantomSupply)}</Text>
+                        <Text>{shortenNumber(fantomSupply)} ({shortenNumber(ftmPerc)}%)</Text>
                     </Flex>
                     <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
                         <Text>- Total Cross-Chain:</Text>
-                        <Text>{shortenNumber(mainnetSupply + fantomSupply)}</Text>
+                        <Text>{shortenNumber(totalSupply)}</Text>
                     </Flex>
                 </>
             }

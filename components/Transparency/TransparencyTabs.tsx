@@ -19,7 +19,7 @@ export const TransparencyTabs = ({ active }: { active: TabsType}) => {
 
     return (
         <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme="white" variant='solid-rounded'>
-            <TabList>
+            <TabList justifyContent={{ base: 'flex-start', sm: 'center' }}>
                 {tabs.map(tab => <Tab key={tab.page}>{tab.label}</Tab>)}
             </TabList>
         </Tabs>
