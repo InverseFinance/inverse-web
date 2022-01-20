@@ -1,9 +1,9 @@
 import { Box, Flex, Image, Text } from '@chakra-ui/react'
 
+import moment from 'moment'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage } from '@inverse/components/common/Messages'
 import { getNetworkConfigConstants, getNetworkImage } from '@inverse/config/networks';
 import { NetworkIds } from '@inverse/types'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
@@ -16,6 +16,7 @@ import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import ScannerLink from '@inverse/components/common/ScannerLink'
 import { useState } from 'react'
 import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup';
+import { SkeletonBlob } from '@inverse/components/common/Skeleton';
 
 const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -34,6 +35,14 @@ const columns = [
         label: 'Block Number',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
         value: ({ blockNumber, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="120px">{blockNumber}</Flex>,
+    },
+    {
+        field: 'timestamp',
+        label: 'Time',
+        header: ({ ...props }) => <Flex minW="120px" {...props} />,
+        value: ({ timestamp, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="120px">
+            {moment(timestamp * 1000).fromNow()}
+        </Flex>,
     },
     {
         field: 'transactionHash',
@@ -115,13 +124,16 @@ export const DolaDiagram = () => {
                             />
                         </Box>}
                     >
-                        <Table
-                            keyName="transactionHash"
-                            defaultSortDir="desc"
-                            alternateBg={false}
-                            columns={columns}
-                            items={fedHistoricalEvents}
-                        />
+                        {
+                            fedHistoricalEvents?.length > 0 ?
+                                <Table
+                                    keyName="transactionHash"
+                                    defaultSortDir="desc"
+                                    alternateBg={false}
+                                    columns={columns}
+                                    items={fedHistoricalEvents} />
+                                : <SkeletonBlob />
+                        }
                     </Container>
                 </Flex>
                 <Flex direction="column" p={{ base: '4', xl: '0' }}>
