@@ -42,7 +42,7 @@ const getEventDetails = (log: Event, timestamp: number) => {
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-history-cache-v1.0.0`;
+  const cacheKey = `fed-history-cache-v1.0.1`;
 
   try {
 
@@ -82,7 +82,7 @@ export default async function handler(req, res) {
         if(!blockTimestamps[fed.chainId]){
           blockTimestamps[fed.chainId] = { };
         }
-        if(!blockTimestamps[fed.chainId]){
+        if(!blockTimestamps[fed.chainId][event.blockNumber]){
           const block = await provider.getBlock(event.blockNumber);
           blockTimestamps[fed.chainId][event.blockNumber] = block.timestamp;
         }
