@@ -4,8 +4,8 @@ import moment from 'moment'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
-import { getNetworkConfigConstants, getNetworkImage } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types'
+import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { FedHistory, NetworkIds } from '@inverse/types'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
 import { useDAO, useFedHistory } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
@@ -19,23 +19,26 @@ import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
 import { SkeletonBlob } from '@inverse/components/common/Skeleton';
 import { shortenAddress } from '@inverse/util'
 
-const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const defaultFeds = FEDS.map(((fed) => {
+const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
     return {
         ...fed,
+        events: [],
         supply: 0,
-        chair: DEPLOYER,
-        gov: TREASURY,
     }
 }))
 
 const columns = [
     {
-        field: 'blockNumber',
-        label: 'Block Number',
+        field: 'fedName',
+        label: 'Fed',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ blockNumber, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="120px">{blockNumber}</Flex>,
+        value: ({ fedName, isContraction, projectImage }) =>
+            <Flex alignItems="center" color={isContraction ? 'info' : 'secondary'} minW="120px">
+                <Image ignoreFallback={true} src={`/assets/projects/${projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                {fedName}
+            </Flex>,
     },
     {
         field: 'timestamp',
@@ -71,7 +74,7 @@ const columns = [
     },
     {
         field: 'newSupply',
-        label: 'New Supply',
+        label: 'New Fed Supply',
         header: ({ ...props }) => <Flex justify="flex-end" minW="100px" {...props} />,
         value: ({ newSupply, value, isContraction }) =>
             <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="100px">
@@ -82,19 +85,43 @@ const columns = [
     },
 ]
 
-export const FedHistory = () => {
+export const FedHistoryPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const { feds: fedsHistory } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<any>(0);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
-    const chosenFedHistory = (fedsHistory?.length > 0 ? fedsHistory[chosenFedIndex] : { ...FEDS[chosenFedIndex], events: []});
-    const fedHistoricalEvents = chosenFedHistory.events.map(event => ({ ...event, chainId: chosenFedHistory.chainId }));
 
-    const fedOptionList = FEDS.map((fed, i) => ({
+    const fedsHistoryWithChainIdInEvent = fedsHistory
+        .map(fed => ({
+            ...fed, events: fed.events.map(e => ({
+                ...e,
+                chainId: fed.chainId,
+                fedName: fed.name,
+                projectImage: fed.projectImage,
+            }))
+        }))
+
+    if (fedsHistoryWithChainIdInEvent.length) {
+        fedsHistoryWithChainIdInEvent.unshift({
+            name: 'All Feds',
+            projectImage: 'eth-ftm.webp',
+            address: '',
+            chainId: NetworkIds.ethftm,
+            abi: [],
+            events: fedsHistoryWithChainIdInEvent.reduce((prev, curr) => prev.concat(curr.events), []),
+        })
+    }
+
+    const chosenFedHistory = (fedsHistoryWithChainIdInEvent?.length > 0 ? fedsHistoryWithChainIdInEvent[chosenFedIndex] : { ...FEDS[chosenFedIndex], events: [] });
+    const fedHistoricalEvents = chosenFedHistory.events;
+
+    const fedOptionList = fedsHistoryWithChainIdInEvent.map((fed, i) => ({
         value: i.toString(),
         label: <Flex alignItems="center">
-            <Image src={getNetworkImage(fed.chainId)} w={'15px'} h={'15px'} mr="2" />
+            {
+                !!fed.chainId && <Image ignoreFallback={true} src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+            }
             {fed.name}
         </Flex>,
     }));
@@ -114,7 +141,7 @@ export const FedHistory = () => {
                         label="Fed Supplies Contractions and Expansions"
                         description={<Box w='full' overflow="auto">
                             <RadioCardGroup
-                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb:'2', w: { base: '90vw', sm: '100%' } }}
+                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb: '2', w: { base: '90vw', sm: '100%' } }}
                                 group={{
                                     name: 'bool',
                                     defaultValue: '0',
@@ -123,13 +150,22 @@ export const FedHistory = () => {
                                 radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
                                 options={fedOptionList}
                             />
-                            Contract: <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
+                            <Box h="25px">
+                                {
+                                    !!chosenFedHistory.address &&
+                                    <>
+                                        <Text display="inline-block" mr="2">Contract:</Text>
+                                        <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
+                                    </>
+                                }
+                            </Box>
                         </Box>}
                     >
                         {
                             fedHistoricalEvents?.length > 0 ?
                                 <Table
                                     keyName="transactionHash"
+                                    defaultSort="timestamp"
                                     defaultSortDir="desc"
                                     alternateBg={false}
                                     columns={columns}
@@ -158,4 +194,4 @@ export const FedHistory = () => {
     )
 }
 
-export default FedHistory
+export default FedHistoryPage
