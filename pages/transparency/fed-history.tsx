@@ -53,8 +53,8 @@ const columns = [
     {
         field: 'timestamp',
         label: 'Time',
-        header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ timestamp, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="120px">
+        header: ({ ...props }) => <Flex minW="100px" {...props} />,
+        value: ({ timestamp, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="100px">
             {moment(timestamp * 1000).fromNow()}
         </Flex>,
     },
@@ -68,10 +68,10 @@ const columns = [
     },
     {
         field: 'event',
-        label: 'Event',
-        header: ({ ...props }) => <Flex justify="center" minW="40px" {...props} />,
-        value: ({ isContraction }) => <Flex minW="40px" justify="center" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
-            {isContraction ? <ArrowDownIcon /> : <ArrowUpIcon />}
+        label: 'Event Type',
+        header: ({ ...props }) => <Flex justify="center" minW="95px" {...props} />,
+        value: ({ event, isContraction }) => <Flex minW="95px" justify="center" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
+            {event}{isContraction ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Flex>,
     },
     {
@@ -85,7 +85,7 @@ const columns = [
     {
         field: 'newSupply',
         label: 'New Fed Supply',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
+        header: ({ ...props }) => <Flex justify="center" minW="140px" {...props} />,
         value: ({ newSupply, value, isContraction }) =>
             <SupplyChange newSupply={newSupply} changeAmount={value} isContraction={isContraction} />
     },
@@ -152,7 +152,7 @@ export const FedHistoryPage = () => {
                         label="Fed Supplies Contractions and Expansions"
                         description={<Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
                             <RadioCardGroup
-                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
+                                wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
                                 group={{
                                     name: 'bool',
                                     defaultValue: '0',
