@@ -30,13 +30,13 @@ export const SuppplyInfos = ({
             description={
                 <>
                     {
-                        supplies.map(({ supply, chainId, name }, i) => {
+                        supplies.map(({ supply, chainId, name, projectImage }, i) => {
                             const network = getNetwork(chainId);
                             return (
                                 <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
                                     <Flex alignItems="center">
                                         <Text>-</Text>
-                                        <Text mx="1"><Img src={network.image!} /></Text>
+                                        <Text mx="1"><Img src={projectImage ? `/assets/projects/${projectImage}` : network.image!} /></Text>
                                         <Text lineHeight="15px">On {name || network.name}:</Text>
                                     </Flex>
                                     <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
