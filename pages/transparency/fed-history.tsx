@@ -29,6 +29,16 @@ const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
     }
 }))
 
+const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: number, changeAmount: number, isContraction: boolean }) => {
+    return (
+        <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="140px">
+            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 1)}</Text>
+            <ArrowForwardIcon />
+            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 1)}</Text>
+        </Flex>
+    )
+}
+
 const columns = [
     {
         field: 'fedName',
@@ -58,10 +68,10 @@ const columns = [
     },
     {
         field: 'event',
-        label: 'Resize Event',
-        header: ({ ...props }) => <Flex justify="flex-start" minW="80px" {...props} />,
-        value: ({ event, isContraction }) => <Flex minW="80px" justify="flex-start" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
-            {event}{isContraction ? <ArrowDownIcon /> : <ArrowUpIcon />}
+        label: 'Event',
+        header: ({ ...props }) => <Flex justify="center" minW="40px" {...props} />,
+        value: ({ isContraction }) => <Flex minW="40px" justify="center" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
+            {isContraction ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Flex>,
     },
     {
@@ -69,62 +79,63 @@ const columns = [
         label: 'Amount',
         header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
         value: ({ value, isContraction }) => <Flex justify="flex-end" minW="60px" color={isContraction ? 'info' : 'secondary'}>
-            {shortenNumber(value, 0)}
+            {shortenNumber(value, 1)}
         </Flex>,
     },
     {
         field: 'newSupply',
         label: 'New Fed Supply',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="100px" {...props} />,
+        header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
         value: ({ newSupply, value, isContraction }) =>
-            <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="100px">
-                <Text textAlign="left" w="40px">{shortenNumber(newSupply - value, 0)}</Text>
-                <ArrowForwardIcon />
-                <Text textAlign="right" w="40px">{shortenNumber(newSupply, 0)}</Text>
-            </Flex>,
+            <SupplyChange newSupply={newSupply} changeAmount={value} isContraction={isContraction} />
+    },
+    {
+        field: 'totalNewSupply',
+        label: 'New TOTAL Supply',
+        header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
+        value: ({ newTotalSupply, value, isContraction }) =>
+            <SupplyChange newSupply={newTotalSupply} changeAmount={value} isContraction={isContraction} />
     },
 ]
 
 export const FedHistoryPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
-    const { feds: fedsHistory } = useFedHistory();
+    const { totalEvents } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<any>(0);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
-    const fedsHistoryWithChainIdInEvent = fedsHistory
-        .map(fed => ({
-            ...fed, events: fed.events.map(e => ({
+    const eventsWithFedInfos = totalEvents
+        .map(e => {
+            const fed = fedsWithData[e.fedIndex];
+            return {
                 ...e,
                 chainId: fed.chainId,
                 fedName: fed.name,
                 projectImage: fed.projectImage,
-            }))
-        }))
-
-    if (fedsHistoryWithChainIdInEvent.length) {
-        fedsHistoryWithChainIdInEvent.unshift({
-            name: 'All Feds',
-            projectImage: 'eth-ftm.webp',
-            address: '',
-            chainId: NetworkIds.ethftm,
-            abi: [],
-            events: fedsHistoryWithChainIdInEvent.reduce((prev, curr) => prev.concat(curr.events), []),
-        })
-    }
-
-    const chosenFedHistory = (fedsHistoryWithChainIdInEvent?.length > 0 ? fedsHistoryWithChainIdInEvent[chosenFedIndex] : { ...FEDS[chosenFedIndex], events: [] });
-    const fedHistoricalEvents = chosenFedHistory.events;
-
-    const fedOptionList = fedsHistoryWithChainIdInEvent.map((fed, i) => ({
-        value: i.toString(),
-        label: <Flex alignItems="center">
-            {
-                !!fed.chainId && <Image ignoreFallback={true} src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
             }
-            {fed.name}
-        </Flex>,
-    }));
+        })
+
+    const fedHistoricalEvents = chosenFedIndex === 0 ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
+    const fedsIncludingAll = [{
+        name: 'All Feds',
+        projectImage: 'eth-ftm.webp',
+        address: '',
+        chainId: NetworkIds.ethftm,
+    }].concat(FEDS);
+
+    const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
+
+    const fedOptionList = fedsIncludingAll
+        .map((fed, i) => ({
+            value: i.toString(),
+            label: <Flex alignItems="center">
+                {
+                    !!fed.chainId && <Image ignoreFallback={true} src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                }
+                {fed.name}
+            </Flex>,
+        }));
 
     return (
         <Layout>
@@ -139,15 +150,15 @@ export const FedHistoryPage = () => {
                         noPadding={true}
                         w={{ base: 'full', lg: '1000px' }}
                         label="Fed Supplies Contractions and Expansions"
-                        description={<Box w='full' overflow="auto">
+                        description={<Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
                             <RadioCardGroup
-                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb: '2', w: { base: '90vw', sm: '100%' } }}
+                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
                                 group={{
                                     name: 'bool',
                                     defaultValue: '0',
                                     onChange: (v: string) => setChosenFedIndex(parseInt(v)),
                                 }}
-                                radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
+                                radioCardProps={{ w: '150px', textAlign: 'center', p: '2', position: 'relative' }}
                                 options={fedOptionList}
                             />
                             <Box h="25px">

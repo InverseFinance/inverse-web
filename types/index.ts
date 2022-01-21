@@ -385,9 +385,11 @@ export type FedWithData = Fed & {
 
 export type FedEvent = {
   blockNumber: number
+  fedIndex: number
   event: "Expansion" | "Contraction"
   isContraction: boolean
   newSupply: number
+  newTotalSupply: number
   timestamp: number// in secs
   transactionHash: string
   value: number

@@ -3,7 +3,7 @@ import 'source-map-support'
 import { getNetworkConfigConstants } from '@inverse/config/networks'
 import { getProvider } from '@inverse/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { NetworkIds } from '@inverse/types';
+import { FedEvent, NetworkIds } from '@inverse/types';
 import { getBnToNumber } from '@inverse/util/markets'
 import { getRedisClient } from '@inverse/util/redis';
 
@@ -26,11 +26,12 @@ const getTimestamps = (rawEvents: [Event[], Event[]], chainId: NetworkIds) => {
   )
 }
 
-const getEventDetails = (log: Event, timestamp: number) => {
+const getEventDetails = (log: Event, timestamp: number, fedIndex: number) => {
   const { event, blockNumber, transactionHash, args } = log;
   const isContraction = event === 'Contraction';
   return {
     event,
+    fedIndex,
     isContraction,
     blockNumber,
     transactionHash,
@@ -42,7 +43,7 @@ const getEventDetails = (log: Event, timestamp: number) => {
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-history-cache-v1.0.1`;
+  const cacheKey = `fed-history-cache-v1.0.2`;
 
   try {
 
@@ -59,15 +60,15 @@ export default async function handler(req, res) {
     const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
 
     // first time
-    if(!blockTimestamps[NetworkIds.mainnet]) {
+    if (!blockTimestamps[NetworkIds.mainnet]) {
       const timestamps = await Promise.all([
         ...FEDS.map((fed, i) => getTimestamps(rawEvents[i], fed.chainId))
       ]);
       FEDS.forEach((fed, fedIndex) => {
         const events = rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1]);
         events.forEach((event, eventIndex) => {
-          if(!blockTimestamps[fed.chainId]){
-            blockTimestamps[fed.chainId] = { };
+          if (!blockTimestamps[fed.chainId]) {
+            blockTimestamps[fed.chainId] = {};
           }
           blockTimestamps[fed.chainId][event.blockNumber] = timestamps[fedIndex][eventIndex].timestamp;
         })
@@ -75,41 +76,47 @@ export default async function handler(req, res) {
     }
 
     // get timestamps for new blocks
-    for(let [fedIndex, fed] of FEDS.entries()) {
+    for (let [fedIndex, fed] of FEDS.entries()) {
       const events = rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1]);
       const provider = getProvider(fed.chainId);
-      for(let event of events) {
-        if(!blockTimestamps[fed.chainId]){
-          blockTimestamps[fed.chainId] = { };
+      for (let event of events) {
+        if (!blockTimestamps[fed.chainId]) {
+          blockTimestamps[fed.chainId] = {};
         }
-        if(!blockTimestamps[fed.chainId][event.blockNumber]){
+        if (!blockTimestamps[fed.chainId][event.blockNumber]) {
           const block = await provider.getBlock(event.blockNumber);
           blockTimestamps[fed.chainId][event.blockNumber] = block.timestamp;
         }
       }
     }
 
-    const resultData = {
-      feds: FEDS.map((fed, i) => {
+    let totalAccumulatedSupply = 0;
+
+    const totalEvents = FEDS
+      .map((fed, fedIndex) => {
         let accumulatedSupply = 0;
-
-        const events = rawEvents[i][0]
-          .concat(rawEvents[i][1])
-          .map((event) => getEventDetails(event, blockTimestamps[fed.chainId][event.blockNumber]))
-          .sort((a, b) => a.blockNumber - b.blockNumber)
-          .map(event => {
-            accumulatedSupply += event.value;
-            return { ...event, newSupply: accumulatedSupply }
-          })
-
-          events.sort((a, b) => b.blockNumber - a.blockNumber);
-
         return {
           ...fed,
-          abi: undefined,
-          events,
+          events: rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1])
+            .sort((a, b) => a.blockNumber - b.blockNumber)
+            .map(e => {
+              return getEventDetails(e, blockTimestamps[fed.chainId][e.blockNumber], fedIndex)
+            })
+            .map(e => {
+              accumulatedSupply += e.value;
+              return { ...e, newSupply: accumulatedSupply }
+            })
         }
       })
+      .reduce((prev, curr) => prev.concat(curr.events), [] as FedEvent[])
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map(event => {
+        totalAccumulatedSupply += event.value
+        return { ...event, newTotalSupply: totalAccumulatedSupply }
+      })
+
+    const resultData = {
+      totalEvents,
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));

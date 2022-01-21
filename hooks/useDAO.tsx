@@ -1,4 +1,4 @@
-import { FedHistory, FedWithData, NetworkIds, SWR, Token } from '@inverse/types'
+import { FedEvent, FedWithData, NetworkIds, SWR, Token } from '@inverse/types'
 import { fetcher } from '@inverse/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
@@ -46,13 +46,13 @@ export const useDAO = (): SWR & DAO => {
   }
 }
 
-export const useFedHistory = (): SWR & { feds: FedHistory[] } => {
+export const useFedHistory = (): SWR & { totalEvents: FedEvent[] } => {
   const { data, error } = useSWR(`/api/transparency/fed-history`, fetcher)
 
-  const feds = data?.feds || [];
+  const totalEvents = data?.totalEvents || [];
 
   return {
-    feds,
+    totalEvents,
     isLoading: !error && !data,
     isError: error,
   }
