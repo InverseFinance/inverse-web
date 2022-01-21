@@ -90,7 +90,7 @@ const columns = [
             <SupplyChange newSupply={newSupply} changeAmount={value} isContraction={isContraction} />
     },
     {
-        field: 'totalNewSupply',
+        field: 'newTotalSupply',
         label: 'New TOTAL Supply',
         header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
         value: ({ newTotalSupply, value, isContraction }) =>

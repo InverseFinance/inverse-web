@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
-  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.0`;
+  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.1`;
 
   try {
     const {
