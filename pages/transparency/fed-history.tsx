@@ -4,8 +4,8 @@ import moment from 'moment'
 import Layout from '@inverse/components/common/Layout'
 import { AppNav } from '@inverse/components/common/Navbar'
 import Head from 'next/head'
-import { getNetworkConfigConstants, getNetworkImage } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types'
+import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { FedHistory, NetworkIds } from '@inverse/types'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
 import { useDAO, useFedHistory } from '@inverse/hooks/useDAO'
 import { shortenNumber } from '@inverse/util/markets'
@@ -19,29 +19,42 @@ import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
 import { SkeletonBlob } from '@inverse/components/common/Skeleton';
 import { shortenAddress } from '@inverse/util'
 
-const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const defaultFeds = FEDS.map(((fed) => {
+const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
     return {
         ...fed,
+        events: [],
         supply: 0,
-        chair: DEPLOYER,
-        gov: TREASURY,
     }
 }))
 
+const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: number, changeAmount: number, isContraction: boolean }) => {
+    return (
+        <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="140px">
+            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 1)}</Text>
+            <ArrowForwardIcon />
+            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 1)}</Text>
+        </Flex>
+    )
+}
+
 const columns = [
     {
-        field: 'blockNumber',
-        label: 'Block Number',
+        field: 'fedName',
+        label: 'Fed',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ blockNumber, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="120px">{blockNumber}</Flex>,
+        value: ({ fedName, isContraction, projectImage }) =>
+            <Flex alignItems="center" color={isContraction ? 'info' : 'secondary'} minW="120px">
+                <Image ignoreFallback={true} src={`/assets/projects/${projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                {fedName}
+            </Flex>,
     },
     {
         field: 'timestamp',
         label: 'Time',
-        header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ timestamp, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="120px">
+        header: ({ ...props }) => <Flex minW="100px" {...props} />,
+        value: ({ timestamp, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="100px">
             {moment(timestamp * 1000).fromNow()}
         </Flex>,
     },
@@ -55,9 +68,9 @@ const columns = [
     },
     {
         field: 'event',
-        label: 'Resize Event',
-        header: ({ ...props }) => <Flex justify="flex-start" minW="80px" {...props} />,
-        value: ({ event, isContraction }) => <Flex minW="80px" justify="flex-start" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
+        label: 'Event Type',
+        header: ({ ...props }) => <Flex justify="center" minW="95px" {...props} />,
+        value: ({ event, isContraction }) => <Flex minW="95px" justify="center" alignItems="center" color={isContraction ? 'info' : 'secondary'}>
             {event}{isContraction ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Flex>,
     },
@@ -66,38 +79,63 @@ const columns = [
         label: 'Amount',
         header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
         value: ({ value, isContraction }) => <Flex justify="flex-end" minW="60px" color={isContraction ? 'info' : 'secondary'}>
-            {shortenNumber(value, 0)}
+            {shortenNumber(value, 1)}
         </Flex>,
     },
     {
         field: 'newSupply',
-        label: 'New Supply',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="100px" {...props} />,
+        label: 'New Fed Supply',
+        header: ({ ...props }) => <Flex justify="center" minW="140px" {...props} />,
         value: ({ newSupply, value, isContraction }) =>
-            <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="100px">
-                <Text textAlign="left" w="40px">{shortenNumber(newSupply - value, 0)}</Text>
-                <ArrowForwardIcon />
-                <Text textAlign="right" w="40px">{shortenNumber(newSupply, 0)}</Text>
-            </Flex>,
+            <SupplyChange newSupply={newSupply} changeAmount={value} isContraction={isContraction} />
+    },
+    {
+        field: 'newTotalSupply',
+        label: 'New TOTAL Supply',
+        header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
+        value: ({ newTotalSupply, value, isContraction }) =>
+            <SupplyChange newSupply={newTotalSupply} changeAmount={value} isContraction={isContraction} />
     },
 ]
 
-export const FedHistory = () => {
+export const FedHistoryPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
-    const { feds: fedsHistory } = useFedHistory();
+    const { totalEvents } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<any>(0);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
-    const chosenFedHistory = (fedsHistory?.length > 0 ? fedsHistory[chosenFedIndex] : { ...FEDS[chosenFedIndex], events: []});
-    const fedHistoricalEvents = chosenFedHistory.events.map(event => ({ ...event, chainId: chosenFedHistory.chainId }));
 
-    const fedOptionList = FEDS.map((fed, i) => ({
-        value: i.toString(),
-        label: <Flex alignItems="center">
-            <Image src={getNetworkImage(fed.chainId)} w={'15px'} h={'15px'} mr="2" />
-            {fed.name}
-        </Flex>,
-    }));
+    const eventsWithFedInfos = totalEvents
+        .map(e => {
+            const fed = fedsWithData[e.fedIndex];
+            return {
+                ...e,
+                chainId: fed.chainId,
+                fedName: fed.name,
+                projectImage: fed.projectImage,
+            }
+        })
+
+    const fedHistoricalEvents = chosenFedIndex === 0 ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
+    const fedsIncludingAll = [{
+        name: 'All Feds',
+        projectImage: 'eth-ftm.webp',
+        address: '',
+        chainId: NetworkIds.ethftm,
+    }].concat(FEDS);
+
+    const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
+
+    const fedOptionList = fedsIncludingAll
+        .map((fed, i) => ({
+            value: i.toString(),
+            label: <Flex alignItems="center">
+                {
+                    !!fed.chainId && <Image ignoreFallback={true} src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                }
+                {fed.name}
+            </Flex>,
+        }));
 
     return (
         <Layout>
@@ -112,24 +150,33 @@ export const FedHistory = () => {
                         noPadding={true}
                         w={{ base: 'full', lg: '1000px' }}
                         label="Fed Supplies Contractions and Expansions"
-                        description={<Box w='full' overflow="auto">
+                        description={<Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
                             <RadioCardGroup
-                                wrapperProps={{ overflow: 'auto', justify: 'left', mt: '2', mb:'2', w: { base: '90vw', sm: '100%' } }}
+                                wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
                                 group={{
                                     name: 'bool',
                                     defaultValue: '0',
                                     onChange: (v: string) => setChosenFedIndex(parseInt(v)),
                                 }}
-                                radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
+                                radioCardProps={{ w: '150px', textAlign: 'center', p: '2', position: 'relative' }}
                                 options={fedOptionList}
                             />
-                            Contract: <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
+                            <Box h="25px">
+                                {
+                                    !!chosenFedHistory.address &&
+                                    <>
+                                        <Text display="inline-block" mr="2">Contract:</Text>
+                                        <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
+                                    </>
+                                }
+                            </Box>
                         </Box>}
                     >
                         {
                             fedHistoricalEvents?.length > 0 ?
                                 <Table
                                     keyName="transactionHash"
+                                    defaultSort="timestamp"
                                     defaultSortDir="desc"
                                     alternateBg={false}
                                     columns={columns}
@@ -158,4 +205,4 @@ export const FedHistory = () => {
     )
 }
 
-export default FedHistory
+export default FedHistoryPage

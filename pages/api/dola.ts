@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
-  const cacheKey = `${networkConfig.chainId}-dola-cache`;
+  const cacheKey = `${networkConfig.chainId}-dola-cache-v1.0.0`;
 
   try {
     const { DOLA } = networkConfig;

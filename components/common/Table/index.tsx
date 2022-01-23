@@ -1,8 +1,8 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box, Text } from '@chakra-ui/react'
+import { Flex, Stack, Box } from '@chakra-ui/react'
 import { TEST_IDS } from '@inverse/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
-import { AnimatedInfoTooltip, InfoTooltip } from '@inverse/components/common/Tooltip';
+import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
 
 export type Column = {
   label: string
@@ -16,13 +16,14 @@ type TableProps = {
   columns: Column[]
   items: any[]
   keyName?: string
+  defaultSort?: string
   defaultSortDir?: string
   alternateBg?: boolean
   onClick?: (e: any) => void
 }
 
-export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', alternateBg = true, onClick, ...props }: TableProps) => {
-  const [sortBy, setSortBy] = useState(columns[0].field);
+export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', defaultSort, alternateBg = true, onClick, ...props }: TableProps) => {
+  const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
 
   const [sortedItems, setSortedItems] = useState(items?.map((item) => {

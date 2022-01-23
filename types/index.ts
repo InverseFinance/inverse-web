@@ -128,6 +128,8 @@ export enum NetworkIds {
   mainnet = '1',
   rinkeby = '4',
   ftm = '250',
+  // xchain
+  ethftm = '1-250',
 }
 
 export type KeyString = { [key: string]: string };
@@ -371,6 +373,7 @@ export type Fed = {
   abi: string[],
   chainId: NetworkIds,
   name: string,
+  projectImage: string,
   isXchain?: boolean,
 }
 
@@ -382,10 +385,14 @@ export type FedWithData = Fed & {
 
 export type FedEvent = {
   blockNumber: number
+  fedIndex: number
   event: "Expansion" | "Contraction"
   isContraction: boolean
   newSupply: number
+  newTotalSupply: number
   timestamp: number// in secs
   transactionHash: string
   value: number
 }
+
+export type FedHistory = Fed & { events: FedEvent[] };

@@ -137,6 +137,7 @@ export enum NETWORK_CODENAMES {
   harmony = 'harmony',
   celo = 'celo',
   moonriver = 'moonriver',
+  ethftm = 'eth-ftm',
 }
 
 export const NETWORKS: Network[] = [
@@ -296,6 +297,16 @@ export const NETWORKS: Network[] = [
     isTestnet: false,
     isSupported: false,
   },
+  // x-chains
+  {
+    id: '1-250',
+    codename: NETWORK_CODENAMES.ethftm,
+    name: 'Eth-Ftm',
+    coinSymbol: 'X',
+    isTestnet: false,
+    isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.ethftm}.webp`,
+  },
 ];
 
 export const getNetworkImage = (chainId: string) => {
@@ -343,9 +354,9 @@ export const getNetworkConfigConstants = (
 
   // FEDS
   const FEDS: Fed[] = [
-    { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Anchor Fed' },
-    { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed' },
-    { chainId: NetworkIds.ftm, isXchain: true, abi: XCHAIN_FED_ABI, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed' },
+    { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Anchor Fed', projectImage: 'Anchor.png' },
+    { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: 'Fuse.png' },
+    { chainId: NetworkIds.ftm, isXchain: true, abi: XCHAIN_FED_ABI, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: 'Scream.webp' },
   ];
 
   const MULTISIGS = {
