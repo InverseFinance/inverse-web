@@ -31,6 +31,8 @@ const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
     }
 }))
 
+const oneDay = 86400000;
+
 const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: number, changeAmount: number, isContraction: boolean }) => {
     return (
         <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="140px">
@@ -164,8 +166,10 @@ export const FedHistoryPage = () => {
         }
     })];
 
-    // add today's timestamp
+    // add today's timestamp and zero one day before first supply
     if (chartData.length) {
+        const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+        chartData.unshift({ x: minX - oneDay, y: 0 });
         chartData.push({ x: now, y: chartData[chartData.length - 1].y });
     }
 
@@ -210,7 +214,7 @@ export const FedHistoryPage = () => {
                                     </HStack>
                                 </Flex>
                                 <AreaChart
-                                    title={`${chosenFedHistory.name} Supply Evolution - Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0}`}
+                                    title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
                                     showTooltips={true}
                                     height={300}
                                     width={chartWidth}
