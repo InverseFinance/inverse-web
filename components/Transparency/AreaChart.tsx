@@ -2,6 +2,7 @@ import { shortenNumber } from '@inverse/util/markets';
 import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps } from 'victory';
 import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 
 type Props = { x: number, y: number }[]
 
@@ -32,8 +33,13 @@ export const AreaChart = ({
     interpolation?: VictoryAreaProps["interpolation"],
     axisStyle?: VictoryAxisProps["style"],
 }) => {
-    const [isLargerThan] = useMediaQuery('(min-width: 1000px)')
+    const [isLargerThan] = useMediaQuery('(min-width: 1000px)');
+    const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
+
+    useEffect(() => {
+        setRightPadding(isLargerThan ? 50 : 20)
+    }, [isLargerThan]);
 
     return (
         <Box
@@ -47,7 +53,7 @@ export const AreaChart = ({
                 theme={VictoryTheme.grayscale}
                 animate={{ duration: 500 }}
                 scale={{ x: "time" }}
-                padding={{ top: 50, bottom: 50, left: 50, right: isLargerThan ? 50 : 20 }}
+                padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
                 containerComponent={!showTooltips ? undefined :
                     <VictoryVoronoiContainer
                         mouseFollowTooltips={true}
