@@ -1,5 +1,5 @@
 import { shortenNumber } from '@inverse/util/markets';
-import { VictoryChart, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer } from 'victory';
+import { VictoryChart,  VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps } from 'victory';
 import moment from 'moment'
 import { Box } from '@chakra-ui/react';
 
@@ -7,35 +7,64 @@ type Props = { x: number, y: number }[]
 
 export const AreaChart = ({
     data,
+    title,
     width = 1000,
     height = 300,
+    showLabels = false,
+    showTooltips = false,
+    interpolation = 'basis',
 }: {
     data: Props,
+    title?: string,
     width?: number,
     height?: number,
+    showLabels?: boolean,
+    showTooltips?: boolean,
+    interpolation?: VictoryAreaProps["interpolation"],
 }) => {
+    const maxY = Math.max(...data.map(d => d.y));
     const tickCount = Math.floor(width / 120)
     return (
         <Box
             width={width}
-            height={height}>
+            height={height}
+        >
             <VictoryChart
                 width={width}
                 height={height}
                 theme={VictoryTheme.material}
                 animate={{ duration: 500 }}
+                containerComponent={!showTooltips ? undefined :
+                    <VictoryVoronoiContainer
+                        mouseFollowTooltips={true}
+                        voronoiDimension="x"
+                        labelComponent={<VictoryTooltip cornerRadius={0} flyoutStyle={{ fill: "white" }} />}
+                        labels={({ datum }) => {
+                            return (
+                                moment(datum.x * 1000).format('MMM Do YYYY') + '\n' + shortenNumber(datum.y, 1)
+                            )
+                        }}
+                    />
+                }
             >
-                <VictoryAxis style={{ tickLabels: { fill: '#fff' } }} dependentAxis tickFormat={(t) => shortenNumber(t, 1)} />
-                <VictoryAxis style={{ tickLabels: { fill: '#fff' } }} tickCount={tickCount} tickFormat={(t) => moment(t * 1000).format('MMM Do YYYY')} />
+                {
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                }
+                <VictoryAxis style={{ tickLabels: { fill: '#fff' }, grid: { stroke: 'grey' } }} dependentAxis tickFormat={(t) => shortenNumber(t, 1)} />
+                <VictoryAxis style={{ tickLabels: { fill: '#fff' }, grid: { stroke: 'grey' } }} tickCount={tickCount} tickFormat={(t) => moment(t * 1000).format('MMM Do YYYY')} />
                 <VictoryArea
+                    domain={{ y: [0, maxY + 5000000] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     padding={{ top: 20, bottom: 60 }}
                     colorScale="blue"
                     data={data}
-                    style={{ data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 } }}
-                    interpolation={"basis"}
+                    labels={showLabels ? ({ data, index }) => shortenNumber(data[index].y, 1) : undefined}
+                    style={{
+                        data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
+                    }}
+                    interpolation={interpolation}
                 />
             </VictoryChart>
-        </Box>
+        </Box >
     )
 }

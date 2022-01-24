@@ -114,12 +114,12 @@ export const FedHistoryPage = () => {
     const { totalEvents } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(1000);
-    const [nowInSecs, setNowinSecs] = useState<number>(Math.floor(Date.now()/1000));
+    const [nowInSecs, setNowinSecs] = useState<number>(Math.floor(Date.now() / 1000));
     const [isLargerThan] = useMediaQuery('(min-width: 1000px)')
 
     useEffect(() => {
         setChartWidth(isLargerThan ? 1000 : (screen.availWidth || screen.width) - 40)
-      }, [isLargerThan]);
+    }, [isLargerThan]);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
@@ -165,7 +165,7 @@ export const FedHistoryPage = () => {
     })];
 
     // add today's timestamp
-    if(chartData.length) {
+    if (chartData.length) {
         chartData.push({ x: nowInSecs, y: chartData[chartData.length - 1].y });
     }
 
@@ -203,7 +203,14 @@ export const FedHistoryPage = () => {
                                         </>
                                     }
                                 </Box>
-                                <AreaChart height={300} width={chartWidth} data={chartData} />
+                                <AreaChart
+                                    title={`${chosenFedHistory.name} Supply Evolution`}
+                                    showTooltips={true}
+                                    height={300}
+                                    width={chartWidth}
+                                    data={chartData}
+                                    interpolation={'stepAfter'}
+                                />
                             </Box>
                         }
                     >
