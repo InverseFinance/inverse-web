@@ -18,6 +18,7 @@ import { useState } from 'react'
 import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@inverse/components/common/Skeleton';
 import { shortenAddress } from '@inverse/util'
+import { DolaMoreInfos } from '@inverse/components/Transparency/DolaMoreInfos'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -186,6 +187,9 @@ export const FedHistoryPage = () => {
                     </Container>
                 </Flex>
                 <Flex direction="column" p={{ base: '4', xl: '0' }}>
+                    <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
+                        <DolaMoreInfos />
+                    </Flex>
                     <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
                         <SuppplyInfos token={TOKENS[DOLA]} supplies={[
                             { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
