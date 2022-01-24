@@ -206,7 +206,7 @@ export const FedHistoryPage = () => {
                                             <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
                                         </>
                                     }
-                                    <HStack position="absolute" right="50px" top="0px">
+                                    <HStack position="absolute" right={{ base: 0, sm: '50px' }} top="3px">
                                         <Text fontSize="12px">
                                             Smooth line
                                         </Text>
