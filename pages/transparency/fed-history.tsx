@@ -1,4 +1,4 @@
-import { Box, Flex, Image, Text } from '@chakra-ui/react'
+import { Box, Flex, HStack, Image, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
 import Layout from '@inverse/components/common/Layout'
@@ -14,10 +14,12 @@ import Table from '@inverse/components/common/Table'
 import { Container } from '@inverse/components/common/Container';
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import ScannerLink from '@inverse/components/common/ScannerLink'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@inverse/components/common/Skeleton';
 import { shortenAddress } from '@inverse/util'
+import { AreaChart } from '@inverse/components/Transparency/AreaChart'
+import { DolaMoreInfos } from '@inverse/components/Transparency/DolaMoreInfos'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -28,6 +30,8 @@ const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
         supply: 0,
     }
 }))
+
+const oneDay = 86400000;
 
 const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: number, changeAmount: number, isContraction: boolean }) => {
     return (
@@ -54,9 +58,17 @@ const columns = [
         field: 'timestamp',
         label: 'Time',
         header: ({ ...props }) => <Flex minW="100px" {...props} />,
-        value: ({ timestamp, isContraction }) => <Flex color={isContraction ? 'info' : 'secondary'} minW="100px">
-            {moment(timestamp * 1000).fromNow()}
-        </Flex>,
+        value: ({ timestamp, isContraction }) => {
+            const textColor = isContraction ? 'info' : 'secondary'
+            return (
+                <Flex minW="100px">
+                    <VStack spacing="0">
+                        <Text color={textColor} fontSize="12px">{moment(timestamp).fromNow()}</Text>
+                        <Text color={textColor} fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
+                    </VStack>
+                </Flex>
+            )
+        },
     },
     {
         field: 'transactionHash',
@@ -101,7 +113,15 @@ const columns = [
 export const FedHistoryPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const { totalEvents } = useFedHistory();
-    const [chosenFedIndex, setChosenFedIndex] = useState<any>(0);
+    const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
+    const [chartWidth, setChartWidth] = useState<number>(1000);
+    const [now, setNow] = useState<number>(Date.now());
+    const [useSmoothLine, setUseSmoothLine] = useState(false);
+    const [isLargerThan] = useMediaQuery('(min-width: 1000px)')
+
+    useEffect(() => {
+        setChartWidth(isLargerThan ? 1000 : (screen.availWidth || screen.width) - 40)
+    }, [isLargerThan]);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
@@ -116,7 +136,9 @@ export const FedHistoryPage = () => {
             }
         })
 
-    const fedHistoricalEvents = chosenFedIndex === 0 ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
+    const isAllFedsCase = chosenFedIndex === 0;
+
+    const fedHistoricalEvents = isAllFedsCase ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
     const fedsIncludingAll = [{
         name: 'All Feds',
         projectImage: 'eth-ftm.webp',
@@ -137,6 +159,20 @@ export const FedHistoryPage = () => {
             </Flex>,
         }));
 
+    const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+        return {
+            x: event.timestamp,
+            y: event[isAllFedsCase ? 'newTotalSupply' : 'newSupply'],
+        }
+    })];
+
+    // add today's timestamp and zero one day before first supply
+    if (chartData.length) {
+        const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+        chartData.unshift({ x: minX - oneDay, y: 0 });
+        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+    }
+
     return (
         <Layout>
             <Head>
@@ -150,27 +186,43 @@ export const FedHistoryPage = () => {
                         noPadding={true}
                         w={{ base: 'full', lg: '1000px' }}
                         label="Fed Supplies Contractions and Expansions"
-                        description={<Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                            <RadioCardGroup
-                                wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
-                                group={{
-                                    name: 'bool',
-                                    defaultValue: '0',
-                                    onChange: (v: string) => setChosenFedIndex(parseInt(v)),
-                                }}
-                                radioCardProps={{ w: '150px', textAlign: 'center', p: '2', position: 'relative' }}
-                                options={fedOptionList}
-                            />
-                            <Box h="25px">
-                                {
-                                    !!chosenFedHistory.address &&
-                                    <>
-                                        <Text display="inline-block" mr="2">Contract:</Text>
-                                        <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
-                                    </>
-                                }
+                        description={
+                            <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
+                                <RadioCardGroup
+                                    wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
+                                    group={{
+                                        name: 'bool',
+                                        defaultValue: '0',
+                                        onChange: (v: string) => setChosenFedIndex(parseInt(v)),
+                                    }}
+                                    radioCardProps={{ w: '150px', textAlign: 'center', p: '2', position: 'relative' }}
+                                    options={fedOptionList}
+                                />
+                                <Flex h="25px" position="relative" alignItems="center">
+                                    {
+                                        !!chosenFedHistory.address &&
+                                        <>
+                                            <Text display="inline-block" mr="2">Contract:</Text>
+                                            <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
+                                        </>
+                                    }
+                                    <HStack position="absolute" right={{ base: 0, sm: '50px' }} top="3px">
+                                        <Text fontSize="12px">
+                                            Smooth line
+                                        </Text>
+                                        <Switch value="true" isChecked={useSmoothLine} onChange={() => setUseSmoothLine(!useSmoothLine)} />
+                                    </HStack>
+                                </Flex>
+                                <AreaChart
+                                    title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
+                                    showTooltips={true}
+                                    height={300}
+                                    width={chartWidth}
+                                    data={chartData}
+                                    interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
+                                />
                             </Box>
-                        </Box>}
+                        }
                     >
                         {
                             fedHistoricalEvents?.length > 0 ?
@@ -186,6 +238,9 @@ export const FedHistoryPage = () => {
                     </Container>
                 </Flex>
                 <Flex direction="column" p={{ base: '4', xl: '0' }}>
+                    <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
+                        <DolaMoreInfos />
+                    </Flex>
                     <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
                         <SuppplyInfos token={TOKENS[DOLA]} supplies={[
                             { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },

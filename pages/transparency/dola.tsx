@@ -10,6 +10,7 @@ import { DolaFlowChart } from '@inverse/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
 import { useDAO } from '@inverse/hooks/useDAO'
 import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
+import { DolaMoreInfos } from '@inverse/components/Transparency/DolaMoreInfos'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -39,6 +40,9 @@ export const DolaDiagram = () => {
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
+          <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
+            <DolaMoreInfos />
+          </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
             <SuppplyInfos token={TOKENS[DOLA]} supplies={[
               { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },

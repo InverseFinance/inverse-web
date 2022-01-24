@@ -1,5 +1,5 @@
 import { getNetworkConfigConstants, getNetworkImage } from '@inverse/config/networks';
-import { FlowChartData, NetworkIds } from '@inverse/types';
+import { FedWithData, FlowChartData, NetworkIds } from '@inverse/types';
 
 import { Box, Image, useMediaQuery } from '@chakra-ui/react';
 import { namedAddress } from '@inverse/util';
@@ -23,7 +23,7 @@ export const DolaFlowChart = ({
   dolaOperator,
   feds,
 }: {
-  feds: { address: string, chair: string, gov: string, chainId: NetworkIds }[]
+  feds: FedWithData[]
   dola: string,
   dolaOperator: string,
 }) => {
@@ -38,7 +38,11 @@ export const DolaFlowChart = ({
 
   const fedLinks = feds?.map(fed => {
     return {
-      label: <>🦅 {namedAddress(fed.address)} <Image position="absolute" left="0" right="0" top="5px" m="auto" h="15px" w="15px" src={getNetworkImage(fed.chainId)} /></>,
+      label: <>
+        <Image src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="1" />
+        {namedAddress(fed.address)}
+        <Image position="absolute" left="0" right="0" top="5px" m="auto" h="15px" w="15px" src={getNetworkImage(fed.chainId)} />
+      </>,
       id: fed.address,
       style: primaryStyle,
       targets: [

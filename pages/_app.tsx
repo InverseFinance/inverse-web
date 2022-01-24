@@ -67,6 +67,14 @@ const App = ({ Component, pageProps }: AppProps) => {
             refreshInterval: 300000,
           }}
         >
+          <svg style={{ height: 0 }}>
+            <defs>
+              <linearGradient id="primary-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stopColor="#332d69" />
+                <stop offset="1" stopColor="#8881c900" />
+              </linearGradient>
+            </defs>
+          </svg>
           <Component {...pageProps} />
         </SWRConfig>
       </Web3ReactProvider>
