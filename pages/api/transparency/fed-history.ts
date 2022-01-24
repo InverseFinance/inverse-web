@@ -26,7 +26,7 @@ const getTimestamps = (rawEvents: [Event[], Event[]], chainId: NetworkIds) => {
   )
 }
 
-const getEventDetails = (log: Event, timestamp: number, fedIndex: number) => {
+const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number) => {
   const { event, blockNumber, transactionHash, args } = log;
   const isContraction = event === 'Contraction';
   return {
@@ -36,14 +36,14 @@ const getEventDetails = (log: Event, timestamp: number, fedIndex: number) => {
     blockNumber,
     transactionHash,
     value: getBnToNumber(args![0]) * (isContraction ? -1 : 1),
-    timestamp,
+    timestamp: timestampInSec * 1000,
   }
 }
 
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-history-cache-v1.0.4`;
+  const cacheKey = `fed-history-cache-v1.0.5`;
 
   try {
 

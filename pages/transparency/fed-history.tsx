@@ -1,4 +1,4 @@
-import { Box, Flex, Image, Text, useMediaQuery, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Image, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
 import Layout from '@inverse/components/common/Layout'
@@ -57,13 +57,12 @@ const columns = [
         label: 'Time',
         header: ({ ...props }) => <Flex minW="100px" {...props} />,
         value: ({ timestamp, isContraction }) => {
-            const timestampInMs = timestamp * 1000
             const textColor = isContraction ? 'info' : 'secondary'
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
-                        <Text color={textColor} fontSize="12px">{moment(timestampInMs).fromNow()}</Text>
-                        <Text color={textColor} fontSize="10px">{moment(timestampInMs).format('MMM Do YYYY')}</Text>
+                        <Text color={textColor} fontSize="12px">{moment(timestamp).fromNow()}</Text>
+                        <Text color={textColor} fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
                     </VStack>
                 </Flex>
             )
@@ -114,7 +113,8 @@ export const FedHistoryPage = () => {
     const { totalEvents } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(1000);
-    const [nowInSecs, setNowinSecs] = useState<number>(Math.floor(Date.now() / 1000));
+    const [now, setNow] = useState<number>(Date.now());
+    const [useSmoothLine, setUseSmoothLine] = useState(false);
     const [isLargerThan] = useMediaQuery('(min-width: 1000px)')
 
     useEffect(() => {
@@ -166,7 +166,7 @@ export const FedHistoryPage = () => {
 
     // add today's timestamp
     if (chartData.length) {
-        chartData.push({ x: nowInSecs, y: chartData[chartData.length - 1].y });
+        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
     }
 
     return (
@@ -194,7 +194,7 @@ export const FedHistoryPage = () => {
                                     radioCardProps={{ w: '150px', textAlign: 'center', p: '2', position: 'relative' }}
                                     options={fedOptionList}
                                 />
-                                <Box h="25px">
+                                <Flex h="25px" position="relative" alignItems="center">
                                     {
                                         !!chosenFedHistory.address &&
                                         <>
@@ -202,14 +202,20 @@ export const FedHistoryPage = () => {
                                             <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
                                         </>
                                     }
-                                </Box>
+                                    <HStack position="absolute" right="50px" top="0px">
+                                        <Text fontSize="12px">
+                                            Smooth line
+                                        </Text>
+                                        <Switch value="true" isChecked={useSmoothLine} onChange={() => setUseSmoothLine(!useSmoothLine)} />
+                                    </HStack>
+                                </Flex>
                                 <AreaChart
-                                    title={`${chosenFedHistory.name} Supply Evolution`}
+                                    title={`${chosenFedHistory.name} Supply Evolution - Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0}`}
                                     showTooltips={true}
                                     height={300}
                                     width={chartWidth}
                                     data={chartData}
-                                    interpolation={'stepAfter'}
+                                    interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                 />
                             </Box>
                         }
