@@ -265,7 +265,7 @@ export const AnchorCollateralModal = ({
 
   const { newPerc } = getBorrowInfosAfterSupplyChange({ market: asset, prices: anchorPrices, usdBorrow, usdBorrowable, amount: -(asset.balance || 0) });
 
-  const preventDisabling = newPerc >= 99;
+  const preventDisabling = newPerc >= 99 && asset.isCollateral;
 
   const handleConfirm = async () => {
     const contract = getComptrollerContract(library?.getSigner());
