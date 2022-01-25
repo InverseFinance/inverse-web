@@ -1,5 +1,5 @@
-import Link from '@inverse/components/common/Link'
-import { InfoMessage } from '@inverse/components/common/Messages'
+import Link from '@app/components/common/Link'
+import { InfoMessage } from '@app/components/common/Messages'
 
 export const DolaMoreInfos = () => {
     return (

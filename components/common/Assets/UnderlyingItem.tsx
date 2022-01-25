@@ -1,5 +1,5 @@
 import { Image, ImageProps, Text } from '@chakra-ui/react'
-import { OLD_XINV } from '@inverse/config/constants'
+import { OLD_XINV } from '@app/config/constants'
 
 export const UnderlyingItem = ({
     label,

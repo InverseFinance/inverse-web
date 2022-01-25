@@ -1,7 +1,7 @@
-import { Interests } from '@inverse/types'
+import { Interests } from '@app/types'
 import { Text, Box, Flex, TextProps, Divider } from '@chakra-ui/react';
-import { InfoTooltip } from '@inverse/components/common/Tooltip';
-import { dollarify } from '@inverse/util/markets';
+import { InfoTooltip } from '@app/components/common/Tooltip';
+import { dollarify } from '@app/util/markets';
 
 const InterestDetails = (interests: Interests) => {
     const fixed2Total = parseFloat(interests.supplyUsdInterests.toFixed(2)) +

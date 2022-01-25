@@ -1,9 +1,9 @@
 import { Stack, Flex, useDisclosure } from '@chakra-ui/react'
-import { BalanceInput } from '@inverse/components/common/Input'
+import { BalanceInput } from '@app/components/common/Input'
 import { useState, useEffect } from 'react'
-import { FromAssetDropdown } from '@inverse/components/common/Assets/FromAssetDropdown'
-import { BigNumberList, Token, TokenList } from '@inverse/types';
-import { getParsedBalance } from '@inverse/util/markets';
+import { FromAssetDropdown } from '@app/components/common/Assets/FromAssetDropdown'
+import { BigNumberList, Token, TokenList } from '@app/types';
+import { getParsedBalance } from '@app/util/markets';
 import { commify } from 'ethers/lib/utils';
 
 const getMaxBalance = (balances: BigNumberList, token: Token) => {

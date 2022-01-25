@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Modal } from '@inverse/components/common/Modal';
+import { Modal } from '@app/components/common/Modal';
 import { Checkbox, CheckboxGroup, Stack, Text, Box } from '@chakra-ui/react';
-import { SubmitButton } from '@inverse/components/common/Button';
-import { useMarkets } from '@inverse/hooks/useMarkets';
-import { useSupplyBalances } from '@inverse/hooks/useBalances';
-import { getParsedBalance } from '@inverse/util/markets';
-import { claimInvRewards } from '@inverse/util/contracts';
+import { SubmitButton } from '@app/components/common/Button';
+import { useMarkets } from '@app/hooks/useMarkets';
+import { useSupplyBalances } from '@app/hooks/useBalances';
+import { getParsedBalance } from '@app/util/markets';
+import { claimInvRewards } from '@app/util/contracts';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { InfoMessage } from '@inverse/components/common/Messages';
+import { InfoMessage } from '@app/components/common/Messages';
 
 type Props = {
     rewardAmount: number,

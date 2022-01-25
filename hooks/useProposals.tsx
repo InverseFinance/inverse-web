@@ -1,9 +1,9 @@
-import { DraftProposal, NetworkIds, Proposal, PublicDraftProposal, SWR } from '@inverse/types'
-import { fetcher } from '@inverse/util/web3'
+import { DraftProposal, NetworkIds, Proposal, PublicDraftProposal, SWR } from '@app/types'
+import { fetcher } from '@app/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { getLastNbNotif, getLocalDrafts, getReadGovernanceNotifs, setLastNbNotif } from '@inverse/util/governance';
+import { getLastNbNotif, getLocalDrafts, getReadGovernanceNotifs, setLastNbNotif } from '@app/util/governance';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 

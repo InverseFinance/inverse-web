@@ -1,8 +1,8 @@
 import { UseToastOptions } from "@chakra-ui/react"
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
-import ScannerLink from '@inverse/components/common/ScannerLink';
-import { getAbis } from '@inverse/config/abis';
-import { CustomToastOptions, NetworkIds } from '@inverse/types';
+import ScannerLink from '@app/components/common/ScannerLink';
+import { getAbis } from '@app/config/abis';
+import { CustomToastOptions, NetworkIds } from '@app/types';
 import { Interface, LogDescription } from 'ethers/lib/utils';
 import { showFailNotif, showToast } from './notify';
 

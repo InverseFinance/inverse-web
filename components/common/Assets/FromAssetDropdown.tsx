@@ -1,6 +1,6 @@
 import { Stack, Text, Flex, Image } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { TokenList, Token, VaultTree, BigNumberList } from '@inverse/types';
+import { TokenList, Token, VaultTree, BigNumberList } from '@app/types';
 import { formatUnits } from 'ethers/lib/utils';
 import { AssetsDropdown } from './AssetsDropdown';
 
@@ -55,7 +55,7 @@ export const FromAssetDropdown = ({
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'purple.850' }}
-                        onClick={() => handleChange(symbol, vaultYieldToken.address || 'ETH')}
+                        onClick={() => handleChange(symbol, vaultYieldToken.address || 'CHAIN_COIN')}
                         cursor="pointer"
                     >
                         <Stack direction="row" align="center">

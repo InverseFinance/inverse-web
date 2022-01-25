@@ -1,11 +1,11 @@
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { DOLA_ABI } from '@inverse/config/abis'
-import { getNetworkConfig } from '@inverse/config/networks'
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { NetworkIds } from '@inverse/types';
+import { DOLA_ABI } from '@app/config/abis'
+import { getNetworkConfig } from '@app/util/networks'
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { NetworkIds } from '@app/types';
 
 export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;

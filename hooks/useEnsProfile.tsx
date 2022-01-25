@@ -1,7 +1,7 @@
-import { EnsProfile, NetworkIds, SWR } from '@inverse/types'
+import { EnsProfile, NetworkIds, SWR } from '@app/types'
 import useSWR from 'swr'
 import { AlchemyProvider } from '@ethersproject/providers';
-import { getEnsName } from '@inverse/util';
+import { getEnsName } from '@app/util';
 import { isAddress } from 'ethers/lib/utils';
 
 type Output = {

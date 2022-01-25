@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Flex } from '@chakra-ui/react';
-import { AlertMessage } from '@inverse/components/common/Messages/index';
+import { AlertMessage } from '@app/components/common/Messages/index';
 
 interface Props {
     title?: ReactNode;

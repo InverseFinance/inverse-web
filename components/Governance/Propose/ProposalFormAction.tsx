@@ -1,18 +1,18 @@
-import { ProposalFormActionFields, AutocompleteItem } from '@inverse/types';
+import { ProposalFormActionFields, AutocompleteItem } from '@app/types';
 import { FormControl, FormLabel, Text, Box, Flex, Divider, SlideFade, ScaleFade } from '@chakra-ui/react';
 import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { ProposalInput } from './ProposalInput';
 import { isAddress, FunctionFragment } from 'ethers/lib/utils';
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
-import { Autocomplete } from '@inverse/components/common/Input/Autocomplete';
-import { getRemoteAbi } from '@inverse/util/etherscan';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
+import { Autocomplete } from '@app/components/common/Input/Autocomplete';
+import { getRemoteAbi } from '@app/util/etherscan';
 import { useEffect, useState } from 'react';
-import ScannerLink from '@inverse/components/common/ScannerLink';
+import ScannerLink from '@app/components/common/ScannerLink';
 import { ProposalFormFuncArg } from './ProposalFormFuncArg';
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
-import { getFunctionFromProposalAction } from '@inverse/util/governance';
+import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete';
+import { getFunctionFromProposalAction } from '@app/util/governance';
 import { ProposalActionPreview } from '../ProposalActionPreview';
-import { WarningMessage } from '@inverse/components/common/Messages';
+import { WarningMessage } from '@app/components/common/Messages';
 
 export const ProposalFormAction = ({
     action,

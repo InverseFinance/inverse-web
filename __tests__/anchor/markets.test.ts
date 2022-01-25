@@ -3,9 +3,9 @@
  */
 
 import { parseUnits } from '@ethersproject/units';
-import { Market } from '@inverse/types';
-import { getMonthlyRate, getMonthlyUsdRate, getTotalInterests } from '@inverse/util/markets';
-import { getBalanceInInv } from '@inverse/util/markets';
+import { Market } from '@app/types';
+import { getMonthlyRate, getMonthlyUsdRate, getTotalInterests } from '@app/util/markets';
+import { getBalanceInInv } from '@app/util/markets';
 import { BigNumber } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 

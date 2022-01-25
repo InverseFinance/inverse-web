@@ -1,8 +1,8 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { BigNumberList, SWR } from '@inverse/types'
-import { fetcher } from '@inverse/util/web3'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { BigNumberList, SWR } from '@app/types'
+import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useRouter } from 'next/dist/client/router'
@@ -23,7 +23,7 @@ export const useBalances = (addresses: string[], method = 'balanceOf'): SWR & Ba
 
   return {
     balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {
-      balances[addresses[i] || 'ETH'] = balance
+      balances[addresses[i] || 'CHAIN_COIN'] = balance
       return balances
     }, {}),
     isLoading: !error && !data,
@@ -35,6 +35,7 @@ export const useAccountBalances = (): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { UNDERLYING } = getNetworkConfigConstants(chainId)
   const tokens = Object.values(UNDERLYING)
+
   return useBalances(tokens.map(t => t.address))
 }
 

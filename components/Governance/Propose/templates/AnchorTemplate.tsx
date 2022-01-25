@@ -1,11 +1,11 @@
 import { ReactNode } from 'react'
 import { FormControl, FormLabel, VStack } from '@chakra-ui/react'
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete'
-import ScannerLink from '@inverse/components/common/ScannerLink'
+import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete'
+import ScannerLink from '@app/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
-import { AutocompleteItem, NetworkIds  } from '@inverse/types'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { namedAddress } from '@inverse/util'
+import { AutocompleteItem, NetworkIds  } from '@app/types'
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { namedAddress } from '@app/util'
 
 const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(NetworkIds.mainnet)
 

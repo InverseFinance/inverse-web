@@ -1,8 +1,8 @@
-import { ProposalFunction } from '@inverse/types'
+import { ProposalFunction } from '@app/types'
 import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils';
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
-import Link from '@inverse/components/common/Link'
-import { namedAddress } from '@inverse/util';
+import Link from '@app/components/common/Link'
+import { namedAddress } from '@app/util';
 
 export const ProposalActionPreview = (({
     target,

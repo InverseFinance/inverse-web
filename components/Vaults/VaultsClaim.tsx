@@ -1,13 +1,13 @@
 import { Stack, Text, Flex, Image } from '@chakra-ui/react';
-import { Token, Vaults } from '@inverse/types';
+import { Token, Vaults } from '@app/types';
 import { useWeb3React } from '@web3-react/core';
-import { useVaultRates, useVaultRewards } from '@inverse/hooks/useVaults';
-import { timeSince } from '@inverse/util/time';
+import { useVaultRates, useVaultRewards } from '@app/hooks/useVaults';
+import { timeSince } from '@app/util/time';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { getVaultContract } from '@inverse/util/contracts';
+import { getVaultContract } from '@app/util/contracts';
 import { Web3Provider } from '@ethersproject/providers';
-import { StyledButton } from '@inverse/components/common/Button';
-import { formatBalance } from '@inverse/util/web3';
+import { StyledButton } from '@app/components/common/Button';
+import { formatBalance } from '@app/util/web3';
 
 export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
     const { library } = useWeb3React<Web3Provider>()

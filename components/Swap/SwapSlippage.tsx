@@ -1,7 +1,7 @@
 import { Text, VStack, Flex } from '@chakra-ui/react';
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
-import { SlippageRadioGroup } from '@inverse/components/common/Input/SlippageRadioGroup';
-import { Token } from '@inverse/types';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
+import { SlippageRadioGroup } from '@app/components/common/Input/SlippageRadioGroup';
+import { Token } from '@app/types';
 import { commify } from 'ethers/lib/utils';
 
 export const SwapSlippage = ({

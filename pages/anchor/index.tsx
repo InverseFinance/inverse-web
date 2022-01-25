@@ -6,12 +6,12 @@ import {
   AnchorSupplied,
   AnchorSupply,
   AnchorHeader,
-} from '@inverse/components/Anchor'
-import { NavButtons } from '@inverse/components/common/Button'
-import Container from '@inverse/components/common/Container'
-import { ErrorBoundary } from '@inverse/components/common/ErrorBoundary'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+} from '@app/components/Anchor'
+import { NavButtons } from '@app/components/common/Button'
+import Container from '@app/components/common/Container'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useState } from 'react'
 

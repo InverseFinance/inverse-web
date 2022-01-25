@@ -1,8 +1,8 @@
 import { Flex, Image, Text } from '@chakra-ui/react'
-import { shortenNumber } from '@inverse/util/markets'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { Token, NetworkIds } from '@inverse/types';
-import { getNetwork } from '@inverse/config/networks';
+import { shortenNumber } from '@app/util/markets'
+import { InfoMessage } from '@app/components/common/Messages'
+import { Token, NetworkIds } from '@app/types';
+import { getNetwork } from '@app/util/networks';
 
 const Img = ({ src }: { src: string }) =>
     <Image display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />

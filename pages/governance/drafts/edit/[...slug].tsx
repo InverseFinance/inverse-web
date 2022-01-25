@@ -1,18 +1,18 @@
 import { Flex, Text } from '@chakra-ui/react'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import {
   VotingWallet,
-} from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+} from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
-import { Proposal, GovEra, ProposalStatus } from '@inverse/types';
-import { usePublicDraftProposals } from '@inverse/hooks/useProposals';
+import { Proposal, GovEra, ProposalStatus } from '@app/types';
+import { usePublicDraftProposals } from '@app/hooks/useProposals';
 import Head from 'next/head'
-import { ProposalFormContainer } from '@inverse/components/Governance/Propose/ProposalFormContainer'
+import { ProposalFormContainer } from '@app/components/Governance/Propose/ProposalFormContainer'
 import { useWeb3React } from '@web3-react/core';
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { getNetworkConfigConstants } from '@app/util/networks';
+import useEtherSWR from '@app/hooks/useEtherSWR'
 import { formatUnits } from 'ethers/lib/utils';
 import { Web3Provider } from '@ethersproject/providers';
 

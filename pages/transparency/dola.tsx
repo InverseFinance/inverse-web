@@ -1,16 +1,16 @@
 import { Flex, Text } from '@chakra-ui/react'
 
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types'
-import { DolaFlowChart } from '@inverse/components/Transparency/DolaFlowChart'
-import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
-import { useDAO } from '@inverse/hooks/useDAO'
-import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
-import { DolaMoreInfos } from '@inverse/components/Transparency/DolaMoreInfos'
+import { InfoMessage } from '@app/components/common/Messages'
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { NetworkIds } from '@app/types'
+import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { useDAO } from '@app/hooks/useDAO'
+import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 

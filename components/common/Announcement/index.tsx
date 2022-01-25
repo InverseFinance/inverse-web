@@ -1,10 +1,10 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
-import Link from '@inverse/components/common/Link'
-import { TEST_IDS } from '@inverse/config/test-ids';
-import { useSupplyBalances } from '@inverse/hooks/useBalances';
-import { OLD_XINV } from '@inverse/config/constants';
+import Link from '@app/components/common/Link'
+import { TEST_IDS } from '@app/config/test-ids';
+import { useSupplyBalances } from '@app/hooks/useBalances';
+import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
 const DefaultMessage = () => {

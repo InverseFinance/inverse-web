@@ -1,17 +1,17 @@
 import { Flex, Text } from '@chakra-ui/react'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import {
   ProposalActions,
   ProposalDetails,
   VotingWallet,
-} from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+} from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
-import { Proposal, GovEra, ProposalStatus } from '@inverse/types';
-import { usePublicDraftProposals } from '@inverse/hooks/useProposals';
+import { Proposal, GovEra, ProposalStatus } from '@app/types';
+import { usePublicDraftProposals } from '@app/hooks/useProposals';
 import Head from 'next/head'
-import { updateReadGovernanceNotifs } from '@inverse/util/governance'
+import { updateReadGovernanceNotifs } from '@app/util/governance'
 import { useEffect } from 'react';
 
 export const Drafts = () => {

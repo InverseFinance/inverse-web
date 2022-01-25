@@ -9,16 +9,16 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import '@fontsource/inter/800.css'
 import '@fontsource/inter/900.css'
-import '@inverse/pages/markdown.css'
-import theme from '@inverse/theme'
-import { fetcher, getLibrary } from '@inverse/util/web3'
+import '@app/pages/markdown.css'
+import theme from '@app/theme'
+import { fetcher, getLibrary } from '@app/util/web3'
 import { Web3ReactProvider } from '@web3-react/core'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { SWRConfig } from 'swr'
 import { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
-import { gaPageview } from '@inverse/util/analytics'
+import { gaPageview } from '@app/util/analytics'
 
 const App = ({ Component, pageProps }: AppProps) => {
   const router = useRouter()

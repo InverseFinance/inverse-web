@@ -5,10 +5,10 @@ import ReactFlow, {
   Background,
 } from 'react-flow-renderer';
 
-import { FlowChartData, FlowChartElementsOptions, FlowChartOptions } from '@inverse/types';
+import { FlowChartData, FlowChartElementsOptions, FlowChartOptions } from '@app/types';
 import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
-import { shortenAddress } from '@inverse/util';
-import ScannerLink from '@inverse/components/common/ScannerLink';
+import { shortenAddress } from '@app/util';
+import ScannerLink from '@app/components/common/ScannerLink';
 import { useEffect, useState } from 'react';
 
 const defaultNodeSyle = {

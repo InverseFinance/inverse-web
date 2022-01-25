@@ -1,5 +1,5 @@
-import { RadioCardGroupOptions } from '@inverse/types'
-import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup';
+import { RadioCardGroupOptions } from '@app/types'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 
 const defaultSlippageOptions: RadioCardGroupOptions = [
     { value: '0.5', label: '0.5%' },

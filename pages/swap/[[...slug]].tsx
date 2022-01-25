@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
-import { StabilizerOverview } from '@inverse/components/Stabilizer/Overview';
-import { SwapView } from '@inverse/components/Swap'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
+import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
+import { SwapView } from '@app/components/Swap'
 import Head from 'next/head';
 
 const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];

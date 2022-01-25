@@ -1,15 +1,15 @@
 import { ExternalProvider, JsonRpcFetchFunc, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { BLOCK_SCAN } from '@inverse/config/constants'
-import { getNetwork } from '@inverse/config/networks'
+import { BLOCK_SCAN } from '@app/config/constants'
+import { getNetwork } from '@app/util/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { hexValue, formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
-import { BigNumberList, Token } from '@inverse/types'
+import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
-import { ERC20_ABI } from '@inverse/config/abis'
+import { ERC20_ABI } from '@app/config/abis'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {

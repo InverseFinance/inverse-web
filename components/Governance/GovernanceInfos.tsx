@@ -1,4 +1,4 @@
-import { InfoMessage } from '@inverse/components/common/Messages'
+import { InfoMessage } from '@app/components/common/Messages'
 
 export const GovernanceInfos = () => {
     return (

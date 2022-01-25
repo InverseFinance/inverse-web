@@ -1,5 +1,5 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds, AddressAutocompleteProps } from '@inverse/types';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { NetworkIds, AddressAutocompleteProps } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 import { Input } from '.';
 import { Autocomplete } from './Autocomplete';

@@ -97,3 +97,5 @@ out
 # testing
 cypress/screenshots
 cypress/videos
+
+# custom settings

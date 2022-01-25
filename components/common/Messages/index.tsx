@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex } from '@chakra-ui/react'
-import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@inverse/components/common/Animation'
+import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@app/components/common/Animation'
 import { WarningIcon } from '@chakra-ui/icons';
 
 type MessageProps = {

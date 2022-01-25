@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { SubmitButton } from '@inverse/components/common/Button'
-import { useApprovals } from '@inverse/hooks/useApprovals'
-import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { useEscrow } from '@inverse/hooks/useEscrow'
-import { Market, AnchorOperations } from '@inverse/types'
-import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@inverse/util/contracts'
-import { timeUntil } from '@inverse/util/time'
+import { SubmitButton } from '@app/components/common/Button'
+import { useApprovals } from '@app/hooks/useApprovals'
+import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useEscrow } from '@app/hooks/useEscrow'
+import { Market, AnchorOperations } from '@app/types'
+import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
+import { timeUntil } from '@app/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseEther } from 'ethers/lib/utils'
 import moment from 'moment'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { handleTx } from '@inverse/util/transactions';
-import { hasAllowance } from '@inverse/util/web3';
-import { getMonthlyRate, getParsedBalance } from '@inverse/util/markets';
-import { removeScientificFormat, roundFloorString } from '@inverse/util/misc';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { handleTx } from '@app/util/transactions';
+import { hasAllowance } from '@app/util/web3';
+import { getMonthlyRate, getParsedBalance } from '@app/util/markets';
+import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -95,8 +95,8 @@ const ApproveButton = ({
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
   const { library, chainId, account } = useWeb3React<Web3Provider>()
-  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1, AN_ETH_REPAY_ALL } = getNetworkConfigConstants(chainId);
-  const isEthMarket = asset.token === ANCHOR_ETH;
+  const { ANCHOR_CHAIN_COIN, XINV, XINV_V1, ESCROW, ESCROW_V1, AN_CHAIN_COIN_REPAY_ALL } = getNetworkConfigConstants(chainId);
+  const isEthMarket = asset.token === ANCHOR_CHAIN_COIN;
   const { approvals } = useApprovals()
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
@@ -116,7 +116,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   }
 
   const handleEthRepayAll = () => {
-    const repayAllContract = getEthRepayAllContract(AN_ETH_REPAY_ALL, library?.getSigner())
+    const repayAllContract = getEthRepayAllContract(AN_CHAIN_COIN_REPAY_ALL, library?.getSigner())
 
     const parsedBal = getParsedBalance(borrowBalances, asset.token, asset.underlying.decimals)
     const dailyInterests = removeScientificFormat(getMonthlyRate(parsedBal, asset.borrowApy) / 30);

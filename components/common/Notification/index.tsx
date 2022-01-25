@@ -2,13 +2,13 @@ import { CloseIcon } from '@chakra-ui/icons';
 import { Box, BoxProps, ComponentWithAs, Flex, IconProps, Text } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 
-import successLottie from '@inverse/public/assets/lotties/success.json';
-import loadingLottie from '@inverse/public/assets/lotties/loading.json';
-import warningLottie from '@inverse/public/assets/lotties/warning.json';
-import errorLottie from '@inverse/public/assets/lotties/error.json';
-import infoLottie from '@inverse/public/assets/lotties/info.json';
-import { CustomToastOptions } from '@inverse/types';
-import { Animation } from '@inverse/components/common/Animation';
+import successLottie from '@app/public/assets/lotties/success.json';
+import loadingLottie from '@app/public/assets/lotties/loading.json';
+import warningLottie from '@app/public/assets/lotties/warning.json';
+import errorLottie from '@app/public/assets/lotties/error.json';
+import infoLottie from '@app/public/assets/lotties/info.json';
+import { CustomToastOptions } from '@app/types';
+import { Animation } from '@app/components/common/Animation';
 
 type AnimOptions = { animData: Object, loop: boolean }
 

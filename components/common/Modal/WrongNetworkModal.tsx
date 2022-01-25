@@ -1,9 +1,9 @@
-import { Modal } from '@inverse/components/common/Modal';
+import { Modal } from '@app/components/common/Modal';
 import { Stack, Text, UnorderedList, ListItem } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons'
-import { getSupportedNetworks } from '@inverse/config/networks';
-import { switchWalletNetwork } from '@inverse/util/web3';
-import { NetworkButton } from '@inverse/components/common/Button';
+import { getSupportedNetworks } from '@app/util/networks';
+import { switchWalletNetwork } from '@app/util/web3';
+import { NetworkButton } from '@app/components/common/Button';
 
 export type WrongNetworkModalProps = {
     isOpen: boolean

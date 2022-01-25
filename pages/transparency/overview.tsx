@@ -1,24 +1,24 @@
 import { Flex, Text } from '@chakra-ui/react'
 
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { GovernanceFlowChart } from '@inverse/components/Transparency/GovernanceFlowChart'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { InfoMessage } from '@app/components/common/Messages'
+import { GovernanceFlowChart } from '@app/components/Transparency/GovernanceFlowChart'
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { NetworkIds } from '@app/types'
+import useEtherSWR from '@app/hooks/useEtherSWR'
 import { commify, parseEther } from '@ethersproject/units'
 import { formatEther } from 'ethers/lib/utils';
-import { usePrices } from '@inverse/hooks/usePrices'
-import { useTVL } from '@inverse/hooks/useTVL'
-import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs';
-import Link from '@inverse/components/common/Link'
+import { usePrices } from '@app/hooks/usePrices'
+import { useTVL } from '@app/hooks/useTVL'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
+import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { useDAO } from '@inverse/hooks/useDAO'
-import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
-import { Funds } from '@inverse/components/Transparency/Funds'
-import { shortenNumber } from '@inverse/util/markets'
+import { useDAO } from '@app/hooks/useDAO'
+import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { Funds } from '@app/components/Transparency/Funds'
+import { shortenNumber } from '@app/util/markets'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 

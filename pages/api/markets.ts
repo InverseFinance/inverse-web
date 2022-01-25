@@ -1,16 +1,16 @@
-import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "@inverse/config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "@app/config/abis";
 import {
   BLOCKS_PER_DAY,
   DAYS_PER_YEAR,
   ETH_MANTISSA,
-} from "@inverse/config/constants";
+} from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
-import { StringNumMap } from '@inverse/types';
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { StringNumMap } from '@app/types';
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       XINV_V1,
       XINV,
       ORACLE,
-      ANCHOR_ETH,
+      ANCHOR_CHAIN_COIN,
       COMPTROLLER,
     } = getNetworkConfigConstants(networkConfig);
 
@@ -96,7 +96,9 @@ export default async function handler(req, res) {
     ]);
 
     const prices: StringNumMap = oraclePrices
-      .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .map((v, i) => {
+        return parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals)))
+      })
       .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
 
     const supplyApys = supplyRates.map((rate) => toApy(rate));
@@ -104,6 +106,7 @@ export default async function handler(req, res) {
 
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
+ 
       return toApy(
         (speed * prices[XINV]) /
         (parseFloat(
@@ -115,7 +118,8 @@ export default async function handler(req, res) {
     });
 
     const markets = contracts.map(({ address }, i) => {
-      const underlying = address !== ANCHOR_ETH ? UNDERLYING[address] : TOKENS.ETH
+      const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
+
       return {
         token: address,
         underlying,

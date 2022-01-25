@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { Flex, useDisclosure } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { SubmitButton } from '@inverse/components/common/Button'
-import { VoteModal } from '@inverse/components/Governance/GovernanceModals'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ProposalStatus, Proposal, NetworkIds, GovEra } from '@inverse/types'
-import { getGovernanceAddress } from '@inverse/util/contracts'
+import { SubmitButton } from '@app/components/common/Button'
+import { VoteModal } from '@app/components/Governance/GovernanceModals'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { ProposalStatus, Proposal, NetworkIds, GovEra } from '@app/types'
+import { getGovernanceAddress } from '@app/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { InfoMessage } from '@app/components/common/Messages'
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { useRouter } from 'next/dist/client/router';
-import { executeProposal, queueProposal } from '@inverse/util/governance';
-import { handleTx } from '@inverse/util/transactions';
-import { showToast } from '@inverse/util/notify';
+import { executeProposal, queueProposal } from '@app/util/governance';
+import { handleTx } from '@app/util/transactions';
+import { showToast } from '@app/util/notify';
 import { useEffect } from 'react';
 
 const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)

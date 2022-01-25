@@ -1,25 +1,25 @@
 import { Box, Flex, HStack, Image, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { FedHistory, NetworkIds } from '@inverse/types'
-import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
-import { useDAO, useFedHistory } from '@inverse/hooks/useDAO'
-import { shortenNumber } from '@inverse/util/markets'
-import { SuppplyInfos } from '@inverse/components/common/Dataviz/SupplyInfos'
-import Table from '@inverse/components/common/Table'
-import { Container } from '@inverse/components/common/Container';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { FedHistory, NetworkIds } from '@app/types'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { useDAO, useFedHistory } from '@app/hooks/useDAO'
+import { shortenNumber } from '@app/util/markets'
+import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import Table from '@app/components/common/Table'
+import { Container } from '@app/components/common/Container';
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import ScannerLink from '@inverse/components/common/ScannerLink'
+import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
-import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup';
-import { SkeletonBlob } from '@inverse/components/common/Skeleton';
-import { shortenAddress } from '@inverse/util'
-import { AreaChart } from '@inverse/components/Transparency/AreaChart'
-import { DolaMoreInfos } from '@inverse/components/Transparency/DolaMoreInfos'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { shortenAddress } from '@app/util'
+import { AreaChart } from '@app/components/Transparency/AreaChart'
+import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 

@@ -1,9 +1,9 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { FlowChartData, NetworkIds } from '@inverse/types';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { FlowChartData, NetworkIds } from '@app/types';
 
 import { Box, Image, useMediaQuery } from '@chakra-ui/react';
-import { namedAddress } from '@inverse/util';
-import { FlowChart } from '@inverse/components/common/Dataviz/FlowChart';
+import { namedAddress } from '@app/util';
+import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 
 const { INV, DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);

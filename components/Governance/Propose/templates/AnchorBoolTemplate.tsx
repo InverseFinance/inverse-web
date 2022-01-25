@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { FormControl, FormLabel } from '@chakra-ui/react'
 import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@inverse/types'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
+import { NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@app/types'
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { AnchorTemplate } from './AnchorTemplate';
 
 const { COMPTROLLER } = getNetworkConfigConstants(NetworkIds.mainnet)

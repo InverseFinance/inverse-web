@@ -1,13 +1,13 @@
-import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@inverse/config/abis";
+import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@app/config/abis";
 import { Provider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@inverse/config/abis";
-import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds, Prices, StringNumMap, TokenList, TokenWithBalance } from '@inverse/types';
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
+import { STABILIZER_ABI, COMPTROLLER_ABI, ORACLE_ABI } from "@app/config/abis";
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { NetworkIds, Prices, StringNumMap, TokenList, TokenWithBalance } from '@app/types';
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 
 export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;
@@ -26,8 +26,8 @@ export default async function handler(req, res) {
       STABILIZER,
       TOKENS,
       ANCHOR_TOKENS,
-      ANCHOR_ETH,
-      WETH,
+      ANCHOR_CHAIN_COIN,
+      WCOIN,
       XINV_V1,
       XINV,
       ANCHOR_DOLA,
@@ -42,17 +42,19 @@ export default async function handler(req, res) {
     const provider = getProvider(networkConfig.chainId)
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const addresses: string[] = await comptroller.getAllMarkets();
+
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const oraclePrices = await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address)));
 
     let parsedOraclePrices: StringNumMap = oraclePrices
       .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
       .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
-  
+
     const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId)
     let geckoPrices: Prices["prices"] = {};
 
     const prices = { ...parsedOraclePrices };
+
 
     try {
       const res = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`);
@@ -77,8 +79,8 @@ export default async function handler(req, res) {
       anchorBalances,
       stabilizerBalances,
     ] = await Promise.all([
-      vaultsTVL(prices, provider, WETH, VAULT_TOKENS, TOKENS, UNDERLYING),
-      anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_ETH, WETH, ANCHOR_TOKENS, TOKENS, UNDERLYING),
+      vaultsTVL(prices, provider, WCOIN, VAULT_TOKENS, TOKENS, UNDERLYING),
+      anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_CHAIN_COIN, WCOIN, ANCHOR_TOKENS, TOKENS, UNDERLYING),
       stabilizerTVL(prices, provider, DAI, STABILIZER, TOKENS),
     ]);
 
@@ -123,7 +125,7 @@ export default async function handler(req, res) {
 const vaultsTVL = async (
   prices: StringNumMap,
   provider: Provider,
-  wethAddress: string,
+  wcoinAddress: string,
   vaultTokens: string[],
   tokens: TokenList,
   underlying: TokenList,
@@ -139,7 +141,7 @@ const vaultsTVL = async (
   const balances: StringNumMap = {};
 
   totalSupplies.forEach((totalSupply, i) => {
-    const token = underlying[vaults[i].address] || tokens[wethAddress];
+    const token = underlying[vaults[i].address] || tokens[wcoinAddress];
     balances[token.address] =
       (balances[token.address] || 0) +
       parseFloat(formatUnits(totalSupply, token.decimals));
@@ -162,7 +164,7 @@ const anchorTVL = async (
   xInvV1Address: string,
   xInvAddress: string,
   anchorEthAddress: string,
-  wethAddress: string,
+  wcoinAddress: string,
   anchorTokenAddresses: string[],
   tokens: TokenList,
   underlying: TokenList,
@@ -181,7 +183,7 @@ const anchorTVL = async (
     const token =
       anchorContracts[i].address !== anchorEthAddress
         ? underlying[anchorContracts[i].address]
-        : tokens[wethAddress];
+        : tokens[wcoinAddress];
 
     balances[anchorContracts[i].address] =
       (balances[anchorContracts[i].address] || 0) +
@@ -192,7 +194,7 @@ const anchorTVL = async (
     const token =
     anchorAddress !== anchorEthAddress
         ? underlying[anchorAddress]
-        : tokens[wethAddress];
+        : tokens[wcoinAddress];
     return {
       ...token,
       address: anchorAddress,

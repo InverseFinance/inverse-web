@@ -1,4 +1,4 @@
-import { GovEra } from '@inverse/types';
+import { GovEra } from '@app/types';
 
 export const START_BLOCK = 11498340;
 export const ETH_MANTISSA = 1e18;
@@ -14,7 +14,7 @@ export const BLOCK_SCAN = 'https://blockscan.com';
 export const QUORUM_VOTES = 4000;
 
 // Migration
-export const OLD_XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE' 
+export const OLD_XINV = '0x65b35d6Eb7006e0e607BC54EB2dFD459923476fE'
 
 export const CURRENT_ERA = GovEra.mills;
 export const STABILIZER_FEE = 0.004

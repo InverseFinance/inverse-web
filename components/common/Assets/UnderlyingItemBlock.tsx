@@ -1,6 +1,6 @@
 import { Flex, ImageProps } from '@chakra-ui/react'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds } from '@inverse/types';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { NetworkIds } from '@app/types';
 import { UnderlyingItem } from './UnderlyingItem';
 
 const { TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);

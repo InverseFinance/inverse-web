@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react'
 import { Text, TextProps, VStack, Flex } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
-import { Swappers, Token } from '@inverse/types';
-import { SubmitButton } from '@inverse/components/common/Button'
-import { RadioCardGroup } from '@inverse/components/common/Input/RadioCardGroup'
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { InfoMessage } from '@inverse/components/common/Messages'
+import { Swappers, Token } from '@app/types';
+import { SubmitButton } from '@app/components/common/Button'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { InfoMessage } from '@app/components/common/Messages'
 import { SwapSlippage } from './SwapSlippage'
-import { ethereumReady } from '@inverse/util/web3';
+import { ethereumReady } from '@app/util/web3';
 import { SwapRoute } from './SwapRoute';
 
 const SwapInfoMessage = ({ description, height }: { description: string, height?: string }) => {

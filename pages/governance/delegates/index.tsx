@@ -1,18 +1,18 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/common/Avatar'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
-import Container from '@inverse/components/common/Container'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
-import { SkeletonBlob } from '@inverse/components/common/Skeleton'
-import Table from '@inverse/components/common/Table'
-import { useTopDelegates } from '@inverse/hooks/useDelegates'
-import { Delegate } from '@inverse/types'
+import { Avatar } from '@app/components/common/Avatar'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
+import Container from '@app/components/common/Container'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
+import { SkeletonBlob } from '@app/components/common/Skeleton'
+import Table from '@app/components/common/Table'
+import { useTopDelegates } from '@app/hooks/useDelegates'
+import { Delegate } from '@app/types'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import Head from 'next/head'
-import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
+import { useNamedAddress } from '@app/hooks/useNamedAddress'
 
 const DelegatesTable = () => {
   const { chainId } = useWeb3React<Web3Provider>()

@@ -1,10 +1,10 @@
 import { Flex } from '@chakra-ui/react'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
-import { Breakdown, DelegatesPreview, Proposals, VotingWallet } from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
+import { Breakdown, DelegatesPreview, Proposals, VotingWallet } from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
+import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 
 export const Governance = () => (
   <Layout>

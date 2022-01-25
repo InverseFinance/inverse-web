@@ -5,25 +5,25 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
-import Container from '@inverse/components/common/Container'
-import { BalanceInput } from '@inverse/components/common/Input'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { useVaultApprovals } from '@inverse/hooks/useApprovals'
-import { useAccountBalances, useVaultBalances } from '@inverse/hooks/useBalances'
-import { useVaultRates } from '@inverse/hooks/useVaults'
-import { getERC20Contract, getVaultContract } from '@inverse/util/contracts'
+import { NavButtons, SubmitButton } from '@app/components/common/Button'
+import Container from '@app/components/common/Container'
+import { BalanceInput } from '@app/components/common/Input'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { useVaultApprovals } from '@app/hooks/useApprovals'
+import { useAccountBalances, useVaultBalances } from '@app/hooks/useBalances'
+import { useVaultRates } from '@app/hooks/useVaults'
+import { getERC20Contract, getVaultContract } from '@app/util/contracts'
 import { useWeb3React } from '@web3-react/core'
 import { constants } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState, useEffect } from 'react'
 
 import { VaultsClaim } from './VaultsClaim'
-import { FromAssetDropdown } from '@inverse/components/common/Assets/FromAssetDropdown';
+import { FromAssetDropdown } from '@app/components/common/Assets/FromAssetDropdown';
 import { WithdrawAssetDropdown } from './WithdrawAssetDropdown';
-import { ToAssetDropdown } from '@inverse/components/common/Assets/ToAssetDropdown';
-import { handleTx } from '@inverse/util/transactions';
-import { hasAllowance } from '@inverse/util/web3'
+import { ToAssetDropdown } from '@app/components/common/Assets/ToAssetDropdown';
+import { handleTx } from '@app/util/transactions';
+import { hasAllowance } from '@app/util/web3'
 
 enum VaultOperations {
   deposit = 'Deposit',

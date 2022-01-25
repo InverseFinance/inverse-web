@@ -1,13 +1,13 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { useAnchorPrices } from '@inverse/hooks/usePrices'
-import { Market, AnchorOperations, BigNumberList } from '@inverse/types'
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useAnchorPrices } from '@app/hooks/usePrices'
+import { Market, AnchorOperations, BigNumberList } from '@app/types'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@inverse/util/markets';
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
+import { getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@app/util/markets';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 type Stat = {
   label: string

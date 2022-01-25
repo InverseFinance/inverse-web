@@ -1,7 +1,7 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { Market, NetworkIds, SWR } from '@inverse/types'
-import { fetcher } from '@inverse/util/web3'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { Market, NetworkIds, SWR } from '@app/types'
+import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import useSWR from 'swr'
 import { Web3Provider } from '@ethersproject/providers';

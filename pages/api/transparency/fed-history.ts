@@ -1,11 +1,11 @@
 import { Contract, Event } from 'ethers'
 import 'source-map-support'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { FedEvent, NetworkIds } from '@inverse/types';
-import { getBnToNumber } from '@inverse/util/markets'
-import { getRedisClient } from '@inverse/util/redis';
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { FedEvent, NetworkIds } from '@app/types';
+import { getBnToNumber } from '@app/util/markets'
+import { getRedisClient } from '@app/util/redis';
 
 const client = getRedisClient()
 

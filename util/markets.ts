@@ -1,4 +1,5 @@
-import { BigNumberList, Market, TokenList } from '@inverse/types';
+import { TOKENS } from '@app/variables/tokens';
+import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber } from 'ethers';
 import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
 
@@ -84,16 +85,16 @@ export const getValueOrMinPrecisionValue = (value: number, precision = 2) => {
 }
 
 export const shortenNumber = (value: number, precision = 2, isDollar = false, showMinPrecision = false) => {
-    if(!value) { return (0).toFixed(precision) }
+    if (!value) { return (0).toFixed(precision) }
     let suffix = ''
     const dividers: { [key: string]: number } = { 'k': 1000, 'M': 1000000, 'B': 1000000000, 'T': 1000000000000 };
     const absValue = Math.abs(value);
-    if(absValue >= 1000000000000) { suffix = 'T' }
-    else if(absValue >= 1000000000) { suffix = 'B' }
-    else if(absValue >= 1000000) { suffix = 'M' }
-    else if(absValue >= 1000) { suffix = 'k' }
+    if (absValue >= 1000000000000) { suffix = 'T' }
+    else if (absValue >= 1000000000) { suffix = 'B' }
+    else if (absValue >= 1000000) { suffix = 'M' }
+    else if (absValue >= 1000) { suffix = 'k' }
     const divider: number = dividers[suffix] || 1
-    const shortValue = value/divider;
+    const shortValue = value / divider;
     const numResult = isDollar ? dollarify(shortValue, precision, false, showMinPrecision) : shortValue.toFixed(precision)
     const minValue = getValueOrMinPrecisionValue(value, precision)
     const content = minValue !== Math.abs(value) && showMinPrecision && !isDollar ? `<${minValue}` : numResult;
@@ -108,11 +109,11 @@ export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
 
 export const getBorrowLimitLabel = (newBorrowLimit: number, isReduceLimitCase = false) => {
     const newBorrowLimitLabel = newBorrowLimit > 100 || (newBorrowLimit < 0 && !isReduceLimitCase) ?
-      '+100' :
-      (newBorrowLimit < 0 && isReduceLimitCase) ?
-        '0' : newBorrowLimit.toFixed(2)
+        '+100' :
+        (newBorrowLimit < 0 && isReduceLimitCase) ?
+            '0' : newBorrowLimit.toFixed(2)
     return newBorrowLimitLabel;
-  }
+}
 
 export const getBorrowInfosAfterSupplyChange = ({
     market,
@@ -120,30 +121,34 @@ export const getBorrowInfosAfterSupplyChange = ({
     prices,
     usdBorrow,
     usdBorrowable,
-  }: {
+}: {
     market: Market,
     amount: number | undefined,
     prices: { [key: string]: BigNumber },
     usdBorrow: number,
     usdBorrowable: number,
-  }) => {
+}) => {
     const change =
-      prices && amount
-        ? market.collateralFactor *
-        amount *
-        parseFloat(formatUnits(prices[market.token], BigNumber.from(36).sub(market.underlying.decimals)))
-        : 0
-  
+        prices && amount
+            ? market.collateralFactor *
+            amount *
+            parseFloat(formatUnits(prices[market.token], BigNumber.from(36).sub(market.underlying.decimals)))
+            : 0
+
     const borrowable = usdBorrow + usdBorrowable
     const newBorrowable = borrowable + change
-  
-    const newBorrowLimit =  (newBorrowable !== 0
-      ? (usdBorrow / newBorrowable) * 100
-      : 0
+
+    const newBorrowLimit = (newBorrowable !== 0
+        ? (usdBorrow / newBorrowable) * 100
+        : 0
     )
 
     const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
     const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
 
     return { newBorrowLimit, borrowable, newBorrowable, newBorrowLimitLabel, newPerc: cleanPerc }
-  }
+}
+
+export const getRewardToken = () => {
+    return getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN!)
+}

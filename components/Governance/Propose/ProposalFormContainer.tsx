@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { InfoMessage } from '@inverse/components/common/Messages';
+import { InfoMessage } from '@app/components/common/Messages';
 import { ProposalForm } from './ProposalForm';
 import { Box, Text } from '@chakra-ui/react';
-import Link from '@inverse/components/common/Link';
-import { TEST_IDS } from '@inverse/config/test-ids';
-import { GovEra, NetworkIds, Proposal } from '@inverse/types';
+import Link from '@app/components/common/Link';
+import { TEST_IDS } from '@app/config/test-ids';
+import { GovEra, NetworkIds, Proposal } from '@app/types';
 import { useEffect } from 'react';
-import { getGovernanceContract } from '@inverse/util/contracts';
+import { getGovernanceContract } from '@app/util/contracts';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { formatUnits } from 'ethers/lib/utils';
-import ScannerLink from '@inverse/components/common/ScannerLink';
-import { getNetworkConfigConstants } from '@inverse/config/networks';
+import ScannerLink from '@app/components/common/ScannerLink';
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { useRouter } from 'next/dist/client/router';
-import { publishDraft } from '@inverse/util/governance';
+import { publishDraft } from '@app/util/governance';
 
 const DEFAULT_REQUIRED_VOTING_POWER = 1000;
 const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)

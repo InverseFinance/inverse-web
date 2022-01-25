@@ -13,53 +13,33 @@ import {
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
-import Link from '@inverse/components/common/Link'
-import Logo from '@inverse/components/common/Logo'
-import { ETH_MANTISSA } from '@inverse/config/constants'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { ethereumReady, getPreviousConnectorType, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector, walletLinkConnector } from '@inverse/util/web3'
+import Link from '@app/components/common/Link'
+import Logo from '@app/components/common/Logo'
+import { ETH_MANTISSA } from '@app/config/constants'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { ethereumReady, getPreviousConnectorType, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector, walletLinkConnector } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { Announcement } from '@inverse/components/common/Announcement'
-import WrongNetworkModal from '@inverse/components/common/Modal/WrongNetworkModal'
-import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@inverse/config/networks'
-import { isPreviouslyConnected } from '@inverse/util/web3';
-import { NetworkItem } from '@inverse/components/common/NetworkItem'
-import { NetworkIds } from '@inverse/types'
-import { getINVsFromFaucet, getDOLAsFromFaucet } from '@inverse/util/contracts'
-import { TEST_IDS } from '@inverse/config/test-ids'
-import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
-import { useDualSpeedEffect } from '@inverse/hooks/useDualSpeedEffect'
+import { Announcement } from '@app/components/common/Announcement'
+import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
+import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
+import { isPreviouslyConnected } from '@app/util/web3';
+import { NetworkItem } from '@app/components/common/NetworkItem'
+import { NetworkIds } from '@app/types'
+import { getINVsFromFaucet, getDOLAsFromFaucet } from '@app/util/contracts'
+import { TEST_IDS } from '@app/config/test-ids'
+import { useNamedAddress } from '@app/hooks/useNamedAddress'
+import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
-import { showToast } from '@inverse/util/notify'
-import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals';
+import { showToast } from '@app/util/notify'
+import { useGovernanceNotifs, useProposals } from '@app/hooks/useProposals';
 import { NotifBadge } from '../NotifBadge'
 import { ViewAsModal } from './ViewAsModal'
-import { getEnsName, namedAddress } from '@inverse/util'
-import { Avatar } from '@inverse/components/common/Avatar';
+import { getEnsName, namedAddress } from '@app/util'
+import { Avatar } from '@app/components/common/Avatar';
+import { MENUS } from '@app/variables/menus'
 
-const NAV_ITEMS = [
-  {
-    label: 'Anchor',
-    href: '/anchor',
-  },
-  {
-    label: 'Vaults',
-    href: '/vaults',
-  },
-  {
-    label: 'Swap',
-    href: '/swap/DAI/DOLA',
-  },
-  {
-    label: 'Governance',
-    href: '/governance',
-  },
-  {
-    label: 'Transparency',
-    href: '/transparency/overview',
-  },
-]
+const NAV_ITEMS = MENUS.nav
 
 const NavBadge = (props: any) => (
   <Flex
@@ -131,7 +111,7 @@ const INVBalance = () => {
 }
 
 const ETHBalance = () => {
-  const { account } = useWeb3React<Web3Provider>()
+  const { account, chainId } = useWeb3React<Web3Provider>()
   const { data: balance } = useEtherSWR(['getBalance', account, 'latest'])
   const [formattedBalance, setFormattedBalance] = useState('')
 
@@ -139,12 +119,14 @@ const ETHBalance = () => {
     setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
   }, [balance, account], !account, 1000)
 
-  if (!formattedBalance) {
+  if (!formattedBalance || !chainId) {
     return <></>
   }
 
+  const network = getNetwork(chainId);
+
   return (
-    <NavBadge>{`${formattedBalance} ETH`}</NavBadge>
+    <NavBadge>{`${formattedBalance} ${network.coinSymbol.toUpperCase()}`}</NavBadge>
   )
 }
 

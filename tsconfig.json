@@ -24,7 +24,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
-      "@inverse/*": ["*"]
+      "@app/*": ["*"]
     },
     "types": ["jest"]
   },

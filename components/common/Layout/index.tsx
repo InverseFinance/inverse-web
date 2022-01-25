@@ -1,5 +1,5 @@
 import { Box, Flex } from '@chakra-ui/react'
-import Footer from '@inverse/components/common/Footer'
+import Footer from '@app/components/common/Footer'
 
 export const Layout = ({ children }: { children?: React.ReactNode }) => (
   <Flex w="full" minH="100vh" bgColor="purple.900" direction="column" align="center">

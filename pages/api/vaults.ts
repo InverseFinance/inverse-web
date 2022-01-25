@@ -1,14 +1,14 @@
-import { HARVESTER_ABI, VAULT_ABI } from "@inverse/config/abis";
+import { HARVESTER_ABI, VAULT_ABI } from "@app/config/abis";
 import {
   DAYS_PER_YEAR,
   SECONDS_PER_DAY,
-} from "@inverse/config/constants";
+} from "@app/config/constants";
 import { BigNumber, Contract } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 
 export default async function handler(req, res) {
   const { chainId = '1' } = req.query;

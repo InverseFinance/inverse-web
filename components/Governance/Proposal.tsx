@@ -1,10 +1,10 @@
 import { Badge, Flex, Stack, Text } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/common/Avatar'
-import Container from '@inverse/components/common/Container'
-import Link from '@inverse/components/common/Link'
-import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@inverse/types'
-import { namedAddress } from '@inverse/util'
+import { Avatar } from '@app/components/common/Avatar'
+import Container from '@app/components/common/Container'
+import Link from '@app/components/common/Link'
+import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
+import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@app/types'
+import { namedAddress } from '@app/util'
 import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -14,10 +14,10 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
 import { ProposalActionPreview } from './ProposalActionPreview'
-import { GRACE_PERIOD_MS } from '@inverse/config/constants'
+import { GRACE_PERIOD_MS } from '@app/config/constants'
 import { ProposalShareLink } from './ProposalShareLink'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { useGovernanceNotifs } from '@inverse/hooks/useProposals'
+import { InfoMessage } from '@app/components/common/Messages'
+import { useGovernanceNotifs } from '@app/hooks/useProposals'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',

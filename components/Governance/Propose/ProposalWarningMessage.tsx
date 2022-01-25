@@ -1,6 +1,6 @@
 import { Text } from '@chakra-ui/react'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { SubmitButton } from '@inverse/components/common/Button';
+import { InfoMessage } from '@app/components/common/Messages'
+import { SubmitButton } from '@app/components/common/Button';
 
 export const ProposalWarningMessage = ({ onOk }: { onOk: () => void }) => {
     return (

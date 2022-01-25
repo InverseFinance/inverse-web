@@ -1,12 +1,12 @@
 import "source-map-support";
 
 import { Contract } from "ethers";
-import { GOVERNANCE_ABI, INV_ABI } from "@inverse/config/abis";
+import { GOVERNANCE_ABI, INV_ABI } from "@app/config/abis";
 import { formatUnits } from "ethers/lib/utils";
-import { getNetworkConfig } from '@inverse/config/networks';
-import { getProvider } from '@inverse/util/providers';
-import { getRedisClient } from '@inverse/util/redis';
-import { Delegate } from '@inverse/types';
+import { getNetworkConfig } from '@app/util/networks';
+import { getProvider } from '@app/util/providers';
+import { getRedisClient } from '@app/util/redis';
+import { Delegate } from '@app/types';
 
 const client = getRedisClient();
 

@@ -1,8 +1,8 @@
-import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
+import { BackgroundProps } from '@app/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
-import { HandleTxOptions } from '@inverse/util/transactions';
+import { HandleTxOptions } from '@app/util/transactions';
 
 export interface Token {
   address: string
@@ -11,6 +11,7 @@ export interface Token {
   image: string
   decimals: number
   coingeckoId?: string
+  isWrappedChainCoin?: boolean
 }
 
 export interface TokenWithBalance extends Token {
@@ -162,6 +163,7 @@ export type NetworkConfig = {
   // old
   governanceAlpha: string,
   multiDelegator: string,
+  stabilizer: string,
   vaults: {
     vaultUsdcEth: string,
     vaultDaiWbtc: string,
@@ -176,9 +178,8 @@ export type NetworkConfig = {
     lens: string,
     comptroller: string,
     oracle: string,
-    stabilizer: string,
     treasury: string,
-    anEthRepayAll: string,
+    anChainCoinRepayAll: string,
     markets: {
       dola: string,
       eth: string,

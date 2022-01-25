@@ -1,87 +1,11 @@
 import { Image, Stack, Text } from '@chakra-ui/react'
-import Link from '@inverse/components/common/Link'
-import Logo from '@inverse/components/common/Logo'
+import { MENUS } from '@app/variables/menus'
+import Link from '@app/components/common/Link'
+import Logo from '@app/components/common/Logo'
 
-const INVERSE_SOCIALS = [
-  {
-    href: 'https://twitter.com/InverseFinance',
-    image: '/assets/socials/twitter.svg',
-  },
-  {
-    href: 'https://discord.gg/YpYJC7R5nv',
-    image: '/assets/socials/discord.svg',
-  },
-  {
-    href: 'https://t.me/InverseFinance',
-    image: '/assets/socials/telegram.svg',
-  },
-  {
-    href: 'https://medium.com/inversefinance',
-    image: '/assets/socials/medium.svg',
-  },
-  {
-    href: 'https://github.com/InverseFinance',
-    image: '/assets/socials/github.svg',
-  },
-  {
-    href: 'https://defipulse.com/inverse',
-    image: '/assets/socials/defipulse.svg',
-  },
-]
+const SOCIALS = MENUS.socials;
 
-const LINK_GROUPS = [
-  {
-    groupLabel: 'Products',
-    items: [
-      {
-        label: 'Anchor',
-        href: '/anchor',
-      },
-      {
-        label: 'Vaults',
-        href: '/vaults',
-      },
-      {
-        label: 'DOLA',
-        href: '/stabilizer',
-      },
-    ],
-  },
-  {
-    groupLabel: 'Governance',
-    items: [
-      {
-        label: 'Voting',
-        href: '/governance',
-      },
-      {
-        label: 'Snapshot',
-        href: 'https://snapshot.org/#/inversefinance.eth',
-      },
-      {
-        label: 'Forum',
-        href: 'https://forum.inverse.finance',
-      },
-    ],
-  },
-  {
-    groupLabel: 'Support',
-    items: [
-      {
-        label: 'Docs',
-        href: 'https://docs.inverse.finance/',
-      },
-      {
-        label: 'Discord',
-        href: 'https://discord.gg/YpYJC7R5nv',
-      },
-      {
-        label: 'Telegram',
-        href: 'https://t.me/InverseFinance',
-      },
-    ],
-  },
-]
+const LINK_GROUPS = MENUS.footerGroups;
 
 export const Footer = () => (
   <Stack w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="#fff">
@@ -95,7 +19,7 @@ export const Footer = () => (
         participate in the decision-making process. Join us!
       </Text>
       <Stack direction="row" spacing={5} align="center">
-        {INVERSE_SOCIALS.map(({ href, image }, i) => (
+        {SOCIALS.map(({ href, image }, i) => (
           <Link key={i} href={href}>
             <Image src={image} />
           </Link>

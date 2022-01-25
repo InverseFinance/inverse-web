@@ -1,28 +1,28 @@
 import { useState } from 'react'
 import { Box, Divider, Flex, Image, Stack, Text, useMediaQuery, VStack } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/common/Avatar'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
-import Container from '@inverse/components/common/Container'
-import { DelegatorsPreview, VotingWallet } from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
-import { SkeletonBlob, SkeletonTitle } from '@inverse/components/common/Skeleton'
-import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
-import { namedAddress, shortenAddress } from '@inverse/util'
+import { Avatar } from '@app/components/common/Avatar'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
+import Container from '@app/components/common/Container'
+import { DelegatorsPreview, VotingWallet } from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
+import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
+import { useDelegates, useTopDelegates } from '@app/hooks/useDelegates'
+import { namedAddress, shortenAddress } from '@app/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { NetworkIds } from '@inverse/types'
-import { SignatureAnim } from '@inverse/components/common/Animation'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { SignDelegation } from '@inverse/components/Governance/SignDelegation';
-import { useEnsProfile } from '@inverse/hooks/useEnsProfile'
-import { Link } from '@inverse/components/common/Link';
+import { InfoMessage } from '@app/components/common/Messages'
+import { NetworkIds } from '@app/types'
+import { SignatureAnim } from '@app/components/common/Animation'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { SignDelegation } from '@app/components/Governance/SignDelegation';
+import { useEnsProfile } from '@app/hooks/useEnsProfile'
+import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
-import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
+import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">

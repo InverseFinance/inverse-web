@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getEnsName, namedAddress, shortenAddress } from '@inverse/util';
+import { getEnsName, namedAddress, shortenAddress } from '@app/util';
 
 export const useNamedAddress = (address? : string | undefined | null, chainId?: string | number, ensName?: string, priorityToEns = false) => {
   const initial = namedAddress(address||'', chainId, ensName);

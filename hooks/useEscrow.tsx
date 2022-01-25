@@ -1,6 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { SWR } from '@inverse/types'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { SWR } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useRouter } from 'next/dist/client/router'
