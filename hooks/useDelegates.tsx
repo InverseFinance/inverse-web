@@ -15,7 +15,7 @@ type TopDelegates = {
 export const useDelegates = (): SWR & Delegates => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/delegates?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/delegates`, fetcher)
 
   return {
     delegates: data?.delegates,

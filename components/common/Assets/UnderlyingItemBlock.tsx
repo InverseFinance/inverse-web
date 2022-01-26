@@ -1,9 +1,8 @@
 import { Flex, ImageProps } from '@chakra-ui/react'
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { NetworkIds } from '@app/types';
 import { UnderlyingItem } from './UnderlyingItem';
 
-const { TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { TOKENS } = getNetworkConfigConstants(process.env.NEXT_PUBLIC_CHAIN_ID!);
 
 export const UnderlyingItemBlock = ({
     symbol,

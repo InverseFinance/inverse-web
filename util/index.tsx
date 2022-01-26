@@ -1,13 +1,12 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
 import localforage from 'localforage';
 import { getProvider } from '@app/util/providers';
-import { NetworkIds } from '@app/types';
 
 export const getEnsName = async (address: string, isBackendSide = false, specificProvider?: any): Promise<string> => {
   try {
     const rememberedName: string = isBackendSide ? '' : await localforage.getItem(`ensName-${address}`) || '';
     if (rememberedName) { return rememberedName }
-    const provider = specificProvider || getProvider(NetworkIds.mainnet, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
+    const provider = specificProvider || getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
     const ensName = await provider.lookupAddress(address);
     if (ensName && !isBackendSide) {
       await localforage.setItem(`ensName-${address}`, ensName);

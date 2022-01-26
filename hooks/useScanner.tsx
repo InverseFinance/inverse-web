@@ -3,7 +3,7 @@ import { NetworkIds } from '@app/types';
 import { getScanner } from '@app/util/web3';
 
 const getChainId = (chainId?: string): string => {
-	return chainId || (typeof window !== 'undefined' ? window?.localStorage?.getItem('signerChainId') : '') || NetworkIds.mainnet
+	return chainId || (typeof window !== 'undefined' ? window?.localStorage?.getItem('signerChainId') : '') || process.env.NEXT_PUBLIC_CHAIN_ID!
 }
 
 export default function useScanner(chainId?: string): string {

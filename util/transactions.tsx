@@ -22,7 +22,7 @@ const txStatusMessages: { [key: string]: { txStatus: string, toastStatus: UseToa
 }
 
 export const showTxToast = (txHash: string, txStatus: string, toastStatus: CustomToastOptions["status"]) => {
-    const chainId = window.localStorage.getItem('signerChainId') || NetworkIds.mainnet;
+    const chainId = window.localStorage.getItem('signerChainId') || process.env.NEXT_PUBLIC_CHAIN_ID!;
     const options: CustomToastOptions = {
         id: txHash,
         title: `Transaction ${txStatus}`,
@@ -51,7 +51,7 @@ export const handleTx = async (
 
         let hasOpaqueFailure = false;
         if (receipt?.logs?.length) {
-            const events = getTransactionEvents(receipt, NetworkIds.mainnet);
+            const events = getTransactionEvents(receipt, process.env.NEXT_PUBLIC_CHAIN_ID!);
             hasOpaqueFailure = !!events.find(event => event?.name === 'Failure');
         }
         const msgObj = txStatusMessages[hasOpaqueFailure ? 'opaqueFailure' : (receipt?.status || '0')];

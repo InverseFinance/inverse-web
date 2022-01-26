@@ -14,7 +14,7 @@ type Markets = {
 export const useMarkets = (): SWR & Markets => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/markets?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/markets?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
 
   return {
     markets: data?.markets || [],

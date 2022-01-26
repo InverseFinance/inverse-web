@@ -10,7 +10,7 @@ import { NetworkIds } from '@app/types';
 export default async function handler(req, res) {
   // const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
+  const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
   const cacheKey = `${networkConfig.chainId}-dola-cache-v1.0.0`;
 
   try {

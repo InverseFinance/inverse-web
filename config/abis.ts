@@ -209,7 +209,7 @@ export const MULTISIG_ABI = [
   "function getThreshold() public view returns (uint256)",
 ]
 
-export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
+export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
     ANCHOR_TOKENS,

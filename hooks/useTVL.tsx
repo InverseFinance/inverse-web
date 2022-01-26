@@ -12,7 +12,7 @@ type TVL = {
 export const useTVL = (): SWR & TVL => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/tvl?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/tvl?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
 
   return {
     tvl: data?.tvl,

@@ -25,7 +25,7 @@ export const getNetwork = (chainId: string | number): Network => {
 }
 
 export const getNetworkConfig = (chainId: string | number, returnMainIfUnsupported = false): NetworkConfig | undefined => {
-    const chainIdToGet = !isSupportedNetwork(chainId) && returnMainIfUnsupported ? NetworkIds.mainnet : chainId;
+    const chainIdToGet = !isSupportedNetwork(chainId) && returnMainIfUnsupported ? process.env.NEXT_PUBLIC_CHAIN_ID! : chainId;
     const network = getNetwork(chainIdToGet);
     return network?.config;
 }
@@ -34,12 +34,12 @@ export const getNetworks = (): Network[] => NETWORKS;
 export const getSupportedNetworks = (): Network[] => NETWORKS.filter(network => network.isSupported);
 
 export const getNetworkConfigConstants = (
-    configOrChainId: NetworkConfig | string | number = NetworkIds.mainnet,
+    configOrChainId: NetworkConfig | string | number = process.env.NEXT_PUBLIC_CHAIN_ID!,
 ) => {
     const config = typeof configOrChainId === 'string' || typeof configOrChainId === 'number' ?
         getNetworkConfig(configOrChainId, true)! :
         isSupportedNetwork(configOrChainId.chainId) ?
-            configOrChainId : getNetworkConfig(NetworkIds.mainnet)!;
+            configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
 
     // Vaults
     const VAULT_USDC_ETH = config.vaults?.vaultUsdcEth;
