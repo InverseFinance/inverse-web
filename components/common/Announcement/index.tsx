@@ -8,8 +8,11 @@ import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
 const XinvMigrationMessage = () => {
+  const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
   return <>
-    <Text>xINV migration is in progress. Please withdraw funds from <b>INV (OLD)</b> and resupply them into the new <b>INV</b></Text>
+    <Text>
+      x{symbol} migration is in progress. Please withdraw funds from <b>{symbol} (OLD)</b> and resupply them into the new <b>{symbol}</b>
+    </Text>
   </>
 }
 
@@ -45,7 +48,7 @@ export const Announcement = () => {
     >
       {
         process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
-        needsXinvMigration ? <XinvMigrationMessage /> : <MessageWithLink />
+          needsXinvMigration ? <XinvMigrationMessage /> : <MessageWithLink />
           :
           <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
       }
