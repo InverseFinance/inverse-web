@@ -27,12 +27,12 @@ type AnchorButtonProps = {
   needWithdrawWarning?: boolean
 }
 
-const XINVEscrowAlert = ({ showDescription }: any) => (
+const XINVEscrowAlert = ({ showDescription, duration }: any) => (
   <Alert borderRadius={8} flexDirection="column" color="purple.600" bgColor="purple.200" p={3}>
     <Flex w="full" align="center">
       <AlertIcon color="purple.600" />
       <AlertTitle ml={-1} fontSize="sm">
-        xINV withdrawals are subject to a 10-day escrow
+        xINV withdrawals are subject to a {duration}-day escrow
       </AlertTitle>
     </Flex>
     {showDescription && (
@@ -95,7 +95,7 @@ const ApproveButton = ({
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
   const { library, chainId, account } = useWeb3React<Web3Provider>()
-  const { ANCHOR_CHAIN_COIN, XINV, XINV_V1, ESCROW, ESCROW_V1, AN_CHAIN_COIN_REPAY_ALL } = getNetworkConfigConstants(chainId);
+  const { ANCHOR_CHAIN_COIN, XINV, XINV_V1, ESCROW, ESCROW_OLD, AN_CHAIN_COIN_REPAY_ALL } = getNetworkConfigConstants(chainId);
   const isEthMarket = asset.token === ANCHOR_CHAIN_COIN;
   const { approvals } = useApprovals()
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
@@ -133,7 +133,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     return repayAllContract.repayBorrow(constants.MaxUint256)
   }
 
-  const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_OLD)
   const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
 
   const contract =
@@ -145,7 +145,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     case AnchorOperations.supply:
       return (
         <Stack w="full" spacing={4}>
-          {asset.token === XINV && <XINVEscrowAlert />}
+          {asset.token === XINV && asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert duration={asset.escrowDuration} />}
           {!isApproved ? (
             <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
           ) : (
@@ -163,7 +163,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     case AnchorOperations.withdraw:
       return (
         <Stack w="full" spacing={4}>
-          {asset.token === XINV && <XINVEscrowAlert showDescription />}
+          {asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert showDescription duration={asset.escrowDuration} />}
           {asset.token === XINV && withdrawalAmount?.gt(0) && library?.getSigner() && (
             <ClaimFromEscrowBtn
               escrowAddress={ESCROW}
@@ -174,7 +174,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
           )}
           {asset.token === XINV_V1 && withdrawalAmount_v1?.gt(0) && library?.getSigner() && (
             <ClaimFromEscrowBtn
-              escrowAddress={ESCROW_V1}
+              escrowAddress={ESCROW_OLD}
               withdrawalTime={withdrawalTime_v1}
               withdrawalAmount={withdrawalAmount_v1}
               signer={library?.getSigner()}

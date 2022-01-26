@@ -1,4 +1,4 @@
-import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "@app/config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI, ESCROW_ABI } from "@app/config/abis";
 import {
   BLOCKS_PER_DAY,
   DAYS_PER_YEAR,
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(chainId, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.0.1`;
 
   try {
     const {
@@ -32,6 +32,8 @@ export default async function handler(req, res) {
       ORACLE,
       ANCHOR_CHAIN_COIN,
       COMPTROLLER,
+      ESCROW,
+      ESCROW_OLD,
     } = getNetworkConfigConstants(networkConfig);
 
     // 5min
@@ -145,8 +147,9 @@ export default async function handler(req, res) {
       }
     });
 
-    const addXINV = async (xinvAddress: string, mintable: boolean) => {
+    const addXINV = async (xinvAddress: string, escrowAddress: string, mintable: boolean) => {
       const xINV = new Contract(xinvAddress, XINV_ABI, provider);
+      const escrowContract = new Contract(escrowAddress, ESCROW_ABI ,provider);
 
       const [
         rewardPerBlock,
@@ -175,13 +178,15 @@ export default async function handler(req, res) {
         rewardApy: 0,
         priceUsd: prices[xinvAddress] / parsedExRate,
         priceXinv: 1 / parsedExRate,
+        // in days
+        escrowDuration: parseInt((await escrowContract.callStatic.duration()).toString()) / 86400
       });
     }
 
     if(XINV_V1) {
-      await addXINV(XINV_V1, false);
+      await addXINV(XINV_V1, ESCROW_OLD ,false);
     }
-    await addXINV(XINV, true);
+    await addXINV(XINV, ESCROW ,true);
 
     const resultData = { markets };
 

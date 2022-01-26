@@ -82,6 +82,7 @@ export const FAUCET_ABI = [
 export const ESCROW_ABI = [
   'function pendingWithdrawals(address user) public view returns (uint withdrawalTimestamp, uint amount)',
   'function withdraw() public',
+  'function duration() public returns (uint)',
   'function governance() public view returns (address)',
 ]
 
@@ -213,7 +214,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
   const {
     ANCHOR_TOKENS,
     COMPTROLLER,
-    ESCROW_V1,
+    ESCROW_OLD,
     ESCROW,
     GOVERNANCE,
     GOVERNANCE_ALPHA,
@@ -240,7 +241,7 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [XINV_V1, XINV_ABI],
         [XINV, XINV_ABI],
         [COMPTROLLER, COMPTROLLER_ABI],
-        [ESCROW_V1, ESCROW_ABI],
+        [ESCROW_OLD, ESCROW_ABI],
         [ESCROW, ESCROW_ABI],
         [HARVESTER, HARVESTER_ABI],
         [GOVERNANCE, GOVERNANCE_ABI],

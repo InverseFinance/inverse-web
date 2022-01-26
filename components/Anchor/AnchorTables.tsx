@@ -121,9 +121,9 @@ export const AnchorSupplied = () => {
   const { isOpen: isCollateralOpen, onOpen: onCollateralOpen, onClose: onCollateralClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
   const [double, setDouble] = useState(false)
-  const { XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId)
+  const { XINV, XINV_V1, ESCROW, ESCROW_OLD } = getNetworkConfigConstants(chainId)
 
-  const { withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_OLD)
   const { withdrawalAmount } = useEscrow(ESCROW)
 
   const handleSupply = (asset: Market) => {

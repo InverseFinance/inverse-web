@@ -36,7 +36,7 @@ export const walletConnectConnector = new WalletConnectConnector({
 
 export const walletLinkConnector = new WalletLinkConnector({
   appName: 'Inverse Finance',
-  appLogoUrl: 'https://www.inverse.finance/assets/inverse.png',
+  appLogoUrl: process.env.NEXT_PUBLIC_LOGO_URL,
   url: 'https://cloudflare-eth.com',
   supportedChainIds: [1, 4],
   darkMode: true,

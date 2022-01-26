@@ -70,7 +70,7 @@ export const getNetworkConfigConstants = (
     const HARVESTER = config.harvester;
 
     // Escrow
-    const ESCROW_V1 = config.escrow_v1;
+    const ESCROW_OLD = config.escrow_old;
     const ESCROW = config.escrow;
 
     // Tokens
@@ -176,7 +176,7 @@ export const getNetworkConfigConstants = (
         GOVERNANCE_ALPHA,
         MULTI_DELEGATOR,
         HARVESTER,
-        ESCROW_V1,
+        ESCROW_OLD,
         ESCROW,
         INV,
         DOLA,

@@ -44,6 +44,7 @@ export type Market = {
   monthlyInvRewards?: number
   monthlyAssetRewards?: number
   monthlyBorrowFee?: number
+  escrowDuration?: number
 }
 
 export enum GovEra {
@@ -155,7 +156,7 @@ export type NetworkConfig = {
   FLOKI: string,
   DOLA_PAYROLL: string,
   DEPLOYER: string,
-  escrow_v1: string,
+  escrow_old: string,
   escrow: string,
   harvester: string,
   // current
