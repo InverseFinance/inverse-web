@@ -1,16 +1,17 @@
 import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI, ESCROW_ABI } from "@app/config/abis";
 import {
-  BLOCKS_PER_DAY,
   DAYS_PER_YEAR,
   ETH_MANTISSA,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { getChainBlockSpeeds, getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+
+const { BLOCKS_PER_DAY } = getChainBlockSpeeds(process.env.NEXT_PUBLIC_CHAIN_ID!)
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
@@ -19,7 +20,7 @@ const toApy = (rate: number) =>
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.0.1`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.1.0`;
 
   try {
     const {

@@ -13,7 +13,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-vaults-cache`;
+  const cacheKey = `${networkConfig.chainId}-vaults-cache-v1.0.0`;
 
   try {
     const {

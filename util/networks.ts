@@ -4,6 +4,7 @@ import { Fed, Network, NetworkConfig, NetworkIds, TokenList, Vaults, VaultTree }
 import { getToken } from '@app/util/markets';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
+import { DAYS_PER_YEAR, SECONDS_PER_DAY } from '@app/config/constants';
 
 export const getNetworkImage = (chainId: string) => {
     const { image, codename } = getNetwork(chainId);
@@ -53,6 +54,8 @@ export const getNetworkConfigConstants = (
         '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
         '0x07de0318c24D67141e6758370e9D7B6d863635AA': 'Growth Working Group',
     }
+
+    const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
 
     // Anchor
     const LENS = config.anchor.lens;
@@ -199,5 +202,14 @@ export const getNetworkConfigConstants = (
         FEDS,
         DEPLOYER,
         MULTISIGS,
+        SECONDS_PER_BLOCK,
     }
+}
+
+export const getChainBlockSpeeds = (chainId: NetworkIds) => {
+    const { SECONDS_PER_BLOCK } = getNetworkConfigConstants(chainId);
+    const BLOCKS_PER_SECOND = 1 / SECONDS_PER_BLOCK;
+    const BLOCKS_PER_DAY = BLOCKS_PER_SECOND * SECONDS_PER_DAY;
+    const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
+    return { BLOCKS_PER_YEAR, BLOCKS_PER_DAY, BLOCKS_PER_SECOND }
 }
