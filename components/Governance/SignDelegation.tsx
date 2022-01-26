@@ -46,7 +46,7 @@ export const SignDelegation = ({
                         Previous delegations to other addresses (including yours) will be withdrawn.
                         You can also change your delegate at any time in the future.
                         <Text mt="2" mb="2" fontWeight="bold">
-                            Delegation will apply for both INV and xINV.
+                            Delegation will apply for both {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} and x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}.
                         </Text>
                         <Text mt="2" mb="2" fontWeight="bold">
                             Once signed, you will need to {

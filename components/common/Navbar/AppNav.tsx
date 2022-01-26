@@ -98,7 +98,7 @@ const INVBalance = () => {
     const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
     const inv = invBalance / ETH_MANTISSA
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
-    return `${inv.toFixed(2)} INV (${xinv.toFixed(2)} xINV)`
+    return `${inv.toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} (${xinv.toFixed(2)} x${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL})`
   }
 
   if (!formattedBalance) {

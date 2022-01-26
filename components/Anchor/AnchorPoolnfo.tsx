@@ -64,7 +64,8 @@ export const AnchorPoolInfo = ({
     const emoji = isSupplied ? ' ✨' : '';
     const monthlyType = isSupplied ? 'rewards' : 'interests';
     // invPriceUsd (ref is coingecko) when INV is the asset supplied or it's a reward in INV
-    const bestPriceRef = invPriceUsd && (isReward || symbol === 'INV' || underlyingSymbol === 'INV') ? invPriceUsd : priceUsd;
+    const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
+    const bestPriceRef = invPriceUsd && (isReward || symbol === rtokenSymbol || underlyingSymbol === rtokenSymbol) ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
     const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00')+suffix

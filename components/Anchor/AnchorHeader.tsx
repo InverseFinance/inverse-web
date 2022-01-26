@@ -55,7 +55,7 @@ export const AnchorHeader = () => {
             ${prices && prices[RTOKEN_CG_ID] ? commify(prices[RTOKEN_CG_ID]?.usd) : ''}
           </Text>
           <Text color="secondary" fontSize="sm" fontWeight="semibold">
-            INV Price
+            {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
           </Text>
         </Flex>
       </Stack>

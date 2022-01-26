@@ -205,12 +205,12 @@ export const Overview = () => {
                     <Text>All rights on Anchor</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- xINV Admin:</Text>
-                    <Text>Change INV APY</Text>
+                    <Text fontWeight="bold">- x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Admin:</Text>
+                    <Text>Change {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} APY</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text fontWeight="bold">- Escrow Admin:</Text>
-                    <Text>Change xINV escrow duration</Text>
+                    <Text>Change x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} escrow duration</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text fontWeight="bold">- Dola operator:</Text>

@@ -57,7 +57,11 @@ const getColumn = (
     rewardApy: {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: <><Text fontWeight="bold">APY rewarded in INV tokens</Text><Text>Accrues INV in a reward pool</Text><Text>Total rewards near <b>Claim</b> button</Text>Reward APY May vary over time</>,
+      tooltip: <>
+        <Text fontWeight="bold">APY rewarded in {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} tokens</Text>
+        <Text>Accrues {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} in a reward pool</Text>
+        <Text>Total rewards near <b>Claim</b> button</Text>Reward APY May vary over time
+      </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards, priceUsd, underlying }: Market) => (
         <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -110,7 +114,7 @@ const getColumn = (
 export const AnchorSupplied = () => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
-  const { usdSupplyCoingecko ,isLoading: accountLiquidityLoading } = useAccountLiquidity()
+  const { usdSupplyCoingecko, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
@@ -220,7 +224,7 @@ export const AnchorSupplied = () => {
         onClick={handleSupply}
       />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
-      {modalAsset && <AnchorCollateralModal isOpen={isCollateralOpen} onClose={onCollateralClose} asset={modalAsset} /> }
+      {modalAsset && <AnchorCollateralModal isOpen={isCollateralOpen} onClose={onCollateralClose} asset={modalAsset} />}
     </Container>
   )
 }

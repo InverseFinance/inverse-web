@@ -42,6 +42,7 @@ export const checkEnv = () => {
   if (
     !process.env.NEXT_PUBLIC_CHAIN_ID
     || !process.env.NEXT_PUBLIC_REWARD_TOKEN
+    || !process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
     || !process.env.NEXT_PUBLIC_DOLA
     || !process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN
     || !process.env.NEXT_PUBLIC_ANCHOR_LENS

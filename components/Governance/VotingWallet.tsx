@@ -75,6 +75,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   const needToShowXinvDelegate = parseFloat(formatUnits(xinvBalance)) > 0 && invDelegate !== xinvDelegate
+  const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!
 
   return (
     <Container label="Your Current Voting Power">
@@ -91,22 +92,22 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             {addressName}
           </Link>
         </Flex>
-        <VotingWalletField label="INV">
+        <VotingWalletField label={rtokenSymbol}>
           {(invBalance ? parseFloat(formatUnits(invBalance)) : 0).toFixed(4)}
         </VotingWalletField>
-        <VotingWalletField label="xINV">
+        <VotingWalletField label={`x${rtokenSymbol}`}>
           {(xinvBalance ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
-        <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : 'Delegating INV to'}
+        <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : `Delegating ${rtokenSymbol} to`}
           delegate={invDelegate} account={userAddress} chainId={chainId?.toString()} />
         {
           needToShowXinvDelegate ?
             <>
-              <DelegatingTo label={'Delegating xINV to'}
+              <DelegatingTo label={`Delegating x${rtokenSymbol} to`}
                 delegate={xinvDelegate} account={userAddress} chainId={chainId?.toString()} />
               <InfoMessage alertProps={{ fontSize: '12px' }}
-                description="Your xINV delegation is out of sync with INV, you can sync them by doing the delegation process." />
+                description={`Your x${rtokenSymbol} delegation is out of sync with ${rtokenSymbol}, you can sync them by doing the delegation process`} />
             </>
             : null
         }

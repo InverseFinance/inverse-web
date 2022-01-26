@@ -32,12 +32,12 @@ const XINVEscrowAlert = ({ showDescription, duration }: any) => (
     <Flex w="full" align="center">
       <AlertIcon color="purple.600" />
       <AlertTitle ml={-1} fontSize="sm">
-        xINV withdrawals are subject to a {duration}-day escrow
+        x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} withdrawals are subject to a {duration}-day escrow
       </AlertTitle>
     </Flex>
     {showDescription && (
       <AlertDescription fontWeight="medium" fontSize="sm">
-        During this duration, the withdrawn amount will not earn INV rewards and cannot be used as collateral. New
+        During this duration, the withdrawn amount will not earn {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards and cannot be used as collateral. New
         withdrawals will reset the current escrow period.
       </AlertDescription>
     )}
@@ -61,8 +61,8 @@ const ClaimFromEscrowBtn = ({
     isDisabled={moment(withdrawalTime).isAfter(moment())}
   >
     {moment(withdrawalTime).isAfter(moment())
-      ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime)}`
-      : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV`}
+      ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} unlocks ${timeUntil(withdrawalTime)}`
+      : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}`}
   </SubmitButton>
 }
 
