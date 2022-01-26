@@ -9,7 +9,7 @@ import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 export const Governance = () => (
   <Layout>
     <Head>
-      <title>Inverse Finance - Proposals</title>
+      <title>{process.env.NEXT_PUBLIC_TITLE} - Proposals</title>
     </Head>
     <AppNav active="Governance" />
     <Breadcrumbs

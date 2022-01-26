@@ -95,7 +95,7 @@ const DelegatesTable = () => {
 export const Stake = () => (
   <Layout>
     <Head>
-      <title>Inverse Finance - Delegates</title>
+      <title>{process.env.NEXT_PUBLIC_TITLE} - Delegates</title>
     </Head>
     <AppNav active="Governance" />
     <Breadcrumbs

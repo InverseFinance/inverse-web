@@ -12,10 +12,10 @@ export const Footer = () => (
     <Stack width={{ base: 'full', lg: 72 }} spacing={4}>
       <Stack direction="row" align="center">
         <Logo boxSize={7} />
-        <Text fontWeight="bold">Inverse Finance</Text>
+        <Text fontWeight="bold">{process.env.NEXT_PUBLIC_TITLE}</Text>
       </Stack>
       <Text fontSize="13px">
-        Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can
+        {process.env.NEXT_PUBLIC_SHORTNAME} is building a suite of DeFi tools. Everything we do is a community effort, which means you too can
         participate in the decision-making process. Join us!
       </Text>
       <Stack direction="row" spacing={5} align="center">

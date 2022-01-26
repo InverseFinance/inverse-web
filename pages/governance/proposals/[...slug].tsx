@@ -47,7 +47,7 @@ export const Governance = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Proposal Details</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Proposal Details</title>
       </Head>
       <AppNav active="Governance" />
       <Breadcrumbs

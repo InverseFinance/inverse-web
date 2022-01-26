@@ -92,7 +92,7 @@ export const Overview = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Transparency Overview</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Overview</title>
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="overview" />

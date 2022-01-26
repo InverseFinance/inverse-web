@@ -40,7 +40,7 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Swap</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Swap</title>
       </Head>
       <AppNav active="Swap" />
       <Flex justify="center" direction="column">

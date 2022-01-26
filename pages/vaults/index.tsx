@@ -7,7 +7,7 @@ import Head from 'next/head'
 export const Vaults = () => (
   <Layout>
     <Head>
-      <title>Inverse Finance - Vaults</title>
+      <title>{process.env.NEXT_PUBLIC_TITLE} - Vaults</title>
     </Head>
     <AppNav active="Vaults" />
     <Flex justify="center" direction="column">

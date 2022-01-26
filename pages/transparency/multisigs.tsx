@@ -19,7 +19,7 @@ export const MultisigsDiagram = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Transparency Multisigs</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Multisigs</title>
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="multisigs" />

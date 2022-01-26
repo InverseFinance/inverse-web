@@ -24,7 +24,7 @@ export const Anchor = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Anchor</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Anchor</title>
       </Head>
       <AppNav active="Anchor" />
       <ErrorBoundary>

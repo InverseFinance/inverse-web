@@ -42,7 +42,7 @@ const App = ({ Component, pageProps }: AppProps) => {
     <ChakraProvider theme={theme}>
       <Web3ReactProvider getLibrary={getLibrary}>
         <Head>
-          <title>Inverse Finance</title>
+          <title>{process.env.NEXT_PUBLIC_TITLE}</title>
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
           <script
             async

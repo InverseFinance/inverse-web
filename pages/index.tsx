@@ -105,7 +105,7 @@ export const Landing = () => {
               <Text>Borrow, Lend & Earn</Text>
               <Stack direction="row">
                 <Text>with</Text>
-                <Text color="secondary">Inverse Finance</Text>
+                <Text color="secondary">{process.env.NEXT_PUBLIC_TITLE}</Text>
               </Stack>
             </Flex>
           </Flex>
@@ -133,7 +133,7 @@ export const Landing = () => {
             </Flex>
           </Flex>
           <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
-            Inverse is proudly partnered with leading cryptocurrency & DeFi protocols
+            {process.env.NEXT_PUBLIC_SHORTNAME} is proudly partnered with leading cryptocurrency & DeFi protocols
           </Text>
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (

@@ -21,7 +21,7 @@ export const Governance = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Governance</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Governance</title>
       </Head>
       <AppNav active="Governance" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>

@@ -176,7 +176,7 @@ export const FedHistoryPage = () => {
     return (
         <Layout>
             <Head>
-                <title>Inverse Finance - Transparency Fed History</title>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed History</title>
             </Head>
             <AppNav active="Transparency" />
             <TransparencyTabs active="fed-history" />

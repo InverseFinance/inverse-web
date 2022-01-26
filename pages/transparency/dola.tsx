@@ -31,7 +31,7 @@ export const DolaDiagram = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Transparency Dola</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Dola</title>
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="dola" />

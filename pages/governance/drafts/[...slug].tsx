@@ -56,7 +56,7 @@ export const Drafts = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Draft Details</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Draft Details</title>
       </Head>
       <AppNav active="Governance" />
       <Breadcrumbs

@@ -147,7 +147,7 @@ export const DelegateView = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Delegate Page</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Delegate Page</title>
       </Head>
       <AppNav active="Governance" />
       <Breadcrumbs
