@@ -205,11 +205,3 @@ export const getNetworkConfigConstants = (
         SECONDS_PER_BLOCK,
     }
 }
-
-export const getChainBlockSpeeds = (chainId: NetworkIds) => {
-    const { SECONDS_PER_BLOCK } = getNetworkConfigConstants(chainId);
-    const BLOCKS_PER_SECOND = 1 / SECONDS_PER_BLOCK;
-    const BLOCKS_PER_DAY = BLOCKS_PER_SECOND * SECONDS_PER_DAY;
-    const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
-    return { BLOCKS_PER_YEAR, BLOCKS_PER_DAY, BLOCKS_PER_SECOND }
-}

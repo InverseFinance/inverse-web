@@ -40,6 +40,7 @@ export const shortenAddress = (address: string) => {
 export const checkEnv = () => {
   if (
     !process.env.NEXT_PUBLIC_CHAIN_ID
+    || !process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK
     || !process.env.NEXT_PUBLIC_REWARD_TOKEN
     || !process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
     || !process.env.NEXT_PUBLIC_DOLA

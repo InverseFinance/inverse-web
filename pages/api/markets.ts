@@ -2,16 +2,15 @@ import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI, ESCROW_ABI } from "@
 import {
   DAYS_PER_YEAR,
   ETH_MANTISSA,
+  BLOCKS_PER_DAY,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { getChainBlockSpeeds, getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-
-const { BLOCKS_PER_DAY } = getChainBlockSpeeds(process.env.NEXT_PUBLIC_CHAIN_ID!)
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
