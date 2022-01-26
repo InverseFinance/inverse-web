@@ -1,4 +1,5 @@
 module.exports = {
+    globalSetup: '<rootDir>/__tests__/setupEnv.js',
     collectCoverageFrom: [
       '**/*.{js,jsx,ts,tsx}',
       '!**/*.d.ts',
