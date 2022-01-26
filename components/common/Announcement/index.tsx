@@ -7,23 +7,23 @@ import { useSupplyBalances } from '@app/hooks/useBalances';
 import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
-const DefaultMessage = () => {
-  return <Link
-    pl={1}
-    color="#fff"
-    isExternal
-    href="https://t.me/InverseCompanionBot"
-    _hover={{ color: 'purple.100' }}
-  >
-    Track your Anchor position and receive liquidation risk alerts on Telegram using Inverse Companion Bot{' '}
-    <ExternalLinkIcon />
-  </Link>
-}
-
 const XinvMigrationMessage = () => {
   return <>
     <Text>xINV migration is in progress. Please withdraw funds from <b>INV (OLD)</b> and resupply them into the new <b>INV</b></Text>
   </>
+}
+
+const MessageWithLink = () => {
+  return <Link
+    pl={1}
+    color="#fff"
+    isExternal
+    href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
+    _hover={{ color: 'purple.100' }}
+  >
+    {process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}
+    <ExternalLinkIcon ml="2" />
+  </Link>
 }
 
 export const Announcement = () => {
@@ -44,8 +44,12 @@ export const Announcement = () => {
       data-testid={TEST_IDS.announcement}
     >
       {
-        needsXinvMigration ? <XinvMigrationMessage /> : <DefaultMessage />
+        process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
+        needsXinvMigration ? <XinvMigrationMessage /> : <MessageWithLink />
+          :
+          <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
       }
     </Flex>
   )
 }
+

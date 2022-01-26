@@ -80,18 +80,29 @@ export const AnchorHeader = () => {
           </Text>
         </Stack>
         <Stack spacing={2} direction="row">
-          <LinkButton data-testid={TEST_IDS.anchor.buyDola} href="/swap/DAI/DOLA" target="_self">
-            Buy DOLA
-          </LinkButton>
-          <LinkButton href="https://app.sushi.com/swap?inputCurrency=0x865377367054516e17014CcdED1e7d814EDC9ce4&outputCurrency=0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68" target="_blank">
-            Buy INV
-          </LinkButton>
-          <LinkOutlineButton
-            data-testid={TEST_IDS.anchor.learnMore}
-            href="https://docs.inverse.finance/anchor-and-dola-overview"
-            target="_blank">
-            { isSmallerThan728 ? 'More' : 'Learn More' }
-          </LinkOutlineButton>
+          {
+            !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
+            && <LinkButton data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
+              target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
+              Buy DOLA
+            </LinkButton>
+          }
+          {
+            !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
+            && <LinkButton href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
+              target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
+              Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
+            </LinkButton>
+          }
+          {
+            !!process.env.NEXT_PUBLIC_LEARN_MORE_URL
+            && <LinkOutlineButton
+              href={process.env.NEXT_PUBLIC_LEARN_MORE_URL}
+              data-testid={TEST_IDS.anchor.learnMore}
+              target={process.env.NEXT_PUBLIC_LEARN_MORE_URL.startsWith('http') ? '_blank' : '_self'}>
+              {isSmallerThan728 ? 'More' : 'Learn More'}
+            </LinkOutlineButton>
+          }
         </Stack>
       </Stack>
     </Flex>

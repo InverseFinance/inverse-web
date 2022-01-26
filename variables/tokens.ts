@@ -22,6 +22,7 @@ const chainTokenAddresses = {
 
 const chainTokens = {
   "1": {
+    // Chain's coin
     CHAIN_COIN: {
       address: '',
       name: 'Ether',
@@ -30,6 +31,7 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
       decimals: 18,
     },
+    // Tokens
     [chainTokenAddresses["1"].DAI]: {
       address: chainTokenAddresses["1"].DAI,
       name: 'Dai',
@@ -150,7 +152,11 @@ export const TOKENS: TokenList = {
   },
 };
 
-/* Key: Anchor Market Address, value: Underlying Token */
+/* 
+ * Anchor Markets Underlyings
+ * Markets listed here will appear in UI
+ * Key: Anchor Market Address, value: Underlying Token
+ */
 const chainUnderlying = {
   "1": {
     '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8': TOKENS.CHAIN_COIN,

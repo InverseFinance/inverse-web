@@ -40,7 +40,8 @@ export default async function handler(req, res) {
 
     const provider = getProvider(networkConfig.chainId)
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
-    const addresses: string[] = await comptroller.getAllMarkets();
+    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const addresses = allMarkets.filter(address => !!UNDERLYING[address])
 
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const oraclePrices = await Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address)));
@@ -53,7 +54,6 @@ export default async function handler(req, res) {
     let geckoPrices: Prices["prices"] = {};
 
     const prices = { ...parsedOraclePrices };
-
 
     try {
       const res = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`);

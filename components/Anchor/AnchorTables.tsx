@@ -390,7 +390,7 @@ export const AnchorBorrow = () => {
       <Container
         label="Borrow"
         description="Borrow against your supplied collateral"
-        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
+        href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       >
         <SkeletonList />
       </Container>
@@ -401,7 +401,7 @@ export const AnchorBorrow = () => {
     <Container
       label="Borrow"
       description="Borrow against your supplied collateral"
-      href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
+      href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
       <Table columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
