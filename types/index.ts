@@ -171,27 +171,12 @@ export type NetworkConfig = {
     vaultDaiYfi: string,
     vaultDaiEth: string,
   };
-  feds: {
-    fusepool6: string,
-    anchor: string,
-  }
   anchor: {
     lens: string,
     comptroller: string,
     oracle: string,
     treasury: string,
     anChainCoinRepayAll: string,
-    markets: {
-      dola: string,
-      eth: string,
-      wbtc: string,
-      xsushi: string,
-      yfi: string,
-      steth: string,
-      dola3poolcrv: string,
-      invdolaslp: string,
-      floki: string,
-    };
   }
   [key: string]: string | any;
 }
