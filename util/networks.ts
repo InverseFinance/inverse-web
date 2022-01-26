@@ -4,7 +4,6 @@ import { Fed, Network, NetworkConfig, NetworkIds, TokenList, Vaults, VaultTree }
 import { getToken } from '@app/util/markets';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
-import { DAYS_PER_YEAR, SECONDS_PER_DAY } from '@app/config/constants';
 
 export const getNetworkImage = (chainId: string) => {
     const { image, codename } = getNetwork(chainId);
@@ -77,18 +76,18 @@ export const getNetworkConfigConstants = (
     const ESCROW = config.escrow;
 
     // Tokens
-    const WCOIN = Object.values(TOKENS).find(token => token.isWrappedChainCoin)?.address;
-    const XINV = process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN;
+    const WCOIN = Object.values(TOKENS).find(token => token.isWrappedChainCoin)?.address!;
+    const XINV = process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!;
     const XINV_V1 = process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD;
-    const INV = Object.values(TOKENS).find(token => token.symbol === process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL)?.address;
+    const INV = Object.values(TOKENS).find(token => token.symbol === process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL)?.address!;
     const DOLA = Object.values(TOKENS).find(token => token.symbol === 'DOLA')?.address!;
     const DAI = Object.values(TOKENS).find(token => token.symbol === 'DAI')?.address!;
     const USDC = Object.values(TOKENS).find(token => token.symbol === 'USDC')?.address!;
     const USDT = Object.values(TOKENS).find(token => token.symbol === 'USDT')?.address!;
     const YFI = Object.values(TOKENS).find(token => token.symbol === 'YFI')?.address!;
     const WBTC = Object.values(TOKENS).find(token => token.symbol === 'WBTC')?.address!;
-    const INVDOLASLP = '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002'
-    const DOLA3POOLCRV = '0xAA5A67c256e27A5d80712c51971408db3370927D'
+    const INVDOLASLP = Object.values(TOKENS).find(token => token.symbol === 'INV-DOLA-SLP')?.address!;
+    const DOLA3POOLCRV = Object.values(TOKENS).find(token => token.symbol === 'DOLA-3POOL')?.address!;
     const DOLA_PAYROLL = config.DOLA_PAYROLL;
     const DEPLOYER = config.DEPLOYER;
 
@@ -98,10 +97,10 @@ export const getNetworkConfigConstants = (
 
     const ALL_UNDERLYING: TokenList = {
         ...UNDERLYING,
-        [VAULT_USDC_ETH]: getToken(TOKENS, 'USDC'),
-        [VAULT_DAI_ETH]: getToken(TOKENS, 'DAI'),
-        [VAULT_DAI_WBTC]: getToken(TOKENS, 'DAI'),
-        [VAULT_DAI_YFI]: getToken(TOKENS, 'DAI'),
+        [VAULT_USDC_ETH]: getToken(TOKENS, 'USDC')!,
+        [VAULT_DAI_ETH]: getToken(TOKENS, 'DAI')!,
+        [VAULT_DAI_WBTC]: getToken(TOKENS, 'DAI')!,
+        [VAULT_DAI_YFI]: getToken(TOKENS, 'DAI')!,
         // [THREECRV]: getToken(TOKENS, '3CRV'),
     }
 

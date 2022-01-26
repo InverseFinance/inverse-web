@@ -169,7 +169,9 @@ const anchorTVL = async (
   underlying: TokenList,
 ): Promise<TokenWithBalance[]> => {
   const anchorContracts = anchorTokenAddresses.map((address: string) => new Contract(address, CTOKEN_ABI, provider));
-  anchorContracts.push(new Contract(xInvV1Address, XINV_ABI, provider));
+  if(xInvV1Address) {
+    anchorContracts.push(new Contract(xInvV1Address, XINV_ABI, provider));
+  }
   anchorContracts.push(new Contract(xInvAddress, XINV_ABI, provider));
 
   const allCash = await Promise.all(
