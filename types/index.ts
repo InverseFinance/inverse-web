@@ -316,7 +316,7 @@ export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
 export type FlowChartData = {
   id: string
   label: React.ReactNode
-  targets: {
+  targets?: {
     label: React.ReactNode,
     id: string,
     linkLabel?: string,

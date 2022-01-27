@@ -6,7 +6,7 @@ import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO } from '@app/hooks/useDAO'
 import { MultisigsFlowChart } from '@app/components/Transparency/MultisigsFlowChart'
-import { InfoMessage } from '@app/components/common/Messages'
+import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { usePrices } from '@app/hooks/usePrices'
 import { Funds } from '@app/components/Transparency/Funds'
 import Link from '@app/components/common/Link'
@@ -29,8 +29,7 @@ export const MultisigsDiagram = () => {
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex mb="2" w={{ base: 'full', xl: 'sm' }} justify="center">
-            <InfoMessage
-              alertProps={{ fontSize: '12px', w: 'full' }}
+            <ShrinkableInfoMessage
               title={<>🏛️ Multisig Wallets Purposes (<Link isExternal display="inline-block" href="https://help.gnosis-safe.io/en/articles/3876456-what-is-gnosis-safe">More Infos <ExternalLinkIcon mb="2px" /></Link>)</>}
               description={
                 <>
@@ -49,8 +48,7 @@ export const MultisigsDiagram = () => {
           {
             multisigs?.map(multisig => {
               return <Flex key={multisig.name} my="2" w={{ base: 'full', xl: 'sm' }} justify="center">
-                <InfoMessage
-                  alertProps={{ fontSize: '12px', w: 'full' }}
+                <ShrinkableInfoMessage
                   title={`👥 ${multisig.name}`}
                   description={
                     <>

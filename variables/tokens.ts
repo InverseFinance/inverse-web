@@ -184,3 +184,4 @@ export const UNDERLYING = underlying;
 
 export const REWARD_TOKEN = getRewardToken()
 export const RTOKEN_CG_ID = REWARD_TOKEN?.coingeckoId!;
+export const RTOKEN_SYMBOL = REWARD_TOKEN?.symbol!;
