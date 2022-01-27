@@ -45,6 +45,8 @@ export type Market = {
   monthlyAssetRewards?: number
   monthlyBorrowFee?: number
   escrowDuration?: number
+  rewardPerBlock?: number
+  rewardsPerMonth: number
 }
 
 export enum GovEra {

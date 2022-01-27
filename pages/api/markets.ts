@@ -11,6 +11,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { getBnToNumber } from '@app/util/markets';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
@@ -19,7 +20,7 @@ const toApy = (rate: number) =>
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.1.0`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.0`;
 
   try {
     const {
@@ -66,6 +67,7 @@ export default async function handler(req, res) {
       borrowPaused,
       mintPaused,
       oraclePrices,
+      xinvExRate,
     ]: any = await Promise.all([
       Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
       Promise.all(contracts.map((contract) => contract.totalReserves())),
@@ -94,6 +96,7 @@ export default async function handler(req, res) {
         )
       ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
+      new Contract(XINV, XINV_ABI, provider).exchangeRateStored(),
     ]);
 
     const prices: StringNumMap = oraclePrices
@@ -118,6 +121,10 @@ export default async function handler(req, res) {
       );
     });
 
+    const rewardsPerMonth = speeds.map((speed, i) => {
+      return getBnToNumber(speed) * BLOCKS_PER_DAY * DAYS_PER_YEAR / 12 * getBnToNumber(xinvExRate);
+    });
+
     const markets = contracts.map(({ address }, i) => {
       const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
 
@@ -127,6 +134,7 @@ export default async function handler(req, res) {
         supplyApy: supplyApys[i] || 0,
         borrowApy: borrowApys[i] || 0,
         rewardApy: rewardApys[i] || 0,
+        rewardsPerMonth: rewardsPerMonth[i] || 0,
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
         priceUsd: prices[contracts[i].address],
@@ -175,6 +183,7 @@ export default async function handler(req, res) {
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
         supplied:  parsedExRate * parseFloat(formatUnits(totalSupply)),
         rewardApy: 0,
+        rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * DAYS_PER_YEAR / 12,
         priceUsd: prices[xinvAddress] / parsedExRate,
         priceXinv: 1 / parsedExRate,
         // in days
