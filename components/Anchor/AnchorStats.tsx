@@ -154,7 +154,7 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
         value: totalReservesUsd,
       },
       {
-        label: `${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Monthly Distribution`,
+        label: `${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Monthly Rewards`,
         value: asset.rewardsPerMonth > 0 ?
           `${commify(Math.round(asset.rewardsPerMonth * 100) / 100)} (${shortenNumber(asset.rewardsPerMonth * cgPrices[RTOKEN_CG_ID].usd, 2, true)})`
           : 0,
