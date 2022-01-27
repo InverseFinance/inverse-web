@@ -45,6 +45,8 @@ export type Market = {
   monthlyAssetRewards?: number
   monthlyBorrowFee?: number
   escrowDuration?: number
+  rewardPerBlock?: number
+  rewardsPerMonth: number
 }
 
 export enum GovEra {
@@ -314,7 +316,7 @@ export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
 export type FlowChartData = {
   id: string
   label: React.ReactNode
-  targets: {
+  targets?: {
     label: React.ReactNode,
     id: string,
     linkLabel?: string,

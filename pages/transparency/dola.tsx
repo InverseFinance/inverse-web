@@ -3,7 +3,7 @@ import { Flex, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage } from '@app/components/common/Messages'
+import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
@@ -57,9 +57,8 @@ export const DolaDiagram = () => {
             />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <InfoMessage
+            <ShrinkableInfoMessage
               title="⚡&nbsp;&nbsp;Roles & Powers"
-              alertProps={{ fontSize: '12px', w: 'full' }}
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">

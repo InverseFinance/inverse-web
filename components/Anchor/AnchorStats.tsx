@@ -8,6 +8,9 @@ import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@app/util/markets';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { commify } from '@ethersproject/units';
+import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { usePrices } from '@app/hooks/usePrices';
 
 type Stat = {
   label: string
@@ -122,6 +125,7 @@ const formatUsdTotal = (value: number, prices: BigNumberList, asset: Market) => 
 
 const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
   const { prices } = useAnchorPrices()
+  const { prices: cgPrices } = usePrices()
   const totalBorrowsUsd = formatUsdTotal(asset.totalBorrows, prices, asset);
   const totalReservesUsd = formatUsdTotal(asset.totalReserves, prices, asset);
   const totalSuppliedUsd = formatUsdTotal(asset.supplied, prices, asset);
@@ -131,7 +135,7 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
     getCollateralFactor(asset),
   ];
 
-  if(!isCollateralModal) {
+  if (!isCollateralModal) {
     Array.prototype.push.apply(stats, [
       {
         label: 'Reserve Factor',
@@ -148,6 +152,12 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
       {
         label: 'Total Reserves',
         value: totalReservesUsd,
+      },
+      {
+        label: `${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Monthly Rewards`,
+        value: asset.rewardsPerMonth > 0 ?
+          `${commify(Math.round(asset.rewardsPerMonth * 100) / 100)} (${shortenNumber(asset.rewardsPerMonth * cgPrices[RTOKEN_CG_ID].usd, 2, true)})`
+          : 0,
       },
     ]);
   }
@@ -203,7 +213,7 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
       label: 'Borrow Limit',
       value: `${shortenNumber(borrowable, 2, true)} -> ${shortenNumber(newBorrowable, 2, true)}`,
     },
-    getBorrowLimitUsed(newPerc, before , newBorrowLimitLabel),
+    getBorrowLimitUsed(newPerc, before, newBorrowLimitLabel),
   ]
 
   if (newPerc > 75) {
@@ -245,7 +255,7 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
       label: 'Borrow Limit Remaining',
       value: `${shortenNumber(usdBorrowable, 2, true)} -> ${shortenNumber(usdBorrowable + change, 2, true)}`,
     },
-    getBorrowLimitUsed(cleanPerc, before , newBorrowLimitLabel),
+    getBorrowLimitUsed(cleanPerc, before, newBorrowLimitLabel),
   ]
 
   if (cleanPerc > 75) {
@@ -266,9 +276,9 @@ export const AnchorStats = ({ operation, asset, amount, isCollateralModal = fals
     case AnchorOperations.supply:
       return (
         <>
-          <SupplyDetails asset={asset} isCollateralModal={isCollateralModal}  />
-          <BorrowLimit asset={asset} amount={parsedAmount} isCollateralModal={isCollateralModal}  />
-          <MarketDetails asset={asset} isCollateralModal={isCollateralModal}  />
+          <SupplyDetails asset={asset} isCollateralModal={isCollateralModal} />
+          <BorrowLimit asset={asset} amount={parsedAmount} isCollateralModal={isCollateralModal} />
+          <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />
         </>
       )
     case AnchorOperations.withdraw:

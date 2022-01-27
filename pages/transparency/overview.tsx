@@ -3,7 +3,7 @@ import { Flex, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage } from '@app/components/common/Messages'
+import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { GovernanceFlowChart } from '@app/components/Transparency/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
@@ -24,7 +24,7 @@ const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPL
 
 const defaultValues = {
   comptroller: COMPTROLLER,
-  compGuard: '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28',
+  compGuard: DEPLOYER,
   compAdmin: TREASURY,
   escrow: ESCROW,
   escrowGov: TREASURY,
@@ -36,7 +36,7 @@ const defaultValues = {
   xinvUnderlying: INV,
   xinvEscrow: ESCROW,
   governance: GOVERNANCE,
-  govGuard: '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28',
+  govGuard: DEPLOYER,
   govTreasury: TREASURY,
   govToken: INV,
   govStakedToken: XINV,
@@ -102,8 +102,7 @@ export const Overview = () => {
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <InfoMessage
-              alertProps={{ fontSize: '12px', w: 'full' }}
+            <ShrinkableInfoMessage
               title="🏛️ Governance Rules"
               description={
                 <>
@@ -121,8 +120,7 @@ export const Overview = () => {
           </Flex>
           {
             !!treasury && <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-              <InfoMessage
-                alertProps={{ fontSize: '12px', w: 'full' }}
+              <ShrinkableInfoMessage
                 title="🏦 Treasury Funds"
                 description={
                   <>
@@ -156,8 +154,7 @@ export const Overview = () => {
             </Flex>
           }
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            {!!tvlData && <InfoMessage
-              alertProps={{ fontSize: '12px', w: 'full' }}
+            {!!tvlData && <ShrinkableInfoMessage
               title={<Flex alignItems="center">
                 ⚓ Anchor Total Value Locked (
                 <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
@@ -191,9 +188,8 @@ export const Overview = () => {
             />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <InfoMessage
+            <ShrinkableInfoMessage
               title="⚡ Roles & Powers"
-              alertProps={{ fontSize: '12px', w: 'full' }}
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">

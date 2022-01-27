@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex } from '@chakra-ui/react'
+import { ReactNode, useEffect, useState } from 'react';
+import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex, useMediaQuery, AlertDescriptionProps, AlertTitleProps } from '@chakra-ui/react'
 import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@app/components/common/Animation'
 import { WarningIcon } from '@chakra-ui/icons';
 
@@ -10,6 +10,9 @@ type MessageProps = {
     icon?: ReactNode,
     variant?: ThemingProps<"Alert">["variant"],
     alertProps?: AlertProps,
+    alertTitleProps?: AlertTitleProps,
+    alertDescriptionProps?: AlertDescriptionProps,
+    showIcon?: boolean
 }
 
 const statusAnims = {
@@ -19,7 +22,7 @@ const statusAnims = {
     error: ErrorAnimIcon,
 }
 
-export const StatusMessage = ({ title, description, status = 'info', alertProps }: Partial<MessageProps>) => {
+export const StatusMessage = ({ title, description, status = 'info', showIcon, alertProps, alertDescriptionProps, alertTitleProps }: Partial<MessageProps>) => {
     const alertPropsExtended = {
         className: `blurred-container ${status}-bg`,
         ...alertProps,
@@ -27,12 +30,31 @@ export const StatusMessage = ({ title, description, status = 'info', alertProps 
     const IconComp = statusAnims[status];
     return <Message status={status}
         title={title}
+        showIcon={showIcon}
         description={description}
         icon={<IconComp boxProps={{ mr: '2' }} />}
         variant="solid"
-        {...alertPropsExtended} />
+        alertTitleProps={alertTitleProps}
+        alertDescriptionProps={alertDescriptionProps}
+        {...alertPropsExtended}
+    />
 }
 
+export const ShrinkableInfoMessage = (props: Partial<MessageProps>) => {
+    const [isSmallerThan] = useMediaQuery('(max-width: 378px)')
+    const [showIcon, setShowIcon] = useState(false)
+
+    useEffect(() => setShowIcon(!isSmallerThan), [isSmallerThan])
+
+    return <StatusMessage
+        alertProps={{ w: 'full' }}
+        alertTitleProps={{ fontSize: '12px' }}
+        alertDescriptionProps={{ fontSize: showIcon ? '12px' : '10px' }}
+        {...props}
+        status="info"
+        showIcon={showIcon}
+    />
+}
 export const InfoMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="info" />
 export const SuccessMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="success" />
 export const WarningMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="warning" />
@@ -48,18 +70,21 @@ export const Message = ({
     status = 'info',
     icon,
     variant,
+    showIcon = true,
+    alertTitleProps,
+    alertDescriptionProps,
     ...alertProps
 }: MessageProps) => {
     return (
         <Alert variant={variant} status={status} borderRadius="5" display="inline-block" w="fit-content" {...alertProps}>
             <Flex alignItems="center" w='full'>
-                {icon}
+                {showIcon && icon}
                 <Flex flexDirection="column" w='full'>
                     {
-                        title ? <AlertTitle>{title}</AlertTitle> : null
+                        title ? <AlertTitle {...alertTitleProps}>{title}</AlertTitle> : null
                     }
                     {
-                        description ? <AlertDescription>{description}</AlertDescription> : null
+                        description ? <AlertDescription {...alertDescriptionProps}>{description}</AlertDescription> : null
                     }
                 </Flex>
             </Flex>

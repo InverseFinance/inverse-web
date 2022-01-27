@@ -21,7 +21,7 @@ export const SuppplyInfos = ({
         <InfoMessage
             title={
                 token ? <Flex alignItems="center">
-                    <Image mr="1" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
+                    <Image mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
                     {token.symbol} Total Supplies : 
                 </Flex>
                 : title
@@ -37,7 +37,7 @@ export const SuppplyInfos = ({
                                     <Flex alignItems="center">
                                         <Text>-</Text>
                                         <Img src={projectImage ? `/assets/projects/${projectImage}` : network.image!} />
-                                        <Text>On {name || network.name}:</Text>
+                                        <Text lineHeight="15px">On {name || network.name}:</Text>
                                     </Flex>
                                     <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
                                 </Flex>
