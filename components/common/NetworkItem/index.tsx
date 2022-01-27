@@ -1,4 +1,4 @@
-import { getNetwork, getNetworkImage, isSupportedNetwork } from '@inverse/config/networks';
+import { getNetwork, getNetworkImage, isSupportedNetwork } from '@app/util/networks';
 import { Image, Tooltip } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons';
 

@@ -1,26 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
-import { Textarea } from '@inverse/components/common/Input';
+import { Textarea } from '@app/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
-import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@inverse/types';
+import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@app/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, submitProposal } from '@inverse/util/governance';
+import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, submitProposal } from '@app/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { handleTx } from '@inverse/util/transactions';
-import { TEST_IDS } from '@inverse/config/test-ids';
+import { handleTx } from '@app/util/transactions';
+import { TEST_IDS } from '@app/config/test-ids';
 import { ProposalActions, ProposalDetails } from '../Proposal';
 import { ProposalWarningMessage } from './ProposalWarningMessage';
-import { showToast } from '@inverse/util/notify';
+import { showToast } from '@app/util/notify';
 import localforage from 'localforage';
 import { ActionTemplateModal } from './ActionTemplateModal';
 import { ProposalFormBtns } from './ProposalFormBtns';
-import { ProposalFunction } from '@inverse/types';
+import { ProposalFunction } from '@app/types';
 import { ProposalShareLink } from '../ProposalShareLink';
 import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 import { useRouter } from 'next/dist/client/router';
-import { Link } from '@inverse/components/common/Link';
+import { Link } from '@app/components/common/Link';
 
 const EMPTY_ACTION = {
     actionId: 0,

@@ -1,6 +1,6 @@
-import { SubmitButton } from '@inverse/components/common/Button';
+import { SubmitButton } from '@app/components/common/Button';
 import { Flex, Box } from '@chakra-ui/react';
-import { SuccessMessage } from '@inverse/components/common/Messages';
+import { SuccessMessage } from '@app/components/common/Messages';
 import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon, DeleteIcon } from '@chakra-ui/icons';
 
 export const ProposalFormBtns = ({

@@ -2,15 +2,18 @@
   "name": "inverse-web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=14.18.3"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "cypress": "cypress open",
-    "cypress:headless": "cypress run",
-    "e2e": "start-server-and-test dev http://localhost:3000 cypress",
-    "e2e:headless": "start-server-and-test dev http://localhost:3000 cypress:headless",
+    "cypress": "./node_modules/.bin/cypress open",
+    "cypress:headless": "./node_modules/.bin/cypress run",
+    "e2e": "start-server-and-test dev http://localhost:3000 ./node_modules/.bin/cypress ",
+    "e2e:headless": "start-server-and-test dev http://localhost:3000 ./node_modules/.bin/cypress :headless",
     "ut:watch": "jest --watch",
     "ut": "jest --ci"
   },

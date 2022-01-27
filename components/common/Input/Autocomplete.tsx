@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useOutsideClick } from '@chakra-ui/react'
 import { CloseIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { isAddress } from 'ethers/lib/utils';
-import { AutocompleteItem, AutocompleteProps } from '@inverse/types';
+import { AutocompleteItem, AutocompleteProps } from '@app/types';
 
 const defaultList: AutocompleteItem[] = [];
 const defaultInputComp = Input;

@@ -1,14 +1,14 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/common/Avatar'
-import Container from '@inverse/components/common/Container'
-import { SkeletonList } from '@inverse/components/common/Skeleton'
-import { useDelegates, useTopDelegates } from '@inverse/hooks/useDelegates'
-import { Delegate, Delegator } from '@inverse/types'
-import { namedAddress } from '@inverse/util'
+import { Avatar } from '@app/components/common/Avatar'
+import Container from '@app/components/common/Container'
+import { SkeletonList } from '@app/components/common/Skeleton'
+import { useDelegates, useTopDelegates } from '@app/hooks/useDelegates'
+import { Delegate, Delegator } from '@app/types'
+import { namedAddress } from '@app/util'
 import NextLink from 'next/link'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
+import { useNamedAddress } from '@app/hooks/useNamedAddress'
 
 const DelegateName = ({address, chainId, ensName}: { address: string, chainId?: number | undefined, ensName?: string }) => {
   const { addressName } = useNamedAddress(address, chainId, ensName)

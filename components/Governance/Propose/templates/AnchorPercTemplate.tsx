@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { FormControl, FormLabel } from '@chakra-ui/react'
 import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@inverse/types'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { NetworkIds, TemplateProposalFormActionFields, ProposalTemplates } from '@app/types'
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { AnchorTemplate } from './AnchorTemplate';
-import { Input } from '@inverse/components/common/Input';
+import { Input } from '@app/components/common/Input';
 import { parseUnits } from '@ethersproject/units';
 
 const { COMPTROLLER } = getNetworkConfigConstants(NetworkIds.mainnet)

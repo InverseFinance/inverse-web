@@ -1,29 +1,32 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
-import Link from '@inverse/components/common/Link'
-import { TEST_IDS } from '@inverse/config/test-ids';
-import { useSupplyBalances } from '@inverse/hooks/useBalances';
-import { OLD_XINV } from '@inverse/config/constants';
+import Link from '@app/components/common/Link'
+import { TEST_IDS } from '@app/config/test-ids';
+import { useSupplyBalances } from '@app/hooks/useBalances';
+import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
-const DefaultMessage = () => {
+const XinvMigrationMessage = () => {
+  const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
+  return <>
+    <Text>
+      x{symbol} migration is in progress. Please withdraw funds from <b>{symbol} (OLD)</b> and resupply them into the new <b>{symbol}</b>
+    </Text>
+  </>
+}
+
+const MessageWithLink = () => {
   return <Link
     pl={1}
     color="#fff"
     isExternal
-    href="https://t.me/InverseCompanionBot"
+    href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
     _hover={{ color: 'purple.100' }}
   >
-    Track your Anchor position and receive liquidation risk alerts on Telegram using Inverse Companion Bot{' '}
-    <ExternalLinkIcon />
+    {process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}
+    <ExternalLinkIcon ml="2" />
   </Link>
-}
-
-const XinvMigrationMessage = () => {
-  return <>
-    <Text>xINV migration is in progress. Please withdraw funds from <b>INV (OLD)</b> and resupply them into the new <b>INV</b></Text>
-  </>
 }
 
 export const Announcement = () => {
@@ -44,8 +47,12 @@ export const Announcement = () => {
       data-testid={TEST_IDS.announcement}
     >
       {
-        needsXinvMigration ? <XinvMigrationMessage /> : <DefaultMessage />
+        process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
+          needsXinvMigration ? <XinvMigrationMessage /> : <MessageWithLink />
+          :
+          <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
       }
     </Flex>
   )
 }
+

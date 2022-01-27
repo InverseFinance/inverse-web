@@ -1,6 +1,6 @@
 import { Box, useMediaQuery } from '@chakra-ui/react';
-import { namedAddress } from '@inverse/util';
-import { FlowChart } from '@inverse/components/common/Dataviz/FlowChart';
+import { namedAddress } from '@app/util';
+import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 import { NamedAddressBox } from '../common/NamedAddressBox/NamedAddressBox';
 

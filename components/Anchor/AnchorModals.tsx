@@ -1,28 +1,28 @@
 import { Flex, Image, Stack, Text, Box } from '@chakra-ui/react'
-import { AnchorButton } from '@inverse/components/Anchor/AnchorButton'
-import { AnchorStats } from '@inverse/components/Anchor/AnchorStats'
-import { BalanceInput } from '@inverse/components/common/Input'
-import { Modal, ModalProps } from '@inverse/components/common/Modal'
-import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@inverse/hooks/useBalances'
-import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { useAnchorPrices } from '@inverse/hooks/usePrices'
-import { AnchorOperations, Market } from '@inverse/types'
+import { AnchorButton } from '@app/components/Anchor/AnchorButton'
+import { AnchorStats } from '@app/components/Anchor/AnchorStats'
+import { BalanceInput } from '@app/components/common/Input'
+import { Modal, ModalProps } from '@app/components/common/Modal'
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@app/hooks/useBalances'
+import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useAnchorPrices } from '@app/hooks/usePrices'
+import { AnchorOperations, Market } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { NavButtons, SubmitButton } from '@inverse/components/common/Button'
-import { TEST_IDS } from '@inverse/config/test-ids'
-import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem';
-import { useAccountMarkets } from '@inverse/hooks/useMarkets'
-import ScannerLink from '@inverse/components/common/ScannerLink'
+import { NavButtons, SubmitButton } from '@app/components/common/Button'
+import { TEST_IDS } from '@app/config/test-ids'
+import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem';
+import { useAccountMarkets } from '@app/hooks/useMarkets'
+import ScannerLink from '@app/components/common/ScannerLink'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { InfoMessage, StatusMessage, WarningMessage } from '@inverse/components/common/Messages'
-import { Link } from '@inverse/components/common/Link';
-import { shortenNumber, getBorrowInfosAfterSupplyChange } from '@inverse/util/markets'
-import { roundFloorString } from '@inverse/util/misc'
-import { getComptrollerContract } from '@inverse/util/contracts'
+import { InfoMessage, StatusMessage, WarningMessage } from '@app/components/common/Messages'
+import { Link } from '@app/components/common/Link';
+import { shortenNumber, getBorrowInfosAfterSupplyChange } from '@app/util/markets'
+import { roundFloorString } from '@app/util/misc'
+import { getComptrollerContract } from '@app/util/contracts'
 import { Web3Provider } from '@ethersproject/providers';
 
 type AnchorModalProps = ModalProps & {
@@ -65,7 +65,7 @@ export const AnchorModal = ({
     switch (operation) {
       case AnchorOperations.supply:
         return balances
-          ? (formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
+          ? (formatUnits(balances[asset.underlying.address || 'CHAIN_COIN'], asset.underlying.decimals))
           : '0'
       case AnchorOperations.withdraw:
         const supply =
@@ -91,7 +91,7 @@ export const AnchorModal = ({
         return roundFloorString(Math.min(borrowable, asset.liquidity))
       case AnchorOperations.repay:
         const balance = balances
-          ? (formatUnits(balances[asset.underlying.address || 'ETH'], asset.underlying.decimals))
+          ? (formatUnits(balances[asset.underlying.address || 'CHAIN_COIN'], asset.underlying.decimals))
           : '0'
 
         const borrowed = borrowBalances
@@ -212,7 +212,7 @@ export const AnchorModal = ({
             }}
             onMaxClick={() => setAmount(maxString())}
             label={
-              asset.underlying.symbol !== 'ETH' ?
+              !!asset.underlying.address ?
                 <ScannerLink value={asset.underlying.address} style={{ textDecoration: 'none' }}>
                   {inputRightSideContent}
                 </ScannerLink>

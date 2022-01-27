@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { SubmitButton } from '@inverse/components/common/Button'
-import { useApprovals } from '@inverse/hooks/useApprovals'
-import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { useEscrow } from '@inverse/hooks/useEscrow'
-import { Market, AnchorOperations } from '@inverse/types'
-import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@inverse/util/contracts'
-import { timeUntil } from '@inverse/util/time'
+import { SubmitButton } from '@app/components/common/Button'
+import { useApprovals } from '@app/hooks/useApprovals'
+import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useEscrow } from '@app/hooks/useEscrow'
+import { Market, AnchorOperations } from '@app/types'
+import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
+import { timeUntil } from '@app/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseEther } from 'ethers/lib/utils'
 import moment from 'moment'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { handleTx } from '@inverse/util/transactions';
-import { hasAllowance } from '@inverse/util/web3';
-import { getMonthlyRate, getParsedBalance } from '@inverse/util/markets';
-import { removeScientificFormat, roundFloorString } from '@inverse/util/misc';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { handleTx } from '@app/util/transactions';
+import { hasAllowance } from '@app/util/web3';
+import { getMonthlyRate, getParsedBalance } from '@app/util/markets';
+import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -27,17 +27,17 @@ type AnchorButtonProps = {
   needWithdrawWarning?: boolean
 }
 
-const XINVEscrowAlert = ({ showDescription }: any) => (
+const XINVEscrowAlert = ({ showDescription, duration }: any) => (
   <Alert borderRadius={8} flexDirection="column" color="purple.600" bgColor="purple.200" p={3}>
     <Flex w="full" align="center">
       <AlertIcon color="purple.600" />
       <AlertTitle ml={-1} fontSize="sm">
-        xINV withdrawals are subject to a 10-day escrow
+        x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} withdrawals are subject to a {duration}-day escrow
       </AlertTitle>
     </Flex>
     {showDescription && (
       <AlertDescription fontWeight="medium" fontSize="sm">
-        During this duration, the withdrawn amount will not earn INV rewards and cannot be used as collateral. New
+        During this duration, the withdrawn amount will not earn {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards and cannot be used as collateral. New
         withdrawals will reset the current escrow period.
       </AlertDescription>
     )}
@@ -61,8 +61,8 @@ const ClaimFromEscrowBtn = ({
     isDisabled={moment(withdrawalTime).isAfter(moment())}
   >
     {moment(withdrawalTime).isAfter(moment())
-      ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV unlocks ${timeUntil(withdrawalTime)}`
-      : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} INV`}
+      ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} unlocks ${timeUntil(withdrawalTime)}`
+      : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}`}
   </SubmitButton>
 }
 
@@ -95,8 +95,8 @@ const ApproveButton = ({
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
   const { library, chainId, account } = useWeb3React<Web3Provider>()
-  const { ANCHOR_ETH, XINV, XINV_V1, ESCROW, ESCROW_V1, AN_ETH_REPAY_ALL } = getNetworkConfigConstants(chainId);
-  const isEthMarket = asset.token === ANCHOR_ETH;
+  const { ANCHOR_CHAIN_COIN, XINV, XINV_V1, ESCROW, ESCROW_OLD, AN_CHAIN_COIN_REPAY_ALL } = getNetworkConfigConstants(chainId);
+  const isEthMarket = asset.token === ANCHOR_CHAIN_COIN;
   const { approvals } = useApprovals()
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
@@ -116,7 +116,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   }
 
   const handleEthRepayAll = () => {
-    const repayAllContract = getEthRepayAllContract(AN_ETH_REPAY_ALL, library?.getSigner())
+    const repayAllContract = getEthRepayAllContract(AN_CHAIN_COIN_REPAY_ALL, library?.getSigner())
 
     const parsedBal = getParsedBalance(borrowBalances, asset.token, asset.underlying.decimals)
     const dailyInterests = removeScientificFormat(getMonthlyRate(parsedBal, asset.borrowApy) / 30);
@@ -133,7 +133,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     return repayAllContract.repayBorrow(constants.MaxUint256)
   }
 
-  const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalTime: withdrawalTime_v1, withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_OLD)
   const { withdrawalTime, withdrawalAmount } = useEscrow(ESCROW)
 
   const contract =
@@ -145,7 +145,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     case AnchorOperations.supply:
       return (
         <Stack w="full" spacing={4}>
-          {asset.token === XINV && <XINVEscrowAlert />}
+          {asset.token === XINV && asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert duration={asset.escrowDuration} />}
           {!isApproved ? (
             <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
           ) : (
@@ -163,7 +163,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     case AnchorOperations.withdraw:
       return (
         <Stack w="full" spacing={4}>
-          {asset.token === XINV && <XINVEscrowAlert showDescription />}
+          {asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert showDescription duration={asset.escrowDuration} />}
           {asset.token === XINV && withdrawalAmount?.gt(0) && library?.getSigner() && (
             <ClaimFromEscrowBtn
               escrowAddress={ESCROW}
@@ -174,7 +174,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
           )}
           {asset.token === XINV_V1 && withdrawalAmount_v1?.gt(0) && library?.getSigner() && (
             <ClaimFromEscrowBtn
-              escrowAddress={ESCROW_V1}
+              escrowAddress={ESCROW_OLD}
               withdrawalTime={withdrawalTime_v1}
               withdrawalAmount={withdrawalAmount_v1}
               signer={library?.getSigner()}

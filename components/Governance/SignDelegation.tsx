@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Flex, Text, Textarea, useClipboard } from '@chakra-ui/react';
 import { EditIcon, CopyIcon } from '@chakra-ui/icons';
-import { InfoMessage } from '@inverse/components/common/Messages';
-import { SubmitButton } from '@inverse/components/common/Button';
-import { getDelegationSig } from '@inverse/util/governance';
+import { InfoMessage } from '@app/components/common/Messages';
+import { SubmitButton } from '@app/components/common/Button';
+import { getDelegationSig } from '@app/util/governance';
 import { JsonRpcSigner } from '@ethersproject/providers';
 
 export const SignDelegation = ({
@@ -46,7 +46,7 @@ export const SignDelegation = ({
                         Previous delegations to other addresses (including yours) will be withdrawn.
                         You can also change your delegate at any time in the future.
                         <Text mt="2" mb="2" fontWeight="bold">
-                            Delegation will apply for both INV and xINV.
+                            Delegation will apply for both {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} and x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}.
                         </Text>
                         <Text mt="2" mb="2" fontWeight="bold">
                             Once signed, you will need to {

@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { render } from '@testing-library/react'
-import ScannerLink from '@inverse/components/common/ScannerLink';
+import ScannerLink from '@app/components/common/ScannerLink';
 
 describe('ScannerLink', () => {
   it('renders correct address link', () => {

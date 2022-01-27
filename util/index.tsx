@@ -1,13 +1,12 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks'
+import { getNetworkConfigConstants } from '@app/util/networks'
 import localforage from 'localforage';
-import { getProvider } from '@inverse/util/providers';
-import { NetworkIds } from '@inverse/types';
+import { getProvider } from '@app/util/providers';
 
 export const getEnsName = async (address: string, isBackendSide = false, specificProvider?: any): Promise<string> => {
   try {
     const rememberedName: string = isBackendSide ? '' : await localforage.getItem(`ensName-${address}`) || '';
     if (rememberedName) { return rememberedName }
-    const provider = specificProvider || getProvider(NetworkIds.mainnet, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
+    const provider = specificProvider || getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
     const ensName = await provider.lookupAddress(address);
     if (ensName && !isBackendSide) {
       await localforage.setItem(`ensName-${address}`, ensName);
@@ -36,4 +35,23 @@ export const namedAddress = (address: string, chainId?: string | number, ensName
 
 export const shortenAddress = (address: string) => {
   return `${address.substr(0, 6)}...${address.substr(address.length - 4)}`
+}
+
+export const checkEnv = () => {
+  if (
+    !process.env.NEXT_PUBLIC_CHAIN_ID
+    || !process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK
+    || !process.env.NEXT_PUBLIC_REWARD_TOKEN
+    || !process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
+    || !process.env.NEXT_PUBLIC_DOLA
+    || !process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN
+    || !process.env.NEXT_PUBLIC_ANCHOR_LENS
+    || !process.env.NEXT_PUBLIC_ANCHOR_COMPTROLLER
+    || !process.env.NEXT_PUBLIC_ANCHOR_ORACLE
+    || !process.env.NEXT_PUBLIC_ANCHOR_TREASURY
+    || !process.env.NEXT_PUBLIC_ANCHOR_COIN_REPAY_ALL
+    || !process.env.NEXT_PUBLIC_ANCHOR_ESCROW
+  ) {
+    throw new Error("Missing Config")
+  }
 }

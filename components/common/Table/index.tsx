@@ -1,8 +1,8 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Flex, Stack, Box } from '@chakra-ui/react'
-import { TEST_IDS } from '@inverse/config/test-ids'
+import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 
 export type Column = {
   label: string

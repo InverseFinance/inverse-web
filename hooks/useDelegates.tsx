@@ -1,5 +1,5 @@
-import { Delegate, NetworkIds, SWR } from '@inverse/types'
-import { fetcher } from '@inverse/util/web3'
+import { Delegate, NetworkIds, SWR } from '@app/types'
+import { fetcher } from '@app/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
@@ -15,7 +15,7 @@ type TopDelegates = {
 export const useDelegates = (): SWR & Delegates => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/delegates?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/delegates`, fetcher)
 
   return {
     delegates: data?.delegates,

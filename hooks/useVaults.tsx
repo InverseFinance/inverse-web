@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { NetworkIds, SWR } from '@inverse/types'
-import { fetcher } from '@inverse/util/web3'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { NetworkIds, SWR } from '@app/types'
+import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useRouter } from 'next/dist/client/router'
@@ -20,7 +20,7 @@ type Rewards = {
 export const useVaultRates = (): SWR & Rates => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/vaults?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/vaults?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
 
   return {
     lastDistribution: data ? new Date(data.lastDistribution * 1000) : undefined,

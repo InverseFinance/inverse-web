@@ -1,7 +1,7 @@
 import "source-map-support";
-import { getNetworkConfig } from '@inverse/config/networks';
-import { getRedisClient } from '@inverse/util/redis';
-import { NetworkIds, ProposalStatus } from '@inverse/types';
+import { getNetworkConfig } from '@app/util/networks';
+import { getRedisClient } from '@app/util/redis';
+import { NetworkIds, ProposalStatus } from '@app/types';
 
 const client = getRedisClient();
 

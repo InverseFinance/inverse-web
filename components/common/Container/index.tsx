@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
-import Link from '@inverse/components/common/Link'
+import Link from '@app/components/common/Link'
 import { NotifBadge } from '../NotifBadge'
 
 export const Container = ({

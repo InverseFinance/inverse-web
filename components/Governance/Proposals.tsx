@@ -1,14 +1,14 @@
 import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
-import Container from '@inverse/components/common/Container'
-import { ProposalPreview } from '@inverse/components/Governance/Proposal'
-import { SkeletonBlob } from '@inverse/components/common/Skeleton'
-import { useGovernanceNotifs, useProposals } from '@inverse/hooks/useProposals'
-import { GovEra, Proposal, ProposalStatus } from '@inverse/types'
+import Container from '@app/components/common/Container'
+import { ProposalPreview } from '@app/components/Governance/Proposal'
+import { SkeletonBlob } from '@app/components/common/Skeleton'
+import { useGovernanceNotifs, useProposals } from '@app/hooks/useProposals'
+import { GovEra, Proposal, ProposalStatus } from '@app/types'
 import NextLink from 'next/link'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers';
 import { DeleteIcon } from '@chakra-ui/icons'
-import { clearLocalDrafts } from '@inverse/util/governance'
+import { clearLocalDrafts } from '@app/util/governance'
 import { useState } from 'react'
 
 export const Proposals = () => {

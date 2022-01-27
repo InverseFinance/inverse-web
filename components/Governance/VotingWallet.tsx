@@ -1,19 +1,19 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import { Web3Provider } from '@ethersproject/providers'
-import { Avatar } from '@inverse/components/common/Avatar'
-import Container from '@inverse/components/common/Container'
-import { ChangeDelegatesModal } from '@inverse/components/Governance'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
-import { namedAddress } from '@inverse/util'
+import { Avatar } from '@app/components/common/Avatar'
+import Container from '@app/components/common/Container'
+import { ChangeDelegatesModal } from '@app/components/Governance'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { namedAddress } from '@app/util'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { SubmitDelegationsModal } from './GovernanceModals'
-import Link from '@inverse/components/common/Link'
-import { InfoMessage } from '@inverse/components/common/Messages'
+import Link from '@app/components/common/Link'
+import { InfoMessage } from '@app/components/common/Messages'
 import { useRouter } from 'next/dist/client/router'
-import { useNamedAddress } from '@inverse/hooks/useNamedAddress'
+import { useNamedAddress } from '@app/hooks/useNamedAddress'
 
 type VotingWalletFieldProps = {
   label: string
@@ -75,6 +75,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   const needToShowXinvDelegate = parseFloat(formatUnits(xinvBalance)) > 0 && invDelegate !== xinvDelegate
+  const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!
 
   return (
     <Container label="Your Current Voting Power">
@@ -91,22 +92,22 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             {addressName}
           </Link>
         </Flex>
-        <VotingWalletField label="INV">
+        <VotingWalletField label={rtokenSymbol}>
           {(invBalance ? parseFloat(formatUnits(invBalance)) : 0).toFixed(4)}
         </VotingWalletField>
-        <VotingWalletField label="xINV">
+        <VotingWalletField label={`x${rtokenSymbol}`}>
           {(xinvBalance ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
-        <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : 'Delegating INV to'}
+        <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : `Delegating ${rtokenSymbol} to`}
           delegate={invDelegate} account={userAddress} chainId={chainId?.toString()} />
         {
           needToShowXinvDelegate ?
             <>
-              <DelegatingTo label={'Delegating xINV to'}
+              <DelegatingTo label={`Delegating x${rtokenSymbol} to`}
                 delegate={xinvDelegate} account={userAddress} chainId={chainId?.toString()} />
               <InfoMessage alertProps={{ fontSize: '12px' }}
-                description="Your xINV delegation is out of sync with INV, you can sync them by doing the delegation process." />
+                description={`Your x${rtokenSymbol} delegation is out of sync with ${rtokenSymbol}, you can sync them by doing the delegation process`} />
             </>
             : null
         }

@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { FormControl, FormLabel, VStack } from '@chakra-ui/react'
-import { Input } from '@inverse/components/common/Input'
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete'
-import ScannerLink from '@inverse/components/common/ScannerLink'
+import { Input } from '@app/components/common/Input'
+import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete'
+import ScannerLink from '@app/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { AutocompleteItem, TemplateProposalFormActionFields, Token } from '@inverse/types'
+import { AutocompleteItem, TemplateProposalFormActionFields, Token } from '@app/types'
 import { parseUnits } from '@ethersproject/units';
-import { shortenAddress } from '@inverse/util'
+import { shortenAddress } from '@app/util'
 
 export const TokenTemplate = ({
     defaultAddress = '',

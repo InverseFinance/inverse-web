@@ -1,7 +1,7 @@
 import { Stack, Flex, Image, Text } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { useVaultRates } from '@inverse/hooks/useVaults';
-import { TokenList, Token } from '@inverse/types';
+import { useVaultRates } from '@app/hooks/useVaults';
+import { TokenList, Token } from '@app/types';
 import { AssetsDropdown } from './AssetsDropdown';
 
 type ToAssetDropDownProps = {

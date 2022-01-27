@@ -1,9 +1,9 @@
 import { Stack, Text, Flex, Image } from '@chakra-ui/react';
-import { Vaults } from '@inverse/types';
+import { Vaults } from '@app/types';
 import { ChevronRightIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { formatUnits } from 'ethers/lib/utils';
-import { useVaultBalances } from '@inverse/hooks/useBalances';
-import { AssetsDropdown } from '@inverse/components/common/Assets/AssetsDropdown';
+import { useVaultBalances } from '@app/hooks/useBalances';
+import { AssetsDropdown } from '@app/components/common/Assets/AssetsDropdown';
 
 type WithdrawAssetDropdownProps = {
     vaults: Vaults,

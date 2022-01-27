@@ -1,11 +1,11 @@
 import { Flex, Stack, Text, useDisclosure } from '@chakra-ui/react'
-import { Avatar } from '@inverse/components/common/Avatar'
-import Container from '@inverse/components/common/Container'
-import { AgainstVotesModal, ForVotesModal } from '@inverse/components/Governance/GovernanceModals'
-import { SkeletonList } from '@inverse/components/common/Skeleton'
-import { QUORUM_VOTES } from '@inverse/config/constants'
-import { ProposalStatus, ProposalVote, Proposal } from '@inverse/types'
-import { namedAddress } from '@inverse/util'
+import { Avatar } from '@app/components/common/Avatar'
+import Container from '@app/components/common/Container'
+import { AgainstVotesModal, ForVotesModal } from '@app/components/Governance/GovernanceModals'
+import { SkeletonList } from '@app/components/common/Skeleton'
+import { QUORUM_VOTES } from '@app/config/constants'
+import { ProposalStatus, ProposalVote, Proposal } from '@app/types'
+import { namedAddress } from '@app/util'
 import NextLink from 'next/link'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';

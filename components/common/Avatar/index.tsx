@@ -1,6 +1,6 @@
 import { Box, BoxProps } from '@chakra-ui/react'
 import Davatar, { DavatarProps } from '@davatar/react';
-import { NetworkIds } from '@inverse/types';
+import { NetworkIds } from '@app/types';
 import { AlchemyProvider } from '@ethersproject/providers';
 import { isAddress } from 'ethers/lib/utils';
 

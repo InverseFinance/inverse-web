@@ -1,4 +1,4 @@
-import { shortenNumber } from '@inverse/util/markets';
+import { shortenNumber } from '@app/util/markets';
 import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps } from 'victory';
 import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';

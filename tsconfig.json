@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,13 +28,23 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
-      "@inverse/*": ["*"]
+      "@app/*": [
+        "*"
+      ]
     },
-    "types": ["jest"]
+    "types": [
+      "jest"
+    ],
+    "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "__tests__/setupEnv.js"
+  ],
   "exclude": [
     "node_modules",
-    "cypress",
-  ],
+    "cypress"
+  ]
 }

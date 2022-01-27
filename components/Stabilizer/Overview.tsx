@@ -1,6 +1,6 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import Container from '@inverse/components/common/Container'
-import { useStabilizerBalance } from '@inverse/hooks/useBalances'
+import Container from '@app/components/common/Container'
+import { useStabilizerBalance } from '@app/hooks/useBalances'
 import { commify } from 'ethers/lib/utils'
 
 type StabilizerOverviewFieldProps = {

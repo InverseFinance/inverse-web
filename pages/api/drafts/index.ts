@@ -1,9 +1,9 @@
 
-import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@inverse/util/governance';
-import { getRedisClient } from '@inverse/util/redis';
-import { ProposalFormActionFields } from '@inverse/types';
+import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@app/util/governance';
+import { getRedisClient } from '@app/util/redis';
+import { ProposalFormActionFields } from '@app/types';
 import { verifyMessage } from 'ethers/lib/utils';
-import { DRAFT_SIGN_MSG } from '@inverse/config/constants';
+import { DRAFT_SIGN_MSG } from '@app/config/constants';
 
 const client = getRedisClient();
 

@@ -1,25 +1,26 @@
 import { Flex, Stack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import { AnchorBorrowModal, AnchorCollateralModal, AnchorSupplyModal } from '@inverse/components/Anchor/AnchorModals'
-import Container from '@inverse/components/common/Container'
-import { SkeletonBlob, SkeletonList } from '@inverse/components/common/Skeleton'
-import Table, { Column } from '@inverse/components/common/Table'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances'
-import { useEscrow } from '@inverse/hooks/useEscrow'
-import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { useAccountMarkets, useMarkets } from '@inverse/hooks/useMarkets'
-import { usePrices } from '@inverse/hooks/usePrices'
-import { Market } from '@inverse/types'
+import { AnchorBorrowModal, AnchorCollateralModal, AnchorSupplyModal } from '@app/components/Anchor/AnchorModals'
+import Container from '@app/components/common/Container'
+import { SkeletonBlob, SkeletonList } from '@app/components/common/Skeleton'
+import Table, { Column } from '@app/components/common/Table'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useEscrow } from '@app/hooks/useEscrow'
+import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useAccountMarkets, useMarkets } from '@app/hooks/useMarkets'
+import { usePrices } from '@app/hooks/usePrices'
+import { Market } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useState } from 'react'
-import { TEST_IDS } from '@inverse/config/test-ids'
-import { UnderlyingItem } from '@inverse/components/common/Assets/UnderlyingItem'
+import { TEST_IDS } from '@app/config/test-ids'
+import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
-import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@inverse/util/markets'
+import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
+import { RTOKEN_CG_ID } from '@app/variables/tokens'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -56,7 +57,11 @@ const getColumn = (
     rewardApy: {
       field: 'rewardApy',
       label: 'Reward APY',
-      tooltip: <><Text fontWeight="bold">APY rewarded in INV tokens</Text><Text>Accrues INV in a reward pool</Text><Text>Total rewards near <b>Claim</b> button</Text>Reward APY May vary over time</>,
+      tooltip: <>
+        <Text fontWeight="bold">APY rewarded in {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} tokens</Text>
+        <Text>Accrues {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} in a reward pool</Text>
+        <Text>Total rewards near <b>Claim</b> button</Text>Reward APY May vary over time
+      </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApy, monthlyInvRewards, priceUsd, underlying }: Market) => (
         <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
@@ -109,7 +114,7 @@ const getColumn = (
 export const AnchorSupplied = () => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { markets, isLoading: marketsLoading } = useMarkets()
-  const { usdSupplyCoingecko ,isLoading: accountLiquidityLoading } = useAccountLiquidity()
+  const { usdSupplyCoingecko, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
@@ -120,9 +125,9 @@ export const AnchorSupplied = () => {
   const { isOpen: isCollateralOpen, onOpen: onCollateralOpen, onClose: onCollateralClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
   const [double, setDouble] = useState(false)
-  const { XINV, XINV_V1, ESCROW, ESCROW_V1 } = getNetworkConfigConstants(chainId)
+  const { XINV, XINV_V1, ESCROW, ESCROW_OLD } = getNetworkConfigConstants(chainId)
 
-  const { withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_V1)
+  const { withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_OLD)
   const { withdrawalAmount } = useEscrow(ESCROW)
 
   const handleSupply = (asset: Market) => {
@@ -130,7 +135,7 @@ export const AnchorSupplied = () => {
     onOpen()
   }
 
-  const invPriceUsd = prices['inverse-finance']?.usd || 0;
+  const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
 
   const marketsWithBalance = markets?.map((market) => {
     const { token, underlying, priceUsd } = market;
@@ -219,7 +224,7 @@ export const AnchorSupplied = () => {
         onClick={handleSupply}
       />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
-      {modalAsset && <AnchorCollateralModal isOpen={isCollateralOpen} onClose={onCollateralClose} asset={modalAsset} /> }
+      {modalAsset && <AnchorCollateralModal isOpen={isCollateralOpen} onClose={onCollateralClose} asset={modalAsset} />}
     </Container>
   )
 }
@@ -313,7 +318,7 @@ export const AnchorSupply = () => {
     const { underlying } = market;
     const balance = balances
       ? parseFloat(
-        formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.ETH, underlying.decimals)
+        formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.CHAIN_COIN, underlying.decimals)
       )
       : 0
     return { ...market, balance }
@@ -385,7 +390,7 @@ export const AnchorBorrow = () => {
       <Container
         label="Borrow"
         description="Borrow against your supplied collateral"
-        href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
+        href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       >
         <SkeletonList />
       </Container>
@@ -396,7 +401,7 @@ export const AnchorBorrow = () => {
     <Container
       label="Borrow"
       description="Borrow against your supplied collateral"
-      href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/borrowing"
+      href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
       <Table columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}

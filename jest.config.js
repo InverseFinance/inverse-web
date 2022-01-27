@@ -1,4 +1,5 @@
 module.exports = {
+    globalSetup: '<rootDir>/__tests__/setupEnv.js',
     collectCoverageFrom: [
       '**/*.{js,jsx,ts,tsx}',
       '!**/*.d.ts',
@@ -17,7 +18,7 @@ module.exports = {
       '^.+\\.(jpg|jpeg|png|gif|webp|svg)$': `<rootDir>/__mocks__/fileMock.js`,
   
       // Handle module aliases
-      '^@inverse/(.*)': '<rootDir>/$1',
+      '^@app/(.*)': '<rootDir>/$1',
     },
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],

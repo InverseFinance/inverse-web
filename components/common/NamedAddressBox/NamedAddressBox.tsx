@@ -1,5 +1,5 @@
 import { Box, BoxProps } from '@chakra-ui/react';
-import { useNamedAddress } from '@inverse/hooks/useNamedAddress';
+import { useNamedAddress } from '@app/hooks/useNamedAddress';
 
 export const NamedAddressBox = ({ children, ...props }: BoxProps) => {
     const { addressName } = useNamedAddress(children as string);

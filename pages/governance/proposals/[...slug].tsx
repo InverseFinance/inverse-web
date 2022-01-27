@@ -1,6 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import {
   AgainstVotes,
   ForVotes,
@@ -8,15 +8,15 @@ import {
   ProposalDetails,
   VoteButton,
   VotingWallet,
-} from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+} from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
-import { Proposal, GovEra } from '@inverse/types';
-import { useProposals } from '@inverse/hooks/useProposals';
+import { Proposal, GovEra } from '@app/types';
+import { useProposals } from '@app/hooks/useProposals';
 import Head from 'next/head'
-import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
-import { updateReadGovernanceNotifs } from '@inverse/util/governance'
+import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
+import { updateReadGovernanceNotifs } from '@app/util/governance'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
 
@@ -47,7 +47,7 @@ export const Governance = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Proposal Details</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Proposal Details</title>
       </Head>
       <AppNav active="Governance" />
       <Breadcrumbs

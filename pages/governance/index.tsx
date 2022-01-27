@@ -7,13 +7,13 @@ import {
   PublicDraftProposals,
   RecentProposals,
   VotingWallet,
-} from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
-import { Link } from '@inverse/components/common/Link'
+} from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
+import { Link } from '@app/components/common/Link'
 import Head from 'next/head'
-import { useLocalDraftProposals, usePublicDraftProposals } from '@inverse/hooks/useProposals'
-import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
+import { useLocalDraftProposals, usePublicDraftProposals } from '@app/hooks/useProposals'
+import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 
 export const Governance = () => {
   const { drafts: localDratts } = useLocalDraftProposals()
@@ -21,7 +21,7 @@ export const Governance = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Governance</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Governance</title>
       </Head>
       <AppNav active="Governance" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>

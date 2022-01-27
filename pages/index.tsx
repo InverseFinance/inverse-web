@@ -1,12 +1,13 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
 import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
-import LinkButton, { LinkOutlineButton } from '@inverse/components/common/Button'
-import Layout from '@inverse/components/common/Layout'
-import { LandingNav } from '@inverse/components/common/Navbar'
-import { TEST_IDS } from '@inverse/config/test-ids'
-import { useDOLA } from '@inverse/hooks/useDOLA'
-import { usePrices } from '@inverse/hooks/usePrices'
-import { useTVL } from '@inverse/hooks/useTVL'
+import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
+import Layout from '@app/components/common/Layout'
+import { LandingNav } from '@app/components/common/Navbar'
+import { TEST_IDS } from '@app/config/test-ids'
+import { useDOLA } from '@app/hooks/useDOLA'
+import { usePrices } from '@app/hooks/usePrices'
+import { useTVL } from '@app/hooks/useTVL'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -80,7 +81,7 @@ export const Landing = () => {
     },
     {
       label: '$INV Price',
-      value: prices['inverse-finance'] ? prices['inverse-finance'].usd : 0,
+      value: prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0,
       showDollar: true,
     },
   ]
@@ -104,7 +105,7 @@ export const Landing = () => {
               <Text>Borrow, Lend & Earn</Text>
               <Stack direction="row">
                 <Text>with</Text>
-                <Text color="secondary">Inverse Finance</Text>
+                <Text color="secondary">{process.env.NEXT_PUBLIC_TITLE}</Text>
               </Stack>
             </Flex>
           </Flex>
@@ -132,7 +133,7 @@ export const Landing = () => {
             </Flex>
           </Flex>
           <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
-            Inverse is proudly partnered with leading cryptocurrency & DeFi protocols
+            {process.env.NEXT_PUBLIC_SHORTNAME} is proudly partnered with leading cryptocurrency & DeFi protocols
           </Text>
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
@@ -201,7 +202,7 @@ export const Landing = () => {
             <Text fontSize="lg">
               Our vision is to establish one of DeFi’s major financial ecosystems giving users of all levels inclusive
               access to meaningful opportunities spanning a variety of innovative, DAO-owned protocols, all governed by
-              an empowered INV community.
+              an empowered {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} community.
             </Text>
             <Flex w={32}>
               <LinkButton href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>

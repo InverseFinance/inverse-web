@@ -1,8 +1,8 @@
-import { BackgroundProps } from '@inverse/node_modules/@chakra-ui/react/dist/types'
+import { BackgroundProps } from '@app/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
-import { HandleTxOptions } from '@inverse/util/transactions';
+import { HandleTxOptions } from '@app/util/transactions';
 
 export interface Token {
   address: string
@@ -11,6 +11,7 @@ export interface Token {
   image: string
   decimals: number
   coingeckoId?: string
+  isWrappedChainCoin?: boolean
 }
 
 export interface TokenWithBalance extends Token {
@@ -43,6 +44,7 @@ export type Market = {
   monthlyInvRewards?: number
   monthlyAssetRewards?: number
   monthlyBorrowFee?: number
+  escrowDuration?: number
 }
 
 export enum GovEra {
@@ -154,7 +156,7 @@ export type NetworkConfig = {
   FLOKI: string,
   DOLA_PAYROLL: string,
   DEPLOYER: string,
-  escrow_v1: string,
+  escrow_old: string,
   escrow: string,
   harvester: string,
   // current
@@ -162,34 +164,19 @@ export type NetworkConfig = {
   // old
   governanceAlpha: string,
   multiDelegator: string,
+  stabilizer: string,
   vaults: {
     vaultUsdcEth: string,
     vaultDaiWbtc: string,
     vaultDaiYfi: string,
     vaultDaiEth: string,
   };
-  feds: {
-    fusepool6: string,
-    anchor: string,
-  }
   anchor: {
     lens: string,
     comptroller: string,
     oracle: string,
-    stabilizer: string,
     treasury: string,
-    anEthRepayAll: string,
-    markets: {
-      dola: string,
-      eth: string,
-      wbtc: string,
-      xsushi: string,
-      yfi: string,
-      steth: string,
-      dola3poolcrv: string,
-      invdolaslp: string,
-      floki: string,
-    };
+    anChainCoinRepayAll: string,
   }
   [key: string]: string | any;
 }

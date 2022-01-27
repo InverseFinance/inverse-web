@@ -1,5 +1,5 @@
-import { FedEvent, FedWithData, NetworkIds, SWR, Token } from '@inverse/types'
-import { fetcher } from '@inverse/util/web3'
+import { FedEvent, FedWithData, NetworkIds, SWR, Token } from '@app/types'
+import { fetcher } from '@app/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
@@ -27,7 +27,7 @@ type DAO = {
 export const useDAO = (): SWR & DAO => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/transparency/dao?chainId=${chainId||NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useSWR(`/api/transparency/dao`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,

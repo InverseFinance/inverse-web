@@ -2,8 +2,8 @@
 // TODO: Refactor this entire mess
 import { isAddress } from '@ethersproject/address'
 import { Web3Provider } from '@ethersproject/providers'
-import { getAbis } from '@inverse/config/abis'
-import etherJsFetcher from '@inverse/util/fetcher'
+import { getAbis } from '@app/config/abis'
+import etherJsFetcher from '@app/util/fetcher'
 import { useWeb3React } from '@web3-react/core'
 import { Contract } from 'ethers'
 import { useEffect } from 'react'

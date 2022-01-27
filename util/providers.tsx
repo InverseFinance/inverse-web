@@ -1,5 +1,5 @@
 import { AlchemyProvider, InfuraProvider, CloudflareProvider, JsonRpcProvider, FallbackProvider } from "@ethersproject/providers";
-import { NetworkIds } from '@inverse/types';
+import { NetworkIds } from '@app/types';
 
 export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
     if(chainId === NetworkIds.ftm) {

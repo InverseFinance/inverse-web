@@ -1,11 +1,11 @@
-import { AddressAutocompleteProps, AutocompleteItem } from '@inverse/types';
+import { AddressAutocompleteProps, AutocompleteItem } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import { useEffect, useState } from 'react';
-import { useTopDelegates } from '@inverse/hooks/useDelegates';
-import { namedAddress } from '@inverse/util';
+import { useTopDelegates } from '@app/hooks/useDelegates';
+import { namedAddress } from '@app/util';
 import { Text, Flex } from '@chakra-ui/react';
-import { Avatar } from '@inverse/components/common/Avatar';
+import { Avatar } from '@app/components/common/Avatar';
 
 export const TopDelegatesAutocomplete = ({
     onItemSelect,

@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { Modal } from '@inverse/components/common/Modal';
+import { Modal } from '@app/components/common/Modal';
 import { Stack, Text } from '@chakra-ui/react';
-import { SubmitButton } from '@inverse/components/common/Button';
+import { SubmitButton } from '@app/components/common/Button';
 import { useRouter } from 'next/dist/client/router';
 import { useEffect } from 'react';
 import { isAddress } from 'ethers/lib/utils';
-import { InfoMessage } from '@inverse/components/common/Messages';
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
-import { AutocompleteItem } from '@inverse/types';
-import { useTopDelegates } from '@inverse/hooks/useDelegates';
-import { namedAddress } from '@inverse/util';
+import { InfoMessage } from '@app/components/common/Messages';
+import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete';
+import { AutocompleteItem } from '@app/types';
+import { useTopDelegates } from '@app/hooks/useDelegates';
+import { namedAddress } from '@app/util';
 import { ViewIcon } from '@chakra-ui/icons';
 import { TopDelegatesAutocomplete } from '../Input/TopDelegatesAutocomplete';
 

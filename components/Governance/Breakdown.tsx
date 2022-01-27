@@ -1,8 +1,8 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import Container from '@inverse/components/common/Container'
-import { SkeletonList } from '@inverse/components/common/Skeleton'
-import { useProposals } from '@inverse/hooks/useProposals'
-import { Proposal, ProposalStatus } from '@inverse/types'
+import Container from '@app/components/common/Container'
+import { SkeletonList } from '@app/components/common/Skeleton'
+import { useProposals } from '@app/hooks/useProposals'
+import { Proposal, ProposalStatus } from '@app/types'
 import { VictoryPie } from 'victory'
 
 export const Breakdown = () => {

@@ -3,8 +3,8 @@ import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal } from '@inverse/types';
-import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS } from '@inverse/config/constants';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal } from '@app/types';
+import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS } from '@app/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {

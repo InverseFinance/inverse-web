@@ -1,17 +1,17 @@
 import { Flex } from '@chakra-ui/react'
-import { Breadcrumbs } from '@inverse/components/common/Breadcrumbs'
-import { Breakdown, DelegatesPreview, VotingWallet } from '@inverse/components/Governance'
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
+import { Breakdown, DelegatesPreview, VotingWallet } from '@app/components/Governance'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import { useWeb3React } from '@web3-react/core';
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import useEtherSWR from '@inverse/hooks/useEtherSWR'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import useEtherSWR from '@app/hooks/useEtherSWR'
 import { formatUnits } from 'ethers/lib/utils';
 import { Web3Provider } from '@ethersproject/providers';
-import { ProposalFormContainer } from '@inverse/components/Governance/Propose/ProposalFormContainer'
+import { ProposalFormContainer } from '@app/components/Governance/Propose/ProposalFormContainer'
 import { useRouter } from 'next/dist/client/router'
 import Head from 'next/head'
-import { GovernanceInfos } from '@inverse/components/Governance/GovernanceInfos'
+import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 
 export const Propose = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
@@ -31,7 +31,7 @@ export const Propose = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - New Proposal</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - New Proposal</title>
       </Head>
       <AppNav active="Propose" />
       <Breadcrumbs

@@ -1,5 +1,5 @@
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { NetworkIds, AddressAutocompleteProps } from '@inverse/types';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { AddressAutocompleteProps } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 import { Input } from '.';
 import { Autocomplete } from './Autocomplete';
@@ -15,7 +15,7 @@ export const AddressAutocomplete = ({
     list,
     ...props
 }: AddressAutocompleteProps) => {
-    const { NAMED_ADDRESSES } = getNetworkConfigConstants(NetworkIds.mainnet)
+    const { NAMED_ADDRESSES } = getNetworkConfigConstants(process.env.NEXT_PUBLIC_CHAIN_ID!)
 
     const addressesList = list || Object.entries(NAMED_ADDRESSES)
         .map(([ad, name]) => ({ value: ad, label: name }));

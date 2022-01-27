@@ -1,26 +1,25 @@
-import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI } from "@inverse/config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI, ESCROW_ABI } from "@app/config/abis";
 import {
-  BLOCKS_PER_DAY,
   DAYS_PER_YEAR,
   ETH_MANTISSA,
-} from "@inverse/config/constants";
+  BLOCKS_PER_DAY,
+} from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import "source-map-support";
-import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks';
-import { StringNumMap } from '@inverse/types';
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis';
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { StringNumMap } from '@app/types';
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 
 const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
   100;
 
 export default async function handler(req, res) {
-  const { chainId = '1' } = req.query;
   // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(chainId, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache`;
+  const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.1.0`;
 
   try {
     const {
@@ -30,8 +29,10 @@ export default async function handler(req, res) {
       XINV_V1,
       XINV,
       ORACLE,
-      ANCHOR_ETH,
+      ANCHOR_CHAIN_COIN,
       COMPTROLLER,
+      ESCROW,
+      ESCROW_OLD,
     } = getNetworkConfigConstants(networkConfig);
 
     // 5min
@@ -96,7 +97,9 @@ export default async function handler(req, res) {
     ]);
 
     const prices: StringNumMap = oraclePrices
-      .map((v, i) => parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals))))
+      .map((v, i) => {
+        return parseFloat(formatUnits(v, BigNumber.from(36).sub(UNDERLYING[addresses[i]].decimals)))
+      })
       .reduce((p, v, i) => ({ ...p, [addresses[i]]: v }), {});
 
     const supplyApys = supplyRates.map((rate) => toApy(rate));
@@ -104,6 +107,7 @@ export default async function handler(req, res) {
 
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
+ 
       return toApy(
         (speed * prices[XINV]) /
         (parseFloat(
@@ -115,7 +119,8 @@ export default async function handler(req, res) {
     });
 
     const markets = contracts.map(({ address }, i) => {
-      const underlying = address !== ANCHOR_ETH ? UNDERLYING[address] : TOKENS.ETH
+      const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
+
       return {
         token: address,
         underlying,
@@ -141,8 +146,9 @@ export default async function handler(req, res) {
       }
     });
 
-    const addXINV = async (xinvAddress: string, mintable: boolean) => {
+    const addXINV = async (xinvAddress: string, escrowAddress: string, mintable: boolean) => {
       const xINV = new Contract(xinvAddress, XINV_ABI, provider);
+      const escrowContract = new Contract(escrowAddress, ESCROW_ABI ,provider);
 
       const [
         rewardPerBlock,
@@ -171,13 +177,15 @@ export default async function handler(req, res) {
         rewardApy: 0,
         priceUsd: prices[xinvAddress] / parsedExRate,
         priceXinv: 1 / parsedExRate,
+        // in days
+        escrowDuration: parseInt((await escrowContract.callStatic.duration()).toString()) / 86400
       });
     }
 
     if(XINV_V1) {
-      await addXINV(XINV_V1, false);
+      await addXINV(XINV_V1, ESCROW_OLD ,false);
     }
-    await addXINV(XINV, true);
+    await addXINV(XINV, ESCROW ,true);
 
     const resultData = { markets };
 

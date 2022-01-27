@@ -1,15 +1,15 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@inverse/config/abis'
-import { getNetworkConfig, getNetworkConfigConstants } from '@inverse/config/networks'
-import { getProvider } from '@inverse/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@inverse/util/redis'
-import { Fed, NetworkIds } from '@inverse/types';
-import { getBnToNumber } from '@inverse/util/markets'
+import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { Fed, NetworkIds } from '@app/types';
+import { getBnToNumber } from '@app/util/markets'
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WETH, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WCOIN, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
   const cacheKey = `dao-cache-v1.1.3`;
 
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
       })
     ])
 
-    const fundsToCheck = [INV, DOLA, DAI, WETH];
+    const fundsToCheck = [INV, DOLA, DAI, WCOIN];
     const multisigsBalanceValues: BigNumber[][] = await Promise.all([
       ...Object.entries(MULTISIGS).map(([multisigAd, name]) => {
         return Promise.all(
@@ -116,7 +116,7 @@ export default async function handler(req, res) {
 
     const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
       return bns.map((bn, j) => {
-        const token = TOKENS[fundsToCheck[j]] || TOKENS['ETH'];
+        const token = TOKENS[fundsToCheck[j]] || TOKENS['CHAIN_COIN'];
         const allowance = multisigsAllowanceValues[i][j]
         return {
           token,

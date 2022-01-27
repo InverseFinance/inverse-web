@@ -1,8 +1,8 @@
 
-import useScanner from '@inverse/hooks/useScanner';
-import { namedAddress } from '@inverse/util';
-import { BLOCK_SCAN } from '@inverse/config/constants';
-import { Link } from '@inverse/components/common/Link';
+import useScanner from '@app/hooks/useScanner';
+import { namedAddress } from '@app/util';
+import { BLOCK_SCAN } from '@app/config/constants';
+import { Link } from '@app/components/common/Link';
 import { LinkProps } from '@chakra-ui/react';
 
 const ScannerLink = ({

@@ -1,9 +1,9 @@
 import { CopyIcon, DeleteIcon, DownloadIcon, EditIcon, LinkIcon } from '@chakra-ui/icons'
-import Link from '@inverse/components/common/Link'
-import { ProposalFunction } from '@inverse/types'
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { removeLocalDraft, saveLocalDraft } from '@inverse/util/governance'
-import { showToast } from '@inverse/util/notify';
+import Link from '@app/components/common/Link'
+import { ProposalFunction } from '@app/types'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { removeLocalDraft, saveLocalDraft } from '@app/util/governance'
+import { showToast } from '@app/util/notify';
 import { HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, useClipboard } from '@chakra-ui/react'
 import { useRouter } from 'next/dist/client/router'
 import { useEffect, useState } from 'react';

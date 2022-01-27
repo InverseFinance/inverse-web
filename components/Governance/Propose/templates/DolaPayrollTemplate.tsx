@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { FormControl, FormLabel, VStack } from '@chakra-ui/react'
-import { Input } from '@inverse/components/common/Input'
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete'
-import ScannerLink from '@inverse/components/common/ScannerLink'
+import { Input } from '@app/components/common/Input'
+import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete'
+import ScannerLink from '@app/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { AutocompleteItem, NetworkIds, TemplateProposalFormActionFields } from '@inverse/types'
+import { AutocompleteItem, NetworkIds, TemplateProposalFormActionFields } from '@app/types'
 import { parseUnits } from '@ethersproject/units';
-import { getNetworkConfigConstants } from '@inverse/config/networks';
-import { shortenAddress } from '@inverse/util'
-import { shortenNumber } from '@inverse/util/markets'
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { shortenAddress } from '@app/util'
+import { shortenNumber } from '@app/util/markets'
 
 const { DOLA, TOKENS, DOLA_PAYROLL } = getNetworkConfigConstants(NetworkIds.mainnet);
 const dolaToken = TOKENS[DOLA];

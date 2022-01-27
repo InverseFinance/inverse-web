@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { isAddress } from 'ethers/lib/utils'
 import { useEffect } from 'react';
-import { NetworkIds, TemplateProposalFormActionFields } from '@inverse/types'
-import { getNetworkConfigConstants } from '@inverse/config/networks';
+import { NetworkIds, TemplateProposalFormActionFields } from '@app/types'
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { AnchorTemplate } from './AnchorTemplate';
-import { InfoMessage } from '@inverse/components/common/Messages';
+import { InfoMessage } from '@app/components/common/Messages';
 
 const { COMPTROLLER } = getNetworkConfigConstants(NetworkIds.mainnet)
 

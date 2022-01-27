@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FormControl, FormLabel } from '@chakra-ui/react';
 import { ProposalInput } from './ProposalInput';
 import { isAddress } from 'ethers/lib/utils';
-import { AddressAutocomplete } from '@inverse/components/common/Input/AddressAutocomplete';
+import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete';
 
 export const ProposalFormFuncArg = ({
     type,

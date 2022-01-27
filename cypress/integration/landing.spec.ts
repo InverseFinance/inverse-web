@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { TEST_IDS } from '@inverse/config/test-ids';
+import { TEST_IDS } from '@app/config/test-ids';
 
 // Disable ESLint to prevent failing linting inside the Next.js repo.
 // If you're using ESLint on your project, we recommend installing the ESLint Cypress plugin instead:

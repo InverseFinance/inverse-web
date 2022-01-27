@@ -1,21 +1,21 @@
 import { Text, Stack, SimpleGrid, Divider } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
-import Container from '@inverse/components/common/Container'
-import { getNetworkConfigConstants } from '@inverse/config/networks'
-import { useAllowances, useStabilizerApprovals } from '@inverse/hooks/useApprovals'
-import { useBalances, useStabilizerBalance } from '@inverse/hooks/useBalances'
+import Container from '@app/components/common/Container'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { useAllowances, useStabilizerApprovals } from '@app/hooks/useApprovals'
+import { useBalances, useStabilizerBalance } from '@app/hooks/useBalances'
 import { useWeb3React } from '@web3-react/core'
 import { useState, useEffect } from 'react'
-import { getTokenBalance, hasAllowance } from '@inverse/util/web3'
-import { getParsedBalance, getToken } from '@inverse/util/markets'
-import { Token, Swappers } from '@inverse/types';
-import { InverseAnimIcon } from '@inverse/components/common/Animation'
-import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@inverse/util/contracts'
-import { handleTx, HandleTxOptions } from '@inverse/util/transactions';
+import { getTokenBalance, hasAllowance } from '@app/util/web3'
+import { getParsedBalance, getToken } from '@app/util/markets'
+import { Token, Swappers } from '@app/types';
+import { InverseAnimIcon } from '@app/components/common/Animation'
+import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
+import { handleTx, HandleTxOptions } from '@app/util/transactions';
 import { constants, BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils';
-import { STABILIZER_FEE } from '@inverse/config/constants'
-import { AssetInput } from '@inverse/components/common/Assets/AssetInput'
+import { STABILIZER_FEE } from '@app/config/constants'
+import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 
@@ -213,7 +213,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   return (
     <Container
       label="Swap using Curve or the Stabilizer"
-      description="This is a Beta version with stablecoins only - INV will be added soon"
+      description={`This is a Beta version with stablecoins only - ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} will be added soon`}
     >
       <Stack w="full" direction="column" spacing="5">
         <AssetInput

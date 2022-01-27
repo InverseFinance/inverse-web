@@ -1,7 +1,7 @@
 import { Flex, Image, Text } from '@chakra-ui/react';
-import { OLD_XINV } from '@inverse/config/constants';
-import { Prices, Token } from '@inverse/types';
-import { shortenNumber } from '@inverse/util/markets';
+import { OLD_XINV } from '@app/config/constants';
+import { Prices, Token } from '@app/types';
+import { shortenNumber } from '@app/util/markets';
 
 const FundLine = ({ token, value, usdValue, perc, showPerc = true }: { token: Token, value: number, usdValue: number, perc: number, showPerc?: boolean }) => {
     return (

@@ -1,5 +1,5 @@
-import { NetworkIds } from '@inverse/types';
-import { getNetworkConfig, getNetworkConfigConstants } from './networks';
+import { NetworkIds } from '@app/types';
+import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -58,7 +58,7 @@ export const CETHER_ABI = [
   "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 
-export const AN_ETH_REPAY_ALL_ABI = [
+export const AN_CHAIN_COIN_REPAY_ALL_ABI = [
   "function repayAll() payable",
 ];
 
@@ -82,6 +82,7 @@ export const FAUCET_ABI = [
 export const ESCROW_ABI = [
   'function pendingWithdrawals(address user) public view returns (uint withdrawalTimestamp, uint amount)',
   'function withdraw() public',
+  'function duration() public returns (uint)',
   'function governance() public view returns (address)',
 ]
 
@@ -208,19 +209,19 @@ export const MULTISIG_ABI = [
   "function getThreshold() public view returns (uint256)",
 ]
 
-export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => {
+export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
     ANCHOR_TOKENS,
     COMPTROLLER,
-    ESCROW_V1,
+    ESCROW_OLD,
     ESCROW,
     GOVERNANCE,
     GOVERNANCE_ALPHA,
     HARVESTER,
     INV,
     LENS,
-    AN_ETH_REPAY_ALL,
+    AN_CHAIN_COIN_REPAY_ALL,
     ORACLE,
     TOKENS,
     VAULT_TOKENS,
@@ -240,13 +241,13 @@ export const getAbis = (chainId = NetworkIds.mainnet): Map<string, string[]> => 
         [XINV_V1, XINV_ABI],
         [XINV, XINV_ABI],
         [COMPTROLLER, COMPTROLLER_ABI],
-        [ESCROW_V1, ESCROW_ABI],
+        [ESCROW_OLD, ESCROW_ABI],
         [ESCROW, ESCROW_ABI],
         [HARVESTER, HARVESTER_ABI],
         [GOVERNANCE, GOVERNANCE_ABI],
         [GOVERNANCE_ALPHA, GOVERNANCE_ABI],
         [LENS, LENS_ABI],
-        [AN_ETH_REPAY_ALL, AN_ETH_REPAY_ALL_ABI],
+        [AN_CHAIN_COIN_REPAY_ALL, AN_CHAIN_COIN_REPAY_ALL_ABI],
         [ORACLE, ORACLE_ABI],
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],

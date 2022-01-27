@@ -1,10 +1,10 @@
 import { Box, BoxProps } from '@chakra-ui/react';
-import sigLottie from '@inverse/public/assets/lotties/signature.json';
-import infoBubbleLottie from '@inverse/public/assets/lotties/info-bubble.json';
-import errorLottie from '@inverse/public/assets/lotties/error.json';
-import successLottie from '@inverse/public/assets/lotties/success.json';
-import warningLottie from '@inverse/public/assets/lotties/warning.json';
-import inverseLottie from '@inverse/public/assets/lotties/inverse.json';
+import sigLottie from '@app/public/assets/lotties/signature.json';
+import infoBubbleLottie from '@app/public/assets/lotties/info-bubble.json';
+import errorLottie from '@app/public/assets/lotties/error.json';
+import successLottie from '@app/public/assets/lotties/success.json';
+import warningLottie from '@app/public/assets/lotties/warning.json';
+import inverseLottie from '@app/public/assets/lotties/inverse.json';
 import Lottie from 'react-lottie';
 
 export type AnimProps = {

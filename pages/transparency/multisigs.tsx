@@ -1,15 +1,15 @@
 import { Flex, Text } from '@chakra-ui/react'
 
-import Layout from '@inverse/components/common/Layout'
-import { AppNav } from '@inverse/components/common/Navbar'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { TransparencyTabs } from '@inverse/components/Transparency/TransparencyTabs'
-import { useDAO } from '@inverse/hooks/useDAO'
-import { MultisigsFlowChart } from '@inverse/components/Transparency/MultisigsFlowChart'
-import { InfoMessage } from '@inverse/components/common/Messages'
-import { usePrices } from '@inverse/hooks/usePrices'
-import { Funds } from '@inverse/components/Transparency/Funds'
-import Link from '@inverse/components/common/Link'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { useDAO } from '@app/hooks/useDAO'
+import { MultisigsFlowChart } from '@app/components/Transparency/MultisigsFlowChart'
+import { InfoMessage } from '@app/components/common/Messages'
+import { usePrices } from '@app/hooks/usePrices'
+import { Funds } from '@app/components/Transparency/Funds'
+import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 export const MultisigsDiagram = () => {
@@ -19,7 +19,7 @@ export const MultisigsDiagram = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - Transparency Multisigs</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Multisigs</title>
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="multisigs" />

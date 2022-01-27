@@ -1,21 +1,22 @@
 import { Flex, Stack, Text, Badge, useDisclosure } from '@chakra-ui/react'
-import { StyledButton } from '@inverse/components/common/Button'
-import Container from '@inverse/components/common/Container'
-import { useAccountLiquidity } from '@inverse/hooks/useAccountLiquidity'
-import { useAnchorRewards } from '@inverse/hooks/useAnchorRewards'
+import { StyledButton } from '@app/components/common/Button'
+import Container from '@app/components/common/Container'
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { useAnchorRewards } from '@app/hooks/useAnchorRewards'
 import { commify, formatUnits } from 'ethers/lib/utils'
-import { AnimatedInfoTooltip } from '@inverse/components/common/Tooltip'
-import { TEST_IDS } from '@inverse/config/test-ids'
-import { useBorrowBalances, useSupplyBalances } from '@inverse/hooks/useBalances';
-import { useExchangeRates } from '@inverse/hooks/useExchangeRates'
-import { useMarkets } from '@inverse/hooks/useMarkets'
-import { Interests } from '@inverse/types'
-import { getTotalInterests } from '@inverse/util/markets';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { TEST_IDS } from '@app/config/test-ids'
+import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances';
+import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useMarkets } from '@app/hooks/useMarkets'
+import { Interests } from '@app/types'
+import { getTotalInterests } from '@app/util/markets';
 import { AnchorInterests } from './AnchorInterests'
-import { usePrices } from '@inverse/hooks/usePrices'
+import { usePrices } from '@app/hooks/usePrices'
 import { AnchorClaimModal } from './AnchorClaimModal'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
+import { RTOKEN_CG_ID } from '@app/variables/tokens'
 
 export const AnchorOverview = () => {
   const { account } = useWeb3React<Web3Provider>()
@@ -28,7 +29,7 @@ export const AnchorOverview = () => {
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const invPriceUsd = prices['inverse-finance']?.usd || 0;
+  const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
   const totalInterestsUsd: Interests = getTotalInterests(markets, supplyBalances, borrowBalances, exchangeRates, invPriceUsd);
 
   const rewardAmount = rewards ? parseFloat(formatUnits(rewards)) : 0
@@ -73,13 +74,13 @@ export const AnchorOverview = () => {
         !!account ? <Stack direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
           <Flex flexDirection="row" alignItems="center">
             <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
-              {`${rewardAmount.toFixed(4)} INV rewards`}
+              {`${rewardAmount.toFixed(4)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards`}
             </Text>
             <AnimatedInfoTooltip
               iconProps={{ boxSize: 3, mt: '2px' }}
               message={
                 <>
-                  This represents the total amount of your accrued INV rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APY</b>.
+                  This represents the total amount of your accrued {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APY</b>.
                 </>
               } />
           </Flex>
