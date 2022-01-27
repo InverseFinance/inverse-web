@@ -96,7 +96,6 @@ describe('Anchor Page', () => {
     cy.visit('http://localhost:3000/anchor')
     cy.shouldTestId(TEST_IDS.announcement, 'exist')
     cy.shouldTestId(TEST_IDS.connectBtn, 'exist')
-    cy.shouldTestId(TEST_IDS.anchor.claim, 'exist')
     cy.shouldTestId(TEST_IDS.anchor.buyDola, 'exist')
   })
 
