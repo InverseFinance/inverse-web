@@ -22,6 +22,8 @@ variables - customize parameters (tokens, connectors, etc)
 
 #### Development
 
+Node version 14.18.3
+
 Copy `.env.example` to `.env.local` and fill in the values
 
 Run `npm install` and `npm run dev`
