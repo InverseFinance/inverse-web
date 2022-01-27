@@ -20,7 +20,7 @@ const toApy = (rate: number) =>
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.0`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.1`;
 
   try {
     const {
@@ -122,7 +122,7 @@ export default async function handler(req, res) {
     });
 
     const rewardsPerMonth = speeds.map((speed, i) => {
-      return getBnToNumber(speed) * BLOCKS_PER_DAY * DAYS_PER_YEAR / 12 * getBnToNumber(xinvExRate);
+      return getBnToNumber(speed) * BLOCKS_PER_DAY * 30 * getBnToNumber(xinvExRate);
     });
 
     const markets = contracts.map(({ address }, i) => {
@@ -183,7 +183,7 @@ export default async function handler(req, res) {
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
         supplied:  parsedExRate * parseFloat(formatUnits(totalSupply)),
         rewardApy: 0,
-        rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * DAYS_PER_YEAR / 12,
+        rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * 30,
         priceUsd: prices[xinvAddress] / parsedExRate,
         priceXinv: 1 / parsedExRate,
         // in days
