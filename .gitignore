@@ -98,4 +98,7 @@ out
 cypress/screenshots
 cypress/videos
 
+# node
+!.nvmrc
+
 # custom settings
