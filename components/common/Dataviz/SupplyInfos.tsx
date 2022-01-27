@@ -5,7 +5,7 @@ import { Token, NetworkIds } from '@app/types';
 import { getNetwork } from '@app/util/networks';
 
 const Img = ({ src }: { src: string }) =>
-    <Image display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />
+    <Image mx="1" display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />
 
 export const SuppplyInfos = ({
     title,
@@ -20,10 +20,10 @@ export const SuppplyInfos = ({
     return (
         <InfoMessage
             title={
-                token ? <>
-                    <Image mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
+                token ? <Flex alignItems="center">
+                    <Image mr="1" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
                     {token.symbol} Total Supplies : 
-                </>
+                </Flex>
                 : title
             }
             alertProps={{ fontSize: '12px', w: 'full' }}
@@ -36,8 +36,8 @@ export const SuppplyInfos = ({
                                 <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
                                     <Flex alignItems="center">
                                         <Text>-</Text>
-                                        <Text mx="1"><Img src={projectImage ? `/assets/projects/${projectImage}` : network.image!} /></Text>
-                                        <Text lineHeight="15px">On {name || network.name}:</Text>
+                                        <Img src={projectImage ? `/assets/projects/${projectImage}` : network.image!} />
+                                        <Text>On {name || network.name}:</Text>
                                     </Flex>
                                     <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
                                 </Flex>
