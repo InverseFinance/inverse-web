@@ -2,7 +2,9 @@
   "name": "inverse-web",
   "version": "0.1.0",
   "private": true,
-  "engines" : { "node" : ">=16.13.2" },
+  "engines": {
+    "node": ">=14.18.3"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
