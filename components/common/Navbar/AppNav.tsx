@@ -39,6 +39,8 @@ import { getEnsName, namedAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
 import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector';
+import { InjectedConnector } from '@web3-react/injected-connector';
 
 const NAV_ITEMS = MENUS.nav
 
@@ -158,6 +160,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
   }, [active, userAddress, addressName], !userAddress, 1000)
 
+  useDualSpeedEffect(() => {
+    if(connector instanceof WalletLinkConnector && active) {
+      setIsPreviouslyConnected(true, 'coinbase');
+    } else if (connector instanceof InjectedConnector && active) {
+      setIsPreviouslyConnected(true, 'injected');
+    }
+  }, [active, userAddress, connector], !userAddress, 1000)
+
   const disconnect = () => {
     close()
     // visually better
@@ -177,7 +187,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       // visually better
       setTimeout(() => {
         activate(injectedConnector)
-        setIsPreviouslyConnected(true, 'injected');
       }, 100)
     }
   }
@@ -190,7 +199,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const connectCoinbaseWallet = () => {
     close()
     activate(walletLinkConnector)
-    setIsPreviouslyConnected(true, 'coinbase');
   }
 
   return (
