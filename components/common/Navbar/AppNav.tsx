@@ -17,7 +17,7 @@ import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
 import { ETH_MANTISSA } from '@app/config/constants'
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { ethereumReady, getPreviousConnectorType, injectedConnector, setIsPreviouslyConnected, setPreviousChainId, walletConnectConnector, walletLinkConnector } from '@app/util/web3'
+import { ethereumReady, getPreviousConnectorType, setIsPreviouslyConnected, setPreviousChainId } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
@@ -32,12 +32,15 @@ import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
 import { showToast } from '@app/util/notify'
-import { useGovernanceNotifs, useProposals } from '@app/hooks/useProposals';
+import { useGovernanceNotifs } from '@app/hooks/useProposals';
 import { NotifBadge } from '../NotifBadge'
 import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
+import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector';
+import { InjectedConnector } from '@web3-react/injected-connector';
 
 const NAV_ITEMS = MENUS.nav
 
@@ -157,6 +160,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
   }, [active, userAddress, addressName], !userAddress, 1000)
 
+  useDualSpeedEffect(() => {
+    if(connector instanceof WalletLinkConnector && active) {
+      setIsPreviouslyConnected(true, 'coinbase');
+    } else if (connector instanceof InjectedConnector && active) {
+      setIsPreviouslyConnected(true, 'injected');
+    }
+  }, [active, userAddress, connector], !userAddress, 1000)
+
   const disconnect = () => {
     close()
     // visually better
@@ -176,7 +187,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       // visually better
       setTimeout(() => {
         activate(injectedConnector)
-        setIsPreviouslyConnected(true, 'injected');
       }, 100)
     }
   }
@@ -189,7 +199,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const connectCoinbaseWallet = () => {
     close()
     activate(walletLinkConnector)
-    setIsPreviouslyConnected(true, 'coinbase');
   }
 
   return (

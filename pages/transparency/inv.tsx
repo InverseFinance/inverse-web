@@ -15,6 +15,7 @@ import { Funds } from '@app/components/Transparency/Funds'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { shortenNumber } from '@app/util/markets'
 
 const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -62,6 +63,10 @@ export const InvPage = () => {
   const fetchedValues = { xinvAdmin, xinvEscrow, xinvUnderlying, escrowGov, govTreasury }
   const invFlowChartData = { ...defaultValues, ...fetchedValues };
 
+  // (xinv old excluded)
+  const invSupplied = markets.find(m => m.token === XINV)?.supplied || 0;
+  const percentageInvSupplied = invTotalSupply ? invSupplied / invTotalSupply * 100 : 0;
+
   return (
     <Layout>
       <Head>
@@ -98,6 +103,10 @@ export const InvPage = () => {
                       })
                   }
                   />
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text>- % of {RTOKEN_SYMBOL} Supply staked (old excluded):</Text>
+                    <Text>{shortenNumber(percentageInvSupplied, 2)}%</Text>
+                  </Flex>
                 </>
               }
             />
