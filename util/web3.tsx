@@ -2,7 +2,6 @@ import { ExternalProvider, JsonRpcFetchFunc, JsonRpcSigner, Web3Provider } from 
 import { BLOCK_SCAN } from '@app/config/constants'
 import { getNetwork } from '@app/util/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { hexValue, formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
@@ -11,36 +10,13 @@ import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import { injectedConnector, walletLinkConnector } from '@app/variables/connectors'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
   library.pollingInterval = 12000
   return library
 }
-
-export const injectedConnector = new InjectedConnector({
-  supportedChainIds: [
-    1, // Mainnet
-    3, // Ropsten
-    4, // Rinkeby
-    5, // Goerli
-    42, // Kovan
-  ],
-})
-
-export const walletConnectConnector = new WalletConnectConnector({
-  rpc: {
-    1: "https://cloudflare-eth.com"
-  }
-})
-
-export const walletLinkConnector = new WalletLinkConnector({
-  appName: 'Inverse Finance',
-  appLogoUrl: process.env.NEXT_PUBLIC_LOGO_URL,
-  url: 'https://cloudflare-eth.com',
-  supportedChainIds: [1, 4],
-  darkMode: true,
-})
 
 export async function fetchWithTimeout(input: RequestInfo, options: RequestInit = {}, timeout = 6000): Promise<Response> {
   return new Promise(async (resolve, reject) => {
