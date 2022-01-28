@@ -22,7 +22,7 @@ variables - customize parameters (tokens, connectors, etc)
 
 #### Development
 
-Node version 14.18.3
+Node version >= 14.18.3 and npm >= 7
 
 Copy `.env.example` to `.env.local` and fill in the values
 
