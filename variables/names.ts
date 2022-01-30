@@ -1,12 +1,12 @@
-import { UNDERLYING } from './tokens'
-import { getToken } from '@app/util/markets';
-import { TOKENS } from '@app/variables/tokens';
+import { RTOKEN_SYMBOL, UNDERLYING } from './tokens'
 
 const namedAddresses: { [key: string]: string } = {
     '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'Oracle',
     '0x0000000000000000000000000000000000000000': 'BurnAddress',
     '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89': 'ETHDOLAStakingPool',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
+    '0x07eB8fD853c847d6E25F29e566d605cFf474909D': 'XinvManager',
+    '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7': 'Policy Committee',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
@@ -41,10 +41,10 @@ Object.entries(UNDERLYING).forEach(([key, value]) => {
     }
 })
 
-namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN)?.symbol
+namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN] = `x${RTOKEN_SYMBOL}`
 
 if(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
-    namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN)?.symbol+'-old'
+    namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = `x${RTOKEN_SYMBOL}`+'-old'
 }
 
 export const CUSTOM_NAMED_ADDRESSES = namedAddresses;
