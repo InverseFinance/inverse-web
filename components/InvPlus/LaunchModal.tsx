@@ -1,14 +1,22 @@
 import { Modal } from '@app/components/common/Modal';
 import { Stack, Text } from '@chakra-ui/react';
-import LinkButton from '@app/components/common/Button';
+import { SubmitButton } from '@app/components/common/Button';
 import { LaunchAnim } from '@app/components/common/Animation';
+import { useRouter } from 'next/router';
 
-export type WrongNetworkModalProps = {
+export type ModalProps = {
     isOpen: boolean
     onClose: () => void
 }
 
-const InvPlusLaunchModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
+const InvPlusLaunchModal = ({ onClose, isOpen }: ModalProps) => {
+    const router = useRouter()
+    
+    const handleLearnMore = () => {
+        onClose();
+        router.push('/inv');
+    }
+
     return (
         <Modal
             onClose={onClose}
@@ -20,13 +28,13 @@ const InvPlusLaunchModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
                 </Stack>
             }
             footer={
-                <LinkButton href="/inv">
+                <SubmitButton onClick={handleLearnMore}>
                     Learn More about INV+
-                </LinkButton>
+                </SubmitButton>
             }
         >
             <Stack p={'5'} minH={150} overflowY="auto">
-                <Text>Content Here</Text>
+                <Text>Content Here, will show once, in preview site shows each time</Text>
             </Stack>
         </Modal>
     )

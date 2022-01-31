@@ -14,9 +14,18 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useState } from 'react'
+import useStorage from '@app/hooks/useStorage'
+import InvPlusLaunchModal from '@app/components/InvPlus/LaunchModal'
 
 export const Anchor = () => {
   const [active, setActive] = useState('Supply')
+  const { value: invPlusModalAlreadyShown, setter } = useStorage('inv+LaunchModalSeen');
+  const [modalClosed, setModalClosed] = useState(false);
+
+  const handleCloseLaunchModal = () => {
+    // setter(true)
+    setModalClosed(true)
+  }
 
   const supplyDisplay = { base: active === 'Supply' ? 'flex' : 'none', lg: 'flex' }
   const borrowDisplay = { base: active === 'Borrow' ? 'flex' : 'none', lg: 'flex' }
@@ -59,6 +68,7 @@ export const Anchor = () => {
             </Flex>
           </Flex>
         </Flex>
+        <InvPlusLaunchModal onClose={handleCloseLaunchModal} isOpen={invPlusModalAlreadyShown === null && !modalClosed} />
       </ErrorBoundary>
     </Layout>
   )
