@@ -14,16 +14,16 @@ import { RTOKEN_CG_ID } from '@app/variables/tokens'
 export const AnchorHeader = () => {
   const [isSmallerThan728] = useMediaQuery('(max-width: 728px)')
   const { markets, isLoading } = useMarkets()
-  const DOLA = markets?.find((v) => v.underlying.name === 'Dola')
+  const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { data: tvlData } = useTVL()
 
-  if (isLoading || !DOLA) {
+  if (isLoading || !rewardTokenMarket) {
     return <></>
   }
 
-  const apy = DOLA.supplyApy.toFixed(2)
+  const apy = rewardTokenMarket.supplyApy.toFixed(2)
 
   return (
     <Flex
@@ -62,7 +62,7 @@ export const AnchorHeader = () => {
       <Stack spacing={4} p={4}>
         <Stack direction="row" align="center">
           <Text color="#fff" fontSize="2xl" fontWeight="semibold">
-            Supply DOLA and earn
+            Buy and Stake INV and earn
             <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
               {apy}% APY
             </chakra.span>
@@ -70,10 +70,10 @@ export const AnchorHeader = () => {
         </Stack>
         <Stack w="full" spacing={1} pl={4}>
           <Text color="secondary">
-            <CheckIcon /> High stablecoin yield
+            <CheckIcon /> High yield Positive Sum Rewards Token
           </Text>
           <Text color="secondary">
-            <CheckIcon /> Sustainable APY
+            <CheckIcon /> Revenue Sharing Payouts
           </Text>
           <Text color="secondary">
             <CheckIcon /> Usable as collateral
@@ -81,17 +81,17 @@ export const AnchorHeader = () => {
         </Stack>
         <Stack spacing={2} direction="row">
           {
-            !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
-            && <LinkButton data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
-              target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
-              Buy DOLA
-            </LinkButton>
-          }
-          {
             !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
             && <LinkButton href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
               target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
               Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
+            </LinkButton>
+          }
+          {
+            !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
+            && <LinkButton data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
+              target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
+              Buy DOLA
             </LinkButton>
           }
           {

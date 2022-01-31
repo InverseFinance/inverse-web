@@ -22,6 +22,13 @@ const projects = [
 
 const cards = [
   {
+    title: 'INV',
+    description: 'Positive-sum Rewards\nToken With Revenue Sharing Rewards',
+    label: 'Buy and Stake INV',
+    image: '/assets/products/vaults.png',
+    href: '/anchor',
+  },
+  {
     title: 'DOLA',
     description: 'Debt-based USD stablecoin for high capital efficiency, leverage and native yield',
     label: 'Swap DOLA',
@@ -163,11 +170,11 @@ export const Landing = () => {
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
-              <Text w={{ base: 56, lg: 64 }} h={12} fontSize="sm" fontWeight="medium">
+              <Text w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
                 {description}
               </Text>
               <Spacer />
-              <Flex w={40} pt={6}>
+              <Flex w={'180px'} pt={6}>
                 <LinkButton href={href}>{label}</LinkButton>
               </Flex>
             </Stack>

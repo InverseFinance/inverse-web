@@ -5,7 +5,11 @@ export const MENUS = {
       href: '/anchor',
     },
     {
-      label: 'Swap',
+      label: 'INV',
+      href: '/inv',
+    },
+    {
+      label: 'SWAP',
       href: '/swap/DAI/DOLA',
     },
     {
@@ -22,12 +26,16 @@ export const MENUS = {
       groupLabel: 'Products',
       items: [
         {
+          label: 'INV',
+          href: '/inv',
+        },
+        {
           label: 'Anchor',
           href: '/anchor',
         },
         {
           label: 'DOLA',
-          href: '/stabilizer',
+          href: '/swap',
         },
       ],
     },
@@ -39,8 +47,8 @@ export const MENUS = {
           href: '/governance',
         },
         {
-          label: 'Snapshot',
-          href: 'https://snapshot.org/#/inversefinance.eth',
+          label: 'Transparency',
+          href: '/transparency',
         },
         {
           label: 'Forum',
