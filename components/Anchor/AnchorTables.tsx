@@ -85,8 +85,9 @@ const getColumn = (
       field: 'balance',
       label: 'Balance',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
-      value: ({ balance, underlying, priceUsd }: Market) => {
-        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+      value: ({ balance, underlying, priceUsd, token }: Market) => {
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) && (balance||0) >= 0.01 ? 'secondary' : 'white'
+        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
       },
     },
     borrowApy: {
@@ -345,7 +346,7 @@ export const AnchorSupply = () => {
     getColumn('asset', 32, true),
     getColumn('supplyApy', 20, true),
     getColumn('rewardApy', 24),
-    getColumn('wallet', 24),
+    getColumn('wallet', 24, true),
   ]
 
   if (isLoading || !markets) {
