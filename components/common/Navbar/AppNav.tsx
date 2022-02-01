@@ -103,12 +103,18 @@ const INVBalance = () => {
     setFormattedBalance(userAddress ? formatData(data) : null)
   }, [data, userAddress], !userAddress, 1000)
 
+  const goToSupply = () => {
+    const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
+    document.dispatchEvent(customEvent);
+  }
+
   const formatData = (data: [number, number, number] | undefined) => {
     const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
     const inv = invBalance / ETH_MANTISSA
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
+    const hasUnstakedBal = inv >= 0.01
     return <>
-      <Text mr="1" color={inv >= 0.01 ? 'orange.300' : 'white'}>
+      <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'white'}>
         {inv.toFixed(2)} {RTOKEN_SYMBOL}
       </Text>
       ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})

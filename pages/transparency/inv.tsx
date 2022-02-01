@@ -17,7 +17,7 @@ import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { shortenNumber } from '@app/util/markets'
 
-const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   escrow: ESCROW,

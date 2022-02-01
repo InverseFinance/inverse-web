@@ -4,6 +4,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { Link } from '@app/components/common/Link';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
+import { ReactNode } from 'react';
 
 const Step = ({
   label,
@@ -30,7 +31,7 @@ const Step = ({
   )
 }
 
-export const Swap = () => {
+export const InvPlus = () => {
   return (
     <Layout>
       <Head>
@@ -53,9 +54,9 @@ export const Swap = () => {
                   </>
                 }
                 href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL} />
-              <Step label="Stake INV and Earn Staking Rewards" tooltip="message" href="/anchor" />
+              <Step label="Stake INV and Earn Staking Rewards" tooltip="message" href="/anchor?market=inv&marketType=supply" />
               <Step label="Earn Revenue Sharing rewards" tooltip="message" />
-              <Step label="Borrow DOLA using INV as collateral" tooltip="message"  href="/anchor" />
+              <Step label="Borrow DOLA using INV as collateral" tooltip="message"  href="/anchor?market=dola&marketType=borrow" />
               <Step label="Vote in the Inverse DAO" tooltip="message" href="/governance" />
             </VStack>
           </VStack>
@@ -126,4 +127,4 @@ export const Swap = () => {
   )
 }
 
-export default Swap
+export default InvPlus

@@ -334,6 +334,7 @@ const AnchorSupplyContainer = ({ ...props }) => {
   )
 }
 
+// TODO: refacto components
 export const AnchorSupply = () => {
   const { query } = useRouter()
   const { markets, isLoading } = useMarkets()
@@ -347,12 +348,26 @@ export const AnchorSupply = () => {
     onOpen()
   }
 
+  const handleExternalOpen = (marketName: string) => {
+    const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === marketName.toLowerCase());
+    if(!market?.mintable) { return }
+    setDeepLinkUsed(true);
+    handleSupply(market);
+  }
+
+  useEffect(() => {
+    const triggerAction = ({ detail }) => {
+      handleExternalOpen(detail.market);
+    }
+    document.addEventListener('open-anchor-supply', triggerAction)
+    return () => {
+      document.removeEventListener('open-anchor-supply', triggerAction, false);
+    }
+  }, [])
+
   useEffect(() => {
     if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'supply') {
-      const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === query.market!.toLowerCase());
-      if(!market?.mintable) { return }
-      setDeepLinkUsed(true);
-      handleSupply(market);
+      handleExternalOpen(query.market!.toLowerCase())
     }
   }, [query, markets, deepLinkUsed])
 
