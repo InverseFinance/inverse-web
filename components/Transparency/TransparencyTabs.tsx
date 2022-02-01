@@ -1,12 +1,12 @@
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
-type TabsType = 'overview' | 'inv' | 'dola' | 'multisigs' | 'fed-history';
+type TabsType = 'overview' | 'inv' | 'dola' | 'multisigs' | 'fed-policy';
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
     { page: 'inv', label: 'INV' },
     { page: 'dola', label: 'DOLA & the Feds' },
-    { page: 'fed-history', label: 'Feds Historical Data' },
+    { page: 'fed-policy', label: 'Fed Policy' },
     { page: 'multisigs', label: 'Multisig Wallets' },
 ]
 
