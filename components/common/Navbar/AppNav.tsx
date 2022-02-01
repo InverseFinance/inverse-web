@@ -43,6 +43,7 @@ import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import useFantomBalance from '@app/hooks/useFantomBalance'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -86,18 +87,21 @@ const NetworkBadge = ({
 }
 
 const INVBalance = () => {
+  const { query } = useRouter()
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const userAddress = (query?.viewAddress as string) || account;
+  const { inv: invBalOnFantom } = useFantomBalance(userAddress)
   const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { data } = useEtherSWR([
-    [INV, 'balanceOf', account],
-    [XINV, 'balanceOf', account],
+    [INV, 'balanceOf', userAddress],
+    [XINV, 'balanceOf', userAddress],
     [XINV, 'exchangeRateStored'],
   ])
   const [formattedBalance, setFormattedBalance] = useState<ReactNode>(null)
 
   useDualSpeedEffect(() => {
-    setFormattedBalance(account ? formatData(data) : null)
-  }, [data, account], !account, 1000)
+    setFormattedBalance(userAddress ? formatData(data) : null)
+  }, [data, userAddress], !userAddress, 1000)
 
   const formatData = (data: [number, number, number] | undefined) => {
     const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
@@ -116,14 +120,22 @@ const INVBalance = () => {
   }
 
   const invBal = data[0] / ETH_MANTISSA;
+  const onMainnetCase = invBal >= 0.01
+  const onFantomCase = invBalOnFantom >= 0.01
 
   return (
     <NavBadge>
       {
-        invBal >= 0.01 ?
+        onMainnetCase || onFantomCase ?
           <AnimatedInfoTooltip message={
             <>
-              You have {invBal.toFixed(2)} <b>unstaked</b> {RTOKEN_SYMBOL}, we recommend you to stake all your {RTOKEN_SYMBOL} to <b>avoid dilution and earn rewards</b>
+              {onMainnetCase && <Text>You have {invBal.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
+              {onFantomCase && <Text mt={onMainnetCase && onFantomCase ? '2' : '0'}>
+                You have {invBalOnFantom.toFixed(2)} <b>{RTOKEN_SYMBOL}</b> on Fantom
+              </Text>}
+              <Text mt="2">
+                We recommend you to {onFantomCase && "bridge and"} stake all your {RTOKEN_SYMBOL} on Anchor to <b>avoid dilution and earn rewards</b>
+              </Text>
             </>
           }>
             <WarningIcon color="orange.200" mr="1" />
@@ -136,13 +148,15 @@ const INVBalance = () => {
 }
 
 const ETHBalance = () => {
+  const { query } = useRouter()
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const { data: balance } = useEtherSWR(['getBalance', account, 'latest'])
+  const userAddress = (query?.viewAddress as string) || account;
+  const { data: balance } = useEtherSWR(['getBalance', userAddress, 'latest'])
   const [formattedBalance, setFormattedBalance] = useState('')
 
   useDualSpeedEffect(() => {
     setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
-  }, [balance, account], !account, 1000)
+  }, [balance, userAddress], !userAddress, 1000)
 
   if (!formattedBalance || !chainId) {
     return <></>
