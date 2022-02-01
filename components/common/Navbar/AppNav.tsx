@@ -108,7 +108,7 @@ const INVBalance = () => {
     const inv = invBalance / ETH_MANTISSA
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
     return <>
-      <Text mr="1" color={inv >= 0.01 ? 'orange.200' : 'white'}>
+      <Text mr="1" color={inv >= 0.01 ? 'orange.300' : 'white'}>
         {inv.toFixed(2)} {RTOKEN_SYMBOL}
       </Text>
       ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
@@ -138,7 +138,7 @@ const INVBalance = () => {
               </Text>
             </>
           }>
-            <WarningIcon color="orange.200" mr="1" />
+            <WarningIcon color="orange.300" mr="1" />
           </AnimatedInfoTooltip>
           : null
       }

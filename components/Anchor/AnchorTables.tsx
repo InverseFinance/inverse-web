@@ -15,12 +15,14 @@ import { Market, Token } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { useRouter } from 'next/router'
+import { OLD_XINV } from '@app/config/constants'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -333,15 +335,26 @@ const AnchorSupplyContainer = ({ ...props }) => {
 }
 
 export const AnchorSupply = () => {
+  const { query } = useRouter()
   const { markets, isLoading } = useMarkets()
   const { balances } = useAccountBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
+
+  useEffect(() => {
+    if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'supply') {
+      const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === query.market!.toLowerCase());
+      if(!market?.mintable) { return }
+      setDeepLinkUsed(true);
+      handleSupply(market);
+    }
+  }, [query, markets, deepLinkUsed])
 
   const marketsWithBalance = markets?.map((market) => {
     const { underlying } = market;
@@ -379,15 +392,26 @@ export const AnchorSupply = () => {
 }
 
 export const AnchorBorrow = () => {
+  const { query } = useRouter()
   const { markets, isLoading } = useMarkets()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
 
   const handleBorrow = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
+
+  useEffect(() => {
+    if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
+      const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === query.market!.toLowerCase());
+      if(!market?.borrowable) { return }
+      setDeepLinkUsed(true);
+      handleBorrow(market);
+    }
+  }, [query, markets, deepLinkUsed])
 
   const marketsWithUsdLiquidity = markets?.map((market) => {
     const { underlying, liquidity } = market;
