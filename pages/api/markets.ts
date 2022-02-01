@@ -20,7 +20,7 @@ const toApy = (rate: number) =>
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.1`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.2`;
 
   try {
     const {
@@ -138,6 +138,7 @@ export default async function handler(req, res) {
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
         priceUsd: prices[contracts[i].address],
+        oraclePrice: prices[contracts[i].address],
         priceXinv: prices[contracts[i].address] / prices[XINV],
         liquidity: parseFloat(
           formatUnits(cashes[i], underlying.decimals)
@@ -185,6 +186,7 @@ export default async function handler(req, res) {
         rewardApy: 0,
         rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * 30,
         priceUsd: prices[xinvAddress] / parsedExRate,
+        oraclePrice: prices[xinvAddress],
         priceXinv: 1 / parsedExRate,
         // in days
         escrowDuration: parseInt((await escrowContract.callStatic.duration()).toString()) / 86400
