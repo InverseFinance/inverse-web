@@ -39,6 +39,7 @@ export const AnchorModal = ({
   onClose,
   asset,
   operations,
+  scrollBehavior,
 }: AnchorModalProps & { operations: AnchorOperations[] }) => {
   const [operation, setOperation] = useState(operations[0])
   const [amount, setAmount] = useState<string>('')
@@ -133,7 +134,7 @@ export const AnchorModal = ({
     <Modal
       onClose={handleClose}
       isOpen={isOpen}
-      scrollBehavior={operation === AnchorOperations.withdraw ? 'inside' : undefined}
+      scrollBehavior={scrollBehavior || 'outside'}
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
           <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
@@ -335,6 +336,7 @@ export const AnchorCollateralModal = ({
 
 export const AnchorSupplyModal = ({ isOpen, onClose, asset }: AnchorModalProps) => (
   <AnchorModal
+    scrollBehavior="inside"
     isOpen={isOpen}
     onClose={onClose}
     asset={asset}
