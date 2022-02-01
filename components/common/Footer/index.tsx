@@ -28,13 +28,13 @@ export const Footer = () => (
     </Stack>
     <Stack
       justify={{ base: 'flex-start', lg: 'space-around' }}
-      spacing={{ base: 0, lg: 16 }}
+      spacing={{ base: 0, lg: 8 }}
       direction="row"
       wrap="wrap"
       shouldWrapChildren
     >
       {LINK_GROUPS.map(({ groupLabel, items }) => (
-        <Stack key={groupLabel} w={32} mb={4}>
+        <Stack key={groupLabel} w={24} mb={4}>
           <Text fontWeight="bold">{groupLabel}</Text>
           {items.map(({ label, href }, i) => (
             <Link key={i} href={href} fontSize="13px">

@@ -64,12 +64,34 @@ export const MENUS = {
           href: 'https://docs.inverse.finance/',
         },
         {
+          label: 'Github',
+          href: 'https://github.com/InverseFinance',
+        },
+      ],
+    },
+    {
+      groupLabel: 'Community',
+      items: [
+        {
           label: 'Discord',
           href: 'https://discord.gg/YpYJC7R5nv',
         },
         {
           label: 'Telegram',
           href: 'https://t.me/InverseFinance',
+        },
+      ],
+    },
+    {
+      groupLabel: 'Social',
+      items: [
+        {
+          label: 'Twitter',
+          href: 'https://twitter.com/InverseFinance',
+        },
+        {
+          label: 'Medium',
+          href: 'https://medium.com/inversefinance',
         },
       ],
     },
