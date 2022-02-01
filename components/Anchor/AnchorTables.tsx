@@ -20,7 +20,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
-import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { RTOKEN_CG_ID } from '@app/variables/tokens'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -86,7 +86,7 @@ const getColumn = (
       label: 'Balance',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ balance, underlying, priceUsd, token }: Market) => {
-        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) && (balance||0) >= 0.01 ? 'secondary' : 'white'
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) && (balance || 0) >= 0.01 ? 'secondary' : 'white'
         return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
       },
     },
@@ -109,10 +109,12 @@ const getColumn = (
   }
   cols.supplyBalance = {
     ...cols.balance,
+    field: 'usdWorth',
     tooltip: 'Equals the Supplied amount plus the generated supply Interests over time',
   }
   cols.borrowBalance = {
     ...cols.balance,
+    field: 'usdWorth',
     label: 'Debt',
     tooltip: <Text>
       Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated borrow Interests</b> over time.
@@ -169,8 +171,9 @@ export const AnchorSupplied = () => {
     const monthlyAssetRewards = getMonthlyRate(tokenBalance, market.supplyApy);
 
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
+    const usdWorth = tokenBalance * (prices && prices[underlying.coingeckoId!]?.usd || market.oraclePrice);
 
-    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards }
+    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards, usdWorth }
   })
 
   const columns = [
@@ -224,6 +227,9 @@ export const AnchorSupplied = () => {
       label={`${usdSupplyCoingecko ? (usdSupplyCoingecko >= 0.01 ? dollarify(usdSupplyCoingecko, 2) : 'Less than $0.01 supplied') : '$0'}`}
       description="Your supplied assets">
       <Table
+        keyName="token"
+        defaultSort="usdWorth"
+        defaultSortDir="desc"
         columns={columns}
         items={marketsWithBalance?.filter(
           ({ token, underlying, mintable }: Market) =>
@@ -249,6 +255,7 @@ export const AnchorSupplied = () => {
 
 export const AnchorBorrowed = () => {
   const { active } = useWeb3React()
+  const { prices } = usePrices()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useBorrowBalances()
@@ -265,7 +272,8 @@ export const AnchorBorrowed = () => {
     const { token, underlying, borrowApy } = market;
     const balance = getParsedBalance(balances, token, underlying.decimals);
     const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
-    return { ...market, balance, monthlyBorrowFee }
+    const usdWorth = balance * (prices && prices[underlying.coingeckoId!]?.usd || 0);
+    return { ...market, balance, monthlyBorrowFee, usdWorth }
   })
 
   const columns = [
@@ -293,6 +301,9 @@ export const AnchorBorrowed = () => {
     >
       {usdBorrow ? (
         <Table
+          keyName="token"
+          defaultSort="usdWorth"
+          defaultSortDir="desc"
           columns={columns}
           items={marketsWithBalance.filter(
             ({ token, underlying }: Market) =>
