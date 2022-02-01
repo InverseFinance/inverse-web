@@ -20,15 +20,15 @@ const XinvMigrationMessage = () => {
   </>
 }
 
-const MessageWithLink = () => {
+const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   return <Link
     pl={1}
     color="#fff"
-    isExternal
-    href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
+    isExternal={ href.startsWith('http') ? true : false }
+    href={href}
     _hover={{ color: 'purple.100' }}
   >
-    {process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}
+    {msg}
     <ExternalLinkIcon ml="2" />
   </Link>
 }
@@ -58,7 +58,15 @@ export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
     >
       {/* {
         process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
-          needsXinvMigration ? <XinvMigrationMessage /> : <MessageWithLink />
+          needsXinvMigration ?
+            <XinvMigrationMessage />
+            :
+            <MessageWithLink
+              // href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
+              // msg={process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG!}
+              href="/inv"
+              msg="INV+ is Launched 🚀 ! Learn more"
+            />
           :
           <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
       } */}
