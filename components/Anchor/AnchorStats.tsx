@@ -6,7 +6,7 @@ import { useAnchorPrices } from '@app/hooks/usePrices'
 import { Market, AnchorOperations, BigNumberList } from '@app/types'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@app/util/markets';
+import { getBnToNumber, getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@app/util/markets';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { commify } from '@ethersproject/units';
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
@@ -131,7 +131,19 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
   const totalSuppliedUsd = formatUsdTotal(asset.supplied, prices, asset);
   const reserveFactor = asset.reserveFactor ? `${asset.reserveFactor * 100}%` : '-'
 
+  const oraclePrice = prices && prices[asset.token] ? getBnToNumber(prices[asset.token], 36 - asset.underlying.decimals) : null;
+  const cgPrice = cgPrices && cgPrices[asset.underlying.coingeckoId] ? cgPrices[asset.underlying.coingeckoId]?.usd : null;
+  const rtokenPrice = cgPrices ? cgPrices[RTOKEN_CG_ID]?.usd||0 : 0;
+  
   const stats = [
+    {
+      label: `Price (Oracle): ${oraclePrice === null ? '-' : shortenNumber(oraclePrice, 2, true, true)}`,
+      value: `Price (Coingecko): ${cgPrice === null ? '-' : shortenNumber(cgPrice, 2, true, true)}`,
+      tooltipMsg: <>
+      The price used in smart contracts is the <b>Oracle price</b>, it means that the borrowing limits and liquidations are calculated with this price.
+      <Text mt="2">The Oracle price can be different than the live coingecko price as it's not updated that frequently, oracle update takes time to kick in when price goes up to prevent manipulation.</Text>
+      </>,
+    },
     getCollateralFactor(asset),
   ];
 
@@ -156,7 +168,7 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
       {
         label: `${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Monthly Rewards`,
         value: asset.rewardsPerMonth > 0 ?
-          `${commify(Math.round(asset.rewardsPerMonth * 100) / 100)} (${shortenNumber(asset.rewardsPerMonth * cgPrices[RTOKEN_CG_ID].usd, 2, true)})`
+          `${commify(Math.round(asset.rewardsPerMonth * 100) / 100)} (${shortenNumber(asset.rewardsPerMonth * rtokenPrice, 2, true)})`
           : 0,
       },
     ]);
