@@ -110,7 +110,7 @@ const columns = [
     },
 ]
 
-export const FedHistoryPage = () => {
+export const FedPolicyPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const { totalEvents } = useFedHistory();
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
@@ -179,7 +179,7 @@ export const FedHistoryPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed History</title>
             </Head>
             <AppNav active="Transparency" />
-            <TransparencyTabs active="fed-history" />
+            <TransparencyTabs active="fed-policy" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
                     <Container
@@ -260,4 +260,4 @@ export const FedHistoryPage = () => {
     )
 }
 
-export default FedHistoryPage
+export default FedPolicyPage

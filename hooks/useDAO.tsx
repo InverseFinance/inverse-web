@@ -47,7 +47,7 @@ export const useDAO = (): SWR & DAO => {
 }
 
 export const useFedHistory = (): SWR & { totalEvents: FedEvent[] } => {
-  const { data, error } = useSWR(`/api/transparency/fed-history`, fetcher)
+  const { data, error } = useSWR(`/api/transparency/fed-policy`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
 
