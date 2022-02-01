@@ -70,13 +70,13 @@ export const AnchorHeader = () => {
         </Stack>
         <Stack w="full" spacing={1} pl={4}>
           <Text color="secondary">
-            <CheckIcon /> High yield Positive Sum Rewards Token
+            <CheckIcon /> High-yield Positive Sum Rewards Token
           </Text>
           <Text color="secondary">
             <CheckIcon /> Revenue Sharing Payouts
           </Text>
           <Text color="secondary">
-            <CheckIcon /> Usable as collateral
+            <CheckIcon /> Usable as Collateral
           </Text>
         </Stack>
         <Stack spacing={2} direction="row">

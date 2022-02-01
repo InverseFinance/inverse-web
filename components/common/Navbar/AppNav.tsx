@@ -1,4 +1,4 @@
-import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
+import { CloseIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -19,7 +19,7 @@ import { ETH_MANTISSA } from '@app/config/constants'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ethereumReady, getPreviousConnectorType, setIsPreviouslyConnected, setPreviousChainId } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
 import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
@@ -41,6 +41,8 @@ import { MENUS } from '@app/variables/menus'
 import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { InjectedConnector } from '@web3-react/injected-connector';
+import { RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -91,25 +93,45 @@ const INVBalance = () => {
     [XINV, 'balanceOf', account],
     [XINV, 'exchangeRateStored'],
   ])
-  const [formattedBalance, setFormattedBalance] = useState('')
+  const [formattedBalance, setFormattedBalance] = useState<ReactNode>(null)
 
   useDualSpeedEffect(() => {
-    setFormattedBalance(account ? formatData(data) : '')
+    setFormattedBalance(account ? formatData(data) : null)
   }, [data, account], !account, 1000)
 
   const formatData = (data: [number, number, number] | undefined) => {
     const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
     const inv = invBalance / ETH_MANTISSA
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
-    return `${inv.toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} (${xinv.toFixed(2)} x${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL})`
+    return <>
+      <Text mr="1" color={inv >= 0.01 ? 'orange.200' : 'white'}>
+        {inv.toFixed(2)} {RTOKEN_SYMBOL}
+      </Text>
+      ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
+    </>
   }
 
-  if (!formattedBalance) {
+  if (!formattedBalance || !data) {
     return <></>
   }
 
+  const invBal = data[0] / ETH_MANTISSA;
+
   return (
-    <NavBadge>{formattedBalance}</NavBadge>
+    <NavBadge>
+      {
+        invBal >= 0.01 ?
+          <AnimatedInfoTooltip message={
+            <>
+              You have {invBal.toFixed(2)} <b>unstaked</b> {RTOKEN_SYMBOL}, we recommend you to stake all your {RTOKEN_SYMBOL} to <b>avoid dilution and earn rewards</b>
+            </>
+          }>
+            <WarningIcon color="orange.200" mr="1" />
+          </AnimatedInfoTooltip>
+          : null
+      }
+      {formattedBalance}
+    </NavBadge>
   )
 }
 
@@ -161,7 +183,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   }, [active, userAddress, addressName], !userAddress, 1000)
 
   useDualSpeedEffect(() => {
-    if(connector instanceof WalletLinkConnector && active) {
+    if (connector instanceof WalletLinkConnector && active) {
       setIsPreviouslyConnected(true, 'coinbase');
     } else if (connector instanceof InjectedConnector && active) {
       setIsPreviouslyConnected(true, 'injected');
