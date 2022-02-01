@@ -131,7 +131,7 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
   const totalSuppliedUsd = formatUsdTotal(asset.supplied, prices, asset);
   const reserveFactor = asset.reserveFactor ? `${asset.reserveFactor * 100}%` : '-'
 
-  const oraclePrice = prices && prices[asset.token] ? getBnToNumber(prices[asset.token], 36 - asset.underlying.decimals) : null;
+  const oraclePrice = asset.oraclePrice;
   const cgPrice = cgPrices && cgPrices[asset.underlying.coingeckoId] ? cgPrices[asset.underlying.coingeckoId]?.usd : null;
   const rtokenPrice = cgPrices ? cgPrices[RTOKEN_CG_ID]?.usd||0 : 0;
   
