@@ -46,13 +46,24 @@ export const useDAO = (): SWR & DAO => {
   }
 }
 
-export const useFedHistory = (): SWR & { totalEvents: FedEvent[] } => {
+export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: { msg: string, lastUpdate: number } } => {
   const { data, error } = useSWR(`/api/transparency/fed-policy`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
 
   return {
     totalEvents,
+    fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useFedPolicyMsg = (): SWR & { fedPolicyMsg: { msg: string, lastUpdate: number } } => {
+  const { data, error } = useSWR(`/api/transparency/fed-policy-msg`, fetcher)
+
+  return {
+    fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
     isLoading: !error && !data,
     isError: error,
   }
