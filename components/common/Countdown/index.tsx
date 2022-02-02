@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { Box, useInterval } from '@chakra-ui/react';
+import { Box, Text, useInterval } from '@chakra-ui/react';
 import { useState } from 'react';
 
 const queued = Date.UTC(2022, 1, 2, 14);
@@ -20,8 +20,9 @@ export const Countdown = () => {
     }, 1000);
 
     return (
-        <Box>
-            Countdown to Inverse Plus: {text}
+        <Box w="365px">
+            Countdown to Inverse Plus
+            <Text>{text}</Text>
         </Box>
     )
 }

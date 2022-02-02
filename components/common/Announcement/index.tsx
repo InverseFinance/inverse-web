@@ -42,7 +42,7 @@ export const Announcement = () => {
       w="full"
       p={1}
       h="60px"
-      fontSize="xl"
+      fontSize="lg"
       justify="center"
       textAlign="center"
       alignItems="center"
