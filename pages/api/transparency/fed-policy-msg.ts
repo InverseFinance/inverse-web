@@ -2,9 +2,12 @@
 import { getRedisClient } from '@app/util/redis';
 import { verifyMessage } from 'ethers/lib/utils';
 import { FED_POLICY_SIGN_MSG } from '@app/config/constants';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { NetworkIds } from '@app/types';
 
 const client = getRedisClient();
-const redisKey = 'fed-policy-msg'
+const redisKey = 'fed-policy-msg';
+const { DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export default async function handler(req, res) {
     const {
@@ -19,10 +22,9 @@ export default async function handler(req, res) {
         case 'POST':
             try {
                 const { sig, msg } = req.body
-                const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/g, '').toLowerCase().split(',');
                 const sigAddress = verifyMessage(FED_POLICY_SIGN_MSG, sig).toLowerCase();
-
-                if (!whitelisted.includes(sigAddress)) {
+                
+                if (sigAddress.toLocaleLowerCase() !== DEPLOYER.toLocaleLowerCase()) {
                     res.status(401).json({ status: 'warning', message: 'Unauthorized' })
                     return
                 };

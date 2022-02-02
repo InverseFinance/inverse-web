@@ -123,7 +123,7 @@ export const FedPolicyPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const [msgUpdates, setMsgUpdates] = useState(0)
     const { totalEvents } = useFedHistory();
-    const { fedPolicyMsg } = useFedPolicyMsg();
+    const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(1000);
     const [now, setNow] = useState<number>(Date.now());
@@ -196,19 +196,27 @@ export const FedPolicyPage = () => {
             
             const sig = await signer.signMessage(FED_POLICY_SIGN_MSG);
 
-            const rawResponse = await fetch(`/api/transparency/fed-policy-msg`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ sig, msg: newMsg })
-            });
-            const result = await rawResponse.json();
-            if (result.status === "success") {
-                showToast({ status: "success", title: "Current Fed Chair Guidance", description: "Message updated" })
-                setMsgUpdates(msgUpdates + 1)
-            }
+            showToast({ id: 'fed-policy', status: "loading", title: "In Progress" });
+
+            setTimeout(async() => {
+                const rawResponse = await fetch(`/api/transparency/fed-policy-msg`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sig, msg: newMsg })
+                });
+    
+                const result = await rawResponse.json();
+                
+                if (result.status === "success") {
+                    showToast({ id: 'fed-policy',status: "success", title: "Current Fed Chair Guidance", description: "Message updated" })
+                    setMsgUpdates(msgUpdates + 1)
+                } else {
+                    showToast({ id: 'fed-policy', status: "warning", title: "Current Fed Chair Guidance", description: "Update unauthorized" })
+                }
+            }, 0);
             return result;
         } catch (e: any) {
             return { status: 'warning', message: e.message || 'An error occured' }

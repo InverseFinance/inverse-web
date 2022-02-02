@@ -59,8 +59,8 @@ export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: 
   }
 }
 
-export const useFedPolicyMsg = (): SWR & { fedPolicyMsg: { msg: string, lastUpdate: number } } => {
-  const { data, error } = useSWR(`/api/transparency/fed-policy-msg`, fetcher)
+export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { msg: string, lastUpdate: number } } => {
+  const { data, error } = useSWR(`/api/transparency/fed-policy-msg?${refreshIndex}`, fetcher)
 
   return {
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
