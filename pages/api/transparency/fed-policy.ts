@@ -43,7 +43,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number) =
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-policy-cache-v1.0.5`;
+  const cacheKey = `fed-policy-cache-v1.0.6`;
 
   try {
 
@@ -115,7 +115,10 @@ export default async function handler(req, res) {
         return { ...event, newTotalSupply: totalAccumulatedSupply }
       })
 
+    const fedPolicyMsg = JSON.parse(await client.get('fed-policy-msg') || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
+
     const resultData = {
+      fedPolicyMsg,
       totalEvents,
     }
 
