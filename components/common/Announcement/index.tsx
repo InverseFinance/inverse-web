@@ -38,7 +38,8 @@ export const Announcement = () => {
 
   return (
     <Flex
-      bgColor={'purple.500'}
+      bgColor={'transparent'}
+      backgroundImage="/assets/landing/graphic1.png"
       w="full"
       p={1}
       h="60px"
