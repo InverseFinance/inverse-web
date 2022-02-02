@@ -1,11 +1,13 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Text } from '@chakra-ui/react'
+import { Text, useInterval } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
 import Link from '@app/components/common/Link'
 import { TEST_IDS } from '@app/config/test-ids';
 import { useSupplyBalances } from '@app/hooks/useBalances';
 import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
+import { Countdown } from '../Countdown';
+import { useState } from 'react';
 
 const XinvMigrationMessage = () => {
   const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
@@ -35,23 +37,25 @@ export const Announcement = () => {
 
   return (
     <Flex
-      bgColor="purple.600"
+      bgColor={'purple.500'}
       w="full"
       p={1}
+      h="30px"
       fontSize="sm"
       justify="center"
       textAlign="center"
       alignItems="center"
       fontWeight="semibold"
-      color="#fff"
+      color={'white'}
       data-testid={TEST_IDS.announcement}
     >
-      {
+      {/* {
         process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
           needsXinvMigration ? <XinvMigrationMessage /> : <MessageWithLink />
           :
           <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
-      }
+      } */}
+      <Countdown />
     </Flex>
   )
 }
