@@ -8,6 +8,7 @@ import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 import { Countdown } from '../Countdown';
 import { useState } from 'react';
+import { PlusAnimIcon } from '../Animation/PlusAnim';
 
 const XinvMigrationMessage = () => {
   const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
@@ -40,8 +41,8 @@ export const Announcement = () => {
       bgColor={'purple.500'}
       w="full"
       p={1}
-      h="30px"
-      fontSize="sm"
+      h="60px"
+      fontSize="xl"
       justify="center"
       textAlign="center"
       alignItems="center"
@@ -55,7 +56,9 @@ export const Announcement = () => {
           :
           <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
       } */}
+      <PlusAnimIcon boxProps={{ mr: '4' }} width={30} height={30} loop={true} />
       <Countdown />
+      <PlusAnimIcon boxProps={{ ml: '4' }} width={30} height={30} loop={true} />
     </Flex>
   )
 }

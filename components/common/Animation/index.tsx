@@ -35,7 +35,7 @@ export const Animation = ({ animData, height = 30, width = 30, loop = false, aut
     )
 }
 
-type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps }
+export type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps }
 
 export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps }: AnimIconProps) => {
     return <Box display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
