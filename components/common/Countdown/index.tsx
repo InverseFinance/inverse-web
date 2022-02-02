@@ -8,7 +8,8 @@ const execution = Date.UTC(2022, 1, 4, 14);
 const getText = () => {
     const now = Date.now()
     const duration = moment.duration(execution - now, "milliseconds");
-    return `${duration.hours().toString().padStart(2, '0')}:${duration.minutes().toString().padStart(2, '0')}:${duration.seconds().toString().padStart(2, '0')}`
+    const days = duration.days()
+    return `${(24 * days + duration.hours()).toString().padStart(2, '0')}:${duration.minutes().toString().padStart(2, '0')}:${duration.seconds().toString().padStart(2, '0')}`
 }
 
 export const Countdown = () => {
@@ -20,7 +21,7 @@ export const Countdown = () => {
 
     return (
         <Box>
-            {text}
+            Countdown to Inverse Plus: {text}
         </Box>
     )
 }
