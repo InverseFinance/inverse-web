@@ -118,7 +118,7 @@ export const Landing = () => {
             maxW="900px"
           >
             <Text>
-              Here at Inverse, we're decentralized by desgin, moving past reckless, outdated systems towards a better solution: Positive Sum Defi.
+              Here at Inverse, we're decentralized by design, moving past reckless, outdated systems towards a better solution: Positive Sum Defi.
               We help you maximize your earnings via revenue sharing, accumulate high yields with sustainable APYs, and benefit from low-cost stable coin borrowing. Join our community to grow and thrive.
             </Text>
           </Flex>

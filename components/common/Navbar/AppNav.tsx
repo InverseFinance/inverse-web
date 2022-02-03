@@ -145,7 +145,7 @@ const INVBalance = () => {
                 You have {invBalOnFantom.toFixed(2)} <b>{RTOKEN_SYMBOL}</b> on Fantom
               </Text>}
               <Text mt="2">
-                We recommend you to {onFantomCase && "bridge and"} stake all your {RTOKEN_SYMBOL} on Anchor to <b>avoid dilution and earn rewards</b>
+                We recommend {onFantomCase && "bridging and"} staking all your {RTOKEN_SYMBOL} on Anchor to <b>earn rewards and avoid dilution</b>
               </Text>
             </>
           }>

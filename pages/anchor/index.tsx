@@ -18,13 +18,13 @@ import useStorage from '@app/hooks/useStorage'
 import InvPlusLaunchModal from '@app/components/InvPlus/LaunchModal'
 
 export const Anchor = () => {
-  const [active, setActive] = useState('Supply')
+  const [active, setActive] = useState('Supply');
   const { value: invPlusModalAlreadyShown, setter } = useStorage('inv+LaunchModalSeen');
   const [modalClosed, setModalClosed] = useState(false);
 
   const handleCloseLaunchModal = () => {
-    // setter(true)
-    setModalClosed(true)
+    setter(true);
+    setModalClosed(true);
   }
 
   const supplyDisplay = { base: active === 'Supply' ? 'flex' : 'none', lg: 'flex' }
