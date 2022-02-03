@@ -100,8 +100,8 @@ export const Overview = () => {
         <Flex direction="column" py="2">
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
-        <Flex direction="column" p={{ base: '4', xl: '0' }}>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center"  ml="2">
+        <Flex direction="column" p={{ base: '4', xl: '0' }} ml="2">
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <ShrinkableInfoMessage
               title="🏛️ Governance Rules"
               description={
