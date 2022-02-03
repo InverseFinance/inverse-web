@@ -3,8 +3,8 @@ import { Box, Text, useInterval, SlideFade } from '@chakra-ui/react';
 import { useState } from 'react';
 import { LaunchAnim } from '@app/components/common/Animation';
 
-const queued = Date.UTC(2022, 1, 2, 14, 3);
-const execution = Date.UTC(2022, 1, 4, 14, 3);
+const queued = Date.UTC(2022, 1, 2, 14, 5);
+const execution = Date.UTC(2022, 1, 4, 14, 5);
 const countdownOverText = 'Launching'
 
 const getText = () => {
@@ -47,7 +47,7 @@ export const Countdown = () => {
                 in={isOver}
                 unmountOnExit={true}>
                 <LaunchAnim width={30} height={30} loop={true} />
-                <Text fontSize="12px">INV+ is Launched</Text>
+                <Text fontSize="12px">INV+ is Launched ! Please reload the page</Text>
             </SlideFade>
         </Box>
     )
