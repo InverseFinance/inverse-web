@@ -11,7 +11,7 @@ export type ModalProps = {
 
 const InvPlusLaunchModal = ({ onClose, isOpen }: ModalProps) => {
     const router = useRouter()
-    
+
     const handleLearnMore = () => {
         onClose();
         router.push('/inv');
@@ -24,7 +24,7 @@ const InvPlusLaunchModal = ({ onClose, isOpen }: ModalProps) => {
             header={
                 <Stack minWidth={24} direction="row" align="center" >
                     <LaunchAnim loop={true} width={50} height={50} />
-                    <Text>INV+ is Launched !</Text>
+                    <Text>Big News! INV+ Just Launched!</Text>
                 </Stack>
             }
             footer={
@@ -34,7 +34,19 @@ const InvPlusLaunchModal = ({ onClose, isOpen }: ModalProps) => {
             }
         >
             <Stack p={'5'} minH={150} overflowY="auto">
-                <Text>Content Here, will show once, in preview site shows each time</Text>
+                <Text><b>INV</b> just completed a major upgrade to a Positive Sum Rewards Token: <b>Inverse Plus</b> !</Text>
+
+                <Text pt="5" fontWeight="bold">Key changes:</Text>
+                <Text fontSize="14px">- Positive Sum Rewards Token</Text>
+                <Text fontSize="14px">- xINV Continuous Rewards</Text>
+                <Text fontSize="14px">- Future DOLA Revenue Sharing Rewards</Text>
+                <Text fontSize="14px">- Permanent protocol-owned liquidity</Text>
+                <Text fontSize="14px">- Low-interest DOLA borrowing</Text>
+                <Text fontSize="14px">- No escrow to withdraw staked INV</Text>
+                <Text pt="5">No action required for existing stakers</Text>
+                {/* <Text>
+                    <b>INV</b> just completed a major upgrade to a Positive Sum Rewards Token - <b>Inverse Plus</b> - that issues staking rewards at a much higher APY as well as future revenue sharing rewards to all stakers. No action required for existing stakers.
+                </Text> */}
             </Stack>
         </Modal>
     )

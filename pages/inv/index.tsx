@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { Link } from '@app/components/common/Link';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { ReactNode } from 'react';
+import { useMarkets } from '@app/hooks/useMarkets';
 
 const Step = ({
   label,
@@ -16,8 +17,8 @@ const Step = ({
   href?: string,
 }) => {
   return (
-    <Flex fontSize="20px" color="white" direction="row" alignItems="center">
-      <Text mr="1">-</Text>
+    <Flex fontWeight="bold" fontSize="20px" color="white" direction="row" alignItems="center">
+      <Text mr="1">•</Text>
       {
         !!href ?
           <Link color="white" isExternal href={href}>{label}</Link>
@@ -25,13 +26,18 @@ const Step = ({
           <Text>{label}</Text>
       }
       {
-        !!tooltip && <AnimatedInfoTooltip iconProps={{ ml: "1" }} message={tooltip} />
+        !!tooltip && <AnimatedInfoTooltip iconProps={{ ml: "2", fontSize: '14px' }} message={tooltip} />
       }
     </Flex>
   )
 }
 
 export const InvPlus = () => {
+  const { markets } = useMarkets();
+
+  const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN);
+  const apy = rewardTokenMarket?.supplyApy.toFixed(2) || 100;
+
   return (
     <Layout>
       <Head>
@@ -39,34 +45,68 @@ export const InvPlus = () => {
       </Head>
       <AppNav active="INV" />
       <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
-        <Flex w={{ base: 'full', md:'40%' }} px="5">
+        <Flex w={{ base: 'full', md: '40%' }} px="5">
           <VStack pt="5" alignItems="flex-start">
-            <Text fontWeight="bold" textAlign="center" fontSize="20px">First Positive Sum Rewards Token</Text>
+            <Text fontWeight="bold" textAlign="center" fontSize="20px">Positive Sum Rewards Token</Text>
             <Text textAlign="center" fontSize="14px">
-              Inverse Plus brings revenue sharing and accelerated rewards to INV stakers
+              Inverse Plus will bring revenue sharing and accelerated rewards to INV stakers
             </Text>
-            <VStack pt="5" spacing="10" alignItems="left">
-              <Step label="Swap Into INV"
+            <VStack pt="20" spacing="10" alignItems="left">
+              {/* <Step label="Swap Into INV"
                 tooltip={
                   <>
                     <Text mb="2">- The best <b>DEXs</b> to buy <b>INV</b> are <b>SushiSwap</b>, <b>1Inch</b> and <b>ParaSwap</b></Text>
                     <Text>- You can also buy <b>INV</b> on several <b>CEXs</b> like <b>Coinbase</b>, <b>MEXC Global</b> and <b>Huobi Global</b></Text>
                   </>
                 }
-                href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL} />
-              <Step label="Stake INV and Earn Staking Rewards" tooltip="message" href="/anchor?market=inv&marketType=supply" />
-              <Step label="Earn Revenue Sharing rewards" tooltip="message" />
-              <Step label="Borrow DOLA using INV as collateral" tooltip="message"  href="/anchor?market=dola&marketType=borrow" />
-              <Step label="Vote in the Inverse DAO" tooltip="message" href="/governance" />
+                href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL} /> */}
+              <Step label="Stake INV and Earn Staking Rewards" href="/anchor?market=inv&marketType=supply" />
+              <Step label="Borrow DOLA using INV as collateral" href="/anchor?market=dola&marketType=borrow" />
+              <Step label="Earn Revenue Sharing rewards" tooltip={
+                <>
+                  Once we reach a 1 billion DOLA in circulation, stakers will reveive DOLA as Revenue Sharing Rewards
+                  <Text mt="2" fontWeight="bold">The 1 billion threshold before doing Revenue Sharing is not set in stone and could be lowered</Text>
+                </>
+              } />
+              {/* <Step label="Vote in the Inverse DAO" tooltip="message" href="/governance" /> */}
             </VStack>
           </VStack>
         </Flex>
-        <Flex w={{ base: 'full', md:'40%' }} px="5">
+        <Flex w={{ base: 'full', md: '40%' }} px="5">
           <VStack pt="5" alignItems="flex-start">
-            <Box w="full">
+            {/* <Box w="full">
               <Text fontWeight="bold" textAlign="center" fontSize="4xl">INV+ launch FAQ</Text>
+            </Box> */}
+            <Text fontSize="18px" fontWeight="bold" color="secondary">What is Inverse Plus?</Text>
+            <Text><b>Inverse Plus</b> adds new features to the INV governance token with new revenue sharing and higher staking rewards.</Text>
+
+            <Text fontSize="18px" fontWeight="bold" color="secondary">How do continuous Rewards work?</Text>
+            <Text>
+              Staking INV on Anchor delivers additional INV rewards with each new mined Ethereum block, approximately 6,400 times per day with a <b>current APY of {apy}% and max of 500%</b>.
+            </Text>
+
+            <Text fontSize="18px" fontWeight="bold" color="secondary">How do Revenue Sharing Rewards work?</Text>
+            <Text>
+              Revenue Sharing Rewards are designed to encourage long-term staking of INV and as the DOLA stablecoin reaches certain circulation milestones, a share of DOLA lending revenue is shared with all INV stakers according to the length of staking time.
+            </Text>
+
+            <Text fontSize="18px" fontWeight="bold" color="secondary">Where can I learn more about Inverse Plus?</Text>
+            <Box>
+              <Text display="inline-block">
+                Check out our FAQ
+              </Text>
+              <Link color="secondary" ml="1" display="inline-block" href="https://docs.google.com/document/d/12RzGlLOSM76bhy1WLRZLeRmaOuHlQ-bPwROQRZjKTXk">
+                here
+              </Link>
+              <Text display="inline-block">
+                , and our on-chain proposal
+              </Text>
+              <Link color="secondary" ml="1" display="inline-block" href="/governance/mills/6">
+                here
+              </Link>
             </Box>
-            <Text fontSize="18px" fontWeight="bold" color="secondary">What’s going on?</Text>
+
+            {/* <Text fontSize="18px" fontWeight="bold" color="secondary">What’s going on?</Text>
             <Text><b>Inverse Finance</b> had a hard cap of 100.000 tokens upon launch which makes us very inflexible. As a year’s time has passed, Inverse has established a presence and now can be more easily evaluated by the market. This allows us to gently let go of the hard cap by minting new INV tokens. In order to keep stakers whole, we are opting for a simultaneous <b>distribution of INV to stakers</b>, <b>bonds</b> and to continue previous Anchor incentives.</Text>
 
             <Text fontSize="18px" fontWeight="bold" color="secondary">Why open up the token cap?</Text>
@@ -119,7 +159,7 @@ export const InvPlus = () => {
                 Forum
               </Link>
               !
-            </Box>
+            </Box> */}
           </VStack>
         </Flex>
       </Flex>
