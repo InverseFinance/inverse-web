@@ -101,7 +101,7 @@ export const Overview = () => {
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
         <Flex direction="column" p={{ base: '4', xl: '0' }}>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center"  ml="2">
             <ShrinkableInfoMessage
               title="🏛️ Governance Rules"
               description={

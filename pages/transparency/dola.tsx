@@ -35,7 +35,7 @@ export const DolaDiagram = () => {
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="dola" />
-      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
+      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}  ml="2">
         <Flex direction="column" py="2">
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
         </Flex>

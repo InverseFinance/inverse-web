@@ -82,7 +82,7 @@ export const InvFlowChart = ({
     },
   ]
 
-  const boxProps = { w: { base: baseWidth, lg: '1000px' }, h: { base: baseheight, lg: '600px' } }
+  const boxProps = { w: { base: baseWidth, lg: '900px' }, h: { base: baseheight, lg: '600px' } }
 
   if (!baseWidth) {
     return <Box {...boxProps}>&nbsp;</Box>

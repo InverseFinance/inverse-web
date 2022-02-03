@@ -125,13 +125,13 @@ export const FedPolicyPage = () => {
     const { totalEvents } = useFedHistory();
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
-    const [chartWidth, setChartWidth] = useState<number>(1000);
+    const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
     const [useSmoothLine, setUseSmoothLine] = useState(false);
-    const [isLargerThan] = useMediaQuery('(min-width: 1000px)')
+    const [isLargerThan] = useMediaQuery('(min-width: 900px)')
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? 1000 : (screen.availWidth || screen.width) - 40)
+        setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
@@ -236,7 +236,7 @@ export const FedPolicyPage = () => {
                 <Flex direction="column">
                     <Container
                         noPadding={true}
-                        w={{ base: 'full', lg: '1000px' }}
+                        w={{ base: 'full', lg: '900px' }}
                         label="Fed Supplies Contractions and Expansions"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
@@ -289,7 +289,7 @@ export const FedPolicyPage = () => {
                         }
                     </Container>
                 </Flex>
-                <Flex direction="column" p={{ base: '4', xl: '0' }}>
+                <Flex direction="column" p={{ base: '4', xl: '0' }} ml="2">
                     <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
                         <DolaMoreInfos />
                     </Flex>

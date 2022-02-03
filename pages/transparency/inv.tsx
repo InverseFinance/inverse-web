@@ -78,7 +78,7 @@ export const InvPage = () => {
         <Flex direction="column" py="2">
           <InvFlowChart {...invFlowChartData} />
         </Flex>
-        <Flex direction="column" p={{ base: '4', xl: '0' }}>
+        <Flex direction="column" p={{ base: '4', xl: '0' }}  ml="2">
           <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
             <SuppplyInfos token={TOKENS[INV]} supplies={[
               { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
