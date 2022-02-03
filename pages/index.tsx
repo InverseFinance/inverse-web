@@ -92,9 +92,9 @@ export const Landing = () => {
         <LandingNav />
         <Stack w="full" align="center" mt={{ base: 4, md: 28 }} spacing={4} p={2}>
           <Flex direction="column">
-            <Text color="secondary" fontWeight="bold">
+            {/* <Text color="secondary" fontWeight="bold">
               Invert the System
-            </Text>
+            </Text> */}
             <Flex
               direction="column"
               fontSize={{ base: '3xl', md: '7xl' }}
@@ -102,10 +102,10 @@ export const Landing = () => {
               lineHeight="shorter"
               textAlign="center"
             >
-              <Text>Borrow, Lend & Earn</Text>
+              <Text>Master the Game</Text>
               <Stack direction="row">
-                <Text>with</Text>
-                <Text color="secondary">{process.env.NEXT_PUBLIC_TITLE}</Text>
+                <Text>Of</Text>
+                <Text pl="2" color="secondary">Positive Sum DeFi</Text>
               </Stack>
             </Flex>
           </Flex>
@@ -115,16 +115,14 @@ export const Landing = () => {
             fontSize={{ base: 'md', md: 'xl' }}
             lineHeight={{ base: 'base', md: 'shorter' }}
             fontWeight="medium"
+            maxW="900px"
           >
-            <Text>Welcome to Inverse, part of the new wave of decentralized banking & finance.</Text>
-            <Text display={{ base: 'none', sm: 'inline' }}>
-              From a capital-efficient money market, to tokenized synthetic assets,
-            </Text>
-            <Text display={{ base: 'none', sm: 'inline' }}>
-              our mission is to grow your wealth. Start earning with Inverse.
+            <Text>
+              Here at Inverse, we're decentralized by desgin, moving past reckless, outdated systems towards a better solution: Positive Sum Defi.
+              We help you maximize your earnings via revenue sharing, accumulate high yields with sustainable APYs, and benefit from low-cost stable coin borrowing. Join our community to grow and thrive.
             </Text>
           </Flex>
-          <Flex>
+          <Flex pt="4">
             <Flex w={32} m={2}>
               <LinkButton data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">Enter App</LinkButton>
             </Flex>
