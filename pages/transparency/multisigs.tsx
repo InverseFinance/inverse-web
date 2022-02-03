@@ -27,19 +27,23 @@ export const MultisigsDiagram = () => {
         <Flex direction="column" py="2">
           <MultisigsFlowChart multisigs={multisigs} />
         </Flex>
-        <Flex direction="column" p={{ base: '4', xl: '0' }}>
+        <Flex direction="column" p={{ base: '4', xl: '0' }}  ml="2">
           <Flex mb="2" w={{ base: 'full', xl: 'sm' }} justify="center">
             <ShrinkableInfoMessage
               title={<>🏛️ Multisig Wallets Purposes (<Link isExternal display="inline-block" href="https://help.gnosis-safe.io/en/articles/3876456-what-is-gnosis-safe">More Infos <ExternalLinkIcon mb="2px" /></Link>)</>}
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Rewards Committee:</Text>
-                    <Text>Compensate contributors</Text>
+                    <Text fontWeight="bold">- Policy Committee:</Text>
+                    <Text>Handle Reward Rates Policies</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text fontWeight="bold">- GWG:</Text>
                     <Text>Investments & Costs regarding Growth</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Rewards Committee:</Text>
+                    <Text>Compensate contributors</Text>
                   </Flex>
                 </>
               }

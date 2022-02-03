@@ -17,7 +17,7 @@ const defaultAxisStyle: VictoryAxisProps["style"] = {
 export const AreaChart = ({
     data,
     title,
-    width = 1000,
+    width = 900,
     height = 300,
     showLabels = false,
     showTooltips = false,
@@ -33,7 +33,7 @@ export const AreaChart = ({
     interpolation?: VictoryAreaProps["interpolation"],
     axisStyle?: VictoryAxisProps["style"],
 }) => {
-    const [isLargerThan] = useMediaQuery('(min-width: 1000px)');
+    const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
 

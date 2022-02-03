@@ -32,6 +32,11 @@ const namedAddresses: { [key: string]: string } = {
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'TheAlienTourist',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
     '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'PatB GWG',
+    '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Nakamomo',
+    '0xad4a190d4aea2180b66906537f1fd9700c83842a': 'N3bs',
+    '0x962228a90eac69238c7d1f216d80037e61ea9255': 'CryptoHarry',
+    '0x6535020cceb810bdb3f3ca5e93de2460ff7989bb': 'AlienDev',
+    '0x072938db4dd5c5f25b77d11fbecdb35a0f14e022': 'Knockerton',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {
