@@ -2,8 +2,8 @@ import moment from 'moment'
 import { Box, Text, useInterval } from '@chakra-ui/react';
 import { useState } from 'react';
 
-const queued = Date.UTC(2022, 1, 2, 14);
-const execution = Date.UTC(2022, 1, 4, 14);
+const queued = Date.UTC(2022, 1, 2, 14, 3);
+const execution = Date.UTC(2022, 1, 4, 14, 3);
 
 const getText = () => {
     const now = Date.now()

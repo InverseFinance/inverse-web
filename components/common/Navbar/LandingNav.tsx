@@ -80,7 +80,7 @@ export const LandingNav = () => {
           <Link href="/anchor">Enter App</Link>
         </Stack>
       </Flex>
-      {!showMobileNav && <Announcement />}
+      {!showMobileNav && <Announcement isLanding={true} />}
     </>
   )
 }

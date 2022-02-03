@@ -9,6 +9,7 @@ import { utils } from 'ethers'
 import { Countdown } from '../Countdown';
 import { useState } from 'react';
 import { PlusAnimIcon } from '../Animation/PlusAnim';
+import { useRouter } from 'next/router';
 
 const XinvMigrationMessage = () => {
   const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
@@ -32,14 +33,16 @@ const MessageWithLink = () => {
   </Link>
 }
 
-export const Announcement = () => {
+export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
+  const router = useRouter()
   const { balances } = useSupplyBalances()
   const needsXinvMigration = balances && balances[OLD_XINV] && Number(utils.formatEther(balances[OLD_XINV])) > 0.1
 
   return (
     <Flex
       bgColor={'transparent'}
-      backgroundImage="/assets/landing/graphic1.png"
+      backgroundImage={isLanding ? undefined : "/assets/landing/graphic1.png"}
+      borderBottom={isLanding ? undefined : "1px solid #221d45"}
       w="full"
       p={1}
       h="60px"
@@ -49,6 +52,8 @@ export const Announcement = () => {
       alignItems="center"
       fontWeight="semibold"
       color={'white'}
+      cursor="pointer"
+      onClick={() => router.push('/governance/proposals/mills/6')}
       data-testid={TEST_IDS.announcement}
     >
       {/* {
