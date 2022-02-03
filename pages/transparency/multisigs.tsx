@@ -34,12 +34,16 @@ export const MultisigsDiagram = () => {
               description={
                 <>
                   <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Rewards Committee:</Text>
-                    <Text>Compensate contributors</Text>
+                    <Text fontWeight="bold">- Policy Committee:</Text>
+                    <Text>Handle Reward Rates Policies</Text>
                   </Flex>
                   <Flex direction="row" w='full' justify="space-between">
                     <Text fontWeight="bold">- GWG:</Text>
                     <Text>Investments & Costs regarding Growth</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Rewards Committee:</Text>
+                    <Text>Compensate contributors</Text>
                   </Flex>
                 </>
               }
