@@ -87,7 +87,8 @@ const NetworkBadge = ({
 }
 
 const INVBalance = () => {
-  const { query } = useRouter()
+  const router = useRouter()
+  const { query } = router;
   const { account, chainId } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
   const { inv: invBalOnFantom } = useFantomBalance(userAddress)
@@ -104,8 +105,12 @@ const INVBalance = () => {
   }, [data, userAddress], !userAddress, 1000)
 
   const goToSupply = () => {
-    const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
-    document.dispatchEvent(customEvent);
+    if(router.pathname === '/anchor') {
+      const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
+      document.dispatchEvent(customEvent);
+    } else {
+      router.push({ pathname: '/anchor', query: { market: 'inv', marketType: 'supply' } });
+    }
   }
 
   const formatData = (data: [number, number, number] | undefined) => {
