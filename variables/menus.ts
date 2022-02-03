@@ -5,10 +5,6 @@ export const MENUS = {
       href: '/anchor',
     },
     {
-      label: 'Vaults',
-      href: '/vaults',
-    },
-    {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
     },
@@ -28,10 +24,6 @@ export const MENUS = {
         {
           label: 'Anchor',
           href: '/anchor',
-        },
-        {
-          label: 'Vaults',
-          href: '/vaults',
         },
         {
           label: 'DOLA',
