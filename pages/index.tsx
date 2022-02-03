@@ -35,13 +35,6 @@ const cards = [
     image: '/assets/products/anchor.png',
     href: '/anchor',
   },
-  {
-    title: 'DCA Vaults',
-    description: ' DCA your stablecoin yield into your favorite crypto, including BTC, ETH & YFI.',
-    label: 'Open Vaults',
-    image: '/assets/products/vaults.png',
-    href: '/vaults',
-  },
 ]
 
 const formatStat = ({ value, showDollar, showPercentage }: any): string => {
@@ -151,7 +144,7 @@ export const Landing = () => {
         <Stack
           w="full"
           direction="row"
-          justify={{ base: 'center', lg: 'space-between' }}
+          justify={{ base: 'center', lg: 'space-around' }}
           spacing={0}
           wrap="wrap"
           shouldWrapChildren

@@ -8,6 +8,11 @@ const redirects = async () => {
       permanent: true,
     },
     {
+      source: '/vaults',
+      destination: 'https://old.inverse.finance/vaults',
+      permanent: true,
+    },
+    {
       source: '/transparency',
       destination: '/transparency/overview',
       permanent: true,
