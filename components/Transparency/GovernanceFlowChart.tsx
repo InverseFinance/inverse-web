@@ -25,6 +25,7 @@ export const GovernanceFlowChart = ({
   xinv,
   xinvComptroller,
   xinvAdmin,
+  xinvManagerPC,
   xinvUnderlying,
   xinvEscrow,
   governance,
@@ -44,6 +45,7 @@ export const GovernanceFlowChart = ({
   xinv: string,
   xinvComptroller: string,
   xinvAdmin: string,
+  xinvManagerPC: string,
   xinvUnderlying: string,
   xinvEscrow: string,
   governance: string,
@@ -92,6 +94,17 @@ export const GovernanceFlowChart = ({
       ],
     },
     {
+      label: `⚖️ ${namedAddress(xinvAdmin)}`,
+      id: xinvAdmin,
+      x: 1200,
+      y: 0,
+      style: primaryStyle,
+      sourcePosition: 'left',
+      targets: [
+        { label: '👥 Policy Committee', id: xinvManagerPC, linkLabel: 'PC', x: 850, y: 0, targetPosition: 'right' }
+      ]
+    },
+    {
       label: <>{invImg} xINV</>,
       id: xinv,
       y: 350,
@@ -99,7 +112,7 @@ export const GovernanceFlowChart = ({
       style: blueStyle,
       targets: [
         { label: "⚓ Anchor (Comptroller)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
-        { label: namedAddress(xinvAdmin), id: xinvAdmin, linkLabel: 'xINV Admin' },
+        { label: `⚖️ ${namedAddress(xinvAdmin)}`, id: xinvAdmin, linkLabel: 'xINV Admin', y: 0, x: 1200, style: primaryStyle },
         { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400 },
         { label: 'xINV Escrow', id: xinvEscrow, linkLabel: 'xINV Escrow' },
       ]

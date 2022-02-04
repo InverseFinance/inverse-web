@@ -20,7 +20,7 @@ import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { shortenNumber } from '@app/util/markets'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   comptroller: COMPTROLLER,
@@ -32,7 +32,8 @@ const defaultValues = {
   treasuryAdmin: GOVERNANCE,
   xinv: XINV,
   xinvComptroller: COMPTROLLER,
-  xinvAdmin: TREASURY,
+  xinvAdmin: XINV_MANAGER,
+  xinvManagerPC: POLICY_COMMITTEE,
   xinvUnderlying: INV,
   xinvEscrow: ESCROW,
   governance: GOVERNANCE,
@@ -56,7 +57,7 @@ export const Overview = () => {
     [XINV, 'underlying'],
   ])
 
-  const [xinvAdmin, xinvEscrow, comptroller, xinvUnderlying] = xinvData || [TREASURY, ESCROW, COMPTROLLER, INV]
+  const [xinvAdmin, xinvEscrow, comptroller, xinvUnderlying] = xinvData || [XINV_MANAGER, ESCROW, COMPTROLLER, INV]
 
   const { data: daoData } = useEtherSWR([
     [xinvEscrow.toLowerCase(), 'governance'],
