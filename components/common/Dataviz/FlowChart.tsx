@@ -139,6 +139,7 @@ export const FlowChart = ({
         !!elements?.length
         && <ReactFlow
           elements={elements}
+          defaultZoom={options?.defaultZoom}
           onLoad={options?.autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
         >
           {options?.showControls && <Controls />}

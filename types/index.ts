@@ -352,6 +352,7 @@ export type FlowChartOptions = {
   showBackground?: boolean
   autofit?: boolean
   elementsOptions?: FlowChartElementsOptions
+  defaultZoom?: number
 }
 
 export type Prices = {

@@ -20,6 +20,7 @@ export const InvFlowChart = ({
   xinv,
   xinvOld,
   xinvAdmin,
+  xinvManagerPC,
   xinvUnderlying,
   xinvEscrow,
   govTreasury,
@@ -29,6 +30,7 @@ export const InvFlowChart = ({
   xinv: string,
   xinvOld: string,
   xinvAdmin: string,
+  xinvManagerPC: string,
   xinvUnderlying: string,
   xinvEscrow: string,
   govTreasury: string,
@@ -46,7 +48,7 @@ export const InvFlowChart = ({
     {
       label: '⏱️ Escrow',
       id: escrow,
-      y: 600,
+      y: 550,
       deltaX: 0,
       style: primaryStyle,
       targets: [
@@ -59,25 +61,37 @@ export const InvFlowChart = ({
       style: greenStyle,
     },
     {
+      label: `⚖️ ${namedAddress(xinvAdmin)}`,
+      id: xinvAdmin,
+      x: 800,
+      y: 0,
+      style: primaryStyle,
+      sourcePosition: 'left',
+      targetPosition: 'bottom',
+      targets: [
+        { label: '👥 Policy Committee', id: xinvManagerPC, linkLabel: 'PC', x: 500, y: 0, targetPosition: 'right' }
+      ]
+    },
+    {
       label: <>{invImg} xINV</>,
       id: xinv,
-      y: 350,
+      y: 300,
       deltaX: 300,
       style: blueStyle,
       targets: [
         { label: namedAddress(xinvAdmin), id: xinvAdmin, linkLabel: 'xINV Admin' },
-        { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400 },
+        { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400, y: 550 },
         { label: 'xINV Escrow', id: xinvEscrow, linkLabel: 'xINV Escrow' },
       ]
     },
     {
       label: <>{invImg} xINV (old)</>,
       id: xinvOld,
-      y: 250,
-      deltaX: 500,
+      y: 200,
+      deltaX: 550,
       style: blueStyle,
       targets: [
-        { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400 },
+        { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 450 },
       ]
     },
   ]
@@ -90,7 +104,7 @@ export const InvFlowChart = ({
 
   return (
     <FlowChart
-      options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: true }}
+      options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: false, defaultZoom: 0.7 }}
       flowData={links}
       boxProps={boxProps}
     />

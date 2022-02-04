@@ -78,9 +78,10 @@ export const GovernanceFlowChart = ({
     {
       label: '⏱️ Escrow',
       id: escrow,
-      y: 270,
+      y: 300,
       deltaX: 300,
       style: primaryStyle,
+      targetPosition: 'bottom',
       targets: [
         { label: 'Escrow Admin', id: escrowGov, linkLabel: 'Escrow Admin' },
       ]
@@ -100,6 +101,7 @@ export const GovernanceFlowChart = ({
       y: 0,
       style: primaryStyle,
       sourcePosition: 'left',
+      targetPosition: 'bottom',
       targets: [
         { label: '👥 Policy Committee', id: xinvManagerPC, linkLabel: 'PC', x: 850, y: 0, targetPosition: 'right' }
       ]
@@ -107,13 +109,13 @@ export const GovernanceFlowChart = ({
     {
       label: <>{invImg} xINV</>,
       id: xinv,
-      y: 350,
-      deltaX: 700,
+      y: 400,
+      deltaX: 750,
       style: blueStyle,
       targets: [
         { label: "⚓ Anchor (Comptroller)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
         { label: `⚖️ ${namedAddress(xinvAdmin)}`, id: xinvAdmin, linkLabel: 'xINV Admin', y: 0, x: 1200, style: primaryStyle },
-        { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400 },
+        { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400, y: 800 },
         { label: 'xINV Escrow', id: xinvEscrow, linkLabel: 'xINV Escrow' },
       ]
     },
@@ -121,6 +123,8 @@ export const GovernanceFlowChart = ({
       label: "🏛️ Governor Mills",
       id: governance,
       style: primaryStyle,
+      y: 800,
+      sourcePosition: 'top',
       targets: [
         { label: `🔐 ${namedAddress(govGuard)}`, id: govGuard, linkLabel: "Gov Guardian" },
         { label: namedAddress(govToken), id: govToken, linkLabel: 'GOV Token' },
@@ -147,7 +151,7 @@ export const GovernanceFlowChart = ({
 
   return (
     <FlowChart
-      options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: true }}
+      options={{ showControls: !isLargerThan, showBackground: !isLargerThan, autofit: false, defaultZoom: 0.6 }}
       flowData={links}
       boxProps={boxProps}
     />
