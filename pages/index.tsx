@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -8,6 +8,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
+import Link from '@app/components/common/Link'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -23,24 +24,24 @@ const projects = [
 const cards = [
   {
     title: 'INV',
-    description: 'Positive-sum Rewards\nToken With Revenue Sharing Rewards',
+    description: 'Scale your earnings with Positive Sum Rewards & revenue sharing',
     label: 'Buy and Stake INV',
     image: '/assets/products/vaults.png',
     href: '/anchor',
   },
   {
-    title: 'DOLA',
-    description: 'Debt-based USD stablecoin for high capital efficiency, leverage and native yield',
-    label: 'Swap DOLA',
-    image: '/assets/products/dola.png',
-    href: '/stabilizer',
-  },
-  {
     title: 'Anchor',
-    description: 'Capital-efficient lending, borrowing & synthetic assets.',
+    description: 'Earn more with decentralized, capital-efficient lending, borrowing',
     label: 'Lend & Borrow',
     image: '/assets/products/anchor.png',
     href: '/anchor',
+  },
+  {
+    title: 'DOLA',
+    description: 'Borrow our fully-collateralized, low-interest stablecoin',
+    label: 'Swap DOLA',
+    image: '/assets/products/dola.png',
+    href: '/stabilizer',
   },
 ]
 
@@ -144,7 +145,7 @@ export const Landing = () => {
       </Flex>
       <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 24 }} p={8}>
         <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
-          A suite of banking tools for the DeFi generation
+          Start Earning With Inverse Now:
         </Text>
         <Stack
           w="full"
@@ -185,13 +186,23 @@ export const Landing = () => {
         bgRepeat="no-repeat"
         bgPosition="right top"
         justify="center"
-        pt={{ base: 8, lg: 32 }}
+        pt={{ base: 6, lg: 6 }}
         pb={{ base: 8, lg: 32 }}
       >
-        <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} textAlign={{ base: 'center', lg: 'start' }}>
+        <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} pt="0" textAlign={{ base: 'center', lg: 'start' }}>
           <Stack w="3xl" spacing={6} align={{ base: 'center', lg: 'flex-start' }}>
             <Text fontSize="2xl" fontWeight="bold">
-              Join the Inverse DAO - governance by the people
+              New Bonding Opportunities with Olympus Pro!
+            </Text>
+            <Box fontSize="lg" color="white">
+              Purchase INV at a substantial discount by depositing your Sushi or Curve liquidity pool tokens on Olympus Pro.
+              <Link textDecoration="underline" isExternal display="inline-block" mx="1" href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds">
+                Click here
+              </Link>
+              <Text display="inline-block">to learn more.</Text>
+            </Box>
+            <Text fontSize="2xl" fontWeight="bold">
+              Join the Inverse DAO - Governance By The People
             </Text>
             <Text fontSize="lg">
               Inverse.finance was created by a sole developer in December 2020, and since then has grown to include
