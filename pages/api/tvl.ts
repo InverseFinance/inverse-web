@@ -12,7 +12,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.1`;
+  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.2`;
 
   try {
     const {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       ANCHOR_DOLA,
     } = getNetworkConfigConstants(networkConfig);
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(cacheKey, true, 300);
     if(validCache) {
       res.status(200).json(validCache);
       return
