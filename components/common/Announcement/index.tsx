@@ -72,9 +72,9 @@ export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
       } */}
       <PlusAnimIcon boxProps={{ mr: '4' }} width={30} height={30} loop={true} />
       {/* <Countdown /> */}
-      <Box mx="20">
+      <Box mx="10">
         <LaunchAnim width={30} height={30} loop={true} />
-        <Text fontSize="12px">INV+ is Launched!</Text>
+        <Text fontSize="12px" whiteSpace="nowrap">INV+ is Launched!</Text>
       </Box>
       <PlusAnimIcon boxProps={{ ml: '4' }} width={30} height={30} loop={true} />
     </Flex>
