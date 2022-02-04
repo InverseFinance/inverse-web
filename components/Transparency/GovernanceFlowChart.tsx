@@ -110,7 +110,7 @@ export const GovernanceFlowChart = ({
       label: <>{invImg} xINV</>,
       id: xinv,
       y: 400,
-      deltaX: 750,
+      deltaX: 700,
       style: blueStyle,
       targets: [
         { label: "⚓ Anchor (Comptroller)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
