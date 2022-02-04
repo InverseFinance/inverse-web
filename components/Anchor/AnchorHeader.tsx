@@ -82,21 +82,21 @@ export const AnchorHeader = () => {
         <Stack spacing={2} direction="row">
           {
             !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
-            && <LinkButton href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
+            && <LinkButton fontSize={{ base: '12px', sm: '16px' }} href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
               target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
               Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
             </LinkButton>
           }
           {
             !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
-            && <LinkButton data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
+            && <LinkButton fontSize={{ base: '12px', sm: '16px' }} data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
               target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
               Buy DOLA
             </LinkButton>
           }
           {
             !!process.env.NEXT_PUBLIC_LEARN_MORE_URL
-            && <LinkOutlineButton
+            && <LinkOutlineButton fontSize={{ base: '12px', sm: '16px' }}
               href={process.env.NEXT_PUBLIC_LEARN_MORE_URL}
               data-testid={TEST_IDS.anchor.learnMore}
               target={process.env.NEXT_PUBLIC_LEARN_MORE_URL.startsWith('http') ? '_blank' : '_self'}>
