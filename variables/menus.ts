@@ -91,7 +91,7 @@ export const MENUS = {
         },
         {
           label: 'Medium',
-          href: 'https://medium.com/inversefinance',
+          href: 'https://medium.com/inverse-finance',
         },
       ],
     },
@@ -110,7 +110,7 @@ export const MENUS = {
       image: '/assets/socials/telegram.svg',
     },
     {
-      href: 'https://medium.com/inversefinance',
+      href: 'https://medium.com/inverse-finance',
       image: '/assets/socials/medium.svg',
     },
     {
