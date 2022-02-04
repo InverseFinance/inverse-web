@@ -40,7 +40,7 @@ export const Governance = () => {
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
 
   useEffect(() => {
-    if(!proposal?.proposalNum) { return }
+    if (!proposal?.proposalNum) { return }
     updateReadGovernanceNotifs(`active-${proposal.proposalNum}`);
   }, [proposal?.proposalNum]);
 
@@ -75,15 +75,15 @@ export const Governance = () => {
               </Flex>
               <Flex direction="column">
                 <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+                  <Flex w="full" m={6} mb={0} mt="14">
+                    <GovernanceInfos />
+                  </Flex>
+                </Flex>
+                <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
                   <VoteButton proposal={proposal} />
                 </Flex>
                 <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
                   <VotingWallet />
-                </Flex>
-                <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-                  <Flex w="full" m={6} mb={0} mt="14">
-                    <GovernanceInfos />
-                  </Flex>
                 </Flex>
                 <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
                   <ForVotes proposal={proposal} />

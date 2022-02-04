@@ -48,12 +48,12 @@ export const Governance = () => {
         </Flex>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <VotingWallet />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <Flex w="full" m={6} mb={0} mt="14">
               <GovernanceInfos />
             </Flex>
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <VotingWallet />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <Breakdown />
