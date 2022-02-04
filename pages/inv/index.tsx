@@ -75,7 +75,7 @@ export const InvPlus = () => {
                 <b>Purchase INV</b> at a substantial <b>discount</b> by depositing your Sushi or Curve liquidity pool tokens on <b>Olympus Pro</b>.
               </Text>
               <Link textDecoration="underline" isExternal display="inline-block" mr="1"
-                href="https://pro.olympusdao.finance/#/bond/inv_dola_sushi">
+                href={process.env.NEXT_PUBLIC_BONDS_URL}>
                 Click here
               </Link>
               <Text display="inline-block" mr="1">for bonding or </Text>
