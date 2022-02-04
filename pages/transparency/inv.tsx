@@ -17,7 +17,7 @@ import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { shortenNumber } from '@app/util/markets'
 
-const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, TOKENS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, XINV_MANAGER, POLICY_COMMITTEE, GOVERNANCE, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   escrow: ESCROW,
@@ -26,7 +26,8 @@ const defaultValues = {
   xinv: XINV,
   xinvOld: XINV_V1!,
   xinvComptroller: COMPTROLLER,
-  xinvAdmin: TREASURY,
+  xinvAdmin: XINV_MANAGER,
+  xinvManagerPC: POLICY_COMMITTEE,
   xinvUnderlying: INV,
   xinvEscrow: ESCROW,
   govTreasury: TREASURY,
@@ -44,7 +45,7 @@ export const InvPage = () => {
     [XINV, 'underlying'],
   ])
 
-  const [xinvAdmin, xinvEscrow, comptroller, xinvUnderlying] = xinvData || [TREASURY, ESCROW, COMPTROLLER, INV]
+  const [xinvAdmin, xinvEscrow, comptroller, xinvUnderlying] = xinvData || [XINV_MANAGER, ESCROW, COMPTROLLER, INV]
 
   const { data: daoData } = useEtherSWR([
     [xinvEscrow.toLowerCase(), 'governance'],

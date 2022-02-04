@@ -11,16 +11,18 @@ import { useEscrow } from '@app/hooks/useEscrow'
 import { useExchangeRates } from '@app/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@app/hooks/useMarkets'
 import { usePrices } from '@app/hooks/usePrices'
-import { Market } from '@app/types'
+import { Market, Token } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { useRouter } from 'next/router'
+import { OLD_XINV } from '@app/config/constants'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -30,29 +32,43 @@ const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: B
     minWorthAccepted;
 }
 
+const isHighlightCase = (highlightInv: boolean, highlightDola: boolean, marketAd: string, underlying: Token) => {
+  const isHighlightInv = highlightInv && marketAd === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN;
+  const isHighlightDola = highlightDola && underlying.symbol === 'DOLA';
+  return isHighlightInv || isHighlightDola;
+}
+
 const getColumn = (
   colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 'balance' | 'wallet' | 'supplyBalance' | 'borrowBalance',
   minWidth = 24,
+  highlightInv = false,
+  highlightDola = false,
 ): Column => {
   const cols: { [key: string]: Column } = {
     asset: {
       field: 'symbol',
       label: 'Asset',
       header: ({ ...props }) => <Flex minWidth={minWidth} {...props} />,
-      value: ({ token, underlying }: Market) => (
-        <Stack minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
-          <UnderlyingItem label={underlying.symbol} image={underlying.image} address={token} />
-        </Stack>
-      ),
+      value: ({ token, underlying }: Market) => {
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
+        return (
+          <Stack color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
+            <UnderlyingItem textProps={{ color }} label={underlying.symbol} image={underlying.image} address={token} />
+          </Stack>
+        )
+      },
     },
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
       tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
-      value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd }: Market) => (
-        <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
-      ),
+      value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
+        return (
+          <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
+        )
+      },
     },
     rewardApy: {
       field: 'rewardApy',
@@ -71,8 +87,9 @@ const getColumn = (
       field: 'balance',
       label: 'Balance',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
-      value: ({ balance, underlying, priceUsd }: Market) => {
-        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+      value: ({ balance, underlying, priceUsd, token }: Market) => {
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) && (balance || 0) >= 0.01 ? 'secondary' : 'white'
+        return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
       },
     },
     borrowApy: {
@@ -84,17 +101,22 @@ const getColumn = (
         <Text>The APR may vary over time.</Text>
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
-      value: ({ borrowApy, monthlyBorrowFee, underlying, priceUsd }: Market) => (
-        <AnchorPoolInfo value={borrowApy} priceUsd={priceUsd} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", minWidth: 24 }} />
-      ),
+      value: ({ borrowApy, monthlyBorrowFee, underlying, priceUsd, token }: Market) => {
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
+        return (
+          <AnchorPoolInfo value={borrowApy} priceUsd={priceUsd} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", color, minWidth: 24 }} />
+        )
+      },
     },
   }
   cols.supplyBalance = {
     ...cols.balance,
+    field: 'usdWorth',
     tooltip: 'Equals the Supplied amount plus the generated supply Interests over time',
   }
   cols.borrowBalance = {
     ...cols.balance,
+    field: 'usdWorth',
     label: 'Debt',
     tooltip: <Text>
       Your <b>Debt</b> equals to the <b>Borrowed Amount plus the generated borrow Interests</b> over time.
@@ -151,8 +173,9 @@ export const AnchorSupplied = () => {
     const monthlyAssetRewards = getMonthlyRate(tokenBalance, market.supplyApy);
 
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
+    const usdWorth = tokenBalance * (prices && prices[underlying.coingeckoId!]?.usd || market.oraclePrice);
 
-    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards }
+    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards, usdWorth }
   })
 
   const columns = [
@@ -206,6 +229,9 @@ export const AnchorSupplied = () => {
       label={`${usdSupplyCoingecko ? (usdSupplyCoingecko >= 0.01 ? dollarify(usdSupplyCoingecko, 2) : 'Less than $0.01 supplied') : '$0'}`}
       description="Your supplied assets">
       <Table
+        keyName="token"
+        defaultSort="usdWorth"
+        defaultSortDir="desc"
         columns={columns}
         items={marketsWithBalance?.filter(
           ({ token, underlying, mintable }: Market) =>
@@ -231,6 +257,7 @@ export const AnchorSupplied = () => {
 
 export const AnchorBorrowed = () => {
   const { active } = useWeb3React()
+  const { prices } = usePrices()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useBorrowBalances()
@@ -247,7 +274,8 @@ export const AnchorBorrowed = () => {
     const { token, underlying, borrowApy } = market;
     const balance = getParsedBalance(balances, token, underlying.decimals);
     const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
-    return { ...market, balance, monthlyBorrowFee }
+    const usdWorth = balance * (prices && prices[underlying.coingeckoId!]?.usd || 0);
+    return { ...market, balance, monthlyBorrowFee, usdWorth }
   })
 
   const columns = [
@@ -275,6 +303,9 @@ export const AnchorBorrowed = () => {
     >
       {usdBorrow ? (
         <Table
+          keyName="token"
+          defaultSort="usdWorth"
+          defaultSortDir="desc"
           columns={columns}
           items={marketsWithBalance.filter(
             ({ token, underlying }: Market) =>
@@ -303,16 +334,42 @@ const AnchorSupplyContainer = ({ ...props }) => {
   )
 }
 
+// TODO: refacto components
 export const AnchorSupply = () => {
+  const { query } = useRouter()
   const { markets, isLoading } = useMarkets()
   const { balances } = useAccountBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
+
+  const handleExternalOpen = (marketName: string) => {
+    const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === marketName.toLowerCase());
+    if(!market?.mintable) { return }
+    setDeepLinkUsed(true);
+    handleSupply(market);
+  }
+
+  useEffect(() => {
+    const triggerAction = ({ detail }) => {
+      handleExternalOpen(detail.market);
+    }
+    document.addEventListener('open-anchor-supply', triggerAction)
+    return () => {
+      document.removeEventListener('open-anchor-supply', triggerAction, false);
+    }
+  }, [])
+
+  useEffect(() => {
+    if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'supply') {
+      handleExternalOpen(query.market!.toLowerCase())
+    }
+  }, [query, markets, deepLinkUsed])
 
   const marketsWithBalance = markets?.map((market) => {
     const { underlying } = market;
@@ -325,10 +382,10 @@ export const AnchorSupply = () => {
   })
 
   const columns = [
-    getColumn('asset', 32),
-    getColumn('supplyApy', 20),
+    getColumn('asset', 32, true),
+    getColumn('supplyApy', 20, true),
     getColumn('rewardApy', 24),
-    getColumn('wallet', 24),
+    getColumn('wallet', 24, true),
   ]
 
   if (isLoading || !markets) {
@@ -343,22 +400,33 @@ export const AnchorSupply = () => {
 
   return (
     <AnchorSupplyContainer>
-      <Table columns={columns} items={mintableMarkets} keyName="token" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
+      <Table columns={columns} items={mintableMarkets} keyName="token" defaultSortDir="desc" defaultSort="supplyApy" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </AnchorSupplyContainer>
   )
 }
 
 export const AnchorBorrow = () => {
+  const { query } = useRouter()
   const { markets, isLoading } = useMarkets()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
 
   const handleBorrow = (asset: Market) => {
     setModalAsset(asset)
     onOpen()
   }
+
+  useEffect(() => {
+    if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
+      const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === query.market!.toLowerCase());
+      if(!market?.borrowable) { return }
+      setDeepLinkUsed(true);
+      handleBorrow(market);
+    }
+  }, [query, markets, deepLinkUsed])
 
   const marketsWithUsdLiquidity = markets?.map((market) => {
     const { underlying, liquidity } = market;
@@ -367,21 +435,24 @@ export const AnchorBorrow = () => {
   });
 
   const columns = [
-    getColumn('asset', 16),
-    getColumn('borrowApy', 20),
+    getColumn('asset', 16, false, true),
+    getColumn('borrowApy', 20, false, true),
     {
       field: 'liquidityUsd',
       label: 'Liquidity',
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
-      value: ({ liquidityUsd }: Market) => (
-        <Text textAlign="end" minWidth={24}>
-          {
-            liquidityUsd
-              ? shortenNumber(liquidityUsd, 2, true)
-              : '-'
-          }
-        </Text>
-      ),
+      value: ({ liquidityUsd, token, underlying }: Market) => {
+        const color = isHighlightCase(false, true, token, underlying) ? 'secondary' : 'white'
+        return (
+          <Text textAlign="end" minWidth={24} color={color}>
+            {
+              liquidityUsd
+                ? shortenNumber(liquidityUsd, 2, true)
+                : '-'
+            }
+          </Text>
+        )
+      },
     },
   ]
 

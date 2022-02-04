@@ -14,6 +14,8 @@ export const EXTRA_CONFIG = {
         governance: '0xBeCCB6bb0aa4ab551966A7E4B97cec74bb359Bf6',
         // multiDelegator
         multiDelegator: '0x1ba87bE4C20Fa2d4cbD8e4Ae9998649226207F76',
+        xinvManager: '0x07eB8fD853c847d6E25F29e566d605cFf474909D',
+        policyCommittee: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
         vaults: {
             vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
             vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',

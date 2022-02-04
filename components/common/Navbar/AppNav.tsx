@@ -1,4 +1,4 @@
-import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
+import { CloseIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -19,7 +19,7 @@ import { ETH_MANTISSA } from '@app/config/constants'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ethereumReady, getPreviousConnectorType, setIsPreviouslyConnected, setPreviousChainId } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
 import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
@@ -41,6 +41,9 @@ import { MENUS } from '@app/variables/menus'
 import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { InjectedConnector } from '@web3-react/injected-connector';
+import { RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import useFantomBalance from '@app/hooks/useFantomBalance'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -84,43 +87,87 @@ const NetworkBadge = ({
 }
 
 const INVBalance = () => {
+  const router = useRouter()
+  const { query } = router;
   const { account, chainId } = useWeb3React<Web3Provider>()
+  const userAddress = (query?.viewAddress as string) || account;
+  const { inv: invBalOnFantom } = useFantomBalance(userAddress)
   const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { data } = useEtherSWR([
-    [INV, 'balanceOf', account],
-    [XINV, 'balanceOf', account],
+    [INV, 'balanceOf', userAddress],
+    [XINV, 'balanceOf', userAddress],
     [XINV, 'exchangeRateStored'],
   ])
-  const [formattedBalance, setFormattedBalance] = useState('')
+  const [formattedBalance, setFormattedBalance] = useState<ReactNode>(null)
 
   useDualSpeedEffect(() => {
-    setFormattedBalance(account ? formatData(data) : '')
-  }, [data, account], !account, 1000)
+    setFormattedBalance(userAddress ? formatData(data) : null)
+  }, [data, userAddress], !userAddress, 1000)
+
+  const goToSupply = () => {
+    if(router.pathname === '/anchor') {
+      const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
+      document.dispatchEvent(customEvent);
+    } else {
+      router.push({ pathname: '/anchor', query: { market: 'inv', marketType: 'supply' } });
+    }
+  }
 
   const formatData = (data: [number, number, number] | undefined) => {
     const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
     const inv = invBalance / ETH_MANTISSA
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
-    return `${inv.toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} (${xinv.toFixed(2)} x${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL})`
+    const hasUnstakedBal = inv >= 0.01
+    return <>
+      <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'white'}>
+        {inv.toFixed(2)} {RTOKEN_SYMBOL}
+      </Text>
+      ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
+    </>
   }
 
-  if (!formattedBalance) {
+  if (!formattedBalance || !data) {
     return <></>
   }
 
+  const invBal = data[0] / ETH_MANTISSA;
+  const onMainnetCase = invBal >= 0.01
+  const onFantomCase = invBalOnFantom >= 0.01
+
   return (
-    <NavBadge>{formattedBalance}</NavBadge>
+    <NavBadge>
+      {
+        onMainnetCase || onFantomCase ?
+          <AnimatedInfoTooltip message={
+            <>
+              {onMainnetCase && <Text>You have {invBal.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
+              {onFantomCase && <Text mt={onMainnetCase && onFantomCase ? '2' : '0'}>
+                You have {invBalOnFantom.toFixed(2)} <b>{RTOKEN_SYMBOL}</b> on Fantom
+              </Text>}
+              <Text mt="2">
+                We recommend {onFantomCase && "bridging and"} staking all your {RTOKEN_SYMBOL} on Anchor to <b>earn rewards and avoid dilution</b>
+              </Text>
+            </>
+          }>
+            <WarningIcon color="orange.300" mr="1" />
+          </AnimatedInfoTooltip>
+          : null
+      }
+      {formattedBalance}
+    </NavBadge>
   )
 }
 
 const ETHBalance = () => {
+  const { query } = useRouter()
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const { data: balance } = useEtherSWR(['getBalance', account, 'latest'])
+  const userAddress = (query?.viewAddress as string) || account;
+  const { data: balance } = useEtherSWR(['getBalance', userAddress, 'latest'])
   const [formattedBalance, setFormattedBalance] = useState('')
 
   useDualSpeedEffect(() => {
     setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
-  }, [balance, account], !account, 1000)
+  }, [balance, userAddress], !userAddress, 1000)
 
   if (!formattedBalance || !chainId) {
     return <></>
@@ -161,7 +208,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   }, [active, userAddress, addressName], !userAddress, 1000)
 
   useDualSpeedEffect(() => {
-    if(connector instanceof WalletLinkConnector && active) {
+    if (connector instanceof WalletLinkConnector && active) {
       setIsPreviouslyConnected(true, 'coinbase');
     } else if (connector instanceof InjectedConnector && active) {
       setIsPreviouslyConnected(true, 'injected');

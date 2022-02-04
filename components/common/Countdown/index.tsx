@@ -20,7 +20,7 @@ const getText = () => {
 
 export const Countdown = () => {
     const [text, setText] = useState(getText());
-    const [isOver, setIsOver] = useState(false)
+    const [isOver, setIsOver] = useState(execution - Date.now() <= 0)
 
     useInterval(() => {
         setIsOver(execution - Date.now() <= 0);
@@ -32,7 +32,7 @@ export const Countdown = () => {
             <SlideFade
                 transition={{
                     enter: { duration: 0 },
-                    exit: { duration: 0.2 },
+                    exit: { duration: 0 },
                 }}
                 in={!isOver}
                 unmountOnExit={true}>
@@ -41,13 +41,13 @@ export const Countdown = () => {
             </SlideFade>
             <SlideFade
                 transition={{
-                    enter: { duration: 1 },
-                    exit: { duration: 1 },
+                    enter: { duration: 0 },
+                    exit: { duration: 0 },
                 }}
                 in={isOver}
                 unmountOnExit={true}>
                 <LaunchAnim width={30} height={30} loop={true} />
-                <Text fontSize="12px">INV+ is Launched ! Please reload the page</Text>
+                <Text fontSize="12px">INV+ is Launched!</Text>
             </SlideFade>
         </Box>
     )

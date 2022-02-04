@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -8,6 +8,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
+import Link from '@app/components/common/Link'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -22,18 +23,25 @@ const projects = [
 
 const cards = [
   {
-    title: 'DOLA',
-    description: 'Debt-based USD stablecoin for high capital efficiency, leverage and native yield',
-    label: 'Swap DOLA',
-    image: '/assets/products/dola.png',
-    href: '/stabilizer',
+    title: 'INV',
+    description: 'Scale your earnings with Positive Sum Rewards & revenue sharing',
+    label: 'Buy and Stake INV',
+    image: '/assets/products/vaults.png',
+    href: '/anchor',
   },
   {
     title: 'Anchor',
-    description: 'Capital-efficient lending, borrowing & synthetic assets.',
+    description: 'Earn more with decentralized, capital-efficient lending, borrowing',
     label: 'Lend & Borrow',
     image: '/assets/products/anchor.png',
     href: '/anchor',
+  },
+  {
+    title: 'DOLA',
+    description: 'Borrow our fully-collateralized, low-interest stablecoin',
+    label: 'Swap DOLA',
+    image: '/assets/products/dola.png',
+    href: '/stabilizer',
   },
 ]
 
@@ -80,14 +88,14 @@ export const Landing = () => {
   ]
 
   return (
-    <Layout>
+    <Layout bgColor="#020207">
       <Flex w="full" bgImage="/assets/landing/graphic1.png" bgRepeat="no-repeat" direction="column">
         <LandingNav />
         <Stack w="full" align="center" mt={{ base: 4, md: 28 }} spacing={4} p={2}>
           <Flex direction="column">
-            <Text color="secondary" fontWeight="bold">
+            {/* <Text color="secondary" fontWeight="bold">
               Invert the System
-            </Text>
+            </Text> */}
             <Flex
               direction="column"
               fontSize={{ base: '3xl', md: '7xl' }}
@@ -95,10 +103,10 @@ export const Landing = () => {
               lineHeight="shorter"
               textAlign="center"
             >
-              <Text>Borrow, Lend & Earn</Text>
+              <Text>Master the Game</Text>
               <Stack direction="row">
-                <Text>with</Text>
-                <Text color="secondary">{process.env.NEXT_PUBLIC_TITLE}</Text>
+                <Text>Of</Text>
+                <Text pl="2" color="secondaryPlus">Positive Sum DeFi</Text>
               </Stack>
             </Flex>
           </Flex>
@@ -108,18 +116,18 @@ export const Landing = () => {
             fontSize={{ base: 'md', md: 'xl' }}
             lineHeight={{ base: 'base', md: 'shorter' }}
             fontWeight="medium"
+            maxW="900px"
           >
-            <Text>Welcome to Inverse, part of the new wave of decentralized banking & finance.</Text>
-            <Text display={{ base: 'none', sm: 'inline' }}>
-              From a capital-efficient money market, to tokenized synthetic assets,
-            </Text>
-            <Text display={{ base: 'none', sm: 'inline' }}>
-              our mission is to grow your wealth. Start earning with Inverse.
+            <Text>
+              Here at Inverse, we're decentralized by design, moving past reckless, outdated systems towards a better solution: Positive Sum Defi.
+              We help you maximize your earnings via revenue sharing, accumulate high yields with sustainable APYs, and benefit from low-cost stable coin borrowing. Join our community to grow and thrive.
             </Text>
           </Flex>
-          <Flex>
+          <Flex pt="4">
             <Flex w={32} m={2}>
-              <LinkButton data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">Enter App</LinkButton>
+              <LinkButton flexProps={{ bgColor: 'primaryPlus' }} data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">
+                Enter App
+              </LinkButton>
             </Flex>
             <Flex w={32} m={2}>
               <LinkOutlineButton data-testid={TEST_IDS.landing.learnMore} target="_self" href="https://docs.inverse.finance/">Learn More</LinkOutlineButton>
@@ -139,7 +147,7 @@ export const Landing = () => {
       </Flex>
       <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 24 }} p={8}>
         <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
-          A suite of banking tools for the DeFi generation
+          Start Earning With Inverse Now:
         </Text>
         <Stack
           w="full"
@@ -163,12 +171,12 @@ export const Landing = () => {
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
-              <Text w={{ base: 56, lg: 64 }} h={12} fontSize="sm" fontWeight="medium">
+              <Text w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
                 {description}
               </Text>
               <Spacer />
-              <Flex w={40} pt={6}>
-                <LinkButton href={href}>{label}</LinkButton>
+              <Flex w={'180px'} pt={6}>
+                <LinkButton flexProps={{ bgColor: "primaryPlus" }} href={href}>{label}</LinkButton>
               </Flex>
             </Stack>
           ))}
@@ -180,13 +188,23 @@ export const Landing = () => {
         bgRepeat="no-repeat"
         bgPosition="right top"
         justify="center"
-        pt={{ base: 8, lg: 32 }}
+        pt={{ base: 6, lg: 6 }}
         pb={{ base: 8, lg: 32 }}
       >
-        <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} textAlign={{ base: 'center', lg: 'start' }}>
+        <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} pt="0" textAlign={{ base: 'center', lg: 'start' }}>
           <Stack w="3xl" spacing={6} align={{ base: 'center', lg: 'flex-start' }}>
             <Text fontSize="2xl" fontWeight="bold">
-              Join the Inverse DAO - governance by the people
+              New Bonding Opportunities with Olympus Pro!
+            </Text>
+            <Box fontSize="lg" color="white">
+              Purchase INV at a substantial discount by depositing your Sushi or Curve liquidity pool tokens on Olympus Pro.
+              <Link textDecoration="underline" isExternal display="inline-block" mx="1" href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds">
+                Click here
+              </Link>
+              <Text display="inline-block">to learn more.</Text>
+            </Box>
+            <Text fontSize="2xl" fontWeight="bold">
+              Join the Inverse DAO - Governance By The People
             </Text>
             <Text fontSize="lg">
               Inverse.finance was created by a sole developer in December 2020, and since then has grown to include
@@ -198,7 +216,7 @@ export const Landing = () => {
               an empowered {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} community.
             </Text>
             <Flex w={32}>
-              <LinkButton href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
+              <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
             </Flex>
           </Stack>
         </Flex>

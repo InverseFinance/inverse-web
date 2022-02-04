@@ -20,7 +20,7 @@ const toApy = (rate: number) =>
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.2`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.3`;
 
   try {
     const {

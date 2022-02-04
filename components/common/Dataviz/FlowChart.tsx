@@ -49,6 +49,8 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) 
         data: { label: <ElementLabel label={link.label} address={id} /> },
         position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (originY + yGap * i) },
         style: { ...defaultNodeSyle, ...(link.style || {}) },
+        targetPosition: link.targetPosition,
+        sourcePosition: link.sourcePosition,
       })
     }
   });
@@ -66,6 +68,8 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) 
           id: targetId,
           position: { x, y },
           style: { ...defaultNodeSyle, ...(target.style || {}) },
+          targetPosition: target.targetPosition,
+          sourcePosition: target.sourcePosition,
         })
       }
     });
@@ -135,6 +139,7 @@ export const FlowChart = ({
         !!elements?.length
         && <ReactFlow
           elements={elements}
+          defaultZoom={options?.defaultZoom}
           onLoad={options?.autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
         >
           {options?.showControls && <Controls />}

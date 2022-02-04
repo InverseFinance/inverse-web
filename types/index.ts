@@ -326,12 +326,16 @@ export type FlowChartData = {
     deltaX?: number
     deltaY?: number
     style?: Object
+    sourcePosition?: 'left' | 'right' | 'bottom' | 'top'
+    targetPosition?: 'left' | 'right' | 'bottom' | 'top'
   }[]
   x?: number
   y?: number
   deltaX?: number
   deltaY?: number
   style?: Object
+  sourcePosition?: 'left' | 'right' | 'bottom' | 'top'
+  targetPosition?: 'left' | 'right' | 'bottom' | 'top'
 }
 
 export type FlowChartElementsOptions = {
@@ -348,6 +352,7 @@ export type FlowChartOptions = {
   showBackground?: boolean
   autofit?: boolean
   elementsOptions?: FlowChartElementsOptions
+  defaultZoom?: number
 }
 
 export type Prices = {

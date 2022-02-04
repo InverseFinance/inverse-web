@@ -5,7 +5,11 @@ export const MENUS = {
       href: '/anchor',
     },
     {
-      label: 'Swap',
+      label: 'INV',
+      href: '/inv',
+    },
+    {
+      label: 'SWAP',
       href: '/swap/DAI/DOLA',
     },
     {
@@ -22,12 +26,16 @@ export const MENUS = {
       groupLabel: 'Products',
       items: [
         {
+          label: 'INV',
+          href: '/inv',
+        },
+        {
           label: 'Anchor',
           href: '/anchor',
         },
         {
           label: 'DOLA',
-          href: '/stabilizer',
+          href: '/swap',
         },
       ],
     },
@@ -39,8 +47,8 @@ export const MENUS = {
           href: '/governance',
         },
         {
-          label: 'Snapshot',
-          href: 'https://snapshot.org/#/inversefinance.eth',
+          label: 'Transparency',
+          href: '/transparency',
         },
         {
           label: 'Forum',
@@ -56,12 +64,34 @@ export const MENUS = {
           href: 'https://docs.inverse.finance/',
         },
         {
+          label: 'Github',
+          href: 'https://github.com/InverseFinance',
+        },
+      ],
+    },
+    {
+      groupLabel: 'Community',
+      items: [
+        {
           label: 'Discord',
           href: 'https://discord.gg/YpYJC7R5nv',
         },
         {
           label: 'Telegram',
           href: 'https://t.me/InverseFinance',
+        },
+      ],
+    },
+    {
+      groupLabel: 'Social',
+      items: [
+        {
+          label: 'Twitter',
+          href: 'https://twitter.com/InverseFinance',
+        },
+        {
+          label: 'Medium',
+          href: 'https://medium.com/inversefinance',
         },
       ],
     },
