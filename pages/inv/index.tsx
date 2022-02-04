@@ -74,11 +74,11 @@ export const InvPlus = () => {
               <Text mb="2">
                 <b>Purchase INV</b> at a substantial <b>discount</b> by depositing your Sushi or Curve liquidity pool tokens on <b>Olympus Pro</b>.
               </Text>
-              {/* <Link textDecoration="underline" isExternal display="inline-block" mr="1"
+              <Link textDecoration="underline" isExternal display="inline-block" mr="1"
                 href="https://pro.olympusdao.finance/#/bond/inv_dola_sushi">
                 Click here
-              </Link> */}
-              {/* <Text display="inline-block" mr="1">for bonding or </Text> */}
+              </Link>
+              <Text display="inline-block" mr="1">for bonding or </Text>
               <Link textDecoration="underline" isExternal display="inline-block"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds">
                 Learn more
