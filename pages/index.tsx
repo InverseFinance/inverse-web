@@ -198,14 +198,14 @@ export const Landing = () => {
             </Text>
             <Box fontSize="lg" color="white">
               Purchase INV at a substantial discount by depositing your Sushi or Curve liquidity pool tokens on Olympus Pro.
-              <Link textDecoration="underline" isExternal display="inline-block" mx="1"
+              {/* <Link textDecoration="underline" isExternal display="inline-block" mx="1"
                 href="https://pro.olympusdao.finance/#/bond/inv_dola_sushi">
                 Click here
-              </Link>
-              <Text display="inline-block">for bonding or </Text>
+              </Link> */}
+              {/* <Text display="inline-block">for bonding or </Text> */}
               <Link textDecoration="underline" isExternal display="inline-block" ml="1"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds">
-                learn more
+                Learn more
               </Link>.
             </Box>
             <Text fontSize="2xl" fontWeight="bold">
