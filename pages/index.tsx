@@ -88,7 +88,7 @@ export const Landing = () => {
   ]
 
   return (
-    <Layout>
+    <Layout bgColor="#020207">
       <Flex w="full" bgImage="/assets/landing/graphic1.png" bgRepeat="no-repeat" direction="column">
         <LandingNav />
         <Stack w="full" align="center" mt={{ base: 4, md: 28 }} spacing={4} p={2}>
@@ -106,7 +106,7 @@ export const Landing = () => {
               <Text>Master the Game</Text>
               <Stack direction="row">
                 <Text>Of</Text>
-                <Text pl="2" color="secondary">Positive Sum DeFi</Text>
+                <Text pl="2" color="secondaryPlus">Positive Sum DeFi</Text>
               </Stack>
             </Flex>
           </Flex>
@@ -125,7 +125,9 @@ export const Landing = () => {
           </Flex>
           <Flex pt="4">
             <Flex w={32} m={2}>
-              <LinkButton data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">Enter App</LinkButton>
+              <LinkButton flexProps={{ bgColor: 'primaryPlus' }} data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">
+                Enter App
+              </LinkButton>
             </Flex>
             <Flex w={32} m={2}>
               <LinkOutlineButton data-testid={TEST_IDS.landing.learnMore} target="_self" href="https://docs.inverse.finance/">Learn More</LinkOutlineButton>
@@ -174,7 +176,7 @@ export const Landing = () => {
               </Text>
               <Spacer />
               <Flex w={'180px'} pt={6}>
-                <LinkButton href={href}>{label}</LinkButton>
+                <LinkButton flexProps={{ bgColor: "primaryPlus" }} href={href}>{label}</LinkButton>
               </Flex>
             </Stack>
           ))}
@@ -214,7 +216,7 @@ export const Landing = () => {
               an empowered {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} community.
             </Text>
             <Flex w={32}>
-              <LinkButton href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
+              <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
             </Flex>
           </Stack>
         </Flex>

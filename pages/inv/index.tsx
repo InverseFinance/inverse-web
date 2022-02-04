@@ -20,7 +20,7 @@ const Step = ({
 }) => {
   return (
     <Flex fontWeight="bold" fontSize="30px" color="white" direction="row" alignItems="center">
-      <Text mr="14">•</Text>
+      <Text mr="5">•</Text>
       {
         !!href ?
           <Link color="white" isExternal href={href}>{label}</Link>
@@ -55,14 +55,14 @@ export const InvPlus = () => {
         </Text>
       </Flex>
       <Flex fontSize="23px" w={{ base: 'full' }} justify="center">
-        <Text as="i" textAlign="center" fontSize="14px">
+        <Text as="i" textAlign="center" fontSize="18px">
           Inverse Plus will bring revenue sharing and accelerated rewards to INV stakers
         </Text>
       </Flex>
       <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
         <Flex w={{ base: 'full', md: '40%' }} px="5">
           <VStack pt="10" alignItems="flex-start">
-            <VStack spacing="16" alignItems="left">
+            <VStack spacing="20" alignItems="left">
               {/* <Step label="Swap Into INV"
                 tooltip={
                   <>

@@ -1,8 +1,8 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { Flex, FlexProps } from '@chakra-ui/react'
 import Footer from '@app/components/common/Footer'
 
-export const Layout = ({ children }: { children?: React.ReactNode }) => (
-  <Flex w="full" minH="100vh" bgColor="purple.900" direction="column" align="center">
+export const Layout = ({ children, bgColor = 'purple.900' }: { children?: React.ReactNode, bgColor?: FlexProps["bgColor"] }) => (
+  <Flex w="full" minH="100vh" bgColor={bgColor} direction="column" align="center">
     <Flex
       zIndex={1}
       w="full"

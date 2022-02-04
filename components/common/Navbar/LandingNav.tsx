@@ -23,9 +23,7 @@ export const LandingNav = () => {
     <>
       <Flex
         width="full"
-        bgColor="purple.900"
-        borderBottomColor="purple.800"
-        borderBottomWidth={1}
+        bgColor="transparent"
         justify="space-between"
         align="center"
         p={4}
@@ -41,7 +39,7 @@ export const LandingNav = () => {
             </Link>
           ))}
           <Flex w={28}>
-            <LinkButton href="/anchor">Enter App</LinkButton>
+            <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="/anchor">Enter App</LinkButton>
           </Flex>
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>

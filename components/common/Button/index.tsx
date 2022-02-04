@@ -1,4 +1,4 @@
-import { Flex, Link, ButtonProps } from '@chakra-ui/react'
+import { Flex, Link, ButtonProps, FlexProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { getNetwork } from '@app/util/networks';
 import { NetworkItem } from '@app/components/common/NetworkItem';
@@ -10,14 +10,17 @@ export const LinkButton = ({
   href,
   target = '_self',
   isOutline = false,
+  flexProps,
   ...props
 }: {
   href: string
   children: React.ReactNode
   target?: string
   isOutline?: boolean
+  flexProps?: FlexProps
 }) => {
   const extraFlexProps = isOutline ? { bgColor: 'purple.850', borderColor: 'purple.600'  } : { bgColor: 'purple.500', borderColor: 'purple.500' }
+  const finalFlexProps = { ...extraFlexProps, ...flexProps };
   return (
     <NextLink href={href} passHref>
       <Link w="full" color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
@@ -28,7 +31,7 @@ export const LinkButton = ({
           borderWidth={1}
           p={2}
           _hover={{ bgColor: 'purple.600', borderColor: 'purple.600', transition: 'all 250ms' }}
-          {...extraFlexProps}
+          {...finalFlexProps}
         >
           {children}
         </Flex>
