@@ -166,12 +166,12 @@ export const DelegateView = () => {
         </Flex>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <Flex w="full" m={6} mb={0} mt="14">
               <GovernanceInfos />
             </Flex>
+          </Flex>
+          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+            <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
           </Flex>
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <DelegatorsPreview address={address} />
