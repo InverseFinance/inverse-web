@@ -35,6 +35,7 @@ export const GovernanceFlowChart = ({
   govStakedToken,
   dola,
   dolaOperator,
+  opBondManager,
 }: {
   comptroller: string,
   compGuard: string,
@@ -55,6 +56,7 @@ export const GovernanceFlowChart = ({
   govStakedToken: string,
   dola: string,
   dolaOperator: string,
+  opBondManager: string,
 }) => {
   const [baseWidth, setBaseWidth] = useState('');
   const [baseheight, setBaseHeight] = useState('');
@@ -103,7 +105,18 @@ export const GovernanceFlowChart = ({
       sourcePosition: 'left',
       targetPosition: 'bottom',
       targets: [
-        { label: '👥 Policy Committee', id: xinvManagerPC, linkLabel: 'PC', x: 850, y: 0, targetPosition: 'right' }
+        { label: '👥 Policy Committee', id: xinvManagerPC, linkLabel: 'PC', x: 800, y: 0, targetPosition: 'right' }
+      ]
+    },
+    {
+      label:'⚖️ BondsManager',
+      id: opBondManager,
+      x: 1050,
+      y: 150,
+      sourcePosition: 'left',
+      style: primaryStyle,
+      targets: [
+        { id: xinvManagerPC, linkLabel: 'PC' }
       ]
     },
     {
