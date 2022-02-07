@@ -48,7 +48,7 @@ const defaultValues = {
 export const Overview = () => {
   const { prices: geckoPrices } = usePrices()
   const { data: tvlData } = useTVL()
-  const { dolaTotalSupply, invTotalSupply, fantom, treasury, anchorReserves } = useDAO();
+  const { dolaTotalSupply, invTotalSupply, fantom, treasury, anchorReserves, bonds } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -125,13 +125,19 @@ export const Overview = () => {
                 title="🏦 Treasury Funds"
                 description={
                   <>
-                    <Text>In Treasury Contract:</Text>
+                    <Text fontWeight="bold">In Treasury Contract:</Text>
                     <Funds
                       prices={prices}
                       funds={treasury}
                       boldTotal={false}
                     />
-                    <Text mt="2">In Anchor Reserves:</Text>
+                    <Text mt="2" fontWeight="bold">In Bonds Treasury Contract:</Text>
+                    <Funds
+                      prices={prices}
+                      funds={bonds?.balances}
+                      boldTotal={false}
+                    />
+                    <Text mt="2" fontWeight="bold">In Anchor Reserves:</Text>
                     <Funds
                       prices={prices}
                       funds={anchorReserves}
@@ -141,7 +147,7 @@ export const Overview = () => {
                       <Text fontWeight="bold">COMBINED TOTAL:</Text>
                       <Text fontWeight="bold">
                         {
-                          shortenNumber(treasury.concat(anchorReserves).reduce((prev, curr) => {
+                          shortenNumber(treasury.concat(anchorReserves).concat(bonds?.balances).reduce((prev, curr) => {
                             const priceKey = curr.token.coingeckoId || curr.token.symbol;
                             const usdBalance = !!prices && !!priceKey && !!prices[priceKey] && curr.balance ? curr.balance * prices[priceKey].usd : 0;
                             return prev + usdBalance;
@@ -220,6 +226,10 @@ export const Overview = () => {
                   <Flex direction="row" w='full' justify="space-between">
                     <Text fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
                     <Text>Use treasury funds</Text>
+                  </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Policy Committee:</Text>
+                    <Text>Handle Reward Rates Policies</Text>
                   </Flex>
                 </>
               }

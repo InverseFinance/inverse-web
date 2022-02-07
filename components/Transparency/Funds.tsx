@@ -2,6 +2,7 @@ import { Flex, Image, Text } from '@chakra-ui/react';
 import { OLD_XINV } from '@app/config/constants';
 import { Prices, Token } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
+import { PieChart } from './PieChart';
 
 const FundLine = ({ token, value, usdValue, perc, showPerc = true }: { token: Token, value: number, usdValue: number, perc: number, showPerc?: boolean }) => {
     return (
@@ -32,6 +33,7 @@ export const Funds = ({
     boldTotal = true,
     showPerc = true,
     showTotal = true,
+    chartMode = false,
 }: {
     prices?: Prices["prices"],
     funds: { token: Token, balance: number, allowance?: number, usdPrice?: number }[],
@@ -39,6 +41,7 @@ export const Funds = ({
     boldTotal?: boolean,
     showPerc?: boolean,
     showTotal?: boolean,
+    chartMode?: boolean,
 }) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
@@ -83,14 +86,22 @@ export const Funds = ({
 
     return (
         <>
-            {balancesContent}
             {
-                positiveAllowances.length > 0 &&
-                <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">Allowances:</Text>
-                </Flex>
+                chartMode ? <PieChart data={
+                    positiveBalances.map(fund => ({ x: fund.token.symbol, y: fund.usdBalance, perc: fund.balancePerc }))
+                } />
+                    :
+                    <>
+                        {balancesContent}
+                        {
+                            positiveAllowances.length > 0 &&
+                            <Flex direction="row" w='full' justify="space-between">
+                                <Text fontWeight="bold">Allowances:</Text>
+                            </Flex>
+                        }
+                        {allowancesContent}
+                    </>
             }
-            {allowancesContent}
             {
                 !fundsWithPerc.length ?
                     <Flex direction="row" w='full' justify="space-between">
