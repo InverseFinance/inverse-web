@@ -3,6 +3,7 @@ import {
   DAYS_PER_YEAR,
   ETH_MANTISSA,
   BLOCKS_PER_DAY,
+  BLOCKS_PER_YEAR,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -17,10 +18,12 @@ const toApy = (rate: number) =>
   (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
   100;
 
+const toRewardApy = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
+
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.3`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.4`;
 
   try {
     const {
@@ -110,7 +113,7 @@ export default async function handler(req, res) {
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
  
-      return toApy(
+      return toRewardApy(
         (speed * prices[XINV]) /
         (parseFloat(
           formatUnits(totalSupplies[i].toString(), underlying.decimals)
