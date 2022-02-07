@@ -19,6 +19,7 @@ import { useDAO } from '@app/hooks/useDAO'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { shortenNumber } from '@app/util/markets'
+import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -132,10 +133,18 @@ export const Overview = () => {
                       funds={treasury}
                       boldTotal={false}
                     />
-                    <Text mt="2" fontWeight="bold">In Bonds Treasury Contract:</Text>
+                    <Text mt="2" fontWeight="bold">Current Funds reserved for bonds:</Text>
                     <Funds
                       prices={prices}
-                      funds={bonds?.balances}
+                      showPerc={false}
+                      funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)}
+                      boldTotal={false}
+                      showTotal={false}
+                    />
+                    <Text mt="2" fontWeight="bold">Current Funds received via bonds:</Text>
+                    <Funds
+                      prices={prices}
+                      funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)}
                       boldTotal={false}
                     />
                     <Text mt="2" fontWeight="bold">In Anchor Reserves:</Text>
