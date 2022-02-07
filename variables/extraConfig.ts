@@ -17,6 +17,7 @@ export const EXTRA_CONFIG = {
         xinvManager: '0x07eB8fD853c847d6E25F29e566d605cFf474909D',
         policyCommittee: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
         opBondManager: '0x9de7b925247c9bd98ecee5abb7ea06a4aa7d13cd',
+        interestModel: '0x8f0439382359c05ED287Acd5170757B76402D93F',
         vaults: {
             vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
             vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',

@@ -8,13 +8,14 @@ import { useEffect, useState } from 'react'
 import { InterestModelChart } from '@app/components/Transparency/InterestModelChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
+import { useInterestModel } from '@app/hooks/useInterestModel'
+import { shortenNumber } from '@app/util/markets'
 
-const KINK = 75;
-const multiplierPerBlock = 6;
-const jumpMultiplierPerYear = 168.75;
+
 const utilisationRates = [...Array(100).keys()];
 
 export const InterestModelPage = () => {
+    const { kink, multiplierPerBlock, jumpMultiplierPerYear } = useInterestModel();
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [isLargerThan] = useMediaQuery('(min-width: 900px)')
 
@@ -24,8 +25,8 @@ export const InterestModelPage = () => {
 
     const borrowChartData = utilisationRates.map((rate) => {
         const normalRate = rate / 100 * multiplierPerBlock;
-        const jumpedRate = (rate / 100 - KINK / 100) * jumpMultiplierPerYear + normalRate;
-        return { x: rate, y: rate <= KINK ? normalRate : jumpedRate }
+        const jumpedRate = (rate / 100 - kink / 100) * jumpMultiplierPerYear + normalRate;
+        return { x: rate, y: rate <= kink ? normalRate : jumpedRate }
     })
 
     const lendingChartData = borrowChartData.map(data => {
@@ -65,15 +66,15 @@ export const InterestModelPage = () => {
                             <>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text fontWeight="bold">- Kink:</Text>
-                                    <Text>{KINK}</Text>
+                                    <Text>{shortenNumber(kink, 2)}</Text>
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text fontWeight="bold">- Multiplier Per Block:</Text>
-                                    <Text>{multiplierPerBlock}</Text>
+                                    <Text>{shortenNumber(multiplierPerBlock, 2)}</Text>
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text fontWeight="bold">- Jump Multiplier Per Year:</Text>
-                                    <Text>{jumpMultiplierPerYear}</Text>
+                                    <Text>{shortenNumber(jumpMultiplierPerYear, 2)}</Text>
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text fontWeight="bold">- Lending IR = Borrowing IR * 0.8</Text>
