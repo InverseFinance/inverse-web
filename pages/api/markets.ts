@@ -14,7 +14,11 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber } from '@app/util/markets';
 
-const toApy = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
+const toApy = (rate: number) =>
+  (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
+  100;
+
+const toRewardApy = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
@@ -109,7 +113,7 @@ export default async function handler(req, res) {
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
  
-      return toApy(
+      return toRewardApy(
         (speed * prices[XINV]) /
         (parseFloat(
           formatUnits(totalSupplies[i].toString(), underlying.decimals)
