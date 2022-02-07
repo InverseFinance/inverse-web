@@ -1,5 +1,5 @@
 import { shortenNumber } from '@app/util/markets';
-import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps } from 'victory';
+import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLine } from 'victory';
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
@@ -8,7 +8,7 @@ type Props = { x: number, y: number }[]
 const defaultAxisStyle: VictoryAxisProps["style"] = {
     tickLabels: { fill: '#fff' },
     grid: {
-        stroke: '#666666aa',
+        stroke: ({tick}) => tick === 75 ? 'red' : '#666666aa',
         strokeDasharray: '4 4',
     }
 }
@@ -16,6 +16,7 @@ const defaultAxisStyle: VictoryAxisProps["style"] = {
 export const InterestModelChart = ({
     data,
     title,
+    kink,
     width = 900,
     height = 300,
     showLabels = false,
@@ -25,6 +26,7 @@ export const InterestModelChart = ({
 }: {
     data: Props,
     title?: string,
+    kink: number,
     width?: number,
     height?: number,
     showLabels?: boolean,
@@ -39,6 +41,8 @@ export const InterestModelChart = ({
     useEffect(() => {
         setRightPadding(isLargerThan ? 50 : 20)
     }, [isLargerThan]);
+
+    const xAxisTicks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].concat([kink]);
 
     return (
         <Box
@@ -69,8 +73,10 @@ export const InterestModelChart = ({
                 {
                     !!title && <VictoryLabel text={title} style={{ fill: 'white' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
                 }
-                <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 1)} />
-                <VictoryAxis style={axisStyle} />
+                <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 1)}
+                 />
+                <VictoryAxis tickValues={xAxisTicks} style={axisStyle} />
+
                 <VictoryArea
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}

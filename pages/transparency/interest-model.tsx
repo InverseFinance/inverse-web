@@ -11,8 +11,7 @@ import Link from '@app/components/common/Link'
 import { useInterestModel } from '@app/hooks/useInterestModel'
 import { shortenNumber } from '@app/util/markets'
 
-
-const utilisationRates = [...Array(100).keys()];
+const utilisationRates = [...Array(101).keys()];
 
 export const InterestModelPage = () => {
     const { kink, multiplierPerBlock, jumpMultiplierPerYear } = useInterestModel();
@@ -44,6 +43,7 @@ export const InterestModelPage = () => {
                 <Flex direction="column">
                     <InterestModelChart
                         title={`Borrowing Interest Rate Model`}
+                        kink={kink}
                         showTooltips={true}
                         height={300}
                         width={chartWidth}
@@ -52,6 +52,7 @@ export const InterestModelPage = () => {
                     />
                     <InterestModelChart
                         title={`Lending Interest Rate Model`}
+                        kink={kink}
                         showTooltips={true}
                         height={300}
                         width={chartWidth}
