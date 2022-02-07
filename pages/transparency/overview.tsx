@@ -227,6 +227,10 @@ export const Overview = () => {
                     <Text fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
                     <Text>Use treasury funds</Text>
                   </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Policy Committee:</Text>
+                    <Text>Handle Reward Rates Policies</Text>
+                  </Flex>
                 </>
               }
             />

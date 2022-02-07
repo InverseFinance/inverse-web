@@ -136,6 +136,10 @@ export const InvPage = () => {
                     <Text fontWeight="bold">- Escrow Admin:</Text>
                     <Text>Change x{RTOKEN_SYMBOL} escrow duration</Text>
                   </Flex>
+                  <Flex direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">- Policy Committee:</Text>
+                    <Text>Handle Reward Rates Policies</Text>
+                  </Flex>
                 </>
               }
             />
