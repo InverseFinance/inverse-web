@@ -20,7 +20,7 @@ import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { shortenNumber } from '@app/util/markets'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultValues = {
   comptroller: COMPTROLLER,
@@ -43,6 +43,7 @@ const defaultValues = {
   govStakedToken: XINV,
   dola: DOLA,
   dolaOperator: TREASURY,
+  opBondManager: OP_BOND_MANAGER,
 }
 
 export const Overview = () => {
