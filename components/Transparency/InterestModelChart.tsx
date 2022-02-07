@@ -76,7 +76,7 @@ export const InterestModelChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontSize: 20, fontWeight: 'bold' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontSize: 20, fontWeight: 'bold', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
                 }
                 <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 1)+'%'} />
                 <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={axisStyle} tickFormat={(t) => shortenNumber(t, 1)+'%'} />
