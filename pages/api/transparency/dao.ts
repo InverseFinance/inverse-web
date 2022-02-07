@@ -4,14 +4,18 @@ import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/con
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { Fed, NetworkIds } from '@app/types';
+import { Fed, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
+
+const formatBn = (bn: BigNumber, token: Token) => {
+  return { token, balance: getBnToNumber(bn, token.decimals) }
+}
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WCOIN, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WCOIN, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-  const cacheKey = `dao-cache-v1.1.5`;
+  const cacheKey = `dao-cache-v1.1.6`;
 
   try {
 
@@ -126,18 +130,24 @@ export default async function handler(req, res) {
       })
     })
 
+    // Bonds
+    const bondTokens = [INV, DOLA, DOLA3POOLCRV, INVDOLASLP];
+    const bondManagerBalances: BigNumber[] = await Promise.all(
+      bondTokens.map(tokenAddress => {
+        const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+        return contract.balanceOf(OP_BOND_MANAGER);
+      })
+    )
+
     const resultData = {
       dolaTotalSupply: getBnToNumber(dolaTotalSupply),
       invTotalSupply: getBnToNumber(invTotalSupply),
       dolaOperator,
-      anchorReserves: anchorReserves.map((bn, i) => {
-        const token = UNDERLYING[ANCHOR_TOKENS[i]];
-        return { token, balance: getBnToNumber(bn, token.decimals) }
-      }),
-      treasury: treasuryBalances.map((bn, i) => {
-        const token = TOKENS[treasuryFundsToCheck[i]];
-        return { token, balance: getBnToNumber(bn, token.decimals) }
-      }),
+      bonds:{
+        balances: bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
+      },
+      anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])),
+      treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])),
       fantom: {
         dolaTotalSupply: getBnToNumber(dolaFtmTotalSupply),
         invTotalSupply: getBnToNumber(invFtmTotalSupply),
