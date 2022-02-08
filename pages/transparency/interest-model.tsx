@@ -120,7 +120,7 @@ export const InterestModelPage = () => {
                         </>
                     }
                     <InterestModelChart
-                        title={`Borrowing Interest Rate Model`}
+                        title={`Borrow Interest Rate Model`}
                         kink={kink}
                         showTooltips={true}
                         height={300}
@@ -130,7 +130,8 @@ export const InterestModelPage = () => {
                         utilizationRate={chosenMarket?.utilizationRate! * 100}
                     />
                     <InterestModelChart
-                        title={`Lending Interest Rate Model`}
+                        mt="4"
+                        title={`Supply Interest Rate Model`}
                         kink={kink}
                         showTooltips={true}
                         height={300}

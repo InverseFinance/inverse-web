@@ -1,6 +1,6 @@
 import { shortenNumber } from '@app/util/markets';
 import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLine } from 'victory';
-import { Box, useMediaQuery } from '@chakra-ui/react';
+import { Box, BoxProps, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 
@@ -16,6 +16,7 @@ export const InterestModelChart = ({
     showLabels = false,
     showTooltips = false,
     interpolation = 'basis',
+    ...props
 }: {
     data: Props,
     title?: string,
@@ -26,6 +27,7 @@ export const InterestModelChart = ({
     showLabels?: boolean,
     showTooltips?: boolean,
     interpolation?: VictoryAreaProps["interpolation"],
+    props?: BoxProps
 }) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
@@ -48,7 +50,7 @@ export const InterestModelChart = ({
             fontWeight: 'bold',
             fontFamily: 'Inter',
         },
-        axisLabel: { fill: '#fff', padding: 35 },
+        axisLabel: { fill: '#fff', padding: 35, fontFamily: 'Inter' },
         grid: {
             stroke: ({ tick }) => tick === kink ? '#ed8936' : tick === utilizationRate ? '#34E795' : '#666666aa',
             strokeDasharray: '4 4',
@@ -57,7 +59,7 @@ export const InterestModelChart = ({
 
     const defaultYAxis = {
         ...defaultAxisStyle,
-        axisLabel: { fill: '#fff', padding: 55 },
+        axisLabel: { ...defaultAxisStyle?.axisLabel, padding: 65 },
     }
 
     const xAxisTicks = (isLargerThan ?
@@ -76,6 +78,7 @@ export const InterestModelChart = ({
             width={width}
             height={height}
             position="relative"
+            {...props}
         >
             {
                 !kink || !utilizationRate ?
@@ -86,7 +89,7 @@ export const InterestModelChart = ({
                 height={height}
                 theme={VictoryTheme.grayscale}
                 animate={{ duration: 500 }}
-                padding={{ top: 50, bottom: 50, left: 70, right: rightPadding }}
+                padding={{ top: 50, bottom: 50, left: 80, right: rightPadding }}
                 containerComponent={!showTooltips ? undefined :
                     <VictoryVoronoiContainer
                         mouseFollowTooltips={true}
@@ -107,15 +110,12 @@ export const InterestModelChart = ({
                 <VictoryArea
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}
-                    // scale="linear"
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                            const isKink = data[index].x === kink
                             const isCurrentUR = data[index].x === utilizationRate;
-                            // if(isKink) { return `Rate at Kink: ${shortenNumber(data[index].y, 2)}%` }
                             if(isCurrentUR) { return `Current Rate: ${shortenNumber(data[index].y, 2)}%` }
-                            return showLabels || isMax ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 1)}%` : ''
+                            return showLabels || isMax ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 2)}%` : ''
                         }
                     }
                     style={{
@@ -124,8 +124,8 @@ export const InterestModelChart = ({
                     }}
                     interpolation={interpolation}
                 />
-                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 1) + '%'} />
-                <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => shortenNumber(t, 1) + '%'} />
+                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 2) + '%'} />
+                <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => shortenNumber(t, 2) + '%'} />
             </VictoryChart>
             }
         </Box >
