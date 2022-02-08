@@ -42,7 +42,7 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Swap</title>
       </Head>
-      <AppNav active="SWAP" />
+      <AppNav active="Swap" />
       <Flex justify="center" direction="column">
         <Flex w={{ base: 'full', xl: '2xl' }}>
           <SwapView from={from} to={to} />

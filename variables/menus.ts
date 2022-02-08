@@ -9,7 +9,7 @@ export const MENUS = {
       href: '/inv',
     },
     {
-      label: 'SWAP',
+      label: 'Swap',
       href: '/swap/DAI/DOLA',
     },
     {
