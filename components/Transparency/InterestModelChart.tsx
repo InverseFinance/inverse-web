@@ -9,7 +9,7 @@ const defaultAxisStyle: VictoryAxisProps["style"] = {
     tickLabels: { fill: '#fff' },
     axisLabel: { fill: '#fff', padding: 35 },
     grid: {
-        stroke: ({tick}) => tick === 75 ? 'red' : '#666666aa',
+        stroke: ({ tick }) => tick === 75 ? 'red' : '#666666aa',
         strokeDasharray: '4 4',
     }
 }
@@ -48,7 +48,11 @@ export const InterestModelChart = ({
         setRightPadding(isLargerThan ? 50 : 20)
     }, [isLargerThan]);
 
-    const xAxisTicks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].concat([kink]);
+    const xAxisTicks = (isLargerThan ?
+        [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        :
+        [0, 50, 100])
+        .concat([kink]);
 
     return (
         <Box
@@ -76,10 +80,10 @@ export const InterestModelChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontSize: 20, fontWeight: 'bold', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontSize: isLargerThan ? 20 : 12, fontWeight: 'bold', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
                 }
-                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 1)+'%'} />
-                <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={axisStyle} tickFormat={(t) => shortenNumber(t, 1)+'%'} />
+                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 1) + '%'} />
+                <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={axisStyle} tickFormat={(t) => shortenNumber(t, 1) + '%'} />
 
                 <VictoryArea
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}

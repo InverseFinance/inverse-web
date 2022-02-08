@@ -10,11 +10,16 @@ import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { useInterestModel } from '@app/hooks/useInterestModel'
 import { shortenNumber } from '@app/util/markets'
+import { useMarkets } from '@app/hooks/useMarkets'
+import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
+import { Autocomplete } from '@app/components/common/Input/Autocomplete'
+import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 
 const utilisationRates = [...Array(101).keys()];
 
 export const InterestModelPage = () => {
-    const { kink, multiplierPerBlock, jumpMultiplierPerYear, baseRatePerBlock, reserveFactors } = useInterestModel();
+    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
+    const { markets } = useMarkets();
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [reserveFactor, setReserveFactor] = useState<number>(0.2);
     const [isLargerThan] = useMediaQuery('(min-width: 900px)')
@@ -24,9 +29,9 @@ export const InterestModelPage = () => {
     }, [isLargerThan]);
 
     const borrowChartData = utilisationRates.map((utilizationRate) => {
-        const belowKinkRate = utilizationRate / 100 * multiplierPerBlock + baseRatePerBlock;
+        const belowKinkRate = utilizationRate / 100 * multiplierPerYear + baseRatePerYear;
 
-        const normalRate = kink / 100 * multiplierPerBlock + baseRatePerBlock;
+        const normalRate = kink / 100 * multiplierPerYear + baseRatePerYear;
         const excess = utilizationRate / 100 - kink / 100;
         const jumpedRate = excess * jumpMultiplierPerYear + normalRate
 
@@ -35,8 +40,15 @@ export const InterestModelPage = () => {
 
     const lendingChartData = borrowChartData.map(data => {
         const ratio = 1 - reserveFactor;
-        return { x: data.x, y: data.y * ratio * data.x/100 }
+        return { x: data.x, y: data.y * ratio * data.x / 100 }
     })
+
+    const optionList = markets
+        .filter(m => m.underlying.symbol !== RTOKEN_SYMBOL)
+        .map((market, i) => ({
+            value: market.token,
+            label: `${market.underlying.symbol} - Reserve Factor: ${market.reserveFactor * 100}%`,
+        }));
 
     return (
         <Layout>
@@ -46,7 +58,29 @@ export const InterestModelPage = () => {
             <AppNav active="Transparency" />
             <TransparencyTabs active="interest-model" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-                <Flex direction="column">
+                <Flex direction="column" color="white">
+                    <Flex justify="center" px="2">
+                        <Autocomplete
+                            w={isLargerThan ? '400px' : 'full'}
+                            maxW="400px"
+                            title="Anchor Market"
+                            defaultValue={markets?.length > 0 ? markets[0].token : undefined}
+                            placeholder="Choose a market"
+                            list={optionList}
+                            itemRenderer={(v, label) => {
+                                const market = markets.find(m => m.token === v);
+                                return <Flex alignItems="center" direction="row">
+                                    <UnderlyingItemBlock w="150px" symbol={market?.underlying.symbol} nameAttribute="symbol" />
+                                    {
+                                        market?.reserveFactor !== undefined && <Text ml="1" color="white">
+                                            - Reserve Factor: {(market?.reserveFactor || 0) * 100}%
+                                        </Text>
+                                    }
+                                </Flex>
+                            }}
+                            onItemSelect={(item) => setReserveFactor(markets.find(m => m.token === item?.value)?.reserveFactor || 0)}
+                        />
+                    </Flex>
                     <InterestModelChart
                         title={`Borrowing Interest Rate Model`}
                         kink={kink}
@@ -76,15 +110,16 @@ export const InterestModelPage = () => {
                                     <Text>{shortenNumber(kink, 2)}</Text>
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- Multiplier Per Block:</Text>
-                                    <Text>{shortenNumber(multiplierPerBlock, 2)}</Text>
+                                    <Text fontWeight="bold">- Multiplier Per Year:</Text>
+                                    <Text>{shortenNumber(multiplierPerYear, 2)}</Text>
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text fontWeight="bold">- Jump Multiplier Per Year:</Text>
                                     <Text>{shortenNumber(jumpMultiplierPerYear, 2)}</Text>
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- Lending IR = Borrowing IR * 0.8</Text>
+                                    <Text fontWeight="bold">- Base Rate Per Year:</Text>
+                                    <Text>{shortenNumber(baseRatePerYear, 2)}</Text>
                                 </Flex>
                                 <Box mt="2">
                                     <Link isExternal href="https://docs.inverse.finance/inverse-finance/technical/interest-rate-model">

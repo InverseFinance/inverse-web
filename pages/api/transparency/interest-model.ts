@@ -22,8 +22,8 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(NetworkIds.mainnet);
-    const interestModelContract = new Contract(INTEREST_MODEL, INTEREST_MODEL_ABI, provider)
-    
+    const interestModelContract = new Contract(INTEREST_MODEL, INTEREST_MODEL_ABI, provider);
+
     const results = await Promise.all([
       interestModelContract.blocksPerYear(),
       interestModelContract.kink(),
@@ -35,9 +35,9 @@ export default async function handler(req, res) {
 
     const resultData = {
       kink: results[1] / ETH_MANTISSA * 100,
-      multiplierPerBlock: results[2] / ETH_MANTISSA * blocksPerYear * 100,
+      multiplierPerYear: results[2] / ETH_MANTISSA * blocksPerYear * 100,
       jumpMultiplierPerYear: results[3] / ETH_MANTISSA * blocksPerYear * 100,
-      baseRatePerBlock: results[4] / ETH_MANTISSA * blocksPerYear * 100,
+      baseRatePerYear: results[4] / ETH_MANTISSA * blocksPerYear * 100,
       blocksPerYear,
     }
 

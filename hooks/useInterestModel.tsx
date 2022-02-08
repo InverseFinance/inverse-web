@@ -4,10 +4,9 @@ import useSWR from 'swr'
 
 type InterestModelParameters = {
   kink: number
-  multiplierPerBlock: number
+  multiplierPerYear: number
   jumpMultiplierPerYear: number
-  baseRatePerBlock: number
-  reserveFactors: { [key: string]: number }
+  baseRatePerYear: number
 }
 
 const KINK = 75;
@@ -19,10 +18,9 @@ export const useInterestModel = (): SWR & InterestModelParameters => {
 
   return {
     kink: data?.kink || KINK,
-    multiplierPerBlock: data?.multiplierPerBlock || MULTIPLIER_PER_BLOCK,
+    multiplierPerYear: data?.multiplierPerYear || MULTIPLIER_PER_BLOCK,
     jumpMultiplierPerYear: data?.jumpMultiplierPerYear || JUMP_MULTIPLIER_PER_YEAR,
-    baseRatePerBlock: data?.baseRatePerBlock || 0,
-    reserveFactors: data?.reserveFactors || {},
+    baseRatePerYear: data?.baseRatePerYear || 0,
     isLoading: !error && !data,
     isError: error,
   }

@@ -73,6 +73,11 @@ export const Autocomplete = ({
 
     const listCompRef = useRef(null)
 
+    useEffect(() => {
+        const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
+        setSelectedItem(preselectedItem)
+    }, [defaultValue, list])
+
     useOutsideClick({
         ref: listCompRef,
         handler: () => {
@@ -197,7 +202,7 @@ export const Autocomplete = ({
                         position="absolute"
                         className="blurred-container info-bg"
                         w="full"
-                        zIndex="10"
+                        zIndex="100"
                         borderRadius="5"
                         maxH="200px"
                         overflowY="auto"
