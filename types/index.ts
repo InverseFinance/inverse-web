@@ -46,6 +46,7 @@ export type Market = {
   monthlyAssetRewards?: number
   monthlyBorrowFee?: number
   escrowDuration?: number
+  utilizationRate?: number
   rewardPerBlock?: number
   rewardsPerMonth: number
 }

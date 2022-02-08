@@ -13,7 +13,7 @@ import { shortenNumber } from '@app/util/markets'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import { Autocomplete } from '@app/components/common/Input/Autocomplete'
-import { RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { Market } from '@app/types'
 
 const utilisationRates = [...Array(101).keys()];
 
@@ -21,12 +21,18 @@ export const InterestModelPage = () => {
     const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
     const { markets } = useMarkets();
     const [chartWidth, setChartWidth] = useState<number>(900);
-    const [reserveFactor, setReserveFactor] = useState<number>(0.2);
+    const [chosenMarket, setChosenMarket] = useState<Market | null>(null);
     const [isLargerThan] = useMediaQuery('(min-width: 900px)')
 
     useEffect(() => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
+
+    useEffect(() => {
+        if(chosenMarket === null && markets?.length) {
+            setChosenMarket(markets[0]);
+        }
+    }, [markets]);
 
     const borrowChartData = utilisationRates.map((utilizationRate) => {
         const belowKinkRate = utilizationRate / 100 * multiplierPerYear + baseRatePerYear;
@@ -37,17 +43,21 @@ export const InterestModelPage = () => {
 
         return { x: utilizationRate, y: utilizationRate <= kink ? belowKinkRate : jumpedRate }
     })
+    if(chosenMarket) {
+        borrowChartData.push({ x: chosenMarket?.utilizationRate * 100, y: chosenMarket?.borrowApy });
+        borrowChartData.sort((a, b) => a.x - b.x);
+    }   
 
     const lendingChartData = borrowChartData.map(data => {
-        const ratio = 1 - reserveFactor;
+        const ratio = 1 - (chosenMarket?.reserveFactor ?? 0.2);
         return { x: data.x, y: data.y * ratio * data.x / 100 }
     })
 
     const optionList = markets
-        .filter(m => m.underlying.symbol !== RTOKEN_SYMBOL)
+        .filter(m => m.borrowable)
         .map((market, i) => ({
             value: market.token,
-            label: `${market.underlying.symbol} - Reserve Factor: ${market.reserveFactor * 100}%`,
+            label: `${market.underlying.symbol} - Current Utilization Rate: ${shortenNumber(market.utilizationRate*100, 2)}%`,
         }));
 
     return (
@@ -63,22 +73,22 @@ export const InterestModelPage = () => {
                         <Autocomplete
                             w={isLargerThan ? '400px' : 'full'}
                             maxW="400px"
-                            title="Anchor Market"
-                            defaultValue={markets?.length > 0 ? markets[0].token : undefined}
+                            title="Borrow Markets"
+                            defaultValue={chosenMarket?.token || undefined}
                             placeholder="Choose a market"
                             list={optionList}
                             itemRenderer={(v, label) => {
                                 const market = markets.find(m => m.token === v);
                                 return <Flex alignItems="center" direction="row">
-                                    <UnderlyingItemBlock w="150px" symbol={market?.underlying.symbol} nameAttribute="symbol" />
+                                    <UnderlyingItemBlock w="100px" symbol={market?.underlying.symbol} nameAttribute="symbol" />
                                     {
                                         market?.reserveFactor !== undefined && <Text ml="1" color="white">
-                                            - Reserve Factor: {(market?.reserveFactor || 0) * 100}%
+                                            - Utilization Rate: {shortenNumber((market?.utilizationRate||0) * 100, 2)}%
                                         </Text>
                                     }
                                 </Flex>
                             }}
-                            onItemSelect={(item) => setReserveFactor(markets.find(m => m.token === item?.value)?.reserveFactor || 0)}
+                            onItemSelect={(item) => setChosenMarket(markets?.find(m => m.token === item?.value))}
                         />
                     </Flex>
                     <InterestModelChart
@@ -89,6 +99,7 @@ export const InterestModelPage = () => {
                         width={chartWidth}
                         data={borrowChartData}
                         interpolation={'basis'}
+                        utilizationRate={chosenMarket?.utilizationRate! * 100}
                     />
                     <InterestModelChart
                         title={`Lending Interest Rate Model`}
@@ -98,6 +109,7 @@ export const InterestModelPage = () => {
                         width={chartWidth}
                         data={lendingChartData}
                         interpolation={'basis'}
+                        utilizationRate={chosenMarket?.utilizationRate! * 100}
                     />
                 </Flex>
                 <Flex direction="column" p={{ base: '4', xl: '0' }} ml="2">

@@ -14,16 +14,12 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber } from '@app/util/markets';
 
-const toApy = (rate: number) =>
-  (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
-  100;
-
-const toRewardApy = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
+const toApy = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.2.4`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.1`;
 
   try {
     const {
@@ -113,7 +109,7 @@ export default async function handler(req, res) {
     const rewardApys = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
  
-      return toRewardApy(
+      return toApy(
         (speed * prices[XINV]) /
         (parseFloat(
           formatUnits(totalSupplies[i].toString(), underlying.decimals)
@@ -130,6 +126,12 @@ export default async function handler(req, res) {
     const markets = contracts.map(({ address }, i) => {
       const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
 
+      const liquidity = getBnToNumber(cashes[i], underlying.decimals);
+      const reserves = getBnToNumber(totalReserves[i], underlying.decimals);
+      const borrows = getBnToNumber(totalBorrows[i], underlying.decimals);
+
+      const utilisationRate = borrows === 0 ? 0 : borrows / (liquidity + borrows - reserves)
+
       return {
         token: address,
         underlying,
@@ -142,15 +144,10 @@ export default async function handler(req, res) {
         priceUsd: prices[contracts[i].address],
         oraclePrice: prices[contracts[i].address],
         priceXinv: prices[contracts[i].address] / prices[XINV],
-        liquidity: parseFloat(
-          formatUnits(cashes[i], underlying.decimals)
-        ),
-        totalReserves: parseFloat(
-          formatUnits(totalReserves[i], underlying.decimals)
-        ),
-        totalBorrows: parseFloat(
-          formatUnits(totalBorrows[i], underlying.decimals)
-        ),
+        utilizationRate: utilisationRate,
+        liquidity,
+        totalReserves: reserves,
+        totalBorrows: borrows,
         collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
         reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
         supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals))
