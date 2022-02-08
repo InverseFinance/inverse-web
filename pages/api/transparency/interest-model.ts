@@ -5,13 +5,13 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { ETH_MANTISSA } from '@app/config/constants';
+import { BLOCKS_PER_YEAR, ETH_MANTISSA } from '@app/config/constants';
 
 export default async function handler(req, res) {
 
   const { INTEREST_MODEL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-  const cacheKey = `interest-model-v1.0.0`;
+  const cacheKey = `interest-model-v1.0.1`;
 
   try {
 
@@ -31,14 +31,15 @@ export default async function handler(req, res) {
       interestModelContract.jumpMultiplierPerBlock(),
       interestModelContract.baseRatePerBlock(),
     ])
-    const blocksPerYear = parseFloat(results[0].toString());
+
+    // const blocksPerYear = parseFloat(results[0].toString());
 
     const resultData = {
       kink: results[1] / ETH_MANTISSA * 100,
-      multiplierPerYear: results[2] / ETH_MANTISSA * blocksPerYear * 100,
-      jumpMultiplierPerYear: results[3] / ETH_MANTISSA * blocksPerYear * 100,
-      baseRatePerYear: results[4] / ETH_MANTISSA * blocksPerYear * 100,
-      blocksPerYear,
+      multiplierPerYear: results[2] / ETH_MANTISSA * BLOCKS_PER_YEAR * 100,
+      jumpMultiplierPerYear: results[3] / ETH_MANTISSA * BLOCKS_PER_YEAR * 100,
+      baseRatePerYear: results[4] / ETH_MANTISSA * BLOCKS_PER_YEAR * 100,
+      blocksPerYear: BLOCKS_PER_YEAR,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
