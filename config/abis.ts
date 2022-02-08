@@ -214,6 +214,7 @@ export const INTEREST_MODEL_ABI = [
   "function jumpMultiplierPerBlock() public view returns (uint256)",
   "function kink() public view returns (uint256)",
   "function multiplierPerBlock() public view returns (uint256)",
+  "function baseRatePerBlock() public view returns (uint256)",
 ]
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {

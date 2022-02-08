@@ -29,6 +29,7 @@ export default async function handler(req, res) {
       interestModelContract.kink(),
       interestModelContract.multiplierPerBlock(),
       interestModelContract.jumpMultiplierPerBlock(),
+      interestModelContract.baseRatePerBlock(),
     ])
     const blocksPerYear = parseFloat(results[0].toString());
 
@@ -36,6 +37,7 @@ export default async function handler(req, res) {
       kink: results[1] / ETH_MANTISSA * 100,
       multiplierPerBlock: results[2] / ETH_MANTISSA * blocksPerYear * 100,
       jumpMultiplierPerYear: results[3] / ETH_MANTISSA * blocksPerYear * 100,
+      baseRatePerBlock: results[4] / ETH_MANTISSA * blocksPerYear * 100,
       blocksPerYear,
     }
 

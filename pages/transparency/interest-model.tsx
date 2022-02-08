@@ -14,22 +14,28 @@ import { shortenNumber } from '@app/util/markets'
 const utilisationRates = [...Array(101).keys()];
 
 export const InterestModelPage = () => {
-    const { kink, multiplierPerBlock, jumpMultiplierPerYear } = useInterestModel();
+    const { kink, multiplierPerBlock, jumpMultiplierPerYear, baseRatePerBlock, reserveFactors } = useInterestModel();
     const [chartWidth, setChartWidth] = useState<number>(900);
+    const [reserveFactor, setReserveFactor] = useState<number>(0.2);
     const [isLargerThan] = useMediaQuery('(min-width: 900px)')
 
     useEffect(() => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    const borrowChartData = utilisationRates.map((rate) => {
-        const normalRate = rate / 100 * multiplierPerBlock;
-        const jumpedRate = (rate / 100 - kink / 100) * jumpMultiplierPerYear + normalRate;
-        return { x: rate, y: rate <= kink ? normalRate : jumpedRate }
+    const borrowChartData = utilisationRates.map((utilizationRate) => {
+        const belowKinkRate = utilizationRate / 100 * multiplierPerBlock + baseRatePerBlock;
+
+        const normalRate = kink / 100 * multiplierPerBlock + baseRatePerBlock;
+        const excess = utilizationRate / 100 - kink / 100;
+        const jumpedRate = excess * jumpMultiplierPerYear + normalRate
+
+        return { x: utilizationRate, y: utilizationRate <= kink ? belowKinkRate : jumpedRate }
     })
 
     const lendingChartData = borrowChartData.map(data => {
-        return { x: data.x, y: data.y * 0.8 }
+        const ratio = 1 - reserveFactor;
+        return { x: data.x, y: data.y * ratio }
     })
 
     return (
