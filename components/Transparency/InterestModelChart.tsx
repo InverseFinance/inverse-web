@@ -2,6 +2,7 @@ import { shortenNumber } from '@app/util/markets';
 import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLine } from 'victory';
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 type Props = { x: number, y: number }[]
 
@@ -31,6 +32,11 @@ export const InterestModelChart = ({
     const [titleFontSize, setTitleFontSize] = useState(20);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
 
+    useEffect(() => {
+        setRightPadding(isLargerThan ? 50 : 20)
+        setTitleFontSize(isLargerThan ? 20 : 12)
+    }, [isLargerThan]);
+
     const defaultAxisStyle: VictoryAxisProps["style"] = {
         tickLabels: {
             fill: ({ tick }) => tick === kink ? '#ed8936' : tick === utilizationRate ? '#34E795' : '#fff',
@@ -39,7 +45,6 @@ export const InterestModelChart = ({
                 const isUr = tick === utilizationRate
                 return isKink ? -200 : isUr ? -150 : 1
             },
-            toto: `${kink}-${utilizationRate}`,
             fontWeight: 'bold',
             fontFamily: 'Inter',
         },
@@ -55,21 +60,16 @@ export const InterestModelChart = ({
         axisLabel: { fill: '#fff', padding: 55 },
     }
 
-    useEffect(() => {
-        setRightPadding(isLargerThan ? 50 : 20)
-        setTitleFontSize(isLargerThan ? 20 : 12)
-    }, [isLargerThan]);
-
     const xAxisTicks = (isLargerThan ?
         [0, 20, 40, 60, 80, 100]
         :
         [0, 50, 100])
-        .concat([kink]);
 
-    if (typeof utilizationRate == 'number' && !isNaN(utilizationRate)) {
+    if (typeof utilizationRate == 'number' && !isNaN(utilizationRate) && typeof kink == 'number' && !isNaN(kink)) {
+        xAxisTicks.push(kink);
         xAxisTicks.push(utilizationRate);
+        xAxisTicks.sort((a, b) => a - b);
     }
-    xAxisTicks.sort((a, b) => a - b);
 
     return (
         <Box
@@ -77,7 +77,11 @@ export const InterestModelChart = ({
             height={height}
             position="relative"
         >
-            <VictoryChart
+            {
+                !kink || !utilizationRate ?
+                <SkeletonBlob />
+                :
+                <VictoryChart
                 width={width}
                 height={height}
                 theme={VictoryTheme.grayscale}
@@ -116,13 +120,14 @@ export const InterestModelChart = ({
                     }
                     style={{
                         data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
-                        labels: { fill: 'white' }
+                        labels: { fill: 'white', fontWeight: 'bold', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}
                 />
                 <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 1) + '%'} />
                 <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => shortenNumber(t, 1) + '%'} />
             </VictoryChart>
+            }
         </Box >
     )
 }

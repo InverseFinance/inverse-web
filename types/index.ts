@@ -274,6 +274,7 @@ export type AutocompleteProps = {
   inputProps?: InputProps,
   isOpenDefault?: boolean,
   autoSort?: boolean,
+  hideClear?: boolean,
   highlightBeforeChar?: string,
   limit?: number,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,

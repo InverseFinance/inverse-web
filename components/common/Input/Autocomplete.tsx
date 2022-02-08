@@ -61,6 +61,7 @@ export const Autocomplete = ({
     autoSort = true,
     highlightBeforeChar = '',
     itemRenderer,
+    hideClear = false,
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
@@ -172,12 +173,14 @@ export const Autocomplete = ({
     return (
         <Box position="relative" {...props}>
             <InputGroup alignItems="center">
-                <InputLeftElement
-                    height="100%"
-                    onClick={clear}
-                    pointer="cursor"
-                    children={<CloseIcon color={searchValue ? '#cccccc' : '#cccccc22'} fontSize="12px" boxSize="3" />}
-                />
+                {
+                    !hideClear && <InputLeftElement
+                        height="100%"
+                        onClick={clear}
+                        pointer="cursor"
+                        children={<CloseIcon color={searchValue ? '#cccccc' : '#cccccc22'} fontSize="12px" boxSize="3" />}
+                    />
+                }
                 <InputComp
                     placeholder={placeholder}
                     pl="10"
