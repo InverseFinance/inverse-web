@@ -35,7 +35,7 @@ export const InterestModelPage = () => {
 
     const lendingChartData = borrowChartData.map(data => {
         const ratio = 1 - reserveFactor;
-        return { x: data.x, y: data.y * ratio }
+        return { x: data.x, y: data.y * ratio * data.x/100 }
     })
 
     return (
