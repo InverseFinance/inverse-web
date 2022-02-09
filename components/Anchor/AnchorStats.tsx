@@ -112,23 +112,22 @@ const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
   )
 }
 
-const formatUsdTotal = (value: number, prices: BigNumberList, asset: Market) => {
-  return prices && value
+const formatUsdTotal = (value: number, oraclePrice: number) => {
+  return oraclePrice && value
     ? `${shortenNumber(
       (
         value *
-        parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
+        oraclePrice
       ), 2, true
     )}`
     : '-'
 }
 
 const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
-  const { prices } = useAnchorPrices()
   const { prices: cgPrices } = usePrices()
-  const totalBorrowsUsd = formatUsdTotal(asset.totalBorrows, prices, asset);
-  const totalReservesUsd = formatUsdTotal(asset.totalReserves, prices, asset);
-  const totalSuppliedUsd = formatUsdTotal(asset.supplied, prices, asset);
+  const totalBorrowsUsd = formatUsdTotal(asset.totalBorrows, asset.oraclePrice);
+  const totalReservesUsd = formatUsdTotal(asset.totalReserves, asset.oraclePrice);
+  const totalSuppliedUsd = formatUsdTotal(asset.supplied, asset.oraclePrice);
   const reserveFactor = asset.reserveFactor ? `${asset.reserveFactor * 100}%` : '-'
 
   const oraclePrice = asset.oraclePrice;
@@ -170,6 +169,10 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
         value: asset.rewardsPerMonth > 0 ?
           `${commify(Math.round(asset.rewardsPerMonth * 100) / 100)} (${shortenNumber(asset.rewardsPerMonth * rtokenPrice, 2, true)})`
           : 0,
+      },
+      {
+        label: 'Utilization rate',
+        value: asset.utilizationRate ? `${shortenNumber(asset.utilizationRate*100, 2)}%`: '-',
       },
     ]);
   }
@@ -307,6 +310,7 @@ export const AnchorStats = ({ operation, asset, amount, isCollateralModal = fals
         <>
           <BorrowDetails asset={asset} />
           <BorrowLimitRemaining asset={asset} amount={-1 * parsedAmount} />
+          <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />
         </>
       )
     case AnchorOperations.repay:
@@ -314,6 +318,7 @@ export const AnchorStats = ({ operation, asset, amount, isCollateralModal = fals
         <>
           <BorrowDetails asset={asset} />
           <BorrowLimitRemaining asset={asset} amount={parsedAmount} />
+          <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />
         </>
       )
   }

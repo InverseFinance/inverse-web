@@ -24,6 +24,7 @@ import { shortenNumber, getBorrowInfosAfterSupplyChange } from '@app/util/market
 import { roundFloorString } from '@app/util/misc'
 import { getComptrollerContract } from '@app/util/contracts'
 import { Web3Provider } from '@ethersproject/providers';
+import { AnchorMarketInterestChart } from './AnchorMarketInterestChart'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -130,6 +131,8 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
+  const isSupply = [AnchorOperations.supply, AnchorOperations.withdraw].includes(operation);
+
   return (
     <Modal
       onClose={handleClose}
@@ -222,13 +225,27 @@ export const AnchorModal = ({
           />
         </Stack>
         <AnchorStats operation={operation} asset={asset} amount={amount} />
+        {/* Show Interest chart just for the borrowing case for now */}
+        {
+          !!asset?.utilizationRate && !isSupply &&
+          <>
+            <AnchorMarketInterestChart
+              maxWidth={380}
+              market={asset}
+              title={`${(isSupply ? 'Supply' : 'Borrow')} Interest Rate`}
+              type={isSupply ? 'supply' : 'borrow'} />
+            <Link isExternal={true} textAlign="center" fontSize="12px" href="/transparency/interest-model">
+              Learn more about the Interest Model
+            </Link>
+          </>
+        }
         {
           operation === AnchorOperations.borrow &&
           <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
         }
         {
           operation === AnchorOperations.repay &&
-          <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description='To repay all your debt for this market use the Repay All button' />
+          <InfoMessage alertProps={{ fontSize: '12px', w: 'full' }} description={`To repay all your ${asset.underlying.symbol} debt use the Repay All button`} />
         }
         {
           needWithdrawWarning &&
@@ -346,6 +363,7 @@ export const AnchorSupplyModal = ({ isOpen, onClose, asset }: AnchorModalProps) 
 
 export const AnchorBorrowModal = ({ isOpen, onClose, asset }: AnchorModalProps) => (
   <AnchorModal
+    scrollBehavior="inside"
     isOpen={isOpen}
     onClose={onClose}
     asset={asset}
