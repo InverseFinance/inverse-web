@@ -1,4 +1,4 @@
-import { Flex, Text, VStack } from '@chakra-ui/react'
+import { Flex, Text, VStack, useMediaQuery } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -20,6 +20,7 @@ import { InfoMessage } from '@app/components/common/Messages';
 const { DOLA_PAYROLL, TOKENS, DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DolaPayrollPage = () => {
+  const [isSmaller] = useMediaQuery('(max-width: 500px)')
   const { account, library } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const userAddress = (query?.viewAddress as string) || account;
@@ -47,34 +48,47 @@ export const DolaPayrollPage = () => {
       </Head>
       <AppNav active="Governance" />
       <Flex justify="center" direction="column">
-        <Flex w={{ base: 'full', xl: '2xl' }} color="white">
+        <Flex w={{ base: 'full', xl: '2xl' }} justify="center" color="white">
           <Container
             label="DOLA PayRoll"
             description="See Contract"
+            maxWidth="500px"
             href={`${getScanner(NetworkIds.mainnet)}/address/${DOLA_PAYROLL}`}
           >
             {
               !account ? <Text>Please Connect your wallet</Text> :
-                <VStack spacing="3" alignItems="center" w="full">
+                <VStack spacing="10" alignItems="center" w="full">
                   {
                     !!data ?
                       <InfoMessage
-                        alertProps={{ w: 'full', fontSize: '12px' }}
+                        alertProps={{ w: 'full', py: isSmaller ? '10px' : '30px', fontSize: isSmaller ? '12px' : '16px' }}
                         description={
-                          <>
-                            <Text>
-                              - <b>Start Time</b>: {!startTimestamp ? 'Not started yet' : formatDate(startTimestamp)}
-                            </Text>
-                            <Text>
-                              - <b>Monthly Rate</b>: {commify(monthlyRate.toFixed(2))} DOLA ({commify(yearlyRate.toFixed(2))} yearly)
-                            </Text>
-                            <Text>
-                              - <b>Last Claim</b> : {!lastClaimTimestamp ? 'No claim yet' : formatDate(lastClaimTimestamp)}
-                            </Text>
-                            <Text color="secondary" fontSize="14px" mt="2" fontWeight="bold">
-                              Currently Withdrawable: {commify(widthdrawable.toFixed(2))} DOLA
-                            </Text>
-                          </>
+                          <VStack alignItems="left" spacing="20px">
+                            <Flex alignItems="center" justify="space-between">
+                              <Text>
+                                - <b>Start Time</b>:
+                              </Text>
+                              <Text>{!startTimestamp ? 'Not started yet' : formatDate(startTimestamp)}</Text>
+                            </Flex>
+                            <Flex alignItems="center" justify="space-between">
+                              <Text>
+                                - <b>Monthly Rate</b>:
+                              </Text>
+                              <Text>{commify(monthlyRate.toFixed(2))} DOLA ({commify(yearlyRate.toFixed(2))} yearly)</Text>
+                            </Flex>
+                            <Flex alignItems="center" justify="space-between">
+                              <Text>
+                                - <b>Last Claim</b>:
+                              </Text>
+                              <Text>{!lastClaimTimestamp ? 'No claim yet' : formatDate(lastClaimTimestamp)}</Text>
+                            </Flex>
+                            <Flex fontWeight="bold" alignItems="center" justify="space-between">
+                              <Text color="secondary">
+                                - <b>Currently Withdrawable</b>:
+                              </Text>
+                              <Text color="secondary">{commify(widthdrawable.toFixed(2))} DOLA</Text>
+                            </Flex>
+                          </VStack>
                         }
                       />
                       :
