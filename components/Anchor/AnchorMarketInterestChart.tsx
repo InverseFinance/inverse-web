@@ -19,11 +19,11 @@ export const AnchorMarketInterestChart = ({
 }) => {
     const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
     const [chartWidth, setChartWidth] = useState<number>(maxWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth}px)`)
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth+50}px)`)
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 40)
-    }, [isLargerThan]);
+        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
+    }, [isLargerThan, maxWidth]);
 
     const borrowChartData = utilisationRates.map((utilizationRate) => {
         const belowKinkRate = utilizationRate / 100 * multiplierPerYear + baseRatePerYear;
