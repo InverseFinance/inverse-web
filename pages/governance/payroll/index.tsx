@@ -37,8 +37,8 @@ export const DolaPayrollPage = () => {
   const yearlyRate = getBnToNumber(ratePerSecond) * 3600 * 24 * 365;
   const monthlyRate = yearlyRate / 12;
 
-  const formatDate = (timestamp: number) => {
-    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')} (${moment(timestamp).fromNow()})`
+  const formatDate = (timestamp: number, isSmaller: boolean) => {
+    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller? '' : `(${moment(timestamp).fromNow()})`}`
   }
 
   return (
@@ -52,7 +52,8 @@ export const DolaPayrollPage = () => {
           <Container
             label="DOLA PayRoll"
             description="See Contract"
-            maxWidth="500px"
+            maxWidth="550px"
+            minW="320px"
             href={`${getScanner(NetworkIds.mainnet)}/address/${DOLA_PAYROLL}`}
           >
             {
@@ -61,30 +62,30 @@ export const DolaPayrollPage = () => {
                   {
                     !!data ?
                       <InfoMessage
-                        alertProps={{ w: 'full', py: isSmaller ? '10px' : '30px', fontSize: isSmaller ? '12px' : '16px' }}
+                        alertProps={{ minW: '300px', w: 'full', py: isSmaller ? '10px' : '30px', fontSize: isSmaller ? '12px' : '14px' }}
                         description={
                           <VStack alignItems="left" spacing="20px">
                             <Flex alignItems="center" justify="space-between">
                               <Text>
                                 - <b>Start Time</b>:
                               </Text>
-                              <Text>{!startTimestamp ? 'Not started yet' : formatDate(startTimestamp)}</Text>
+                              <Text>{!startTimestamp ? 'Not started yet' : formatDate(startTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
                                 - <b>Monthly Rate</b>:
                               </Text>
-                              <Text>{commify(monthlyRate.toFixed(2))} DOLA ({commify(yearlyRate.toFixed(2))} yearly)</Text>
+                              <Text>{commify(monthlyRate.toFixed(2))} DOLA {isSmaller ? '' : `(${commify(yearlyRate.toFixed(2))} yearly)`}</Text>
                             </Flex>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
                                 - <b>Last Claim</b>:
                               </Text>
-                              <Text>{!lastClaimTimestamp ? 'No claim yet' : formatDate(lastClaimTimestamp)}</Text>
+                              <Text>{!lastClaimTimestamp ? 'No claim yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex fontWeight="bold" alignItems="center" justify="space-between">
                               <Text color="secondary">
-                                - <b>Currently Withdrawable</b>:
+                                - <b>Withdrawable</b>:
                               </Text>
                               <Text color="secondary">{commify(widthdrawable.toFixed(2))} DOLA</Text>
                             </Flex>
