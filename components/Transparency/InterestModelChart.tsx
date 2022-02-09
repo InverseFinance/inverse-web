@@ -30,12 +30,12 @@ export const InterestModelChart = ({
     props?: BoxProps
 }) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
-    const [rightPadding, setRightPadding] = useState(50);
+    const [rightPadding, setRightPadding] = useState(60);
     const [titleFontSize, setTitleFontSize] = useState(20);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
 
     useEffect(() => {
-        setRightPadding(isLargerThan ? 50 : 20)
+        setRightPadding(isLargerThan ? 60 : 20)
         setTitleFontSize(isLargerThan ? 20 : 12)
     }, [isLargerThan]);
 
@@ -82,7 +82,7 @@ export const InterestModelChart = ({
         >
             {
                 !kink || !utilizationRate ?
-                <SkeletonBlob />
+                <SkeletonBlob width={width} maxW="800px" />
                 :
                 <VictoryChart
                 width={width}
@@ -120,7 +120,7 @@ export const InterestModelChart = ({
                     }
                     style={{
                         data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
-                        labels: { fill: 'white', fontWeight: 'bold', fontFamily: 'Inter' }
+                        labels: { fill: 'white', fontSize: '12px', fontWeight: 'bold', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}
                 />
