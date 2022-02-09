@@ -97,8 +97,8 @@ export const InterestModelPage = () => {
                                             options={optionList}
                                         />
                                         <Flex fontSize="12px" pt="2" alignItems="center">
-                                            <Text>Reserve Factor: {shortenNumber(chosenMarket?.reserveFactor * 100, 2)}%,</Text>
-                                            <Text ml="2">Utilization Rate: {shortenNumber(chosenMarket?.utilizationRate * 100, 2)}%,</Text>
+                                            <Text color="secondary">Utilization Rate: {shortenNumber(chosenMarket?.utilizationRate * 100, 2)}%</Text>
+                                            <Text ml="2">Reserve Factor: {shortenNumber(chosenMarket?.reserveFactor * 100, 2)}%</Text>
                                             <ScannerLink ml="2" label={`Contract: ${shortenAddress(chosenMarket?.token)}`} value={chosenMarket?.token} />
                                         </Flex>
                                     </>
