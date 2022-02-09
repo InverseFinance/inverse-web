@@ -38,7 +38,7 @@ export const DolaPayrollPage = () => {
   const monthlyRate = yearlyRate / 12;
 
   const formatDate = (timestamp: number, isSmaller: boolean) => {
-    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller? '' : `(${moment(timestamp).fromNow()})`}`
+    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller? '' : ` (${moment(timestamp).fromNow()})`}`
   }
 
   return (
@@ -52,7 +52,7 @@ export const DolaPayrollPage = () => {
           <Container
             label="DOLA PayRoll"
             description="See Contract"
-            maxWidth="550px"
+            maxWidth="520px"
             minW="320px"
             href={`${getScanner(NetworkIds.mainnet)}/address/${DOLA_PAYROLL}`}
           >
@@ -81,7 +81,7 @@ export const DolaPayrollPage = () => {
                               <Text>
                                 - <b>Last Claim</b>:
                               </Text>
-                              <Text>{!lastClaimTimestamp ? 'No claim yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
+                              <Text>{!lastClaimTimestamp ? 'Never claimed yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex fontWeight="bold" alignItems="center" justify="space-between">
                               <Text color="secondary">
