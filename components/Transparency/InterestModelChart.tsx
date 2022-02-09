@@ -94,7 +94,7 @@ export const InterestModelChart = ({
                     <VictoryVoronoiContainer
                         mouseFollowTooltips={true}
                         voronoiDimension="x"
-                        labelComponent={<VictoryTooltip centerOffset={{ x: -50 }} cornerRadius={0} flyoutStyle={{ fill: '#8881c9' }} />}
+                        labelComponent={<VictoryTooltip flyoutPadding={15} centerOffset={{ x: -50 }} cornerRadius={10} flyoutStyle={{ fill: '#8881c966' }} />}
                         labels={({ datum }) => {
                             return (
                                 `For ${shortenNumber(datum.x, 2)}% Utilisation Rate\n=> ${shortenNumber(datum.y, 2)}% Intest Rate`
