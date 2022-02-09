@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 type Props = { x: number, y: number }[]
 
 const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff' },
+    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px' },
     grid: {
         stroke: '#666666aa',
         strokeDasharray: '4 4',
@@ -58,8 +58,7 @@ export const AreaChart = ({
                     <VictoryVoronoiContainer
                         mouseFollowTooltips={true}
                         voronoiDimension="x"
-                        labelComponent={<VictoryTooltip centerOffset={{ x: -50 }} cornerRadius={0} flyoutStyle={{ fill: '#8881c9' }} />}
-                        // style={{ labels: { fill: 'white' } }}
+                        labelComponent={<VictoryTooltip flyoutPadding={10} centerOffset={{ x: -50 }} cornerRadius={10} flyoutStyle={{ fill: '#8881c966' }} />}
                         labels={({ datum }) => {
                             return (
                                 moment(datum.x).format('MMM Do YYYY') + '\n' + shortenNumber(datum.y, 1)
@@ -69,7 +68,7 @@ export const AreaChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
                 }
                 <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 1)} />
                 <VictoryAxis style={axisStyle} />
@@ -85,7 +84,7 @@ export const AreaChart = ({
                     }
                     style={{
                         data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
-                        labels: { fill: 'white' }
+                        labels: { fill: 'white', fontSize: '12px', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}
                 />

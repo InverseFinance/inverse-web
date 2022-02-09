@@ -46,6 +46,7 @@ export type Market = {
   monthlyAssetRewards?: number
   monthlyBorrowFee?: number
   escrowDuration?: number
+  utilizationRate?: number
   rewardPerBlock?: number
   rewardsPerMonth: number
 }
@@ -273,6 +274,7 @@ export type AutocompleteProps = {
   inputProps?: InputProps,
   isOpenDefault?: boolean,
   autoSort?: boolean,
+  hideClear?: boolean,
   highlightBeforeChar?: string,
   limit?: number,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,

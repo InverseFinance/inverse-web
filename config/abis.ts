@@ -209,6 +209,14 @@ export const MULTISIG_ABI = [
   "function getThreshold() public view returns (uint256)",
 ]
 
+export const INTEREST_MODEL_ABI = [
+  "function blocksPerYear() public view returns (uint256)",
+  "function jumpMultiplierPerBlock() public view returns (uint256)",
+  "function kink() public view returns (uint256)",
+  "function multiplierPerBlock() public view returns (uint256)",
+  "function baseRatePerBlock() public view returns (uint256)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -232,6 +240,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     DOLA,
     FEDS,
     MULTISIGS,
+    INTEREST_MODEL,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -251,6 +260,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [ORACLE, ORACLE_ABI],
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],
+        [INTEREST_MODEL, INTEREST_MODEL_ABI],
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),

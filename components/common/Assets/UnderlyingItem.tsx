@@ -17,7 +17,7 @@ export const UnderlyingItem = ({
     textProps?: Partial<TextProps>,
 }) => {
     return <>
-        <Image src={image} w={imgSize} h={imgSize} {...imgProps} />
+        <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
     </>
 }
