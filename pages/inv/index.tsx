@@ -23,7 +23,7 @@ const Step = ({
       <Text mr="5">•</Text>
       {
         !!href ?
-          <Link color="white" isExternal href={href}>{label}</Link>
+          <Link textDecoration="underline" color="white" isExternal href={href}>{label}</Link>
           :
           <Text>{label}</Text>
       }
@@ -65,7 +65,7 @@ export const InvPlus = () => {
             <VStack pt="10" alignItems="flex-start">
               <VStack spacing="2" alignItems="left">
                 <Step label="Earn Continuous Staking Rewards" href="/anchor?market=inv&marketType=supply" />
-                <Step label="Earn Revenue Sharing Rewards" />
+                <Step label="Earn Revenue Sharing Rewards" href="https://docs.inverse.finance/inverse-finance/basics/inv-token#revenue-sharing-rewards-rsr" />
                 <Step label="Borrow DOLA using INV as Collateral" href="/anchor?market=dola&marketType=borrow" />
                 <Step label="Vote in the Inverse DAO" href="/governance" />
               </VStack>
