@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -91,7 +91,7 @@ export const InterestModelPage = () => {
                         }
                     />
                 </Flex>
-                <Flex direction="column" p={{ base: '4', xl: '0' }} maxW="380px" ml="2">
+                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <ShrinkableInfoMessage
                         title="📈 Interest Model"
                         description={
@@ -144,7 +144,7 @@ export const InterestModelPage = () => {
                             </>
                         }
                     />
-                </Flex>
+                </VStack>
             </Flex>
         </Layout>
     )

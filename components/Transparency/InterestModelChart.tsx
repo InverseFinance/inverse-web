@@ -6,6 +6,8 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 type Props = { x: number, y: number }[]
 
+const formatTick = (t:number ) => (t % 2 === 0 ? t : shortenNumber(t, 2)) + '%'
+
 export const InterestModelChart = ({
     data,
     title,
@@ -110,14 +112,22 @@ export const InterestModelChart = ({
                                         return showLabels || isMax ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 2)}%` : ''
                                     }
                                 }
+                                labelComponent={
+                                    <VictoryLabel
+                                        dx={-rightPadding - 20}
+                                        dy={(a) => a.datum.x === 100 ? 0 : -20}
+                                        textAnchor="start"
+                                        verticalAnchor="start"
+                                    />
+                                }
                                 style={{
                                     data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
                                     labels: { fill: 'white', fontSize: '12px', fontWeight: 'bold', fontFamily: 'Inter' }
                                 }}
                                 interpolation={interpolation}
                             />
-                                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => shortenNumber(t, 2) + '%'} />
-                                <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => shortenNumber(t, 2) + '%'} />
+                                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => formatTick(t)} />
+                                <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => formatTick(t)} />
                             </VictoryChart>
                         </Box>
                         <VictoryChart

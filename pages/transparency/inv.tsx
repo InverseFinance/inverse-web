@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -79,72 +79,64 @@ export const InvPage = () => {
         <Flex direction="column" py="2">
           <InvFlowChart {...invFlowChartData} />
         </Flex>
-        <Flex direction="column" p={{ base: '4', xl: '0' }}  ml="2">
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <SuppplyInfos token={TOKENS[INV]} supplies={[
-              { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
-              { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
-            ]}
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <ShrinkableInfoMessage
-              title={`🔒 ${RTOKEN_SYMBOL} Staked on Anchor`}
-              description={
-                <>
-                  <Funds showTotal={true} showPerc={true} funds={
-                    markets
-                      .filter(market => [XINV, XINV_V1].includes(market.token))
-                      .map(market => {
-                        return {
-                          token: { ...market.underlying, address: market.token },
-                          balance: market.supplied,
-                          usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
-                        }
-                      })
-                  }
-                  />
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text>- % of {RTOKEN_SYMBOL} Supply staked (old excluded):</Text>
-                    <Text>{shortenNumber(percentageInvSupplied, 2)}%</Text>
-                  </Flex>
-                </>
-              }
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <ShrinkableInfoMessage
-              title="✨ Monthly INV rewards for each Anchor Market"
-              description={
-                <Funds funds={markets.map(market => {
-                  return { token: market.underlying, balance: market.rewardsPerMonth, usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd! }
-                })}
+        <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
+          <SuppplyInfos token={TOKENS[INV]} supplies={[
+            { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
+            { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
+          ]}
+          />
+          <ShrinkableInfoMessage
+            title={`🔒 ${RTOKEN_SYMBOL} Staked on Anchor`}
+            description={
+              <>
+                <Funds showTotal={true} showPerc={true} funds={
+                  markets
+                    .filter(market => [XINV, XINV_V1].includes(market.token))
+                    .map(market => {
+                      return {
+                        token: { ...market.underlying, address: market.token },
+                        balance: market.supplied,
+                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                      }
+                    })
+                }
                 />
-              }
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <ShrinkableInfoMessage
-              title="⚡ Roles & Powers"
-              description={
-                <>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- x{RTOKEN_SYMBOL} Admin:</Text>
-                    <Text>Change {RTOKEN_SYMBOL} APY</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Escrow Admin:</Text>
-                    <Text>Change x{RTOKEN_SYMBOL} escrow duration</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Policy Committee:</Text>
-                    <Text>Handle Reward Rates Policies</Text>
-                  </Flex>
-                </>
-              }
-            />
-          </Flex>
-        </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text>- % of {RTOKEN_SYMBOL} Supply staked (old excluded):</Text>
+                  <Text>{shortenNumber(percentageInvSupplied, 2)}%</Text>
+                </Flex>
+              </>
+            }
+          />
+          <ShrinkableInfoMessage
+            title="✨ Monthly INV rewards for each Anchor Market"
+            description={
+              <Funds funds={markets.map(market => {
+                return { token: market.underlying, balance: market.rewardsPerMonth, usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd! }
+              })}
+              />
+            }
+          />
+          <ShrinkableInfoMessage
+            title="⚡ Roles & Powers"
+            description={
+              <>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- x{RTOKEN_SYMBOL} Admin:</Text>
+                  <Text>Change {RTOKEN_SYMBOL} APY</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Escrow Admin:</Text>
+                  <Text>Change x{RTOKEN_SYMBOL} escrow duration</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Policy Committee:</Text>
+                  <Text>Handle Reward Rates Policies</Text>
+                </Flex>
+              </>
+            }
+          />
+        </VStack>
       </Flex>
     </Layout>
   )

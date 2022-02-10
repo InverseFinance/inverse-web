@@ -76,6 +76,13 @@ export const AreaChart = ({
                     domain={{ y: [0, maxY + 5000000] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}
+                    labelComponent={
+                        <VictoryLabel
+                            dx={-rightPadding}
+                            textAnchor="start"
+                            verticalAnchor="start"
+                        />
+                    }
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
