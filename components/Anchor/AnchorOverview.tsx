@@ -8,7 +8,7 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances';
 import { useExchangeRates } from '@app/hooks/useExchangeRates'
-import { useMarkets } from '@app/hooks/useMarkets'
+import { useAccountMarkets, useMarkets } from '@app/hooks/useMarkets'
 import { Interests } from '@app/types'
 import { getTotalInterests } from '@app/util/markets';
 import { AnchorInterests } from './AnchorInterests'
@@ -20,7 +20,8 @@ import { RTOKEN_CG_ID } from '@app/variables/tokens'
 
 export const AnchorOverview = () => {
   const { account } = useWeb3React<Web3Provider>()
-  const { usdBorrow, usdBorrowable } = useAccountLiquidity()
+  const { usdBorrow, usdBorrowable, usdShortfall } = useAccountLiquidity()
+  const { markets: accountMarkets } = useAccountMarkets()
   const { rewards } = useAnchorRewards()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
@@ -40,10 +41,17 @@ export const AnchorOverview = () => {
   let badgeColorScheme
   let health
 
-  if (usdBorrowable === 0 && usdBorrow > 0) {
+  const hasCollaterals = accountMarkets.length > 0;
+
+  if (!hasCollaterals) {
     badgeColorScheme = 'gray'
     health = 'NO COLLATERAL'
-  } else if (borrowLimitPercent <= 25) {
+  }
+  else if (usdShortfall > 75) {
+    badgeColorScheme = 'red'
+    health = 'Shortfall'
+  }
+  else if (borrowLimitPercent <= 25) {
     badgeColorScheme = 'green'
     health = 'Healthy'
   } else if (borrowLimitPercent <= 75) {
@@ -121,7 +129,15 @@ export const AnchorOverview = () => {
                 <Badge variant="subtle" colorScheme={badgeColorScheme}>
                   {health}
                 </Badge>
-                <AnimatedInfoTooltip message="This badge indicates your current loan health. If your loan health shows as 'Dangerous' then your current debt is too close to your borrow limit. In this case, you should repay some loans or add more collateral to reduce your liquidation risk." />
+                <AnimatedInfoTooltip
+                  message={
+                    <>
+                      This badge indicates your current loan health.
+                      <Text mt="1"><b>Dangerous</b> means your current debt is too close to your borrow limit. In this case, you should <b>repay some loans or add more collateral</b> to reduce your liquidation risk.</Text> 
+                      <Text mt="1"><b>Shortfall</b> means your debt is higher than what you are allowed to borrow and can be liquidated anytime.</Text>
+                    </>
+                  }
+                />
               </>
             )}
           </Stack>
