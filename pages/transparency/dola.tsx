@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -35,49 +35,41 @@ export const DolaDiagram = () => {
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="dola" />
-      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}  ml="2">
+      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column" py="2">
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
         </Flex>
-        <Flex direction="column" p={{ base: '4', xl: '0' }}>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-            <DolaMoreInfos />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-            <SuppplyInfos token={TOKENS[DOLA]} supplies={[
-              { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
-              { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-            ]}
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <SuppplyInfos
-              title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-              supplies={fedsWithData}
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <ShrinkableInfoMessage
-              title="⚡&nbsp;&nbsp;Roles & Powers"
-              description={
-                <>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Dola operator:</Text>
-                    <Text>Add/remove DOLA minters</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Fed Chair:</Text>
-                    <Text>Resize the amount of DOLA supplied</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Fed Gov:</Text>
-                    <Text>Change the Fed Chair</Text>
-                  </Flex>
-                </>
-              }
-            />
-          </Flex>
-        </Flex>
+        <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
+          <DolaMoreInfos />
+          <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+          ]}
+          />
+          <SuppplyInfos
+            title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
+            supplies={fedsWithData}
+          />
+          <ShrinkableInfoMessage
+            title="⚡&nbsp;&nbsp;Roles & Powers"
+            description={
+              <>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Dola operator:</Text>
+                  <Text>Add/remove DOLA minters</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Fed Chair:</Text>
+                  <Text>Resize the amount of DOLA supplied</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Fed Gov:</Text>
+                  <Text>Change the Fed Chair</Text>
+                </Flex>
+              </>
+            }
+          />
+        </VStack>
       </Flex>
     </Layout>
   )

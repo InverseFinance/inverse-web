@@ -190,15 +190,15 @@ export const FedPolicyPage = () => {
             const signer = library?.getSigner()
             const newMsg = window.prompt("New Fed Chair Guidance", fedPolicyMsg.msg);
 
-            if(newMsg === null) {
+            if (newMsg === null) {
                 return
             }
-            
+
             const sig = await signer.signMessage(FED_POLICY_SIGN_MSG);
 
             showToast({ id: 'fed-policy', status: "loading", title: "In Progress" });
 
-            setTimeout(async() => {
+            setTimeout(async () => {
                 const rawResponse = await fetch(`/api/transparency/fed-policy-msg`, {
                     method: 'POST',
                     headers: {
@@ -207,11 +207,11 @@ export const FedPolicyPage = () => {
                     },
                     body: JSON.stringify({ sig, msg: newMsg })
                 });
-    
+
                 const result = await rawResponse.json();
-                
+
                 if (result.status === "success") {
-                    showToast({ id: 'fed-policy',status: "success", title: "Current Fed Chair Guidance", description: "Message updated" })
+                    showToast({ id: 'fed-policy', status: "success", title: "Current Fed Chair Guidance", description: "Message updated" })
                     setMsgUpdates(msgUpdates + 1)
                 } else {
                     showToast({ id: 'fed-policy', status: "warning", title: "Current Fed Chair Guidance", description: "Update unauthorized" })
@@ -289,43 +289,35 @@ export const FedPolicyPage = () => {
                         }
                     </Container>
                 </Flex>
-                <Flex direction="column" p={{ base: '4', xl: '0' }} ml="2">
-                    <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-                        <DolaMoreInfos />
-                    </Flex>
-                    <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-                        <ShrinkableInfoMessage
-                            title={
-                                <Flex alignItems="center">
-                                    Current Fed Chair Guidance
-                                    {canEditFedPolicy && <EditIcon cursor="pointer" ml="1" color="blue.500" onClick={handlePolicyEdit} />}
-                                </Flex>
-                            }
-                            description={
-                                <>
-                                    {
-                                        fedPolicyMsg?.lastUpdate !== null &&
-                                        <Text>{moment(fedPolicyMsg?.lastUpdate).format('MMM Do YYYY')}</Text>
-                                    }
-                                    <Text>{fedPolicyMsg?.msg}</Text>
-                                </>
-                            }
-                        />
-                    </Flex>
-                    <Flex w={{ base: 'full', xl: 'sm' }} mt="4" justify="center">
-                        <SuppplyInfos token={TOKENS[DOLA]} supplies={[
-                            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
-                            { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-                        ]}
-                        />
-                    </Flex>
-                    <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-                        <SuppplyInfos
-                            title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-                            supplies={fedsWithData}
-                        />
-                    </Flex>
-                </Flex>
+                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
+                    <DolaMoreInfos />
+                    <ShrinkableInfoMessage
+                        title={
+                            <Flex alignItems="center">
+                                Current Fed Chair Guidance
+                                {canEditFedPolicy && <EditIcon cursor="pointer" ml="1" color="blue.500" onClick={handlePolicyEdit} />}
+                            </Flex>
+                        }
+                        description={
+                            <>
+                                {
+                                    fedPolicyMsg?.lastUpdate !== null &&
+                                    <Text>{moment(fedPolicyMsg?.lastUpdate).format('MMM Do YYYY')}</Text>
+                                }
+                                <Text>{fedPolicyMsg?.msg}</Text>
+                            </>
+                        }
+                    />
+                    <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+                        { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+                    ]}
+                    />
+                    <SuppplyInfos
+                        title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
+                        supplies={fedsWithData}
+                    />
+                </VStack>
             </Flex>
         </Layout>
     )

@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -103,149 +103,140 @@ export const Overview = () => {
         <Flex direction="column" py="2">
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
-        <Flex direction="column" p={{ base: '4', xl: '0' }} ml="2">
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <ShrinkableInfoMessage
-              title="🏛️ Governance Rules"
-              description={
-                <>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Min. Quorum required for a vote to pass:</Text>
-                    <Text>{commify(parseFloat(formatEther(quorumVotes)))}</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text>- Min. Voting Power required to create proposals:</Text>
-                    <Text>{commify(parseFloat(formatEther(proposalThreshold)))}</Text>
-                  </Flex>
-                </>
-              }
-            />
-          </Flex>
+        <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
+          <ShrinkableInfoMessage
+            title="🏛️ Governance Rules"
+            description={
+              <>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text>- Min. Quorum required for a vote to pass:</Text>
+                  <Text>{commify(parseFloat(formatEther(quorumVotes)))}</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text>- Min. Voting Power required to create proposals:</Text>
+                  <Text>{commify(parseFloat(formatEther(proposalThreshold)))}</Text>
+                </Flex>
+              </>
+            }
+          />
+
           {
-            !!treasury && <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-              <ShrinkableInfoMessage
-                title="🏦 Treasury Funds"
-                description={
-                  <>
-                    <Text fontWeight="bold">In Treasury Contract:</Text>
-                    <Funds
-                      prices={prices}
-                      funds={treasury}
-                      boldTotal={false}
-                    />
-                    <Text mt="2" fontWeight="bold">Current Funds reserved for bonds:</Text>
-                    <Funds
-                      prices={prices}
-                      showPerc={false}
-                      funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)}
-                      boldTotal={false}
-                      showTotal={false}
-                    />
-                    <Text mt="2" fontWeight="bold">Current Funds received via bonds:</Text>
-                    <Funds
-                      prices={prices}
-                      funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)}
-                      boldTotal={false}
-                    />
-                    <Text mt="2" fontWeight="bold">In Anchor Reserves:</Text>
-                    <Funds
-                      prices={prices}
-                      funds={anchorReserves}
-                      boldTotal={false}
-                    />
-                    <Flex mt="2" direction="row" w='full' justify="space-between">
-                      <Text fontWeight="bold">COMBINED TOTAL:</Text>
-                      <Text fontWeight="bold">
-                        {
-                          shortenNumber(treasury.concat(anchorReserves).concat(bonds?.balances).reduce((prev, curr) => {
-                            const priceKey = curr.token.coingeckoId || curr.token.symbol;
-                            const usdBalance = !!prices && !!priceKey && !!prices[priceKey] && curr.balance ? curr.balance * prices[priceKey].usd : 0;
-                            return prev + usdBalance;
-                          }, 0), 2, true)
-                        }
-                      </Text>
-                    </Flex>
-                  </>
-                }
-              />
-            </Flex>
-          }
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            {!!tvlData && <ShrinkableInfoMessage
-              title={<Flex alignItems="center">
-                ⚓ Anchor Total Value Locked (
-                <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
-                  Analytics <ExternalLinkIcon mb="1px" fontSize="10px" />
-                </Link>
-                )
-              </Flex>
-              }
-              description={
-                <Funds prices={prices}
-                  funds={
-                    tvlData?.anchor?.assets.map(assetWithBalance => {
-                      return { balance: assetWithBalance.balance, token: assetWithBalance }
-                    })
-                  } />
-              }
-            />}
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <SuppplyInfos token={TOKENS[INV]} supplies={[
-              { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
-              { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
-            ]}
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
-            <SuppplyInfos token={TOKENS[DOLA]} supplies={[
-              { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
-              { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-            ]}
-            />
-          </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} mt="5" justify="center">
+            !!treasury &&
             <ShrinkableInfoMessage
-              title="⚡ Roles & Powers"
+              title="🏦 Treasury Funds"
               description={
                 <>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Pause Guardian:</Text>
-                    <Text>Pause (but not unpause) a Market</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Anchor Admin:</Text>
-                    <Text>All rights on Anchor</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Admin:</Text>
-                    <Text>Change {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} APY</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Escrow Admin:</Text>
-                    <Text>Change x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} escrow duration</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Dola operator:</Text>
-                    <Text>Add/remove DOLA minters</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold" whiteSpace="nowrap">- Gov Guardian:</Text>
-                    <Text>Update Gov. rules, cancel a proposal</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
-                    <Text>Use treasury funds</Text>
-                  </Flex>
-                  <Flex direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">- Policy Committee:</Text>
-                    <Text>Handle Reward Rates Policies</Text>
+                  <Text fontWeight="bold">In Treasury Contract:</Text>
+                  <Funds
+                    prices={prices}
+                    funds={treasury}
+                    boldTotal={false}
+                  />
+                  <Text mt="2" fontWeight="bold">Current Funds reserved for bonds:</Text>
+                  <Funds
+                    prices={prices}
+                    showPerc={false}
+                    funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)}
+                    boldTotal={false}
+                    showTotal={false}
+                  />
+                  <Text mt="2" fontWeight="bold">Current Funds received via bonds:</Text>
+                  <Funds
+                    prices={prices}
+                    funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)}
+                    boldTotal={false}
+                  />
+                  <Text mt="2" fontWeight="bold">In Anchor Reserves:</Text>
+                  <Funds
+                    prices={prices}
+                    funds={anchorReserves}
+                    boldTotal={false}
+                  />
+                  <Flex mt="2" direction="row" w='full' justify="space-between">
+                    <Text fontWeight="bold">COMBINED TOTAL:</Text>
+                    <Text fontWeight="bold">
+                      {
+                        shortenNumber(treasury.concat(anchorReserves).concat(bonds?.balances).reduce((prev, curr) => {
+                          const priceKey = curr.token.coingeckoId || curr.token.symbol;
+                          const usdBalance = !!prices && !!priceKey && !!prices[priceKey] && curr.balance ? curr.balance * prices[priceKey].usd : 0;
+                          return prev + usdBalance;
+                        }, 0), 2, true)
+                      }
+                    </Text>
                   </Flex>
                 </>
               }
             />
-          </Flex>
-        </Flex>
+          }
+          {!!tvlData && <ShrinkableInfoMessage
+            title={<Flex alignItems="center">
+              ⚓ Anchor Total Value Locked (
+              <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
+                Analytics <ExternalLinkIcon mb="1px" fontSize="10px" />
+              </Link>
+              )
+            </Flex>
+            }
+            description={
+              <Funds prices={prices}
+                funds={
+                  tvlData?.anchor?.assets.map(assetWithBalance => {
+                    return { balance: assetWithBalance.balance, token: assetWithBalance }
+                  })
+                } />
+            }
+          />}
+          <SuppplyInfos token={TOKENS[INV]} supplies={[
+            { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
+            { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
+          ]}
+          />
+
+          <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+          ]}
+          />
+          <ShrinkableInfoMessage
+            title="⚡ Roles & Powers"
+            description={
+              <>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Pause Guardian:</Text>
+                  <Text>Pause (but not unpause) a Market</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Anchor Admin:</Text>
+                  <Text>All rights on Anchor</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Admin:</Text>
+                  <Text>Change {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} APY</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Escrow Admin:</Text>
+                  <Text>Change x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} escrow duration</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Dola operator:</Text>
+                  <Text>Add/remove DOLA minters</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold" whiteSpace="nowrap">- Gov Guardian:</Text>
+                  <Text>Update Gov. rules, cancel a proposal</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
+                  <Text>Use treasury funds</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Policy Committee:</Text>
+                  <Text>Handle Reward Rates Policies</Text>
+                </Flex>
+              </>
+            }
+          />
+        </VStack>
       </Flex>
     </Layout>
   )
