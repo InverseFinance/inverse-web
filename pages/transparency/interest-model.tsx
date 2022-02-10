@@ -1,14 +1,12 @@
-import { Box, Flex, Text, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useEffect, useState } from 'react'
-import { InterestModelChart } from '@app/components/Transparency/InterestModelChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
-import { useInterestModel } from '@app/hooks/useInterestModel'
 import { shortenNumber } from '@app/util/markets'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
@@ -18,47 +16,21 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { shortenAddress } from '@app/util'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { Container } from '@app/components/common/Container';
-
-const utilisationRates = [...Array(101).keys()];
+import { AnchorMarketInterestChart } from '@app/components/Anchor/AnchorMarketInterestChart'
+import { useInterestModel } from '@app/hooks/useInterestModel'
 
 const { INTEREST_MODEL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const InterestModelPage = () => {
-    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear, isLoading } = useInterestModel();
+    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
     const { markets } = useMarkets();
-    const [chartWidth, setChartWidth] = useState<number>(900);
     const [chosenMarket, setChosenMarket] = useState<Market | null>(null);
-    const [isLargerThan] = useMediaQuery('(min-width: 900px)')
-
-    useEffect(() => {
-        setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
-    }, [isLargerThan]);
 
     useEffect(() => {
         if (chosenMarket === null && markets?.length) {
             setChosenMarket(markets[0]);
         }
     }, [markets]);
-
-    const borrowChartData = utilisationRates.map((utilizationRate) => {
-        const belowKinkRate = utilizationRate / 100 * multiplierPerYear + baseRatePerYear;
-
-        const normalRate = kink / 100 * multiplierPerYear + baseRatePerYear;
-        const excess = utilizationRate / 100 - kink / 100;
-        const jumpedRate = excess * jumpMultiplierPerYear + normalRate
-
-        return { x: utilizationRate, y: utilizationRate <= kink ? belowKinkRate : jumpedRate }
-    })
-
-    if (chosenMarket) {
-        borrowChartData.push({ x: chosenMarket?.utilizationRate * 100, y: chosenMarket?.borrowApy });
-        borrowChartData.sort((a, b) => a.x - b.x);
-    }
-
-    const lendingChartData = borrowChartData.map(data => {
-        const ratio = 1 - (chosenMarket?.reserveFactor ?? 0.2);
-        return { x: data.x, y: data.y * ratio * data.x / 100 }
-    })
 
     const optionList = markets
         .filter(m => m.borrowable)
@@ -103,26 +75,17 @@ export const InterestModelPage = () => {
                                         </Flex>
                                     </>
                                 }
-                                <InterestModelChart
-                                    title={`Borrow Interest Rate Model`}
-                                    kink={kink}
-                                    showTooltips={true}
-                                    height={300}
-                                    width={chartWidth}
-                                    data={borrowChartData}
-                                    interpolation={'basis'}
-                                    utilizationRate={chosenMarket?.utilizationRate! * 100}
+                                <AnchorMarketInterestChart
+                                    type="borrow"
+                                    maxWidth={900}
+                                    title="Borrow Interest Rate Model"
+                                    market={chosenMarket}
                                 />
-                                <InterestModelChart
-                                    mt="4"
-                                    title={`Supply Interest Rate Model`}
-                                    kink={kink}
-                                    showTooltips={true}
-                                    height={300}
-                                    width={chartWidth}
-                                    data={lendingChartData}
-                                    interpolation={'basis'}
-                                    utilizationRate={chosenMarket?.utilizationRate! * 100}
+                                 <AnchorMarketInterestChart
+                                    type="supply"
+                                    maxWidth={900}
+                                    title="Supply Interest Rate Model"
+                                    market={chosenMarket}
                                 />
                             </Box>
                         }

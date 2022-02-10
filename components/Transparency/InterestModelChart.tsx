@@ -32,12 +32,17 @@ export const InterestModelChart = ({
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(60);
     const [titleFontSize, setTitleFontSize] = useState(20);
+    const [isLightMode, setIsLightMode] = useState(!isLargerThan || width <= 400);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
+    
+    useEffect(() => {
+        setRightPadding(!isLightMode ? 60 : 20)
+        setTitleFontSize(!isLightMode ? 20 : 12)
+    }, [isLightMode]);
 
     useEffect(() => {
-        setRightPadding(isLargerThan ? 60 : 20)
-        setTitleFontSize(isLargerThan ? 20 : 12)
-    }, [isLargerThan]);
+        setIsLightMode(!isLargerThan || width <= 400)
+    }, [isLargerThan, width]);
 
     const defaultAxisStyle: VictoryAxisProps["style"] = {
         tickLabels: {
@@ -62,7 +67,7 @@ export const InterestModelChart = ({
         axisLabel: { ...defaultAxisStyle?.axisLabel, padding: 65 },
     }
 
-    const xAxisTicks = (isLargerThan ?
+    const xAxisTicks = (!isLightMode ?
         [0, 20, 40, 60, 80, 100]
         :
         [0, 50, 100])
