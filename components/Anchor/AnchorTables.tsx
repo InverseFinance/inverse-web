@@ -19,10 +19,13 @@ import { useEffect, useState } from 'react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
-import { dollarify, getBalanceInInv, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
+import { dollarify, getBalanceInInv, getBnToNumber, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
 import { OLD_XINV } from '@app/config/constants'
+import { NotifBadge } from '@app/components/common/NotifBadge'
+import moment from 'moment'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
   if (amount === undefined) { return false }
@@ -49,11 +52,28 @@ const getColumn = (
       field: 'symbol',
       label: 'Asset',
       header: ({ ...props }) => <Flex minWidth={minWidth} {...props} />,
-      value: ({ token, underlying }: Market) => {
-        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
+      value: ({ token, underlying, claimableAmount, claimableTime }: Market) => {
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white';
+        const claimable = moment(claimableTime).isBefore(moment());
         return (
-          <Stack color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
+          <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
             <UnderlyingItem textProps={{ color }} label={underlying.symbol} image={underlying.image} address={token} />
+            {
+              !!claimableAmount && claimableAmount > 0
+              &&
+
+              <NotifBadge alignItems="center" bgColor={claimable ? 'secondary' : '#ccc'}>
+                {shortenNumber(claimableAmount, 2)}
+                <AnimatedInfoTooltip iconProps={{ ml: '1', boxSize: '10px' }}
+                  message={
+                    claimable ?
+                      "You can claim your withdrawn INV in the modal's withdraw tab"
+                      :  `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn INV ${moment(claimableTime).fromNow()}`
+                  }
+                />
+              </NotifBadge>
+
+            }
           </Stack>
         )
       },
@@ -149,8 +169,8 @@ export const AnchorSupplied = () => {
   const [double, setDouble] = useState(false)
   const { XINV, XINV_V1, ESCROW, ESCROW_OLD } = getNetworkConfigConstants(chainId)
 
-  const { withdrawalAmount: withdrawalAmount_v1 } = useEscrow(ESCROW_OLD)
-  const { withdrawalAmount } = useEscrow(ESCROW)
+  const { withdrawalAmount: withdrawalAmount_v1, withdrawalTime: withdrawalTime_v1 } = useEscrow(ESCROW_OLD)
+  const { withdrawalAmount, withdrawalTime } = useEscrow(ESCROW)
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
@@ -158,6 +178,13 @@ export const AnchorSupplied = () => {
   }
 
   const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
+
+  const claims = {
+    [XINV]: { withdrawalAmount, withdrawalTime },
+  }
+  if(XINV_V1) {
+    claims[XINV_V1] = { withdrawalAmount: withdrawalAmount_v1, withdrawalTime: withdrawalTime_v1 };
+  }
 
   const marketsWithBalance = markets?.map((market) => {
     const { token, underlying, priceUsd } = market;
@@ -175,7 +202,10 @@ export const AnchorSupplied = () => {
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
     const usdWorth = tokenBalance * (prices && prices[underlying.coingeckoId!]?.usd || market.oraclePrice);
 
-    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards, usdWorth }
+    const claimableAmount = !!claims[token] && !!claims[token]?.withdrawalAmount ? getBnToNumber(claims[token].withdrawalAmount, underlying.decimals) : 0;
+    const claimableTime = !!claims[token] && !!claims[token]?.withdrawalAmount ? claims[token].withdrawalTime : 0;
+
+    return { ...market, balance: tokenBalance, isCollateral, monthlyInvRewards, monthlyAssetRewards, usdWorth, claimableAmount, claimableTime }
   })
 
   const columns = [
@@ -350,7 +380,7 @@ export const AnchorSupply = () => {
 
   const handleExternalOpen = (marketName: string) => {
     const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === marketName.toLowerCase());
-    if(!market?.mintable) { return }
+    if (!market?.mintable) { return }
     setDeepLinkUsed(true);
     handleSupply(market);
   }
@@ -366,7 +396,7 @@ export const AnchorSupply = () => {
   }, [])
 
   useEffect(() => {
-    if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'supply') {
+    if (!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'supply') {
       handleExternalOpen(query.market!.toLowerCase())
     }
   }, [query, markets, deepLinkUsed])
@@ -420,9 +450,9 @@ export const AnchorBorrow = () => {
   }
 
   useEffect(() => {
-    if(!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
+    if (!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
       const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === query.market!.toLowerCase());
-      if(!market?.borrowable) { return }
+      if (!market?.borrowable) { return }
       setDeepLinkUsed(true);
       handleBorrow(market);
     }
