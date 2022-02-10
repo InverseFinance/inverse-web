@@ -378,8 +378,9 @@ export const AnchorSupply = () => {
     onOpen()
   }
 
-  const handleExternalOpen = (marketName: string) => {
+  const handleExternalOpen = (marketName: string, markets: Market[]) => {
     const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === marketName.toLowerCase());
+    
     if (!market?.mintable) { return }
     setDeepLinkUsed(true);
     handleSupply(market);
@@ -387,17 +388,17 @@ export const AnchorSupply = () => {
 
   useEffect(() => {
     const triggerAction = ({ detail }) => {
-      handleExternalOpen(detail.market);
+      handleExternalOpen(detail.market, markets);
     }
     document.addEventListener('open-anchor-supply', triggerAction)
     return () => {
       document.removeEventListener('open-anchor-supply', triggerAction, false);
     }
-  }, [])
+  }, [markets])
 
   useEffect(() => {
     if (!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'supply') {
-      handleExternalOpen(query.market!.toLowerCase())
+      handleExternalOpen(query.market!.toLowerCase(), markets)
     }
   }, [query, markets, deepLinkUsed])
 
