@@ -1,11 +1,11 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { Market, NetworkIds, SWR } from '@app/types'
+import { Market, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
-import useSWR from 'swr'
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
+import { useCustomSWR } from './useCustomSWR'
 
 type Markets = {
   markets: Market[]
@@ -14,7 +14,7 @@ type Markets = {
 export const useMarkets = (): SWR & Markets => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/markets?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/markets?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
 
   return {
     markets: data?.markets || [],

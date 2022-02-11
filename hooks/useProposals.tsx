@@ -6,6 +6,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { getLastNbNotif, getLocalDrafts, getReadGovernanceNotifs, setLastNbNotif } from '@app/util/governance';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { useCustomSWR } from './useCustomSWR';
 
 type Proposals = {
   proposals: Proposal[]
@@ -30,7 +31,7 @@ export const useLocalDraftProposals = (): SWR & { drafts: DraftProposal[] } => {
 }
 
 export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[] } => {
-  const { data, error } = useSWR(`/api/drafts`, fetcher)
+  const { data, error } = useCustomSWR(`/api/drafts`, fetcher)
 
   return {
     drafts: data?.drafts || [],
@@ -50,7 +51,7 @@ export const useGovernanceNotifs = (): SWR & {
 } => {
   const { pathname } = useRouter()
 
-  const { data, error } = useSWR(`/api/governance-notifs`, fetcher)
+  const { data, error } = useCustomSWR(`/api/governance-notifs`, fetcher)
 
   const { data: lastNbNotif } = useSWR(`last-nb-notifs${pathname}`, async () => {
     return await getLastNbNotif()
@@ -91,7 +92,7 @@ export const useProposals = (): SWR & Proposals => {
   // const router = useRouter()
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useSWR(`/api/proposals?chainId=${chainId || NetworkIds.mainnet}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/proposals?chainId=${chainId || NetworkIds.mainnet}`, fetcher)
 
   return {
     proposals: data?.proposals || [],

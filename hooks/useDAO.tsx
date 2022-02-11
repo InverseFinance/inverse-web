@@ -1,8 +1,6 @@
-import { FedEvent, FedWithData, NetworkIds, SWR, Token } from '@app/types'
+import { FedEvent, FedWithData, SWR, Token } from '@app/types'
 import { fetcher } from '@app/util/web3'
-import useSWR from 'swr'
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
+import { useCustomSWR } from './useCustomSWR';
 
 type DAO = {
   dolaTotalSupply: number
@@ -26,9 +24,7 @@ type DAO = {
 }
 
 export const useDAO = (): SWR & DAO => {
-  const { chainId } = useWeb3React<Web3Provider>()
-
-  const { data, error } = useSWR(`/api/transparency/dao`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/dao`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
@@ -49,7 +45,7 @@ export const useDAO = (): SWR & DAO => {
 }
 
 export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: { msg: string, lastUpdate: number } } => {
-  const { data, error } = useSWR(`/api/transparency/fed-policy`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/fed-policy`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
 
@@ -62,7 +58,7 @@ export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: 
 }
 
 export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { msg: string, lastUpdate: number } } => {
-  const { data, error } = useSWR(`/api/transparency/fed-policy-msg?${refreshIndex}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/fed-policy-msg?${refreshIndex}`, fetcher)
 
   return {
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },

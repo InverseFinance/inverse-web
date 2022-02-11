@@ -16,6 +16,7 @@ type AccountLiquidity = {
   usdSupplyCoingecko: number
   usdBorrow: number
   usdBorrowable: number
+  usdShortfall: number
 }
 
 export const useAccountLiquidity = (): SWR & AccountLiquidity => {
@@ -51,6 +52,7 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
       usdSupplyCoingecko: 0,
       usdBorrow: 0,
       usdBorrowable: 0,
+      usdShortfall: 0,
       isLoading: !error,
       isError: error,
     }
@@ -90,13 +92,16 @@ export const useAccountLiquidity = (): SWR & AccountLiquidity => {
   const usdBorrow = Object.entries(borrowBalances).reduce((prev, [address, balance]) => {
     const underlying = UNDERLYING[address]
     return prev + parseFloat(formatUnits(balance, underlying.decimals)) * prices[address]
-  }, 0)
+  }, 0);
+
+  const [accLiqErr, extraBorrowableAmount, shortfallAmount] = data;
 
   return {
     usdSupply,
     usdSupplyCoingecko,
     usdBorrow,
-    usdBorrowable: parseFloat(formatUnits(data[1])),
+    usdBorrowable: parseFloat(formatUnits(extraBorrowableAmount)),
+    usdShortfall: parseFloat(formatUnits(shortfallAmount)),
     isLoading: !error && !data,
     isError: error,
   }

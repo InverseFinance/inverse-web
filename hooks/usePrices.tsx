@@ -6,6 +6,7 @@ import useSWR from 'swr'
 import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
+import { useCustomSWR } from './useCustomSWR'
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -22,7 +23,7 @@ export const usePrices = (): SWR & Prices => {
   const { TOKENS } = getNetworkConfigConstants(chainId)
 
   const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId)
-  const { data, error } = useSWR(
+  const { data, error } = useCustomSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
     fetcher
   )

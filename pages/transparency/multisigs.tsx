@@ -51,7 +51,14 @@ export const MultisigsDiagram = () => {
             multisigs?.map(multisig => {
               return <ShrinkableInfoMessage
                 key={multisig.name}
-                title={`👥 ${multisig.name}`}
+                title={
+                  <Flex alignItems="center">
+                    👥 {multisig.name} (
+                    <Link isExternal href={`https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`}>
+                      Transactions History <ExternalLinkIcon mb="2px" />
+                    </Link>)
+                  </Flex>
+                }
                 description={
                   <>
                     <Flex direction="row" w='full' justify="space-between">

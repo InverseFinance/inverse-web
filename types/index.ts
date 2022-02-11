@@ -48,6 +48,8 @@ export type Market = {
   escrowDuration?: number
   utilizationRate?: number
   rewardPerBlock?: number
+  claimableAmount?: number
+  claimableTime?: number
   rewardsPerMonth: number
 }
 

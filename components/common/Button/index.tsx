@@ -29,6 +29,7 @@ export const LinkButton = ({
           cursor="pointer"
           borderRadius={4}
           borderWidth={1}
+          alignItems="center"
           p={2}
           _hover={{ bgColor: 'purple.600', borderColor: 'purple.600', transition: 'all 250ms' }}
           {...finalFlexProps}
