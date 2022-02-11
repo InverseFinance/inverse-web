@@ -38,6 +38,7 @@ export const AnchorHeader = () => {
     <Flex
       w="full"
       p={4}
+      pb="0"
       justify="space-between"
       align={{ base: 'flex-start', md: 'flex-start' }}
       mt={{ base: 0, md: '4' }}
