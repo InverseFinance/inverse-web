@@ -21,8 +21,10 @@ export const AreaChart = ({
     height = 300,
     showLabels = false,
     showTooltips = false,
+    showMaxY = true,
     interpolation = 'basis',
     axisStyle = defaultAxisStyle,
+    domainYpadding = 0,
 }: {
     data: Props,
     title?: string,
@@ -30,8 +32,10 @@ export const AreaChart = ({
     height?: number,
     showLabels?: boolean,
     showTooltips?: boolean,
+    showMaxY?: boolean,
     interpolation?: VictoryAreaProps["interpolation"],
     axisStyle?: VictoryAxisProps["style"],
+    domainYpadding?: number,
 }) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
@@ -73,12 +77,12 @@ export const AreaChart = ({
                 <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 1)} />
                 <VictoryAxis style={axisStyle} />
                 <VictoryArea
-                    domain={{ y: [0, maxY + 5000000] }}
+                    domain={{ y: [0, maxY + domainYpadding] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}
                     labelComponent={
                         <VictoryLabel
-                            dx={-rightPadding}
+                            dx={-rightPadding - 20}
                             textAnchor="start"
                             verticalAnchor="start"
                         />
@@ -86,7 +90,7 @@ export const AreaChart = ({
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                            return showLabels || isMax ? `${isMax && 'High: '}${shortenNumber(data[index].y, 1)}` : ''
+                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 1)}` : ''
                         }
                     }
                     style={{

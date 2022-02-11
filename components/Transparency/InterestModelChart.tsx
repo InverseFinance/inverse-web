@@ -99,7 +99,7 @@ export const InterestModelChart = ({
                                 height={height}
                                 theme={VictoryTheme.grayscale}
                                 animate={{ duration: 500 }}
-                                padding={{ top: 50, bottom: 50, left: 80, right: rightPadding }}
+                                padding={{ top: 50, bottom: 50, left: isLightMode ? 50 : 80, right: rightPadding }}
                             >
                                 <VictoryArea
                                 groupComponent={<VictoryClipContainer clipId="area-chart" />}
@@ -109,7 +109,7 @@ export const InterestModelChart = ({
                                         const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
                                         const isCurrentUR = data[index].x === utilizationRate;
                                         if(isCurrentUR) { return `Current Rate: ${shortenNumber(data[index].y, 2)}%` }
-                                        return showLabels || isMax ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 2)}%` : ''
+                                        return showLabels || (isMax && !isLightMode) ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 2)}%` : ''
                                     }
                                 }
                                 labelComponent={
@@ -126,7 +126,7 @@ export const InterestModelChart = ({
                                 }}
                                 interpolation={interpolation}
                             />
-                                <VictoryAxis label="Interest Rate" style={defaultYAxis} dependentAxis tickFormat={(t) => formatTick(t)} />
+                                <VictoryAxis label={isLightMode ? '' : 'Interest Rate'} style={defaultYAxis} dependentAxis tickFormat={(t) => formatTick(t)} />
                                 <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => formatTick(t)} />
                             </VictoryChart>
                         </Box>
