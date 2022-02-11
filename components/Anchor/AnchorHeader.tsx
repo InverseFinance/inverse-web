@@ -44,23 +44,23 @@ export const AnchorHeader = () => {
       direction={{ base: 'column', md: 'row' }}
     >
       <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
-        <Stack direction={{ base: 'column', lg: 'row' }} spacing={{ base: 1, md: 4, lg: 10 }}>
-          <Flex direction="column">
-            <TextOrSkeleton value={tvlData?.anchor?.tvl} text={dollarify(tvlData?.anchor?.tvl || 0, 2)} />
+        <Stack direction={{ base: 'column', lg: 'row' }} >
+          <Flex direction="column" width="184px">
+            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]} text={dollarify(prices[RTOKEN_CG_ID]?.usd || 0, 2)} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
-              Total Value Locked
+              {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>
           </Flex>
-          <Flex direction="column">
-            <TextOrSkeleton value={totalSupply} text={dollarify(totalSupply || 0, 2)} />
+          <Flex direction="column" justify="center"  width="184px">
+            <TextOrSkeleton value={totalSupply} text={dollarify(totalSupply || 0, 0)} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
               DOLA Supply
             </Text>
           </Flex>
           <Flex direction="column">
-            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]} text={dollarify(prices[RTOKEN_CG_ID]?.usd || 0, 2)} />
+            <TextOrSkeleton value={tvlData?.anchor?.tvl} text={dollarify(tvlData?.anchor?.tvl || 0, 0)} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
-              {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
+              Total Value Locked
             </Text>
           </Flex>
         </Stack>

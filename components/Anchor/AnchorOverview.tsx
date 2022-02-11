@@ -70,7 +70,7 @@ export const AnchorOverview = () => {
     <Container
       noPadding
       label={
-        <Flex pb={{ base: '0px', sm: '4px' }} textAlign="left" flexDirection={{ base: 'column', sm: 'row' }}>
+        <Flex visibility={ !account ? 'hidden' : 'visible' } pb={{ base: '0px', sm: '4px' }} textAlign="left" flexDirection={{ base: 'column', sm: 'row' }}>
           <Text mr="2">Banking</Text>
           {
             totalInterestsUsd?.total !== 0 && totalInterestsUsd?.total !== undefined ?
