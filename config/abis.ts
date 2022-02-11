@@ -128,6 +128,8 @@ export const STABILIZER_ABI = [
   "function buy(uint256)",
   "function sell(uint256)",
   "function supply() external view returns (uint256)",
+  "event Buy (address indexed user, uint256 purchased, uint256 spent)",
+  "event Sell (address indexed user, uint256 sold, uint256 received)",
 ];
 
 export const VAULT_ABI = [

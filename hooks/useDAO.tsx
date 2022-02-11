@@ -1,4 +1,4 @@
-import { FedEvent, FedWithData, SWR, Token } from '@app/types'
+import { FedEvent, FedWithData, SWR, Token, StabilizerEvent } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
 
@@ -62,6 +62,18 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
 
   return {
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
+  const { data, error } = useCustomSWR(`/api/transparency/stabilizer`, fetcher)
+
+  const totalEvents = data?.totalEvents || [];
+
+  return {
+    totalEvents,
     isLoading: !error && !data,
     isError: error,
   }
