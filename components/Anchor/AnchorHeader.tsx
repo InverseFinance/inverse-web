@@ -12,16 +12,16 @@ import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify } from '@app/util/markets'
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
-  return <>
+  return <Flex maxH="36px" overflow="hidden">
     {
       value ?
         <Text fontWeight="semibold" fontSize="2xl">
           {text}
         </Text>
         :
-        <SkeletonText pt="3" skeletonHeight={3} height={'36px'} width={'180px'} noOfLines={1} />
+        <SkeletonText pt="5" skeletonHeight={3} height={'36px'} width={'180px'} noOfLines={3} />
     }
-  </>
+  </Flex>
 }
 
 export const AnchorHeader = () => {
