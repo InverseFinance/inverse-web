@@ -1,68 +1,99 @@
-import { Text, Stack, Flex } from '@chakra-ui/react'
+import { Text, Stack, Flex, SkeletonText } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import { CheckIcon } from '@chakra-ui/icons'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
-import { commify } from '@ethersproject/units'
 import { chakra } from '@chakra-ui/system'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useMediaQuery } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { dollarify } from '@app/util/markets'
+
+const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
+  return <>
+    {
+      value ?
+        <Text fontWeight="semibold" fontSize="2xl">
+          {text}
+        </Text>
+        :
+        <SkeletonText pt="3" skeletonHeight={3} height={'36px'} width={'180px'} noOfLines={1} />
+    }
+  </>
+}
 
 export const AnchorHeader = () => {
   const [isSmallerThan728] = useMediaQuery('(max-width: 728px)')
-  const { markets, isLoading } = useMarkets()
+  const { markets } = useMarkets()
   const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { data: tvlData } = useTVL()
 
-  if (isLoading || !rewardTokenMarket) {
-    return <></>
-  }
-
-  const apy = rewardTokenMarket.supplyApy.toFixed(2)
+  const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
 
   return (
     <Flex
       w="full"
       p={4}
       justify="space-between"
-      align={{ base: 'flex-start', md: 'center' }}
+      align={{ base: 'flex-start', md: 'flex-start' }}
+      mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <Stack spacing={4} p={4}>
-        <Flex direction="column">
-          <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(tvlData?.anchor?.tvl.toFixed(2) || 0)}
-          </Text>
-          <Text color="secondary" fontSize="sm" fontWeight="semibold">
-            Total Value Locked
-          </Text>
-        </Flex>
-        <Flex direction="column">
-          <Text fontWeight="semibold" fontSize="2xl">
-            ${commify(totalSupply?.toFixed(2) || 0)}
-          </Text>
-          <Text color="secondary" fontSize="sm" fontWeight="semibold">
-            DOLA Supply
-          </Text>
-        </Flex>
-        <Flex direction="column">
-          <Text fontWeight="semibold" fontSize="2xl">
-            ${prices && prices[RTOKEN_CG_ID] ? commify(prices[RTOKEN_CG_ID]?.usd) : ''}
-          </Text>
-          <Text color="secondary" fontSize="sm" fontWeight="semibold">
-            {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
-          </Text>
-        </Flex>
+      <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
+        <Stack direction={{ base: 'column', lg: 'row' }} spacing={{ base: 1, md: 4, lg: 10 }}>
+          <Flex direction="column">
+            <TextOrSkeleton value={tvlData?.anchor?.tvl} text={dollarify(tvlData?.anchor?.tvl || 0, 2)} />
+            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+              Total Value Locked
+            </Text>
+          </Flex>
+          <Flex direction="column">
+            <TextOrSkeleton value={totalSupply} text={dollarify(totalSupply || 0, 2)} />
+            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+              DOLA Supply
+            </Text>
+          </Flex>
+          <Flex direction="column">
+            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]} text={dollarify(prices[RTOKEN_CG_ID]?.usd || 0, 2)} />
+            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+              {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
+            </Text>
+          </Flex>
+        </Stack>
+        <Stack w='full' spacing={2} direction="row">
+          {
+            !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
+            && <LinkButton flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
+              target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
+              Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
+            </LinkButton>
+          }
+          {
+            !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
+            && <LinkButton flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
+              target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
+              Buy DOLA
+            </LinkButton>
+          }
+          {
+            !!process.env.NEXT_PUBLIC_LEARN_MORE_URL
+            && <LinkOutlineButton fontSize={{ base: '12px', sm: '16px' }}
+              href={process.env.NEXT_PUBLIC_LEARN_MORE_URL}
+              data-testid={TEST_IDS.anchor.learnMore}
+              target={process.env.NEXT_PUBLIC_LEARN_MORE_URL.startsWith('http') ? '_blank' : '_self'}>
+              {isSmallerThan728 ? 'More' : 'Learn More'}
+            </LinkOutlineButton>
+          }
+        </Stack>
       </Stack>
       <Stack spacing={4} p={4}>
         <Stack direction="row" align="center">
           <Text color="#fff" fontSize="2xl" fontWeight="semibold">
-            Buy and Stake INV and earn
+            Stake INV on Anchor and Earn
             <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
               {apy}% APY
             </chakra.span>
@@ -78,31 +109,6 @@ export const AnchorHeader = () => {
           <Text color="secondary">
             <CheckIcon /> Usable as Collateral
           </Text>
-        </Stack>
-        <Stack spacing={2} direction="row">
-          {
-            !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
-            && <LinkButton fontSize={{ base: '12px', sm: '16px' }} href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
-              target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
-              Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
-            </LinkButton>
-          }
-          {
-            !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
-            && <LinkButton fontSize={{ base: '12px', sm: '16px' }} data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
-              target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
-              Buy DOLA
-            </LinkButton>
-          }
-          {
-            !!process.env.NEXT_PUBLIC_LEARN_MORE_URL
-            && <LinkOutlineButton fontSize={{ base: '12px', sm: '16px' }}
-              href={process.env.NEXT_PUBLIC_LEARN_MORE_URL}
-              data-testid={TEST_IDS.anchor.learnMore}
-              target={process.env.NEXT_PUBLIC_LEARN_MORE_URL.startsWith('http') ? '_blank' : '_self'}>
-              {isSmallerThan728 ? 'More' : 'Learn More'}
-            </LinkOutlineButton>
-          }
         </Stack>
       </Stack>
     </Flex>

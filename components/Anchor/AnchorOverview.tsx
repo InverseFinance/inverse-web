@@ -68,6 +68,7 @@ export const AnchorOverview = () => {
 
   return (
     <Container
+      noPadding
       label={
         <Flex pb={{ base: '0px', sm: '4px' }} textAlign="left" flexDirection={{ base: 'column', sm: 'row' }}>
           <Text mr="2">Banking</Text>
@@ -79,10 +80,10 @@ export const AnchorOverview = () => {
         </Flex>
       }
       right={
-        !!account ? <Stack direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
+        <Stack visibility={ !account ? 'hidden' : 'visible' } direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
           <Flex flexDirection="row" alignItems="center">
             <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
-              {`${rewardAmount.toFixed(4)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards`}
+              {`${rewardAmount?.toFixed(4)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards`}
             </Text>
             <AnimatedInfoTooltip
               iconProps={{ boxSize: 3, mt: '2px' }}
@@ -99,7 +100,7 @@ export const AnchorOverview = () => {
           >
             Claim
           </StyledButton>
-        </Stack> : null
+        </Stack>
       }
     >
       <Flex w="full" justify="center">
