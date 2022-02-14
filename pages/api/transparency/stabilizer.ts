@@ -6,6 +6,8 @@ import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getRedisClient } from '@app/util/redis';
 import { getStabilizerContract } from '@app/util/contracts';
+import { BLOCK_TIMESTAMPS } from '@app/config/blocknumber-timestamps-archived';
+import { mergeDeep } from '@app/util/misc';
 
 const client = getRedisClient()
 
@@ -32,7 +34,7 @@ const getEventDetails = (log: Event, timestampInSec: number, includeTxHash: bool
 }
 
 export default async function handler(req, res) {
-    const cacheKey = `stabilizer-v1.0.0`;
+    const cacheKey = `stabilizer-v1.0.2`;
 
     try {
 
@@ -50,7 +52,8 @@ export default async function handler(req, res) {
             contract.queryFilter(contract.filters.Sell()),
         ]);
 
-        const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
+        const cachedBlockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
+        const blockTimestamps = mergeDeep(BLOCK_TIMESTAMPS, cachedBlockTimestamps);
         
         const events = rawEvents[0].concat(rawEvents[1]);
         // first time
@@ -97,7 +100,7 @@ export default async function handler(req, res) {
 
         await redisSetWithTimestamp(cacheKey, resultData);
 
-        res.status(200).json(resultData)
+        res.status(200).json(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
