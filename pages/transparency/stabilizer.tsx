@@ -19,8 +19,11 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { StabilizerOverview } from '@app/components/Stabilizer/Overview'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
+import { BarChart } from '@app/components/Transparency/BarChart'
 
 const { DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+const months = [...Array(12).keys()];
 
 const SupplyChange = ({ newSupply, changeAmount, isBuy }: { newSupply: number, changeAmount: number, isBuy: boolean }) => {
     return (
@@ -110,8 +113,26 @@ export const StabilizerTransparency = () => {
         return {
             x: event.timestamp,
             y: event.newTotal,
+            profit: event.profit,
+            event: event.event,
+            month: moment(event.timestamp).month(),
+            year: moment(event.timestamp).year(),
         }
     })];
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+
+    const barChartData = ['Buy', 'Sell'].map(event => {
+        return months.map(month => {
+            const date = Date.UTC(currentYear, currentMonth - 12 + month);
+            const filterMonth = new Date(date).getMonth();
+            const filterYear = new Date(date).getFullYear();
+            return {
+                x: moment(date).format('MMM-YY'),
+                y: chartData.filter(d => d.event === event && d.month === filterMonth && d.year === filterYear).reduce((p,c) => p + c.profit, 0) }
+        });
+    })
 
     // add today's timestamp and zero one day before first supply
     if (chartData.length) {
@@ -152,6 +173,7 @@ export const StabilizerTransparency = () => {
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                     mainColor="secondary"
                                 />
+                                <BarChart groupedData={barChartData} />
                             </Box>
                         }
                     >
