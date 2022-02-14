@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
     try {
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 3600);
+        const validCache = await getCacheFromRedis(cacheKey, true, 300);
         if (validCache) {
             res.status(200).json(validCache);
             return

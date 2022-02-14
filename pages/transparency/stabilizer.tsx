@@ -12,7 +12,7 @@ import { shortenNumber } from '@app/util/markets'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import Table from '@app/components/common/Table'
 import { Container } from '@app/components/common/Container';
-import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { useEffect, useState } from 'react'
 import { AreaChart } from '@app/components/Transparency/AreaChart'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
@@ -20,6 +20,7 @@ import { StabilizerOverview } from '@app/components/Stabilizer/Overview'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { BarChart } from '@app/components/Transparency/BarChart'
+import Link from '@app/components/common/Link'
 
 const { DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -131,7 +132,7 @@ export const StabilizerTransparency = () => {
             const filterMonth = new Date(date).getMonth();
             const filterYear = new Date(date).getFullYear();
             const y = chartData.filter(d => d.event === event && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.profit, 0);
-            
+
             return {
                 label: `${event}s: ${shortenNumber(y, 2, true)}`,
                 x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
@@ -195,7 +196,7 @@ export const StabilizerTransparency = () => {
                                         :
                                         <>
                                             <SkeletonBlob skeletonHeight={3} noOfLines={9} w={`${chartWidth - 60}px`} />
-                                            <SkeletonBlob pt="6" skeletonHeight={3} noOfLines={9} w={`${chartWidth - 60}px`}  />
+                                            <SkeletonBlob pt="6" skeletonHeight={3} noOfLines={9} w={`${chartWidth - 60}px`} />
                                         </>
                                 }
                             </Box>
@@ -219,6 +220,11 @@ export const StabilizerTransparency = () => {
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <StabilizerOverview />
+                    <ShrinkableInfoMessage description={
+                        <Link href="https://dune.xyz/naoufel/dola-metrics">
+                            DOLA and Stabilizer metrics on Dune Analytics <ExternalLinkIcon />
+                        </Link>
+                    } />
                     <ShrinkableInfoMessage description={
                         <Text>Profits are made in DAI and sent to the Inverse Treasury on each swap</Text>
                     } />
