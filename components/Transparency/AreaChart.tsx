@@ -1,8 +1,9 @@
 import { shortenNumber } from '@app/util/markets';
-import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryTooltip, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps } from 'victory';
+import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps } from 'victory';
 import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { FlyoutTooltip } from './FlyoutTooltip';
 
 type Props = { x: number, y: number }[]
 
@@ -26,6 +27,7 @@ export const AreaChart = ({
     axisStyle = defaultAxisStyle,
     domainYpadding = 0,
     mainColor = 'primary',
+    isDollars = false,
 }: {
     data: Props,
     title?: string,
@@ -37,6 +39,7 @@ export const AreaChart = ({
     interpolation?: VictoryAreaProps["interpolation"],
     axisStyle?: VictoryAxisProps["style"],
     domainYpadding?: number,
+    isDollars?: boolean,
     mainColor?: 'primary' | 'secondary' 
 }) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -64,7 +67,7 @@ export const AreaChart = ({
                     <VictoryVoronoiContainer
                         mouseFollowTooltips={true}
                         voronoiDimension="x"
-                        labelComponent={<VictoryTooltip flyoutPadding={10} centerOffset={{ x: -50 }} cornerRadius={10} flyoutStyle={{ fill: '#8881c966' }} />}
+                        labelComponent={<FlyoutTooltip />}
                         labels={({ datum }) => {
                             return (
                                 moment(datum.x).format('MMM Do YYYY') + '\n' + shortenNumber(datum.y, 1)
@@ -76,7 +79,7 @@ export const AreaChart = ({
                 {
                     !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
                 }
-                <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 1)} />
+                <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
                 <VictoryAxis style={axisStyle} />
                 <VictoryArea
                     domain={{ y: [0, maxY + domainYpadding] }}

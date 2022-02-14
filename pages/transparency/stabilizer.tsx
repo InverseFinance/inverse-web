@@ -125,12 +125,15 @@ export const StabilizerTransparency = () => {
 
     const barChartData = ['Buy', 'Sell'].map(event => {
         return months.map(month => {
-            const date = Date.UTC(currentYear, currentMonth - 12 + month);
+            const date = Date.UTC(currentYear, currentMonth - 11 + month);
             const filterMonth = new Date(date).getMonth();
             const filterYear = new Date(date).getFullYear();
+            const y = chartData.filter(d => d.event === event && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.profit, 0);
             return {
+                label: `${event}s: ${shortenNumber(y, 2, true)}`,
                 x: moment(date).format('MMM-YY'),
-                y: chartData.filter(d => d.event === event && d.month === filterMonth && d.year === filterYear).reduce((p,c) => p + c.profit, 0) }
+                y,
+            }
         });
     })
 
@@ -172,8 +175,14 @@ export const StabilizerTransparency = () => {
                                     domainYpadding={20000}
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                     mainColor="secondary"
+                                    isDollars={true}
                                 />
-                                <BarChart groupedData={barChartData} />
+                                <BarChart
+                                    title="Monthly profits for the last 12 months"
+                                    groupedData={barChartData}
+                                    colorScale={['#34E795', '#4299e1']}
+                                    isDollars={true}
+                                />
                             </Box>
                         }
                     >
