@@ -15,19 +15,19 @@ import { Container } from '@app/components/common/Container';
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { useEffect, useState } from 'react'
 import { AreaChart } from '@app/components/Transparency/AreaChart'
-import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
+import { StabilizerOverview } from '@app/components/Stabilizer/Overview'
+import ScannerLink from '@app/components/common/ScannerLink'
+import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 
-const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-
-const oneDay = 86400000;
+const { DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const SupplyChange = ({ newSupply, changeAmount, isBuy }: { newSupply: number, changeAmount: number, isBuy: boolean }) => {
     return (
-        <Flex alignItems="center" justify="space-between" color={isBuy ? 'info' : 'secondary'} pl="2" minW="140px">
-            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 1)}</Text>
+        <Flex alignItems="center" justify="space-between" color={!isBuy ? 'info' : 'secondary'} pl="2" minW="160px">
+            <Text textAlign="left" w="70px">{shortenNumber(newSupply - changeAmount, 2, true)}</Text>
             <ArrowForwardIcon />
-            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 1)}</Text>
+            <Text textAlign="right" w="70px">{shortenNumber(newSupply, 2, true)}</Text>
         </Flex>
     )
 }
@@ -36,9 +36,9 @@ const columns = [
     {
         field: 'event',
         label: 'Event Type',
-        header: ({ ...props }) => <Flex justify="center" minW="95px" {...props} />,
-        value: ({ event, isBuy }) => <Flex minW="95px" justify="center" alignItems="center" color={isBuy ? 'info' : 'secondary'}>
-            {event}{isBuy ? <ArrowDownIcon /> : <ArrowUpIcon />}
+        header: ({ ...props }) => <Flex justify="flex-start" minW="110px" {...props} />,
+        value: ({ event, isBuy }) => <Flex minW="110px" justify="flex-start" alignItems="center" color={!isBuy ? 'info' : 'secondary'}>
+            {event} DOLA {!isBuy ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Flex>,
     },
     {
@@ -46,7 +46,7 @@ const columns = [
         label: 'Time',
         header: ({ ...props }) => <Flex minW="100px" {...props} />,
         value: ({ timestamp, isBuy }) => {
-            const textColor = isBuy ? 'info' : 'secondary'
+            const textColor = !isBuy ? 'info' : 'secondary'
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
@@ -58,23 +58,39 @@ const columns = [
         },
     },
     {
+        field: 'transactionHash',
+        label: 'Transaction',
+        header: ({ ...props }) => <Flex minW="120px" {...props} />,
+        value: ({ transactionHash, isBuy }) => <Flex minW="120px">
+            <ScannerLink color={!isBuy ? 'info' : 'secondary'} value={transactionHash} type="tx" />
+        </Flex>,
+    },
+    {
+        field: 'amount',
+        label: 'Amount',
+        header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
+        value: ({ amount, isBuy }) => <Flex justify="flex-end" minW="60px" color={!isBuy ? 'info' : 'secondary'}>
+            {shortenNumber(amount, 2, true)}
+        </Flex>,
+    },
+    {
         field: 'profit',
         label: 'Profit',
         header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
-        value: ({ value, isBuy }) => <Flex justify="flex-end" minW="60px" color={isBuy ? 'info' : 'secondary'}>
-            {shortenNumber(value, 1)}
+        value: ({ profit, isBuy }) => <Flex justify="flex-end" minW="60px" color={!isBuy ? 'info' : 'secondary'}>
+            {shortenNumber(profit, 2, true)}
         </Flex>,
     },
     {
         field: 'newTotal',
         label: 'New Total Profits',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
-        value: ({ newTotal, value, isBuy }) =>
-            <SupplyChange newSupply={newTotal} changeAmount={value} isBuy={isBuy} />
+        header: ({ ...props }) => <Flex justify="flex-end" minW="160px" {...props} />,
+        value: ({ newTotal, profit, isBuy }) =>
+            <SupplyChange newSupply={newTotal} changeAmount={profit} isBuy={isBuy} />
     },
 ]
 
-export const FedPolicyPage = () => {
+export const StabilizerTransparency = () => {
     const { dolaTotalSupply, fantom } = useDAO();
     const { totalEvents } = useStabilizer();
     const [chartWidth, setChartWidth] = useState<number>(900);
@@ -86,9 +102,9 @@ export const FedPolicyPage = () => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    totalEvents.sort((a, b) => b.timestamp - b.timestamp);
+    totalEvents.sort((a, b) => b.timestamp - a.timestamp);
 
-    // const tableData = [...totalEvents.splice(0, 5)];
+    const tableData = totalEvents.filter(e => !!e.transactionHash);
 
     const chartData = [...totalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
         return {
@@ -114,7 +130,7 @@ export const FedPolicyPage = () => {
                     <Container
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}
-                        label="Profits in DAI from the Stabilizer Swap fees"
+                        label="Accumulated Profits in DAI from the Stabilizer Swap fees"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
                                 <Flex h="25px" position="relative" alignItems="center">
@@ -126,7 +142,7 @@ export const FedPolicyPage = () => {
                                     </HStack>
                                 </Flex>
                                 <AreaChart
-                                    title={`Profits from the Stabilizer`}
+                                    title={`Accumulated Profits over time (Current Total: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2, true) : 0})`}
                                     showTooltips={true}
                                     showMaxY={false}
                                     height={300}
@@ -134,28 +150,32 @@ export const FedPolicyPage = () => {
                                     data={chartData}
                                     domainYpadding={20000}
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
+                                    mainColor="secondary"
                                 />
                             </Box>
                         }
                     >
                         <VStack w='full'>
-                            <Text>Profits from the Last 100 Stabilizer swaps</Text>
-                            {/* {
+                            <Text fontSize="14px" fontWeight="bold" mb="2">Profits from the Last {tableData.length} Stabilizer Swap Fees</Text>
+                            {
                                 tableData?.length > 0 ?
                                     <Table
-                                        keyName="timestamp"
+                                        keyName="transactionHash"
                                         defaultSort="timestamp"
                                         defaultSortDir="desc"
                                         alternateBg={false}
                                         columns={columns}
                                         items={tableData} />
                                     : <SkeletonBlob />
-                            } */}
+                            }
                         </VStack>
                     </Container>
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-                    <DolaMoreInfos />
+                    <StabilizerOverview />
+                    <ShrinkableInfoMessage description={
+                        <Text>Profits are made in DAI and sent to the Inverse Treasury on each swap</Text>
+                    } />
                     <SuppplyInfos token={TOKENS[DOLA]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
@@ -167,4 +187,4 @@ export const FedPolicyPage = () => {
     )
 }
 
-export default FedPolicyPage
+export default StabilizerTransparency

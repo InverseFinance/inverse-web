@@ -25,6 +25,7 @@ export const AreaChart = ({
     interpolation = 'basis',
     axisStyle = defaultAxisStyle,
     domainYpadding = 0,
+    mainColor = 'primary',
 }: {
     data: Props,
     title?: string,
@@ -36,6 +37,7 @@ export const AreaChart = ({
     interpolation?: VictoryAreaProps["interpolation"],
     axisStyle?: VictoryAxisProps["style"],
     domainYpadding?: number,
+    mainColor?: 'primary' | 'secondary' 
 }) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
@@ -94,7 +96,7 @@ export const AreaChart = ({
                         }
                     }
                     style={{
-                        data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
+                        data: { fillOpacity: 0.9, fill: `url(#${mainColor}-gradient)`, stroke: mainColor === 'primary' ? '#8881c9' : '#00FF8A', strokeWidth: 1 },
                         labels: { fill: 'white', fontSize: '12px', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}

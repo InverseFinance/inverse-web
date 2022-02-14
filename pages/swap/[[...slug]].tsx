@@ -47,7 +47,7 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         <Flex w={{ base: 'full', xl: '2xl' }}>
           <SwapView from={from} to={to} />
         </Flex>
-        <Flex w={{ base: 'full', lg: '2xl' }}>
+        <Flex w={{ base: 'full', lg: '2xl' }} p={6}>
           <StabilizerOverview />
         </Flex>
       </Flex>

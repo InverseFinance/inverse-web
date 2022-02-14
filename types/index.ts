@@ -401,6 +401,8 @@ export type StabilizerEvent = {
   newTotal: number
   timestamp: number
   profit: number
+  amount: number
+  transactionHash?: string
 }
 
 export type FedHistory = Fed & { events: FedEvent[] };

@@ -73,6 +73,10 @@ const App = ({ Component, pageProps }: AppProps) => {
                 <stop offset="0" stopColor="#332d69" />
                 <stop offset="1" stopColor="#8881c900" />
               </linearGradient>
+              <linearGradient id="secondary-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stopColor="#34E795ee" />
+                <stop offset="1" stopColor="#34E79500" />
+              </linearGradient>
             </defs>
           </svg>
           <Component {...pageProps} />

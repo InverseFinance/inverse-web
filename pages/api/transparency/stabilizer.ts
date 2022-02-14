@@ -16,8 +16,8 @@ const getTimestamps = (events: Event[], chainId: NetworkIds) => {
     )
 }
 
-const getEventDetails = (log: Event, timestampInSec: number) => {
-    const { event, blockNumber, args } = log;
+const getEventDetails = (log: Event, timestampInSec: number, includeTxHash: boolean) => {
+    const { event, blockNumber, transactionHash, args } = log;
     const isBuy = event === 'Buy';
     const profit = isBuy ? getBnToNumber(args[2].sub(args[1])) : getBnToNumber(args[1].sub(args[2]))
     return {
@@ -25,7 +25,9 @@ const getEventDetails = (log: Event, timestampInSec: number) => {
         isBuy,
         blockNumber,
         profit,
+        amount: getBnToNumber(args[1]),
         timestamp: timestampInSec * 1000,
+        transactionHash: includeTxHash ? transactionHash : undefined,
     }
 }
 
@@ -34,7 +36,7 @@ export default async function handler(req, res) {
 
     try {
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 900);
+        const validCache = await getCacheFromRedis(cacheKey, true, 3600);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -76,11 +78,12 @@ export default async function handler(req, res) {
 
         let totalAccumulated = 0;
 
+        const includeTxHashIndex = events.length - 100;
+
         const totalEvents = events.sort((a, b) => a.blockNumber - b.blockNumber)
-            .map(e => {
-                return getEventDetails(e, blockTimestamps[NetworkIds.mainnet][e.blockNumber])
+            .map((e, i) => {
+                return getEventDetails(e, blockTimestamps[NetworkIds.mainnet][e.blockNumber], i >= includeTxHashIndex)
             })
-            .sort((a, b) => a.blockNumber - b.blockNumber)
             .map(event => {
                 totalAccumulated += event.profit;
                 return { ...event, newTotal: totalAccumulated }
