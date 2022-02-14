@@ -110,13 +110,15 @@ export const StabilizerTransparency = () => {
     const tableData = totalEvents.filter(e => !!e.transactionHash);
 
     const chartData = [...totalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+        const date = new Date(event.timestamp);
         return {
             x: event.timestamp,
             y: event.newTotal,
             profit: event.profit,
             event: event.event,
-            month: moment(event.timestamp).month(),
-            year: moment(event.timestamp).year(),
+            blockNumber: event.blockNumber,
+            month: date.getUTCMonth(),
+            year: date.getUTCFullYear(),
         }
     })];
 
@@ -129,9 +131,10 @@ export const StabilizerTransparency = () => {
             const filterMonth = new Date(date).getMonth();
             const filterYear = new Date(date).getFullYear();
             const y = chartData.filter(d => d.event === event && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.profit, 0);
+            
             return {
                 label: `${event}s: ${shortenNumber(y, 2, true)}`,
-                x: moment(date).format('MMM-YY'),
+                x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
                 y,
             }
         });
@@ -165,24 +168,36 @@ export const StabilizerTransparency = () => {
                                         <Switch value="true" isChecked={useSmoothLine} onChange={() => setUseSmoothLine(!useSmoothLine)} />
                                     </HStack>
                                 </Flex>
-                                <AreaChart
-                                    title={`Accumulated Profits over time (Current Total: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2, true) : 0})`}
-                                    showTooltips={true}
-                                    showMaxY={false}
-                                    height={300}
-                                    width={chartWidth}
-                                    data={chartData}
-                                    domainYpadding={20000}
-                                    interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
-                                    mainColor="secondary"
-                                    isDollars={true}
-                                />
-                                <BarChart
-                                    title="Monthly profits for the last 12 months"
-                                    groupedData={barChartData}
-                                    colorScale={['#34E795', '#4299e1']}
-                                    isDollars={true}
-                                />
+                                {
+                                    totalEvents?.length > 0 ?
+                                        <>
+                                            <AreaChart
+                                                title={`Accumulated Profits (Current Total: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2, true) : 0})`}
+                                                showTooltips={true}
+                                                showMaxY={false}
+                                                height={300}
+                                                width={chartWidth}
+                                                data={chartData}
+                                                domainYpadding={20000}
+                                                interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
+                                                mainColor="secondary"
+                                                isDollars={true}
+                                            />
+                                            <BarChart
+                                                width={chartWidth}
+                                                height={300}
+                                                title="Monthly profits for the last 12 months"
+                                                groupedData={barChartData}
+                                                colorScale={['#34E795', '#4299e1']}
+                                                isDollars={true}
+                                            />
+                                        </>
+                                        :
+                                        <>
+                                            <SkeletonBlob skeletonHeight={3} noOfLines={9} w={`${chartWidth - 60}px`} />
+                                            <SkeletonBlob pt="6" skeletonHeight={3} noOfLines={9} w={`${chartWidth - 60}px`}  />
+                                        </>
+                                }
                             </Box>
                         }
                     >

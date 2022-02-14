@@ -1,4 +1,4 @@
-import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, VictoryAreaProps, VictoryAxisProps, VictoryStack, VictoryBar } from 'victory';
+import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, VictoryAxisProps, VictoryStack, VictoryBar } from 'victory';
 
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
@@ -45,6 +45,8 @@ export const BarChart = ({
         })
     })
 
+    const lightMode = width <= 400;
+
     return (
         <Box
             width={width}
@@ -54,7 +56,7 @@ export const BarChart = ({
             <VictoryChart
                 width={width}
                 height={height}
-                theme={VictoryTheme.material}
+                theme={VictoryTheme.grayscale}
                 animate={{ duration: 500 }}
                 padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
             >
@@ -71,10 +73,10 @@ export const BarChart = ({
                 />
                 <VictoryBar
                     alignment="middle"
-                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '12px', fill: '#34E795' }} dy={-10} />}
+                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '12px', fill: lightMode ? 'transparent' : '#34E795' }} dy={-10} />}
                     data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, 2, true) }))}
                     style={{
-                        data: { strokeWidth: 0, fill: 'transparent' }
+                        data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}
                 />
                 <VictoryStack colorScale={colorScale}>
