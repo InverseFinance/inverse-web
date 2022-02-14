@@ -271,6 +271,7 @@ export const FedPolicyPage = () => {
                                     height={300}
                                     width={chartWidth}
                                     data={chartData}
+                                    domainYpadding={5000000}
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                 />
                             </Box>

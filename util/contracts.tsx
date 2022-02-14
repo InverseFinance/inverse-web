@@ -1,4 +1,4 @@
-import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider, FallbackProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   VAULT_ABI,
@@ -19,6 +19,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { GovEra, NetworkIds, Token } from '@app/types'
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { handleTx, HandleTxOptions } from './transactions'
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 export const getNewContract = (
   address: string,
@@ -43,7 +44,7 @@ export const getAnchorContract = (
   return getNewContract(address, CTOKEN_ABI, signer)
 }
 
-export const getStabilizerContract = (signer: JsonRpcSigner | undefined) => {
+export const getStabilizerContract = (signer: JsonRpcSigner | JsonRpcProvider | FallbackProvider | undefined) => {
   const { STABILIZER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
   return getNewContract(STABILIZER, STABILIZER_ABI, signer);
 }

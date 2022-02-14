@@ -389,9 +389,20 @@ export type FedEvent = {
   isContraction: boolean
   newSupply: number
   newTotalSupply: number
-  timestamp: number// in secs
+  timestamp: number
   transactionHash: string
   value: number
+}
+
+export type StabilizerEvent = {
+  blockNumber: number
+  event: "Buy" | "Sell"
+  isBuy: boolean
+  newTotal: number
+  timestamp: number
+  profit: number
+  amount: number
+  transactionHash?: string
 }
 
 export type FedHistory = Fed & { events: FedEvent[] };

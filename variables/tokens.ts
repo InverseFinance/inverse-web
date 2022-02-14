@@ -1,5 +1,15 @@
 import { TokenList } from '@app/types';
-import { getRewardToken, getToken } from '@app/util/markets';
+import { isAddress } from 'ethers/lib/utils';
+
+export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
+  return Object.entries(tokens)
+      .map(([address, token]) => token)
+      .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
+}
+
+export const getRewardToken = () => {
+  return getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN!)
+}
 
 const chainTokenAddresses = {
   "1": {
