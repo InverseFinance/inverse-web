@@ -19,7 +19,7 @@ export const Proposals = () => {
       <Container
         label="Governance Proposals"
         description="Participate in governance of the DAO"
-        href="https://docs.inverse.finance/governance"
+        href="https://docs.inverse.finance/inverse-finance/governance"
       >
         <SkeletonBlob skeletonHeight={16} noOfLines={4} />
       </Container>
@@ -30,7 +30,7 @@ export const Proposals = () => {
     <Container
       label="Governance Proposals"
       description="Participate in governance of the DAO"
-      href="https://docs.inverse.finance/governance"
+      href="https://docs.inverse.finance/inverse-finance/governance"
     >
       <Stack w="full" spacing={1}>
         {proposals
@@ -138,7 +138,7 @@ export const ActiveProposals = () => {
       label="Active Proposals"
       nbNotif={nbActiveNotif}
       description="Participate in governance of the DAO"
-      href="https://docs.inverse.finance/governance"
+      href="https://docs.inverse.finance/inverse-finance/governance"
     >
       <Stack w="full" spacing={1}>
         {active?.length ? (
