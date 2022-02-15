@@ -1,3 +1,4 @@
+import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { RTOKEN_SYMBOL, UNDERLYING } from './tokens'
 
 const namedAddresses: { [key: string]: string } = {
@@ -46,10 +47,12 @@ Object.entries(UNDERLYING).forEach(([key, value]) => {
     }
 })
 
-namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN] = `x${RTOKEN_SYMBOL}`
+if (HAS_REWARD_TOKEN) {
+    namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN] = `x${RTOKEN_SYMBOL}`
 
-if(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
-    namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = `x${RTOKEN_SYMBOL}`+'-old'
+    if(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
+        namedAddresses[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = `x${RTOKEN_SYMBOL}`+'-old'
+    }
 }
 
 export const CUSTOM_NAMED_ADDRESSES = namedAddresses;

@@ -8,6 +8,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { Prices, StringNumMap, TokenList, TokenWithBalance } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { HAS_REWARD_TOKEN } from '@app/config/constants';
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
@@ -169,10 +170,14 @@ const anchorTVL = async (
   underlying: TokenList,
 ): Promise<TokenWithBalance[]> => {
   const anchorContracts = anchorTokenAddresses.map((address: string) => new Contract(address, CTOKEN_ABI, provider));
-  if(xInvV1Address) {
-    anchorContracts.push(new Contract(xInvV1Address, XINV_ABI, provider));
+
+  if (HAS_REWARD_TOKEN) {
+    if (xInvV1Address) {
+      anchorContracts.push(new Contract(xInvV1Address, XINV_ABI, provider));
+    }
+
+    anchorContracts.push(new Contract(xInvAddress, XINV_ABI, provider));
   }
-  anchorContracts.push(new Contract(xInvAddress, XINV_ABI, provider));
 
   const allCash = await Promise.all(
     anchorContracts.map((contract: Contract) => contract.getCash())

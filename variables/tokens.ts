@@ -1,3 +1,4 @@
+import { HAS_REWARD_TOKEN } from '@app/config/constants';
 import { TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 
@@ -182,12 +183,14 @@ const chainUnderlying = {
 }
 
 const underlying: TokenList = {
-  [process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!]: getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN),
   ...chainUnderlying[process.env.NEXT_PUBLIC_CHAIN_ID!],
 }
 
-if (process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
-  underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN);
+if (HAS_REWARD_TOKEN) {
+  underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN);
+  if (process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
+    underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN);
+  }
 }
 
 export const UNDERLYING = underlying;
