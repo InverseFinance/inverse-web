@@ -129,7 +129,7 @@ export const InterestModelPage = () => {
                         }
                     />
                     <ShrinkableInfoMessage
-                        title="What about INV and Reward APYs ?"
+                        title="What about INV and Reward APRs ?"
                         alertProps={{ mt: '5' }}
                         description={
                             <>

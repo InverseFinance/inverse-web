@@ -89,7 +89,7 @@ export const AnchorOverview = () => {
               iconProps={{ boxSize: 3, mt: '2px' }}
               message={
                 <>
-                  This represents the total amount of your accrued {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APY</b>.
+                  This represents the total amount of your accrued {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APR</b>.
                 </>
               } />
           </Flex>
