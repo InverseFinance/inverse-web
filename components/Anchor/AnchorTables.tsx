@@ -22,7 +22,7 @@ import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getBnToNumber, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
-import { OLD_XINV } from '@app/config/constants'
+import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
 import moment from 'moment'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -210,7 +210,7 @@ export const AnchorSupplied = () => {
   const columns = [
     getColumn('asset', 32),
     getColumn('supplyApy', 24),
-    getColumn('rewardApy', 24),
+    HAS_REWARD_TOKEN ? getColumn('rewardApy', 24) : null,
     getColumn('supplyBalance', 24),
     {
       field: 'isCollateral',
@@ -239,7 +239,7 @@ export const AnchorSupplied = () => {
         )
       },
     },
-  ]
+  ].filter(c => !!c);
 
   if (!active || !usdSupplyCoingecko) {
     return <></>
@@ -414,9 +414,9 @@ export const AnchorSupply = () => {
   const columns = [
     getColumn('asset', 32, true),
     getColumn('supplyApy', 20, true),
-    getColumn('rewardApy', 24),
+    HAS_REWARD_TOKEN ? getColumn('rewardApy', 24) : null,
     getColumn('wallet', 24, true),
-  ]
+  ].filter(c => !!c);
 
   if (isLoading || !markets) {
     return (
