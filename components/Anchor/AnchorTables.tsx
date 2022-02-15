@@ -61,7 +61,6 @@ const getColumn = (
             {
               !!claimableAmount && claimableAmount > 0
               &&
-
               <NotifBadge alignItems="center" bgColor={claimable ? 'secondary' : '#ccc'}>
                 {shortenNumber(claimableAmount, 2)}
                 <AnimatedInfoTooltip iconProps={{ ml: '1', boxSize: '10px' }}
@@ -72,7 +71,6 @@ const getColumn = (
                   }
                 />
               </NotifBadge>
-
             }
           </Stack>
         )
@@ -179,8 +177,9 @@ export const AnchorSupplied = () => {
 
   const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
 
-  const claims = {
-    [XINV]: { withdrawalAmount, withdrawalTime },
+  const claims: { [key: string]: { withdrawalAmount?: BigNumber, withdrawalTime?: Date } } = {};
+  if(XINV) {
+    claims[XINV] = { withdrawalAmount, withdrawalTime }
   }
   if(XINV_V1) {
     claims[XINV_V1] = { withdrawalAmount: withdrawalAmount_v1, withdrawalTime: withdrawalTime_v1 };

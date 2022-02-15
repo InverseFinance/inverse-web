@@ -1,15 +1,12 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
 import { INTEREST_MODEL_ABI } from '@app/config/abis'
-import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { BLOCKS_PER_YEAR, ETH_MANTISSA } from '@app/config/constants';
+import { BLOCKS_PER_YEAR, ETH_MANTISSA, INTEREST_MODEL } from '@app/config/constants';
 
 export default async function handler(req, res) {
-
-  const { INTEREST_MODEL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
   const cacheKey = `interest-model-v1.0.1`;
 

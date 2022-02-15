@@ -10,16 +10,14 @@ import Link from '@app/components/common/Link'
 import { shortenNumber } from '@app/util/markets'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
-import { Market, NetworkIds } from '@app/types'
+import { Market } from '@app/types'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { shortenAddress } from '@app/util'
-import { getNetworkConfigConstants } from '@app/util/networks';
 import { Container } from '@app/components/common/Container';
 import { AnchorMarketInterestChart } from '@app/components/Anchor/AnchorMarketInterestChart'
 import { useInterestModel } from '@app/hooks/useInterestModel'
-
-const { INTEREST_MODEL } = getNetworkConfigConstants(NetworkIds.mainnet);
+import { INTEREST_MODEL } from '@app/config/constants'
 
 export const InterestModelPage = () => {
     const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();

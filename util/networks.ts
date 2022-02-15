@@ -207,6 +207,5 @@ export const getNetworkConfigConstants = (
         POLICY_COMMITTEE: config.policyCommittee,
         XINV_MANAGER: config.xinvManager,
         OP_BOND_MANAGER: config.opBondManager,
-        INTEREST_MODEL: config.interestModel,
     }
 }

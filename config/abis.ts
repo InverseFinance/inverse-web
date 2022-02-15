@@ -1,5 +1,5 @@
-import { NetworkIds } from '@app/types';
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { INTEREST_MODEL } from './constants';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -248,7 +248,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     DOLA,
     FEDS,
     MULTISIGS,
-    INTEREST_MODEL,
     DOLA_PAYROLL,
   } = getNetworkConfigConstants(networkConfig);
 
