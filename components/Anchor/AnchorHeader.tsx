@@ -10,6 +10,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { useMediaQuery } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify } from '@app/util/markets'
+import { HAS_REWARD_TOKEN } from '@app/config/constants'
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   return <Flex maxH="36px" overflow="hidden">
@@ -66,23 +67,23 @@ export const AnchorHeader = () => {
           </Flex>
         </Stack>
         <Stack w='full' spacing={2} direction="row">
-          {
-            !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
-            && <LinkButton flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
+        {
+            HAS_REWARD_TOKEN && !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
+            && <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
               target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
               Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
             </LinkButton>
           }
           {
             !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
-            && <LinkButton flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
+            && <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
               target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
               Buy DOLA
             </LinkButton>
           }
           {
             !!process.env.NEXT_PUBLIC_LEARN_MORE_URL
-            && <LinkOutlineButton fontSize={{ base: '12px', sm: '16px' }}
+            && <LinkOutlineButton maxW="184px" fontSize={{ base: '12px', sm: '16px' }}
               href={process.env.NEXT_PUBLIC_LEARN_MORE_URL}
               data-testid={TEST_IDS.anchor.learnMore}
               target={process.env.NEXT_PUBLIC_LEARN_MORE_URL.startsWith('http') ? '_blank' : '_self'}>

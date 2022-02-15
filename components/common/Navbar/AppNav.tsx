@@ -508,7 +508,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         </Stack>
       </Flex>
       {showMobileNav && (
-        <Flex w="full" position="fixed" top="0" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
+        <Flex w="99vw" position="fixed" top="0" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
           <Stack
             w="full"
             bgColor="purple.900"
