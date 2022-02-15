@@ -15,7 +15,7 @@ export const Footer = () => (
         <Text fontWeight="bold">{process.env.NEXT_PUBLIC_TITLE}</Text>
       </Stack>
       <Text fontSize="13px">
-        {process.env.NEXT_PUBLIC_SHORTNAME}&nbsp;{process.env.NEXT_PUBLIC_FOOTER_SHORT_DESCRIPTION}
+        {process.env.NEXT_PUBLIC_FOOTER_SHORT_DESCRIPTION}
       </Text>
       <Stack direction="row" spacing={5} align="center">
         {SOCIALS.map(({ href, image }, i) => (
