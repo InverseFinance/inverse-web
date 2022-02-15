@@ -27,7 +27,9 @@ export type Market = {
   underlying: Token
   supplyApy: number
   borrowApy: number
-  rewardApy: number
+  supplyApr: number
+  borrowApr: number
+  rewardApr: number
   liquidity: number
   collateralFactor: number
   reserveFactor: number

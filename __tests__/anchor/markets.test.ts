@@ -30,8 +30,8 @@ describe('Markets utils', () => {
       'xinv': parseUnits('1.1'),
     }
 
-    const dolaMarket: Partial<Market> = { token: 'dola', underlying: { decimals: 18 }, supplyApy: 10, borrowApy: 25, rewardApy: 0, priceUsd: 1, priceXinv: 0.0022 };
-    const ethMarket: Partial<Market> = { token: 'eth', underlying: { decimals: 18 }, supplyApy: 1, borrowApy: 2, rewardApy: 6, priceUsd: 4060, priceXinv: 9.07 };
+    const dolaMarket: Partial<Market> = { token: 'dola', underlying: { decimals: 18 }, supplyApy: 10, borrowApy: 25, rewardApr: 0, priceUsd: 1, priceXinv: 0.0022 };
+    const ethMarket: Partial<Market> = { token: 'eth', underlying: { decimals: 18 }, supplyApy: 1, borrowApy: 2, rewardApr: 6, priceUsd: 4060, priceXinv: 9.07 };
 
     const markets: Partial<Market>[] = [
       dolaMarket,
@@ -90,7 +90,7 @@ describe('Markets utils', () => {
 
       const expectedSupplyUsdInterests = (ethSupplied * ethMarket.priceUsd! * ethMarket.supplyApy! / 100 / 12)
       const expectedBorrowUsdInterests = -(dolaBorrowed * dolaMarket.priceUsd! * dolaMarket.borrowApy! / 100 / 12)
-      const expectedRewardUsdInterests = (ethSupplied * ethMarket.priceUsd! * ethMarket.rewardApy! / 100 / 12)
+      const expectedRewardUsdInterests = (ethSupplied * ethMarket.priceUsd! * ethMarket.rewardApr! / 100 / 12)
 
       expect(interests.supplyUsdInterests.toFixed(2)).toBe(expectedSupplyUsdInterests.toFixed(2))
       expect(interests.borrowInterests.toFixed(2)).toBe(expectedBorrowUsdInterests.toFixed(2))

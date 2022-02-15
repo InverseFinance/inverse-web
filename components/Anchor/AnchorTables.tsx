@@ -42,7 +42,7 @@ const isHighlightCase = (highlightInv: boolean, highlightDola: boolean, marketAd
 }
 
 const getColumn = (
-  colName: 'asset' | 'supplyApy' | 'rewardApy' | 'borrowApy' | 'balance' | 'wallet' | 'supplyBalance' | 'borrowBalance',
+  colName: 'asset' | 'supplyApy' | 'rewardApr' | 'borrowApy' | 'balance' | 'wallet' | 'supplyBalance' | 'borrowBalance',
   minWidth = 24,
   highlightInv = false,
   highlightDola = false,
@@ -79,7 +79,7 @@ const getColumn = (
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
+      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text><Text>APY Takes into account auto-compounding</Text>APY May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
         const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
@@ -88,17 +88,17 @@ const getColumn = (
         )
       },
     },
-    rewardApy: {
-      field: 'rewardApy',
-      label: 'Reward APY',
+    rewardApr: {
+      field: 'rewardApr',
+      label: 'Reward APR',
       tooltip: <>
-        <Text fontWeight="bold">APY rewarded in {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} tokens</Text>
+        <Text fontWeight="bold">APR rewarded in {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} tokens</Text>
         <Text>Accrues {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} in a reward pool</Text>
-        <Text>Total rewards near <b>Claim</b> button</Text>Reward APY May vary over time
+        <Text>Total rewards near <b>Claim</b> button</Text>Reward APR May vary over time
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
-      value: ({ rewardApy, monthlyInvRewards, priceUsd, underlying }: Market) => (
-        <AnchorPoolInfo value={rewardApy} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+      value: ({ rewardApr, monthlyInvRewards, priceUsd, underlying }: Market) => (
+        <AnchorPoolInfo value={rewardApr} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     balance: {
@@ -112,11 +112,12 @@ const getColumn = (
     },
     borrowApy: {
       field: 'borrowApy',
-      label: 'APR',
+      label: 'APY',
       tooltip: <>
         <Text fontWeight="bold">Annual Percentage Rate</Text>
         <Text>Corresponds to how much your debt would increases in one year.</Text>
-        <Text>The APR may vary over time.</Text>
+        <Text>APY takes into account auto-compounding</Text>
+        <Text>The APY may vary over time.</Text>
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy, monthlyBorrowFee, underlying, priceUsd, token }: Market) => {
@@ -195,7 +196,7 @@ export const AnchorSupplied = () => {
     const tokenBalance = anTokenBalance * anTokenToTokenExRate;
 
     const tokenBalanceInInv = getBalanceInInv(balances, token, exchangeRates, priceUsd, invPriceUsd, underlying.decimals);
-    const monthlyInvRewards = getMonthlyRate(tokenBalanceInInv, market.rewardApy);
+    const monthlyInvRewards = getMonthlyRate(tokenBalanceInInv, market.rewardApr);
     const monthlyAssetRewards = getMonthlyRate(tokenBalance, market.supplyApy);
 
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
@@ -210,7 +211,7 @@ export const AnchorSupplied = () => {
   const columns = [
     getColumn('asset', 32),
     getColumn('supplyApy', 24),
-    HAS_REWARD_TOKEN ? getColumn('rewardApy', 24) : null,
+    HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('supplyBalance', 24),
     {
       field: 'isCollateral',
@@ -414,7 +415,7 @@ export const AnchorSupply = () => {
   const columns = [
     getColumn('asset', 32, true),
     getColumn('supplyApy', 20, true),
-    HAS_REWARD_TOKEN ? getColumn('rewardApy', 24) : null,
+    HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('wallet', 24, true),
   ].filter(c => !!c);
 

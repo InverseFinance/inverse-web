@@ -13,7 +13,7 @@ export const useExchangeRates = (): SWR & ExchangeRates => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(chainId)
 
-  const tokens = ANCHOR_TOKENS.concat([XINV_V1, XINV])
+  const tokens = ANCHOR_TOKENS.concat(XINV ? [XINV] : []).concat(XINV_V1 ? [XINV_V1] : [])
 
   const { data, error } = useEtherSWR(tokens.map((address: string) => [address, 'exchangeRateStored']))
 
