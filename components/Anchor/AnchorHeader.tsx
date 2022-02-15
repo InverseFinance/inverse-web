@@ -15,7 +15,7 @@ import { HAS_REWARD_TOKEN } from '@app/config/constants'
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   return <Flex maxH="36px" overflow="hidden">
     {
-      value ?
+      typeof value === 'number' ?
         <Text fontWeight="semibold" fontSize="2xl">
           {text}
         </Text>
@@ -48,7 +48,7 @@ export const AnchorHeader = () => {
       <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
-            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]} text={dollarify(prices[RTOKEN_CG_ID]?.usd || 0, 2)} />
+            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={dollarify(prices[RTOKEN_CG_ID]?.usd || 0, 2)} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
               {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>

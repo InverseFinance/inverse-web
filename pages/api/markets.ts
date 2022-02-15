@@ -1,9 +1,7 @@
 import { COMPTROLLER_ABI, CTOKEN_ABI, XINV_ABI, ORACLE_ABI, ESCROW_ABI } from "@app/config/abis";
 import {
-  DAYS_PER_YEAR,
   ETH_MANTISSA,
   BLOCKS_PER_DAY,
-  BLOCKS_PER_YEAR,
   HAS_REWARD_TOKEN,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
@@ -13,19 +11,12 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { getBnToNumber } from '@app/util/markets';
-
-const toApr = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
-
-// Compounded
-const toApy = (rate: number) =>
-  (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
-  100;
+import { getBnToNumber, toApr, toApy } from '@app/util/markets';
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.1`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.2`;
 
   try {
     const {

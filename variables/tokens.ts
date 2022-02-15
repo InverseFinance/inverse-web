@@ -147,10 +147,10 @@ export const TOKENS: TokenList = {
   ...chainTokens[process.env.NEXT_PUBLIC_CHAIN_ID!],
   [process.env.NEXT_PUBLIC_REWARD_TOKEN!]: {
     address: process.env.NEXT_PUBLIC_REWARD_TOKEN,
-    name: 'Inverse',
-    symbol: 'INV',
-    coingeckoId: 'inverse-finance',
-    image: '/assets/favicon.png',
+    name: process.env.NEXT_PUBLIC_REWARD_TOKEN_NAME,
+    symbol: process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL,
+    coingeckoId: process.env.NEXT_PUBLIC_REWARD_TOKEN_CG_ID,
+    image: process.env.NEXT_PUBLIC_REWARD_TOKEN_LOGO,
     decimals: 18,
   },
   [process.env.NEXT_PUBLIC_DOLA!]: {

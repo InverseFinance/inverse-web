@@ -46,7 +46,6 @@ export const checkEnv = () => {
     || !process.env.NEXT_PUBLIC_ANCHOR_COMPTROLLER
     || !process.env.NEXT_PUBLIC_ANCHOR_ORACLE
     || !process.env.NEXT_PUBLIC_ANCHOR_TREASURY
-    || !process.env.NEXT_PUBLIC_ANCHOR_COIN_REPAY_ALL
     || !process.env.NEXT_PUBLIC_ANCHOR_ESCROW
     || !process.env.NEXT_PUBLIC_INTEREST_MODEL
     || (
