@@ -114,7 +114,7 @@ const getColumn = (
       field: 'borrowApy',
       label: 'APY',
       tooltip: <>
-        <Text fontWeight="bold">Annual Percentage Rate</Text>
+        <Text fontWeight="bold">Annual Percentage Yield</Text>
         <Text>Corresponds to how much your debt would increases in one year.</Text>
         <Text>APY takes into account auto-compounding</Text>
         <Text>The APY may vary over time.</Text>

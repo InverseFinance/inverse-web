@@ -233,6 +233,7 @@ export const AnchorModal = ({
               maxWidth={380}
               market={asset}
               title={`${(isSupply ? 'Supply' : 'Borrow')} Interest Rate`}
+              autocompounds={true}
               type={isSupply ? 'supply' : 'borrow'} />
             <Link isExternal={true} textAlign="center" fontSize="12px" href="/transparency/interest-model">
               Learn more about the Interest Model
@@ -241,7 +242,7 @@ export const AnchorModal = ({
         }
         {
           operation === AnchorOperations.borrow &&
-          <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the Annual Percentage Rate" />
+          <InfoMessage alertProps={{ fontSize: '12px' }} description="The Debt to repay will be the Borrowed Amount plus the generated interests over time by the APY" />
         }
         {
           operation === AnchorOperations.repay &&

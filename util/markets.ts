@@ -2,6 +2,7 @@ import { TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber } from 'ethers';
 import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
+import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -152,3 +153,10 @@ export const getBorrowInfosAfterSupplyChange = ({
 export const getRewardToken = () => {
     return getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN!)
 }
+
+export const toApr = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
+
+// Compounded
+export const toApy = (rate: number) =>
+  (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
+  100;
