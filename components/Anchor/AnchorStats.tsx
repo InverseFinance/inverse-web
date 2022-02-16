@@ -11,6 +11,7 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { commify } from '@ethersproject/units';
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { usePrices } from '@app/hooks/usePrices';
+import { HAS_REWARD_TOKEN } from '@app/config/constants'
 
 type Stat = {
   label: string
@@ -164,17 +165,17 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
         label: 'Total Reserves',
         value: totalReservesUsd,
       },
-      {
+      HAS_REWARD_TOKEN ? {
         label: `${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Monthly Rewards`,
         value: asset.rewardsPerMonth > 0 ?
           `${commify(Math.round(asset.rewardsPerMonth * 100) / 100)} (${shortenNumber(asset.rewardsPerMonth * rtokenPrice, 2, true)})`
           : 0,
-      },
+      } : null,
       {
         label: 'Utilization rate',
-        value: asset.utilizationRate ? `${shortenNumber(asset.utilizationRate*100, 2)}%`: '-',
+        value: asset.utilizationRate ? `${shortenNumber(asset.utilizationRate * 100, 2)}%` : '-',
       },
-    ]);
+    ].filter(v => !!v));
   }
 
   return (
@@ -198,7 +199,7 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
       label="Borrow Stats"
       stats={[
         {
-          label: 'Borrow APR',
+          label: 'Borrow APY',
           value: `${asset.borrowApy.toFixed(2)}%`,
         },
         {

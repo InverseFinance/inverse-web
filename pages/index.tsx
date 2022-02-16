@@ -88,7 +88,7 @@ export const Landing = () => {
   ]
 
   return (
-    <Layout bgColor="#020207">
+    <Layout bgColor="#020207" pt="0">
       <Flex w="full" bgImage="/assets/landing/graphic1.png" bgRepeat="no-repeat" direction="column">
         <LandingNav />
         <Stack w="full" align="center" mt={{ base: 4, md: 28 }} spacing={4} p={2}>

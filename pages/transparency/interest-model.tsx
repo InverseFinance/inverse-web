@@ -1,4 +1,4 @@
-import { Box, Flex, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Switch, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -10,21 +10,20 @@ import Link from '@app/components/common/Link'
 import { shortenNumber } from '@app/util/markets'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
-import { Market, NetworkIds } from '@app/types'
+import { Market } from '@app/types'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { shortenAddress } from '@app/util'
-import { getNetworkConfigConstants } from '@app/util/networks';
 import { Container } from '@app/components/common/Container';
 import { AnchorMarketInterestChart } from '@app/components/Anchor/AnchorMarketInterestChart'
 import { useInterestModel } from '@app/hooks/useInterestModel'
-
-const { INTEREST_MODEL } = getNetworkConfigConstants(NetworkIds.mainnet);
+import { INTEREST_MODEL } from '@app/config/constants'
 
 export const InterestModelPage = () => {
     const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
     const { markets } = useMarkets();
     const [chosenMarket, setChosenMarket] = useState<Market | null>(null);
+    const [useAutocompounding, setUseAutocompounding] = useState(true);
 
     useEffect(() => {
         if (chosenMarket === null && markets?.length) {
@@ -68,20 +67,28 @@ export const InterestModelPage = () => {
                                             radioCardProps={{ w: '120px', textAlign: 'center', p: '2', position: 'relative' }}
                                             options={optionList}
                                         />
-                                        <Flex fontSize="12px" pt="2" alignItems="center">
+                                        <Flex fontSize="12px" pt="2" alignItems="center" position="relative">
                                             <Text color="secondary">Utilization Rate: {shortenNumber(chosenMarket?.utilizationRate * 100, 2)}%</Text>
                                             <Text ml="2">Reserve Factor: {shortenNumber(chosenMarket?.reserveFactor * 100, 2)}%</Text>
                                             <ScannerLink ml="2" label={`Contract: ${shortenAddress(chosenMarket?.token)}`} value={chosenMarket?.token} />
+                                            <HStack position="absolute" right={{ base: 0, sm: '50px' }} top="3px">
+                                                <Text fontSize="12px">
+                                                    Autocompounding
+                                                </Text>
+                                                <Switch value="true" isChecked={useAutocompounding} onChange={() => setUseAutocompounding(!useAutocompounding)} />
+                                            </HStack>
                                         </Flex>
                                     </>
                                 }
                                 <AnchorMarketInterestChart
+                                    autocompounds={useAutocompounding}
                                     type="borrow"
                                     maxWidth={900}
                                     title="Borrow Interest Rate Model"
                                     market={chosenMarket}
                                 />
-                                 <AnchorMarketInterestChart
+                                <AnchorMarketInterestChart
+                                    autocompounds={useAutocompounding}
                                     type="supply"
                                     maxWidth={900}
                                     title="Supply Interest Rate Model"
@@ -131,7 +138,7 @@ export const InterestModelPage = () => {
                         }
                     />
                     <ShrinkableInfoMessage
-                        title="What about INV and Reward APYs ?"
+                        title="What about INV and Reward APRs ?"
                         alertProps={{ mt: '5' }}
                         description={
                             <>

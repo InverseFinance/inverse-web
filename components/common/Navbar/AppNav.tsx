@@ -445,7 +445,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         onClose={onWrongNetClose}
       />
       <Flex
-        w="full"
+        w="99vw"
         backgroundColor="purple.900"
         borderColor="purple.800"
         borderBottomWidth={showMobileNav ? 0 : 1}
@@ -453,6 +453,8 @@ export const AppNav = ({ active }: { active?: string }) => {
         justify="space-between"
         align="center"
         zIndex="docked"
+        position="fixed"
+        top="0"
       >
         <Stack direction="row" align="center" spacing={8}>
           <Link href="/">
@@ -506,7 +508,7 @@ export const AppNav = ({ active }: { active?: string }) => {
         </Stack>
       </Flex>
       {showMobileNav && (
-        <Flex w="full" position="absolute" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
+        <Flex w="full" position="fixed" top="0" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
           <Stack
             w="full"
             bgColor="purple.900"

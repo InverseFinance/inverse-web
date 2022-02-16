@@ -41,16 +41,17 @@ export const checkEnv = () => {
   if (
     !process.env.NEXT_PUBLIC_CHAIN_ID
     || !process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK
-    || !process.env.NEXT_PUBLIC_REWARD_TOKEN
-    || !process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
     || !process.env.NEXT_PUBLIC_DOLA
-    || !process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN
     || !process.env.NEXT_PUBLIC_ANCHOR_LENS
     || !process.env.NEXT_PUBLIC_ANCHOR_COMPTROLLER
     || !process.env.NEXT_PUBLIC_ANCHOR_ORACLE
     || !process.env.NEXT_PUBLIC_ANCHOR_TREASURY
-    || !process.env.NEXT_PUBLIC_ANCHOR_COIN_REPAY_ALL
     || !process.env.NEXT_PUBLIC_ANCHOR_ESCROW
+    || !process.env.NEXT_PUBLIC_INTEREST_MODEL
+    || (
+      process.env.NEXT_PUBLIC_HAS_REWARD_TOKEN === 'true'
+      && (!process.env.NEXT_PUBLIC_REWARD_TOKEN || !process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN || !process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL)
+    )
   ) {
     throw new Error("Missing Config")
   }

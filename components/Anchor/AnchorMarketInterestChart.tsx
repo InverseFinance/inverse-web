@@ -1,6 +1,8 @@
 import { InterestModelChart } from '@app/components/Transparency/InterestModelChart'
+import { ETH_MANTISSA } from '@app/config/constants';
 import { useInterestModel } from '@app/hooks/useInterestModel'
 import { Market } from '@app/types'
+import { toApr, toApy } from '@app/util/markets';
 import { useMediaQuery } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 
@@ -11,13 +13,15 @@ export const AnchorMarketInterestChart = ({
     type,
     maxWidth = 900,
     title,
+    autocompounds = false,
 }: {
     market: Market | null | undefined,
     type: 'supply' | 'borrow',
     maxWidth: number,
+    autocompounds?: boolean,
     title?: string,
 }) => {
-    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
+    const { kink, multiplierPerBlock, jumpMultiplierPerBlock, baseRatePerBlock } = useInterestModel();
     const [chartWidth, setChartWidth] = useState<number>(maxWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth+50}px)`)
 
@@ -26,17 +30,18 @@ export const AnchorMarketInterestChart = ({
     }, [isLargerThan, maxWidth]);
 
     const borrowChartData = utilisationRates.map((utilizationRate) => {
-        const belowKinkRate = utilizationRate / 100 * multiplierPerYear + baseRatePerYear;
+        const converter = autocompounds ? toApy : toApr;
+        const belowKinkRate = converter((utilizationRate / 100 * multiplierPerBlock + baseRatePerBlock) * ETH_MANTISSA);
 
-        const normalRate = kink / 100 * multiplierPerYear + baseRatePerYear;
+        const normalRate = kink / 100 * multiplierPerBlock + baseRatePerBlock;
         const excess = utilizationRate / 100 - kink / 100;
-        const jumpedRate = excess * jumpMultiplierPerYear + normalRate
+        const jumpedRate = converter((excess * jumpMultiplierPerBlock + normalRate) * ETH_MANTISSA)
 
         return { x: utilizationRate, y: utilizationRate <= kink ? belowKinkRate : jumpedRate }
     })
 
     if (market) {
-        borrowChartData.push({ x: market?.utilizationRate * 100, y: market?.borrowApy });
+        borrowChartData.push({ x: market?.utilizationRate * 100, y: autocompounds ? market?.borrowApy : market?.borrowApr });
         borrowChartData.sort((a, b) => a.x - b.x);
     }
 
@@ -53,6 +58,7 @@ export const AnchorMarketInterestChart = ({
     return (
         <InterestModelChart
             title={title}
+            autocompounds={autocompounds}
             kink={kink}
             showTooltips={true}
             height={300}

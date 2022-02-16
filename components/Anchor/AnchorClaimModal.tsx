@@ -40,13 +40,13 @@ export const AnchorClaimModal = ({
     }
 
     const checkboxesWithBalance = markets
-        .filter(market => market.rewardApy > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) > 0)
+        .filter(market => market.rewardApr > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) > 0)
         .map(market => <Checkbox w='200px' key={market.token} value={market.token}>
             {market.underlying.symbol}
         </Checkbox>)
 
     const checkboxesWithoutBalance = markets
-        .filter(market => market.rewardApy > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) === 0)
+        .filter(market => market.rewardApr > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) === 0)
         .map(market => <Checkbox w='200px' key={market.token} value={market.token}>
             {market.underlying.symbol}
         </Checkbox>)

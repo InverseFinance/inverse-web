@@ -6,7 +6,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 type Props = { x: number, y: number }[]
 
-const formatTick = (t:number ) => (t % 2 === 0 ? t : shortenNumber(t, 2)) + '%'
+const formatTick = (t: number) => (t % 2 === 0 ? t : shortenNumber(t, 2)) + '%'
 
 export const InterestModelChart = ({
     data,
@@ -15,6 +15,7 @@ export const InterestModelChart = ({
     utilizationRate,
     width = 900,
     height = 300,
+    autocompounds = true,
     showLabels = false,
     showTooltips = false,
     interpolation = 'basis',
@@ -24,6 +25,7 @@ export const InterestModelChart = ({
     title?: string,
     kink: number,
     utilizationRate: number,
+    autocompounds?: boolean,
     width?: number,
     height?: number,
     showLabels?: boolean,
@@ -36,7 +38,7 @@ export const InterestModelChart = ({
     const [titleFontSize, setTitleFontSize] = useState(20);
     const [isLightMode, setIsLightMode] = useState(!isLargerThan || width <= 400);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
-    
+
     useEffect(() => {
         setRightPadding(!isLightMode ? 60 : 20)
         setTitleFontSize(!isLightMode ? 20 : 12)
@@ -101,33 +103,33 @@ export const InterestModelChart = ({
                                 animate={{ duration: 500 }}
                                 padding={{ top: 50, bottom: 50, left: isLightMode ? 50 : 80, right: rightPadding }}
                             >
-                                <VictoryArea
-                                groupComponent={<VictoryClipContainer clipId="area-chart" />}
-                                data={data}
-                                labels={
-                                    ({ data, index }) => {
-                                        const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                                        const isCurrentUR = data[index].x === utilizationRate;
-                                        if(isCurrentUR) { return `Current Rate: ${shortenNumber(data[index].y, 2)}%` }
-                                        return showLabels || (isMax && !isLightMode) ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 2)}%` : ''
-                                    }
-                                }
-                                labelComponent={
-                                    <VictoryLabel
-                                        dx={-rightPadding - 20}
-                                        dy={(a) => a.datum.x === 100 ? 0 : -20}
-                                        textAnchor="start"
-                                        verticalAnchor="start"
-                                    />
-                                }
-                                style={{
-                                    data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
-                                    labels: { fill: 'white', fontSize: '12px', fontWeight: 'bold', fontFamily: 'Inter' }
-                                }}
-                                interpolation={interpolation}
-                            />
                                 <VictoryAxis label={isLightMode ? '' : 'Interest Rate'} style={defaultYAxis} dependentAxis tickFormat={(t) => formatTick(t)} />
                                 <VictoryAxis label="Utilization Rate" tickValues={xAxisTicks} style={defaultAxisStyle} tickFormat={(t) => formatTick(t)} />
+                                <VictoryArea
+                                    groupComponent={<VictoryClipContainer clipId="area-chart" />}
+                                    data={data}
+                                    labels={
+                                        ({ data, index }) => {
+                                            const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
+                                            const isCurrentUR = data[index].x === utilizationRate;
+                                            if (isCurrentUR) { return `Current ${autocompounds ? 'APY' : 'APR'}: ${shortenNumber(data[index].y, 2)}%` }
+                                            return showLabels || (isMax && !isLightMode) ? `${isMax && 'Max: '}${shortenNumber(data[index].y, 2)}%` : ''
+                                        }
+                                    }
+                                    labelComponent={
+                                        <VictoryLabel
+                                            dx={-rightPadding - 20}
+                                            dy={(a) => a.datum.x === 100 ? 0 : -20}
+                                            textAnchor="start"
+                                            verticalAnchor="start"
+                                        />
+                                    }
+                                    style={{
+                                        data: { fillOpacity: 0.9, fill: 'url(#primary-gradient)', stroke: '#8881c9', strokeWidth: 1 },
+                                        labels: { fill: 'white', fontSize: '12px', fontWeight: 'bold', fontFamily: 'Inter' }
+                                    }}
+                                    interpolation={interpolation}
+                                />
                             </VictoryChart>
                         </Box>
                         <VictoryChart

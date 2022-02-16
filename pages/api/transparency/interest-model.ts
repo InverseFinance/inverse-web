@@ -1,17 +1,13 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
 import { INTEREST_MODEL_ABI } from '@app/config/abis'
-import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
-import { BLOCKS_PER_YEAR, ETH_MANTISSA } from '@app/config/constants';
+import { BLOCKS_PER_DAY, BLOCKS_PER_YEAR, ETH_MANTISSA, INTEREST_MODEL } from '@app/config/constants';
 
 export default async function handler(req, res) {
 
-  const { INTEREST_MODEL } = getNetworkConfigConstants(NetworkIds.mainnet);
-
-  const cacheKey = `interest-model-v1.0.1`;
+  const cacheKey = `interest-model-v1.0.2`;
 
   try {
 
@@ -21,7 +17,7 @@ export default async function handler(req, res) {
       return
     }
 
-    const provider = getProvider(NetworkIds.mainnet);
+    const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!);
     const interestModelContract = new Contract(INTEREST_MODEL, INTEREST_MODEL_ABI, provider);
 
     const results = await Promise.all([
@@ -40,6 +36,10 @@ export default async function handler(req, res) {
       jumpMultiplierPerYear: results[3] / ETH_MANTISSA * BLOCKS_PER_YEAR * 100,
       baseRatePerYear: results[4] / ETH_MANTISSA * BLOCKS_PER_YEAR * 100,
       blocksPerYear: BLOCKS_PER_YEAR,
+      blocksPerDay: BLOCKS_PER_DAY,
+      multiplierPerBlock: results[2] / ETH_MANTISSA,
+      jumpMultiplierPerBlock: results[3] / ETH_MANTISSA,
+      baseRatePerBlock: results[4] / ETH_MANTISSA,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

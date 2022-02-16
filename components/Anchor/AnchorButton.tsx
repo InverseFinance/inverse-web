@@ -224,7 +224,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
           </SubmitButton>
 
           <SubmitButton
-            isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token])) || (isEthMarket && !AN_CHAIN_COIN_REPAY_ALL)}
             onClick={handleRepayAll}
             refreshOnSuccess={true}
             rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt for this market and avoid "debt dust" being left behind.' />}

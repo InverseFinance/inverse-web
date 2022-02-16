@@ -2,6 +2,7 @@ import { TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber } from 'ethers';
 import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
+import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -47,13 +48,13 @@ export const getBalanceInInv = (
 // supply balances are in anTokens, borrow balances are already in underlying token balance
 // get monthly interests in USD
 export const getTotalInterests = (markets: Market[], anSupplyBalances: BigNumberList, borrowBalances: BigNumberList, exchangeRates: BigNumberList, invPriceUsd: number) => {
-    return markets?.reduce((prevValue, { token, underlying, borrowApy, supplyApy, rewardApy, priceUsd }) => {
+    return markets?.reduce((prevValue, { token, underlying, borrowApy, supplyApy, rewardApr, priceUsd }) => {
         const interestPrice = underlying.symbol === 'INV' ? invPriceUsd : priceUsd;
         const borrowInterests = -getMarketMonthlyUsdRate(borrowBalances, token, underlying.decimals, borrowApy, interestPrice);
 
         const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
         const supplyUsdInterests = getMarketMonthlyUsdRate(anSupplyBalances, token, underlying.decimals, supplyApy, interestPrice) * anTokenToTokenExRate;
-        const invUsdInterests = getMarketMonthlyUsdRate(anSupplyBalances, token, underlying.decimals, rewardApy, interestPrice) * anTokenToTokenExRate;
+        const invUsdInterests = getMarketMonthlyUsdRate(anSupplyBalances, token, underlying.decimals, rewardApr, interestPrice) * anTokenToTokenExRate;
 
         return {
             supplyUsdInterests: prevValue.supplyUsdInterests + supplyUsdInterests,
@@ -152,3 +153,10 @@ export const getBorrowInfosAfterSupplyChange = ({
 export const getRewardToken = () => {
     return getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN!)
 }
+
+export const toApr = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 100
+
+// Compounded
+export const toApy = (rate: number) =>
+  (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
+  100;
