@@ -14,7 +14,7 @@ type Markets = {
 export const useMarkets = (): SWR & Markets => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useCustomSWR(`/api/markets?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/markets?chainId=${chainId || process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
 
   return {
     markets: data?.markets || [],
@@ -34,7 +34,7 @@ export const useAccountMarkets = (): SWR & Markets => {
 
   return {
     markets:
-      data && markets?.length ? data.map((address: string) => markets.find(({ token }) => token === address)) : [],
+      data && markets?.length ? data.map((address: string) => markets.find(({ token }) => token === address)).filter(v => !!v) : [],
     isLoading: !error && !data,
     isError: error,
   }

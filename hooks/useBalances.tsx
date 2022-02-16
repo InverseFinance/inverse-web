@@ -7,6 +7,7 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
+import { HAS_REWARD_TOKEN } from '@app/config/constants'
 
 type Balances = {
   balances: BigNumberList
@@ -42,7 +43,7 @@ export const useAccountBalances = (): SWR & Balances => {
 export const useSupplyBalances = (): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(chainId)
-  const tokens = ANCHOR_TOKENS.concat([XINV_V1, XINV])
+  const tokens = ANCHOR_TOKENS.concat(HAS_REWARD_TOKEN && XINV ? [XINV] : []).concat(HAS_REWARD_TOKEN && XINV_V1 ? [XINV_V1] : [])
   return useBalances(tokens)
 }
 

@@ -6,6 +6,7 @@ import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCustomSWR } from './useCustomSWR'
+import { HAS_REWARD_TOKEN } from '@app/config/constants'
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -38,7 +39,7 @@ export const useAnchorPrices = (): any => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1, ORACLE } = getNetworkConfigConstants(chainId)
 
-  const tokens = ANCHOR_TOKENS.concat([XINV, XINV_V1])
+  const tokens = ANCHOR_TOKENS.concat(HAS_REWARD_TOKEN && XINV ? [XINV] : []).concat(HAS_REWARD_TOKEN && XINV_V1 ? [XINV_V1] : [])
   const { data, error } = useEtherSWR(tokens.map((address: string) => [ORACLE, 'getUnderlyingPrice', address]))
   return {
     prices: data?.reduce((prices: { [key: string]: BigNumber }, price: BigNumber, i: number) => {
