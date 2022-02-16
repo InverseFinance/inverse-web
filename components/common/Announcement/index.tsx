@@ -53,7 +53,7 @@ export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
       fontWeight="semibold"
       color={'white'}
       cursor="pointer"
-      onClick={() => router.push('/governance/proposals/mills/6')}
+      onClick={() => router.push('/inv')}
       data-testid={TEST_IDS.announcement}
     >
       {/* {
