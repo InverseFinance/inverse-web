@@ -16,7 +16,7 @@ import { getBnToNumber, toApr, toApy } from '@app/util/markets';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.2`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.3`;
 
   try {
     const {
@@ -186,7 +186,8 @@ export default async function handler(req, res) {
         token: xINV.address,
         mintable: mintable,
         underlying: TOKENS[INV],
-        supplyApy: toApy(ratePerBlock) || 0,
+        // no real autocompounding for inv as share decreases with supply
+        supplyApy: toApr(ratePerBlock) || 0,
         supplyApr: toApr(ratePerBlock) || 0,
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
         supplied:  parsedExRate * parseFloat(formatUnits(totalSupply)),

@@ -79,7 +79,7 @@ const getColumn = (
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text><Text>APY Takes into account auto-compounding</Text>APY May vary over time</>,
+      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
         const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
@@ -116,7 +116,6 @@ const getColumn = (
       tooltip: <>
         <Text fontWeight="bold">Annual Percentage Yield</Text>
         <Text>Corresponds to how much your debt would increases in one year.</Text>
-        <Text>APY takes into account auto-compounding</Text>
         <Text>The APY may vary over time.</Text>
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
