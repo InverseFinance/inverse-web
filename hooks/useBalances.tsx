@@ -1,7 +1,7 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { BigNumberList, SWR } from '@app/types'
+import { BigNumberList, Market, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
@@ -9,8 +9,10 @@ import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { usePrices } from '@app/hooks/usePrices';
-import { useMarkets } from './useMarkets'
+import { useAccountMarkets, useMarkets } from './useMarkets'
 import { getMonthlyRate, getParsedBalance } from '@app/util/markets'
+import { useExchangeRates } from './useExchangeRates'
+import { formatUnits } from '@ethersproject/units'
 
 type Balances = {
   balances: BigNumberList
@@ -88,7 +90,7 @@ export const useVaultBalances = () => {
   }
 }
 
-export const useBorrowedAssets = (account: string) => {
+export const useBorrowedAssets = (account?: string) => {
   const { prices } = usePrices()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { balances, isLoading: balancesLoading } = useBorrowBalances(account)
@@ -102,4 +104,28 @@ export const useBorrowedAssets = (account: string) => {
   }).filter(m => m.balance > 0)
 
   return marketsWithBalance;
+}
+
+export const useSuppliedCollaterals = (address?: string) => {
+  const { markets, isLoading: marketsLoading } = useMarkets()
+  const { balances, isLoading: balancesLoading } = useSupplyBalances(address)
+  const { markets: accountMarkets } = useAccountMarkets(address)
+  const { exchangeRates } = useExchangeRates()
+
+  const marketsWithBalance = markets?.map((market) => {
+    const { token, underlying, oraclePrice } = market;
+
+    const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
+    // balance of the "anchor" version of the token supplied
+    const anTokenBalance = getParsedBalance(balances, token, underlying.decimals);
+    // balance in undelying token
+    const tokenBalance = anTokenBalance * anTokenToTokenExRate;
+
+    const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
+    const usdWorth = tokenBalance * oraclePrice;
+
+    return { ...market, balance: tokenBalance, isCollateral, usdWorth }
+  })
+
+  return marketsWithBalance.filter(m => m.isCollateral && m.usdWorth > 0.1);
 }

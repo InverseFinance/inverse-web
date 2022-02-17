@@ -2,8 +2,12 @@ import { AccountPositions, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
 
-export const usePositions = (): SWR & AccountPositions => {
-  const { data, error } = useCustomSWR(`/api/positions`, fetcher)
+type OptionProps = {
+  accounts: string
+}
+
+export const usePositions = (options?: OptionProps): SWR & AccountPositions => {
+  const { data, error } = useCustomSWR(`/api/positions?accounts=${options?.accounts}`, fetcher)
 
   return {
     positions: data?.positions || [],
