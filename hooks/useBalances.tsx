@@ -8,15 +8,18 @@ import { BigNumber } from 'ethers'
 import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
+import { usePrices } from '@app/hooks/usePrices';
+import { useMarkets } from './useMarkets'
+import { getMonthlyRate, getParsedBalance } from '@app/util/markets'
 
 type Balances = {
   balances: BigNumberList
 }
 
-export const useBalances = (addresses: string[], method = 'balanceOf'): SWR & Balances => {
+export const useBalances = (addresses: string[], method = 'balanceOf', address?: string): SWR & Balances => {
   const { account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.viewAddress as string) || account;
+  const userAddress = address || (query?.viewAddress as string) || account;
 
   const { data, error } = useEtherSWR(
     addresses.map((address) => (address ? [address, method, userAddress] : ['getBalance', userAddress, 'latest']))
@@ -32,26 +35,26 @@ export const useBalances = (addresses: string[], method = 'balanceOf'): SWR & Ba
   }
 }
 
-export const useAccountBalances = (): SWR & Balances => {
+export const useAccountBalances = (address?: string): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { UNDERLYING } = getNetworkConfigConstants(chainId)
   const tokens = Object.values(UNDERLYING)
 
-  return useBalances(tokens.map(t => t.address))
+  return useBalances(tokens.map(t => t.address), 'balanceOf', address)
 }
 
-export const useSupplyBalances = (): SWR & Balances => {
+export const useSupplyBalances = (address?: string): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(chainId)
   const tokens = ANCHOR_TOKENS.concat(HAS_REWARD_TOKEN && XINV ? [XINV] : []).concat(HAS_REWARD_TOKEN && XINV_V1 ? [XINV_V1] : [])
-  return useBalances(tokens)
+  return useBalances(tokens, 'balanceOf', address)
 }
 
-export const useBorrowBalances = (): SWR & Balances => {
+export const useBorrowBalances = (address?: string): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS } = getNetworkConfigConstants(chainId)
   const tokens = ANCHOR_TOKENS
-  return useBalances(tokens, 'borrowBalanceStored')
+  return useBalances(tokens, 'borrowBalanceStored', address)
 }
 
 export const useStabilizerBalance = () => {
@@ -83,4 +86,20 @@ export const useVaultBalances = () => {
       [VAULT_USDC_ETH]: data ? data[3] : BigNumber.from(0),
     },
   }
+}
+
+export const useBorrowedAssets = (account: string) => {
+  const { prices } = usePrices()
+  const { markets, isLoading: marketsLoading } = useMarkets()
+  const { balances, isLoading: balancesLoading } = useBorrowBalances(account)
+
+  const marketsWithBalance = markets?.map((market) => {
+    const { token, underlying, borrowApy } = market;
+    const balance = getParsedBalance(balances, token, underlying.decimals);
+    const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
+    const usdWorth = balance * (prices && prices[underlying.coingeckoId!]?.usd || 0);
+    return { ...market, balance, monthlyBorrowFee, usdWorth }
+  }).filter(m => m.balance > 0)
+
+  return marketsWithBalance;
 }

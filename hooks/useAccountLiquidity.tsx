@@ -19,16 +19,16 @@ type AccountLiquidity = {
   usdShortfall: number
 }
 
-export const useAccountLiquidity = (): SWR & AccountLiquidity => {
+export const useAccountLiquidity = (address?: string): SWR & AccountLiquidity => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.viewAddress as string) || account;
+  const userAddress = address || (query?.viewAddress as string) || account;
   const { COMPTROLLER, UNDERLYING } = getNetworkConfigConstants(chainId)
   const { data, error } = useEtherSWR([COMPTROLLER, 'getAccountLiquidity', userAddress])
   const { isLoading: marketsIsLoading } = useMarkets()
   const { prices: oraclePrices, isLoading: pricesIsLoading } = useAnchorPrices()
-  const { balances: supplyBalances, isLoading: supplyBalancesIsLoading } = useSupplyBalances()
-  const { balances: borrowBalances, isLoading: borrowBalancesIsLoading } = useBorrowBalances()
+  const { balances: supplyBalances, isLoading: supplyBalancesIsLoading } = useSupplyBalances(userAddress)
+  const { balances: borrowBalances, isLoading: borrowBalancesIsLoading } = useBorrowBalances(userAddress)
   const { exchangeRates, isLoading: exchangeRatesIsLoading } = useExchangeRates()
   const { prices: coingeckoPrices } = usePrices()
 
