@@ -25,20 +25,20 @@ export default async function handler(req, res) {
         } = getNetworkConfigConstants(networkConfig);
 
         // const validCache = await getCacheFromRedis(cacheKey, true, parseInt(process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK!));
-        const validCache = await getCacheFromRedis(cacheKey, true, 900);
+        const validCache = await getCacheFromRedis(cacheKey, true, 999999);
         if (validCache) {
             res.status(200).json(validCache);
             return
         }
 
-        const provider = getProvider(networkConfig.chainId);
+        const provider = getProvider(networkConfig.chainId, process.env.ALCHEMY_API, true);
         const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
         const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
         const allMarkets: string[] = [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
         const contractAddresses = allMarkets.filter(address => !!UNDERLYING[address])
 
         const contracts = allMarkets
-            .filter((address: string) => address !== XINV && address !== XINV_V1)
+            // .filter((address: string) => address !== XINV && address !== XINV_V1)
             .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
         const holders = await Promise.all(
@@ -85,52 +85,52 @@ export default async function handler(req, res) {
         // res.status(200).json({ marketDecimals, underlyings, prices })
         // return
 
-        const borrowedAssets = await Promise.all(
-            uniqueUsers.map(account => {
-                return Promise.all(
-                    contracts.map(contract => {
-                        return contract.borrowBalanceStored(account);
-                    })
-                );
-            })
-        )
+        // const borrowedAssets = await Promise.all(
+        //     uniqueUsers.map(account => {
+        //         return Promise.all(
+        //             contracts.map(contract => {
+        //                 return contract.borrowBalanceStored(account);
+        //             })
+        //         );
+        //     })
+        // )
 
         const positionDetails = uniqueUsers.map((account, i) => {
             const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i]
-            const borrowed = borrowedAssets[i].map((b, j) => {
-                // const underlying = UNDERLYING[contracts[j].address];
-                return {
-                    value: getBnToNumber(b, marketDecimals[j]),
-                    marketIndex: j,
-                }
-            });
+            // const borrowed = borrowedAssets[i].map((b, j) => {
+            //     // const underlying = UNDERLYING[contracts[j].address];
+            //     return {
+            //         value: getBnToNumber(b, marketDecimals[j]),
+            //         marketIndex: j,
+            //     }
+            // });
 
             const assetsInMarkets = assetsIn[i].filter(ad => allMarkets.includes(ad))
             const assetsInMarketIndexes = assetsInMarkets.map(ad => allMarkets.indexOf(ad)).filter(v => v !== -1)
 
-            const supplied = assetsInMarkets.map((anCollateralAd, j) => {
-                // const underlying = UNDERLYING[contracts[j].address];
-                const marketIndex = assetsInMarketIndexes[j];
-                const balance = getBnToNumber(parseUnits((balances[account][anCollateralAd]||0).toString(), marketDecimals[marketIndex]), marketDecimals[marketIndex])
-                return {
-                    value: balance * getBnToNumber(exRates[marketIndex]),
-                    marketIndex,
-                    balance: balance,
-                    balance2: balances[account][anCollateralAd],
-                    anCollateralAd,
-                    exRate: getBnToNumber(exRates[marketIndex]),
-                }
-            });
+            // const supplied = assetsInMarkets.map((anCollateralAd, j) => {
+            //     // const underlying = UNDERLYING[contracts[j].address];
+            //     const marketIndex = assetsInMarketIndexes[j];
+            //     const balance = getBnToNumber(parseUnits((balances[account][anCollateralAd]||0).toString(), marketDecimals[marketIndex]), marketDecimals[marketIndex])
+            //     return {
+            //         value: balance * getBnToNumber(exRates[marketIndex]),
+            //         marketIndex,
+            //         balance: balance,
+            //         balance2: balances[account][anCollateralAd],
+            //         anCollateralAd,
+            //         exRate: getBnToNumber(exRates[marketIndex]),
+            //     }
+            // });
 
             return {
                 account,
                 usdBorrowable: getBnToNumber(extraBorrowableAmount),
                 usdShortfall: getBnToNumber(shortfallAmount),
-                usdBorrowed: borrowed.reduce((prev, curr) => prev + curr.value * prices[curr.marketIndex], 0),
-                usdSupplied: supplied.reduce((prev, curr) => prev + curr.value * prices[curr.marketIndex], 0),
+                // usdBorrowed: borrowed.reduce((prev, curr) => prev + curr.value * prices[curr.marketIndex], 0),
+                // usdSupplied: supplied.reduce((prev, curr) => prev + curr.value * prices[curr.marketIndex], 0),
                 assetsIn: assetsInMarketIndexes,
-                borrowed,
-                supplied,
+                // borrowed,
+                // supplied,
             }
         })
 
