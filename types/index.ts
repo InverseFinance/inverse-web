@@ -408,3 +408,17 @@ export type StabilizerEvent = {
 }
 
 export type FedHistory = Fed & { events: FedEvent[] };
+
+export type AccountPosition = {
+  account: string
+  usdBorrowable: number
+  usdShortfall: number
+  assetsIn: number[]
+  borrowed: { value: number, marketIndex: number }[]
+}
+
+export type AccountPositions = {
+  nbPositions: number
+  positions: AccountPosition[]
+  markets: string[]
+}
