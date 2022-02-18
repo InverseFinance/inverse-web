@@ -7,7 +7,7 @@ import { getParsedBalance } from '@app/util/markets';
 import { commify } from 'ethers/lib/utils';
 
 const getMaxBalance = (balances: BigNumberList, token: Token) => {
-    return getParsedBalance(balances, token.address, token.decimals);
+    return getParsedBalance(balances, token.address||'CHAIN_COIN', token.decimals);
 }
 
 export const AssetInput = ({

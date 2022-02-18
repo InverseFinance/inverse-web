@@ -66,7 +66,7 @@ const ClaimFromEscrowBtn = ({
   </SubmitButton>
 }
 
-const ApproveButton = ({
+export const ApproveButton = ({
   asset,
   signer,
   isDisabled,

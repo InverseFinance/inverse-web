@@ -56,6 +56,7 @@ export const CETHER_ABI = [
   "function redeem(uint256) returns (uint256)",
   "function repayBorrow() payable",
   "function balanceOf(address) external view returns (uint256)",
+  "function liquidateBorrow(uint256 amount, address account, address ctoken) external returns (uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 

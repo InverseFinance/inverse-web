@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image, HStack, useDisclosure, Slide } from '@chakra-ui/react'
+import { Flex, Stack, Text, Image, HStack, useDisclosure, Slide, Box } from '@chakra-ui/react'
 
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
@@ -154,7 +154,9 @@ export const PositionsTable = ({
                     className: "blurred-container info-bg",
                 }}
             >
-                <CloseIcon position="absolute" top="20px" left="10px" cursor="pointer" onClick={onClose} />
+                <Box w="20px" h="20px" cursor="pointer" onClick={onClose} position="absolute" top="10px" left="10px">
+                    <CloseIcon fontSize="14px" cursor="pointer" />
+                </Box>
                 {!!selectedPosition && <PositionDetails position={selectedPosition} />}
             </Container>
         </Slide>

@@ -56,7 +56,7 @@ export const FromAssetDropdown = ({
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'purple.850' }}
-                        onClick={() => handleChange(symbol, vaultYieldToken.address || 'CHAIN_COIN')}
+                        onClick={() => handleChange(symbol||'CHAIN_COIN', vaultYieldToken.address || 'CHAIN_COIN')}
                         cursor="pointer"
                     >
                         <Stack direction="row" align="center">
