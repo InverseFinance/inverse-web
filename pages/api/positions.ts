@@ -6,10 +6,11 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
-import { formatUnits, parseUnits } from '@ethersproject/units';
+import { formatUnits } from '@ethersproject/units';
 import { StringNumMap } from '@app/types';
 
 export default async function handler(req, res) {
+    const { accounts = '' } = req.query;
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
     const cacheKey = `${networkConfig.chainId}-positions-v1.3.3`;
@@ -35,10 +36,8 @@ export default async function handler(req, res) {
         const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
         const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
         const allMarkets: string[] = [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
-        const contractAddresses = allMarkets.filter(address => !!UNDERLYING[address])
 
         const contracts = allMarkets
-            // .filter((address: string) => address !== XINV && address !== XINV_V1)
             .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
         const holders = await Promise.all(
@@ -60,16 +59,20 @@ export default async function handler(req, res) {
 
         const [
             positions,
-            assetsIn,
             underlyings,
             exRates,
             oraclePrices,
+            borrowPaused,
         ] = await Promise.all([
             Promise.all(uniqueUsers.map(account => comptroller.getAccountLiquidity(account))),
-            Promise.all(uniqueUsers.map(account => comptroller.getAssetsIn(account))),
             Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')) )),
             Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
             Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
+            Promise.all(
+                contracts.map((contract) =>
+                  [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
+                )
+              ),
         ])
 
         let marketDecimals: number[] = await Promise.all(
@@ -82,55 +85,67 @@ export default async function handler(req, res) {
                 return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
             })
 
-        // res.status(200).json({ marketDecimals, underlyings, prices })
-        // return
+        const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
 
-        // const borrowedAssets = await Promise.all(
-        //     uniqueUsers.map(account => {
-        //         return Promise.all(
-        //             contracts.map(contract => {
-        //                 return contract.borrowBalanceStored(account);
-        //             })
-        //         );
-        //     })
-        // )
-
-        const positionDetails = uniqueUsers.map((account, i) => {
-            const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i]
-            // const borrowed = borrowedAssets[i].map((b, j) => {
-            //     // const underlying = UNDERLYING[contracts[j].address];
-            //     return {
-            //         value: getBnToNumber(b, marketDecimals[j]),
-            //         marketIndex: j,
-            //     }
-            // });
-
-            const assetsInMarkets = assetsIn[i].filter(ad => allMarkets.includes(ad))
-            const assetsInMarketIndexes = assetsInMarkets.map(ad => allMarkets.indexOf(ad)).filter(v => v !== -1)
-
-            // const supplied = assetsInMarkets.map((anCollateralAd, j) => {
-            //     // const underlying = UNDERLYING[contracts[j].address];
-            //     const marketIndex = assetsInMarketIndexes[j];
-            //     const balance = getBnToNumber(parseUnits((balances[account][anCollateralAd]||0).toString(), marketDecimals[marketIndex]), marketDecimals[marketIndex])
-            //     return {
-            //         value: balance * getBnToNumber(exRates[marketIndex]),
-            //         marketIndex,
-            //         balance: balance,
-            //         balance2: balances[account][anCollateralAd],
-            //         anCollateralAd,
-            //         exRate: getBnToNumber(exRates[marketIndex]),
-            //     }
-            // });
-
+        const shortfallAccounts = uniqueUsers.map((account, i) => {
+            const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i];
             return {
                 account,
                 usdBorrowable: getBnToNumber(extraBorrowableAmount),
                 usdShortfall: getBnToNumber(shortfallAmount),
-                // usdBorrowed: borrowed.reduce((prev, curr) => prev + curr.value * prices[curr.marketIndex], 0),
-                // usdSupplied: supplied.reduce((prev, curr) => prev + curr.value * prices[curr.marketIndex], 0),
+            }
+        }).filter(p => filterAccounts.length ? filterAccounts.includes(p.account) : p.usdShortfall > 0.1);
+
+        const borrowedAssets = await Promise.all(
+            shortfallAccounts.map(p => {
+                return Promise.all(
+                    contracts.map((contract, i) => {
+                        return !borrowPaused[i] ? contract.borrowBalanceStored(p.account) : BigNumber.from('0');
+                    })
+                );
+            })
+        )
+
+        const [
+            assetsIn,
+        ] = await Promise.all([
+            Promise.all(shortfallAccounts.map(position => comptroller.getAssetsIn(position.account))),
+        ])
+
+        const positionDetails = shortfallAccounts.map((position, i) => {
+            const { account } = position;
+            const borrowed = borrowedAssets[i].map((b, j) => {
+                const tokenBalance = getBnToNumber(b, marketDecimals[j]);
+                return {
+                    balance: tokenBalance,
+                    usdWorth: tokenBalance * prices[j],
+                    marketIndex: j,
+                }
+            }).filter(b => b.balance > 0);
+
+            const assetsInMarkets = assetsIn[i].filter(ad => allMarkets.includes(ad))
+            const assetsInMarketIndexes = assetsInMarkets.map(ad => allMarkets.indexOf(ad)).filter(v => v !== -1)
+
+            const supplied = assetsInMarketIndexes.map((marketIndex, j) => {
+                const marketAd = allMarkets[marketIndex].toLowerCase();
+                const anBalance = parseFloat(formatUnits(balances[account][marketAd]||0, marketDecimals[marketIndex]));
+                const exRate = getBnToNumber(exRates[marketIndex]);
+                const tokenBalance = anBalance * exRate;
+
+                return {
+                    balance: tokenBalance,
+                    marketIndex,
+                    usdWorth: tokenBalance * prices[marketIndex]
+                }
+            }).filter(s => s.balance > 0);
+
+            return {
+                ...position,
+                usdBorrowed: borrowed.reduce((prev, curr) => prev + curr.usdWorth, 0),
+                usdSupplied: supplied.reduce((prev, curr) => prev + curr.usdWorth, 0),
                 assetsIn: assetsInMarketIndexes,
-                // borrowed,
-                // supplied,
+                borrowed,
+                supplied,
             }
         })
 
