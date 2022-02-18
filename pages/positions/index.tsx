@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, VStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -9,10 +9,11 @@ import { usePositions } from '@app/hooks/usePositions'
 import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
 import { PositionsTable } from '@app/components/Positions/PositionsTable'
+import { InfoMessage } from '@app/components/common/Messages'
 
 export const PositionsPage = () => {
   const [accounts, setAccounts] = useState('');
-  const { positions, markets } = usePositions({ accounts });
+  const { positions, markets, prices, collateralFactors } = usePositions({ accounts });
 
   return (
     <Layout>
@@ -22,15 +23,18 @@ export const PositionsPage = () => {
       <AppNav active="Positions" />
       <ErrorBoundary>
         <Flex w="full" direction="column" justify="center">
-        <Container
-            label={`Filters`}
+          <Container
+            label={`Filters & Infos`}
           >
-            <Input onChange={(e) => setAccounts(e.target.value)} value={accounts} placeholder="Filter by accounts" />
+            <VStack>
+              <Input fontSize="12px" textAlign="left" onChange={(e) => setAccounts(e.target.value)} value={accounts} placeholder="Filter by accounts" />
+              <InfoMessage description="Note: all calculations are made with Oracle Prices" />
+            </VStack>
           </Container>
           <Container
             label={`Current Shortfalling Positions`}
           >
-            <PositionsTable markets={markets} positions={positions} />
+            <PositionsTable collateralFactors={collateralFactors} markets={markets} prices={prices} positions={positions} />
           </Container>
         </Flex>
       </ErrorBoundary>
