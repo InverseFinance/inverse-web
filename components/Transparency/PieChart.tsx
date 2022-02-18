@@ -18,7 +18,8 @@ class CustomLabel extends React.Component {
                     {...this.props}
                     flyoutWidth={200}
                     labelComponent={<VictoryLabel text={`${datum.x}: ${shortenNumber(datum.y, 2, true)} (${shortenNumber(datum.perc, 2)}%)`} />}
-                    flyoutStyle={{ fill: "black" }}
+                    flyoutStyle={{ fill: "#8881c9" }}
+                    flyoutPadding={10}
                 />
             </g>
         );
@@ -50,7 +51,7 @@ export const PieChart = ({
         >
             <VictoryChart
                 theme={VictoryTheme.material}
-                animate={{ duration: 5000 }}
+                animate={{ duration: 1000 }}
                 width={width}
                 height={height}
             >
@@ -76,12 +77,13 @@ export const PieChart = ({
                     data={chartData}
                     labelComponent={<CustomLabel />}
                     padAngle={20}
+                    innerRadius={30}
                     style={{
                         data: {
                             fillOpacity: 0.9, stroke: "#fff", strokeWidth: 1
                         },
                         labels: {
-                            fontSize: 14, fill: "#fff"
+                            fontSize: 12, fill: "#fff"
                         }
                     }}
                 />

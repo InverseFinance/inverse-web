@@ -1,19 +1,20 @@
-import { Flex, Stack, Text, Image, HStack, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, Text, Image, HStack, useDisclosure, Slide } from '@chakra-ui/react'
 
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { shortenNumber } from '@app/util/markets'
 import { AccountPosition, AccountPositionDetailed, AccountPositionsDetailed, Token } from '@app/types'
-import { ViewIcon } from '@chakra-ui/icons'
+import { CloseIcon, ViewIcon } from '@chakra-ui/icons'
 import Link from '@app/components/common/Link'
-import { PositionDetailsModal } from './PositionDetailsModal'
+import { PositionDetails } from './PositionDetails'
 import { useState } from 'react'
 import { UNDERLYING } from '@app/variables/tokens'
+import Container from '../common/Container'
 
 const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] }) => {
     return <HStack minW="100px" position="relative">
         {
-            list?.map((s,i) => <Image key={s.market} width={'20px'} src={s?.underlying.image} ignoreFallback={true} />)
+            list?.map((s, i) => <Image key={s.market} width={'15px'} src={s?.underlying.image} ignoreFallback={true} />)
         }
     </HStack>
 }
@@ -26,11 +27,11 @@ const getColumns = () => {
             header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
             value: ({ account, usdShortfall }: AccountPositionDetailed) => {
                 const color = usdShortfall > 0 ? 'error' : 'secondary'
-                return <HStack w="100px" position="relative" color={color}>
-                    <ScannerLink value={account} />
+                return <HStack w="100px" position="relative" color={color} onClick={(e) => e.stopPropagation()}>
                     <Link isExternal href={`/anchor?viewAddress=${account}`}>
                         <ViewIcon color="blue.600" boxSize={3} />
                     </Link>
+                    <ScannerLink value={account} />
                 </HStack>
             },
         },
@@ -88,13 +89,23 @@ const getColumns = () => {
     ]
 }
 
-export const PositionsTable = ({ markets, positions }: { markets: any, positions: any }) => {
+export const PositionsTable = ({
+    markets,
+    prices,
+    positions,
+    collateralFactors,
+}: {
+    markets: string[],
+    prices: number[],
+    positions: AccountPosition[],
+    collateralFactors: number[],
+}) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [selectedAccount, setSelectedAccount] = useState('');
+    const [selectedPosition, setSelectedPosition] = useState<AccountPositionDetailed | null>(null);
     const columns = getColumns();
 
-    const handleDetails = (item: AccountPosition) => {
-        setSelectedAccount(item.account);
+    const handleDetails = (item: AccountPositionDetailed) => {
+        setSelectedPosition(item);
         onOpen();
     }
 
@@ -104,10 +115,20 @@ export const PositionsTable = ({ markets, positions }: { markets: any, positions
             usdBorrowable: p.usdBorrowed - p.usdShortfall,
             supplied: p.supplied.map(s => {
                 const market = markets[s.marketIndex];
-                return { 
+                return {
                     ...s,
                     market,
                     underlying: UNDERLYING[market],
+                    usdPrice: prices[s.marketIndex],
+                }
+            }),
+            borrowingPower: p.supplied.map(s => {
+                const market = markets[s.marketIndex];
+                return {
+                    ...s,
+                    market,
+                    underlying: UNDERLYING[market],
+                    usdPrice: prices[s.marketIndex] * collateralFactors[s.marketIndex],
                 }
             }),
             borrowed: p.borrowed.map(s => {
@@ -116,12 +137,27 @@ export const PositionsTable = ({ markets, positions }: { markets: any, positions
                     ...s,
                     market,
                     underlying: UNDERLYING[market],
+                    usdPrice: prices[s.marketIndex],
                 }
             })
         }
     })
 
     return <>
+        <Slide direction='bottom' in={isOpen} style={{ zIndex: 9999 }}>
+            <Container
+                noPadding
+                contentProps={{
+                    boxShadow: "0px 0px 1px 1px #ccc",
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                    className: "blurred-container info-bg",
+                }}
+            >
+                <CloseIcon position="absolute" top="20px" left="10px" cursor="pointer" onClick={onClose} />
+                {!!selectedPosition && <PositionDetails position={selectedPosition} />}
+            </Container>
+        </Slide>
         <Table
             keyName="account"
             defaultSort="usdShortfall"
@@ -130,6 +166,5 @@ export const PositionsTable = ({ markets, positions }: { markets: any, positions
             items={detailedPositions}
             onClick={handleDetails}
         />
-        { !!selectedAccount && <PositionDetailsModal isOpen={isOpen} onClose={onClose} account={selectedAccount} /> }
     </>
 }

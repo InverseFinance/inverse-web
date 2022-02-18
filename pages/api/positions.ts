@@ -25,8 +25,8 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        // const validCache = await getCacheFromRedis(cacheKey, true, parseInt(process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK!));
-        const validCache = await getCacheFromRedis(cacheKey, true, 999999);
+        const validCache = await getCacheFromRedis(cacheKey, true, parseInt(process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK!));
+        // const validCache = await getCacheFromRedis(cacheKey, true, 999999);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         holders.forEach((res, i) => {
             res.data.items.forEach(anTokenHolder => {
                 usersSet.add(anTokenHolder.address);
-                if(!balances[anTokenHolder.address]){ balances[anTokenHolder.address] = {} }
+                if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
                 balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
             });
         });
@@ -63,22 +63,26 @@ export default async function handler(req, res) {
             exRates,
             oraclePrices,
             borrowPaused,
+            marketsDetails,
         ] = await Promise.all([
             Promise.all(uniqueUsers.map(account => comptroller.getAccountLiquidity(account))),
-            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')) )),
+            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
             Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
             Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
             Promise.all(
                 contracts.map((contract) =>
-                  [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
+                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
                 )
-              ),
+            ),
+            Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
         ])
 
         let marketDecimals: number[] = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
         )
         marketDecimals = marketDecimals.map(v => parseInt(v));
+
+        const collateralFactors = marketsDetails.map(m => parseFloat(formatUnits(m[1])));
 
         const prices: StringNumMap = oraclePrices
             .map((v, i) => {
@@ -128,7 +132,7 @@ export default async function handler(req, res) {
 
             const supplied = assetsInMarketIndexes.map((marketIndex, j) => {
                 const marketAd = allMarkets[marketIndex].toLowerCase();
-                const anBalance = parseFloat(formatUnits(balances[account][marketAd]||0, marketDecimals[marketIndex]));
+                const anBalance = parseFloat(formatUnits(balances[account][marketAd] || 0, marketDecimals[marketIndex]));
                 const exRate = getBnToNumber(exRates[marketIndex]);
                 const tokenBalance = anBalance * exRate;
 
@@ -153,6 +157,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             prices,
+            collateralFactors,
             markets: allMarkets,
             marketDecimals,
             nbPositions: positionDetails.length,

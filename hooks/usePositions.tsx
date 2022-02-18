@@ -12,6 +12,8 @@ export const usePositions = (options?: OptionProps): SWR & AccountPositions => {
   return {
     positions: data?.positions || [],
     markets: data?.markets || [],
+    prices: data?.prices || [],
+    collateralFactors: data?.collateralFactors || [],
     nbPositions: data?.nbPositions || 0,
     isLoading: !error && !data,
     isError: error,
