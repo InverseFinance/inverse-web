@@ -86,7 +86,7 @@ export const getValueOrMinPrecisionValue = (value: number, precision = 2) => {
 }
 
 export const shortenNumber = (value: number, precision = 2, isDollar = false, showMinPrecision = false) => {
-    if (!value) { return (0).toFixed(precision) }
+    if (typeof value !== 'number' || isNaN(value)) { return `${isDollar?'$':''}`+(0).toFixed(precision) }
     let suffix = ''
     const dividers: { [key: string]: number } = { 'k': 1000, 'M': 1000000, 'B': 1000000000, 'T': 1000000000000 };
     const absValue = Math.abs(value);

@@ -11,6 +11,8 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     if(!onlyAlchemy) {
         // providers.push(new CloudflareProvider(network));
         providers.push(new InfuraProvider(network, process.env.INFURA_ID))
+    } else {
+        return providers[0]
     }
 
     return new FallbackProvider(providers, 1);

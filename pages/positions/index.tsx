@@ -10,9 +10,9 @@ import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
 import { PositionsTable } from '@app/components/Positions/PositionsTable'
 
-export const Anchor = () => {
+export const PositionsPage = () => {
   const [accounts, setAccounts] = useState('');
-  const { positions, markets, prices } = usePositions({ accounts });
+  const { positions, markets } = usePositions({ accounts });
 
   return (
     <Layout>
@@ -28,7 +28,7 @@ export const Anchor = () => {
             <Input onChange={(e) => setAccounts(e.target.value)} value={accounts} placeholder="Filter by accounts" />
           </Container>
           <Container
-            label={`Current Positions`}
+            label={`Current Shortfalling Positions`}
           >
             <PositionsTable markets={markets} positions={positions} />
           </Container>
@@ -38,4 +38,4 @@ export const Anchor = () => {
   )
 }
 
-export default Anchor
+export default PositionsPage
