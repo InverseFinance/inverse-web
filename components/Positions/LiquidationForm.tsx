@@ -6,10 +6,21 @@ import { useEffect, useState } from 'react'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SubmitButton } from '@app/components/common/Button'
-import { AccountPositionDetailed, Token, TokenList } from '@app/types'
+import { AccountPositionDetailed, StringNumMap, Token, TokenList } from '@app/types'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { getParsedBalance, shortenNumber } from '@app/util/markets';
+import { useAnchorPrices } from '@app/hooks/usePrices'
+import { formatUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
+import { UNDERLYING } from '@app/variables/tokens'
+
+// Liquidator can seize repayAmount + 13%
+const LIQUIDATOR_BONUS_PERC = 0.13;
+
+const formattedInfo = (bal: number) => {
+    return <b>{shortenNumber(bal, 2, false, true)} ({shortenNumber(bal, 2, true, true)})</b>
+}
 
 export const LiquidationForm = ({
     position
@@ -17,6 +28,14 @@ export const LiquidationForm = ({
     position: AccountPositionDetailed,
 }) => {
     const { library } = useWeb3React<Web3Provider>()
+    const { prices } = useAnchorPrices();
+
+    let oraclePrices: StringNumMap = {}
+    for (var key in prices) {
+      if (prices.hasOwnProperty(key)) {
+        oraclePrices[key] = parseFloat(formatUnits(prices[key], BigNumber.from(36).sub(UNDERLYING[key].decimals)))
+      }
+    }
 
     const borrowedList: TokenList = {};
     const anMarkets: TokenList = {};
@@ -33,7 +52,6 @@ export const LiquidationForm = ({
 
     const [repayToken, setRepayToken] = useState<Token>(borrowedUnderlyings[0]);
     const [seizeAmount, setSeizeAmount] = useState('0');
-    const [maxSeizeAmount, setMaxSeizeAmount] = useState(0);
     const [maxRepayAmount, setMaxRepayAmount] = useState(0);
     const [liquidatorRepayTokenBal, setLiquidatorRepayTokenBal] = useState(0);
     const [borrowedDetails, setBorrowedDetails] = useState(position.borrowed[0]);
@@ -43,6 +61,7 @@ export const LiquidationForm = ({
     const { balances } = useBalances(borrowedUnderlyingsAd);
 
     const [seizeToken, setSeizeToken] = useState(collateralUnderlyings[0]);
+    const [seizableDetails, setSeizableDetails] = useState(position.supplied[0]);
     const [repayAmount, setRepayAmount] = useState('0');
 
     useEffect(() => {
@@ -50,8 +69,21 @@ export const LiquidationForm = ({
         setLiquidatorRepayTokenBal(liquidatorBal);
         const borrowed = position.borrowed.find(b => b.underlying.address === repayToken.address);
         setBorrowedDetails(borrowed!);
-        setMaxRepayAmount(Math.min(liquidatorBal, borrowed?.balance!));
-    }, [repayToken])
+        const maxSeizableWorth =  seizableDetails.balance * oraclePrices[seizableDetails.market];
+        const repayAmountToSeizeMax = (maxSeizableWorth - maxSeizableWorth * LIQUIDATOR_BONUS_PERC) / oraclePrices[borrowed.market];
+        setMaxRepayAmount(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax));
+    }, [repayToken, seizableDetails])
+
+    useEffect(() => {
+        const seizable = position.supplied.find(b => b.underlying.address === seizeToken.address);
+        setSeizableDetails({ ...seizable });
+    }, [seizeToken]);
+
+    useEffect(() => {
+        const repayWorth = parseFloat(repayAmount) * oraclePrices[borrowedDetails.market];
+        const seizePower = (repayWorth + LIQUIDATOR_BONUS_PERC * repayWorth) / oraclePrices[seizableDetails.market];
+        setSeizeAmount((seizePower||0).toString());
+    }, [borrowedDetails, repayAmount, seizableDetails])
 
     const handleLiquidation = () => {
 
@@ -76,7 +108,7 @@ export const LiquidationForm = ({
                     {...borrowAssetInputProps}
                 />
                 <Text fontSize="12px">
-                    Your balance: {shortenNumber(liquidatorRepayTokenBal, 4)}, the borrowed amount: {shortenNumber(borrowedDetails.balance, 2)}
+                    Your balance: {formattedInfo(liquidatorRepayTokenBal)}, the borrowed amount: {formattedInfo(borrowedDetails.balance)}
                 </Text>
             </Stack>
             <Stack>
@@ -87,10 +119,13 @@ export const LiquidationForm = ({
                     assetOptions={collateralUnderlyingsAd}
                     onAssetChange={(newToken) => setSeizeToken(newToken)}
                     onAmountChange={(newAmount) => setSeizeAmount(newAmount)}
-                    inputProps={{ disabled: true }}
+                    inputProps={{ fontSize: '14px', disabled: true }}
                     showMax={false}
                     {...collateralAssetInputProps}
                 />
+                <Text fontSize="12px">
+                    Max Seizable: {formattedInfo(seizableDetails.balance)}
+                </Text>
             </Stack>
         </Stack>
         <Stack direction="row">

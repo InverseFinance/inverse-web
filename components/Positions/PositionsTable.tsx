@@ -36,19 +36,19 @@ const getColumns = () => {
             },
         },
         {
-            field: 'supplied',
-            label: 'Collaterals',
-            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
-            value: ({ supplied }: AccountPositionDetailed) => {
-                return <AssetIcons list={supplied} />
-            },
-        },
-        {
             field: 'borrowed',
             label: 'Borrowed',
             header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
             value: ({ borrowed }: AccountPositionDetailed) => {
                 return <AssetIcons list={borrowed} />
+            },
+        },
+        {
+            field: 'supplied',
+            label: 'Collaterals',
+            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
+            value: ({ supplied }: AccountPositionDetailed) => {
+                return <AssetIcons list={supplied} />
             },
         },
         {

@@ -416,8 +416,8 @@ export type AccountPosition = {
   usdSupplied: number
   usdShortfall: number
   assetsIn: number[]
-  borrowed: { balance: number, marketIndex: number }[]
-  supplied: { balance: number, marketIndex: number }[]
+  borrowed: { balance: number, marketIndex: number, usdWorth: number }[]
+  supplied: { balance: number, marketIndex: number, usdWorth: number }[]
 }
 
 export type AccountPositionDetailed = AccountPosition & {

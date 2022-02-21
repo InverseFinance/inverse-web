@@ -47,15 +47,15 @@ export const PositionDetails = ({
     const maxSeize = Math.min(position.usdSupplied, position.usdShortfall);
 
     return (
-        <Stack w='full' position="relative" maxH="100vh" overflowY="auto" overflowX="hidden">
+        <Stack w='full' position="relative" maxH="90vh" overflowY="auto" overflowX="hidden">
             <Text position="absolute" right="10px" fontWeight="bold">
                 Account: <ScannerLink value={position.account} />,
             </Text>
             {
                 !isOpen && <ScaleFade in={!isOpen} unmountOnExit={true}>
-                    <Stack spacing="5" direction="row" w="full" justify="space-around">
+                    <Stack spacing="5" direction={{ base: 'column', lg: 'row' }} w="full" justify="space-around">
                         <FundsDetails funds={toFunds(position.supplied)} title="Supplied as Collaterals" />
-                        <FundsDetails funds={toFunds(position.borrowingPower)} title="Borrowing Power" />
+                        <FundsDetails funds={toFunds(position.borrowingPower)} title="Borrowing Power From Collaterals" />
                         <FundsDetails funds={toFunds(position.borrowed)} title="Borrowed Assets" />
                     </Stack>
                 </ScaleFade>
