@@ -25,9 +25,9 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        const validCache = await getCacheFromRedis(cacheKey, true, parseInt(process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK!));
-        // const validCache = await getCacheFromRedis(cacheKey, true, 999999);
-        if (validCache) {
+        const validCache = await getCacheFromRedis(cacheKey, true, 60);
+
+        if (validCache && !accounts) {
             res.status(200).json(validCache);
             return
         }
@@ -156,6 +156,7 @@ export default async function handler(req, res) {
         positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
 
         const resultData = {
+            lastUpdate: Date.now(),
             prices,
             collateralFactors,
             markets: allMarkets,

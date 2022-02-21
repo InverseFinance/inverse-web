@@ -10,6 +10,7 @@ export const usePositions = (options?: OptionProps): SWR & AccountPositions => {
   const { data, error } = useCustomSWR(`/api/positions?accounts=${options?.accounts}`, fetcher)
 
   return {
+    lastUpdate: data?.lastUpdate || 0,
     positions: data?.positions || [],
     markets: data?.markets || [],
     prices: data?.prices || [],

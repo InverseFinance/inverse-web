@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScaleFade, Stack, Text, useDisclosure } from '@chakra-ui/react';
-import { SubmitButton } from '@app/components/common/Button';
-import { useBalances } from '@app/hooks/useBalances';
+import { useBorrowedAssets, useSuppliedCollaterals } from '@app/hooks/useBalances';
 import { Funds } from '../Transparency/Funds';
 import { AccountPositionDetailed } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
@@ -9,18 +8,16 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import ScannerLink from '../common/ScannerLink';
-import { AssetInput } from '../common/Assets/AssetInput';
-import { useAllowances } from '@app/hooks/useApprovals';
-import { hasAllowance } from '@app/util/web3';
-import { ApproveButton } from '../Anchor/AnchorButton';
+
 import { LiquidationForm } from './LiquidationForm';
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity';
 
 type Props = {
     position: AccountPositionDetailed
 }
 
 const FundsDetails = ({ funds, title }: { funds: any, title: string }) => {
-    return <Stack p={'5'} direction="column" minW="350px" >
+    return <Stack p={'1'} direction="column" minW="350px" >
         <Stack>
             <Text fontWeight="bold">{title}:</Text>
             <Funds funds={funds} chartMode={true} showTotal={true} />
@@ -38,11 +35,57 @@ const toFunds = (data: AccountPositionDetailed["supplied"]) => {
     }))
 }
 
+const toFresh = (fromApi, fromFresh, applyCollateralFactor = false) => {
+    return fromApi.map(m => {
+        const freshSupplied = fromFresh.find(s => s.ctoken === m.ctoken) || m;
+        return {
+            ...m,
+            usdPrice: freshSupplied.usdPrice * (applyCollateralFactor ? freshSupplied.collateralFactor : 1),
+            balance: freshSupplied.balance,
+            usdWorth: freshSupplied.usdWorth,
+        }
+    });
+}
+
 export const PositionDetails = ({
     position,
 }: Props) => {
-    const { account, library } = useWeb3React<Web3Provider>()
+    const { account } = useWeb3React<Web3Provider>()
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const supplied = useSuppliedCollaterals(position.account);
+    const borrowed = useBorrowedAssets(position.account);
+    const { usdBorrowable, usdBorrow, usdShortfall, usdSupply } = useAccountLiquidity(position.account);
+
+    const [freshPosition, setFreshPosition] = useState(position);
+
+    useEffect(() => {
+        if(position.account !== freshPosition.account) {
+            onClose();
+            setFreshPosition(position);
+        }
+    }, [position.account, freshPosition.account])
+
+    useEffect(() => {
+        if(!supplied?.length || !borrowed?.length) { return }
+        const fresh = {
+            ...position,
+            usdSupplied: usdSupply ?? position.supplied,
+            usdBorrowed: usdBorrow ?? position.usdBorrowed,
+            usdBorrwable: usdBorrowable ?? position.usdBorrowable,
+            usdShortfall: usdShortfall ?? position.usdShortfall,
+        };
+
+        fresh.supplied = toFresh(fresh.supplied, supplied);
+        fresh.borrowed = toFresh(fresh.borrowed, borrowed);
+        fresh.borrowingPower = toFresh(fresh.supplied, supplied, true);
+
+        const borrowTotal = fresh.usdBorrowable + fresh.usdBorrowed;
+        fresh.borrowLimitPercent = borrowTotal ? Math.floor((fresh.usdBorrowed / (borrowTotal)) * 100) : 0;
+
+        if(JSON.stringify(fresh) === JSON.stringify(freshPosition)) { return }
+        setFreshPosition(fresh);
+    }, [position, supplied, borrowed, usdBorrowable, usdSupply, usdBorrow, usdShortfall]);
+
     const hasLiquidationOpportunity = position.usdShortfall < position.usdSupplied;
     const maxSeize = Math.min(position.usdSupplied, position.usdShortfall);
 
@@ -53,10 +96,10 @@ export const PositionDetails = ({
             </Text>
             {
                 !isOpen && <ScaleFade in={!isOpen} unmountOnExit={true}>
-                    <Stack spacing="5" direction={{ base: 'column', lg: 'row' }} w="full" justify="space-around">
-                        <FundsDetails funds={toFunds(position.supplied)} title="Supplied as Collaterals" />
-                        <FundsDetails funds={toFunds(position.borrowingPower)} title="Borrowing Power From Collaterals" />
-                        <FundsDetails funds={toFunds(position.borrowed)} title="Borrowed Assets" />
+                    <Stack spacing="5" pt="5" direction={{ base: 'column', lg: 'row' }} w="full" justify="space-around">
+                        <FundsDetails funds={toFunds(freshPosition.supplied)} title="Supplied as Collaterals" />
+                        <FundsDetails funds={toFunds(freshPosition.borrowingPower)} title="Borrowing Power From Collaterals" />
+                        <FundsDetails funds={toFunds(freshPosition.borrowed)} title="Borrowed Assets" />
                     </Stack>
                 </ScaleFade>
             }
@@ -64,17 +107,17 @@ export const PositionDetails = ({
                 <Text fontWeight="bold" color={position.borrowLimitPercent >= 100 ? 'error' : 'white'}>
                     Borrow Limit: {shortenNumber(position.borrowLimitPercent, 2)}%
                 </Text>
-                <Text fontWeight="bold" color={position.usdShortfall > 0 ? 'error' : 'secondary'}>
-                    Solvency: {shortenNumber(position.usdBorrowable, 2, true)} - {shortenNumber(position.usdBorrowed, 2, true)} = {shortenNumber(position.usdBorrowable - position.usdBorrowed, 2, true)}
+                <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'error' : 'secondary'}>
+                    Solvency: {shortenNumber(freshPosition.usdBorrowable, 2, true)} - {shortenNumber(freshPosition.usdBorrowed, 2, true)} = {shortenNumber(freshPosition.usdBorrowable - freshPosition.usdBorrowed, 2, true)}
                 </Text>
-                <Text fontWeight="bold" color={position.usdShortfall > 0 ? 'secondary' : 'white'}>
+                <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'secondary' : 'white'}>
                     Max Seizable: {shortenNumber(maxSeize, 2, true)}
                 </Text>
-                <Text fontWeight="bold" color={hasLiquidationOpportunity ? 'secondary' : 'white'}>
+                {/* <Text fontWeight="bold" color={hasLiquidationOpportunity ? 'secondary' : 'white'}>
                     Liquidation Opportunity: {hasLiquidationOpportunity ? 'Yes' : 'No'}
-                </Text>
+                </Text> */}
                 {
-                    !!account && account.toLowerCase() !== position.account.toLowerCase() && position.usdShortfall > 0 &&
+                    !!account && account.toLowerCase() !== freshPosition.account.toLowerCase() && freshPosition.usdShortfall > 0 &&
                     <>
                         {
                             !isOpen ?
@@ -93,7 +136,7 @@ export const PositionDetails = ({
             {
                 isOpen &&
                 <ScaleFade in={isOpen} unmountOnExit={true}>
-                    <LiquidationForm position={position} />
+                    <LiquidationForm position={freshPosition} />
                 </ScaleFade>
             }
         </Stack>
