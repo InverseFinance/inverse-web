@@ -20,6 +20,7 @@ export const COMPTROLLER_ABI = [
   "function mintGuardianPaused(address) external view returns (bool)",
   "function pauseGuardian() public view returns (address)",
   "function admin() public view returns (address)",
+  "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
 ];
 
 export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
@@ -55,6 +56,7 @@ export const CETHER_ABI = [
   "function redeem(uint256) returns (uint256)",
   "function repayBorrow() payable",
   "function balanceOf(address) external view returns (uint256)",
+  "function liquidateBorrow(uint256 amount, address account, address ctoken) external returns (uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 

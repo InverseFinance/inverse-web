@@ -13,6 +13,7 @@ export const Container = ({
   children,
   nbNotif,
   contentBgColor,
+  contentProps,
   ...props
 }: Partial<Omit<FlexProps, "right">> & {
   label?: React.ReactNode
@@ -23,6 +24,7 @@ export const Container = ({
   noPadding?: boolean
   nbNotif?: number
   contentBgColor?: FlexProps["bgColor"]
+  contentProps?: FlexProps
   children?: React.ReactNode
 }) => {
   const title = (
@@ -68,7 +70,7 @@ export const Container = ({
         </Stack>
         {right}
       </Flex>
-      <Flex w="full" bgColor={contentBgColor ?? 'purple.750'} borderRadius={8} mt={4} p={4} shadow="2xl">
+      <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bgColor={contentBgColor ?? 'purple.750'}>
         {children}
       </Flex>
     </Flex>

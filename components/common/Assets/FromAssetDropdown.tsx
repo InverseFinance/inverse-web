@@ -45,7 +45,8 @@ export const FromAssetDropdown = ({
             }
         >
             {options.map((symbol: string) => {
-                const token = tokens[symbol]
+                const token = tokens[symbol||'CHAIN_COIN']
+                const adKey = token.address||'CHAIN_COIN'
                 const vaultYieldToken = vaultTree ? tokens[Object.keys(vaultTree[symbol])[0]] : { address: '' }
 
                 return (
@@ -55,7 +56,7 @@ export const FromAssetDropdown = ({
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'purple.850' }}
-                        onClick={() => handleChange(symbol, vaultYieldToken.address || 'CHAIN_COIN')}
+                        onClick={() => handleChange(symbol||'CHAIN_COIN', vaultYieldToken.address || 'CHAIN_COIN')}
                         cursor="pointer"
                     >
                         <Stack direction="row" align="center">
@@ -67,7 +68,7 @@ export const FromAssetDropdown = ({
                             </Flex>
                         </Stack>
                         <Text fontWeight="semibold" color="purple.100">
-                            {balances && balances[token.address] ? parseFloat(formatUnits(balances[token.address], token.decimals)).toFixed(2) : '0.00'}
+                            {balances && balances[adKey] ? parseFloat(formatUnits(balances[adKey], token.decimals)).toFixed(2) : '0.00'}
                         </Text>
                     </Flex>
                 )
