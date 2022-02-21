@@ -58,7 +58,6 @@ export const PositionDetails = ({
     const [seizeAmount, setSeizeAmount] = useState('0');
     const [seizeToken, setSeizeToken] = useState(collateralUnderlyings[0]);
 
-
     const { approvals } = useAllowances(borrowedUnderlyingsAd, anMarkets[repayToken.symbol]);
     const [isApproved, setIsApproved] = useState(repayToken.address ? hasAllowance(approvals, repayToken.address) : true);
 
@@ -73,7 +72,7 @@ export const PositionDetails = ({
 
     const maxSeize = Math.min(position.usdSupplied, position.usdShortfall);
 
-    const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: true }
+    const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: false }
     const collateralAssetInputProps = { tokens: seizeList, balances, showBalance: false }
 
     return (
