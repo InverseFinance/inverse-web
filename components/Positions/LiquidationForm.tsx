@@ -12,12 +12,13 @@ import { Web3Provider } from '@ethersproject/providers';
 import { getParsedBalance, shortenNumber } from '@app/util/markets';
 import { useAnchorPricesUsd } from '@app/hooks/usePrices'
 import { liquidateBorrow } from '@app/util/contracts'
+import { useLiquidationIncentive } from '@app/hooks/usePositions'
 
 // Liquidator can seize repayAmount + 13%
 const LIQUIDATOR_BONUS_PERC = 0.13;
 
-const formattedInfo = (bal: number) => {
-    return <b>{shortenNumber(bal, 2, false, true)} ({shortenNumber(bal, 2, true, true)})</b>
+const formattedInfo = (bal: number | string, priceUsd: number) => {
+    return <b>{shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
 }
 
 export const LiquidationForm = ({
@@ -27,7 +28,7 @@ export const LiquidationForm = ({
 }) => {
     const { library } = useWeb3React<Web3Provider>()
     const { prices: oraclePrices } = useAnchorPricesUsd();
-
+    const { bonusFactor } = useLiquidationIncentive();
 
     const borrowedList: TokenList = {};
     const anMarkets: TokenList = {};
@@ -74,7 +75,7 @@ export const LiquidationForm = ({
         setBorrowedDetails(borrowed!);
 
         const maxSeizableWorth = seizableDetails.balance * (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
-        const repayAmountToSeizeMax = (maxSeizableWorth - maxSeizableWorth * LIQUIDATOR_BONUS_PERC) / (oraclePrices[borrowed.ctoken] || borrowed.usdPrice);
+        const repayAmountToSeizeMax = (maxSeizableWorth / bonusFactor) / (oraclePrices[borrowed.ctoken] || borrowed.usdPrice);
 
         setMaxRepayAmount(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax));
     }, [repayToken, seizableDetails, oraclePrices])
@@ -87,7 +88,7 @@ export const LiquidationForm = ({
 
     useEffect(() => {
         const repayWorth = parseFloat(repayAmount) * (oraclePrices[borrowedDetails.ctoken] || borrowedDetails.usdPrice);
-        const seizePower = (repayWorth + LIQUIDATOR_BONUS_PERC * repayWorth) / (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
+        const seizePower = (repayWorth * bonusFactor) / (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
         setSeizeAmount((seizePower || 0).toString());
     }, [borrowedDetails, repayAmount, seizableDetails, oraclePrices])
 
@@ -100,7 +101,7 @@ export const LiquidationForm = ({
     const collateralAssetInputProps = { tokens: seizeList, balances, showBalance: false }
 
     return <Stack spacing="5" pt="2" direction="column" w="full" justify="center" alignItems="center">
-        <Stack>
+        <Stack spacing="5">
             <Stack>
                 <Text fontWeight="bold">Borrowed Asset to Repay:</Text>
                 <AssetInput
@@ -114,8 +115,9 @@ export const LiquidationForm = ({
                     {...borrowAssetInputProps}
                 />
                 <Text fontSize="12px">
-                    Your balance: {formattedInfo(liquidatorRepayTokenBal)}, the borrowed amount: {formattedInfo(borrowedDetails.balance)}
+                    Your balance: {formattedInfo(liquidatorRepayTokenBal, borrowedDetails.usdPrice)}, the borrowed amount: {formattedInfo(borrowedDetails.balance, borrowedDetails.usdPrice)}
                 </Text>
+
             </Stack>
             <Stack>
                 <Text fontWeight="bold">Collateral to Seize:</Text>
@@ -129,8 +131,11 @@ export const LiquidationForm = ({
                     showMax={false}
                     {...collateralAssetInputProps}
                 />
+                <Text fontSize="12px" fontWeight="bold">
+                    You can seize: {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you repay
+                </Text>
                 <Text fontSize="12px">
-                    Max Seizable: {formattedInfo(seizableDetails.balance)}
+                    Max Seizable: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
                 </Text>
             </Stack>
         </Stack>

@@ -1,6 +1,11 @@
 import { AccountPositions, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
+import useEtherSWR from './useEtherSWR';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+import { getBnToNumber } from '@app/util/markets';
 
 type OptionProps = {
   accounts: string
@@ -18,5 +23,17 @@ export const usePositions = (options?: OptionProps): SWR & AccountPositions => {
     nbPositions: data?.nbPositions || 0,
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useLiquidationIncentive = (): SWR & { bonusFactor: number } => {
+  const { chainId } = useWeb3React<Web3Provider>()
+  const { COMPTROLLER } = getNetworkConfigConstants(chainId)
+
+  const { data, error } = useEtherSWR([COMPTROLLER, 'liquidationIncentiveMantissa']);
+
+  return {
+    bonusFactor: data ? getBnToNumber(data) : 1.1,
+    isError: !!error,
   }
 }
