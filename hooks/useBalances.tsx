@@ -101,7 +101,7 @@ export const useBorrowedAssets = (account?: string) => {
     const balance = getParsedBalance(balances, token, underlying.decimals);
     const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
     const usdWorth = balance * price;
-    return { ...market, balance, monthlyBorrowFee, usdWorth, usdPrice: price }
+    return { ...market, balance, monthlyBorrowFee, usdWorth, usdPrice: price, ctoken: token }
   }).filter(m => m.balance > 0)
 
   return marketsWithBalance;

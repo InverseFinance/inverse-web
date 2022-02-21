@@ -17,6 +17,7 @@ import { AnchorClaimModal } from './AnchorClaimModal'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { PositionSlideWrapper } from '@app/components/Positions/PositionSlideWrapper'
 
 export const AnchorOverview = () => {
   const { account } = useWeb3React<Web3Provider>()
@@ -29,6 +30,7 @@ export const AnchorOverview = () => {
   const { exchangeRates } = useExchangeRates()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure()
 
   const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
   const totalInterestsUsd: Interests = getTotalInterests(markets, supplyBalances, borrowBalances, exchangeRates, invPriceUsd);
@@ -104,6 +106,9 @@ export const AnchorOverview = () => {
       }
     >
       <Flex w="full" justify="center">
+        {
+          borrowLimitPercent > 0 && isDetailsOpen && <PositionSlideWrapper isOpen={isDetailsOpen} onClose={() => onDetailsClose()} />
+        }
         <Stack
           w="full"
           direction={{ base: 'column', sm: 'row' }}
@@ -112,6 +117,8 @@ export const AnchorOverview = () => {
           spacing={2}
           fontSize="sm"
           fontWeight="semibold"
+          cursor={borrowLimitPercent > 0 ? 'pointer' : 'default'}
+          onClick={() => onDetailsOpen()}
         >
           <Stack direction="row" align="center">
             <Flex whiteSpace="nowrap" color="purple.300" fontSize="sm">

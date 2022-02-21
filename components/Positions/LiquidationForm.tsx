@@ -14,9 +14,6 @@ import { useAnchorPricesUsd } from '@app/hooks/usePrices'
 import { liquidateBorrow } from '@app/util/contracts'
 import { useLiquidationIncentive } from '@app/hooks/usePositions'
 
-// Liquidator can seize repayAmount + 13%
-const LIQUIDATOR_BONUS_PERC = 0.13;
-
 const formattedInfo = (bal: number | string, priceUsd: number) => {
     return <b>{shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
 }
@@ -132,10 +129,13 @@ export const LiquidationForm = ({
                     {...collateralAssetInputProps}
                 />
                 <Text fontSize="12px" fontWeight="bold">
-                    You can seize: {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you repay
+                    You can seize {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you Repay in USD
                 </Text>
                 <Text fontSize="12px">
                     Max Seizable: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
+                </Text>
+                <Text fontSize="12px" fontWeight="bold" color="secondary">
+                    Estimated Profit (Gas Fees excluded): {shortenNumber(parseFloat(seizeAmount) * seizableDetails.usdPrice - parseFloat(repayAmount) * borrowedDetails.usdPrice, 2, true, true)}
                 </Text>
             </Stack>
         </Stack>
