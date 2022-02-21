@@ -115,7 +115,7 @@ export const useSuppliedCollaterals = (address?: string) => {
   const { prices: freshOraclePrices } = useAnchorPricesUsd()
 
   const marketsWithBalance = markets?.map((market) => {
-    const { token, underlying, oraclePrice } = market;
+    const { token, underlying, oraclePrice, collateralFactor } = market;
     const price = freshOraclePrices && freshOraclePrices[token] ? freshOraclePrices[token] : oraclePrice;
 
     const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
@@ -127,7 +127,7 @@ export const useSuppliedCollaterals = (address?: string) => {
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
     const usdWorth = tokenBalance * price;
 
-    return { ...market, balance: tokenBalance, isCollateral, usdWorth, ctoken: market.token, usdPrice: price }
+    return { ...market, balance: tokenBalance, isCollateral, usdWorth, ctoken: market.token, usdPrice: price, collateralFactor }
   })
 
   return marketsWithBalance.filter(m => m.isCollateral && m.usdWorth > 0.1);

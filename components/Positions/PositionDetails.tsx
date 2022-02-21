@@ -21,7 +21,9 @@ const FundsDetails = ({ funds, title }: { funds: any, title: string }) => {
     return <Stack p={'1'} direction="column" minW="350px" >
         <Stack>
             <Text fontWeight="bold">{title}:</Text>
-            <Funds funds={funds} chartMode={true} showTotal={true} />
+            {
+                funds?.length && <Funds funds={funds} chartMode={true} showTotal={true} />
+            }
         </Stack>
         <Stack>
             <Funds funds={funds} showPrice={false} showTotal={false} />

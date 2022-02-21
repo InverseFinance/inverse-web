@@ -28,11 +28,8 @@ export const PositionSlideWrapper = ({
         usdSupplied: usdSupply,
         supplied,
         borrowed,
-        borrowingPower: supplied,
+        borrowingPower: supplied.map(s => ({...s, usdPrice: s.usdPrice * s.collateralFactor})),
     }
 
-    return <PositionSlide needFresh={true} position={position} isOpen={isOpen} onClose={() => {
-        console.log('clo');
-        onClose()
-    }} />
+    return <PositionSlide needFresh={true} position={position} isOpen={isOpen} onClose={onClose} />
 }

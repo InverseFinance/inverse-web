@@ -68,6 +68,8 @@ export const AnchorOverview = () => {
     onOpen()
   }
 
+  const canOpenDetails = hasCollaterals || usdBorrow > 0;
+
   return (
     <Container
       noPadding
@@ -107,7 +109,7 @@ export const AnchorOverview = () => {
     >
       <Flex w="full" justify="center">
         {
-          borrowLimitPercent > 0 && isDetailsOpen && <PositionSlideWrapper isOpen={isDetailsOpen} onClose={() => onDetailsClose()} />
+          canOpenDetails && isDetailsOpen && <PositionSlideWrapper isOpen={isDetailsOpen} onClose={() => onDetailsClose()} />
         }
         <Stack
           w="full"
@@ -117,8 +119,12 @@ export const AnchorOverview = () => {
           spacing={2}
           fontSize="sm"
           fontWeight="semibold"
-          cursor={borrowLimitPercent > 0 ? 'pointer' : 'default'}
-          onClick={() => onDetailsOpen()}
+          cursor={canOpenDetails ? 'pointer' : 'default'}
+          onClick={() => {
+            if(canOpenDetails) {
+              onDetailsOpen()
+            }
+          }}
         >
           <Stack direction="row" align="center">
             <Flex whiteSpace="nowrap" color="purple.300" fontSize="sm">
