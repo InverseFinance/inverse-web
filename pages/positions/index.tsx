@@ -1,4 +1,4 @@
-import { Flex, VStack } from '@chakra-ui/react'
+import { Flex, Stack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -26,10 +26,10 @@ export const PositionsPage = () => {
           <Container
             label={`Filters & Infos`}
           >
-            <VStack>
+            <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
               <Input fontSize="12px" textAlign="left" onChange={(e) => setAccounts(e.target.value)} value={accounts} placeholder="Filter by accounts" />
-              <InfoMessage description="Note: all calculations are made with Oracle Prices" />
-            </VStack>
+              <InfoMessage alertProps={{ w:'full' }} description="Note: all calculations are made with Oracle Prices" />
+            </Stack>
           </Container>
           <Container
             label={`Current Shortfalling Positions`}

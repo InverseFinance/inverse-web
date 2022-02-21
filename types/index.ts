@@ -416,14 +416,15 @@ export type AccountPosition = {
   usdSupplied: number
   usdShortfall: number
   assetsIn: number[]
-  borrowed: { value: number, marketIndex: number }[]
-  supplied: { value: number, marketIndex: number }[]
+  borrowed: { balance: number, marketIndex: number }[]
+  supplied: { balance: number, marketIndex: number }[]
 }
 
 export type AccountPositionDetailed = AccountPosition & {
-  borrowed: { value: number, marketIndex: number, market: string, underlying: Token }[]
-  supplied: { value: number, marketIndex: number, market: string, underlying: Token }[]
-  borrowingPower: { value: number, marketIndex: number, market: string, underlying: Token }[]
+  borrowed: { balance: number, marketIndex: number, market: string, underlying: Token }[]
+  supplied: { balance: number, marketIndex: number, market: string, underlying: Token }[]
+  borrowingPower: { balance: number, marketIndex: number, market: string, underlying: Token }[]
+  borrowLimitPercent: number
 }
 
 export type AccountPositions = {

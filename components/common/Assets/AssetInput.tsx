@@ -1,4 +1,4 @@
-import { Stack, Flex, useDisclosure } from '@chakra-ui/react'
+import { Stack, Flex, useDisclosure, InputProps } from '@chakra-ui/react'
 import { BalanceInput } from '@app/components/common/Input'
 import { useState, useEffect } from 'react'
 import { FromAssetDropdown } from '@app/components/common/Assets/FromAssetDropdown'
@@ -19,6 +19,9 @@ export const AssetInput = ({
     onAssetChange,
     onAmountChange,
     showBalance,
+    maxValue,
+    inputProps,
+    showMax = true,
 }: {
     amount: string,
     balances: BigNumberList,
@@ -28,6 +31,9 @@ export const AssetInput = ({
     onAssetChange: (newToken: Token) => void,
     onAmountChange: (newAmount: string) => void,
     showBalance?: boolean,
+    maxValue?: string | number,
+    inputProps?: InputProps,
+    showMax?: boolean,
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -38,7 +44,7 @@ export const AssetInput = ({
     }, [isOpen])
 
     const setAmountToMax = () => {
-        onAmountChange((Math.floor(getMaxBalance(balances, token) * 1e8) / 1e8).toString())
+        onAmountChange(maxValue?.toString()||(Math.floor(getMaxBalance(balances, token) * 1e8) / 1e8).toString())
     }
 
     return (
@@ -49,8 +55,10 @@ export const AssetInput = ({
             inputProps={{
                 fontSize: { base: '12px', sm: '20px' },
                 minW: { base: 'full', sm: '280px' },
+                ...inputProps,
             }}
             showBalance={showBalance}
+            showMax={showMax}
             balance={commify(getMaxBalance(balances, token).toFixed(2))}
             label={
                 <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">

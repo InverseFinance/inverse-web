@@ -39,9 +39,10 @@ type BalanceInputProps = {
   inputProps?: InputProps
   showBalance?: boolean
   balance?: string
+  showMax?: boolean
 }
 
-export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, showBalance, balance }: BalanceInputProps) => (
+export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true }: BalanceInputProps) => (
   <Flex w="full" bgColor="purple.850" borderRadius={8} align="center">
     <Flex w="full" position="relative" align="center">
       <Flex
@@ -55,6 +56,7 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, s
         zIndex="1"
         onClick={onMaxClick}
         _hover={{ color: '#fff' }}
+        visibility={ showMax ? 'visible' : 'hidden' }
       >
         {
           showBalance ? `Bal ${balance}` : 'MAX'

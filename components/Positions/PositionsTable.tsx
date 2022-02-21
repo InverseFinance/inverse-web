@@ -110,6 +110,9 @@ export const PositionsTable = ({
     }
 
     const detailedPositions: AccountPositionsDetailed["positions"] = positions.map(p => {
+        const borrowTotal = p.usdBorrowable + p.usdBorrowed;
+        const borrowLimitPercent = borrowTotal ? Math.floor((p.usdBorrowed / (borrowTotal)) * 100) : 0;
+
         return {
             ...p,
             usdBorrowable: p.usdBorrowed - p.usdShortfall,
@@ -122,6 +125,7 @@ export const PositionsTable = ({
                     usdPrice: prices[s.marketIndex],
                 }
             }),
+            borrowLimitPercent: borrowLimitPercent,
             borrowingPower: p.supplied.map(s => {
                 const market = markets[s.marketIndex];
                 return {

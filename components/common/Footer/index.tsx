@@ -31,7 +31,7 @@ export const Footer = () => (
       direction="row"
       wrap="wrap"
       shouldWrapChildren
-      zIndex="1"
+      zIndex="0"
     >
       {LINK_GROUPS.map(({ groupLabel, items }) => (
         <Stack key={groupLabel} w={24} mb={4}>

@@ -13,6 +13,7 @@ import { AssetInput } from '../common/Assets/AssetInput';
 import { useAllowances } from '@app/hooks/useApprovals';
 import { hasAllowance } from '@app/util/web3';
 import { ApproveButton } from '../Anchor/AnchorButton';
+import { LiquidationForm } from './LiquidationForm';
 
 type Props = {
     position: AccountPositionDetailed
@@ -41,44 +42,14 @@ export const PositionDetails = ({
     position,
 }: Props) => {
     const { account, library } = useWeb3React<Web3Provider>()
-
-    const borrowedList = {};
-    const anMarkets = {};
-    position.borrowed.forEach(b => borrowedList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
-    position.borrowed.forEach(b => anMarkets[b.underlying.symbol] = b.market);
-    const borrowedUnderlyings = position.borrowed.map(b => b.underlying);
-    const borrowedUnderlyingsAd = position.borrowed.map(b => b.underlying.address);
-    const [repayAmount, setRepayAmount] = useState('0');
-    const [repayToken, setRepayToken] = useState(borrowedUnderlyings[0]);
-
-    const seizeList = {};
-    position.supplied.forEach(b => seizeList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
-    const collateralUnderlyings = position.supplied.map(b => b.underlying);
-    const collateralUnderlyingsAd = position.supplied.map(b => b.underlying.address);
-    const [seizeAmount, setSeizeAmount] = useState('0');
-    const [seizeToken, setSeizeToken] = useState(collateralUnderlyings[0]);
-
-    const { approvals } = useAllowances(borrowedUnderlyingsAd, anMarkets[repayToken.symbol]);
-    const [isApproved, setIsApproved] = useState(repayToken.address ? hasAllowance(approvals, repayToken.address) : true);
-
-    const { balances } = useBalances(borrowedUnderlyingsAd);
-
     const { isOpen, onOpen, onClose } = useDisclosure();
     const hasLiquidationOpportunity = position.usdShortfall < position.usdSupplied;
-
-    const handleLiquidation = () => {
-
-    }
-
     const maxSeize = Math.min(position.usdSupplied, position.usdShortfall);
-
-    const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: false }
-    const collateralAssetInputProps = { tokens: seizeList, balances, showBalance: false }
 
     return (
         <Stack w='full' position="relative" maxH="100vh" overflowY="auto" overflowX="hidden">
             <Text position="absolute" right="10px" fontWeight="bold">
-                Account: <ScannerLink value={position.account} />
+                Account: <ScannerLink value={position.account} />,
             </Text>
             {
                 !isOpen && <ScaleFade in={!isOpen} unmountOnExit={true}>
@@ -90,6 +61,9 @@ export const PositionDetails = ({
                 </ScaleFade>
             }
             <Stack pt="5" spacing="5" direction="row" w="full">
+                <Text fontWeight="bold" color={position.borrowLimitPercent >= 100 ? 'error' : 'white'}>
+                    Borrow Limit: {shortenNumber(position.borrowLimitPercent, 2)}%
+                </Text>
                 <Text fontWeight="bold" color={position.usdShortfall > 0 ? 'error' : 'secondary'}>
                     Solvency: {shortenNumber(position.usdBorrowable, 2, true)} - {shortenNumber(position.usdBorrowed, 2, true)} = {shortenNumber(position.usdBorrowable - position.usdBorrowed, 2, true)}
                 </Text>
@@ -119,38 +93,7 @@ export const PositionDetails = ({
             {
                 isOpen &&
                 <ScaleFade in={isOpen} unmountOnExit={true}>
-                    <Stack spacing="5" pt="2" direction="column" w="full" justify="center" alignItems="center">
-                        <Stack>
-                            <Stack>
-                                <Text fontWeight="bold">Borrowed Asset to Repay:</Text>
-                                <AssetInput
-                                    amount={repayAmount}
-                                    token={repayToken}
-                                    assetOptions={borrowedUnderlyingsAd}
-                                    onAssetChange={(newToken) => setRepayToken(newToken)}
-                                    onAmountChange={(newAmount) => setRepayAmount(newAmount)}
-                                    {...borrowAssetInputProps}
-                                />
-                            </Stack>
-                            <Stack>
-                                <Text fontWeight="bold">Collateral to Seize:</Text>
-                                <AssetInput
-                                    amount={seizeAmount}
-                                    token={seizeToken}
-                                    assetOptions={collateralUnderlyingsAd}
-                                    onAssetChange={(newToken) => setSeizeToken(newToken)}
-                                    onAmountChange={(newAmount) => setSeizeAmount(newAmount)}
-                                    {...collateralAssetInputProps}
-                                />
-                            </Stack>
-                        </Stack>
-                        <Stack direction="row">
-                            <ApproveButton signer={library?.getSigner()} asset={{ ...repayToken, token: repayToken.market }} isDisabled={isApproved} />
-                            <SubmitButton disabled={!isApproved}>
-                                Liquidate
-                            </SubmitButton>
-                        </Stack>
-                    </Stack>
+                    <LiquidationForm position={position} />
                 </ScaleFade>
             }
         </Stack>
