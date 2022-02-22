@@ -109,7 +109,7 @@ export const PositionDetails = ({
                     </Stack>
                 </ScaleFade>
             }
-            <Text fontSize="12px">
+            <Text fontSize="12px" pt={ isOpen ? 2 : 0 }>
                 Calculations here use <b>Oracle Prices</b>, these can differ from Coingecko's
             </Text>
             <Stack spacing="5" direction="row" w="full">

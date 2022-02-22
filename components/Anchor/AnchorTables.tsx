@@ -27,7 +27,7 @@ import { NotifBadge } from '@app/components/common/NotifBadge'
 import moment from 'moment'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
-const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.01): boolean => {
+const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
   return amount &&
     parseFloat(formatUnits(amount, decimals)) *
