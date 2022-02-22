@@ -1,0 +1,7 @@
+{
+    "functions": {
+      "pages/api/positions.ts": {
+        "maxDuration": 120
+      }
+    }
+  }
