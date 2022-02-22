@@ -1,20 +1,19 @@
-import { Flex, Stack, Text, Image, HStack, useDisclosure, Slide, Box } from '@chakra-ui/react'
+import { Flex, Stack, Text, Image, HStack, useDisclosure } from '@chakra-ui/react'
 
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { shortenNumber } from '@app/util/markets'
 import { AccountPosition, AccountPositionDetailed, AccountPositionsDetailed, Token } from '@app/types'
-import { CloseIcon, ViewIcon } from '@chakra-ui/icons'
+import { ViewIcon } from '@chakra-ui/icons'
 import Link from '@app/components/common/Link'
-import { PositionDetails } from './PositionDetails'
 import { useState } from 'react'
 import { UNDERLYING } from '@app/variables/tokens'
-import Container from '../common/Container'
+import { PositionSlide } from './PositionSlide'
 
 const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] }) => {
     return <HStack minW="100px" position="relative">
         {
-            list?.map((s, i) => <Image key={s.market} width={'15px'} src={s?.underlying.image} ignoreFallback={true} />)
+            list?.map((s, i) => <Image key={s.ctoken} width={'15px'} src={s?.underlying.image} ignoreFallback={true} />)
         }
     </HStack>
 }
@@ -36,19 +35,19 @@ const getColumns = () => {
             },
         },
         {
-            field: 'supplied',
-            label: 'Collaterals',
-            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
-            value: ({ supplied }: AccountPositionDetailed) => {
-                return <AssetIcons list={supplied} />
-            },
-        },
-        {
             field: 'borrowed',
             label: 'Borrowed',
             header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
             value: ({ borrowed }: AccountPositionDetailed) => {
                 return <AssetIcons list={borrowed} />
+            },
+        },
+        {
+            field: 'supplied',
+            label: 'Collaterals',
+            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
+            value: ({ supplied }: AccountPositionDetailed) => {
+                return <AssetIcons list={supplied} />
             },
         },
         {
@@ -60,11 +59,11 @@ const getColumns = () => {
             },
         },
         {
-            field: 'usdBorrowable',
-            label: 'Borrow Capacity',
+            field: 'usdBorrowingPower',
+            label: 'Borrowing Power',
             header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
-            value: ({ usdBorrowable }: AccountPositionDetailed) => {
-                return <Text w="100px">{shortenNumber(usdBorrowable, 2, true)}</Text>
+            value: ({ usdBorrowingPower }: AccountPositionDetailed) => {
+                return <Text w="100px">{shortenNumber(usdBorrowingPower, 2, true)}</Text>
             },
         },
         {
@@ -110,33 +109,38 @@ export const PositionsTable = ({
     }
 
     const detailedPositions: AccountPositionsDetailed["positions"] = positions.map(p => {
+        const borrowTotal = p.usdBorrowable + p.usdBorrowed;
+        const borrowLimitPercent = borrowTotal ? Math.floor((p.usdBorrowed / (borrowTotal)) * 100) : 0;
+
         return {
             ...p,
-            usdBorrowable: p.usdBorrowed - p.usdShortfall,
+            usdBorrowingPower: p.supplied.reduce((prev, s) => prev + s.balance * prices[s.marketIndex] * collateralFactors[s.marketIndex], 0),
             supplied: p.supplied.map(s => {
-                const market = markets[s.marketIndex];
+                const ctoken = markets[s.marketIndex];
                 return {
                     ...s,
-                    market,
-                    underlying: UNDERLYING[market],
+                    ctoken,
+                    underlying: UNDERLYING[ctoken],
                     usdPrice: prices[s.marketIndex],
+                    collateralFactor: collateralFactors[s.marketIndex],
                 }
             }),
+            borrowLimitPercent: borrowLimitPercent,
             borrowingPower: p.supplied.map(s => {
-                const market = markets[s.marketIndex];
+                const ctoken = markets[s.marketIndex];
                 return {
                     ...s,
-                    market,
-                    underlying: UNDERLYING[market],
+                    ctoken,
+                    underlying: UNDERLYING[ctoken],
                     usdPrice: prices[s.marketIndex] * collateralFactors[s.marketIndex],
                 }
             }),
             borrowed: p.borrowed.map(s => {
-                const market = markets[s.marketIndex];
+                const ctoken = markets[s.marketIndex];
                 return {
                     ...s,
-                    market,
-                    underlying: UNDERLYING[market],
+                    ctoken,
+                    underlying: UNDERLYING[ctoken],
                     usdPrice: prices[s.marketIndex],
                 }
             })
@@ -144,22 +148,7 @@ export const PositionsTable = ({
     })
 
     return <>
-        <Slide direction='bottom' in={isOpen} style={{ zIndex: 9999 }}>
-            <Container
-                noPadding
-                contentProps={{
-                    boxShadow: "0px 0px 1px 1px #ccc",
-                    borderBottomLeftRadius: 0,
-                    borderBottomRightRadius: 0,
-                    className: "blurred-container info-bg",
-                }}
-            >
-                <Box w="20px" h="20px" cursor="pointer" onClick={onClose} position="absolute" top="10px" left="10px">
-                    <CloseIcon fontSize="14px" cursor="pointer" />
-                </Box>
-                {!!selectedPosition && <PositionDetails position={selectedPosition} />}
-            </Container>
-        </Slide>
+        <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} />
         <Table
             keyName="account"
             defaultSort="usdShortfall"

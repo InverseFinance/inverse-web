@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const { accounts = '' } = req.query;
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-    const cacheKey = `${networkConfig.chainId}-positions-v1.3.3`;
+    const cacheKey = `${networkConfig.chainId}-positions-v1.0.1`;
 
     try {
         const {
@@ -25,20 +25,38 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        const validCache = await getCacheFromRedis(cacheKey, true, parseInt(process.env.NEXT_PUBLIC_CHAIN_SECONDS_PER_BLOCK!));
-        // const validCache = await getCacheFromRedis(cacheKey, true, 999999);
-        if (validCache) {
+        const validCache = await getCacheFromRedis(cacheKey, true, 60);
+
+        if (validCache && !accounts) {
             res.status(200).json(validCache);
             return
         }
 
-        const provider = getProvider(networkConfig.chainId, process.env.ALCHEMY_API, true);
+        const provider = getProvider(networkConfig.chainId, process.env.POSITIONS_ALCHEMY_API, true);
         const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
         const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
         const allMarkets: string[] = [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
 
         const contracts = allMarkets
             .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
+
+        const [
+            underlyings,
+            exRates,
+            oraclePrices,
+            borrowPaused,
+            marketsDetails,
+        ] = await Promise.all([
+            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
+            Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
+            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
+            Promise.all(
+                contracts.map((contract) =>
+                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
+                )
+            ),
+            Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
+        ])
 
         const holders = await Promise.all(
             contracts.map(contract => getTokenHolders(contract.address))
@@ -55,27 +73,17 @@ export default async function handler(req, res) {
             });
         });
 
-        const uniqueUsers = Array.from(usersSet);
+        let uniqueUsers = Array.from(usersSet);
 
-        const [
-            positions,
-            underlyings,
-            exRates,
-            oraclePrices,
-            borrowPaused,
-            marketsDetails,
-        ] = await Promise.all([
-            Promise.all(uniqueUsers.map(account => comptroller.getAccountLiquidity(account))),
-            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
-            Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
-            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
-            Promise.all(
-                contracts.map((contract) =>
-                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
-                )
-            ),
-            Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
-        ])
+        if(accounts?.length) {
+            const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
+            uniqueUsers = uniqueUsers.filter(ad => filterAccounts.map(a => a.toLowerCase()).includes(ad.toLowerCase()));
+        }
+
+        const positionsResults = await Promise.allSettled(uniqueUsers.map(account => comptroller.getAccountLiquidity(account)));
+        const positions = positionsResults.map(r => {
+            return r.status === 'fulfilled' ? r.value : [1, BigNumber.from('0'), BigNumber.from('0')];
+        })
 
         let marketDecimals: number[] = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
@@ -89,16 +97,18 @@ export default async function handler(req, res) {
                 return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
             })
 
-        const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
-
-        const shortfallAccounts = uniqueUsers.map((account, i) => {
+        let shortfallAccounts = uniqueUsers.map((account, i) => {
             const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i];
             return {
                 account,
                 usdBorrowable: getBnToNumber(extraBorrowableAmount),
                 usdShortfall: getBnToNumber(shortfallAmount),
             }
-        }).filter(p => filterAccounts.length ? filterAccounts.includes(p.account) : p.usdShortfall > 0.1);
+        });
+
+        if(!accounts) {
+            shortfallAccounts = shortfallAccounts.filter(p => p.usdShortfall > 0.1);
+        }
 
         const borrowedAssets = await Promise.all(
             shortfallAccounts.map(p => {
@@ -156,6 +166,7 @@ export default async function handler(req, res) {
         positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
 
         const resultData = {
+            lastUpdate: Date.now(),
             prices,
             collateralFactors,
             markets: allMarkets,
@@ -164,7 +175,10 @@ export default async function handler(req, res) {
             positions: positionDetails,
         };
 
-        await redisSetWithTimestamp(cacheKey, resultData);
+        if(!accounts?.length) {
+            await redisSetWithTimestamp(cacheKey, resultData);
+        }
+
         res.status(200).json(resultData);
 
     } catch (err) {

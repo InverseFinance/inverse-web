@@ -8,7 +8,7 @@ import { BigNumber } from 'ethers'
 import { useRouter } from 'next/dist/client/router'
 import useSWR from 'swr'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
-import { usePrices } from '@app/hooks/usePrices';
+import { useAnchorPricesUsd } from '@app/hooks/usePrices';
 import { useAccountMarkets, useMarkets } from './useMarkets'
 import { getMonthlyRate, getParsedBalance } from '@app/util/markets'
 import { useExchangeRates } from './useExchangeRates'
@@ -91,16 +91,17 @@ export const useVaultBalances = () => {
 }
 
 export const useBorrowedAssets = (account?: string) => {
-  const { prices } = usePrices()
+  const { prices: freshOraclePrices } = useAnchorPricesUsd()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { balances, isLoading: balancesLoading } = useBorrowBalances(account)
 
   const marketsWithBalance = markets?.map((market) => {
-    const { token, underlying, borrowApy } = market;
+    const { token, underlying, borrowApy, oraclePrice } = market;
+    const price = freshOraclePrices && freshOraclePrices[token] ? freshOraclePrices[token] : oraclePrice;
     const balance = getParsedBalance(balances, token, underlying.decimals);
     const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
-    const usdWorth = balance * (prices && prices[underlying.coingeckoId!]?.usd || 0);
-    return { ...market, balance, monthlyBorrowFee, usdWorth }
+    const usdWorth = balance * price;
+    return { ...market, balance, monthlyBorrowFee, usdWorth, usdPrice: price, ctoken: token }
   }).filter(m => m.balance > 0)
 
   return marketsWithBalance;
@@ -111,9 +112,11 @@ export const useSuppliedCollaterals = (address?: string) => {
   const { balances, isLoading: balancesLoading } = useSupplyBalances(address)
   const { markets: accountMarkets } = useAccountMarkets(address)
   const { exchangeRates } = useExchangeRates()
+  const { prices: freshOraclePrices } = useAnchorPricesUsd()
 
   const marketsWithBalance = markets?.map((market) => {
-    const { token, underlying, oraclePrice } = market;
+    const { token, underlying, oraclePrice, collateralFactor } = market;
+    const price = freshOraclePrices && freshOraclePrices[token] ? freshOraclePrices[token] : oraclePrice;
 
     const anTokenToTokenExRate = exchangeRates ? parseFloat(formatUnits(exchangeRates[token])) : 0;
     // balance of the "anchor" version of the token supplied
@@ -122,9 +125,9 @@ export const useSuppliedCollaterals = (address?: string) => {
     const tokenBalance = anTokenBalance * anTokenToTokenExRate;
 
     const isCollateral = !!accountMarkets?.find((market: Market) => market?.token === token)
-    const usdWorth = tokenBalance * oraclePrice;
+    const usdWorth = tokenBalance * price;
 
-    return { ...market, balance: tokenBalance, isCollateral, usdWorth }
+    return { ...market, balance: tokenBalance, isCollateral, usdWorth, ctoken: market.token, usdPrice: price, collateralFactor }
   })
 
   return marketsWithBalance.filter(m => m.isCollateral && m.usdWorth > 0.1);

@@ -1,5 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { Prices, SWR } from '@app/types'
+import { Prices, StringNumMap, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { BigNumber } from 'ethers'
 import useEtherSWR from './useEtherSWR'
@@ -7,6 +7,8 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCustomSWR } from './useCustomSWR'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
+import { formatUnits } from '@ethersproject/units'
+import { UNDERLYING } from '@app/variables/tokens'
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -48,5 +50,22 @@ export const useAnchorPrices = (): any => {
     }, {}),
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useAnchorPricesUsd = () => {
+  const { prices, isLoading, isError } = useAnchorPrices()
+
+  let usdPrices: StringNumMap = {}
+  for (var key in prices) {
+      if (prices.hasOwnProperty(key)) {
+        usdPrices[key] = parseFloat(formatUnits(prices[key], BigNumber.from(36).sub(UNDERLYING[key].decimals)))
+      }
+  }
+
+  return {
+    prices: usdPrices,
+    isError,
+    isLoading,
   }
 }

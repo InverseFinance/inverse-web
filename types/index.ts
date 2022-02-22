@@ -416,17 +416,24 @@ export type AccountPosition = {
   usdSupplied: number
   usdShortfall: number
   assetsIn: number[]
-  borrowed: { value: number, marketIndex: number }[]
-  supplied: { value: number, marketIndex: number }[]
+  borrowed: { balance: number, marketIndex: number, usdWorth: number }[]
+  supplied: { balance: number, marketIndex: number, usdWorth: number }[]
+}
+
+export type AccountPositionAssets = {
+  balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number
 }
 
 export type AccountPositionDetailed = AccountPosition & {
-  borrowed: { value: number, marketIndex: number, market: string, underlying: Token }[]
-  supplied: { value: number, marketIndex: number, market: string, underlying: Token }[]
-  borrowingPower: { value: number, marketIndex: number, market: string, underlying: Token }[]
+  borrowed: AccountPositionAssets[]
+  supplied: AccountPositionAssets[]
+  borrowingPower: AccountPositionAssets[]
+  borrowLimitPercent: number
+  usdBorrowingPower: number
 }
 
 export type AccountPositions = {
+  lastUpdate: number
   nbPositions: number
   positions: AccountPosition[]
   markets: string[]

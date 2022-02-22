@@ -1,4 +1,4 @@
-import { Flex, VStack } from '@chakra-ui/react'
+import { Flex, Stack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -6,14 +6,15 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePositions } from '@app/hooks/usePositions'
-import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
 import { PositionsTable } from '@app/components/Positions/PositionsTable'
-import { InfoMessage } from '@app/components/common/Messages'
+import moment from 'moment'
+import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
+import { shortenAddress } from '@app/util'
 
 export const PositionsPage = () => {
   const [accounts, setAccounts] = useState('');
-  const { positions, markets, prices, collateralFactors } = usePositions({ accounts });
+  const { positions, markets, prices, collateralFactors, lastUpdate } = usePositions({ accounts });
 
   return (
     <Layout>
@@ -22,17 +23,16 @@ export const PositionsPage = () => {
       </Head>
       <AppNav active="Positions" />
       <ErrorBoundary>
-        <Flex w="full" direction="column" justify="center">
+        <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Container
-            label={`Filters & Infos`}
+            label={`Filter by account (Shortfalling or Not)`}
           >
-            <VStack>
-              <Input fontSize="12px" textAlign="left" onChange={(e) => setAccounts(e.target.value)} value={accounts} placeholder="Filter by accounts" />
-              <InfoMessage description="Note: all calculations are made with Oracle Prices" />
-            </VStack>
+            <Stack minW={{ base: 'full', sm: '450px' }} maxW='500px'>
+              <TopDelegatesAutocomplete onItemSelect={(item) => item?.value ? setAccounts(item?.value) : setAccounts('') } />
+            </Stack>
           </Container>
           <Container
-            label={`Current Shortfalling Positions`}
+            label={`${accounts ? shortenAddress(accounts)+"'s Positions" : 'Shortfalling Positions'} - ${!lastUpdate ? 'Updating...' : 'Last update '+moment(lastUpdate).fromNow()}`}
           >
             <PositionsTable collateralFactors={collateralFactors} markets={markets} prices={prices} positions={positions} />
           </Container>

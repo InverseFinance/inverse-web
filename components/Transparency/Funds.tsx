@@ -4,7 +4,7 @@ import { Prices, Token } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { PieChart } from './PieChart';
 
-const FundLine = ({ token, value, usdValue, perc, showPerc = true }: { token: Token, value: number, usdValue: number, perc: number, showPerc?: boolean }) => {
+const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, showPrice = false }: { token: Token, value: number, usdPrice: number, usdValue: number, perc: number, showPerc?: boolean, showPrice?: boolean }) => {
     return (
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
@@ -14,7 +14,7 @@ const FundLine = ({ token, value, usdValue, perc, showPerc = true }: { token: To
             </Flex>
             <Flex alignItems="center">
                 <Text>
-                    {shortenNumber(value, 2, false, true)} ({shortenNumber(usdValue, 2, true, true)})
+                    {shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} ` }({shortenNumber(usdValue, 2, true, true)})
                 </Text>
                 {
                     showPerc && <Text ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
@@ -34,6 +34,7 @@ export const Funds = ({
     showPerc = true,
     showTotal = true,
     chartMode = false,
+    showPrice = false,
 }: {
     prices?: Prices["prices"],
     funds: { token: Token, balance: number, allowance?: number, usdPrice?: number }[],
@@ -42,6 +43,7 @@ export const Funds = ({
     showPerc?: boolean,
     showTotal?: boolean,
     chartMode?: boolean,
+    showPrice?: boolean
 }) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
@@ -56,7 +58,7 @@ export const Funds = ({
             usdTotals.balance += usdBalance;
             usdTotals.allowance += usdAllowance;
             usdTotals.overall += totalUsd;
-            return { token, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd };
+            return { token, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price };
         })
         .filter(({ totalBalance }) => totalBalance > 0)
         .sort((a, b) => b.totalUsd - a.totalUsd)
@@ -72,16 +74,16 @@ export const Funds = ({
     positiveBalances.sort((a, b) => b.usdBalance - a.usdBalance);
 
     const balancesContent = positiveBalances
-        .map(({ token, balance, usdBalance, balancePerc }) => {
-            return <FundLine key={token.address || token.symbol} token={token} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+        .map(({ token, balance, usdBalance, balancePerc, usdPrice }) => {
+            return <FundLine key={token.address || token.symbol} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
     positiveAllowances.sort((a, b) => b.usdAllowance - a.usdAllowance);
 
     const allowancesContent = positiveAllowances
-        .map(({ token, allowance, usdAllowance, allowancePerc }) => {
-            return <FundLine key={token.address || token.symbol} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+        .map(({ token, allowance, usdAllowance, allowancePerc, usdPrice }) => {
+            return <FundLine key={token.address || token.symbol} showPrice={showPrice}  usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     return (

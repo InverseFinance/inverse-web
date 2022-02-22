@@ -162,3 +162,18 @@ export const claimAllInvRewards = async (signer: JsonRpcSigner, options?: Handle
   const tx = await contract["claimComp(address)"](account);
   return handleTx(tx, options);
 }
+
+export const liquidateCtoken = (account: string, signer: JsonRpcSigner, amount: string, market: string, underlying: Token, collateralCtoken: string) => {
+  const contract = getAnchorContract(market, signer);
+  return contract.liquidateBorrow(account, parseUnits(amount, underlying.decimals), collateralCtoken);
+}
+
+export const liquidateCether = (account: string, signer: JsonRpcSigner, amount: string, market: string, underlying: Token, collateralCtoken: string) => {
+  const contract = getAnchorContract(market, signer);
+  return contract.liquidateBorrow(parseUnits(amount, underlying.decimals), account, collateralCtoken);
+}
+
+export const liquidateBorrow = (account: string, signer: JsonRpcSigner, amount: string, market: string, underlying: Token, collateralCtoken: string) => {
+  const args = [account, signer, amount, market, underlying, collateralCtoken];
+  return !underlying.address ? liquidateCether(...args) : liquidateCtoken(...args);
+}

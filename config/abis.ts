@@ -20,7 +20,8 @@ export const COMPTROLLER_ABI = [
   "function mintGuardianPaused(address) external view returns (bool)",
   "function pauseGuardian() public view returns (address)",
   "function admin() public view returns (address)",
-  "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
+  "function liquidationIncentiveMantissa() public view returns (uint256)",
+  "function liquidateCalculateSeizeTokens(address ctokenBorrowed, address ctokenSeize, uint256 repayAmount) public view returns (uint256)",
 ];
 
 export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
@@ -46,6 +47,7 @@ export const CTOKEN_ABI = [
   "function reserveFactorMantissa() external view returns (uint256)",
   "function underlying() external view returns (address)",
   "function decimals() view returns (uint8)",
+  "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 

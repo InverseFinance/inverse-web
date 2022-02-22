@@ -1,0 +1,152 @@
+import { useAllowances } from '@app/hooks/useApprovals'
+import { useBalances } from '@app/hooks/useBalances'
+import { hasAllowance } from '@app/util/web3'
+import { Stack, Text } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+import { ApproveButton } from '@app/components/Anchor/AnchorButton'
+import { AssetInput } from '@app/components/common/Assets/AssetInput'
+import { SubmitButton } from '@app/components/common/Button'
+import { AccountPositionDetailed, Token, TokenList } from '@app/types'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+import { getParsedBalance, shortenNumber } from '@app/util/markets';
+import { useAnchorPricesUsd } from '@app/hooks/usePrices'
+import { liquidateBorrow } from '@app/util/contracts'
+import { useLiquidationIncentive } from '@app/hooks/usePositions'
+
+const formattedInfo = (bal: number | string, priceUsd: number) => {
+    return <b>{shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
+}
+
+export const LiquidationForm = ({
+    position
+}: {
+    position: AccountPositionDetailed,
+}) => {
+    const { library } = useWeb3React<Web3Provider>()
+    const { prices: oraclePrices } = useAnchorPricesUsd();
+    const { bonusFactor } = useLiquidationIncentive();
+
+    const borrowedList: TokenList = {};
+    const anMarkets: TokenList = {};
+
+    position.borrowed.forEach(b => borrowedList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
+    position.borrowed.forEach(b => anMarkets[b.underlying.symbol] = b.ctoken);
+    const borrowedUnderlyings: Token[] = position.borrowed.map(b => b.underlying);
+    const borrowedUnderlyingsAd = position.borrowed.map(b => b.underlying.address);
+
+    const seizeList = {};
+    position.supplied.forEach(b => seizeList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
+    const collateralUnderlyings = position.supplied.map(b => b.underlying);
+    const collateralUnderlyingsAd = position.supplied.map(b => b.underlying.address);
+
+    const [repayToken, setRepayToken] = useState<Token>(borrowedUnderlyings[0]);
+    const [seizeAmount, setSeizeAmount] = useState('0');
+    const [maxRepayAmount, setMaxRepayAmount] = useState(0);
+    const [liquidatorRepayTokenBal, setLiquidatorRepayTokenBal] = useState(0);
+    const [borrowedDetails, setBorrowedDetails] = useState(position.borrowed[0]);
+
+    const { approvals } = useAllowances(borrowedUnderlyingsAd, anMarkets[repayToken.symbol]);
+    const [isApproved, setIsApproved] = useState(repayToken.address ? hasAllowance(approvals, repayToken.address) : true);
+    const { balances } = useBalances(borrowedUnderlyingsAd);
+
+    const [seizeToken, setSeizeToken] = useState(collateralUnderlyings[0]);
+    const [seizableDetails, setSeizableDetails] = useState(position.supplied[0]);
+    const [repayAmount, setRepayAmount] = useState('0');
+
+    useEffect(() => {
+        setRepayToken(borrowedUnderlyings[0])
+        setSeizeToken(collateralUnderlyings[0])
+    }, [position])
+
+    useEffect(() => {
+        setIsApproved(repayToken.address ? hasAllowance(approvals, repayToken.address) : true)
+    }, [approvals, repayToken])
+
+    useEffect(() => {
+        const liquidatorBal = getParsedBalance(balances, repayToken.address, repayToken.decimals);
+
+        setLiquidatorRepayTokenBal(liquidatorBal);
+        const borrowed = position.borrowed.find(m => m.underlying.symbol === repayToken.symbol);
+        if (!borrowed) { return }
+        setBorrowedDetails(borrowed!);
+
+        const maxSeizableWorth = seizableDetails.balance * (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
+        const repayAmountToSeizeMax = (maxSeizableWorth / bonusFactor) / (oraclePrices[borrowed.ctoken] || borrowed.usdPrice);
+
+        setMaxRepayAmount(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax));
+    }, [repayToken, seizableDetails, oraclePrices])
+
+    useEffect(() => {
+        const seizable = position.supplied.find(m => m.underlying.symbol === seizeToken.symbol);
+        if (!seizable) { return }
+        setSeizableDetails(seizable);
+    }, [seizeToken]);
+
+    useEffect(() => {
+        const repayWorth = parseFloat(repayAmount) * (oraclePrices[borrowedDetails.ctoken] || borrowedDetails.usdPrice);
+        const seizePower = (repayWorth * bonusFactor) / (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
+        setSeizeAmount((seizePower || 0).toString());
+    }, [borrowedDetails, repayAmount, seizableDetails, oraclePrices])
+
+    const handleLiquidation = async () => {
+        return liquidateBorrow(position.account, library?.getSigner(), repayAmount, borrowedDetails.ctoken, borrowedDetails.underlying, seizableDetails.ctoken);
+    }
+
+    const inputProps = { fontSize: '14px' }
+    const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: false }
+    const collateralAssetInputProps = { tokens: seizeList, balances, showBalance: false }
+
+    return <Stack spacing="5" pt="2" direction="column" w="full" justify="center" alignItems="center">
+        <Stack spacing="5">
+            <Stack>
+                <Text fontWeight="bold">Borrowed Asset to Repay:</Text>
+                <AssetInput
+                    amount={repayAmount}
+                    token={repayToken}
+                    assetOptions={borrowedUnderlyingsAd}
+                    onAssetChange={(newToken) => setRepayToken(newToken)}
+                    onAmountChange={(newAmount) => setRepayAmount(newAmount)}
+                    maxValue={maxRepayAmount}
+                    inputProps={inputProps}
+                    {...borrowAssetInputProps}
+                />
+                <Text fontSize="12px">
+                    Your balance: {formattedInfo(liquidatorRepayTokenBal, borrowedDetails.usdPrice)}, the borrowed amount: {formattedInfo(borrowedDetails.balance, borrowedDetails.usdPrice)}
+                </Text>
+
+            </Stack>
+            <Stack>
+                <Text fontWeight="bold">Collateral to Seize:</Text>
+                <AssetInput
+                    amount={seizeAmount}
+                    token={seizeToken}
+                    assetOptions={collateralUnderlyingsAd}
+                    onAssetChange={(newToken) => setSeizeToken(newToken)}
+                    onAmountChange={(newAmount) => setSeizeAmount(newAmount)}
+                    inputProps={{ fontSize: '14px', disabled: true }}
+                    showMax={false}
+                    {...collateralAssetInputProps}
+                />
+                <Text fontSize="12px" fontWeight="bold">
+                    You can seize {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you Repay in USD
+                </Text>
+                <Text fontSize="12px">
+                    Max Seizable: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
+                </Text>
+                <Text fontSize="12px" fontWeight="bold" color="secondary">
+                    Estimated Profit (Gas Fees excluded): {shortenNumber(parseFloat(seizeAmount) * seizableDetails.usdPrice - parseFloat(repayAmount) * borrowedDetails.usdPrice, 2, true, true)}
+                </Text>
+            </Stack>
+        </Stack>
+        <Stack direction="row">
+            {
+                !isApproved &&
+                <ApproveButton tooltipMsg="" signer={library?.getSigner()} asset={{ ...repayToken, token: repayToken.ctoken }} isDisabled={isApproved} />
+            }
+            <SubmitButton onClick={async () => handleLiquidation()} refreshOnSuccess={true} disabled={!isApproved}>
+                Liquidate
+            </SubmitButton>
+        </Stack>
+    </Stack>
+}

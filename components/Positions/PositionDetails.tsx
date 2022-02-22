@@ -1,31 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScaleFade, Stack, Text, useDisclosure } from '@chakra-ui/react';
-import { SubmitButton } from '@app/components/common/Button';
-import { useBalances } from '@app/hooks/useBalances';
-import { Funds } from '../Transparency/Funds';
-import { AccountPositionDetailed } from '@app/types';
+import { useBorrowedAssets, useSuppliedCollaterals } from '@app/hooks/useBalances';
+import { Funds } from '@app/components/Transparency/Funds';
+import { AccountPositionDetailed, AccountPositionAssets } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import ScannerLink from '../common/ScannerLink';
-import { AssetInput } from '../common/Assets/AssetInput';
-import { useAllowances } from '@app/hooks/useApprovals';
-import { hasAllowance } from '@app/util/web3';
-import { ApproveButton } from '../Anchor/AnchorButton';
+import ScannerLink from '@app/components/common/ScannerLink';
+
+import { LiquidationForm } from './LiquidationForm';
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity';
 
 type Props = {
-    position: AccountPositionDetailed
+    position: AccountPositionDetailed,
+    needFresh?: boolean,
 }
 
 const FundsDetails = ({ funds, title }: { funds: any, title: string }) => {
-    return <Stack p={'5'} direction="column" minW="350px" >
+    return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '350px' }} >
         <Stack>
             <Text fontWeight="bold">{title}:</Text>
-            <Funds funds={funds} chartMode={true} showTotal={true} />
+            {
+                funds?.length && <Funds funds={funds} chartMode={true} showTotal={true} />
+            }
         </Stack>
         <Stack>
-            <Funds funds={funds} showTotal={false} />
+            <Funds funds={funds} showPrice={false} showTotal={false} />
         </Stack>
     </Stack>
 }
@@ -37,70 +38,97 @@ const toFunds = (data: AccountPositionDetailed["supplied"]) => {
     }))
 }
 
+const toFresh = (fromApi: AccountPositionAssets[], fromFresh: AccountPositionAssets[], applyCollateralFactor = false) => {
+    return fromApi.map(m => {
+        const freshSupplied = fromFresh.find(s => s.ctoken === m.ctoken) || m;
+        const priceFactor = (applyCollateralFactor ? freshSupplied.collateralFactor : 1);
+        return {
+            ...m,
+            usdPrice: freshSupplied.usdPrice * priceFactor,
+            balance: freshSupplied.balance,
+            usdWorth: freshSupplied.balance * priceFactor,
+        }
+    });
+}
+
 export const PositionDetails = ({
     position,
+    needFresh = true,
 }: Props) => {
-    const { account, library } = useWeb3React<Web3Provider>()
-
-    const borrowedList = {};
-    const anMarkets = {};
-    position.borrowed.forEach(b => borrowedList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
-    position.borrowed.forEach(b => anMarkets[b.underlying.symbol] = b.market);
-    const borrowedUnderlyings = position.borrowed.map(b => b.underlying);
-    const borrowedUnderlyingsAd = position.borrowed.map(b => b.underlying.address);
-    const [repayAmount, setRepayAmount] = useState('0');
-    const [repayToken, setRepayToken] = useState(borrowedUnderlyings[0]);
-
-    const seizeList = {};
-    position.supplied.forEach(b => seizeList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
-    const collateralUnderlyings = position.supplied.map(b => b.underlying);
-    const collateralUnderlyingsAd = position.supplied.map(b => b.underlying.address);
-    const [seizeAmount, setSeizeAmount] = useState('0');
-    const [seizeToken, setSeizeToken] = useState(collateralUnderlyings[0]);
-
-    const { approvals } = useAllowances(borrowedUnderlyingsAd, anMarkets[repayToken.symbol]);
-    const [isApproved, setIsApproved] = useState(repayToken.address ? hasAllowance(approvals, repayToken.address) : true);
-
-    const { balances } = useBalances(borrowedUnderlyingsAd);
-
+    const { account } = useWeb3React<Web3Provider>()
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const hasLiquidationOpportunity = position.usdShortfall < position.usdSupplied;
+    const supplied = useSuppliedCollaterals(position.account);
+    const borrowed = useBorrowedAssets(position.account);
 
-    const handleLiquidation = () => {
+    const { usdBorrowable, usdBorrow, usdShortfall, usdSupply } = useAccountLiquidity(position.account);
 
-    }
+    const [freshPosition, setFreshPosition] = useState(position);
 
-    const maxSeize = Math.min(position.usdSupplied, position.usdShortfall);
+    useEffect(() => {
+        if (position.account !== freshPosition.account) {
+            onClose();
+            setFreshPosition(position);
+        }
+    }, [position.account, freshPosition.account])
 
-    const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: false }
-    const collateralAssetInputProps = { tokens: seizeList, balances, showBalance: false }
+    useEffect(() => {
+        if (!needFresh || !supplied?.length || !borrowed?.length) { return }
+        const fresh = {
+            ...position,
+            usdSupplied: usdSupply ?? position.supplied,
+            usdBorrowed: usdBorrow ?? position.usdBorrowed,
+            usdBorrwable: usdBorrowable ?? position.usdBorrowable,
+            usdShortfall: usdShortfall ?? position.usdShortfall,
+        };
+
+        fresh.supplied = toFresh(fresh.supplied, supplied);
+        fresh.borrowingPower = toFresh(fresh.supplied, supplied, true);
+        fresh.borrowed = toFresh(position.borrowed, borrowed);
+
+        const borrowTotal = fresh.usdBorrowable + fresh.usdBorrowed;
+        fresh.borrowLimitPercent = borrowTotal ? Math.floor((fresh.usdBorrowed / (borrowTotal)) * 100) : 0;
+
+        if (JSON.stringify(fresh) === JSON.stringify(freshPosition)) { return }
+        setFreshPosition(fresh);
+    }, [position, needFresh, supplied, borrowed, usdBorrowable, usdSupply, usdBorrow, usdShortfall]);
+
+    const maxSeize = Math.min(freshPosition.usdSupplied, freshPosition.usdShortfall);
+    const totalBorrowCapacity = freshPosition.supplied.reduce((prev, b) => prev + b.balance * b.usdPrice * b.collateralFactor, 0);
 
     return (
-        <Stack w='full' position="relative" maxH="100vh" overflowY="auto" overflowX="hidden">
+        <Stack w='full' position="relative" maxH={{ base: '95vh', sm: '90vh' }} overflowY="auto" overflowX="hidden">
             <Text position="absolute" right="10px" fontWeight="bold">
-                Account: <ScannerLink value={position.account} />
+                Account: { position.account ? <ScannerLink value={position.account} /> : '-' }
             </Text>
             {
                 !isOpen && <ScaleFade in={!isOpen} unmountOnExit={true}>
-                    <Stack spacing="5" direction="row" w="full" justify="space-around">
-                        <FundsDetails funds={toFunds(position.supplied)} title="Supplied as Collaterals" />
-                        <FundsDetails funds={toFunds(position.borrowingPower)} title="Borrowing Power" />
-                        <FundsDetails funds={toFunds(position.borrowed)} title="Borrowed Assets" />
+                    <Stack spacing="5" pt="5" direction={{ base: 'column', lg: 'row' }} w="full" justify="space-around">
+                        <FundsDetails funds={toFunds(freshPosition.supplied)} title="Supplied as Collaterals" />
+                        <FundsDetails funds={toFunds(freshPosition.borrowingPower)} title="Borrowing Power From Collaterals" />
+                        <FundsDetails funds={toFunds(freshPosition.borrowed)} title="Borrowed Assets" />
                     </Stack>
                 </ScaleFade>
             }
-            <Stack pt="5" spacing="5" direction="row" w="full">
-                <Text fontWeight="bold" color={position.usdShortfall > 0 ? 'error' : 'secondary'}>
-                    Solvency: {shortenNumber(position.usdBorrowable, 2, true)} - {shortenNumber(position.usdBorrowed, 2, true)} = {shortenNumber(position.usdBorrowable - position.usdBorrowed, 2, true)}
+            <Text fontSize="12px">
+                Calculations here use <b>Oracle Prices</b>, these can differ from Coingecko's
+            </Text>
+            <Stack spacing="5" direction="row" w="full">
+                <Text fontWeight="bold" color={freshPosition.borrowLimitPercent >= 100 ? 'error' : 'white'}>
+                    Borrow Limit: {shortenNumber(freshPosition.borrowLimitPercent, 2)}%
                 </Text>
-                <Text fontWeight="bold" color={position.usdShortfall > 0 ? 'secondary' : 'white'}>
-                    Max Seizable: {shortenNumber(maxSeize, 2, true)}
-                </Text>
-                <Text fontWeight="bold" color={hasLiquidationOpportunity ? 'secondary' : 'white'}>
-                    Liquidation Opportunity: {hasLiquidationOpportunity ? 'Yes' : 'No'}
+                <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'error' : 'secondary'}>
+                    {freshPosition.usdShortfall > 0 ? 'Shortfall' : 'Borrowing Power left'}: {shortenNumber(totalBorrowCapacity - freshPosition.usdBorrowed, 2, true)} (= {shortenNumber(totalBorrowCapacity, 2, true)} - {shortenNumber(freshPosition.usdBorrowed, 2, true)})
                 </Text>
                 {
-                    !!account && account.toLowerCase() !== position.account.toLowerCase() && position.usdShortfall > 0 &&
+                    freshPosition.usdShortfall > 0 && <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'secondary' : 'white'}>
+                        Max Seizable: {shortenNumber(maxSeize, 2, true)}
+                    </Text>
+                }
+                {/* <Text fontWeight="bold" color={hasLiquidationOpportunity ? 'secondary' : 'white'}>
+                    Liquidation Opportunity: {hasLiquidationOpportunity ? 'Yes' : 'No'}
+                </Text> */}
+                {
+                    !!account && account.toLowerCase() !== freshPosition?.account?.toLowerCase() && freshPosition.usdShortfall > 0 &&
                     <>
                         {
                             !isOpen ?
@@ -119,38 +147,7 @@ export const PositionDetails = ({
             {
                 isOpen &&
                 <ScaleFade in={isOpen} unmountOnExit={true}>
-                    <Stack spacing="5" pt="2" direction="column" w="full" justify="center" alignItems="center">
-                        <Stack>
-                            <Stack>
-                                <Text fontWeight="bold">Borrowed Asset to Repay:</Text>
-                                <AssetInput
-                                    amount={repayAmount}
-                                    token={repayToken}
-                                    assetOptions={borrowedUnderlyingsAd}
-                                    onAssetChange={(newToken) => setRepayToken(newToken)}
-                                    onAmountChange={(newAmount) => setRepayAmount(newAmount)}
-                                    {...borrowAssetInputProps}
-                                />
-                            </Stack>
-                            <Stack>
-                                <Text fontWeight="bold">Collateral to Seize:</Text>
-                                <AssetInput
-                                    amount={seizeAmount}
-                                    token={seizeToken}
-                                    assetOptions={collateralUnderlyingsAd}
-                                    onAssetChange={(newToken) => setSeizeToken(newToken)}
-                                    onAmountChange={(newAmount) => setSeizeAmount(newAmount)}
-                                    {...collateralAssetInputProps}
-                                />
-                            </Stack>
-                        </Stack>
-                        <Stack direction="row">
-                            <ApproveButton signer={library?.getSigner()} asset={{ ...repayToken, token: repayToken.market }} isDisabled={isApproved} />
-                            <SubmitButton disabled={!isApproved}>
-                                Liquidate
-                            </SubmitButton>
-                        </Stack>
-                    </Stack>
+                    <LiquidationForm position={freshPosition} />
                 </ScaleFade>
             }
         </Stack>

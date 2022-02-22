@@ -40,7 +40,8 @@ export const PieChart = ({
     const [chartData, setChartData] = useState(defaultGraphicData);
 
     useDebouncedEffect(() => {
-        setChartData(data);
+        const _data = data.length === 1 && data[0].y === 0 ? [{ ...data[0], y: 1e-18 }] : data;
+        setChartData(_data);
     }, [data], 500)
 
     return (
@@ -51,7 +52,7 @@ export const PieChart = ({
         >
             <VictoryChart
                 theme={VictoryTheme.material}
-                animate={{ duration: 1000 }}
+                animate={{ duration: 500 }}
                 width={width}
                 height={height}
             >

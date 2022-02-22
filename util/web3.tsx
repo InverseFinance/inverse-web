@@ -45,8 +45,8 @@ export async function fetchWithTimeout(input: RequestInfo, options: RequestInit 
   });
 }
 
-export const fetcher = async (input: RequestInfo, init?: RequestInit) => {
-  const res = await fetchWithTimeout(input, init);
+export const fetcher = async (input: RequestInfo, init?: RequestInit, timeout = 6000) => {
+  const res = await fetchWithTimeout(input, init, timeout);
 
   if (!res?.ok) {
     // if api call fails, return cached results in browser
