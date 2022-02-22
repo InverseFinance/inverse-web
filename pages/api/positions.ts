@@ -40,6 +40,24 @@ export default async function handler(req, res) {
         const contracts = allMarkets
             .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
+        const [
+            underlyings,
+            exRates,
+            oraclePrices,
+            borrowPaused,
+            marketsDetails,
+        ] = await Promise.all([
+            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
+            Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
+            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
+            Promise.all(
+                contracts.map((contract) =>
+                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
+                )
+            ),
+            Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
+        ])
+
         const holders = await Promise.all(
             contracts.map(contract => getTokenHolders(contract.address))
         )
@@ -57,25 +75,10 @@ export default async function handler(req, res) {
 
         const uniqueUsers = Array.from(usersSet);
 
-        const [
-            positions,
-            underlyings,
-            exRates,
-            oraclePrices,
-            borrowPaused,
-            marketsDetails,
-        ] = await Promise.all([
-            Promise.all(uniqueUsers.map(account => comptroller.getAccountLiquidity(account))),
-            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
-            Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
-            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
-            Promise.all(
-                contracts.map((contract) =>
-                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
-                )
-            ),
-            Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
-        ])
+        const positionsResults = await Promise.allSettled(uniqueUsers.map(account => comptroller.getAccountLiquidity(account)));
+        const positions = positionsResults.map(r => {
+            return r.status === 'fulfilled' ? r.value : [1, BigNumber.from('0'), BigNumber.from('0')];
+        })
 
         let marketDecimals: number[] = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
