@@ -13,6 +13,7 @@ import { getParsedBalance, shortenNumber } from '@app/util/markets';
 import { useAnchorPricesUsd } from '@app/hooks/usePrices'
 import { liquidateBorrow } from '@app/util/contracts'
 import { useLiquidationIncentive } from '@app/hooks/usePositions'
+import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 
 const formattedInfo = (bal: number | string, priceUsd: number) => {
     return <b>{shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
@@ -64,7 +65,7 @@ export const LiquidationForm = ({
     }, [approvals, repayToken])
 
     useEffect(() => {
-        const liquidatorBal = getParsedBalance(balances, repayToken.address, repayToken.decimals);
+        const liquidatorBal = getParsedBalance(balances, repayToken.address||'CHAIN_COIN', repayToken.decimals);
 
         setLiquidatorRepayTokenBal(liquidatorBal);
         const borrowed = position.borrowed.find(m => m.underlying.symbol === repayToken.symbol);
@@ -73,8 +74,8 @@ export const LiquidationForm = ({
 
         const maxSeizableWorth = seizableDetails.balance * (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
         const repayAmountToSeizeMax = (maxSeizableWorth / bonusFactor) / (oraclePrices[borrowed.ctoken] || borrowed.usdPrice);
-
-        setMaxRepayAmount(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax));
+        
+        setMaxRepayAmount(roundFloorString(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax), borrowed.underlying.decimals));
     }, [repayToken, seizableDetails, oraclePrices])
 
     useEffect(() => {
@@ -86,7 +87,7 @@ export const LiquidationForm = ({
     useEffect(() => {
         const repayWorth = parseFloat(repayAmount) * (oraclePrices[borrowedDetails.ctoken] || borrowedDetails.usdPrice);
         const seizePower = (repayWorth * bonusFactor) / (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
-        setSeizeAmount((seizePower || 0).toString());
+        setSeizeAmount(removeScientificFormat((seizePower || 0).toString()));
     }, [borrowedDetails, repayAmount, seizableDetails, oraclePrices])
 
     const handleLiquidation = async () => {
@@ -132,7 +133,7 @@ export const LiquidationForm = ({
                     You can seize {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you Repay in USD
                 </Text>
                 <Text fontSize="12px">
-                    Max Seizable: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
+                    Max Seizable: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize an estimated {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
                 </Text>
                 <Text fontSize="12px" fontWeight="bold" color="secondary">
                     Estimated Profit (Gas Fees excluded): {shortenNumber(parseFloat(seizeAmount) * seizableDetails.usdPrice - parseFloat(repayAmount) * borrowedDetails.usdPrice, 2, true, true)}

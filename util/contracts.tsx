@@ -169,7 +169,7 @@ export const liquidateCtoken = (account: string, signer: JsonRpcSigner, amount: 
 }
 
 export const liquidateCether = (account: string, signer: JsonRpcSigner, amount: string, market: string, underlying: Token, collateralCtoken: string) => {
-  const contract = getAnchorContract(market, signer);
+  const contract = getCEtherContract(market, signer);
   return contract.liquidateBorrow(parseUnits(amount, underlying.decimals), account, collateralCtoken);
 }
 
