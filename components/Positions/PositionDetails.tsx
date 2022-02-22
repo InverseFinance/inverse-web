@@ -98,7 +98,7 @@ export const PositionDetails = ({
     return (
         <Stack w='full' position="relative" maxH={{ base: '95vh', sm: '90vh' }} overflowY="auto" overflowX="hidden">
             <Text position="absolute" right="10px" fontWeight="bold">
-                Account: <ScannerLink value={position.account} />
+                Account: { position.account ? <ScannerLink value={position.account} /> : '-' }
             </Text>
             {
                 !isOpen && <ScaleFade in={!isOpen} unmountOnExit={true}>

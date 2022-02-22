@@ -85,6 +85,8 @@ export const AnchorOverview = () => {
         contentProps={{
           cursor: 'pointer',
           onClick: () => isDetailsOpen ? onDetailsClose() : onDetailsOpen(),
+          transition: 'background-color 500ms',
+          _hover: { bgColor: 'purple.600' },
         }}
         label={
           <Flex visibility={!account ? 'hidden' : 'visible'} pb={{ base: '0px', sm: '4px' }} textAlign="left" flexDirection={{ base: 'column', sm: 'row' }}>

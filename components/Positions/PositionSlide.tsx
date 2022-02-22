@@ -1,8 +1,9 @@
 import { AccountPositionDetailed } from '@app/types'
 import { CloseIcon } from '@chakra-ui/icons'
-import { Box, Slide } from '@chakra-ui/react'
+import { Box, Slide, useOutsideClick } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { PositionDetails } from './PositionDetails'
+import { useRef } from 'react'
 
 export const PositionSlide = ({
     isOpen,
@@ -15,11 +16,21 @@ export const PositionSlide = ({
     position: AccountPositionDetailed,
     needFresh?: boolean
 }) => {
+    const ref = useRef(null)
+
+    useOutsideClick({
+        ref,
+        handler: () => {
+            onClose()
+        },
+    })
+
     return <Slide direction='bottom' in={isOpen} style={{ zIndex: 9999 }}>
         <Container
             noPadding
             px={{ base: '1px', sm: 5 }}
             contentProps={{
+                ref,
                 boxShadow: "0px 0px 1px 1px #ccc",
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
