@@ -18,7 +18,7 @@ type Props = {
 }
 
 const FundsDetails = ({ funds, title }: { funds: any, title: string }) => {
-    return <Stack p={'1'} direction="column" minW="350px" >
+    return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '350px' }} >
         <Stack>
             <Text fontWeight="bold">{title}:</Text>
             {
@@ -96,7 +96,7 @@ export const PositionDetails = ({
     const totalBorrowCapacity = freshPosition.usdBorrowable + freshPosition.usdBorrowed;
 
     return (
-        <Stack w='full' position="relative" maxH="90vh" overflowY="auto" overflowX="hidden">
+        <Stack w='full' position="relative" maxH={{ base: '95vh', sm: '90vh' }} overflowY="auto" overflowX="hidden">
             <Text position="absolute" right="10px" fontWeight="bold">
                 Account: <ScannerLink value={position.account} />
             </Text>

@@ -18,6 +18,7 @@ export const PositionSlide = ({
     return <Slide direction='bottom' in={isOpen} style={{ zIndex: 9999 }}>
         <Container
             noPadding
+            px={{ base: '1px', sm: 5 }}
             contentProps={{
                 boxShadow: "0px 0px 1px 1px #ccc",
                 borderBottomLeftRadius: 0,
