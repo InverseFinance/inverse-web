@@ -420,10 +420,14 @@ export type AccountPosition = {
   supplied: { balance: number, marketIndex: number, usdWorth: number }[]
 }
 
+export type AccountPositionAssets = {
+  balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number
+}
+
 export type AccountPositionDetailed = AccountPosition & {
-  borrowed: { balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number }[]
-  supplied: { balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number }[]
-  borrowingPower: { balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number }[]
+  borrowed: AccountPositionAssets[]
+  supplied: AccountPositionAssets[]
+  borrowingPower: AccountPositionAssets[]
   borrowLimitPercent: number
   usdBorrowingPower: number
 }

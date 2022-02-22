@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { ScaleFade, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { useBorrowedAssets, useSuppliedCollaterals } from '@app/hooks/useBalances';
-import { Funds } from '../Transparency/Funds';
-import { AccountPositionDetailed } from '@app/types';
+import { Funds } from '@app/components/Transparency/Funds';
+import { AccountPositionDetailed, AccountPositionAssets } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import ScannerLink from '../common/ScannerLink';
+import ScannerLink from '@app/components/common/ScannerLink';
 
 import { LiquidationForm } from './LiquidationForm';
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity';
@@ -38,14 +38,15 @@ const toFunds = (data: AccountPositionDetailed["supplied"]) => {
     }))
 }
 
-const toFresh = (fromApi, fromFresh, applyCollateralFactor = false) => {
+const toFresh = (fromApi: AccountPositionAssets[], fromFresh: AccountPositionAssets[], applyCollateralFactor = false) => {
     return fromApi.map(m => {
         const freshSupplied = fromFresh.find(s => s.ctoken === m.ctoken) || m;
+        const priceFactor = (applyCollateralFactor ? freshSupplied.collateralFactor : 1);
         return {
             ...m,
-            usdPrice: freshSupplied.usdPrice * (applyCollateralFactor ? freshSupplied.collateralFactor : 1),
+            usdPrice: freshSupplied.usdPrice * priceFactor,
             balance: freshSupplied.balance,
-            usdWorth: freshSupplied.balance * freshSupplied.usdPrice,
+            usdWorth: freshSupplied.balance * priceFactor,
         }
     });
 }
