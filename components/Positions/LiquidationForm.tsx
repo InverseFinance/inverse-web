@@ -64,7 +64,7 @@ export const LiquidationForm = ({
     }, [approvals, repayToken])
 
     useEffect(() => {
-        const liquidatorBal = getParsedBalance(balances, repayToken.address, repayToken.decimals);
+        const liquidatorBal = getParsedBalance(balances, repayToken.address||'CHAIN_COIN', repayToken.decimals);
 
         setLiquidatorRepayTokenBal(liquidatorBal);
         const borrowed = position.borrowed.find(m => m.underlying.symbol === repayToken.symbol);
@@ -73,7 +73,7 @@ export const LiquidationForm = ({
 
         const maxSeizableWorth = seizableDetails.balance * (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
         const repayAmountToSeizeMax = (maxSeizableWorth / bonusFactor) / (oraclePrices[borrowed.ctoken] || borrowed.usdPrice);
-
+        
         setMaxRepayAmount(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax));
     }, [repayToken, seizableDetails, oraclePrices])
 
