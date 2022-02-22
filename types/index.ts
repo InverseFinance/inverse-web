@@ -425,6 +425,7 @@ export type AccountPositionDetailed = AccountPosition & {
   supplied: { balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number }[]
   borrowingPower: { balance: number, marketIndex: number, ctoken: string, underlying: Token, usdPrice: number, usdWorth: number, collateralFactor: number }[]
   borrowLimitPercent: number
+  usdBorrowingPower: number
 }
 
 export type AccountPositions = {

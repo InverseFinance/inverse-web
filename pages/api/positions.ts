@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const { accounts = '' } = req.query;
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-    const cacheKey = `${networkConfig.chainId}-positions-v1.3.3`;
+    const cacheKey = `${networkConfig.chainId}-positions-v1.0.1`;
 
     try {
         const {
@@ -73,7 +73,12 @@ export default async function handler(req, res) {
             });
         });
 
-        const uniqueUsers = Array.from(usersSet);
+        let uniqueUsers = Array.from(usersSet);
+
+        if(accounts?.length) {
+            const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
+            uniqueUsers = uniqueUsers.filter(ad => filterAccounts.map(a => a.toLowerCase()).includes(ad.toLowerCase()));
+        }
 
         const positionsResults = await Promise.allSettled(uniqueUsers.map(account => comptroller.getAccountLiquidity(account)));
         const positions = positionsResults.map(r => {
@@ -92,16 +97,18 @@ export default async function handler(req, res) {
                 return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
             })
 
-        const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
-
-        const shortfallAccounts = uniqueUsers.map((account, i) => {
+        let shortfallAccounts = uniqueUsers.map((account, i) => {
             const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i];
             return {
                 account,
                 usdBorrowable: getBnToNumber(extraBorrowableAmount),
                 usdShortfall: getBnToNumber(shortfallAmount),
             }
-        }).filter(p => filterAccounts.length ? filterAccounts.includes(p.account) : p.usdShortfall > 0.1);
+        });
+
+        if(!accounts) {
+            shortfallAccounts = shortfallAccounts.filter(p => p.usdShortfall > 0.1);
+        }
 
         const borrowedAssets = await Promise.all(
             shortfallAccounts.map(p => {
@@ -168,7 +175,10 @@ export default async function handler(req, res) {
             positions: positionDetails,
         };
 
-        await redisSetWithTimestamp(cacheKey, resultData);
+        if(!accounts?.length) {
+            await redisSetWithTimestamp(cacheKey, resultData);
+        }
+
         res.status(200).json(resultData);
 
     } catch (err) {

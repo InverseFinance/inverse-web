@@ -59,11 +59,11 @@ const getColumns = () => {
             },
         },
         {
-            field: 'usdBorrowable',
-            label: 'Borrow Capacity',
+            field: 'usdBorrowingPower',
+            label: 'Borrowing Power',
             header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
-            value: ({ usdBorrowable }: AccountPositionDetailed) => {
-                return <Text w="100px">{shortenNumber(usdBorrowable, 2, true)}</Text>
+            value: ({ usdBorrowingPower }: AccountPositionDetailed) => {
+                return <Text w="100px">{shortenNumber(usdBorrowingPower, 2, true)}</Text>
             },
         },
         {
@@ -114,7 +114,7 @@ export const PositionsTable = ({
 
         return {
             ...p,
-            usdBorrowable: p.usdBorrowed - p.usdShortfall,
+            usdBorrowingPower: p.usdBorrowed + p.usdBorrowable,
             supplied: p.supplied.map(s => {
                 const ctoken = markets[s.marketIndex];
                 return {
