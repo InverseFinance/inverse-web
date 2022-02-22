@@ -95,6 +95,10 @@ export const PositionDetails = ({
     const maxSeize = Math.min(freshPosition.usdSupplied, freshPosition.usdShortfall);
     const totalBorrowCapacity = freshPosition.usdBorrowable + freshPosition.usdBorrowed;
 
+    if(!position.account){
+        return <></>
+    }
+
     return (
         <Stack w='full' position="relative" maxH={{ base: '95vh', sm: '90vh' }} overflowY="auto" overflowX="hidden">
             <Text position="absolute" right="10px" fontWeight="bold">
@@ -128,7 +132,7 @@ export const PositionDetails = ({
                     Liquidation Opportunity: {hasLiquidationOpportunity ? 'Yes' : 'No'}
                 </Text> */}
                 {
-                    !!account && account.toLowerCase() !== freshPosition.account.toLowerCase() && freshPosition.usdShortfall > 0 &&
+                    !!account && account.toLowerCase() !== freshPosition?.account?.toLowerCase() && freshPosition.usdShortfall > 0 &&
                     <>
                         {
                             !isOpen ?
