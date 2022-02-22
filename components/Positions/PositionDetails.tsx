@@ -95,9 +95,6 @@ export const PositionDetails = ({
     const maxSeize = Math.min(freshPosition.usdSupplied, freshPosition.usdShortfall);
     const totalBorrowCapacity = freshPosition.usdBorrowable + freshPosition.usdBorrowed;
 
-    if(!position.account){
-        return <></>
-    }
 
     return (
         <Stack w='full' position="relative" maxH={{ base: '95vh', sm: '90vh' }} overflowY="auto" overflowX="hidden">

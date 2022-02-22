@@ -32,7 +32,7 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(networkConfig.chainId, process.env.ALCHEMY_API, true);
+        const provider = getProvider(networkConfig.chainId, process.env.POSITIONS_ALCHEMY_API, true);
         const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
         const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
         const allMarkets: string[] = [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
