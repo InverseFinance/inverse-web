@@ -91,10 +91,8 @@ export const PositionDetails = ({
         setFreshPosition(fresh);
     }, [position, needFresh, supplied, borrowed, usdBorrowable, usdSupply, usdBorrow, usdShortfall]);
 
-    const hasLiquidationOpportunity = position.usdShortfall < position.usdSupplied;
     const maxSeize = Math.min(freshPosition.usdSupplied, freshPosition.usdShortfall);
-    const totalBorrowCapacity = freshPosition.usdBorrowable + freshPosition.usdBorrowed;
-
+    const totalBorrowCapacity = freshPosition.supplied.reduce((prev, b) => prev + b.balance * b.usdPrice * b.collateralFactor, 0);
 
     return (
         <Stack w='full' position="relative" maxH={{ base: '95vh', sm: '90vh' }} overflowY="auto" overflowX="hidden">

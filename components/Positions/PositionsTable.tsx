@@ -114,7 +114,7 @@ export const PositionsTable = ({
 
         return {
             ...p,
-            usdBorrowingPower: p.usdBorrowed + p.usdBorrowable,
+            usdBorrowingPower: p.supplied.reduce((prev, s) => prev + s.balance * prices[s.marketIndex] * collateralFactors[s.marketIndex], 0),
             supplied: p.supplied.map(s => {
                 const ctoken = markets[s.marketIndex];
                 return {
