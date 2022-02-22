@@ -27,7 +27,7 @@ export const PositionsPage = () => {
           <Container
             label={`Filter by account (Shortfalling or Not)`}
           >
-            <Stack minW={{ base: 'full', sm: '450px' }} maxW='500px'>
+            <Stack minW={{ base: 'full', sm: '450px' }} w='full'>
               <TopDelegatesAutocomplete onItemSelect={(item) => item?.value ? setAccounts(item?.value) : setAccounts('') } />
             </Stack>
           </Container>
