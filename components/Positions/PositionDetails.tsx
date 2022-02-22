@@ -110,7 +110,7 @@ export const PositionDetails = ({
                 </ScaleFade>
             }
             <Text fontSize="12px">
-                Calculations here use Oracle Prices, these can differ from Coingecko's
+                Calculations here use <b>Oracle Prices</b>, these can differ from Coingecko's
             </Text>
             <Stack spacing="5" direction="row" w="full">
                 <Text fontWeight="bold" color={freshPosition.borrowLimitPercent >= 100 ? 'error' : 'white'}>

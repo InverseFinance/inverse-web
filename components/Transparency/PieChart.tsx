@@ -52,7 +52,7 @@ export const PieChart = ({
         >
             <VictoryChart
                 theme={VictoryTheme.material}
-                animate={{ duration: 1000 }}
+                animate={{ duration: 500 }}
                 width={width}
                 height={height}
             >
