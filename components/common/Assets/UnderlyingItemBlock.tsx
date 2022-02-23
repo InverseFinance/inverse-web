@@ -13,7 +13,7 @@ export const UnderlyingItemBlock = ({
     symbol: string,
     imgSize?: ImageProps["w"],
     nameAttribute: 'name' | 'symbol'
-    props: FlexProps
+    props?: FlexProps
 }) => {
     const token = Object.values(TOKENS).find(t => t.symbol === symbol);
     return <Flex alignItems="center" {...props}>
