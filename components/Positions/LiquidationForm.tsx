@@ -133,7 +133,7 @@ export const LiquidationForm = ({
                     You can seize {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you Repay in USD
                 </Text>
                 <Text fontSize="12px">
-                    Max Seizable: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize an estimated {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
+                    Collateral balance: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize an estimated {formattedInfo(seizeAmount, seizableDetails.usdPrice)}
                 </Text>
                 <Text fontSize="12px" fontWeight="bold" color="secondary">
                     Estimated Profit (Gas Fees excluded): {shortenNumber(parseFloat(seizeAmount) * seizableDetails.usdPrice - parseFloat(repayAmount) * borrowedDetails.usdPrice, 2, true, true)}

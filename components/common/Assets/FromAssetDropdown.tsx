@@ -7,7 +7,6 @@ import { AssetsDropdown } from './AssetsDropdown';
 type FromAssetDropDownProps = {
     tokens: TokenList,
     balances: BigNumberList,
-    vaultTree?: VaultTree,
     isOpen: boolean,
     onClose: () => void,
     onOpen: () => void,
@@ -19,7 +18,6 @@ type FromAssetDropDownProps = {
 export const FromAssetDropdown = ({
     tokens,
     balances,
-    vaultTree,
     isOpen,
     onClose,
     onOpen,
@@ -47,7 +45,6 @@ export const FromAssetDropdown = ({
             {options.map((symbol: string) => {
                 const token = tokens[symbol||'CHAIN_COIN']
                 const adKey = token.address||'CHAIN_COIN'
-                const vaultYieldToken = vaultTree ? tokens[Object.keys(vaultTree[symbol])[0]] : { address: '' }
 
                 return (
                     <Flex
@@ -56,7 +53,7 @@ export const FromAssetDropdown = ({
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'purple.850' }}
-                        onClick={() => handleChange(symbol||'CHAIN_COIN', vaultYieldToken.address || 'CHAIN_COIN')}
+                        onClick={() => handleChange(symbol||'CHAIN_COIN', 'CHAIN_COIN')}
                         cursor="pointer"
                     >
                         <Stack direction="row" align="center">
