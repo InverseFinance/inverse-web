@@ -2,6 +2,8 @@ import { extendTheme } from '@chakra-ui/react'
 
 const theme = extendTheme({
   colors: {
+    mainBackgroundColor: '#2a2557',
+    mainBackground: 'radial-gradient(circle at center, #2a2557, #100e21 50%)',
     purple: {
       50: '#eeedf7',
       100: '#dddbf0',
