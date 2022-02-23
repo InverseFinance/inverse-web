@@ -118,7 +118,7 @@ export const ProposalFormAction = ({
 
     return (
         <SlideFade offsetY={'100px'} in={scaledInEffect}>
-            <Box bgColor="purple.750" borderRadius="5" px="4" pt="2" pb="3">
+            <Box bgColor="primary.750" borderRadius="5" px="4" pt="2" pb="3">
                 <Flex alignItems="center" position="relative">
                     <Text fontWeight="bold" cursor="pointer" fontSize="18" onClick={() => setHideBody(!hideBody)}>
                         Action #{index + 1}

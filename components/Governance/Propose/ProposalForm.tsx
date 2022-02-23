@@ -268,7 +268,7 @@ export const ProposalForm = ({
                     </Flex>
                     :
                     <>
-                        <Box bgColor="purple.750" borderRadius="5" p="4" color="white">
+                        <Box bgColor="primary.750" borderRadius="5" p="4" color="white">
                             <FormControl>
                                 <FormLabel>Title</FormLabel>
                                 <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />

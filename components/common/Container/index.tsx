@@ -49,7 +49,7 @@ export const Container = ({
           {description} <ExternalLinkIcon />
         </Link>
       ) : typeof description === 'string' ? (
-        <Text fontSize="sm" fontWeight="medium" color="purple.200">
+        <Text fontSize="sm" fontWeight="medium" color="primary.200">
           {description}
         </Text>
       ) : (
@@ -70,7 +70,7 @@ export const Container = ({
         </Stack>
         {right}
       </Flex>
-      <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bgColor={contentBgColor ?? 'purple.750'}>
+      <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bgColor={contentBgColor ?? 'primary.750'}>
         {children}
       </Flex>
     </Flex>

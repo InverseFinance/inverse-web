@@ -88,7 +88,7 @@ export const VaultsView = () => {
             <Stack spacing={1}>
               {balances && (
                 <Stack direction="row" align="flex-end" justify="flex-end" spacing={1}>
-                  <Text fontSize="13px" fontWeight="semibold" color="purple.100">
+                  <Text fontSize="13px" fontWeight="semibold" color="primary.100">
                     Available:
                   </Text>
                   <Text fontSize="13px" fontWeight="semibold">
@@ -104,7 +104,7 @@ export const VaultsView = () => {
                   operation === VaultOperations.deposit ? (
                     <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
                       <Flex w={0.5} h={8}>
-                        <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
+                        <Flex w="full" h="full" bgColor="primary.500" borderRadius={8} />
                       </Flex>
                       <FromAssetDropdown
                         tokens={TOKENS}
@@ -127,7 +127,7 @@ export const VaultsView = () => {
                   ) : (
                     <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
                       <Flex w={0.5} h={8}>
-                        <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
+                        <Flex w="full" h="full" bgColor="primary.500" borderRadius={8} />
                       </Flex>
                       <WithdrawAssetDropdown
                         vaults={VAULTS}
@@ -157,12 +157,12 @@ export const VaultsView = () => {
                 justify="flex-end"
                 spacing={1}
               >
-                <Text color="purple.100">Earn</Text>
+                <Text color="primary.100">Earn</Text>
                 <Text fontWeight="semibold">{`${(rates ? rates[vault] : 0).toFixed(2)}%`}</Text>
                 <Text fontWeight="semibold" display={{ base: 'none', sm: 'flex' }}>
                   APY
                 </Text>
-                <Text color="purple.100">with</Text>
+                <Text color="primary.100">with</Text>
                 <ToAssetDropdown
                   tokens={TOKENS}
                   isOpen={toIsOpen}

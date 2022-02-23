@@ -62,7 +62,7 @@ export const VoteCountModal = ({ isOpen, onClose, proposal, voteType }: VoteCoun
             justify="space-between"
             p={2}
             borderRadius={8}
-            _hover={{ bgColor: 'purple.850' }}
+            _hover={{ bgColor: 'primary.850' }}
             key={voter}
           >
             <Stack direction="row" align="center">
@@ -190,7 +190,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
                 <Link
                   href="https://docs.inverse.finance/governance/delegating-delegates-proposals-and-voting.-what-does-it-all-mean"
                   fontSize="xs"
-                  color="purple.200"
+                  color="primary.200"
                   fontWeight="semibold"
                   isExternal
                 >
@@ -199,7 +199,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               </Flex>
             </Stack>
             <Flex direction="column">
-              <Text fontSize="xs" fontWeight="semibold" color="purple.100" mb="2">
+              <Text fontSize="xs" fontWeight="semibold" color="primary.100" mb="2">
                 Delegate Address :
               </Text>
               {

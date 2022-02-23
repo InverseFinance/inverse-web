@@ -13,8 +13,8 @@ export const InfoTooltip = ({ message, iconProps, tooltipProps, children }: Info
       fontSize="15px"
       p={3}
       borderRadius={8}
-      bgColor="purple.800"
-      borderColor="purple.850"
+      bgColor="primary.800"
+      borderColor="primary.850"
       textAlign="center"
       borderWidth={1}
       {...tooltipProps}

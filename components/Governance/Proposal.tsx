@@ -113,7 +113,7 @@ export const ProposalPreview = ({
         pl={2}
         pr={2}
         borderRadius={8}
-        _hover={{ bgColor: 'purple.850' }}
+        _hover={{ bgColor: 'primary.850' }}
       >
         <Flex direction="column" overflowX="auto">
           <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'white'}>
@@ -124,7 +124,7 @@ export const ProposalPreview = ({
               <StatusBadge status={status} />
               {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
             </Stack>
-            <Text textAlign="left" fontSize="13px" color="purple.100" fontWeight="semibold">
+            <Text textAlign="left" fontSize="13px" color="primary.100" fontWeight="semibold">
               {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt)}
             </Text>
           </Stack>
@@ -132,14 +132,14 @@ export const ProposalPreview = ({
         {(forVotes > 0 || againstVotes > 0) && (
           <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
             <Stack direction="row" w={56} align="center" justify="flex-end">
-              <Text w={16} fontSize="xs" fontWeight="bold" color="purple.300" textAlign="end">
+              <Text w={16} fontSize="xs" fontWeight="bold" color="primary.300" textAlign="end">
                 {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
               </Text>
               <Flex w="full">
                 <Flex
                   w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`}
                   h={1}
-                  bgColor="purple.300"
+                  bgColor="primary.300"
                 />
                 <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
               </Flex>
@@ -147,7 +147,7 @@ export const ProposalPreview = ({
                 {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
               </Text>
             </Stack>
-            <Text fontSize="13px" color="purple.100" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
+            <Text fontSize="13px" color="primary.100" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
               } votes`}</Text>
           </Flex>
         )}

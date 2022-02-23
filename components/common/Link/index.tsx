@@ -22,7 +22,7 @@ export const Link = (props: any) => {
     }} passHref>
       {isExternal ? (
         <ChakraLink
-          color="purple.200"
+          color="primary.200"
           cursor="pointer"
           _hover={{ color: '#fff' }}
           _focus={{}}
@@ -30,7 +30,7 @@ export const Link = (props: any) => {
           {...otherProps}
         />
       ) : (
-        <Text color="purple.100" cursor="pointer" _hover={{ color: '#fff' }} _focus={{}} {...otherProps} />
+        <Text color="primary.100" cursor="pointer" _hover={{ color: '#fff' }} _focus={{}} {...otherProps} />
       )}
     </NextLink>
   )

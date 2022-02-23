@@ -6,7 +6,7 @@ export const Input = (props: any) => (
     fontSize="xl"
     fontWeight="medium"
     borderWidth={0}
-    bgColor="purple.850"
+    bgColor="primary.850"
     p={6}
     pr={2}
     borderRadius={8}
@@ -20,7 +20,7 @@ export const Textarea = (props: any) => (
     fontSize="xl"
     fontWeight="semibold"
     borderWidth={0}
-    bgColor="purple.850"
+    bgColor="primary.850"
     p={6}
     pr={3}
     height={28}
@@ -43,7 +43,7 @@ type BalanceInputProps = {
 }
 
 export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true }: BalanceInputProps) => (
-  <Flex w="full" bgColor="purple.850" borderRadius={8} align="center">
+  <Flex w="full" bgColor="primary.850" borderRadius={8} align="center">
     <Flex w="full" position="relative" align="center">
       <Flex
         cursor="pointer"
@@ -52,7 +52,7 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, s
         fontWeight={ showBalance ? 'normal' : 'extrabold' }
         fontSize={ showBalance ? 'xs' : 'sm' }
         ml={4}
-        color="purple.200"
+        color="primary.200"
         zIndex="1"
         onClick={onMaxClick}
         _hover={{ color: '#fff' }}
@@ -65,7 +65,7 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, s
       <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />
     </Flex>
     {typeof label === 'string' ? (
-      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="purple.100" align="center" pl={2} pr={4}>
+      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="primary.100" align="center" pl={2} pr={4}>
         {label}
       </Text>
     ) : (

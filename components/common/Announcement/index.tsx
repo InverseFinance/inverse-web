@@ -10,6 +10,7 @@ import { utils } from 'ethers'
 import { PlusAnimIcon } from '@app/components/common/Animation/PlusAnim';
 import { useRouter } from 'next/router';
 import { LaunchAnim } from '@app/components/common/Animation';
+import { ANNOUNCEMENT_BAR_BORDER } from '@app/theme';
 
 const XinvMigrationMessage = () => {
   const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
@@ -26,7 +27,7 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
     color="#fff"
     isExternal={href.startsWith('http') ? true : false}
     href={href}
-    _hover={{ color: 'purple.100' }}
+    _hover={{ color: 'primary.100' }}
   >
     {msg}
     <ExternalLinkIcon ml="2" />
@@ -40,9 +41,9 @@ export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
 
   return (
     <Flex
-      bgColor={'transparent'}
-      backgroundImage={isLanding ? undefined : "/assets/landing/graphic1.png"}
-      borderBottom={isLanding ? undefined : "1px solid #221d45"}
+      bgColor={'announcementBarBackgroundColor'}
+      background={isLanding ? undefined : "announcementBarBackground"}
+      borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
       w="full"
       p={1}
       h="60px"

@@ -59,14 +59,14 @@ export const LandingNav = () => {
       >
         <Stack
           w="full"
-          bgColor="purple.900"
+          bgColor="primary.900"
           mt={8}
           borderRadius={8}
           fontWeight="semibold"
           spacing={6}
           p={4}
           pt={16}
-          borderBottomColor="purple.800"
+          borderBottomColor="primary.800"
           borderBottomWidth={1}
           display={showMobileNav ? 'flex' : 'none'}
         >
