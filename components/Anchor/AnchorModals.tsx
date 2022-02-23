@@ -132,6 +132,7 @@ export const AnchorModal = ({
   </Stack>
 
   const isSupply = [AnchorOperations.supply, AnchorOperations.withdraw].includes(operation);
+  const flokiSupplyDisabled = operation === AnchorOperations.supply && asset.underlying.symbol === 'FLOKI';
 
   return (
     <Modal
@@ -156,7 +157,7 @@ export const AnchorModal = ({
             asset={asset}
             amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
             needWithdrawWarning={needWithdrawWarning}
-            isDisabled={!amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
+            isDisabled={flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
           />
         </Box>
       }
@@ -165,14 +166,11 @@ export const AnchorModal = ({
       <Stack p={4} w="full" spacing={4}>
         {
           asset.underlying.symbol === 'FLOKI' && <InfoMessage
-            alertProps={{ w: 'full' }}
+            alertProps={{ w: 'full', fontSize: '12px' }}
             description={
               <>
-                <Text>Hey <b>Viking</b>! Any questions? </Text>
-                Check out the
-                <Link ml="1" isExternal href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/floki-faq">
-                  Floki x Inverse FAQ
-                </Link>
+                <Text>Hey <b>Viking</b>!</Text>
+                <b>The Floki token migrated</b>, some work needs to be done before Floki holders can use Anchor again.
               </>
             } />
         }

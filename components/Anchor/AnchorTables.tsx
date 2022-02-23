@@ -357,7 +357,7 @@ const AnchorSupplyContainer = ({ ...props }) => {
     <Container
       label="Supply"
       description="Earn interest on your deposits"
-      href="https://docs.inverse.finance/user-guides/anchor-lending-and-borrowing/lending"
+      href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       {...props}
     />
   )
@@ -491,7 +491,7 @@ export const AnchorBorrow = () => {
       <Container
         label="Borrow"
         description="Borrow against your supplied collateral"
-        href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
+        href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
       >
         <SkeletonList />
       </Container>
