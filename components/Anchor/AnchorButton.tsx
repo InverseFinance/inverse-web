@@ -28,9 +28,9 @@ type AnchorButtonProps = {
 }
 
 const XINVEscrowAlert = ({ showDescription, duration }: any) => (
-  <Alert borderRadius={8} flexDirection="column" color="purple.600" bgColor="purple.200" p={3}>
+  <Alert borderRadius={8} flexDirection="column" color="primary.600" bgColor="primary.200" p={3}>
     <Flex w="full" align="center">
-      <AlertIcon color="purple.600" />
+      <AlertIcon color="primary.600" />
       <AlertTitle ml={-1} fontSize="sm">
         x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} withdrawals are subject to a {duration}-day escrow
       </AlertTitle>

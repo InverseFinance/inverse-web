@@ -36,7 +36,7 @@ export const FromAssetDropdown = ({
                     <Flex w={5}>
                         <Image ignoreFallback={true} alt="" w={5} h={5} src={asset.image} />
                     </Flex>
-                    <Flex minW="80px" fontSize="lg" fontWeight="semibold" color="purple.100" justify="space-between">
+                    <Flex minW="80px" fontSize="lg" fontWeight="semibold" color="primary.100" justify="space-between">
                         {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </>
@@ -52,7 +52,7 @@ export const FromAssetDropdown = ({
                         p={2}
                         justify="space-between"
                         borderRadius={8}
-                        _hover={{ bgColor: 'purple.850' }}
+                        _hover={{ bgColor: 'primary.850' }}
                         onClick={() => handleChange(symbol||'CHAIN_COIN', 'CHAIN_COIN')}
                         cursor="pointer"
                     >
@@ -60,11 +60,11 @@ export const FromAssetDropdown = ({
                             <Flex w={5}>
                                 <Image w={5} h={5} src={token.image} />
                             </Flex>
-                            <Flex fontWeight="semibold" align="center" color="purple.100">
+                            <Flex fontWeight="semibold" align="center" color="primary.100">
                                 {token.symbol}
                             </Flex>
                         </Stack>
-                        <Text fontWeight="semibold" color="purple.100">
+                        <Text fontWeight="semibold" color="primary.100">
                             {balances && balances[adKey] ? parseFloat(formatUnits(balances[adKey], token.decimals)).toFixed(2) : '0.00'}
                         </Text>
                     </Flex>

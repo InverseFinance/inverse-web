@@ -343,7 +343,7 @@ export const AnchorBorrowed = () => {
           onClick={handleBorrow}
         />
       ) : (
-        <Flex w="full" justify="center" color="purple.200" fontSize="sm">
+        <Flex w="full" justify="center" color="primary.200" fontSize="sm">
           You don't have any borrowed assets.
         </Flex>
       )}

@@ -27,7 +27,7 @@ export const ToAssetDropdown = ({ tokens, isOpen, onClose, onOpen, asset, option
                     <Flex w={5}>
                         <Image w={5} h={5} src={asset.image} />
                     </Flex>
-                    <Flex fontSize="lg" fontWeight="semibold" color="purple.100" align="center">
+                    <Flex fontSize="lg" fontWeight="semibold" color="primary.100" align="center">
                         {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </>
@@ -42,7 +42,7 @@ export const ToAssetDropdown = ({ tokens, isOpen, onClose, onOpen, asset, option
                         p={2}
                         justify="space-between"
                         borderRadius={8}
-                        _hover={{ bgColor: 'purple.850' }}
+                        _hover={{ bgColor: 'primary.850' }}
                         onClick={() => handleChange(to)}
                         cursor="pointer"
                     >
@@ -50,11 +50,11 @@ export const ToAssetDropdown = ({ tokens, isOpen, onClose, onOpen, asset, option
                             <Flex w={5}>
                                 <Image w={5} h={5} src={toToken.image} />
                             </Flex>
-                            <Flex fontWeight="semibold" align="center" color="purple.100">
+                            <Flex fontWeight="semibold" align="center" color="primary.100">
                                 {toToken.symbol}
                             </Flex>
                         </Stack>
-                        <Text fontWeight="semibold" color="purple.100">
+                        <Text fontWeight="semibold" color="primary.100">
                             {`${(rates ? rates[vault] : 0).toFixed(2)}% APY`}
                         </Text>
                     </Flex>

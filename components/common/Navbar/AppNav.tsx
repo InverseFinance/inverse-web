@@ -53,10 +53,10 @@ const NavBadge = (props: any) => (
     fontSize="12px"
     h="40px"
     align="center"
-    bgColor="purple.800"
+    bgColor="primary.800"
     borderRadius={4}
     borderWidth={1}
-    borderColor="purple.700"
+    borderColor="primary.700"
     fontWeight="semibold"
     color="#fff"
     p={2}
@@ -76,7 +76,7 @@ const NetworkBadge = ({
   showWrongNetworkModal: () => void
 }) => {
   const network = getNetwork(chainId || '');
-  const bgColor = network?.bgColor || 'purple.800';
+  const bgColor = network?.bgColor || 'primary.800';
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
@@ -187,7 +187,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
     p={4}
     pt={2}
     pb={2}
-    _hover={{ bgColor: 'purple.850' }}
+    _hover={{ bgColor: 'primary.850' }}
     {...props}
   />
 }
@@ -260,7 +260,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       <PopoverTrigger>
         <Flex
           justify="center"
-          bgColor="purple.600"
+          bgColor="primary.600"
           cursor="pointer"
           fontSize="sm"
           align="center"
@@ -270,7 +270,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           p={2.5}
           pl={4}
           pr={4}
-          _hover={{ bgColor: 'purple.600' }}
+          _hover={{ bgColor: 'primary.600' }}
           alignItems="center"
           data-testid={TEST_IDS.connectBtn}
         >
@@ -281,7 +281,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       <PopoverContent
         cursor="pointer"
         w="full"
-        bgColor="purple.800"
+        bgColor="primary.800"
         color="#fff"
         border={0}
         _focus={{}}
@@ -446,8 +446,8 @@ export const AppNav = ({ active }: { active?: string }) => {
       />
       <Flex
         w="99vw"
-        backgroundColor="purple.900"
-        borderColor="purple.800"
+        backgroundColor="primary.900"
+        borderColor="primary.800"
         borderBottomWidth={showMobileNav ? 0 : 1}
         p={4}
         justify="space-between"
@@ -466,7 +466,7 @@ export const AppNav = ({ active }: { active?: string }) => {
                 key={i}
                 href={href}
                 fontWeight="medium"
-                color={active === label ? '#fff' : 'purple.200'}
+                color={active === label ? '#fff' : 'primary.200'}
                 _hover={{ color: '#fff' }}
                 position="relative"
               >
@@ -511,16 +511,16 @@ export const AppNav = ({ active }: { active?: string }) => {
         <Flex w="full" position="fixed" top="0" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
           <Stack
             w="full"
-            bgColor="purple.900"
+            bgColor="primary.900"
             fontWeight="medium"
             spacing={6}
             p={4}
             pt={24}
             borderBottomWidth={1}
-            borderColor="purple.800"
+            borderColor="primary.800"
           >
             {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? '#fff' : 'purple.200'}>
+              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? '#fff' : 'primary.200'}>
                 {label}
                 {
                   href === '/governance' && nbNotif > 0 &&

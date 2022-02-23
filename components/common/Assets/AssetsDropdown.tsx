@@ -19,7 +19,7 @@ export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPad
                     onClick={onOpen}
                     borderRadius={8}
                     p={noPadding ? 0 : 2}
-                    bgColor="purple.850"
+                    bgColor="primary.850"
                     cursor="pointer"
                 >
                     {label}
@@ -29,8 +29,8 @@ export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPad
                 <PopoverBody
                     p={2}
                     mt={-1}
-                    bgColor="purple.800"
-                    borderColor="purple.850"
+                    bgColor="primary.800"
+                    borderColor="primary.850"
                     borderWidth={2}
                     borderRadius={8}
                     boxShadow="rgba(0, 0, 0, 0.75) 0px 5px 15px"

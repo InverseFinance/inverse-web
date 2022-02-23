@@ -63,7 +63,7 @@ export const AssetInput = ({
             label={
                 <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
                     <Flex w={0.5} h={8}>
-                        <Flex w="full" h="full" bgColor="purple.500" borderRadius={8} />
+                        <Flex w="full" h="full" bgColor="primary.500" borderRadius={8} />
                     </Flex>
                     <FromAssetDropdown
                         tokens={tokens}

@@ -126,7 +126,7 @@ export const AnchorModal = ({
     <Flex w={5}>
       <Image w={5} h={5} src={asset.underlying.image} />
     </Flex>
-    <Text fontSize="sm" fontWeight="semibold" color="purple.100" align="center">
+    <Text fontSize="sm" fontWeight="semibold" color="primary.100" align="center">
       {asset.underlying.symbol.replace('-SLP', '')}
     </Text>
   </Stack>
@@ -198,7 +198,7 @@ export const AnchorModal = ({
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
-              <Text fontSize="13px" fontWeight="semibold" color="purple.250">
+              <Text fontSize="13px" fontWeight="semibold" color="primary.250">
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">

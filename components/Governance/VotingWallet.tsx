@@ -22,7 +22,7 @@ type VotingWalletFieldProps = {
 
 const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   <Flex justify="space-between">
-    <Text fontSize="sm" fontWeight="medium" color="purple.100">
+    <Text fontSize="sm" fontWeight="medium" color="primary.100">
       {label}
     </Text>
     <Flex fontWeight="medium" fontSize="sm">
@@ -87,7 +87,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             alignItems="center"
             fontSize="sm"
             fontWeight="medium"
-            color="purple.100"
+            color="primary.100"
             textDecoration="underline">
             {addressName}
           </Link>

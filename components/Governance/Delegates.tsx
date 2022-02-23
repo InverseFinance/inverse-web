@@ -38,12 +38,12 @@ export const DelegatesPreview = () => {
           delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => {
             return (
               <NextLink key={address} href={`/governance/delegates/${address}`}>
-                <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
+                <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'primary.850' }}>
                   <Stack direction="row" align="center">
                     <Avatar address={address} sizePx={28} />
                     <Flex direction="column" w={40}>
                       <DelegateName address={address} chainId={chainId} ensName={ensName} />
-                      <Text fontSize="sm" color="purple.100">
+                      <Text fontSize="sm" color="primary.100">
                         {`${votes.length} votes`}
                       </Text>
                     </Flex>
@@ -52,7 +52,7 @@ export const DelegatesPreview = () => {
                     <Text fontSize="sm" fontWeight="semibold">
                       {votingPower.toFixed(2)}
                     </Text>
-                    <Text fontSize="sm" color="purple.100">
+                    <Text fontSize="sm" color="primary.100">
                       {`${delegators.length} delegators`}
                     </Text>
                   </Flex>
@@ -72,8 +72,8 @@ export const DelegatesPreview = () => {
             fontWeight="semibold"
             borderRadius={8}
             textTransform="uppercase"
-            color="purple.100"
-            _hover={{ bgColor: 'purple.850' }}
+            color="primary.100"
+            _hover={{ bgColor: 'primary.850' }}
           >
             View All
           </Flex>
@@ -110,7 +110,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
       <Stack w="full">
         {delegators.slice(0, 5).map((address: Delegator) => (
           <NextLink key={address} href={`/governance/delegates/${address}`}>
-            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'purple.850' }}>
+            <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'primary.850' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} sizePx={28} />
                 <Flex direction="column">
@@ -132,8 +132,8 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
             fontWeight="semibold"
             borderRadius={8}
             textTransform="uppercase"
-            color="purple.100"
-            _hover={{ bgColor: 'purple.850' }}
+            color="primary.100"
+            _hover={{ bgColor: 'primary.850' }}
           >
             View All
           </Flex>

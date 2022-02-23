@@ -13,13 +13,13 @@ type BreadcrumbsProps = {
 export const Breadcrumbs = ({ w, breadcrumbs }: BreadcrumbsProps) => (
   <Flex w="full" justify="center">
     <Flex w={w} pl={6} pt={6}>
-      <Breadcrumb fontSize="sm" separator={<ChevronRightIcon color="purple.100" />} spacing="1">
+      <Breadcrumb fontSize="sm" separator={<ChevronRightIcon color="primary.100" />} spacing="1">
         {breadcrumbs.map(({ href, label }, i) => (
           <BreadcrumbItem key={i}>
             <Link href={href} passHref>
               <BreadcrumbLink
                 fontWeight={i + 1 !== breadcrumbs.length ? 'medium' : 'semibold'}
-                color={i + 1 !== breadcrumbs.length ? 'purple.100' : '#fff'}
+                color={i + 1 !== breadcrumbs.length ? 'primary.100' : '#fff'}
                 _hover={{ color: '#fff' }}
               >
                 {label}

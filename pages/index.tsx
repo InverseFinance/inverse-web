@@ -164,7 +164,7 @@ export const Landing = () => {
               m={4}
               textAlign="center"
               borderRadius={16}
-              bgColor="purple.800"
+              bgColor="primary.800"
               align="center"
               shadow="dark-lg"
             >
@@ -262,7 +262,7 @@ export const Landing = () => {
               <Text fontSize="5xl" fontWeight="bold" lineHeight={1}>
                 {formatStat(stat)}
               </Text>
-              <Text fontSize="lg" fontWeight="bold" color="purple.100">
+              <Text fontSize="lg" fontWeight="bold" color="primary.100">
                 {stat.label}
               </Text>
             </Stack>

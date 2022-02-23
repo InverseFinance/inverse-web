@@ -108,7 +108,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
     <Container
       label="Local Draft Proposals"
       description={<HStack alignItems="center" cursor="pointer" onClick={handleRemoveDrafts}>
-        <Text fontSize="sm" fontWeight="medium" color="purple.200">Remove all local drafts</Text>
+        <Text fontSize="sm" fontWeight="medium" color="primary.200">Remove all local drafts</Text>
         <DeleteIcon ml="2" fontSize="10px" color="red.500" />
       </HStack>}
     >
@@ -116,7 +116,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
         {
           !isCleared ?
             previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isLocalDraft={true} proposal={proposal} />)
-            : <Flex w="full" justify="center" color="purple.200" fontSize="sm">
+            : <Flex w="full" justify="center" color="primary.200" fontSize="sm">
               Drafts have been removed.
             </Flex>
         }
@@ -144,7 +144,7 @@ export const ActiveProposals = () => {
         {active?.length ? (
           active.map((proposal: Proposal) => <ProposalPreview key={proposal.proposalNum} proposal={proposal} />)
         ) : (
-          <Flex w="full" justify="center" color="purple.200" fontSize="sm">
+          <Flex w="full" justify="center" color="primary.200" fontSize="sm">
             There are no active proposals.
           </Flex>
         )}
@@ -185,8 +185,8 @@ export const RecentProposals = () => {
             fontWeight="semibold"
             borderRadius={8}
             textTransform="uppercase"
-            color="purple.100"
-            _hover={{ bgColor: 'purple.850' }}
+            color="primary.100"
+            _hover={{ bgColor: 'primary.850' }}
           >
             View All
           </Flex>

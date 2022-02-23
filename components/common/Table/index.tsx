@@ -54,7 +54,7 @@ export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', default
     }
   }
 
-  const chevronProps = { color: 'purple.300', w: 4, h: 4 };
+  const chevronProps = { color: 'primary.300', w: 4, h: 4 };
 
   return (
     <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
@@ -78,7 +78,7 @@ export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', default
                 fontWeight={sortBy === col.field ? 'bold' : 'normal'}
                 cursor="pointer"
                 alignItems="center"
-                color="purple.300"
+                color="primary.300"
               >
 
                 {
@@ -108,7 +108,7 @@ export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', default
       {sortedItems?.map((item, i) => (
         <Flex
           key={item[keyName] || i}
-          bgColor={!alternateBg || (i % 2 === 0) ? 'purple.750' : 'purple.800'}
+          bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
           justify="space-between"
           align="center"
           fontWeight="semibold"
@@ -119,7 +119,7 @@ export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', default
           pr={4}
           borderRadius={8}
           onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => onClick(item) : undefined}
-          _hover={{ bgColor: 'purple.850' }}
+          _hover={{ bgColor: 'primary.850' }}
         >
           {columns.map(({ value }, j) => (
             <Fragment key={j}>{value(item, i)}</Fragment>

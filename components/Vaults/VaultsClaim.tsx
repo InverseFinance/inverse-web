@@ -17,7 +17,7 @@ export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
     return (
         <Stack>
             <Stack direction="row" justify="center" spacing={1}>
-                <Text fontSize="xs" color="purple.200" fontWeight="semibold">
+                <Text fontSize="xs" color="primary.200" fontWeight="semibold">
                     Last Distribution
                 </Text>
                 <Text fontSize="xs" fontWeight="semibold">
@@ -31,7 +31,7 @@ export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
                             <Flex w={5}>
                                 <Image w={5} h={5} src={vault.from.image} />
                             </Flex>
-                            <Text fontWeight="semibold" color="purple.100">
+                            <Text fontWeight="semibold" color="primary.100">
                                 {vault.from.symbol}
                             </Text>
                         </Stack>
@@ -40,7 +40,7 @@ export const VaultsClaim = ({ vaults }: { vaults: Vaults }) => {
                             <Flex w={5}>
                                 <Image w={5} h={5} src={vault.to.image} />
                             </Flex>
-                            <Text fontWeight="semibold" color="purple.100">
+                            <Text fontWeight="semibold" color="primary.100">
                                 {vault.to.symbol}
                             </Text>
                         </Stack>

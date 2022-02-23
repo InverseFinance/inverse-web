@@ -19,7 +19,7 @@ export const LinkButton = ({
   isOutline?: boolean
   flexProps?: FlexProps
 }) => {
-  const extraFlexProps = isOutline ? { bgColor: 'purple.850', borderColor: 'purple.600'  } : { bgColor: 'purple.500', borderColor: 'purple.500' }
+  const extraFlexProps = isOutline ? { bgColor: 'primary.850', borderColor: 'primary.600'  } : { bgColor: 'primary.500', borderColor: 'primary.500' }
   const finalFlexProps = { ...extraFlexProps, ...flexProps };
   return (
     <NextLink href={href} passHref>
@@ -31,7 +31,7 @@ export const LinkButton = ({
           borderWidth={1}
           alignItems="center"
           p={2}
-          _hover={{ bgColor: 'purple.600', borderColor: 'purple.600', transition: 'all 250ms' }}
+          _hover={{ bgColor: 'primary.600', borderColor: 'primary.600', transition: 'all 250ms' }}
           {...finalFlexProps}
         >
           {children}
@@ -56,7 +56,7 @@ export const LinkOutlineButton = ({
 
 export const StyledButton = (props: SmartButtonProps) => (
   <SmartButton
-    bgColor="purple.500"
+    bgColor="primary.500"
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     borderRadius={8}
@@ -65,7 +65,7 @@ export const StyledButton = (props: SmartButtonProps) => (
     height={8}
     pl={3}
     pr={3}
-    _hover={{ bgColor: 'purple.600' }}
+    _hover={{ bgColor: 'primary.600' }}
     {...props}
   />
 )
@@ -84,7 +84,7 @@ export const NetworkButton = ({
 
   return (
     <StyledButton
-      bgColor={network.bgColor || 'purple.500'}
+      bgColor={network.bgColor || 'primary.500'}
       onClick={onClick} {...btnProps}
     >
       <NetworkItem chainId={chainId} />
@@ -98,16 +98,16 @@ export const OutlineButton = (props: any) => (
     cursor={props.onClick ? 'pointer' : ''}
     fontSize="sm"
     align="center"
-    bgColor="purple.800"
+    bgColor="primary.800"
     borderRadius={4}
     borderWidth={1}
-    borderColor="purple.700"
+    borderColor="primary.700"
     fontWeight="semibold"
     color="#fff"
     p={2}
     pl={4}
     pr={4}
-    _hover={{ bgColor: 'purple.850' }}
+    _hover={{ bgColor: 'primary.850' }}
     {...props}
   />
 )
@@ -116,12 +116,12 @@ export const SubmitButton = (props: SmartButtonProps) => {
   return (
     <SmartButton
       w="full"
-      bgColor={ !props?.colorScheme ? 'purple.600' : undefined }
+      bgColor={ !props?.colorScheme ? 'primary.600' : undefined }
       fontSize="13px"
       fontWeight="semibold"
       textTransform="uppercase"
       _focus={{}}
-      _hover={ !props?.colorScheme ? { bgColor: 'purple.700' } : undefined }
+      _hover={ !props?.colorScheme ? { bgColor: 'primary.700' } : undefined }
       {...props}
     />
   )
@@ -134,7 +134,7 @@ type NavButtonProps = {
 }
 
 export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
-  <Flex w="full" bgColor="purple.850" p={1} borderRadius={4} cursor="pointer">
+  <Flex w="full" bgColor="primary.850" p={1} borderRadius={4} cursor="pointer">
     {options.map((option: string) => (
       <Flex
         key={option}
@@ -144,9 +144,9 @@ export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
         borderRadius={4}
         fontWeight="semibold"
         fontSize="15px"
-        color={option === active ? '#fff' : 'purple.200'}
+        color={option === active ? '#fff' : 'primary.200'}
         onClick={() => onClick(option)}
-        bgColor={option === active ? 'purple.650' : 'purple.850'}
+        bgColor={option === active ? 'primary.650' : 'primary.850'}
       >
         {option}
       </Flex>

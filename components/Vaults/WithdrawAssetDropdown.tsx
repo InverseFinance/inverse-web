@@ -50,7 +50,7 @@ export const WithdrawAssetDropdown = ({ vaults, isOpen, onClose, onOpen, vault, 
                         p={2}
                         justify="space-between"
                         borderRadius={8}
-                        _hover={{ bgColor: 'purple.850' }}
+                        _hover={{ bgColor: 'primary.850' }}
                         onClick={() => handleChange(vault)}
                         cursor="pointer"
                     >
@@ -59,7 +59,7 @@ export const WithdrawAssetDropdown = ({ vaults, isOpen, onClose, onOpen, vault, 
                                 <Flex w={5}>
                                     <Image w={5} h={5} src={from.image} />
                                 </Flex>
-                                <Text fontWeight="semibold" color="purple.100">
+                                <Text fontWeight="semibold" color="primary.100">
                                     {from.symbol}
                                 </Text>
                             </Stack>
@@ -68,12 +68,12 @@ export const WithdrawAssetDropdown = ({ vaults, isOpen, onClose, onOpen, vault, 
                                 <Flex w={5}>
                                     <Image w={5} h={5} src={to.image} />
                                 </Flex>
-                                <Text fontWeight="semibold" color="purple.100">
+                                <Text fontWeight="semibold" color="primary.100">
                                     {to.symbol}
                                 </Text>
                             </Stack>
                         </Stack>
-                        <Text fontWeight="semibold" color="purple.100">
+                        <Text fontWeight="semibold" color="primary.100">
                             {parseFloat(formatUnits(balance, from.decimals)).toFixed(2)}
                         </Text>
                     </Flex>
