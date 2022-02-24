@@ -7,7 +7,7 @@ import { useBalances } from '@app/hooks/useBalances'
 import { formatUnits } from '@ethersproject/units'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { BalanceInput } from '@app/components/common/Input'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { roundFloorString } from '@app/util/misc'
 import { SubmitButton } from '@app/components/common/Button'
 import { bondDeposit } from '@app/util/contracts'
@@ -16,6 +16,9 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router'
 import { REWARD_TOKEN } from '@app/variables/tokens'
 import { BondSlippage } from './BondSlippage'
+import { useAllowances } from '@app/hooks/useApprovals'
+import { hasAllowance } from '@app/util/web3'
+import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 
 export const BondSlide = ({
     isOpen,
@@ -32,6 +35,12 @@ export const BondSlide = ({
     const { balances } = useBalances([bond.input]);
     const [amount, setAmount] = useState('0');
     const [maxSlippage, setMaxSlippage] = useState(1);
+    const { approvals } = useAllowances([bond.input], bond.bondContract);
+    const [isApproved, setIsApproved] = useState(hasAllowance(approvals, bond.input));
+
+    useEffect(() => {
+        setIsApproved(hasAllowance(approvals, bond.input));
+    }, [approvals, bond.input]);
 
     const bal = balances && balances[bond.input] ? formatUnits(balances[bond.input], bond.underlying.decimals) : '0';
     const receiveAmount = parseFloat(amount || '0') * bond.inputUsdPrice / bond.marketPrice;
@@ -43,7 +52,7 @@ export const BondSlide = ({
     }
 
     const handleDeposit = () => {
-        if(!library?.getSigner() || !userAddress) { return }
+        if (!library?.getSigner() || !userAddress) { return }
         return bondDeposit(bond, library?.getSigner(), amount, maxSlippage, userAddress);
     }
 
@@ -108,9 +117,16 @@ export const BondSlide = ({
                                 onMaxClick={() => handleMax()}
                             />
                         </Flex>
-                        <SubmitButton w="120px" onClick={handleDeposit}>
-                            Deposit
-                        </SubmitButton>
+                        <Flex w="120px">
+                            {
+                                !isApproved ?
+                                    <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved||(!library?.getSigner())} />
+                                    :
+                                    <SubmitButton onClick={handleDeposit} refreshOnSuccess={true}>
+                                        Deposit
+                                    </SubmitButton>
+                            }
+                        </Flex>
                     </HStack>
                     <HStack w='full'>
                         <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
