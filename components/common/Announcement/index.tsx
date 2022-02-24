@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
 import Link from '@app/components/common/Link'
 import { TEST_IDS } from '@app/config/test-ids';
@@ -7,9 +7,7 @@ import { useSupplyBalances } from '@app/hooks/useBalances';
 import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
-import { PlusAnimIcon } from '@app/components/common/Animation/PlusAnim';
 import { useRouter } from 'next/router';
-import { LaunchAnim } from '@app/components/common/Animation';
 import { ANNOUNCEMENT_BAR_BORDER } from '@app/theme';
 
 const XinvMigrationMessage = () => {
@@ -34,7 +32,7 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   </Link>
 }
 
-export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
+export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => {
   const router = useRouter()
   const { balances } = useSupplyBalances()
   const needsXinvMigration = balances && balances[OLD_XINV] && Number(utils.formatEther(balances[OLD_XINV])) > 0.1
@@ -57,27 +55,15 @@ export const Announcement = ({ isLanding = false }: { isLanding: boolean }) => {
       onClick={() => router.push('/inv')}
       data-testid={TEST_IDS.announcement}
     >
-      {/* {
+      {
         process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
-          needsXinvMigration ?
-            <XinvMigrationMessage />
-            :
             <MessageWithLink
-              // href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
-              // msg={process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG!}
-              href="/inv"
-              msg="INV+ is Launched 🚀 ! Learn more"
+              href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
+              msg={process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG!}
             />
           :
           <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
-      } */}
-      <PlusAnimIcon boxProps={{ mr: '4' }} width={30} height={30} loop={true} />
-      {/* <Countdown /> */}
-      <Box mx="10">
-        <LaunchAnim width={30} height={30} loop={true} />
-        <Text fontSize="12px" whiteSpace="nowrap">INV+ is Launched!</Text>
-      </Box>
-      <PlusAnimIcon boxProps={{ ml: '4' }} width={30} height={30} loop={true} />
+      }
     </Flex>
   )
 }

@@ -533,7 +533,7 @@ export const AppNav = ({ active }: { active?: string }) => {
           </Stack>
         </Flex>
       )}
-      {!showMobileNav && <Announcement />}
+      {!showMobileNav && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement />}
     </>
   )
 }

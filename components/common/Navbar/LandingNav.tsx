@@ -78,7 +78,7 @@ export const LandingNav = () => {
           <Link href="/anchor">Enter App</Link>
         </Stack>
       </Flex>
-      {!showMobileNav && <Announcement isLanding={true} />}
+      {!showMobileNav && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement isLanding={true} />}
     </>
   )
 }
