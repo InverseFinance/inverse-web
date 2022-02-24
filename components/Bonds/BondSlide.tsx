@@ -1,6 +1,6 @@
 import { Bond } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
-import { Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import { useBalances } from '@app/hooks/useBalances'
@@ -10,6 +10,12 @@ import { BalanceInput } from '@app/components/common/Input'
 import { useState } from 'react'
 import { roundFloorString } from '@app/util/misc'
 import { SubmitButton } from '@app/components/common/Button'
+import { bondDeposit } from '@app/util/contracts'
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+import { useRouter } from 'next/router'
+import { REWARD_TOKEN } from '@app/variables/tokens'
+import { BondSlippage } from './BondSlippage'
 
 export const BondSlide = ({
     isOpen,
@@ -20,11 +26,15 @@ export const BondSlide = ({
     onClose: () => void,
     bond: Bond
 }) => {
+    const { account, library } = useWeb3React<Web3Provider>();
+    const { query } = useRouter();
+    const userAddress = (query?.viewAddress as string) || account;
     const { balances } = useBalances([bond.input]);
     const [amount, setAmount] = useState('0');
+    const [maxSlippage, setMaxSlippage] = useState(1);
 
     const bal = balances && balances[bond.input] ? formatUnits(balances[bond.input], bond.underlying.decimals) : '0';
-    console.log(bond);
+    const receiveAmount = parseFloat(amount || '0') * bond.inputUsdPrice / bond.marketPrice;
 
     const handleMax = () => {
         const maxUser = parseFloat(bal);
@@ -32,8 +42,13 @@ export const BondSlide = ({
         setAmount(roundFloorString(Math.min(maxUser, maxDeposit), bond.underlying.decimals));
     }
 
+    const handleDeposit = () => {
+        if(!library?.getSigner() || !userAddress) { return }
+        return bondDeposit(bond, library?.getSigner(), amount, maxSlippage, userAddress);
+    }
+
     return <SlideModal onClose={onClose} isOpen={isOpen}>
-        <VStack w='full' fontSize="18px" fontWeight="bold">
+        <VStack w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize="18px" fontWeight="bold">
             <VStack maxW="700px" w='full' spacing="4">
                 <HStack fontSize="24px">
                     <UnderlyingItemBlock symbol={bond.underlying.symbol} nameAttribute="name" />
@@ -84,23 +99,28 @@ export const BondSlide = ({
                             {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
                         </Text>
                     </HStack>
-                    <HStack w='full'>
-                        <BalanceInput
-                            value={amount}
-                            inputProps={{ fontSize: '15px' }}
-                            onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
-                            onMaxClick={() => handleMax()}
-                        />
-                        <SubmitButton w="120px">
+                    <HStack w='full' justify="space-between">
+                        <Flex w='full' maxW="400px">
+                            <BalanceInput
+                                value={amount}
+                                inputProps={{ fontSize: '15px' }}
+                                onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
+                                onMaxClick={() => handleMax()}
+                            />
+                        </Flex>
+                        <SubmitButton w="120px" onClick={handleDeposit}>
                             Deposit
                         </SubmitButton>
                     </HStack>
+                    <HStack w='full'>
+                        <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
+                    </HStack>
                     <HStack w='full' justify="space-between">
                         <Text>
-                            Amount of INV you will receive:
+                            Estimated INV amount to receive:
                         </Text>
                         <Text>
-                            {parseFloat(amount || '0') * bond.inputUsdPrice / bond.marketPrice}
+                            {receiveAmount}
                         </Text>
                     </HStack>
                 </VStack>
