@@ -446,3 +446,15 @@ export type AccountPositionsDetailed = {
   positions: AccountPositionDetailed[]
   markets: string[]
 }
+
+export type Bond = {
+  input: string,
+  ctoken: string,
+  underlying: Token,
+  bondContract: string,
+  howToGetLink: string,
+  usdPrice: number,
+  positiveRoi: boolean,
+  vestingDays: number,
+  maxPayout: number,
+}
