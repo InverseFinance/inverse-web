@@ -9,6 +9,7 @@ import { shortenNumber } from '@app/util/markets';
 import Container from '@app/components/common/Container';
 import { useBonds } from '@app/hooks/useBonds';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
+import { WarningMessage } from '@app/components/common/Messages';
 
 const { XINV } = getNetworkConfigConstants();
 
@@ -16,8 +17,8 @@ const formatBondPrice = (bondPrice: number) => {
     return shortenNumber(bondPrice, 2, true);
 }
 
-const formatROI = (bondPrice: number, invOraclePrice: number) => {
-    return `${shortenNumber((invOraclePrice / (bondPrice) - 1) * 100, 2, false)}%`;
+const formatROI = (bondPrice: number, marketPrice: number) => {
+    return `${shortenNumber((marketPrice / (bondPrice) - 1) * 100, 2, false)}%`;
 }
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
@@ -35,13 +36,29 @@ export const BondForm = () => {
 
     return (
         <Stack w='full' color="white">
-            <Container label="INV Market Price">
+            <Container
+                noPadding
+                label="Protect yourself against Front-Running Bots"
+                description="How to add Flashbot RPC"
+                href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787"
+            >
+                <WarningMessage alertProps={{ fontSize: '12px' }} description={
+                    <>
+                        Bots can try to take the INV discounts just before you do by analyzing the public mempool, to reduce the chances of being front-run by them we recommend to use the Flashot RPC.
+                        <Text>- Use the Flashbot RPC</Text>
+                        <Text>- Acquire LP tokens and Approve them in advance</Text>
+                        <Text>- After a random amount of time Bond</Text>
+                    </>
+                } />
+            </Container>
+
+            <Container noPadding label="INV Market Price">
                 <VStack w="full" justify="space-between">
                     <Text fontWeight="bold">
                         The Oracle Price is used for the bonding calculations, the coingecko price is only shown for convenience.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
-                        <Text>
+                        <Text fontWeight="bold" color="secondary">
                             Oracle Market Price: <b>{shortenNumber(invOraclePrice, 2, true)}</b>
                         </Text>
                         <Text>
@@ -92,8 +109,8 @@ export const BondForm = () => {
                                 <Flex w="80px" alignItems="center">
                                     {formatBondPrice(bond.usdPrice)}
                                 </Flex>
-                                <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoi ? 'secondary' : 'error'}>
-                                    {formatROI(bond.usdPrice, invOraclePrice)}
+                                <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoiCg ? 'secondary' : 'error'}>
+                                    {formatROI(bond.usdPrice, invCgPrice)}
                                 </Flex>
                                 <SubmitButton w='80px'>
                                     Bond

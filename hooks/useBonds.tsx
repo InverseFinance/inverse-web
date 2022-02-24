@@ -3,11 +3,12 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { Bond, SWR } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
-import { BONDS } from '@app/variables/tokens'
+import { BONDS, RTOKEN_CG_ID } from '@app/variables/tokens'
 import { BigNumber } from 'ethers';
 import { useAnchorPricesUsd } from './usePrices';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { BLOCKS_PER_DAY } from '@app/config/constants';
+import { usePrices } from '@app/hooks/usePrices';
 
 const { XINV } = getNetworkConfigConstants();
 
@@ -22,6 +23,7 @@ const termsDefaults = [
 
 export const useBonds = (): SWR & { bonds: Bond[] } => {
   const { prices: oraclePrices } = useAnchorPricesUsd();
+  const { prices: cgPrices } = usePrices();
 
   const { data: bondPrices, error: bondPricesError } = useEtherSWR([
     ...BONDS.map(bond => {
@@ -47,12 +49,14 @@ export const useBonds = (): SWR & { bonds: Bond[] } => {
   const terms = (bondTerms || [...BONDS.map(b => termsDefaults)]);
 
   const invOraclePrice = oraclePrices && oraclePrices[XINV];
+  const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
   const bonds = BONDS.map((bond, i) => {
     return {
       ...bond,
       usdPrice: trueBondPrices[i],
       positiveRoi: invOraclePrice > trueBondPrices[i],
+      positiveRoiCg: invCgPrice > trueBondPrices[i],
       vestingDays: parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY,
       maxPayout: parseFloat(terms[i][3].toString()),
     }
