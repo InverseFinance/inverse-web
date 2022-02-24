@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, VStack } from '@chakra-ui/react';
+import { Flex, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
 import { RTOKEN_CG_ID } from '@app/variables/tokens';
 import { SubmitButton } from '@app/components/common/Button';
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
@@ -10,6 +10,9 @@ import Container from '@app/components/common/Container';
 import { useBonds } from '@app/hooks/useBonds';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { WarningMessage } from '@app/components/common/Messages';
+import { BondSlide } from './BondSlide';
+import { useState } from 'react';
+import { Bond } from '@app/types';
 
 const { XINV } = getNetworkConfigConstants();
 
@@ -17,8 +20,8 @@ const formatBondPrice = (bondPrice: number) => {
     return shortenNumber(bondPrice, 2, true);
 }
 
-const formatROI = (bondPrice: number, marketPrice: number) => {
-    return `${shortenNumber((marketPrice / (bondPrice) - 1) * 100, 2, false)}%`;
+const formatROI = (roi: number) => {
+    return `${shortenNumber(roi, 2, false)}%`;
 }
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
@@ -30,12 +33,20 @@ export const BondForm = () => {
     const { prices: oraclePrices } = useAnchorPricesUsd();
     const { prices: cgPrices } = usePrices();
     const { bonds } = useBonds();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [selectedBond, setSelectedBond] = useState<Bond | null>(null);
 
     const invOraclePrice = oraclePrices && oraclePrices[XINV];
     const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
+    const handleDetails = (bond: Bond) => {
+        setSelectedBond(bond);
+        onOpen();
+    }
+
     return (
         <Stack w='full' color="white">
+            { !!selectedBond && <BondSlide isOpen={isOpen} onClose={onClose} bond={selectedBond} /> }
             <Container
                 noPadding
                 label="Protect yourself against Front-Running Bots"
@@ -44,7 +55,7 @@ export const BondForm = () => {
             >
                 <WarningMessage alertProps={{ fontSize: '12px' }} description={
                     <>
-                        Bots can try to take the INV discounts just before you do by analyzing the public mempool, to reduce the chances of being front-run by them we recommend to use the Flashot RPC.
+                        Bots can try to take the INV discounts just before you do by analyzing the public mempool, to reduce the chances of being front-run by them we recommend to follow these steps:
                         <Text>- Use the Flashbot RPC</Text>
                         <Text>- Acquire LP tokens and Approve them in advance</Text>
                         <Text>- After a random amount of time Bond</Text>
@@ -58,7 +69,7 @@ export const BondForm = () => {
                         The Oracle Price is used for the bonding calculations, the coingecko price is only shown for convenience.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
-                        <Text fontWeight="bold" color="secondary">
+                        <Text>
                             Oracle Market Price: <b>{shortenNumber(invOraclePrice, 2, true)}</b>
                         </Text>
                         <Text>
@@ -109,10 +120,10 @@ export const BondForm = () => {
                                 <Flex w="80px" alignItems="center">
                                     {formatBondPrice(bond.usdPrice)}
                                 </Flex>
-                                <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoiCg ? 'secondary' : 'error'}>
-                                    {formatROI(bond.usdPrice, invCgPrice)}
+                                <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoi ? 'secondary' : 'error'}>
+                                    {formatROI(bond.roi)}
                                 </Flex>
-                                <SubmitButton w='80px'>
+                                <SubmitButton w='80px' onClick={() => handleDetails(bond)}>
                                     Bond
                                 </SubmitButton>
                             </Stack>

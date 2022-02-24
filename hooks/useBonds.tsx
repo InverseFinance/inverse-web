@@ -41,8 +41,12 @@ export const useBonds = (): SWR & { bonds: Bond[] } => {
 
   const prices = (bondPrices || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 7));
 
+  const inputPrices = BONDS.map((bond, i) => {
+    return (oraclePrices && oraclePrices[bond.ctoken]) || 0;
+  })
+
   const trueBondPrices = BONDS.map((bond, i) => {
-    return prices[i] * (oraclePrices && oraclePrices[bond.ctoken]) || 0;
+    return prices[i] * inputPrices[i];
   })
 
   // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout uint256, maxDebt uint256
@@ -51,10 +55,15 @@ export const useBonds = (): SWR & { bonds: Bond[] } => {
   const invOraclePrice = oraclePrices && oraclePrices[XINV];
   const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
+  const marketPrice = invOraclePrice;
+
   const bonds = BONDS.map((bond, i) => {
     return {
       ...bond,
+      marketPrice,
+      roi: (marketPrice / trueBondPrices[i] - 1) * 100,
       usdPrice: trueBondPrices[i],
+      inputUsdPrice: inputPrices[i],
       positiveRoi: invOraclePrice > trueBondPrices[i],
       positiveRoiCg: invCgPrice > trueBondPrices[i],
       vestingDays: parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY,

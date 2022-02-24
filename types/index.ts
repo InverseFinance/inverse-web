@@ -454,8 +454,11 @@ export type Bond = {
   bondContract: string,
   howToGetLink: string,
   usdPrice: number,
+  inputUsdPrice: number,
   positiveRoi: boolean,
   positiveRoiCg: boolean,
   vestingDays: number,
   maxPayout: number,
+  marketPrice: number,
+  roi: number,
 }
