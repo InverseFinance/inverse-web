@@ -19,18 +19,18 @@ export const BondRedeem = ({ bond }: { bond: Bond }) => {
         <Stack w='full' opacity={bond.userInfos.payout > 0 ? 1 : 0.5}>
             <HStack w='full' justify="space-between">
                 <Text>
-                    Remaining to claim: {shortenNumber(bond.userInfos.payout, 4)}
+                    Remaining to claim: {bond.userInfos.payout > 0 ? shortenNumber(bond.userInfos.payout, 4) : '-'}
                 </Text>
                 <Flex color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'} alignItems="center">
                     <TimeIcon mr="1" />
                     <Text color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'}>
-                        Vesting progress: {shortenNumber(bond.userInfos.percentVestedFor, 2)}%
+                        Vesting progress: {bond.userInfos.percentVestedFor > 0 ? shortenNumber(bond.userInfos.percentVestedFor, 2)+"%" : '-'}
                     </Text>
                 </Flex>
             </HStack>
             <HStack w='full' justify="space-between">
                 <Text>
-                    Claimable now: {shortenNumber(bond.userInfos.pendingPayoutFor, 4)}
+                    Claimable now: {bond.userInfos.pendingPayoutFor ? shortenNumber(bond.userInfos.pendingPayoutFor, 4) : '-'}
                 </Text>
                 <SubmitButton isDisabled={bond.userInfos.pendingPayoutFor <= 0} w="120px" onClick={handleClaim} refreshOnSuccess={true}>
                     Claim

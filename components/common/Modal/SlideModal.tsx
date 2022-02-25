@@ -37,7 +37,7 @@ export const SlideModal = ({
                 pt: '4',
             }}
         >
-            <Box w="15px" h="15px" cursor="pointer" onClick={onClose} zIndex="999" position="absolute" top="0px" left="5px">
+            <Box w="15px" h="15px" cursor="pointer" onClick={onClose} zIndex="999" position="absolute" top="-30px" left="0px">
                 <CloseIcon fontSize="14px" cursor="pointer" />
             </Box>
             {

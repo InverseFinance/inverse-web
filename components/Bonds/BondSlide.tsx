@@ -1,6 +1,6 @@
 import { Bond } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
-import { Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Divider, Flex, HStack, Image, Text, VStack } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import { useBalances } from '@app/hooks/useBalances'
@@ -22,6 +22,9 @@ import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { BondRedeem } from './BondRedeem'
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
+import { LPImg } from '@app/components/common/Assets/LPImg'
+
+const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
 export const BondSlide = ({
     isOpen,
@@ -71,15 +74,19 @@ export const BondSlide = ({
             <VStack maxW="700px" w='full' spacing="4">
                 <HStack fontSize="24px">
                     {bondIndex !== 0 && <ArrowLeftIcon cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
-                    <UnderlyingItemBlock symbol={bond.underlying.symbol} nameAttribute="name" />
-                    <Text>BOND</Text>
+                    <Flex>
+                        <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} />
+                        <Text ml="2" textTransform="uppercase">
+                            {bond.underlying.name} BOND
+                        </Text>
+                    </Flex>
                     {bondIndex !== (bonds.length - 1) && <ArrowRightIcon cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                 </HStack>
                 <Divider />
                 <HStack w='full' justify="space-between">
                     <HStack>
                         <Text>Deposit</Text>
-                        <UnderlyingItemBlock symbol={bond.underlying.symbol} nameAttribute='name' />
+                        <UnderlyingItemBlock textTransform="uppercase" imgSize={18} symbol={bond.underlying.symbol} nameAttribute='name' />
                     </HStack>
                     <Text>=></Text>
                     <Text alignItems="center">
@@ -88,7 +95,7 @@ export const BondSlide = ({
                     <Text>=></Text>
                     <HStack>
                         <Text>Claim</Text>
-                        <UnderlyingItemBlock symbol={'INV'} nameAttribute='name' />
+                        <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
                     </HStack>
                 </HStack>
                 <HStack w='full' justify="space-between" fontWeight="bold">
