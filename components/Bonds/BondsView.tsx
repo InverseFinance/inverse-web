@@ -14,11 +14,11 @@ import { BondListItem } from './BondListItem';
 const { XINV } = getNetworkConfigConstants();
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
-    iconProps={{ ml: '2', fontSize: '12px' }}
+    iconProps={{ ml: '2', fontSize: '12px', display: { base: 'none', sm: 'inline-block' } }}
     message={<>{children}</>}
 />
 
-export const BondForm = () => {
+export const BondsView = () => {
     const { prices: oraclePrices } = useAnchorPricesUsd();
     const { prices: cgPrices } = usePrices();
     const { bonds } = useBonds();
@@ -35,7 +35,7 @@ export const BondForm = () => {
 
     return (
         <Stack w='full' color="white">
-            { selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} /> }
+            {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} />}
             <Container
                 noPadding
                 label="Protect yourself against Front-Running Bots"
@@ -53,7 +53,7 @@ export const BondForm = () => {
             </Container>
 
             <Container noPadding label="INV Market Price">
-                <VStack w="full" justify="space-between">
+                <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text fontWeight="bold">
                         The Oracle Price is used for the bonding calculations, the coingecko price is only shown for convenience.
                     </Text>
@@ -61,7 +61,7 @@ export const BondForm = () => {
                         <Text>
                             Oracle Market Price: <b>{shortenNumber(invOraclePrice, 2, true)}</b>
                         </Text>
-                        <Text>
+                        <Text textAlign="right">
                             Coingecko Market Price: <b>{shortenNumber(invCgPrice, 2, true)}</b>
                         </Text>
                     </Flex>
@@ -74,10 +74,12 @@ export const BondForm = () => {
                 description="Get INV at a discount thanks to our partner Olympus Pro - Learn More about bonds"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
-                <VStack w='full'>
-                    <Stack direction="row" w='full' justify="space-between" fontWeight="bold">
+                <VStack w='full' fontSize={{ base: '12px', sm: '14px' }}>
+                    <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">
                         <Flex w="200px" alignItems="center">
-                            Asset to Bond With
+                            <Text>
+                                Asset to Bond With
+                            </Text>
                             <LocalTooltip>
                                 This is the asset you give to get INV in exchange
                             </LocalTooltip>

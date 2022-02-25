@@ -2,8 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { useMarkets } from '@app/hooks/useMarkets';
-import { BondForm } from '@app/components/Bonds/BondForm';
+import { BondsView } from '@app/components/Bonds/BondsView';
 
 export const BondsPage = () => {
     return (
@@ -16,7 +15,7 @@ export const BondsPage = () => {
                 <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
                     <Flex w={{ base: 'full' }} pr="5">
                         <Flex w='full' spacing="2" alignItems="flex-start">
-                            <BondForm />
+                            <BondsView />
                         </Flex>
                     </Flex>
                 </Flex>
