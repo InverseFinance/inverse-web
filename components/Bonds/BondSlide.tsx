@@ -83,7 +83,7 @@ export const BondSlide = ({
                     </HStack>
                     <Text>=></Text>
                     <Text alignItems="center">
-                        Wait 7 days <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportial part before vesting completion" />
+                        Wait 7 days <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportional part before vesting completion" />
                     </Text>
                     <Text>=></Text>
                     <HStack>
@@ -99,7 +99,7 @@ export const BondSlide = ({
                         Market Price: {shortenNumber(bond.marketPrice, 2, true)}
                     </Text>
                     <Text color={bond.positiveRoi ? 'secondary' : 'error'}>
-                        ROI: {shortenNumber(bond.roi, 2, true)}%
+                        ROI: {shortenNumber(bond.roi, 2, false)}%
                     </Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
@@ -156,12 +156,8 @@ export const BondSlide = ({
                         </Text>
                     </HStack>
                 </VStack>
-                {
-                    bond.userInfos.payout > 0 && <>
-                        <Divider />
-                        <BondRedeem bond={bond} />
-                    </>
-                }
+                <Divider />
+                <BondRedeem bond={bond} />
             </VStack>
         </VStack>
     </SlideModal>

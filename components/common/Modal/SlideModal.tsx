@@ -34,10 +34,10 @@ export const SlideModal = ({
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 className: "blurred-container info-bg",
-                pt: '8',
+                pt: '4',
             }}
         >
-            <Box w="15px" h="15px" cursor="pointer" onClick={onClose} zIndex="999" position="absolute" top="10px" left="10px">
+            <Box w="15px" h="15px" cursor="pointer" onClick={onClose} zIndex="999" position="absolute" top="0px" left="5px">
                 <CloseIcon fontSize="14px" cursor="pointer" />
             </Box>
             {
