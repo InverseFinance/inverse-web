@@ -1,6 +1,6 @@
 import { Bond } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
-import { Divider, Flex, HStack, Image, Text, VStack } from '@chakra-ui/react'
+import { Divider, Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import { useBalances } from '@app/hooks/useBalances'
@@ -70,33 +70,33 @@ export const BondSlide = ({
     }
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
-        <VStack w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize="18px" fontWeight="bold">
+        <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }} fontWeight="bold">
             <VStack maxW="700px" w='full' spacing="4">
-                <HStack fontSize="24px">
-                    {bondIndex !== 0 && <ArrowLeftIcon cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
+                <HStack fontSize={{ base: '18px', sm: '24px' }}>
+                    {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
                     <Flex>
                         <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} />
                         <Text ml="2" textTransform="uppercase">
                             {bond.underlying.name} BOND
                         </Text>
                     </Flex>
-                    {bondIndex !== (bonds.length - 1) && <ArrowRightIcon cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
+                    {bondIndex !== (bonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                 </HStack>
                 <Divider />
                 <HStack w='full' justify="space-between">
                     <HStack>
-                        <Text>Deposit</Text>
-                        <UnderlyingItemBlock textTransform="uppercase" imgSize={18} symbol={bond.underlying.symbol} nameAttribute='name' />
+                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
+                        <UnderlyingItemBlock ml="0" textTransform="uppercase" imgSize={18} symbol={bond.underlying.symbol} nameAttribute='name' />
                     </HStack>
                     <Text>=></Text>
                     <Text alignItems="center">
                         Wait 7 days <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportional part before vesting completion" />
                     </Text>
                     <Text>=></Text>
-                    <HStack>
+                    <Stack direction={{ base: 'column', sm: 'row'  }} alignItems={{ base: 'flex-end', sm: 'center' }}>
                         <Text>Claim</Text>
                         <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
-                    </HStack>
+                    </Stack>
                 </HStack>
                 <HStack w='full' justify="space-between" fontWeight="bold">
                     <Text>
@@ -105,7 +105,7 @@ export const BondSlide = ({
                     <Text>
                         Market Price: {shortenNumber(bond.marketPrice, 2, true)}
                     </Text>
-                    <Text color={bond.positiveRoi ? 'secondary' : 'error'}>
+                    <Text textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
                         ROI: {shortenNumber(bond.roi, 2, false)}%
                     </Text>
                 </HStack>
@@ -119,7 +119,7 @@ export const BondSlide = ({
                         <Text>
                             Your {bond.underlying.symbol} balance:
                         </Text>
-                        <Text>
+                        <Text textAlign="right">
                             {shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * bond.inputUsdPrice, 2, true, true)})
                         </Text>
                     </HStack>
@@ -127,7 +127,7 @@ export const BondSlide = ({
                         <Text>
                             Current Max Available Payout for this bond <AnimatedInfoTooltip message="The number of INVs available in this bonding contract" />:
                         </Text>
-                        <Text>
+                        <Text textAlign="right">
                             {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
                         </Text>
                     </HStack>
@@ -135,7 +135,7 @@ export const BondSlide = ({
                         <Flex w='full' maxW="400px">
                             <BalanceInput
                                 value={amount}
-                                inputProps={{ fontSize: '15px' }}
+                                inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
                                 onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
                                 onMaxClick={() => handleMax()}
                             />
