@@ -16,18 +16,12 @@ const formatROI = (roi: number) => {
 
 export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, bondIndex: number, handleDetails: (i: number) => void }) => {
 
-
     return (
         <Stack direction="row" key={bond.input} w='full' justify="space-between" fontWeight="bold">
             <Flex w="200px" alignItems="center" position="relative">
                 <Link textTransform="uppercase" textDecoration="underline" isExternal href={bond.howToGetLink}>
                     <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'15px'} />
                 </Link>
-                {
-                    bond.userInfos.payout > 0 && <NotifBadge fontSize="10px" left="-25px" top="-5px" right="auto">
-                        {shortenNumber(bond.userInfos.payout, 2)}
-                    </NotifBadge>
-                }
             </Flex>
             <Flex w="80px" alignItems="center">
                 {formatBondPrice(bond.usdPrice)}
@@ -35,9 +29,16 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
             <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoi ? 'secondary' : 'error'}>
                 {formatROI(bond.roi)}
             </Flex>
-            <SubmitButton w='80px' onClick={() => handleDetails(bondIndex)}>
-                Bond
-            </SubmitButton>
+            <Flex w='80px' position="relative">
+                <SubmitButton  w='full' onClick={() => handleDetails(bondIndex)}>
+                    Bond
+                </SubmitButton>
+                {
+                    bond.userInfos.payout > 0 && <NotifBadge fontSize="10px">
+                        {shortenNumber(bond.userInfos.payout, 2)}
+                    </NotifBadge>
+                }
+            </Flex>
         </Stack>
     )
 }

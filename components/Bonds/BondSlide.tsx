@@ -20,17 +20,21 @@ import { useAllowances } from '@app/hooks/useApprovals'
 import { hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { BondRedeem } from './BondRedeem'
+import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons'
+import ScannerLink from '@app/components/common/ScannerLink'
 
 export const BondSlide = ({
     isOpen,
     onClose,
     bonds,
     bondIndex,
+    handleDetails
 }: {
     isOpen: boolean,
     onClose: () => void,
     bonds: Bond[],
     bondIndex: number,
+    handleDetails: (i: number) => void,
 }) => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { query } = useRouter();
@@ -66,8 +70,10 @@ export const BondSlide = ({
         <VStack w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize="18px" fontWeight="bold">
             <VStack maxW="700px" w='full' spacing="4">
                 <HStack fontSize="24px">
+                    {bondIndex !== 0 && <ArrowLeftIcon cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
                     <UnderlyingItemBlock symbol={bond.underlying.symbol} nameAttribute="name" />
                     <Text>BOND</Text>
+                    {bondIndex !== (bonds.length - 1) && <ArrowRightIcon cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                 </HStack>
                 <Divider />
                 <HStack w='full' justify="space-between">
@@ -95,6 +101,10 @@ export const BondSlide = ({
                     <Text color={bond.positiveRoi ? 'secondary' : 'error'}>
                         ROI: {shortenNumber(bond.roi, 2, true)}%
                     </Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text>Contract: </Text>
+                    <ScannerLink value={bond.bondContract} />
                 </HStack>
                 <Divider />
                 <VStack w='full' m="0" p="0" spacing="4">
@@ -126,7 +136,7 @@ export const BondSlide = ({
                         <Flex w="120px">
                             {
                                 !isApproved ?
-                                    <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved||(!library?.getSigner())} />
+                                    <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
                                     <SubmitButton onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit

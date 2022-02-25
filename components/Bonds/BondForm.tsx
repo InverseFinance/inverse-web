@@ -35,7 +35,7 @@ export const BondForm = () => {
 
     return (
         <Stack w='full' color="white">
-            { selectedBondIndex !== null && <BondSlide isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} /> }
+            { selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} /> }
             <Container
                 noPadding
                 label="Protect yourself against Front-Running Bots"

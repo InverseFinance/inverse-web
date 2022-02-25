@@ -191,3 +191,8 @@ export const bondDeposit = (bond: Bond, signer: JsonRpcSigner, amount: string, m
   
   return contract.deposit(amountUint, maxPriceUint, depositor);
 }
+
+export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string) => {
+  const contract = getBondContract(bond.bondContract, signer);
+  return contract.redeem(depositor);
+}
