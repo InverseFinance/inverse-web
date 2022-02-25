@@ -57,9 +57,23 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
     }),
   ]);
 
+  const { data: dataPercentVestedFor } = useEtherSWR([
+    ...BONDS.map(bond => {
+      return [bond.bondContract, 'percentVestedFor', userAddress]
+    }),
+  ]);
+
+  const { data: dataPendingPayoutFor } = useEtherSWR([
+    ...BONDS.map(bond => {
+      return [bond.bondContract, 'pendingPayoutFor', userAddress]
+    }),
+  ]);
+
   const error = bondPricesError || bondTermsError;
 
   const prices = (bondPrices || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 7));
+  const percentVestedFor = (dataPercentVestedFor || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 0)/100);
+  const pendingPayoutFor = (dataPendingPayoutFor || BONDS.map(b => BigNumber.from('0')))?.map((bn, i) => getBnToNumber(bn, BONDS[i].underlying.decimals));
 
   const inputPrices = BONDS.map((bond, i) => {
     return (oraclePrices && oraclePrices[bond.ctoken]) || 0;
@@ -97,6 +111,8 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
         lastBlock: getBnToNumber(bondInfos[i][2], 0),
         truePricePaid: getBnToNumber(bondInfos[i][3], 7),
         vestingCompletionBlock: getBnToNumber(bondInfos[i][2], 0) + getBnToNumber(bondInfos[i][1], 0),
+        percentVestedFor: percentVestedFor[i],
+        pendingPayoutFor: pendingPayoutFor[i],
       }
     }
   })

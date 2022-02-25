@@ -467,5 +467,7 @@ export type Bond = {
     lastBlock: number,
     vestingCompletionBlock: number,
     truePricePaid: number,
+    percentVestedFor: number,
+    pendingPayoutFor: number,
   }
 }

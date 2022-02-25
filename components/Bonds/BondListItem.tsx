@@ -5,6 +5,7 @@ import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingIte
 import { SubmitButton } from '@app/components/common/Button';
 import Link from '@app/components/common/Link';
 import { NotifBadge } from '@app/components/common/NotifBadge';
+import { TimeIcon } from '@chakra-ui/icons';
 
 const formatBondPrice = (bondPrice: number) => {
     return shortenNumber(bondPrice, 2, true);
@@ -34,8 +35,8 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
                     Bond
                 </SubmitButton>
                 {
-                    bond.userInfos.payout > 0 && <NotifBadge fontSize="10px">
-                        {shortenNumber(bond.userInfos.payout, 2)}
+                    bond.userInfos.percentVestedFor > 0 && <NotifBadge display="flex" alignItems="center" fontSize="10px">
+                        <TimeIcon mr="1" /> {shortenNumber(bond.userInfos.percentVestedFor, 2)}%
                     </NotifBadge>
                 }
             </Flex>

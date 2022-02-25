@@ -83,7 +83,7 @@ export const BondSlide = ({
                     </HStack>
                     <Text>=></Text>
                     <Text alignItems="center">
-                        Wait 7 days <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim your INVs" />
+                        Wait 7 days <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportial part before vesting completion" />
                     </Text>
                     <Text>=></Text>
                     <HStack>

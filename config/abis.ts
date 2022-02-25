@@ -232,6 +232,9 @@ export const DOLA_PAYROLL_ABI = [
 
 export const BOND_ABI = [
   "function bondInfo(address depositor) public view returns (uint256, uint256, uint256, uint256)",
+  "function pendingPayoutFor(address depositor) public view returns (uint256)",
+  "function payoutFor(uint value) public view returns (uint256)",
+  "function percentVestedFor(address depositor) public view returns (uint256)",
   "function terms() public view returns (uint256, uint256, uint256, uint256, uint256)",
   "function trueBondPrice() public view returns (uint256)",
   "function deposit(uint256 amount, uint256 maxPrice, address depositor) external returns (uint256)",
