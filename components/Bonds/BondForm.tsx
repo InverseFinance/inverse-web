@@ -1,8 +1,5 @@
 import { Flex, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
 import { RTOKEN_CG_ID } from '@app/variables/tokens';
-import { SubmitButton } from '@app/components/common/Button';
-import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
-import Link from '@app/components/common/Link';
 import { useAnchorPricesUsd, usePrices } from '@app/hooks/usePrices';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { shortenNumber } from '@app/util/markets';
@@ -12,17 +9,9 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { WarningMessage } from '@app/components/common/Messages';
 import { BondSlide } from './BondSlide';
 import { useState } from 'react';
-import { Bond } from '@app/types';
+import { BondListItem } from './BondListItem';
 
 const { XINV } = getNetworkConfigConstants();
-
-const formatBondPrice = (bondPrice: number) => {
-    return shortenNumber(bondPrice, 2, true);
-}
-
-const formatROI = (roi: number) => {
-    return `${shortenNumber(roi, 2, false)}%`;
-}
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
     iconProps={{ ml: '2', fontSize: '12px' }}
@@ -34,19 +23,19 @@ export const BondForm = () => {
     const { prices: cgPrices } = usePrices();
     const { bonds } = useBonds();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [selectedBond, setSelectedBond] = useState<Bond | null>(null);
+    const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
 
     const invOraclePrice = oraclePrices && oraclePrices[XINV];
     const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
-    const handleDetails = (bond: Bond) => {
-        setSelectedBond(bond);
+    const handleDetails = (bondIndex: number) => {
+        setSelectedBondIndex(bondIndex);
         onOpen();
     }
 
     return (
         <Stack w='full' color="white">
-            { !!selectedBond && <BondSlide isOpen={isOpen} onClose={onClose} bond={selectedBond} /> }
+            { selectedBondIndex !== null && <BondSlide isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} /> }
             <Container
                 noPadding
                 label="Protect yourself against Front-Running Bots"
@@ -110,23 +99,8 @@ export const BondForm = () => {
                         <Flex w='80px'></Flex>
                     </Stack>
                     {
-                        bonds.map(bond => {
-                            return <Stack direction="row" key={bond.input} w='full' justify="space-between" fontWeight="bold">
-                                <Flex w="200px" alignItems="center">
-                                    <Link textTransform="uppercase" textDecoration="underline" isExternal href={bond.howToGetLink}>
-                                        <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'15px'} />
-                                    </Link>
-                                </Flex>
-                                <Flex w="80px" alignItems="center">
-                                    {formatBondPrice(bond.usdPrice)}
-                                </Flex>
-                                <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoi ? 'secondary' : 'error'}>
-                                    {formatROI(bond.roi)}
-                                </Flex>
-                                <SubmitButton w='80px' onClick={() => handleDetails(bond)}>
-                                    Bond
-                                </SubmitButton>
-                            </Stack>
+                        bonds.map((bond, i) => {
+                            return <BondListItem key={bond.bondContract} bond={bond} bondIndex={i} handleDetails={handleDetails} />
                         })
                     }
                 </VStack>

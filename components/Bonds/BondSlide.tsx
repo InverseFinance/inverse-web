@@ -19,19 +19,25 @@ import { BondSlippage } from './BondSlippage'
 import { useAllowances } from '@app/hooks/useApprovals'
 import { hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
+import { BondRedeem } from './BondRedeem'
 
 export const BondSlide = ({
     isOpen,
     onClose,
-    bond,
+    bonds,
+    bondIndex,
 }: {
     isOpen: boolean,
     onClose: () => void,
-    bond: Bond
+    bonds: Bond[],
+    bondIndex: number,
 }) => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { query } = useRouter();
     const userAddress = (query?.viewAddress as string) || account;
+
+    const bond = bonds[bondIndex];
+
     const { balances } = useBalances([bond.input]);
     const [amount, setAmount] = useState('0');
     const [maxSlippage, setMaxSlippage] = useState(1);
@@ -140,6 +146,12 @@ export const BondSlide = ({
                         </Text>
                     </HStack>
                 </VStack>
+                {
+                    bond.userInfos.payout > 0 && <>
+                        <Divider />
+                        <BondRedeem bond={bond} />
+                    </>
+                }
             </VStack>
         </VStack>
     </SlideModal>
