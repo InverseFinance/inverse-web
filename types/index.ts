@@ -461,4 +461,11 @@ export type Bond = {
   maxPayout: number,
   marketPrice: number,
   roi: number,
+  userInfos: {
+    payout: number,
+    vesting: number,
+    lastBlock: number,
+    vestingCompletionBlock: number,
+    truePricePaid: number,
+  }
 }
