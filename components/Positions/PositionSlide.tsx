@@ -19,7 +19,7 @@ export const PositionSlide = ({
         isOpen={isOpen}
         onClose={onClose}
         right={<Text fontWeight="bold">
-            Account: {position.account ? <ScannerLink value={position.account} /> : '-'}
+            Account: {position?.account ? <ScannerLink value={position?.account} /> : '-'}
         </Text>}
     >
         {!!position && <PositionDetails needFresh={needFresh} position={position} />}
