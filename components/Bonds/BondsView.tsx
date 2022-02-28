@@ -6,10 +6,13 @@ import { shortenNumber } from '@app/util/markets';
 import Container from '@app/components/common/Container';
 import { useBonds } from '@app/hooks/useBonds';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
-import { WarningMessage } from '@app/components/common/Messages';
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BondSlide } from './BondSlide';
 import { useState } from 'react';
 import { BondListItem } from './BondListItem';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 
 const { XINV } = getNetworkConfigConstants();
 
@@ -19,11 +22,13 @@ const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
 />
 
 export const BondsView = () => {
+    const { account } = useWeb3React<Web3Provider>();
     const { prices: oraclePrices } = useAnchorPricesUsd();
     const { prices: cgPrices } = usePrices();
     const { bonds } = useBonds();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
+    const [isNotConnected, setIsNotConnected] = useState(false);
 
     const invOraclePrice = oraclePrices && oraclePrices[XINV];
     const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
@@ -32,6 +37,10 @@ export const BondsView = () => {
         setSelectedBondIndex(bondIndex);
         onOpen();
     }
+
+    useDualSpeedEffect(() => {
+        setIsNotConnected(!account);
+    }, [account], !account, 1000, 0);
 
     return (
         <Stack w='full' color="white">
@@ -59,14 +68,20 @@ export const BondsView = () => {
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
                         <Text>
-                            Oracle Market Price: <b>{shortenNumber(invOraclePrice, 2, true)}</b>
+                            Oracle Market Price: <b>{invOraclePrice ? shortenNumber(invOraclePrice, 2, true) : '-'}</b>
                         </Text>
                         <Text textAlign="right">
-                            Coingecko Market Price: <b>{shortenNumber(invCgPrice, 2, true)}</b>
+                            Coingecko Market Price: <b>{invCgPrice ? shortenNumber(invCgPrice, 2, true) : '-'}</b>
                         </Text>
                     </Flex>
                 </VStack>
             </Container>
+
+            {
+                isNotConnected && <Container noPadding label="Wallet Not Connected">
+                    <InfoMessage description="Please connect your wallet" />
+                </Container>
+            }
 
             <Container
                 noPadding

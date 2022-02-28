@@ -25,10 +25,10 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
                 </Link>
             </Flex>
             <Flex w="80px" alignItems="center">
-                {formatBondPrice(bond.usdPrice)}
+                {bond.usdPrice ? formatBondPrice(bond.usdPrice) : '-'}
             </Flex>
-            <Flex w="80px" justify="flex-end" alignItems="center" color={bond.positiveRoi ? 'secondary' : 'error'}>
-                {formatROI(bond.roi)}
+            <Flex w="80px" justify="flex-end" alignItems="center" color={bond.roi === 0 || isNaN(bond.roi) ? 'white' : bond.positiveRoi ? 'secondary' : 'error'}>
+                {bond.roi ? formatROI(bond.roi) : '-'}
             </Flex>
             <Flex w='80px' position="relative">
                 <SubmitButton  w='full' onClick={() => handleDetails(bondIndex)}>
