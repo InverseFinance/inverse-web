@@ -21,19 +21,19 @@ const DEFAULT_DURATION_SEC = DAY_DURATION * 365 * 2;
 export const XinvVestor = ({
     defaultAddress = '',
     defaultAmount = '',
-    defaultDuration = DEFAULT_DURATION_SEC,
+    defaultDuration = DEFAULT_DURATION_SEC.toString(),
     onDisabledChange,
     onActionChange,
 }: {
     defaultAddress?: string,
     defaultAmount?: string,
-    defaultDuration?: number,
+    defaultDuration?: string,
     onDisabledChange: (v: boolean) => void
     onActionChange: (action: TemplateProposalFormActionFields | undefined) => void
 }) => {
     const [destination, setDestination] = useState(defaultAddress);
     const [amount, setAmount] = useState(defaultAmount);
-    const [startTimestampSec, setStartTimestampSec] = useState(Date.now() / 1000);
+    const [startTimestampSec, setStartTimestampSec] = useState(Math.floor(Date.now() / 1000));
     const [durationSec, setDurationSec] = useState(defaultDuration);
     const [cancellable, setCancellable] = useState('true');
     const [action, setAction] = useState<TemplateProposalFormActionFields | undefined>(undefined);
@@ -48,7 +48,7 @@ export const XinvVestor = ({
     }, [action])
 
     useEffect(() => {
-        const disabled = ((!amount || amount === '0')) || !destination || !isAddress(destination)
+        const disabled = ((!amount || amount === '0')) || !destination || !isAddress(destination) || parseFloat(durationSec) < 1 || !startTimestampSec
         setIsDisabled(disabled)
         if (disabled) { return }
         const args: any[] = [
@@ -83,13 +83,14 @@ export const XinvVestor = ({
 
     const handleDurationChange = (e) => {
         const duration = parseFloat(e.target.value);
-        setDurationSec(duration * DAY_DURATION);
+        setDurationSec((duration * DAY_DURATION).toString());
     }
 
     const handleStartTimestampChange = (e) => {
         const splitted = e.target.value.split('-');
         const [year, month, day] = splitted;
-        setStartTimestampSec(Date.UTC(year, parseFloat(month) - 1, day) / 1000);
+        const secs = Date.UTC(year, parseFloat(month) - 1, day) / 1000
+        setStartTimestampSec(Math.floor(secs));
     }
 
     return (
@@ -103,7 +104,7 @@ export const XinvVestor = ({
                     }
                 </FormLabel>
                 <AddressAutocomplete
-                    defaultValue={defaultAddress}
+                    defaultValue={destination}
                     onItemSelect={handleAddressChange}
                 />
             </FormControl>
@@ -115,7 +116,7 @@ export const XinvVestor = ({
             </FormControl>
             <FormControl>
                 <FormLabel>
-                    Start time (can be retroactive):
+                    Start time (YYYY-MM-DD, can be retroactive):
                 </FormLabel>
                 <Input placeholder="2022-01-01" defaultValue={new Date().toISOString().substring(0, 10)} onChange={handleStartTimestampChange} />
             </FormControl>
@@ -123,7 +124,7 @@ export const XinvVestor = ({
                 <FormLabel>
                     Duration in days:
                 </FormLabel>
-                <Input placeholder="365" type="number" min="1" defaultValue={defaultDuration/DAY_DURATION} onChange={handleDurationChange} />
+                <Input placeholder="365" type="number" min="1" defaultValue={parseFloat(defaultDuration)/DAY_DURATION} onChange={handleDurationChange} />
             </FormControl>
             <FormControl>
                 <FormLabel>
