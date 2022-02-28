@@ -10,7 +10,7 @@ export const BondsPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - INV</title>
             </Head>
-            <AppNav active="INV" />
+            <AppNav active="Bonds" />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="900px">
                 <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
                     <Flex w={{ base: 'full' }} pr="5">

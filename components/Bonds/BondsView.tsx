@@ -13,6 +13,7 @@ import { BondListItem } from './BondListItem';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
+import Link from '@app/components/common/Link';
 
 const { XINV } = getNetworkConfigConstants();
 
@@ -73,7 +74,7 @@ export const BondsView = () => {
                 contentProps={{ p: { base: '2', sm: '8' } }}
                 label="Bonds"
                 contentBgColor="gradientContentBackground"
-                description="Get INV at a discount thanks to our partner Olympus Pro - Learn More about bonds"
+                description="Get INV at a discount via Olympus Pro  - Learn More about bonds here"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
                 <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
@@ -117,16 +118,21 @@ export const BondsView = () => {
                 contentProps={{ p: { base: '2', sm: '8' } }}
                 noPadding
                 contentBgColor="gradientContentBackground"
-                label="Protect yourself against Front-Running Bots"
+                label="Protect yourself against Front-running Bots"
                 description="How to add Flashbot RPC"
                 href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787"
             >
                 <WarningMessage alertProps={{ fontSize: '12px' }} description={
                     <>
-                        Bots can try to take the INV discounts just before you do by analyzing the public mempool, to reduce the chances of being front-run by them we recommend to follow these steps:
-                        <Text>- Use the Flashbot RPC</Text>
+                        Bots may attempt to take INV discounts just before you do by analyzing the public mempool, a type of "waiting area" for new Ethereum transactions. To reduce the chances of being front-run, we recommend following these steps:
+                        <Flex>
+                            <Text mr="1">- Use the</Text>
+                            <Link textDecoration="underline" isExternal href="https://docs.flashbots.net/flashbots-protect/overview/">
+                                Flashbot RPC
+                            </Link>
+                        </Flex>
                         <Text>- Acquire LP tokens and Approve them in advance</Text>
-                        <Text>- After a random amount of time Bond</Text>
+                        <Text>- After approving the transaction, wait a random amount of time (e.g. 8 minutes) before completing your bond transaction</Text>
                     </>
                 } />
             </Container>
