@@ -44,6 +44,11 @@ export const BondsView = () => {
 
     return (
         <Stack w='full' color="white">
+            {
+                isNotConnected && <Container contentBgColor="gradientContentBackground" noPadding label="Wallet Not Connected">
+                    <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
+                </Container>
+            }
             {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} />}
             <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="INV Market Price" contentBgColor="gradientContentBackground">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
@@ -125,12 +130,6 @@ export const BondsView = () => {
                     </>
                 } />
             </Container>
-
-            {
-                isNotConnected && <Container noPadding label="Wallet Not Connected">
-                    <InfoMessage description="Please connect your wallet" />
-                </Container>
-            }
         </Stack>
     )
 }
