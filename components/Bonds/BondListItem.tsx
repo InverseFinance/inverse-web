@@ -19,9 +19,9 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
 
     return (
         <Stack direction="row" key={bond.input} w='full' justify="space-between" fontWeight="bold">
-            <Flex w="200px" alignItems="center" position="relative">
+            <Flex w="240px" alignItems="center" position="relative">
                 <Link textTransform="uppercase" textDecoration="underline" isExternal href={bond.howToGetLink}>
-                    <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'15px'} />
+                    <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'18px'} imgProps={{ mr: '2' }} />
                 </Link>
             </Flex>
             <Flex w="80px" alignItems="center">

@@ -18,10 +18,11 @@ export const BondRedeem = ({ bond }: { bond: Bond }) => {
     return (
         <Stack w='full' opacity={bond.userInfos.payout > 0 ? 1 : 0.5}>
             <HStack w='full' justify="space-between">
-                <Text>
-                    Remaining to claim: {bond.userInfos.payout > 0 ? shortenNumber(bond.userInfos.payout, 4) : '-'}
-                </Text>
-                <Flex color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'} alignItems="center">
+                <Flex>
+                    <Text mr="1">Remaining to claim:</Text> 
+                    <Text fontWeight="extrabold">{bond.userInfos.payout > 0 ? shortenNumber(bond.userInfos.payout, 4) : '-'}</Text>
+                </Flex>
+                <Flex fontWeight="extrabold" color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'} alignItems="center">
                     <TimeIcon mr="1" />
                     <Text color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'}>
                         Vesting progress: {bond.userInfos.percentVestedFor > 0 ? shortenNumber(bond.userInfos.percentVestedFor, 2)+"%" : '-'}
@@ -29,9 +30,10 @@ export const BondRedeem = ({ bond }: { bond: Bond }) => {
                 </Flex>
             </HStack>
             <HStack w='full' justify="space-between">
-                <Text>
-                    Claimable now: {bond.userInfos.pendingPayoutFor ? shortenNumber(bond.userInfos.pendingPayoutFor, 4) : '-'}
-                </Text>
+                <Flex>
+                    <Text mr="1">Claimable now:</Text> 
+                    <Text fontWeight="extrabold">{bond.userInfos.pendingPayoutFor ? shortenNumber(bond.userInfos.pendingPayoutFor, 4) : '-'}</Text>
+                </Flex>
                 <SubmitButton isDisabled={bond.userInfos.pendingPayoutFor <= 0} w="120px" onClick={handleClaim} refreshOnSuccess={true}>
                     Claim
                 </SubmitButton>

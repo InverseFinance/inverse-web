@@ -20,10 +20,11 @@ import { useAllowances } from '@app/hooks/useApprovals'
 import { hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { BondRedeem } from './BondRedeem'
-import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons'
+import { ArrowLeftIcon, ArrowRightIcon, TimeIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { LPImg } from '@app/components/common/Assets/LPImg'
 import { useBondPayoutFor } from '@app/hooks/useBonds'
+import Link from '@app/components/common/Link'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -75,9 +76,9 @@ export const BondSlide = ({
     }
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
-        <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }} fontWeight="bold">
+        <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
             <VStack maxW="700px" w='full' spacing="4">
-                <HStack fontSize={{ base: '18px', sm: '24px' }}>
+                <HStack fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">
                     {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
                     <Flex>
                         <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} />
@@ -88,51 +89,63 @@ export const BondSlide = ({
                     {bondIndex !== (bonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                 </HStack>
                 <Divider />
-                <HStack w='full' justify="space-between">
+                <HStack w='full' justify="space-between" fontWeight="bold">
                     <HStack>
-                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
                         <UnderlyingItemBlock ml="0" textTransform="uppercase" imgSize={18} symbol={bond.underlying.symbol} nameAttribute='name' />
+                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
                     </HStack>
                     <Text>=></Text>
-                    <Text alignItems="center">
-                        Wait 7 days <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportional part before vesting completion" />
-                    </Text>
+                    <Flex alignItems="center">
+                        <TimeIcon fontSize="16px" />
+                        <Text mx="2">Wait 7 days</Text>
+                        <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportional part before vesting completion" />
+                    </Flex>
                     <Text>=></Text>
-                    <Stack direction={{ base: 'column', sm: 'row'  }} alignItems={{ base: 'flex-end', sm: 'center' }}>
+                    <Stack direction={{ base: 'column', sm: 'row' }} alignItems={{ base: 'flex-end', sm: 'center' }}>
                         <Text>Claim</Text>
                         <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
                     </Stack>
                 </HStack>
+                <Divider />
                 <HStack w='full' justify="space-between" fontWeight="bold">
-                    <Text>
-                        Bond Price: {shortenNumber(bond.usdPrice, 2, true)}
-                    </Text>
-                    <Text>
-                        Market Price: {shortenNumber(bond.marketPrice, 2, true)}
-                    </Text>
-                    <Text textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
+                    <Flex>
+                        <Text fontWeight="normal" mr="1">Bond Price: </Text>
+                        <Text fontWeight="extrabold">{shortenNumber(bond.usdPrice, 2, true)}</Text>
+                    </Flex>
+                    <Flex>
+                        <Text fontWeight="normal" mr="1">Market Price: </Text>
+                        <Text fontWeight="extrabold">{shortenNumber(bond.marketPrice, 2, true)}</Text>
+                    </Flex>
+                    <Text fontWeight="extrabold" textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
                         ROI: {shortenNumber(bond.roi, 2, false)}%
                     </Text>
                 </HStack>
-                <HStack w='full' justify="space-between">
-                    <Text>Contract: </Text>
+                <HStack fontSize="12px" w='full' justify="space-between">
+                    <Text>Bond Contract: </Text>
                     <ScannerLink value={bond.bondContract} />
                 </HStack>
                 <Divider />
-                <VStack w='full' m="0" p="0" spacing="4">
+                <VStack w='full' m="0" p="0" spacing="4" fontSize="14px">
                     <HStack w='full' justify="space-between">
                         <Text>
-                            Your {bond.underlying.symbol} balance:
+                            Your {bond.underlying.symbol} Balance:
                         </Text>
-                        <Text textAlign="right">
-                            {shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * bond.inputUsdPrice, 2, true, true)})
-                        </Text>
+                        {
+                            parseFloat(bal) === 0 ?
+                                <Link fontWeight="extrabold" color="secondary" textDecoration="underline" href={bond.howToGetLink}>
+                                    Get {bond.underlying.symbol}
+                                </Link>
+                                :
+                                <Text fontWeight="extrabold" textAlign="right">
+                                    {shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * bond.inputUsdPrice, 2, true, true)})
+                                </Text>
+                        }
                     </HStack>
                     <HStack w='full' justify="space-between">
                         <Text>
                             Current Max Available Payout for this bond <AnimatedInfoTooltip message="The number of INVs available in this bonding contract" />:
                         </Text>
-                        <Text textAlign="right">
+                        <Text fontWeight="bold" textAlign="right">
                             {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
                         </Text>
                     </HStack>
@@ -150,7 +163,7 @@ export const BondSlide = ({
                                 !isApproved ?
                                     <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
-                                    <SubmitButton isDisabled={!parseFloat(amount||'0') || parseFloat(amount||'0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
+                                    <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit
                                     </SubmitButton>
                             }
@@ -159,11 +172,11 @@ export const BondSlide = ({
                     <HStack w='full'>
                         <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
                     </HStack>
-                    <HStack w='full' justify="space-between">
-                        <Text>
+                    <HStack fontSize="18px" w='full' justify="space-between">
+                        <Text fontWeight="bold">
                             Estimated INV amount to receive:
                         </Text>
-                        <Text>
+                        <Text fontWeight="extrabold">
                             {receiveAmount}
                         </Text>
                     </HStack>

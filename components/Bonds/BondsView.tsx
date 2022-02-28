@@ -45,26 +45,10 @@ export const BondsView = () => {
     return (
         <Stack w='full' color="white">
             {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} />}
-            <Container
-                noPadding
-                label="Protect yourself against Front-Running Bots"
-                description="How to add Flashbot RPC"
-                href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787"
-            >
-                <WarningMessage alertProps={{ fontSize: '12px' }} description={
-                    <>
-                        Bots can try to take the INV discounts just before you do by analyzing the public mempool, to reduce the chances of being front-run by them we recommend to follow these steps:
-                        <Text>- Use the Flashbot RPC</Text>
-                        <Text>- Acquire LP tokens and Approve them in advance</Text>
-                        <Text>- After a random amount of time Bond</Text>
-                    </>
-                } />
-            </Container>
-
             <Container noPadding label="INV Market Price">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text fontWeight="bold">
-                        The Oracle Price is used for the bonding calculations, the coingecko price is only shown for convenience.
+                        The Oracle Price is used for the bonding calculations, Coingecko price is shown for convenience.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
                         <Text>
@@ -77,21 +61,15 @@ export const BondsView = () => {
                 </VStack>
             </Container>
 
-            {
-                isNotConnected && <Container noPadding label="Wallet Not Connected">
-                    <InfoMessage description="Please connect your wallet" />
-                </Container>
-            }
-
             <Container
                 noPadding
                 label="Bonds"
                 description="Get INV at a discount thanks to our partner Olympus Pro - Learn More about bonds"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
-                <VStack w='full' fontSize={{ base: '12px', sm: '14px' }}>
+                <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
                     <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">
-                        <Flex w="200px" alignItems="center">
+                        <Flex w="240px" alignItems="center">
                             <Text>
                                 Asset to Bond With
                             </Text>
@@ -122,6 +100,28 @@ export const BondsView = () => {
                     }
                 </VStack>
             </Container>
+
+            <Container
+                noPadding
+                label="Protect yourself against Front-Running Bots"
+                description="How to add Flashbot RPC"
+                href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787"
+            >
+                <WarningMessage alertProps={{ fontSize: '12px' }} description={
+                    <>
+                        Bots can try to take the INV discounts just before you do by analyzing the public mempool, to reduce the chances of being front-run by them we recommend to follow these steps:
+                        <Text>- Use the Flashbot RPC</Text>
+                        <Text>- Acquire LP tokens and Approve them in advance</Text>
+                        <Text>- After a random amount of time Bond</Text>
+                    </>
+                } />
+            </Container>
+
+            {
+                isNotConnected && <Container noPadding label="Wallet Not Connected">
+                    <InfoMessage description="Please connect your wallet" />
+                </Container>
+            }
         </Stack>
     )
 }
