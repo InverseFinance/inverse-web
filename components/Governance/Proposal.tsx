@@ -162,7 +162,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
 
   if (!proposal?.id) {
     return (
-      <Container label={<SkeletonTitle />}>
+      <Container contentBgColor="gradient3" label={<SkeletonTitle />}>
         <SkeletonBlob />
       </Container>
     )
@@ -173,6 +173,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
   return (
     <Container
       label={title}
+      contentBgColor="gradient2"
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="left" align="left" alignItems={{ base: 'flex-start', sm: 'center' }} spacing={1}>
           <Stack direction="row" align="left" alignItems="center">
@@ -233,7 +234,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
   const { functions } = proposal
 
   return (
-    <Container label="Actions">
+    <Container contentBgColor="gradient2" label="Actions">
       <Stack w="full" spacing={6} p={2}>
         {!functions.length && <InfoMessage description="At least one on-chain action is required to submit the proposal" alertProps={{ w: 'full' }} />}
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {
