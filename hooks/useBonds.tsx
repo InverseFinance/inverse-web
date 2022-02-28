@@ -1,6 +1,6 @@
 
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { Bond, SWR } from '@app/types'
+import { Bond, SWR, Token } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
 import { BONDS, REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens'
@@ -12,6 +12,7 @@ import { usePrices } from '@app/hooks/usePrices';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 
 const { XINV } = getNetworkConfigConstants();
 
@@ -120,5 +121,20 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   return {
     bonds,
     isError: error,
+  }
+}
+
+export const useBondPayoutFor = (bondContract: string, inputDecimals: number, amount: string, outputDecimals: number): { payout: string } => {
+  const inputAmount = amount ? parseUnits(amount, inputDecimals) : '0';
+
+  const { data } = useEtherSWR([
+    bondContract, 'payoutFor', inputAmount.toString()
+  ]);
+
+  // handle abi variant
+  const result = data && data.length === 2 ? data[0] : data
+
+  return {
+    payout: result ? formatUnits(result, outputDecimals) : '0',
   }
 }

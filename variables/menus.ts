@@ -13,6 +13,10 @@ export const MENUS = {
       href: '/swap/DAI/DOLA',
     },
     {
+      label: 'Bonds',
+      href: '/bonds',
+    },
+    {
       label: 'Governance',
       href: '/governance',
     },
@@ -36,6 +40,10 @@ export const MENUS = {
         {
           label: 'DOLA',
           href: '/swap',
+        },
+        {
+          label: 'Bonds',
+          href: '/bonds',
         },
       ],
     },

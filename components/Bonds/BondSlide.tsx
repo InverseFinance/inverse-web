@@ -23,6 +23,7 @@ import { BondRedeem } from './BondRedeem'
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { LPImg } from '@app/components/common/Assets/LPImg'
+import { useBondPayoutFor } from '@app/hooks/useBonds'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -46,22 +47,26 @@ export const BondSlide = ({
     const bond = bonds[bondIndex];
 
     const { balances } = useBalances([bond.input]);
-    const [amount, setAmount] = useState('0');
+    const [amount, setAmount] = useState('');
     const [maxSlippage, setMaxSlippage] = useState(1);
     const { approvals } = useAllowances([bond.input], bond.bondContract);
     const [isApproved, setIsApproved] = useState(hasAllowance(approvals, bond.input));
+    const { payout: receiveAmount } = useBondPayoutFor(bond.bondContract, bond.underlying.decimals, amount, REWARD_TOKEN!.decimals);
 
     useEffect(() => {
         setIsApproved(hasAllowance(approvals, bond.input));
     }, [approvals, bond.input]);
 
     const bal = balances && balances[bond.input] ? formatUnits(balances[bond.input], bond.underlying.decimals) : '0';
-    const receiveAmount = parseFloat(amount || '0') * bond.inputUsdPrice / bond.marketPrice;
 
-    const handleMax = () => {
+    const getMax = () => {
         const maxUser = parseFloat(bal);
         const maxDeposit = bond.maxPayout * bond.marketPrice / bond.inputUsdPrice;
-        setAmount(roundFloorString(Math.min(maxUser, maxDeposit), bond.underlying.decimals));
+        return Math.min(maxUser, maxDeposit);
+    }
+
+    const handleMax = () => {
+        setAmount(roundFloorString(getMax(), bond.underlying.decimals));
     }
 
     const handleDeposit = () => {
@@ -145,7 +150,7 @@ export const BondSlide = ({
                                 !isApproved ?
                                     <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
-                                    <SubmitButton onClick={handleDeposit} refreshOnSuccess={true}>
+                                    <SubmitButton isDisabled={!parseFloat(amount||'0') || parseFloat(amount||'0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit
                                     </SubmitButton>
                             }
