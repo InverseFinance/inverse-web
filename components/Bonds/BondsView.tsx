@@ -127,7 +127,7 @@ export const BondsView = () => {
                         Bots may attempt to take INV discounts just before you do by analyzing the public mempool, a type of "waiting area" for new Ethereum transactions. To reduce the chances of being front-run, we recommend following these steps:
                         <Flex>
                             <Text mr="1">- Use the</Text>
-                            <Link textDecoration="underline" isExternal href="https://docs.flashbots.net/flashbots-protect/overview/">
+                            <Link textDecoration="underline" isExternal href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787">
                                 Flashbot RPC
                             </Link>
                         </Flex>
