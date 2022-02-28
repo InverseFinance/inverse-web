@@ -8,6 +8,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
     '0x07eB8fD853c847d6E25F29e566d605cFf474909D': 'XinvManager',
     '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7': 'Policy Committee',
+    '0xe1C67007D1074bcAcC577DD946661F0CB9053A19': 'XinvVestorFactory',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',

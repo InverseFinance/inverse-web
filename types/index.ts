@@ -296,6 +296,7 @@ export enum ProposalTemplates {
   daiApprove = 'daiApprove',
   payrollAdd = 'payrollAdd',
   payrollRemove = 'payrollRemove',
+  vestorAdd = 'vestorAdd',
   // acnhor
   anchorLending = 'anchorLending',
   anchorBorrowing = 'anchorBorrowing',
