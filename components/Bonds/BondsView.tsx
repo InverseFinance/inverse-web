@@ -46,12 +46,12 @@ export const BondsView = () => {
     return (
         <Stack w='full' color="white">
             {
-                isNotConnected && <Container contentBgColor="gradientContentBackground" noPadding label="Wallet Not Connected">
+                isNotConnected && <Container contentBgColor="gradient3" noPadding label="Wallet Not Connected">
                     <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                 </Container>
             }
             {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} />}
-            <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="INV Market Price" contentBgColor="gradientContentBackground">
+            <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="INV Market Price" contentBgColor="gradient3">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text fontWeight="bold">
                         The Return On Investment is calculated with the Coingecko Market Price, the INV Oracle Price which is updated less frequently is shown for convenience as it used in Olympus Pro's UI
@@ -73,7 +73,7 @@ export const BondsView = () => {
                 noPadding
                 contentProps={{ p: { base: '2', sm: '8' } }}
                 label="Bonds"
-                contentBgColor="gradientContentBackground"
+                contentBgColor="gradient3"
                 description="Get INV at a discount via Olympus Pro  - Learn More about bonds here"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
@@ -117,7 +117,7 @@ export const BondsView = () => {
             <Container
                 contentProps={{ p: { base: '2', sm: '8' } }}
                 noPadding
-                contentBgColor="gradientContentBackground"
+                contentBgColor="gradient3"
                 label="Protect yourself against Front-running Bots"
                 description="How to add Flashbot RPC"
                 href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787"

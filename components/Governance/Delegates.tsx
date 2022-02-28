@@ -25,14 +25,14 @@ export const DelegatesPreview = () => {
 
   if (isLoading) {
     return (
-      <Container label="Top Delegates">
+      <Container label="Top Delegates" contentBgColor="gradient3">
         <SkeletonList />
       </Container>
     )
   }
 
   return (
-    <Container label="Top Delegates">
+    <Container label="Top Delegates" contentBgColor="gradient3">
       <Stack w="full">
         {
           delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => {
@@ -89,7 +89,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
 
   if (!isLoading && (!delegates || !delegates[address])) {
     return (
-      <Container label="Delegators">
+      <Container label="Delegators" contentBgColor="gradient3">
         None yet
       </Container>
     )
@@ -97,7 +97,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
 
   if (isLoading || !delegates || !delegates[address]) {
     return (
-      <Container label="Delegators">
+      <Container label="Delegators" contentBgColor="gradient3">
         <SkeletonList />
       </Container>
     )
@@ -106,7 +106,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
   const { delegators } = delegates[address]
 
   return (
-    <Container label="Delegators">
+    <Container label="Delegators" contentBgColor="gradient3">
       <Stack w="full">
         {delegators.slice(0, 5).map((address: Delegator) => (
           <NextLink key={address} href={`/governance/delegates/${address}`}>
