@@ -13,6 +13,7 @@ import { AnchorPercTemplate } from './templates/AnchorPercTemplate';
 import { AnchorSupportMarketTemplate } from './templates/AnchorSupportMarkerTemplate';
 import { AnchorOracleTemplate } from './templates/AnchorOracleTemplate';
 import { DolaPayrollTemplate } from './templates/DolaPayrollTemplate';
+import { XinvVestor } from './templates/XinvVestor';
 
 type Props = {
     isOpen: boolean
@@ -32,6 +33,7 @@ const templates = [
     { label: 'DAI: Approve funding', value: ProposalTemplates.daiApprove },
     { label: 'Payroll: Add', value: ProposalTemplates.payrollAdd },
     { label: 'Payroll: Remove', value: ProposalTemplates.payrollRemove },
+    { label: 'Vestor: Add', value: ProposalTemplates.vestorAdd },
     // anchor
     { label: 'Anchor: Toggle Supply', value: ProposalTemplates.anchorLending },
     { label: 'Anchor: Toggle Borrow', value: ProposalTemplates.anchorBorrowing },
@@ -54,6 +56,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
             ...action!,
             fragment: FunctionFragment.from(action?.func!),
         })
+        setTemplate(undefined);
     }
 
     const commonProps = {
@@ -70,6 +73,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         [ProposalTemplates.daiApprove]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'approve' } },
         [ProposalTemplates.payrollAdd]: { comp: DolaPayrollTemplate, props: { type: 'add' } },
         [ProposalTemplates.payrollRemove]: { comp: DolaPayrollTemplate, props: { type: 'remove' }  },
+        [ProposalTemplates.vestorAdd]: { comp: XinvVestor },
         // anchor
         [ProposalTemplates.anchorLending]:  { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorLending } },
         [ProposalTemplates.anchorBorrowing]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorBorrowing } },
@@ -81,9 +85,14 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
     const chosenTemplate = templateComps[template?.value]
     const ChosenTemplateComp = chosenTemplate?.comp
 
+    const handleClose = () => {
+        setTemplate(undefined);
+        onClose();
+    }
+
     return (
         <Modal
-            onClose={onClose}
+            onClose={handleClose}
             isOpen={isOpen}
             scrollBehavior={'outside'}
             header={
