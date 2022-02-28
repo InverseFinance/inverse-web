@@ -53,16 +53,16 @@ export const BondsView = () => {
             <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="INV Market Price" contentBgColor="gradientContentBackground">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text fontWeight="bold">
-                        The Oracle Price is used for the bonding calculations, Coingecko price is shown for convenience.
+                        The Return On Investment is calculated with the Coingecko Market Price, the INV Oracle Price which is updated less frequently is shown for convenience as it used in Olympus Pro's UI
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
-                        <Flex direction={{ base: 'column', sm: 'row' }}>
-                            <Text mr="1">Oracle Market Price:</Text>
-                            <Text fontWeight="extrabold">{invOraclePrice ? shortenNumber(invOraclePrice, 2, true) : '-'}</Text>
-                        </Flex>
                         <Flex direction={{ base: 'column', sm: 'row' }} alignItems="flex-end">
                             <Text mr="1">Coingecko Market Price:</Text>
                             <Text fontWeight="extrabold">{invCgPrice ? shortenNumber(invCgPrice, 2, true) : '-'}</Text>
+                        </Flex>
+                        <Flex direction={{ base: 'column', sm: 'row' }}>
+                            <Text mr="1">Oracle Market Price:</Text>
+                            <Text fontWeight="extrabold">{invOraclePrice ? shortenNumber(invOraclePrice, 2, true) : '-'}</Text>
                         </Flex>
                     </Flex>
                 </VStack>
