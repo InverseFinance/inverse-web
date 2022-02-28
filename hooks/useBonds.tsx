@@ -100,8 +100,8 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
     return {
       ...bond,
       marketPrice,
-      roi: (marketPrice / trueBondPrices[i] - 1) * 100,
-      usdPrice: trueBondPrices[i],
+      roi: trueBondPrices[i] ? (marketPrice / trueBondPrices[i] - 1) * 100 : 0,
+      usdPrice: trueBondPrices[i] ? trueBondPrices[i] : 0,
       inputUsdPrice: inputPrices[i],
       positiveRoi: marketPrice > trueBondPrices[i],
       vestingDays: parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY,
