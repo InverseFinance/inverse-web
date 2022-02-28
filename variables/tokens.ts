@@ -1,3 +1,4 @@
+import { BOND_ABI, BOND_ABI_VARIANT } from '@app/config/abis';
 import { HAS_REWARD_TOKEN } from '@app/config/constants';
 import { TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
@@ -202,6 +203,7 @@ export const RTOKEN_SYMBOL = REWARD_TOKEN?.symbol!;
 export const BONDS = [
   {
     input: chainTokenAddresses["1"].INVDOLASLP,
+    abi: BOND_ABI_VARIANT,
     ctoken: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP)!,
     bondContract: '0x34eb308c932fe3bbda8716a1774ef01d302759d9',
@@ -209,6 +211,7 @@ export const BONDS = [
   },
   {
     input: chainTokenAddresses["1"].DOLA,
+    abi: BOND_ABI,
     ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
     bondContract: '0xdBfBb1140F8ba147ca4C8c27A2e576dfed0449BD',
@@ -216,6 +219,7 @@ export const BONDS = [
   },
   {
     input: chainTokenAddresses["1"].DOLA3POOLCRV,
+    abi: BOND_ABI,
     ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
     bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
