@@ -70,7 +70,7 @@ export const Container = ({
         </Stack>
         {right}
       </Flex>
-      <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bgColor={contentBgColor ?? 'primary.750'}>
+      <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bg={contentBgColor ?? 'containerContentBackground'}>
         {children}
       </Flex>
     </Flex>

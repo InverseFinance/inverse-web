@@ -76,7 +76,7 @@ export const BondSlide = ({
     }
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
-        <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" pb="10" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
+        <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
             <VStack maxW="700px" w='full' spacing="4">
                 <HStack fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">
                     {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
@@ -101,8 +101,8 @@ export const BondSlide = ({
                         <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportional part before vesting completion" />
                     </Flex>
                     <Text>=></Text>
-                    <Stack direction={{ base: 'column', sm: 'row' }} alignItems={{ base: 'flex-end', sm: 'center' }}>
-                        <Text>Claim</Text>
+                    <Stack direction="row" alignItems="center">
+                        <Text display={{ base: 'none', sm: 'inline-block' }}>Claim</Text>
                         <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
                     </Stack>
                 </HStack>

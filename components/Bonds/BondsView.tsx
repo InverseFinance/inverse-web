@@ -45,25 +45,29 @@ export const BondsView = () => {
     return (
         <Stack w='full' color="white">
             {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} />}
-            <Container noPadding label="INV Market Price">
+            <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="INV Market Price" contentBgColor="gradientContentBackground">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text fontWeight="bold">
                         The Oracle Price is used for the bonding calculations, Coingecko price is shown for convenience.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
-                        <Text>
-                            Oracle Market Price: <b>{invOraclePrice ? shortenNumber(invOraclePrice, 2, true) : '-'}</b>
-                        </Text>
-                        <Text textAlign="right">
-                            Coingecko Market Price: <b>{invCgPrice ? shortenNumber(invCgPrice, 2, true) : '-'}</b>
-                        </Text>
+                        <Flex direction={{ base: 'column', sm: 'row' }}>
+                            <Text mr="1">Oracle Market Price:</Text>
+                            <Text fontWeight="extrabold">{invOraclePrice ? shortenNumber(invOraclePrice, 2, true) : '-'}</Text>
+                        </Flex>
+                        <Flex direction={{ base: 'column', sm: 'row' }} alignItems="flex-end">
+                            <Text mr="1">Coingecko Market Price:</Text>
+                            <Text fontWeight="extrabold">{invCgPrice ? shortenNumber(invCgPrice, 2, true) : '-'}</Text>
+                        </Flex>
                     </Flex>
                 </VStack>
             </Container>
 
             <Container
                 noPadding
+                contentProps={{ p: { base: '2', sm: '8' } }}
                 label="Bonds"
+                contentBgColor="gradientContentBackground"
                 description="Get INV at a discount thanks to our partner Olympus Pro - Learn More about bonds"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
@@ -86,9 +90,12 @@ export const BondsView = () => {
                         <Flex w="80px" justify="flex-end" alignItems="center">
                             ROI
                             <LocalTooltip>
-                                A positive <b>Return On Investment</b> means you get INV at a
+                                A <b>positive Return On Investment</b> means you get INV at a
                                 <Text display="inline-block" mx="1" fontWeight="bold" color="secondary">discount</Text>
                                 compared to INV market price !
+                                <Text mt="2">
+                                    ROI can turn negative when bond demand is too high
+                                </Text>
                             </LocalTooltip>
                         </Flex>
                         <Flex w='80px'></Flex>
@@ -102,7 +109,9 @@ export const BondsView = () => {
             </Container>
 
             <Container
+                contentProps={{ p: { base: '2', sm: '8' } }}
                 noPadding
+                contentBgColor="gradientContentBackground"
                 label="Protect yourself against Front-Running Bots"
                 description="How to add Flashbot RPC"
                 href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787"

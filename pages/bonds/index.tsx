@@ -11,7 +11,7 @@ export const BondsPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - INV</title>
             </Head>
             <AppNav active="INV" />
-            <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="800px">
+            <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="900px">
                 <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
                     <Flex w={{ base: 'full' }} pr="5">
                         <Flex w='full' spacing="2" alignItems="flex-start">
