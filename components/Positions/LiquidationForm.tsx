@@ -143,7 +143,7 @@ export const LiquidationForm = ({
         <Stack direction="row">
             {
                 !isApproved &&
-                <ApproveButton tooltipMsg="" signer={library?.getSigner()} asset={{ ...repayToken, token: repayToken.ctoken }} isDisabled={isApproved} />
+                <ApproveButton tooltipMsg="" signer={library?.getSigner()} address={repayToken.address} toAddress={borrowedDetails.ctoken} isDisabled={isApproved} />
             }
             <SubmitButton onClick={async () => handleLiquidation()} refreshOnSuccess={true} disabled={!isApproved}>
                 Liquidate

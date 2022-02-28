@@ -1,4 +1,5 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { BONDS } from '@app/variables/tokens';
 import { INTEREST_MODEL } from './constants';
 
 // TODO: Clean-up ABIs
@@ -229,6 +230,26 @@ export const DOLA_PAYROLL_ABI = [
   "function withdraw() external",
 ]
 
+const BASE_BOND_ABI = [
+  "function bondInfo(address depositor) public view returns (uint256, uint256, uint256, uint256)",
+  "function pendingPayoutFor(address depositor) public view returns (uint256)",
+  "function percentVestedFor(address depositor) public view returns (uint256)",
+  "function terms() public view returns (uint256, uint256, uint256, uint256, uint256)",
+  "function trueBondPrice() public view returns (uint256)",
+  "function deposit(uint256 amount, uint256 maxPrice, address depositor) external returns (uint256)",
+  "function redeem(address depositor) external returns (uint256)",
+]
+
+export const BOND_ABI = BASE_BOND_ABI.concat([
+  "function payoutFor(uint256 value) public view returns (uint256, uint256)",
+]);
+
+export const BOND_ABI_VARIANT = BASE_BOND_ABI.concat([
+  "function payoutFor(uint256 value) public view returns (uint256)",
+]);
+
+const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -277,6 +298,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
+        ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])
     )

@@ -10,7 +10,7 @@ export const Breakdown = () => {
 
   if (isLoading) {
     return (
-      <Container>
+      <Container contentBgColor="gradient3">
         <SkeletonList />
       </Container>
     )
@@ -33,7 +33,7 @@ export const Breakdown = () => {
   )
 
   return proposals ? (
-    <Container label="Voting Results">
+    <Container label="Voting Results" contentBgColor="gradient3">
       <Flex direction="row" align="center" justify="space-around">
         <Flex w="full" align="center" justify="center">
           <VictoryPie

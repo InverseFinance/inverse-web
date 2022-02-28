@@ -73,7 +73,7 @@ export const ForVotes = ({ proposal }: { proposal: Proposal }) => {
 
   if (!proposal?.id) {
     return (
-      <Container label="For Votes">
+      <Container label="For Votes" contentBgColor="gradient3">
         <SkeletonList />
       </Container>
     )

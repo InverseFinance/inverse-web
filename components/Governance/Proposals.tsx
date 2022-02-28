@@ -18,6 +18,7 @@ export const Proposals = () => {
     return (
       <Container
         label="Governance Proposals"
+        contentBgColor="gradient3"
         description="Participate in governance of the DAO"
         href="https://docs.inverse.finance/inverse-finance/governance"
       >
@@ -28,6 +29,7 @@ export const Proposals = () => {
 
   return (
     <Container
+      contentBgColor="gradient3"
       label="Governance Proposals"
       description="Participate in governance of the DAO"
       href="https://docs.inverse.finance/inverse-finance/governance"
@@ -67,6 +69,7 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   return (
     <Container
       label="Draft Proposals"
+      contentBgColor="gradient3"
       nbNotif={nbDraftNotif}
       description="Off-Chain Draft Proposals"
     >
@@ -107,6 +110,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
   return (
     <Container
       label="Local Draft Proposals"
+      contentBgColor="gradient3"
       description={<HStack alignItems="center" cursor="pointer" onClick={handleRemoveDrafts}>
         <Text fontSize="sm" fontWeight="medium" color="primary.200">Remove all local drafts</Text>
         <DeleteIcon ml="2" fontSize="10px" color="red.500" />
@@ -136,6 +140,7 @@ export const ActiveProposals = () => {
   return (
     <Container
       label="Active Proposals"
+      contentBgColor="gradient3"
       nbNotif={nbActiveNotif}
       description="Participate in governance of the DAO"
       href="https://docs.inverse.finance/inverse-finance/governance"
@@ -158,7 +163,7 @@ export const RecentProposals = () => {
 
   if (isLoading) {
     return (
-      <Container label="Recent Proposals">
+      <Container label="Recent Proposals" contentBgColor="gradient3">
         <SkeletonBlob skeletonHeight={16} noOfLines={4} />
       </Container>
     )
@@ -170,7 +175,7 @@ export const RecentProposals = () => {
     .slice(0, 10)
 
   return (
-    <Container label="Recent Proposals">
+    <Container label="Recent Proposals" contentBgColor="gradient3">
       <Stack w="full" spacing={1}>
         {recent.map((proposal: Proposal) => (
           <ProposalPreview key={proposal.proposalNum} proposal={proposal} />

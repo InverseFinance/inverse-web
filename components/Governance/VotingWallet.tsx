@@ -78,7 +78,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!
 
   return (
-    <Container label="Your Current Voting Power">
+    <Container label="Your Current Voting Power" contentBgColor="gradient3">
       <Stack w="full">
         <Flex w="full" alignItems="center" justify="center">
           <Avatar address={userAddress} sizePx={20} />

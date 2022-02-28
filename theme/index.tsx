@@ -5,6 +5,10 @@ export const ANNOUNCEMENT_BAR_BORDER = '1px solid #221d45'
 const theme = extendTheme({
   colors: {
     mainBackgroundColor: '#2a2557',
+    containerContentBackground: '#2a2557',
+    gradient3: 'linear-gradient(125deg, rgba(25,22,51,1) 0%, rgba(42,37,87,1) 50%, rgba(25,22,51,1) 100%)',
+    gradient2: 'linear-gradient(125deg, rgba(34,29,69,1) 0%, rgba(51,45,105,1) 50%, rgba(34,29,69,1) 100%);',
+    gradient1: 'linear-gradient(125deg, rgba(42,37,87,1) 0%, rgba(69,60,141,1) 50%, rgba(42,37,87,1) 100%);',
     mainBackground: 'radial-gradient(circle at center, #2a2557, #100e21 50%)',
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: "url('/assets/landing/graphic1.png')",

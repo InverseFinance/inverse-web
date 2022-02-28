@@ -1,11 +1,12 @@
+import { BOND_ABI, BOND_ABI_VARIANT } from '@app/config/abis';
 import { HAS_REWARD_TOKEN } from '@app/config/constants';
 import { TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
   return Object.entries(tokens)
-      .map(([address, token]) => token)
-      .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
+    .map(([address, token]) => token)
+    .find(token => isAddress(symbolOrAddress) ? token.address === symbolOrAddress : token.symbol === symbolOrAddress)
 }
 
 export const getRewardToken = () => {
@@ -198,3 +199,30 @@ export const UNDERLYING = underlying;
 export const REWARD_TOKEN = getRewardToken()
 export const RTOKEN_CG_ID = REWARD_TOKEN?.coingeckoId!;
 export const RTOKEN_SYMBOL = REWARD_TOKEN?.symbol!;
+
+export const BONDS = [
+  {
+    input: chainTokenAddresses["1"].INVDOLASLP,
+    abiType: 1,
+    ctoken: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP)!,
+    bondContract: '0x34eb308c932fe3bbda8716a1774ef01d302759d9',
+    howToGetLink: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014ccded1e7d814edc9ce4',
+  },
+  {
+    input: chainTokenAddresses["1"].DOLA,
+    abiType: 0,
+    ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
+    bondContract: '0xdBfBb1140F8ba147ca4C8c27A2e576dfed0449BD',
+    howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+  },
+  {
+    input: chainTokenAddresses["1"].DOLA3POOLCRV,
+    abiType: 0,
+    ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
+    bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
+    howToGetLink: 'https://curve.fi/factory/27/deposit',
+  },
+]

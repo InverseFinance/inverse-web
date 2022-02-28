@@ -82,11 +82,12 @@ export const AnchorOverview = () => {
       }
       <Container
         noPadding
+        contentBgColor="gradient2"
         contentProps={{
           cursor: 'pointer',
           onClick: () => isDetailsOpen ? onDetailsClose() : onDetailsOpen(),
           transition: 'background-color 500ms',
-          _hover: { bgColor: 'primary.600' },
+          _hover: { bg: 'gradient1' },
         }}
         label={
           <Flex visibility={!account ? 'hidden' : 'visible'} pb={{ base: '0px', sm: '4px' }} textAlign="left" flexDirection={{ base: 'column', sm: 'row' }}>

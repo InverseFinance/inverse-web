@@ -1,4 +1,4 @@
-import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps } from '@chakra-ui/react'
+import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
   <ChakraInput
@@ -42,8 +42,8 @@ type BalanceInputProps = {
   showMax?: boolean
 }
 
-export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true }: BalanceInputProps) => (
-  <Flex w="full" bgColor="primary.850" borderRadius={8} align="center">
+export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, ...props }: BalanceInputProps & Partial<FlexProps>) => (
+  <Flex w="full" bgColor="primary.850" borderRadius={8} align="center" {...props}>
     <Flex w="full" position="relative" align="center">
       <Flex
         cursor="pointer"

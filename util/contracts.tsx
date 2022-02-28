@@ -14,9 +14,10 @@ import {
   MULTIDELEGATOR_ABI,
   DOLA3POOLCRV_ABI,
   AN_CHAIN_COIN_REPAY_ALL_ABI,
+  BOND_ABI,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { GovEra, NetworkIds, Token } from '@app/types'
+import { Bond, GovEra, NetworkIds, Token } from '@app/types'
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
@@ -176,4 +177,22 @@ export const liquidateCether = (account: string, signer: JsonRpcSigner, amount: 
 export const liquidateBorrow = (account: string, signer: JsonRpcSigner, amount: string, market: string, underlying: Token, collateralCtoken: string) => {
   const args = [account, signer, amount, market, underlying, collateralCtoken];
   return !underlying.address ? liquidateCether(...args) : liquidateCtoken(...args);
+}
+
+export const getBondContract = (bondAddress: string, signer: JsonRpcSigner) => {
+  return new Contract(bondAddress, BOND_ABI, signer);
+}
+
+export const bondDeposit = (bond: Bond, signer: JsonRpcSigner, amount: string, maxSlippagePerc: number, depositor: string) => {
+  const contract = getBondContract(bond.bondContract, signer);
+  const maxPrice = Math.floor(((bond.marketPrice + maxSlippagePerc/100 * bond.marketPrice) * 1e7)/1e7);
+  const maxPriceUint = parseUnits(maxPrice.toString(), 7);
+  const amountUint = parseUnits(amount, bond.underlying.decimals);
+  
+  return contract.deposit(amountUint, maxPriceUint, depositor);
+}
+
+export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string) => {
+  const contract = getBondContract(bond.bondContract, signer);
+  return contract.redeem(depositor);
 }

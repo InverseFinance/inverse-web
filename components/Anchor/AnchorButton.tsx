@@ -67,13 +67,15 @@ const ClaimFromEscrowBtn = ({
 }
 
 export const ApproveButton = ({
-  asset,
+  address,
+  toAddress,
   signer,
   isDisabled,
   onSuccess = () => { },
   tooltipMsg,
 }: {
-  asset: Market,
+  address: string,
+  toAddress: string,
   signer?: JsonRpcSigner,
   isDisabled: boolean,
   onSuccess?: () => void,
@@ -83,11 +85,12 @@ export const ApproveButton = ({
     <SubmitButton
       onClick={async () =>
         handleTx(
-          await getERC20Contract(asset.underlying.address, signer).approve(asset.token, constants.MaxUint256),
+          await getERC20Contract(address, signer).approve(toAddress, constants.MaxUint256),
           { onSuccess },
         )
       }
       isDisabled={isDisabled}
+      refreshOnSuccess={true}
       rightIcon={tooltipMsg === '' ? undefined : <AnimatedInfoTooltip ml="1" message='Approving is the first step, it will allow us to use your tokens for the next final step. You only need to do the approve step once per token type and contract' />}
     >
       Approve
@@ -149,7 +152,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
         <Stack w="full" spacing={4}>
           {asset.token === XINV && asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert duration={asset.escrowDuration} />}
           {!isApproved ? (
-            <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
+            <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
           ) : (
             <SubmitButton
               onClick={() => contract.mint(isEthMarket ? { value: amount } : amount)}
@@ -214,7 +217,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
 
     case AnchorOperations.repay:
       return !isApproved ? (
-        <ApproveButton asset={asset} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
+        <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
       ) : (
         <SimpleGrid columns={2} spacingX="3" spacingY="1">
           <SubmitButton
