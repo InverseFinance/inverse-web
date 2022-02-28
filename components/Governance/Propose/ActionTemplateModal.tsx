@@ -56,6 +56,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
             ...action!,
             fragment: FunctionFragment.from(action?.func!),
         })
+        setTemplate(undefined);
     }
 
     const commonProps = {
@@ -84,9 +85,14 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
     const chosenTemplate = templateComps[template?.value]
     const ChosenTemplateComp = chosenTemplate?.comp
 
+    const handleClose = () => {
+        setTemplate(undefined);
+        onClose();
+    }
+
     return (
         <Modal
-            onClose={onClose}
+            onClose={handleClose}
             isOpen={isOpen}
             scrollBehavior={'outside'}
             header={
