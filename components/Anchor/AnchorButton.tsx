@@ -90,6 +90,7 @@ export const ApproveButton = ({
         )
       }
       isDisabled={isDisabled}
+      refreshOnSuccess={true}
       rightIcon={tooltipMsg === '' ? undefined : <AnimatedInfoTooltip ml="1" message='Approving is the first step, it will allow us to use your tokens for the next final step. You only need to do the approve step once per token type and contract' />}
     >
       Approve
