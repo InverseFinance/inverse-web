@@ -21,7 +21,7 @@ const termsDefaults = [
   BigNumber.from('38400'),
   BigNumber.from('46200'),
   BigNumber.from('0'),
-  BigNumber.from('43'),
+  BigNumber.from('0'),
   BigNumber.from('481600000000000000000000'),
 ];
 
@@ -90,10 +90,11 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   // payout,
   const bondInfos = (userBondInfo || [...BONDS.map(b => bondInfoDefaults)]);
 
-  const invOraclePrice = oraclePrices && oraclePrices[XINV];
+  // const invOraclePrice = oraclePrices && oraclePrices[XINV];
   const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
-  const marketPrice = invOraclePrice;
+  // the ROI calculation makes more sense with cg price
+  const marketPrice = invCgPrice;
 
   const bonds = BONDS.map((bond, i) => {
     return {
@@ -102,8 +103,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
       roi: (marketPrice / trueBondPrices[i] - 1) * 100,
       usdPrice: trueBondPrices[i],
       inputUsdPrice: inputPrices[i],
-      positiveRoi: invOraclePrice > trueBondPrices[i],
-      positiveRoiCg: invCgPrice > trueBondPrices[i],
+      positiveRoi: marketPrice > trueBondPrices[i],
       vestingDays: parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY,
       maxPayout: parseFloat(terms[i][3].toString()),
       userInfos: {

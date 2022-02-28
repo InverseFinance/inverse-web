@@ -456,7 +456,6 @@ export type Bond = {
   usdPrice: number,
   inputUsdPrice: number,
   positiveRoi: boolean,
-  positiveRoiCg: boolean,
   vestingDays: number,
   maxPayout: number,
   marketPrice: number,
