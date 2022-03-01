@@ -137,18 +137,6 @@ export const STABILIZER_ABI = [
   "event Sell (address indexed user, uint256 sold, uint256 received)",
 ];
 
-export const VAULT_ABI = [
-  "function balanceOf(address) external view returns (uint256)",
-  "function claim()",
-  "function claimETH()",
-  "function deposit(uint256)",
-  "function lastDistribution() external view returns (uint256)",
-  "function totalSupply() external view returns (uint256)",
-  "function unclaimedProfit(address) external view returns (uint256)",
-  "function underlying() external view returns (address)",
-  "function withdraw(uint256)",
-];
-
 export const XINV_ABI = [
   "function balanceOf(address) external view returns (uint256)",
   "function exchangeRateStored() public view returns (uint256)",
@@ -265,7 +253,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     AN_CHAIN_COIN_REPAY_ALL,
     ORACLE,
     TOKENS,
-    VAULT_TOKENS,
     XINV_V1,
     XINV,
     DOLA3POOLCRV,
@@ -295,7 +282,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [TREASURY, TREASURY_ABI],
         [INTEREST_MODEL, INTEREST_MODEL_ABI],
         [DOLA_PAYROLL, DOLA_PAYROLL_ABI],
-        ...VAULT_TOKENS.map((address) => [address, VAULT_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

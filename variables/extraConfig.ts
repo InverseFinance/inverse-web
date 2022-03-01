@@ -18,11 +18,5 @@ export const EXTRA_CONFIG = {
         policyCommittee: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
         opBondManager: '0x9de7b925247c9bd98ecee5abb7ea06a4aa7d13cd',
         xinvVestorFactory: '0xe1C67007D1074bcAcC577DD946661F0CB9053A19',
-        vaults: {
-            vaultUsdcEth: '0x89eC5dF87a5186A0F0fa8Cb84EdD815de6047357',
-            vaultDaiWbtc: '0xc8f2E91dC9d198edEd1b2778F6f2a7fd5bBeac34',
-            vaultDaiYfi: '0x41D079ce7282d49bf4888C71B5D9E4A02c371F9B',
-            vaultDaiEth: '0x2dCdCA085af2E258654e47204e483127E0D8b277',
-        },
     }
 }

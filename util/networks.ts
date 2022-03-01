@@ -1,6 +1,6 @@
 import { TOKENS, UNDERLYING } from '@app/variables/tokens';
 import { NETWORKS } from '@app/config/networks';
-import { Fed, Network, NetworkConfig, NetworkIds, TokenList, Vaults, VaultTree } from '@app/types';
+import { Fed, Network, NetworkConfig, NetworkIds, TokenList } from '@app/types';
 import { getToken } from '@app/util/markets';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
@@ -40,13 +40,6 @@ export const getNetworkConfigConstants = (
         getNetworkConfig(configOrChainId, true)! :
         isSupportedNetwork(configOrChainId.chainId) ?
             configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
-
-    // Vaults
-    const VAULT_USDC_ETH = config.vaults?.vaultUsdcEth;
-    const VAULT_DAI_WBTC = config.vaults?.vaultDaiWbtc;
-    const VAULT_DAI_YFI = config.vaults?.vaultDaiYfi;
-    const VAULT_DAI_ETH = config.vaults?.vaultDaiEth;
-    const VAULT_TOKENS = config.vaults ? Object.values(config.vaults) : [];
 
     const MULTISIGS = {
         // '0x6128ED9EE07D89Ba3a1E6E0e16C69488112Fc925': 'MarketingCommittee',
@@ -99,18 +92,9 @@ export const getNetworkConfigConstants = (
 
     const ALL_UNDERLYING: TokenList = {
         ...UNDERLYING,
-        [VAULT_USDC_ETH]: getToken(TOKENS, 'USDC')!,
-        [VAULT_DAI_ETH]: getToken(TOKENS, 'DAI')!,
-        [VAULT_DAI_WBTC]: getToken(TOKENS, 'DAI')!,
-        [VAULT_DAI_YFI]: getToken(TOKENS, 'DAI')!,
-        // [THREECRV]: getToken(TOKENS, '3CRV'),
     }
 
     const NAMED_ADDRESSES: { [key: string]: string } = {
-        [VAULT_USDC_ETH]: 'vaultUsdcEth',
-        [VAULT_DAI_ETH]: 'vaultDaiEth',
-        [VAULT_DAI_WBTC]: 'vaultDaiWbtc',
-        [VAULT_DAI_YFI]: 'vaultDaiYfi',
         [DEPLOYER]: 'Deployer',
         [ESCROW]: 'Escrow',
         [COMPTROLLER]: 'Comptroller',
@@ -124,36 +108,6 @@ export const getNetworkConfigConstants = (
         ...CUSTOM_NAMED_ADDRESSES,
     }
 
-    const VAULT_TREE: VaultTree = {
-        [DAI]: {
-            CHAIN_COIN: VAULT_DAI_ETH,
-            [WBTC]: VAULT_DAI_WBTC,
-            [YFI]: VAULT_DAI_YFI,
-        },
-        [USDC]: {
-            CHAIN_COIN: VAULT_USDC_ETH,
-        },
-    }
-
-    const VAULTS: Vaults = {
-        [VAULT_DAI_ETH]: {
-            from: TOKENS[DAI],
-            to: TOKENS.CHAIN_COIN,
-        },
-        [VAULT_DAI_WBTC]: {
-            from: TOKENS[DAI],
-            to: TOKENS[WBTC],
-        },
-        [VAULT_DAI_YFI]: {
-            from: TOKENS[DAI],
-            to: TOKENS[YFI],
-        },
-        [VAULT_USDC_ETH]: {
-            from: TOKENS[USDC],
-            to: TOKENS.CHAIN_COIN,
-        },
-    }
-
     // FEDS
     const FEDS: Fed[] = [
         { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Anchor Fed', projectImage: 'Anchor.png' },
@@ -162,11 +116,6 @@ export const getNetworkConfigConstants = (
     ];
 
     return {
-        VAULT_USDC_ETH,
-        VAULT_DAI_WBTC,
-        VAULT_DAI_YFI,
-        VAULT_DAI_ETH,
-        VAULT_TOKENS,
         LENS,
         AN_CHAIN_COIN_REPAY_ALL,
         COMPTROLLER,
@@ -196,8 +145,6 @@ export const getNetworkConfigConstants = (
         DOLA3POOLCRV,
         UNDERLYING: ALL_UNDERLYING,
         TOKENS,
-        VAULTS,
-        VAULT_TREE,
         NAMED_ADDRESSES,
         DOLA_PAYROLL,
         FEDS,

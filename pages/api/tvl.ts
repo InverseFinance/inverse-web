@@ -1,4 +1,4 @@
-import { CTOKEN_ABI, VAULT_ABI, XINV_ABI } from "@app/config/abis";
+import { CTOKEN_ABI, XINV_ABI } from "@app/config/abis";
 import { Provider } from "@ethersproject/providers";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       UNDERLYING,
       ORACLE,
       COMPTROLLER,
-      VAULT_TOKENS,
       STABILIZER,
       TOKENS,
       ANCHOR_TOKENS,
@@ -75,25 +74,18 @@ export default async function handler(req, res) {
     prices[ANCHOR_DOLA] = 1
 
     const [
-      vaultBalances,
       anchorBalances,
       stabilizerBalances,
     ] = await Promise.all([
-      vaultsTVL(prices, provider, WCOIN, VAULT_TOKENS, TOKENS, UNDERLYING),
       anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_CHAIN_COIN, WCOIN, ANCHOR_TOKENS, TOKENS, UNDERLYING),
       stabilizerTVL(prices, provider, DAI, STABILIZER, TOKENS),
     ]);
 
-    const usdVault = sumUsdBalances(vaultBalances);
     const usdAnchor = sumUsdBalances(anchorBalances);
     const usdStabilizer = sumUsdBalances(stabilizerBalances);
 
     const resultData = {
-      tvl: usdVault + usdAnchor + usdStabilizer,
-      vaults: {
-        tvl: usdVault,
-        assets: vaultBalances,
-      },
+      tvl: usdAnchor + usdStabilizer,
       anchor: {
         tvl: usdAnchor,
         assets: anchorBalances,
@@ -120,42 +112,6 @@ export default async function handler(req, res) {
       console.error(e);
     }
   }
-};
-
-const vaultsTVL = async (
-  prices: StringNumMap,
-  provider: Provider,
-  wcoinAddress: string,
-  vaultTokens: string[],
-  tokens: TokenList,
-  underlying: TokenList,
-): Promise<TokenWithBalance[]> => {
-  const vaults = vaultTokens.map(
-    (address) => new Contract(address, VAULT_ABI, provider)
-  );
-
-  const totalSupplies = await Promise.all(
-    vaults.map((contract: Contract) => contract.totalSupply())
-  );
-
-  const balances: StringNumMap = {};
-
-  totalSupplies.forEach((totalSupply, i) => {
-    const token = underlying[vaults[i].address] || tokens[wcoinAddress];
-    balances[token.address] =
-      (balances[token.address] || 0) +
-      parseFloat(formatUnits(totalSupply, token.decimals));
-  });
-
-  return Object.entries(balances).map(([address, amount]: any) => {
-    const token = tokens[address];
-
-    return {
-      ...token,
-      balance: amount,
-      usdBalance: amount * prices[token.address] || 0,
-    };
-  });
 };
 
 const anchorTVL = async (

@@ -69,27 +69,6 @@ export const useStabilizerBalance = () => {
   }
 }
 
-export const useVaultBalances = () => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
-  const { VAULT_DAI_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_USDC_ETH } = getNetworkConfigConstants(chainId)
-  
-  const { data } = useEtherSWR([
-    [VAULT_DAI_ETH, 'balanceOf', account],
-    [VAULT_DAI_WBTC, 'balanceOf', account],
-    [VAULT_DAI_YFI, 'balanceOf', account],
-    [VAULT_USDC_ETH, 'balanceOf', account],
-  ])
-
-  return {
-    balances: {
-      [VAULT_DAI_ETH]: data ? data[0] : BigNumber.from(0),
-      [VAULT_DAI_WBTC]: data ? data[1] : BigNumber.from(0),
-      [VAULT_DAI_YFI]: data ? data[2] : BigNumber.from(0),
-      [VAULT_USDC_ETH]: data ? data[3] : BigNumber.from(0),
-    },
-  }
-}
-
 export const useBorrowedAssets = (account?: string) => {
   const { prices: freshOraclePrices } = useAnchorPricesUsd()
   const { markets, isLoading: marketsLoading } = useMarkets()
