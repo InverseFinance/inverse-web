@@ -216,6 +216,7 @@ export const DOLA_PAYROLL_ABI = [
   "function balanceOf(address) public view returns (uint256)",
   "function recipients(address) public view returns (uint256, uint256, uint256)",
   "function withdraw() external",
+  "event AmountWithdrawn(address recipient, uint256 amount)",
 ]
 
 const BASE_BOND_ABI = [
