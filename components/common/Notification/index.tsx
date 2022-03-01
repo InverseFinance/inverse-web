@@ -91,7 +91,7 @@ export const Notification = ({
     return (
         <Box
             borderRadius="lg"
-            color="white"
+            color="mainTextColor"
             p={3}
             border="1px solid"
             borderColor={theme.borderColor}

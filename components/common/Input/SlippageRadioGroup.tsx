@@ -33,7 +33,7 @@ export const SlippageRadioGroup = ({
                 fontSize: '12px',
                 _checked: {
                     bg: 'infoAlpha',
-                    color: 'white',
+                    color: 'mainTextColor',
                     borderColor: 'secondaryAlpha',
                 }
             }}

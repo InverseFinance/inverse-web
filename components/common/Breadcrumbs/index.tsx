@@ -19,8 +19,8 @@ export const Breadcrumbs = ({ w, breadcrumbs }: BreadcrumbsProps) => (
             <Link href={href} passHref>
               <BreadcrumbLink
                 fontWeight={i + 1 !== breadcrumbs.length ? 'medium' : 'semibold'}
-                color={i + 1 !== breadcrumbs.length ? 'primary.100' : '#fff'}
-                _hover={{ color: '#fff' }}
+                color={i + 1 !== breadcrumbs.length ? 'primary.100' : 'mainTextColor'}
+                _hover={{ color: 'mainTextColor' }}
               >
                 {label}
               </BreadcrumbLink>

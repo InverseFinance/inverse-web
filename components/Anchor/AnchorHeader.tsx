@@ -94,7 +94,7 @@ export const AnchorHeader = () => {
       </Stack>
       <Stack spacing={4} p={4}>
         <Stack direction="row" align="center">
-          <Text color="#fff" fontSize="2xl" fontWeight="semibold">
+          <Text color="mainTextColor" fontSize="2xl" fontWeight="semibold">
             Stake INV on Anchor and Earn
             <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
               {apy}% APY

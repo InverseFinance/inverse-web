@@ -79,7 +79,7 @@ const getColumns = () => {
             label: 'Shortfall',
             header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
             value: ({ usdShortfall }: AccountPositionDetailed) => {
-                const color = usdShortfall > 0 ? 'error' : 'white'
+                const color = usdShortfall > 0 ? 'error' : 'mainTextColor'
                 return <Stack minW="100px" position="relative" color={color}>
                     <Text color={color}>{shortenNumber(usdShortfall, 2, true)}</Text>
                 </Stack>

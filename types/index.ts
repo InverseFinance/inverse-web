@@ -173,12 +173,6 @@ export type NetworkConfig = {
   governanceAlpha: string,
   multiDelegator: string,
   stabilizer: string,
-  vaults: {
-    vaultUsdcEth: string,
-    vaultDaiWbtc: string,
-    vaultDaiYfi: string,
-    vaultDaiEth: string,
-  };
   anchor: {
     lens: string,
     comptroller: string,
@@ -203,9 +197,6 @@ export type Network = {
 }
 
 export type StringNumMap = { [key: string]: number };
-
-export type Vaults = { [key: string]: { from: Token; to: Token } }
-export type VaultTree = { [key: string]: { [key: string]: string } }
 
 export type AssetDropDownProps = {
   tokens: TokenList,

@@ -49,7 +49,7 @@ export const Container = ({
           {description} <ExternalLinkIcon />
         </Link>
       ) : typeof description === 'string' ? (
-        <Text fontSize="sm" fontWeight="medium" color="primary.200">
+        <Text fontSize="sm" fontWeight="medium" color="secondaryTextColor">
           {description}
         </Text>
       ) : (
@@ -59,7 +59,7 @@ export const Container = ({
   )
 
   return (
-    <Flex w="full" direction="column" p={6} pb={0} color="#fff" {...props}>
+    <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
       <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end">
         <Stack direction="row" align="center">
           {image}

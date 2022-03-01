@@ -44,7 +44,7 @@ export const BondsView = () => {
     }, [account], !account, 1000, 0);
 
     return (
-        <Stack w='full' color="white">
+        <Stack w='full' color="mainTextColor">
             {
                 isNotConnected && <Container contentBgColor="gradient3" noPadding label="Wallet Not Connected">
                     <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />

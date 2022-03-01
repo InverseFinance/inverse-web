@@ -53,7 +53,7 @@ const getColumn = (
       label: 'Asset',
       header: ({ ...props }) => <Flex minWidth={minWidth} {...props} />,
       value: ({ token, underlying, claimableAmount, claimableTime }: Market) => {
-        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white';
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor';
         const claimable = moment(claimableTime).isBefore(moment());
         return (
           <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
@@ -82,7 +82,7 @@ const getColumn = (
       tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
-        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor'
         return (
           <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
         )
@@ -106,7 +106,7 @@ const getColumn = (
       label: 'Balance',
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ balance, underlying, priceUsd, token }: Market) => {
-        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) && (balance || 0) >= 0.01 ? 'secondary' : 'white'
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) && (balance || 0) >= 0.01 ? 'secondary' : 'mainTextColor'
         return <AnchorPoolInfo isBalance={true} value={balance} priceUsd={priceUsd} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
       },
     },
@@ -120,7 +120,7 @@ const getColumn = (
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={24} {...props} />,
       value: ({ borrowApy, monthlyBorrowFee, underlying, priceUsd, token }: Market) => {
-        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'white'
+        const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor'
         return (
           <AnchorPoolInfo value={borrowApy} priceUsd={priceUsd} monthlyValue={monthlyBorrowFee} symbol={underlying.symbol} type="borrow" textProps={{ textAlign: "end", color, minWidth: 24 }} />
         )
@@ -343,7 +343,7 @@ export const AnchorBorrowed = () => {
           onClick={handleBorrow}
         />
       ) : (
-        <Flex w="full" justify="center" color="primary.200" fontSize="sm">
+        <Flex w="full" justify="center" color="secondaryTextColor" fontSize="sm">
           You don't have any borrowed assets.
         </Flex>
       )}
@@ -472,7 +472,7 @@ export const AnchorBorrow = () => {
       label: 'Liquidity',
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
       value: ({ liquidityUsd, token, underlying }: Market) => {
-        const color = isHighlightCase(false, true, token, underlying) ? 'secondary' : 'white'
+        const color = isHighlightCase(false, true, token, underlying) ? 'secondary' : 'mainTextColor'
         return (
           <Text textAlign="end" minWidth={24} color={color}>
             {

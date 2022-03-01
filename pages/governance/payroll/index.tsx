@@ -48,7 +48,7 @@ export const DolaPayrollPage = () => {
       </Head>
       <AppNav active="Governance" />
       <Flex justify="center" direction="column">
-        <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="white">
+        <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="mainTextColor">
           <Container
             contentBgColor="gradientContentBackground"
             label="DOLA PayRoll"

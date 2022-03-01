@@ -23,7 +23,7 @@ export const LinkButton = ({
   const finalFlexProps = { ...extraFlexProps, ...flexProps };
   return (
     <NextLink href={href} passHref>
-      <Link w="full" color="#fff" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
+      <Link w="full" color="mainTextColor" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
         <Flex
           justify="center"
           cursor="pointer"
@@ -61,7 +61,7 @@ export const StyledButton = (props: SmartButtonProps) => (
     fontSize="sm"
     borderRadius={8}
     fontWeight="semibold"
-    color="#fff"
+    color="mainTextColor"
     height={8}
     pl={3}
     pr={3}
@@ -103,7 +103,7 @@ export const OutlineButton = (props: any) => (
     borderWidth={1}
     borderColor="primary.700"
     fontWeight="semibold"
-    color="#fff"
+    color="mainTextColor"
     p={2}
     pl={4}
     pr={4}
@@ -144,7 +144,7 @@ export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
         borderRadius={4}
         fontWeight="semibold"
         fontSize="15px"
-        color={option === active ? '#fff' : 'primary.200'}
+        color={option === active ? 'mainTextColor' : 'secondaryTextColor'}
         onClick={() => onClick(option)}
         bgColor={option === active ? 'primary.650' : 'primary.850'}
       >

@@ -67,7 +67,7 @@ const getBorrowLimitUsed = (perc: number, before: string, after: string): Stat =
   return {
     label: 'Borrow Limit Used',
     value: `${before}% -> ${after}%`,
-    color: (perc > 75 ? 'red.500' : perc <= 75 && perc > 50 ? 'orange.500' : 'white'),
+    color: (perc > 75 ? 'red.500' : perc <= 75 && perc > 50 ? 'orange.500' : 'mainTextColor'),
     tooltipMsg: "Reminder: if the Borrow Limit % reaches 100% you may get liquidated or won't receive the loan to avoid liquidation"
   }
 }

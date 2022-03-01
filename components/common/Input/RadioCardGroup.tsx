@@ -19,7 +19,7 @@ export const RadioCard = ({ radioProps, ...props }: { radioProps: UseRadioProps 
                 borderColor='grey'
                 _checked={{
                     bg: 'infoAlpha',
-                    color: 'white',
+                    color: 'mainTextColor',
                     borderColor: 'secondary',
                 }}
                 px={5}

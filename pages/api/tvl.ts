@@ -13,7 +13,7 @@ import { HAS_REWARD_TOKEN } from '@app/config/constants';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.0.3`;
+  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.1.0`;
 
   try {
     const {
