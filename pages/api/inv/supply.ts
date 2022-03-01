@@ -1,38 +1,32 @@
 import { Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { DOLA_ABI } from '@app/config/abis'
+import { INV_ABI } from '@app/config/abis'
 import { getNetworkConfig } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 
 export default async function handler(req, res) {
-  // const { chainId = '1' } = req.query;
-  // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-dola-cache-v1.0.0`;
+  const cacheKey = `${networkConfig.chainId}-inv-supply-v1.0.0`;
 
   try {
-    const { DOLA } = networkConfig;
-
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(cacheKey, true, 5);
     if(validCache) {
-      res.status(200).json(validCache);
+      res.status(200).send(validCache);
       return
     }
 
     const provider = getProvider(networkConfig.chainId);
-    const contract = new Contract(DOLA, DOLA_ABI, provider);
+    const contract = new Contract(process.env.NEXT_PUBLIC_REWARD_TOKEN!, INV_ABI, provider);
 
-    const totalSupply = await contract.totalSupply()
+    const result = await contract.totalSupply()
 
-    const resultData = {
-      totalSupply: parseFloat(formatEther(totalSupply)),
-    }
+    const totalSupply = formatEther(result);
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(cacheKey, totalSupply);
 
-    res.status(200).json(resultData)
+    res.status(200).send(totalSupply);
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
@@ -40,7 +34,7 @@ export default async function handler(req, res) {
       const cache = await getCacheFromRedis(cacheKey, false);
       if(cache) {
         console.log('Api call failed, returning last cache found');
-        res.status(200).json(cache);
+        res.status(200).send(cache);
       }
     } catch(e) {
       console.error(e);
