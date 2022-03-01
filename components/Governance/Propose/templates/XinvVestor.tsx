@@ -48,7 +48,7 @@ export const XinvVestor = ({
     }, [action])
 
     useEffect(() => {
-        const disabled = ((!amount || amount === '0')) || !destination || !isAddress(destination) || parseFloat(durationSec) < 1 || !startTimestampSec
+        const disabled = !['true', 'false'].includes(cancellable) || ((!amount || amount === '0')) || !destination || !isAddress(destination) || parseFloat(durationSec) < 1 || !startTimestampSec
         setIsDisabled(disabled)
         if (disabled) { return }
         const args: any[] = [
@@ -66,7 +66,7 @@ export const XinvVestor = ({
             value: '0',
         }
         setAction(action)
-    }, [amount, destination])
+    }, [amount, destination, cancellable, startTimestampSec, durationSec, REWARD_TOKEN, XINV_VESTOR_FACTORY])
 
 
     const handleCancellableChange = (val: string) => {
