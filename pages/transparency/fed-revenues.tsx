@@ -7,27 +7,21 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { FedHistory, NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO, useFedHistory, useFedPolicyMsg, useFedRevenues } from '@app/hooks/useDAO'
+import { useDAO, useFedRevenues } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import Table from '@app/components/common/Table'
 import { Container } from '@app/components/common/Container';
-import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, EditIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenAddress } from '@app/util'
 import { AreaChart } from '@app/components/Transparency/AreaChart'
-import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
-import { ShrinkableInfoMessage } from '@app/components/common/Messages'
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
-import { useRouter } from 'next/router'
-import { FED_POLICY_SIGN_MSG } from '@app/config/constants'
-import { showToast } from '@app/util/notify'
+import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
 
-const { DOLA, TOKENS, FEDS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
     return {
@@ -42,9 +36,9 @@ const oneDay = 86400000;
 const SupplyChange = ({ newSupply, changeAmount }: { newSupply: number, changeAmount: number }) => {
     return (
         <Flex alignItems="center" justify="space-between"  pl="2" minW="140px">
-            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 1)}</Text>
+            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 2)}</Text>
             <ArrowForwardIcon />
-            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 1)}</Text>
+            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 2)}</Text>
         </Flex>
     )
 }
@@ -109,13 +103,8 @@ const columns = [
 ]
 
 export const FedRevenuesPage = () => {
-    const { account, library } = useWeb3React<Web3Provider>();
-    const { query } = useRouter();
-    const userAddress = (query?.viewAddress as string) || account;
-    const { dolaTotalSupply, fantom, feds } = useDAO();
-    const [msgUpdates, setMsgUpdates] = useState(0)
+    const { dolaTotalSupply, fantom } = useDAO();
     const { totalEvents } = useFedRevenues();
-    const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
@@ -126,11 +115,11 @@ export const FedRevenuesPage = () => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
+    const feds = FEDS.filter(fed => fed.chainId === NetworkIds.mainnet);
 
     const eventsWithFedInfos = totalEvents
         .map(e => {
-            const fed = fedsWithData[e.fedIndex];
+            const fed = feds[e.fedIndex];
             return {
                 ...e,
                 chainId: fed.chainId,
@@ -147,7 +136,7 @@ export const FedRevenuesPage = () => {
         projectImage: 'eth-ftm.webp',
         address: '',
         chainId: NetworkIds.ethftm,
-    }].concat(FEDS);
+    }].concat(feds);
 
     const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
 
@@ -175,8 +164,6 @@ export const FedRevenuesPage = () => {
         chartData.unshift({ x: minX - oneDay, y: 0 });
         chartData.push({ x: now, y: chartData[chartData.length - 1].y });
     }
-
-    const canEditFedPolicy = userAddress === DEPLOYER;
 
     return (
         <Layout>
@@ -219,12 +206,12 @@ export const FedRevenuesPage = () => {
                                     </HStack>
                                 </Flex>
                                 <AreaChart
-                                    title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
+                                    title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
                                     showTooltips={true}
                                     height={300}
                                     width={chartWidth}
                                     data={chartData}
-                                    domainYpadding={5000000}
+                                    domainYpadding={50000}
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                 />
                             </Box>
@@ -245,32 +232,15 @@ export const FedRevenuesPage = () => {
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <DolaMoreInfos />
-                    <ShrinkableInfoMessage
-                        title={
-                            <Flex alignItems="center">
-                                Current Fed Chair Guidance
-                                {canEditFedPolicy && <EditIcon cursor="pointer" ml="1" color="blue.500" onClick={handlePolicyEdit} />}
-                            </Flex>
-                        }
-                        description={
-                            <>
-                                {
-                                    fedPolicyMsg?.lastUpdate !== null &&
-                                    <Text>{moment(fedPolicyMsg?.lastUpdate).format('MMM Do YYYY')}</Text>
-                                }
-                                <Text>{fedPolicyMsg?.msg}</Text>
-                            </>
-                        }
-                    />
                     <SuppplyInfos token={TOKENS[DOLA]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
                     ]}
                     />
-                    <SuppplyInfos
+                    {/* <SuppplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
                         supplies={fedsWithData}
-                    />
+                    /> */}
                 </VStack>
             </Flex>
         </Layout>

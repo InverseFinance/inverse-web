@@ -18,8 +18,8 @@ export default async function handler(req, res) {
 
         const validCache = await getCacheFromRedis(cacheKey, true, 300);
         if (validCache) {
-          res.status(200).json(validCache);
-          return
+            res.status(200).json(validCache);
+            return
         }
 
         const feds = FEDS.filter(fed => fed.chainId === NetworkIds.mainnet);
@@ -32,13 +32,14 @@ export default async function handler(req, res) {
             }),
         ]);
 
-        for(let [fedIndex, fed] of feds.entries()) {
+        for (let [fedIndex, fed] of feds.entries()) {
             await addBlockTimestamps(transfers[fedIndex].map(t => t.blockNumber), fed.chainId);
         }
 
         const blockTimestamps = await getCachedBlockTimestamps();
 
         const accProfits: { [key: string]: number } = {};
+        let total = 0;
 
         const fedRevenues = transfers.map((fedTransfers, fedIndex) => {
             const fedAd = feds[fedIndex].address;
@@ -46,8 +47,20 @@ export default async function handler(req, res) {
             return fedTransfers.map(t => {
                 const profit = getBnToNumber(t.args[2]);
                 accProfits[fedAd] += profit;
-                return { ...t, timestamp: blockTimestamps[feds[fedIndex].chainId][t.blockNumber], profit, accProfit: accProfits[fedAd] };
+                return {
+                    transactionHash: t.transactionHash,
+                    fedIndex: fedIndex,
+                    timestamp: blockTimestamps[feds[fedIndex].chainId][t.blockNumber] * 1000,
+                    profit,
+                    accProfit: accProfits[fedAd],
+                };
             })
+        })
+        .reduce((prev, curr) => prev.concat(curr), [])
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .map(event => {
+            total += event.profit
+            return { ...event, totalAccProfit: total }
         });
 
         const resultData = {
