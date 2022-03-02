@@ -95,9 +95,9 @@ export const DolaPayrollPage = () => {
                   {
                     !!data ?
                       <InfoMessage
-                        alertProps={{ minW: '300px', w: 'full', py: isSmaller ? '10px' : '30px', fontSize: isSmaller ? '12px' : '20px' }}
+                        alertProps={{ minW: '300px', w: 'full', py: isSmaller ? '10px' : '20px', fontSize: isSmaller ? '12px' : '14px' }}
                         description={
-                          <VStack alignItems="left" spacing={{ base: '10px', sm: '40px' }}>
+                          <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
                                 - <b>Start Time</b>:
@@ -131,11 +131,13 @@ export const DolaPayrollPage = () => {
                   <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(library?.getSigner()!)}>
                     Withdraw
                   </SubmitButton>
-                  <HStack>
-                    <Text>
+                  <HStack fontSize="12px">
+                    <Text color="secondaryTextColor">
                       DolaPayroll's remaining allowance:
                     </Text>
-                    <Text>{shortenNumber(allowance, 2, false)} DOLA</Text>
+                    <Text color="secondaryTextColor">
+                      {shortenNumber(allowance, 2, false)} DOLA
+                    </Text>
                   </HStack>
                 </VStack>
             }
