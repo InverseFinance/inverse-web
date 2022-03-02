@@ -22,9 +22,9 @@ export const BondRedeem = ({ bond }: { bond: Bond }) => {
                     <Text mr="1">Remaining to claim:</Text> 
                     <Text fontWeight="extrabold">{bond.userInfos.payout > 0 ? shortenNumber(bond.userInfos.payout, 4) : '-'}</Text>
                 </Flex>
-                <Flex fontWeight="extrabold" color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'} alignItems="center">
+                <Flex fontWeight="extrabold" color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'mainTextColor'} alignItems="center">
                     <TimeIcon mr="1" />
-                    <Text color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'white'}>
+                    <Text color={bond.userInfos.percentVestedFor > 0 ? 'secondary' : 'mainTextColor'}>
                         Vesting progress: {bond.userInfos.percentVestedFor > 0 ? shortenNumber(bond.userInfos.percentVestedFor, 2)+"%" : '-'}
                     </Text>
                 </Flex>

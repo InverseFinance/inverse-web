@@ -20,14 +20,14 @@ export const ProposalActionPreview = (({
         <Stack w="full" spacing={1} {...props} textAlign="left">
             {
                 num ?
-                    <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="primary.200">
+                    <Flex fontSize="xs" fontWeight="bold" textTransform="uppercase" color="secondaryTextColor">
                         {`Action ${num}`}
                     </Flex>
                     : null
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 <Flex fontSize="15px">
-                    <Link isExternal href={`https://etherscan.io/address/${target}`} color="primary.200" fontWeight="semibold">
+                    <Link isExternal href={`https://etherscan.io/address/${target}`} color="secondaryTextColor" fontWeight="semibold">
                         {namedAddress(target)}
                     </Link>
                     <Flex>{`.${signature.split('(')[0]}(${!callDatas[0] ? ')' : ''}`}</Flex>

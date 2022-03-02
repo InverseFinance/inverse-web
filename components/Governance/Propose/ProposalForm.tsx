@@ -234,7 +234,7 @@ export const ProposalForm = ({
     } : {}
 
     return (
-        <Stack color="white" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
+        <Stack color="mainTextColor" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             <ProposalFloatingPreviewBtn onChange={() => setPreviewMode(!previewMode)} isEnabled={previewMode} />
             {
                 previewMode && <Flex alignItems="center" justify="center">
@@ -268,7 +268,7 @@ export const ProposalForm = ({
                     </Flex>
                     :
                     <>
-                        <Box bg="gradient2" borderRadius="5" p="4" color="white">
+                        <Box bg="gradient2" borderRadius="5" p="4" color="mainTextColor">
                             <FormControl>
                                 <FormLabel>Title</FormLabel>
                                 <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />

@@ -1,7 +1,6 @@
 import { JsonRpcSigner, Web3Provider, FallbackProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
-  VAULT_ABI,
   COMPTROLLER_ABI,
   CTOKEN_ABI,
   STABILIZER_ABI,
@@ -27,11 +26,6 @@ export const getNewContract = (
   abi: string[],
   signer: JsonRpcSigner | Web3Provider | undefined
 ) => new Contract(address, abi, signer)
-
-export const getVaultContract = (
-  address: string,
-  signer: JsonRpcSigner | undefined
-) => getNewContract(address, VAULT_ABI, signer)
 
 export const getComptrollerContract = (signer: JsonRpcSigner | undefined) => {
   const { COMPTROLLER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);

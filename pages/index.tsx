@@ -196,7 +196,7 @@ export const Landing = () => {
             <Text fontSize="2xl" fontWeight="bold">
               New Bonding Opportunities with Olympus Pro!
             </Text>
-            <Box fontSize="lg" color="white">
+            <Box fontSize="lg" color="mainTextColor">
               Purchase INV at a substantial discount by depositing your Sushi or Curve liquidity pool tokens on Olympus Pro.
               <Link textDecoration="underline" isExternal display="inline-block" mx="1"
                 href={process.env.NEXT_PUBLIC_BONDS_URL}>

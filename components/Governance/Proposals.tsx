@@ -112,7 +112,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
       label="Local Draft Proposals"
       contentBgColor="gradient3"
       description={<HStack alignItems="center" cursor="pointer" onClick={handleRemoveDrafts}>
-        <Text fontSize="sm" fontWeight="medium" color="primary.200">Remove all local drafts</Text>
+        <Text fontSize="sm" fontWeight="medium" color="secondaryTextColor">Remove all local drafts</Text>
         <DeleteIcon ml="2" fontSize="10px" color="red.500" />
       </HStack>}
     >
@@ -120,7 +120,7 @@ export const LocalDraftProposals = ({ drafts }: { drafts: any[] }) => {
         {
           !isCleared ?
             previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isLocalDraft={true} proposal={proposal} />)
-            : <Flex w="full" justify="center" color="primary.200" fontSize="sm">
+            : <Flex w="full" justify="center" color="secondaryTextColor" fontSize="sm">
               Drafts have been removed.
             </Flex>
         }
@@ -149,7 +149,7 @@ export const ActiveProposals = () => {
         {active?.length ? (
           active.map((proposal: Proposal) => <ProposalPreview key={proposal.proposalNum} proposal={proposal} />)
         ) : (
-          <Flex w="full" justify="center" color="primary.200" fontSize="sm">
+          <Flex w="full" justify="center" color="secondaryTextColor" fontSize="sm">
             There are no active proposals.
           </Flex>
         )}

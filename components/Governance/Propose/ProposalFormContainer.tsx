@@ -61,14 +61,14 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                                     At least <b>1000 voting power</b> is required to make a new proposal.
                                 </>
                             } />
-                        <Box color="white" mt="3">
+                        <Box color="mainTextColor" mt="3">
                             You can share your proposal idea in our
                             <Link fontWeight="bold" ml="1" href="https://discord.gg/YpYJC7R5nv" isExternal>
                                 Discord
                             </Link>
                         </Box>
                         {
-                            account && <Box color="white" mt="3" fontSize="14px">
+                            account && <Box color="mainTextColor" mt="3" fontSize="14px">
                                 Or you can 
                                 <Link
                                     ml="1"

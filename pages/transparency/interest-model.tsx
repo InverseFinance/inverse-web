@@ -46,7 +46,7 @@ export const InterestModelPage = () => {
             <AppNav active="Transparency" />
             <TransparencyTabs active="interest-model" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-                <Flex direction="column" color="white">
+                <Flex direction="column" color="mainTextColor">
                     <Container
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}

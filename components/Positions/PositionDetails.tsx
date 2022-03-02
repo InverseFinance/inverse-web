@@ -110,18 +110,18 @@ export const PositionDetails = ({
                 Calculations here use <b>Oracle Prices</b>, these can differ from Coingecko's
             </Text>
             <Stack spacing="5" direction="row" w="full">
-                <Text fontWeight="bold" color={freshPosition.borrowLimitPercent >= 100 ? 'error' : 'white'}>
+                <Text fontWeight="bold" color={freshPosition.borrowLimitPercent >= 100 ? 'error' : 'mainTextColor'}>
                     Borrow Limit: {shortenNumber(freshPosition.borrowLimitPercent, 2)}%
                 </Text>
                 <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'error' : 'secondary'}>
                     {freshPosition.usdShortfall > 0 ? 'Shortfall' : 'Borrowing Power left'}: {shortenNumber(totalBorrowCapacity - freshPosition.usdBorrowed, 2, true)} (= {shortenNumber(totalBorrowCapacity, 2, true)} - {shortenNumber(freshPosition.usdBorrowed, 2, true)})
                 </Text>
                 {
-                    freshPosition.usdShortfall > 0 && <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'secondary' : 'white'}>
+                    freshPosition.usdShortfall > 0 && <Text fontWeight="bold" color={freshPosition.usdShortfall > 0 ? 'secondary' : 'mainTextColor'}>
                         Max Seizable: {shortenNumber(maxSeize, 2, true)}
                     </Text>
                 }
-                {/* <Text fontWeight="bold" color={hasLiquidationOpportunity ? 'secondary' : 'white'}>
+                {/* <Text fontWeight="bold" color={hasLiquidationOpportunity ? 'secondary' : 'mainTextColor'}>
                     Liquidation Opportunity: {hasLiquidationOpportunity ? 'Yes' : 'No'}
                 </Text> */}
                 {

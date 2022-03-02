@@ -52,10 +52,10 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, s
         fontWeight={ showBalance ? 'normal' : 'extrabold' }
         fontSize={ showBalance ? 'xs' : 'sm' }
         ml={4}
-        color="primary.200"
+        color="secondaryTextColor"
         zIndex="1"
         onClick={onMaxClick}
-        _hover={{ color: '#fff' }}
+        _hover={{ color: 'mainTextColor' }}
         visibility={ showMax ? 'visible' : 'hidden' }
       >
         {

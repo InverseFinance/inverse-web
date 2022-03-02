@@ -103,7 +103,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       description={isLargerThan780 ? address : shortenAddress(address)}
       href={`https://etherscan.io/address/${address}`}
       image={<Avatar sizePx={50} address={address} />}
-      right={rank && <Text fontWeight="medium" fontSize="sm" color="primary.200">{`Rank ${rank}`}</Text>}
+      right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">{`Rank ${rank}`}</Text>}
     >
       <Box w="full">
         <Flex alignItems="center">

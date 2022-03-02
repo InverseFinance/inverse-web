@@ -27,7 +27,7 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
             <Flex w="80px" alignItems="center">
                 {bond.usdPrice ? formatBondPrice(bond.usdPrice) : '-'}
             </Flex>
-            <Flex w="80px" justify="flex-end" alignItems="center" color={bond.roi === 0 || isNaN(bond.roi) ? 'white' : bond.positiveRoi ? 'secondary' : 'error'}>
+            <Flex w="80px" justify="flex-end" alignItems="center" color={bond.roi === 0 || isNaN(bond.roi) ? 'mainTextColor' : bond.positiveRoi ? 'secondary' : 'error'}>
                 {bond.roi ? formatROI(bond.roi) : '-'}
             </Flex>
             <Flex w='80px' position="relative">

@@ -46,7 +46,7 @@ export const Breakdown = () => {
             innerRadius={130}
             style={{ labels: { display: 'none' } }}
           />
-          <Text position="absolute" color="#fff" fontSize="4xl" fontWeight="semibold">
+          <Text position="absolute" color="mainTextColor" fontSize="4xl" fontWeight="semibold">
             {active + passed + failed}
           </Text>
         </Flex>
@@ -55,7 +55,7 @@ export const Breakdown = () => {
             <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
               {active}
             </Text>
-            <Text color="#fff" fontWeight="bold" whiteSpace="nowrap">
+            <Text color="mainTextColor" fontWeight="bold" whiteSpace="nowrap">
               Active
             </Text>
           </Stack>

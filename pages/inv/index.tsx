@@ -19,11 +19,11 @@ const Step = ({
   href?: string,
 }) => {
   return (
-    <Flex fontWeight="bold" fontSize="20px" color="white" direction="row" alignItems="center">
+    <Flex fontWeight="bold" fontSize="20px" color="mainTextColor" direction="row" alignItems="center">
       <Text mr="5">•</Text>
       {
         !!href ?
-          <Link textDecoration="underline" color="white" isExternal href={href}>{label}</Link>
+          <Link textDecoration="underline" color="mainTextColor" isExternal href={href}>{label}</Link>
           :
           <Text>{label}</Text>
       }
@@ -70,7 +70,7 @@ export const InvPlus = () => {
                 <Step label="Vote in the Inverse DAO" href="/governance" />
               </VStack>
             </VStack>
-            <Box pt="10" fontSize="xl" color="white">
+            <Box pt="10" fontSize="xl" color="mainTextColor">
               <Text mb="2">
                 <b>Purchase INV</b> at a substantial <b>discount</b> by depositing your Sushi or Curve liquidity pool tokens on <b>Olympus Pro</b>.
               </Text>
@@ -119,7 +119,7 @@ export const InvPlus = () => {
           </Flex>
         </Flex>
         <Flex w="full" justify="center">
-          <LinkButton w="100px" target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!} mt="10" color="white">
+          <LinkButton w="100px" target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!} mt="10" color="mainTextColor">
             Buy {RTOKEN_SYMBOL}
           </LinkButton>
         </Flex>

@@ -1,4 +1,4 @@
-import { Flex, Text, VStack, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Text, VStack, useMediaQuery, HStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -13,21 +13,44 @@ import { formatUnits, commify } from 'ethers/lib/utils';
 import Container from '@app/components/common/Container';
 import { getScanner } from '@app/util/web3';
 import { payrollWithdraw } from '@app/util/payroll';
-import { getBnToNumber } from '@app/util/markets';
+import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import moment from 'moment';
 import { InfoMessage } from '@app/components/common/Messages';
+import { Event } from 'ethers';
+import { useContractEvents } from '@app/hooks/useContractEvents';
+import { DOLA_PAYROLL_ABI } from '@app/config/abis';
+import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
 
-const { DOLA_PAYROLL, TOKENS, DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA_PAYROLL, TOKENS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+const EventInfos = ({ event }: { event: Event }) => {
+  const { timestamp } = useBlockTimestamp(event.blockNumber);
+  return <Flex w='full' justify="space-between">
+    <Text textAlign="left">
+      Withdraw {shortenNumber(getBnToNumber(event.args[1]), 2)}
+    </Text>
+    {
+      timestamp > 0 &&
+      <Text textAlign="right">
+        {moment(timestamp).fromNow()} - {moment(timestamp).format('MMM Do YYYY')}
+      </Text>
+    }
+  </Flex>
+}
 
 export const DolaPayrollPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
   const { account, library } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const userAddress = (query?.viewAddress as string) || account;
+
   const { data } = useEtherSWR([
     [DOLA_PAYROLL, 'balanceOf', userAddress],
     [DOLA_PAYROLL, 'recipients', userAddress],
+    [DOLA, 'allowance', TREASURY, DOLA_PAYROLL],
   ]);
+
+  const { events } = useContractEvents(DOLA_PAYROLL, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
 
   const [lastClaim, ratePerSecond, startTime] = !!data ? data[1] : [0, 0, 0];
 
@@ -37,9 +60,17 @@ export const DolaPayrollPage = () => {
   const yearlyRate = getBnToNumber(ratePerSecond) * 3600 * 24 * 365;
   const monthlyRate = yearlyRate / 12;
 
+  const allowance = data && data[2] ? parseFloat(formatUnits(data[2])) : 0;
+
   const formatDate = (timestamp: number, isSmaller: boolean) => {
-    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller? '' : ` (${moment(timestamp).fromNow()})`}`
+    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller ? '' : ` (${moment(timestamp).fromNow()})`}`
   }
+
+  const userEvents = events.filter(event => {
+    return event?.args[0].toLowerCase() === userAddress?.toLowerCase();
+  });
+
+  userEvents.sort((a, b) => b.logIndex - a.logIndex);
 
   return (
     <Layout>
@@ -48,9 +79,9 @@ export const DolaPayrollPage = () => {
       </Head>
       <AppNav active="Governance" />
       <Flex justify="center" direction="column">
-        <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="white">
+        <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="mainTextColor">
           <Container
-            contentBgColor="gradientContentBackground"
+            contentBgColor="gradient3"
             label="DOLA PayRoll"
             description="See Contract"
             maxWidth="1000px"
@@ -64,9 +95,9 @@ export const DolaPayrollPage = () => {
                   {
                     !!data ?
                       <InfoMessage
-                        alertProps={{ minW: '300px', w: 'full', py: isSmaller ? '10px' : '30px', fontSize: isSmaller ? '12px' : '20px' }}
+                        alertProps={{ minW: '300px', w: 'full', py: isSmaller ? '10px' : '20px', fontSize: isSmaller ? '12px' : '14px' }}
                         description={
-                          <VStack alignItems="left" spacing={{ base: '10px', sm: '40px' }}>
+                          <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
                                 - <b>Start Time</b>:
@@ -97,13 +128,45 @@ export const DolaPayrollPage = () => {
                       :
                       <Text>Loading...</Text>
                   }
-                  <SubmitButton maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(library?.getSigner()!)}>
+                  <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(library?.getSigner()!)}>
                     Withdraw
                   </SubmitButton>
+                  <HStack fontSize="12px">
+                    <Text color="secondaryTextColor">
+                      DolaPayroll's remaining allowance:
+                    </Text>
+                    <Text color="secondaryTextColor">
+                      {shortenNumber(allowance, 2, false)} DOLA
+                    </Text>
+                  </HStack>
                 </VStack>
             }
           </Container>
         </Flex>
+        {
+          userEvents.length > 0 &&
+          <Container
+            noPadding
+            contentBgColor="gradient3"
+            label="Past Withdrawals"
+            maxWidth="1000px"
+            contentProps={{ p: { base: '2', sm: '12' } }}
+          >
+            <VStack w='full'>
+              {
+                userEvents?.map(e => {
+                  return <EventInfos key={e.transactionHash} event={e} />
+                })
+              }
+              {
+                userEvents.length > 1 &&
+                <Flex fontWeight="bold" justify="flex-start" w='full'>
+                  Total withdrawn: {shortenNumber(userEvents.reduce((prev, curr) => prev + getBnToNumber(curr.args[1]), 0), 2)}
+                </Flex>
+              }
+            </VStack>
+          </Container>
+        }
       </Flex>
     </Layout>
   )

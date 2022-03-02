@@ -1,6 +1,6 @@
 import { Stack, Text, Flex, Image } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { TokenList, Token, VaultTree, BigNumberList } from '@app/types';
+import { TokenList, Token, BigNumberList } from '@app/types';
 import { formatUnits } from 'ethers/lib/utils';
 import { AssetsDropdown } from './AssetsDropdown';
 

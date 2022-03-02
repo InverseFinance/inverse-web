@@ -58,7 +58,7 @@ const NavBadge = (props: any) => (
     borderWidth={1}
     borderColor="primary.700"
     fontWeight="semibold"
-    color="#fff"
+    color="mainTextColor"
     p={2}
     pl={4}
     pr={4}
@@ -119,7 +119,7 @@ const INVBalance = () => {
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
     const hasUnstakedBal = inv >= 0.01
     return <>
-      <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'white'}>
+      <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
         {inv.toFixed(2)} {RTOKEN_SYMBOL}
       </Text>
       ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
@@ -266,7 +266,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           align="center"
           borderRadius={4}
           fontWeight="semibold"
-          color="#fff"
+          color="mainTextColor"
           p={2.5}
           pl={4}
           pr={4}
@@ -282,7 +282,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         cursor="pointer"
         w="full"
         bgColor="primary.800"
-        color="#fff"
+        color="mainTextColor"
         border={0}
         _focus={{}}
         zIndex="sticky"
@@ -466,8 +466,8 @@ export const AppNav = ({ active }: { active?: string }) => {
                 key={i}
                 href={href}
                 fontWeight="medium"
-                color={active === label ? '#fff' : 'primary.200'}
-                _hover={{ color: '#fff' }}
+                color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
+                _hover={{ color: 'mainTextColor' }}
                 position="relative"
               >
                 {label}
@@ -520,7 +520,7 @@ export const AppNav = ({ active }: { active?: string }) => {
             borderColor="primary.800"
           >
             {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? '#fff' : 'primary.200'}>
+              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? 'mainTextColor' : 'secondaryTextColor'}>
                 {label}
                 {
                   href === '/governance' && nbNotif > 0 &&

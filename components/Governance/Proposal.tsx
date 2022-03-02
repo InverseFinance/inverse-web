@@ -116,7 +116,7 @@ export const ProposalPreview = ({
         _hover={{ bgColor: 'primary.850' }}
       >
         <Flex direction="column" overflowX="auto">
-          <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'white'}>
+          <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'mainTextColor'}>
             {title}
           </Text>
           <Stack direction={{ base: 'column', sm: 'row' }} align="left">

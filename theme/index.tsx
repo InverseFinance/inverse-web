@@ -12,6 +12,9 @@ const theme = extendTheme({
     mainBackground: 'radial-gradient(circle at center, #2a2557, #100e21 50%)',
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: "url('/assets/landing/graphic1.png')",
+    mainTextColor: '#fff',
+    secondaryTextColor: '#bbb7e0',
+    accentTextColor: '#34E795',
     purple: {
       50: '#eeedf7',
       100: '#dddbf0',

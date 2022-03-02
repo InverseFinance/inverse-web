@@ -57,29 +57,3 @@ export const useStabilizerApprovals = (): SWR & Approvals => {
   const { DAI, DOLA, STABILIZER } = getNetworkConfigConstants(chainId)
   return useAllowances([DAI, DOLA], STABILIZER)
 }
-
-export const useVaultApprovals = (): SWR & Approvals => {
-  const { account, chainId } = useWeb3React<Web3Provider>()
-  const { query } = useRouter()
-  const userAddress = (query?.viewAddress as string) || account;
-  const { DAI, USDC, VAULT_DAI_ETH, VAULT_DAI_WBTC, VAULT_DAI_YFI, VAULT_USDC_ETH } = getNetworkConfigConstants(chainId)
-  const { data, error } = useEtherSWR([
-    [DAI, 'allowance', userAddress, VAULT_DAI_ETH],
-    [DAI, 'allowance', userAddress, VAULT_DAI_WBTC],
-    [DAI, 'allowance', userAddress, VAULT_DAI_YFI],
-    [USDC, 'allowance', userAddress, VAULT_USDC_ETH],
-  ])
-
-  return {
-    approvals: data
-      ? {
-        [VAULT_DAI_ETH]: data[0],
-        [VAULT_DAI_WBTC]: data[1],
-        [VAULT_DAI_YFI]: data[2],
-        [VAULT_USDC_ETH]: data[3],
-      }
-      : {},
-    isLoading: !error && !data,
-    isError: error,
-  }
-}

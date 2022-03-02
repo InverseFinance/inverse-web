@@ -22,7 +22,7 @@ const XinvMigrationMessage = () => {
 const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   return <Link
     pl={1}
-    color="#fff"
+    color="mainTextColor"
     isExternal={href.startsWith('http') ? true : false}
     href={href}
     _hover={{ color: 'primary.100' }}
@@ -50,7 +50,7 @@ export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => 
       textAlign="center"
       alignItems="center"
       fontWeight="semibold"
-      color={'white'}
+      color={'mainTextColor'}
       cursor="pointer"
       onClick={() => router.push('/inv')}
       data-testid={TEST_IDS.announcement}
