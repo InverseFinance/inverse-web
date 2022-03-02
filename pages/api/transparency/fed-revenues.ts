@@ -1,11 +1,12 @@
-import { BigNumber, Contract } from 'ethers'
+import { Contract } from 'ethers'
 import 'source-map-support'
 import { DOLA_ABI } from '@app/config/abis'
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { Fed, NetworkIds, Token } from '@app/types';
+import { Fed, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
 export default async function handler(req, res) {
 
@@ -15,11 +16,11 @@ export default async function handler(req, res) {
 
     try {
 
-        // const validCache = await getCacheFromRedis(cacheKey, true, 300);
-        // if (validCache) {
-        //   res.status(200).json(validCache);
-        //   return
-        // }
+        const validCache = await getCacheFromRedis(cacheKey, true, 300);
+        if (validCache) {
+          res.status(200).json(validCache);
+          return
+        }
 
         const feds = FEDS.filter(fed => fed.chainId === NetworkIds.mainnet);
 
@@ -31,20 +32,26 @@ export default async function handler(req, res) {
             }),
         ]);
 
+        for(let [fedIndex, fed] of feds.entries()) {
+            await addBlockTimestamps(transfers[fedIndex].map(t => t.blockNumber), fed.chainId);
+        }
+
+        const blockTimestamps = await getCachedBlockTimestamps();
+
         const accProfits: { [key: string]: number } = {};
 
         const fedRevenues = transfers.map((fedTransfers, fedIndex) => {
             const fedAd = feds[fedIndex].address;
-            if(!accProfits[fedAd]) { accProfits[fedAd] = 0 }
+            if (!accProfits[fedAd]) { accProfits[fedAd] = 0 }
             return fedTransfers.map(t => {
                 const profit = getBnToNumber(t.args[2]);
                 accProfits[fedAd] += profit;
-                return { ...t, profit, accProfit: accProfits[fedAd] };
+                return { ...t, timestamp: blockTimestamps[feds[fedIndex].chainId][t.blockNumber], profit, accProfit: accProfits[fedAd] };
             })
         });
 
         const resultData = {
-            fedRevenues
+            totalEvents: fedRevenues,
         }
 
         await redisSetWithTimestamp(cacheKey, resultData);

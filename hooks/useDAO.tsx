@@ -67,6 +67,18 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
   }
 }
 
+export const useFedRevenues = (): SWR & { totalEvents: FedEvent[] } => {
+  const { data, error } = useCustomSWR(`/api/transparency/fed-revenues`, fetcher)
+
+  const totalEvents = data?.totalEvents || [];
+
+  return {
+    totalEvents,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
   const { data, error } = useCustomSWR(`/api/transparency/stabilizer`, fetcher)
 
