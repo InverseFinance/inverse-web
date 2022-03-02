@@ -16,18 +16,32 @@ import { payrollWithdraw } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import moment from 'moment';
 import { InfoMessage } from '@app/components/common/Messages';
-import { Contract } from 'ethers';
+import { Event } from 'ethers';
 import { useContractEvents } from '@app/hooks/useContractEvents';
 import { DOLA_PAYROLL_ABI } from '@app/config/abis';
-import { useEffect, useState } from 'react';
+import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
 
 const { DOLA_PAYROLL, TOKENS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+const EventInfos = ({ event }: { event: Event }) => {
+  const { timestamp } = useBlockTimestamp(event.blockNumber);
+  return <Flex w='full' justify="space-between">
+    <Text textAlign="left">
+      Withdraw {shortenNumber(getBnToNumber(event.args[1]), 2)}
+    </Text>
+    {
+      timestamp > 0 &&
+      <Text textAlign="right">
+        {moment(timestamp).fromNow()} - {moment(timestamp).format('MMM Do YYYY')}
+      </Text>
+    }
+  </Flex>
+}
 
 export const DolaPayrollPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
   const { account, library } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
-  const [contract, setContract] = useState<null | Contract>(null);
   const userAddress = (query?.viewAddress as string) || account;
 
   const { data } = useEtherSWR([
@@ -35,10 +49,6 @@ export const DolaPayrollPage = () => {
     [DOLA_PAYROLL, 'recipients', userAddress],
     [DOLA, 'allowance', TREASURY, DOLA_PAYROLL],
   ]);
-
-  useEffect(() => {
-    setContract(new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, library?.getSigner()));
-  }, [account, library]);
 
   const { events } = useContractEvents(DOLA_PAYROLL, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
 
@@ -57,8 +67,10 @@ export const DolaPayrollPage = () => {
   }
 
   const userEvents = events.filter(event => {
-    return event?.args[0].toLowerCase() === account?.toLowerCase();
+    return event?.args[0].toLowerCase() === userAddress?.toLowerCase();
   });
+
+  userEvents.sort((a, b) => b.logIndex - a.logIndex);
 
   return (
     <Layout>
@@ -129,25 +141,30 @@ export const DolaPayrollPage = () => {
             }
           </Container>
         </Flex>
-        <Container
-          noPadding
-          contentBgColor="gradient3"
-          label="Past withdrawals"
-          maxWidth="1000px"
-          contentProps={{ p: { base: '2', sm: '12' } }}
-        >
-          <VStack>
-            {
-              userEvents?.map(e => {
-                return <HStack>
-                  <Text>
-                    - {shortenNumber(getBnToNumber(e.args[1]), 2)}
-                  </Text>
-                </HStack>
-              })
-            }
-          </VStack>
-        </Container>
+        {
+          userEvents.length > 0 &&
+          <Container
+            noPadding
+            contentBgColor="gradient3"
+            label="Past Withdrawals"
+            maxWidth="1000px"
+            contentProps={{ p: { base: '2', sm: '12' } }}
+          >
+            <VStack w='full'>
+              {
+                userEvents?.map(e => {
+                  return <EventInfos key={e.transactionHash} event={e} />
+                })
+              }
+              {
+                userEvents.length > 1 &&
+                <Flex fontWeight="bold" justify="flex-start" w='full'>
+                  Total withdrawn: {shortenNumber(userEvents.reduce((prev, curr) => prev + getBnToNumber(curr.args[1]), 0), 2)}
+                </Flex>
+              }
+            </VStack>
+          </Container>
+        }
       </Flex>
     </Layout>
   )
