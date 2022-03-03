@@ -7,7 +7,7 @@ import { shortenNumber } from '@app/util/markets';
 type Props = { x: string, y: number, label?: string }[][]
 
 const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px', padding: 15 },
+    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px', padding: 14 },
     grid: {
         stroke: '#666666aa',
         strokeDasharray: '4 4',
@@ -61,7 +61,7 @@ export const BarChart = ({
                 padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle" />
                 }
                 <VictoryAxis
                     style={defaultAxisStyle}
