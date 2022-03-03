@@ -6,11 +6,35 @@ import { getBnToNumber } from '@app/util/markets'
 import { getTransfers } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 
+// Crosschain Fee is 0.1 %, Minimum Crosschain Fee is 83 DOLA, Maximum Crosschain Fee is 1,040 DOLA
+const bridgeFees: { [key: string]: { fee: number, min: number, max: number } } = {
+    [NetworkIds.ftm]: {
+        fee: 0.001,
+        min: 83,
+        max: 1040,
+    }
+}
+
+const deduceBridgeFees = (value: number, chainId: string) => {
+    const fees = bridgeFees[chainId];
+    if(fees) {
+        const hypotheticalFee = value * fees.fee;
+        if(hypotheticalFee < fees.min) {
+            return value - fees.min;
+        } else if(hypotheticalFee > fees.max) {
+            return value - fees.max;
+        } else {
+            return value - hypotheticalFee;
+        }
+    }
+    return value;
+}
+
 export default async function handler(req, res) {
 
     const { DOLA, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
     const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-    const cacheKey = `revenues-v1.0.2`;
+    const cacheKey = `revenues-v1.0.3`;
 
     try {
 
@@ -40,7 +64,7 @@ export default async function handler(req, res) {
                     return {
                         blockNumber: item.block_height,
                         timestamp: +(new Date(item.block_signed_at)),
-                        profit: getBnToNumber(parseUnits(filtered.delta, 0)),
+                        profit: deduceBridgeFees(getBnToNumber(parseUnits(filtered.delta, 0)), fed.chainId),
                         transactionHash: item.tx_hash,
                     }
                 });
