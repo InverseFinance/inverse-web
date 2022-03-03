@@ -188,7 +188,7 @@ export const FedRevenuesPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed Revenue</title>
             </Head>
             <AppNav active="Transparency" />
-            <TransparencyTabs active="fed-policy" />
+            <TransparencyTabs active="fed-revenues" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
                     <Container
@@ -229,6 +229,7 @@ export const FedRevenuesPage = () => {
                                     width={chartWidth}
                                     data={chartData}
                                     domainYpadding={50000}
+                                    mainColor="secondary"
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                 />
                                 <BarChart
