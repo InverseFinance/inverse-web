@@ -76,6 +76,7 @@ const columns = [
     {
         field: 'profit',
         label: 'Profit',
+        tooltip: 'After the bridging fee',
         header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
         value: ({ profit }) => <Flex justify="flex-end" minW="60px" >
             {shortenNumber(profit, 2)}
