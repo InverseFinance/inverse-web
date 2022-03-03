@@ -7,7 +7,7 @@ import { shortenNumber } from '@app/util/markets';
 type Props = { x: string, y: number, label?: string }[][]
 
 const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px', padding: 15 },
+    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px', padding: 14 },
     grid: {
         stroke: '#666666aa',
         strokeDasharray: '4 4',

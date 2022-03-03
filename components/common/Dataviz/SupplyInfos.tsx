@@ -13,7 +13,7 @@ export const SuppplyInfos = ({
     token,
 }: {
     title?: React.ReactNode,
-    supplies: { supply: number, chainId: NetworkIds, name?: string }[],
+    supplies: { supply: number, chainId: NetworkIds, name?: string, projectImage?: string }[],
     token?: Token,
 }) => {
     const totalSupply = supplies.reduce((prev, curr) => prev + curr.supply, 0);

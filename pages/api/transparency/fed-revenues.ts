@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
     const { DOLA, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
     const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-    const cacheKey = `revenues-v1.0.1`;
+    const cacheKey = `revenues-v1.0.2`;
 
     try {
 
@@ -50,15 +50,13 @@ export default async function handler(req, res) {
         let total = 0;
 
         const fedRevenues = filteredTransfers.map((fedTransfers, fedIndex) => {
-            const fedAd = feds[fedIndex].address;
-            if (!accProfits[fedAd]) { accProfits[fedAd] = 0 }
+            if (!accProfits[fedIndex]) { accProfits[fedIndex] = 0 }
             return fedTransfers.map(t => {
-                // const profit = getBnToNumber(t.args[2]);
-                accProfits[fedAd] += t.profit;
+                accProfits[fedIndex] += t.profit;
                 return {
                     ...t,
                     fedIndex: fedIndex,
-                    accProfit: accProfits[fedAd],
+                    accProfit: accProfits[fedIndex],
                 };
             })
         })
@@ -70,6 +68,7 @@ export default async function handler(req, res) {
             });
 
         const resultData = {
+            totalRevenues: accProfits,
             totalEvents: fedRevenues,
         }
 

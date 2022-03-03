@@ -99,7 +99,7 @@ const columns = [
 
 export const FedRevenuesPage = () => {
     const { dolaTotalSupply, fantom } = useDAO();
-    const { totalEvents } = useFedRevenues();
+    const { totalEvents, totalRevenues } = useFedRevenues();
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
@@ -263,10 +263,14 @@ export const FedRevenuesPage = () => {
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
                     ]}
                     />
-                    {/* <SuppplyInfos
-                        title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-                        supplies={fedsWithData}
-                    /> */}
+                    <SuppplyInfos
+                        title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
+                        supplies={
+                            feds.map((fed, fedIndex) => {
+                                return { supply: totalRevenues[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                            })
+                        }
+                    />
                 </VStack>
             </Flex>
         </Layout>
