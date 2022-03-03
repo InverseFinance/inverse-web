@@ -23,13 +23,6 @@ import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
-    return {
-        ...fed,
-        events: [],
-        supply: 0,
-    }
-}))
 
 const oneDay = 86400000;
 
@@ -88,14 +81,14 @@ const columns = [
     },
     {
         field: 'accProfit',
-        label: 'New Fed Supply',
+        label: 'New Fed Revenue',
         header: ({ ...props }) => <Flex justify="center" minW="140px" {...props} />,
         value: ({ accProfit, profit }) =>
             <SupplyChange newSupply={accProfit} changeAmount={profit}/>
     },
     {
         field: 'totalAccProfit',
-        label: 'New TOTAL Supply',
+        label: 'New TOTAL Revenue',
         header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
         value: ({ totalAccProfit, profit }) =>
             <SupplyChange newSupply={totalAccProfit} changeAmount={profit}/>
@@ -206,7 +199,7 @@ export const FedRevenuesPage = () => {
                                     </HStack>
                                 </Flex>
                                 <AreaChart
-                                    title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
+                                    title={`${chosenFedHistory.name} Rvenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
                                     showTooltips={true}
                                     height={300}
                                     width={chartWidth}
