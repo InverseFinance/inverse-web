@@ -1,12 +1,8 @@
-import { Contract } from 'ethers'
 import 'source-map-support'
-import { DOLA_ABI, XCHAIN_FED_ABI } from '@app/config/abis'
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { Fed, NetworkIds } from '@app/types';
+import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { getTransfers } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 
@@ -14,7 +10,7 @@ export default async function handler(req, res) {
 
     const { DOLA, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
     const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-    const cacheKey = `revenues-v1.0.0`;
+    const cacheKey = `revenues-v1.0.1`;
 
     try {
 
@@ -24,21 +20,7 @@ export default async function handler(req, res) {
             return
         }
 
-        const feds = FEDS.filter(fed => fed.chainId === NetworkIds.mainnet);
-
-        // const transfers = await Promise.all([
-        //     ...feds.map((fed: Fed) => {
-        //         const provider = getProvider(fed.chainId, undefined, true);
-        //         const dolaContract = new Contract(fed.chainId === NetworkIds.mainnet ? DOLA : ftmConfig?.DOLA!, DOLA_ABI, provider);
-        //         if (fed.isXchain) {
-        //             // const fedContract = new Contract(fed.address, XCHAIN_FED_ABI, provider);
-        //             return dolaContract.queryFilter(dolaContract.filters.LogSwapout(fed.address, TREASURY));
-        //         } else {
-        //             // const dolaContract = new Contract(fed.chainId === NetworkIds.mainnet ? DOLA : ftmConfig?.DOLA!, DOLA_ABI, provider);
-        //             return dolaContract.queryFilter(dolaContract.filters.Transfer(fed.address, TREASURY));
-        //         }
-        //     }),
-        // ]);
+        const feds = FEDS;
 
         const transfers = await Promise.all(
             feds.map(fed => getTransfers(fed.isXchain ? ftmConfig?.DOLA! :  DOLA, fed.address, 1000, 0, fed.chainId))
@@ -46,15 +28,15 @@ export default async function handler(req, res) {
 
         const filteredTransfers = transfers.map((r, i) => {
             const fed = feds[i];
-            const toAddress = fed.isXchain ? 'null' : TREASURY.toLowerCase();  
+            const toAddress = fed.isXchain ? '0x0000000000000000000000000000000000000000' : TREASURY.toLowerCase();  
 
             const items = r.data.items
                 .filter(item => item.successful)
-                .filter(item => !!item.transfers.find(t => (t.to_address||'null')?.toLowerCase() === toAddress))
+                .filter(item => !!item.transfers.find(t => t.to_address?.toLowerCase() === toAddress))
                 .sort((a, b) => a.block_height - b.block_height);
 
                 return items.map(item => {
-                    const filtered = item.transfers.find(t => (t.to_address||'null')?.toLowerCase() === toAddress)
+                    const filtered = item.transfers.find(t => t.to_address?.toLowerCase() === toAddress)
                     return {
                         blockNumber: item.block_height,
                         timestamp: +(new Date(item.block_signed_at)),
@@ -63,12 +45,6 @@ export default async function handler(req, res) {
                     }
                 });
         });
-
-        // for (let [fedIndex, fed] of feds.entries()) {
-        //     await addBlockTimestamps(transfers[fedIndex].map(t => t.blockNumber), fed.chainId);
-        // }
-
-        // const blockTimestamps = await getCachedBlockTimestamps();
 
         const accProfits: { [key: string]: number } = {};
         let total = 0;
@@ -81,10 +57,7 @@ export default async function handler(req, res) {
                 accProfits[fedAd] += t.profit;
                 return {
                     ...t,
-                    // transactionHash: t.transactionHash,
                     fedIndex: fedIndex,
-                    // timestamp: blockTimestamps[feds[fedIndex].chainId][t.blockNumber] * 1000,
-                    // profit,
                     accProfit: accProfits[fedAd],
                 };
             })

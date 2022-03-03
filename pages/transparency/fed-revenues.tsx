@@ -110,7 +110,7 @@ export const FedRevenuesPage = () => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    const feds = FEDS.filter(fed => fed.chainId === NetworkIds.mainnet);
+    const feds = FEDS;
 
     const eventsWithFedInfos = totalEvents
         .map(e => {
