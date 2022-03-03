@@ -61,7 +61,7 @@ export const BarChart = ({
                 padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle" />
                 }
                 <VictoryAxis
                     style={defaultAxisStyle}

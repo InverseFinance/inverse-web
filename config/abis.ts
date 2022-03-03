@@ -77,7 +77,8 @@ export const ERC20_ABI = [
 ];
 
 export const DOLA_ABI = ERC20_ABI.concat([
-  "function operator() public view returns(address)"
+  "function operator() public view returns(address)",
+  "event LogSwapout (address indexed account, address indexed bindaddr, uint256 amount)",
 ])
 
 export const FAUCET_ABI = [

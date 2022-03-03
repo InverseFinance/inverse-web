@@ -5,7 +5,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { FedHistory, NetworkIds } from '@app/types'
+import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useFedRevenues } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
@@ -20,15 +20,17 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenAddress } from '@app/util'
 import { AreaChart } from '@app/components/Transparency/AreaChart'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
+import { BarChart } from '@app/components/Transparency/BarChart'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
+const months = [...Array(12).keys()];
 
 const oneDay = 86400000;
 
 const SupplyChange = ({ newSupply, changeAmount }: { newSupply: number, changeAmount: number }) => {
     return (
-        <Flex alignItems="center" justify="space-between"  pl="2" minW="140px">
+        <Flex alignItems="center" justify="space-between" pl="2" minW="140px">
             <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 2)}</Text>
             <ArrowForwardIcon />
             <Text textAlign="right" w="60px">{shortenNumber(newSupply, 2)}</Text>
@@ -42,7 +44,7 @@ const columns = [
         label: 'Fed',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
         value: ({ fedName, projectImage }) =>
-            <Flex alignItems="center"  minW="120px">
+            <Flex alignItems="center" minW="120px">
                 <Image ignoreFallback={true} src={`/assets/projects/${projectImage}`} w={'15px'} h={'15px'} mr="2" />
                 {fedName}
             </Flex>,
@@ -68,7 +70,7 @@ const columns = [
         label: 'Transaction',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
         value: ({ transactionHash, chainId }) => <Flex minW="120px">
-            <ScannerLink  value={transactionHash} type="tx" chainId={chainId} />
+            <ScannerLink value={transactionHash} type="tx" chainId={chainId} />
         </Flex>,
     },
     {
@@ -84,14 +86,14 @@ const columns = [
         label: 'New Fed Revenue',
         header: ({ ...props }) => <Flex justify="center" minW="140px" {...props} />,
         value: ({ accProfit, profit }) =>
-            <SupplyChange newSupply={accProfit} changeAmount={profit}/>
+            <SupplyChange newSupply={accProfit} changeAmount={profit} />
     },
     {
         field: 'totalAccProfit',
         label: 'New TOTAL Revenue',
         header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
         value: ({ totalAccProfit, profit }) =>
-            <SupplyChange newSupply={totalAccProfit} changeAmount={profit}/>
+            <SupplyChange newSupply={totalAccProfit} changeAmount={profit} />
     },
 ]
 
@@ -145,9 +147,13 @@ export const FedRevenuesPage = () => {
         }));
 
     const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+        const date = new Date(event.timestamp);
         return {
             x: event.timestamp,
             y: event[isAllFedsCase ? 'totalAccProfit' : 'accProfit'],
+            profit: event.profit,
+            month: date.getUTCMonth(),
+            year: date.getUTCFullYear(),
         }
     })];
 
@@ -157,6 +163,24 @@ export const FedRevenuesPage = () => {
         chartData.unshift({ x: minX - oneDay, y: 0 });
         chartData.push({ x: now, y: chartData[chartData.length - 1].y });
     }
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+
+    const barChartData = ['Profit'].map(event => {
+        return months.map(month => {
+            const date = Date.UTC(currentYear, currentMonth - 11 + month);
+            const filterMonth = new Date(date).getMonth();
+            const filterYear = new Date(date).getFullYear();
+            const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.profit, 0);
+
+            return {
+                label: `${event}s: ${shortenNumber(y, 2, true)}`,
+                x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
+                y,
+            }
+        });
+    })
 
     return (
         <Layout>
@@ -199,13 +223,21 @@ export const FedRevenuesPage = () => {
                                     </HStack>
                                 </Flex>
                                 <AreaChart
-                                    title={`${chosenFedHistory.name} Rvenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
+                                    title={`${chosenFedHistory.name} Revenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
                                     showTooltips={true}
                                     height={300}
                                     width={chartWidth}
                                     data={chartData}
                                     domainYpadding={50000}
                                     interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
+                                />
+                                <BarChart
+                                    width={chartWidth}
+                                    height={300}
+                                    title="Monthly profits for the last 12 months"
+                                    groupedData={barChartData}
+                                    colorScale={['#34E795']}
+                                    isDollars={true}
                                 />
                             </Box>
                         }
