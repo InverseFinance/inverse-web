@@ -21,6 +21,7 @@ import { shortenAddress } from '@app/util'
 import { AreaChart } from '@app/components/Transparency/AreaChart'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
 import { BarChart } from '@app/components/Transparency/BarChart'
+import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -259,6 +260,9 @@ export const FedRevenuesPage = () => {
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <DolaMoreInfos />
+                    <ShrinkableInfoMessage
+                        description='Profits are not taken in a continuous way, it needs a "Take Profit" transaction to be done, that is why revenues may seem to vary a lot from a month to another.'
+                    />
                     <SuppplyInfos token={TOKENS[DOLA]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
@@ -266,6 +270,7 @@ export const FedRevenuesPage = () => {
                     />
                     <SuppplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
+                        showChart={true}
                         supplies={
                             feds.map((fed, fedIndex) => {
                                 return { supply: totalRevenues[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
