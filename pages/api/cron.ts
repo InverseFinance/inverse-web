@@ -3,7 +3,7 @@ import "source-map-support";
 import { Contract } from "ethers";
 import { GOVERNANCE_ABI, INV_ABI } from "@app/config/abis";
 import { formatUnits } from "ethers/lib/utils";
-import { getNetworkConfig } from '@app/util/networks';
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
 import { Delegate } from '@app/types';
@@ -21,17 +21,17 @@ export default async function handler(req, res) {
   else {
     // run delegates cron job
     try {
-      const { chainId = '1' } = req.query;
-      const networkConfig = getNetworkConfig(chainId, false);
-      if (!networkConfig?.governance || !networkConfig?.governanceAlpha) {
-        res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
-      }
-      const { XINV, INV, governance: GOVERNANCE, governanceAlpha: GOV_ALPHA } = networkConfig!;
+      const chainId = process.env.NEXT_PUBLIC_CHAIN_ID!;
+      const { XINV, INV, GOVERNANCE, GOVERNANCE_ALPHA: GOV_ALPHA } = getNetworkConfigConstants(chainId);
+      
       // use specific AlchemyApiKey for the cron
       const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API, true);
+      
       const inv = new Contract(INV, INV_ABI, provider);
+
       const xinv = new Contract(XINV, INV_ABI, provider);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
+
       const governanceAlpha = new Contract(GOV_ALPHA, GOVERNANCE_ABI, provider);
       const blockNumber = await provider.getBlockNumber();
 
@@ -136,6 +136,7 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true });
     } catch (err) {
+      res.status(500).json({ success: false });
       console.error(err);
     }
   }
