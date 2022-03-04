@@ -37,24 +37,38 @@ export default async function handler(req, res) {
 
       // fetch chain data
       const [
-        delegateVotesChanged,
         delegateChanged,
-        xinvDelegateVotesChanged,
         xinvDelegateChanged,
         // gov mills
         votesCast,
         // gov Alpha (old)
         votesCastAlpha,
       ] = await Promise.all([
-        inv.queryFilter(inv.filters.DelegateVotesChanged()),
         inv.queryFilter(inv.filters.DelegateChanged()),
-        xinv.queryFilter(xinv.filters.DelegateVotesChanged()),
         xinv.queryFilter(xinv.filters.DelegateChanged()),
         // gov mills
         governance.queryFilter(governance.filters.VoteCast()),
         // gov Alpha (old)
         governanceAlpha.queryFilter(governanceAlpha.filters.VoteCast()),
       ]);
+
+      // Split in two calls, to avoid log size issue, TODO: more scalable
+      const blockThreshold = 14048714;
+
+      const [
+        delegateVotesChangedOld,
+        xinvDelegateVotesChangedOld,
+        delegateVotesChangedLatest,
+        xinvDelegateVotesChangedLatest,
+      ] = await Promise.all([
+        inv.queryFilter(inv.filters.DelegateVotesChanged(), 0x0, blockThreshold),
+        xinv.queryFilter(xinv.filters.DelegateVotesChanged(), 0x0, blockThreshold),
+        inv.queryFilter(inv.filters.DelegateVotesChanged(), blockThreshold + 1),
+        xinv.queryFilter(xinv.filters.DelegateVotesChanged(), blockThreshold + 1),
+      ]);
+
+      const delegateVotesChanged = delegateVotesChangedOld.concat(delegateVotesChangedLatest);
+      const xinvDelegateVotesChanged = xinvDelegateVotesChangedOld.concat(xinvDelegateVotesChangedLatest);
 
       const invDelegates: { [key: string]: Delegate } = delegateVotesChanged.reduce(
         (dels: any, { args }) => {
