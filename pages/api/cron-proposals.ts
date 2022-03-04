@@ -3,7 +3,7 @@ import "source-map-support";
 import { Contract, BigNumber } from "ethers";
 import { GOVERNANCE_ABI } from "@app/config/abis";
 import { formatUnits } from "ethers/lib/utils";
-import { getNetworkConfig } from '@app/util/networks';
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
 import { GovEra } from '@app/types';
@@ -21,13 +21,9 @@ export default async function handler(req, res) {
   else {
     // run delegates cron job
     try {
-      const { chainId = '1' } = req.query;
-      const networkConfig = getNetworkConfig(chainId, false);
+      const chainId = process.env.NEXT_PUBLIC_CHAIN_ID!;
       // await client.del(`${chainId}-proposals-archived`)
-      if (!networkConfig?.governance || !networkConfig?.governanceAlpha) {
-        res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
-      }
-      const { governance: GOVERNANCE, governanceAlpha: GOV_ALPHA } = networkConfig!;
+      const { GOVERNANCE, GOVERNANCE_ALPHA: GOV_ALPHA } = getNetworkConfigConstants()!;
       // use specific AlchemyApiKey for the cron
       const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API, true);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);

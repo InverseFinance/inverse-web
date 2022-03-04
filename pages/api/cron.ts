@@ -3,7 +3,7 @@ import "source-map-support";
 import { Contract } from "ethers";
 import { GOVERNANCE_ABI, INV_ABI } from "@app/config/abis";
 import { formatUnits } from "ethers/lib/utils";
-import { getNetworkConfig } from '@app/util/networks';
+import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
 import { Delegate } from '@app/types';
@@ -21,40 +21,54 @@ export default async function handler(req, res) {
   else {
     // run delegates cron job
     try {
-      const { chainId = '1' } = req.query;
-      const networkConfig = getNetworkConfig(chainId, false);
-      if (!networkConfig?.governance || !networkConfig?.governanceAlpha) {
-        res.status(403).json({ success: false, message: `No Cron support on ${chainId} network` });
-      }
-      const { XINV, INV, governance: GOVERNANCE, governanceAlpha: GOV_ALPHA } = networkConfig!;
+      const chainId = process.env.NEXT_PUBLIC_CHAIN_ID!;
+      const { XINV, INV, GOVERNANCE, GOVERNANCE_ALPHA: GOV_ALPHA } = getNetworkConfigConstants(chainId);
+      
       // use specific AlchemyApiKey for the cron
       const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API, true);
+      
       const inv = new Contract(INV, INV_ABI, provider);
+
       const xinv = new Contract(XINV, INV_ABI, provider);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
+
       const governanceAlpha = new Contract(GOV_ALPHA, GOVERNANCE_ABI, provider);
       const blockNumber = await provider.getBlockNumber();
 
       // fetch chain data
       const [
-        delegateVotesChanged,
         delegateChanged,
-        xinvDelegateVotesChanged,
         xinvDelegateChanged,
         // gov mills
         votesCast,
         // gov Alpha (old)
         votesCastAlpha,
       ] = await Promise.all([
-        inv.queryFilter(inv.filters.DelegateVotesChanged()),
         inv.queryFilter(inv.filters.DelegateChanged()),
-        xinv.queryFilter(xinv.filters.DelegateVotesChanged()),
         xinv.queryFilter(xinv.filters.DelegateChanged()),
         // gov mills
         governance.queryFilter(governance.filters.VoteCast()),
         // gov Alpha (old)
         governanceAlpha.queryFilter(governanceAlpha.filters.VoteCast()),
       ]);
+
+      // Split in two calls, to avoid log size issue, TODO: more scalable
+      const blockThreshold = 14048714;
+
+      const [
+        delegateVotesChangedOld,
+        xinvDelegateVotesChangedOld,
+        delegateVotesChangedLatest,
+        xinvDelegateVotesChangedLatest,
+      ] = await Promise.all([
+        inv.queryFilter(inv.filters.DelegateVotesChanged(), 0x0, blockThreshold),
+        xinv.queryFilter(xinv.filters.DelegateVotesChanged(), 0x0, blockThreshold),
+        inv.queryFilter(inv.filters.DelegateVotesChanged(), blockThreshold + 1),
+        xinv.queryFilter(xinv.filters.DelegateVotesChanged(), blockThreshold + 1),
+      ]);
+
+      const delegateVotesChanged = delegateVotesChangedOld.concat(delegateVotesChangedLatest);
+      const xinvDelegateVotesChanged = xinvDelegateVotesChangedOld.concat(xinvDelegateVotesChangedLatest);
 
       const invDelegates: { [key: string]: Delegate } = delegateVotesChanged.reduce(
         (dels: any, { args }) => {
@@ -136,6 +150,7 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true });
     } catch (err) {
+      res.status(500).json({ success: false });
       console.error(err);
     }
   }
