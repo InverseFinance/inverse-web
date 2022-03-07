@@ -261,7 +261,9 @@ export const FedRevenuesPage = () => {
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <DolaMoreInfos />
                     <ShrinkableInfoMessage
-                        description='Profits are not taken in a continuous way, it needs a "Take Profit" transaction to be done, that is why revenues may seem to vary a lot from a month to another.'
+                        description={
+                            <>Profits are not taken in a continuous way, it needs a <b>"Take Profit"</b> transaction to be executed, that is why revenues may seem irregular.</>
+                        }
                     />
                     <SuppplyInfos token={TOKENS[DOLA]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
@@ -270,7 +272,6 @@ export const FedRevenuesPage = () => {
                     />
                     <SuppplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
-                        showChart={true}
                         supplies={
                             feds.map((fed, fedIndex) => {
                                 return { supply: totalRevenues[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
