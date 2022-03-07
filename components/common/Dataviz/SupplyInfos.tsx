@@ -3,6 +3,8 @@ import { shortenNumber } from '@app/util/markets'
 import { InfoMessage } from '@app/components/common/Messages'
 import { Token, NetworkIds } from '@app/types';
 import { getNetwork } from '@app/util/networks';
+import { PieChart } from '@app/components/Transparency/PieChart';
+import { useEffect, useState } from 'react';
 
 const Img = ({ src }: { src: string }) =>
     <Image mx="1" display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />
@@ -11,20 +13,32 @@ export const SuppplyInfos = ({
     title,
     supplies,
     token,
+    showChart = false,
 }: {
     title?: React.ReactNode,
     supplies: { supply: number, chainId: NetworkIds, name?: string, projectImage?: string }[],
     token?: Token,
+    showChart?: boolean,
 }) => {
+    const [chartData, setChartData] = useState<any>()
     const totalSupply = supplies.reduce((prev, curr) => prev + curr.supply, 0);
+
+    useEffect(() => {
+        setChartData(
+            supplies.map(s => {
+                return { x: s.name, y: s.supply+1, perc: totalSupply ? s.supply / totalSupply * 100 : 0 }
+            })
+        )
+    }, [supplies]);
+
     return (
         <InfoMessage
             title={
                 token ? <Flex alignItems="center">
                     <Image mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
-                    {token.symbol} Total Supplies : 
+                    {token.symbol} Total Supplies :
                 </Flex>
-                : title
+                    : title
             }
             alertProps={{ fontSize: '12px', w: 'full' }}
             description={
@@ -48,6 +62,15 @@ export const SuppplyInfos = ({
                         <Text>- Total Cross-Chain:</Text>
                         <Text>{shortenNumber(totalSupply)}</Text>
                     </Flex>
+                    {
+                        showChart &&
+                        <PieChart
+                            width={150}
+                            height={150}
+                            padding={{ left: 150, right: 150 }}
+                            data={chartData}
+                        />
+                    }
                 </>
             }
         />

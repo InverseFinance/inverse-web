@@ -4,7 +4,7 @@ import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 
-type Props = { x: string, y: number }[]
+type Props = { x: string, y: number, perc?: number }[]
 
 const defaultGraphicData = [{ y: 100 }]; // Data used to make the animate prop work
 
@@ -28,14 +28,18 @@ class CustomLabel extends React.Component {
 
 CustomLabel.defaultEvents = VictoryTooltip.defaultEvents;
 
+const defaultPadding = { left: 100, right: 100, top: 50, bottom: 50 };
+
 export const PieChart = ({
     data,
     width = 250,
     height = 250,
+    padding = defaultPadding,
 }: {
     data: Props,
     width?: number,
     height?: number,
+    padding?: { left? :number, right?: number, top?: number, bottom?: number },
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
 
@@ -73,7 +77,7 @@ export const PieChart = ({
                     }
                 }} />
                 <VictoryPie
-                    padding={{ left: 100, right: 100, top: 50, bottom: 50 }}
+                    padding={{ ...defaultPadding, ...padding }}
                     theme={VictoryTheme.material}
                     data={chartData}
                     labelComponent={<CustomLabel />}
