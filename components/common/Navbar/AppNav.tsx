@@ -446,8 +446,8 @@ export const AppNav = ({ active }: { active?: string }) => {
       />
       <Flex
         w="99vw"
-        backgroundColor="primary.900"
-        borderColor="primary.800"
+        backgroundColor="navBarBackground"
+        borderColor="navBarBorderColor"
         borderBottomWidth={showMobileNav ? 0 : 1}
         p={4}
         justify="space-between"

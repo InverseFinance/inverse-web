@@ -8,7 +8,7 @@ import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
 import { useRouter } from 'next/router';
-import { ANNOUNCEMENT_BAR_BORDER } from '@app/theme';
+import { ANNOUNCEMENT_BAR_BORDER } from '@app/variables/theme';
 
 const XinvMigrationMessage = () => {
   const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL

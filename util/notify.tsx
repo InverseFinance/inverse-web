@@ -1,7 +1,7 @@
 import { UseToastOptions, createStandaloneToast } from '@chakra-ui/react'
 import { ToastId } from '@chakra-ui/react';
 import { Notification } from '@app/components/common/Notification';
-import theme from '@app/theme';
+import theme from '@app/variables/theme';
 import { CustomToastOptions } from '@app/types';
 
 const toast = createStandaloneToast({ theme })
