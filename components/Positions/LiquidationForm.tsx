@@ -16,7 +16,7 @@ import { useLiquidationIncentive } from '@app/hooks/usePositions'
 import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 
 const formattedInfo = (bal: number | string, priceUsd: number) => {
-    return <b>{shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
+    return <b>{shortenNumber(parseFloat(bal), 4, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
 }
 
 export const LiquidationForm = ({
@@ -97,6 +97,7 @@ export const LiquidationForm = ({
     const inputProps = { fontSize: '14px' }
     const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: false }
     const collateralAssetInputProps = { tokens: seizeList, balances, showBalance: false }
+    const isSubmitDisabled = !isApproved || (liquidatorRepayTokenBal < parseFloat(repayAmount))
 
     return <Stack spacing="5" pt="2" direction="column" w="full" justify="center" alignItems="center">
         <Stack spacing="5">
@@ -145,7 +146,7 @@ export const LiquidationForm = ({
                 !isApproved &&
                 <ApproveButton tooltipMsg="" signer={library?.getSigner()} address={repayToken.address} toAddress={borrowedDetails.ctoken} isDisabled={isApproved} />
             }
-            <SubmitButton onClick={async () => handleLiquidation()} refreshOnSuccess={true} disabled={!isApproved}>
+            <SubmitButton onClick={async () => handleLiquidation()} refreshOnSuccess={true} disabled={isSubmitDisabled}>
                 Liquidate
             </SubmitButton>
         </Stack>
