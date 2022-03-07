@@ -233,7 +233,7 @@ export const AnchorSupplied = () => {
             }}
           >
             <FormControl w='full' justifyContent="flex-end" display='flex' alignItems='center'>
-              <Switch size="sm" colorScheme="purple" isChecked={!!isCollateral} />
+              <Switch size="sm" colorScheme="primary" isChecked={!!isCollateral} />
             </FormControl>
           </Stack>
         )
