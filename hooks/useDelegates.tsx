@@ -12,10 +12,8 @@ type TopDelegates = {
   delegates: Delegate[]
 }
 
-export const useDelegates = (): SWR & Delegates => {
-  const { chainId } = useWeb3React<Web3Provider>()
-
-  const { data, error } = useCustomSWR(`/api/delegates`, fetcher)
+export const useDelegates = (filter?: string): SWR & Delegates => {
+  const { data, error } = useCustomSWR(`/api/delegates?filter=${filter||''}`, fetcher)
 
   return {
     delegates: data?.delegates,
