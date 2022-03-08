@@ -16,7 +16,7 @@ import { getBnToNumber, toApr, toApy } from '@app/util/markets';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.3`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.6`;
 
   try {
     const {
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const allMarkets: string[] = [...await comptroller.getAllMarkets()];
-    const addresses = allMarkets.filter(address => !!UNDERLYING[address])
+    const addresses = allMarkets.filter(address => !!UNDERLYING[address]).filter(ad => ad.toLowerCase() !== '0xA978D807614c3BFB0f90bC282019B2898c617880'.toLowerCase())
 
     const contracts = addresses
       .filter((address: string) => address !== XINV && address !== XINV_V1)
