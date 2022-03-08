@@ -86,7 +86,7 @@ export const getNetworkConfigConstants = (
     const DOLA_PAYROLL = config.DOLA_PAYROLL;
     const DEPLOYER = config.DEPLOYER;
 
-    const ANCHOR_TOKENS = Object.keys(UNDERLYING).filter(ad => ![XINV, XINV_V1].includes(ad)).filter(ad => ad !== '0xA978D807614c3BFB0f90bC282019B2898c617880')
+    const ANCHOR_TOKENS = Object.keys(UNDERLYING).filter(ad => ![XINV, XINV_V1].includes(ad));
     const ANCHOR_CHAIN_COIN = Object.entries(UNDERLYING).find(([key, token]) => !token.address)![0];
     const ANCHOR_DOLA = Object.entries(UNDERLYING).find(([key, token]) => token.address === process.env.NEXT_PUBLIC_DOLA)![0];
 
