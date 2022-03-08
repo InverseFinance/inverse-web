@@ -25,6 +25,7 @@ import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
+import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -66,13 +67,23 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
+  const [notConnected, setNotConnected] = useState(false);
 
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
     [XINV, 'delegates', account],
   ])
 
-  if (!data) { return <></> }
+  useDualSpeedEffect(() => {
+    setNotConnected(!account)
+  }, [account], !account, 1000, 0);
+
+  if (notConnected) {
+    return <Container label="Wallet Not Connected">
+      <InfoMessage description="Please Connect your wallet" />
+    </Container>
+  }
+  else if (!data) { return <></> }
 
   const [invDelegate, xinvDelegate] = data;
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
