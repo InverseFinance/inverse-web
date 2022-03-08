@@ -13,3 +13,9 @@ export const getRemoteAbi = async (address: string) => {
     const res = await fetcher(`${baseUrl}${path}`);
     return res?.status === "1" ? res?.result : '[]'
 }
+
+export const getGasPrice = async () => {
+    const path = `?module=gastracker&action=gasoracle&apikey=A6SD2E7KYV3F7HR2KY88TH7A4H89JCFNNS`
+    const res = await fetcher(`${baseUrl}${path}`);
+    return res?.status === "1" ? res?.result : '{"result":{"SafeGasPrice":"0","ProposeGasPrice":"0","FastGasPrice":"0"}}'
+}

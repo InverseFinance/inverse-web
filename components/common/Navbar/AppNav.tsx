@@ -44,6 +44,8 @@ import { InjectedConnector } from '@web3-react/injected-connector';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import useFantomBalance from '@app/hooks/useFantomBalance'
+import { useCustomSWR } from '@app/hooks/useCustomSWR'
+import { getGasPrice } from '@app/util/etherscan'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -75,8 +77,11 @@ const NetworkBadge = ({
   isWrongNetwork: boolean,
   showWrongNetworkModal: () => void
 }) => {
+  const { data: gasData } = useCustomSWR('gas-tracker', getGasPrice);
+
   const network = getNetwork(chainId || '');
   const bgColor = network?.bgColor || 'primary.800';
+
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
