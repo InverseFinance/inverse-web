@@ -50,6 +50,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
   const [bestRoute, setBestRoute] = useState<Swappers | ''>('')
   const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.crv)
+  const [manualChosenRoute, setManualChosenRoute] = useState<Swappers | ''>('')
   const [swapDir, setSwapDir] = useState<string>(fromToken.symbol + toToken.symbol)
   const [canUseStabilizer, setCanUseStabilizer] = useState(true);
   const [noStabilizerLiquidity, setNoStabilizerLiquidity] = useState(false);
@@ -92,16 +93,21 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromAmount, fromToken, toToken, swapDir], 500)
+  }, [library, fromAmount, fromToken, toToken, swapDir], 500);
+
+  useEffect(() => {
+    setManualChosenRoute('');
+  }, [fromAmount, fromToken, toAmount, toToken]);
 
   useEffect(() => {
     if (!library || !exRates[Swappers.crv][swapDir]) { return }
     const newBestRoute = getBestRoute();
-    if (bestRoute === '' && newBestRoute) {
+
+    if (bestRoute === '' && newBestRoute || (newBestRoute && chosenRoute !==  newBestRoute && !manualChosenRoute)) {
       setChosenRoute(newBestRoute);
     }
     setBestRoute(newBestRoute);
-  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer])
+  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer]);
 
   // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
@@ -205,6 +211,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   }
 
   const handleRouteChange = (newValue: Swappers) => {
+    setManualChosenRoute(newValue);
     setChosenRoute(newValue);
   }
   const balances = { ...balancesWithCache, ...freshBalances }
