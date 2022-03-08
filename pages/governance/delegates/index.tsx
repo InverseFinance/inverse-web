@@ -33,13 +33,13 @@ export const SupportersTable = ({
     {
       field: 'address',
       label: 'Supporter',
-      header: ({ ...props }) => <Flex minWidth={'130px'} {...props} />,
+      header: ({ ...props }) => <Flex minWidth={'200px'} {...props} />,
       value: ({ address }: Supporter, i: number) => {
         const { addressName } = useNamedAddress(address, chainId);
         return (
           (
-            <Stack direction="row" align="center" spacing={4} minWidth={'130px'}>
-              <Stack direction="row" align="center">
+            <Stack direction="row" align="flex-start" spacing={4} minWidth={'200px'}>
+              <Stack direction="row" align="flex-start">
                 <Avatar address={address} sizePx={24} />
                 <Flex>{addressName}</Flex>
               </Stack>
@@ -63,8 +63,8 @@ export const SupportersTable = ({
       {
         field: 'inv',
         label: 'INV',
-        header: ({ ...props }) => <Flex justify="flex-end" minWidth={'50px'} {...props} />,
-        value: ({ inv }: Supporter) => <Flex justify="flex-end" minWidth={'50px'}>
+        header: ({ ...props }) => <Flex justify="center" minWidth={'50px'} {...props} />,
+        value: ({ inv }: Supporter) => <Flex justify="center" minWidth={'50px'}>
           {shortenNumber(inv, 2)}
         </Flex>,
       }
@@ -72,20 +72,20 @@ export const SupportersTable = ({
     columns.splice(2, 0, {
       field: 'xinv',
       label: 'Staked INV',
-      header: ({ ...props }) => <Flex justify="flex-end" minWidth={'80px'} {...props} />,
-      value: ({ xinv }: Supporter) => <Flex justify="flex-end" minWidth={'80px'}>
+      header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
+      value: ({ xinv }: Supporter) => <Flex justify="center" minWidth={'80px'}>
         {shortenNumber(xinv, 2)}
       </Flex>,
     })
   }
 
   const genkidama = delegators.reduce((prev, curr) => prev + curr.delegatedPower, 0);
-  const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama/delegate.votingPower * 100 : 0
+  const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama/delegate.votingPower * 100 : 0;
 
   return (
     <Container
-      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}`}
-      description={`Total Power Received Thanks to Supporters: ${shortenNumber(genkidama, 2)} => ${shortenNumber(genkidamaPerc, 2)}%`}
+      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''} - Updated Every 15 min`}
+      description={`Total Power Received Thanks to Supporters: ${shortenNumber(genkidama, 2)} => ${shortenNumber(genkidamaPerc, 2)}%${genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}`}
     >
       <Table
         columns={columns}
@@ -159,14 +159,14 @@ const DelegatesTable = () => {
 
   if (isLoading) {
     return (
-      <Container label="Delegate Top 100" description="Top delegates by voting weight">
+      <Container label="Delegate Top 100 - Updated every 15 min" description="Top delegates by voting weight">
         <SkeletonBlob skeletonHeight={6} noOfLines={4} />
       </Container>
     )
   }
 
   return (
-    <Container label="Delegate Top 100" description="Top delegates by voting weight">
+    <Container label="Delegate Top 100 - Updated every 15 min" description="Top delegates by voting weight">
       <Table
         columns={columns}
         items={delegates.slice(0, 100)}

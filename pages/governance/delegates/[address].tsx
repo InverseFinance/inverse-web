@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { Box, Divider, Flex, HStack, Image, Stack, Text, useMediaQuery, VStack } from '@chakra-ui/react'
+import { Box, Divider, Flex, Image, Stack, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 import { Avatar } from '@app/components/common/Avatar'
 import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import Container from '@app/components/common/Container'
-import { DelegatorsPreview, VotingWallet } from '@app/components/Governance'
+import { VotingWallet } from '@app/components/Governance'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
-import { useDelegates, useTopDelegates } from '@app/hooks/useDelegates'
+import { useDelegates, useTopDelegates, useVotingPower } from '@app/hooks/useDelegates'
 import { namedAddress, shortenAddress } from '@app/util'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
@@ -24,7 +24,6 @@ import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { SupportersTable } from '.'
-import { useExchangeRates } from '@app/hooks/useExchangeRates'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
@@ -62,6 +61,7 @@ const SOCIALS = [
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates(address)
+  const { votingPower } = useVotingPower(address);
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
   const { INV, XINV } = getNetworkConfigConstants(chainId)
@@ -79,7 +79,8 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
 
   const isSelf = account === address;
 
-  const delegate = delegates && delegates[address] || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
+  const cachedDelegate = delegates && delegates[address];
+  const delegate = cachedDelegate && { ...cachedDelegate, votingPower } || { address, votingPower, votes: [], delegators: [], ensName: '' }
 
   if (!address || isLoading || !delegate) {
     return (
@@ -110,7 +111,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         href={`https://etherscan.io/address/${address}`}
         image={<Avatar sizePx={50} address={address} />}
         right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">
-          VP {shortenNumber(delegate?.votingPower)} - {`Rank ${rank}`}
+          VP {shortenNumber(votingPower)} - {`Rank ${rank}`}
         </Text>}
       >
         <Box w="full">
@@ -149,12 +150,15 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
 }
 
 export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<Delegate>, supporters: string[] }) => {
-  const { exchangeRates } = useExchangeRates();
   const items = supporters.map((d) => ({
     address: d,
   }));
 
   const { INV, XINV } = getNetworkConfigConstants();
+
+  const { data: exRateBn } = useEtherSWR(
+    [XINV, 'exchangeRateStored']
+  )
 
   const { data: invBalances } = useEtherSWR([
     ...items.map(item => [INV, 'balanceOf', item.address]),
@@ -164,7 +168,7 @@ export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<De
     ...items.map(item => [XINV, 'balanceOf', item.address]),
   ]);
 
-  const exRate = exchangeRates && exchangeRates[XINV] ? getBnToNumber(exchangeRates[XINV]) : 0;
+  const exRate = exRateBn ? getBnToNumber(exRateBn) : 0;
 
   const itemsWithVotingPower = items.map((item, i) => {
     const invBalance = invBalances && invBalances[i] ? getBnToNumber(invBalances[i]) : 0;
@@ -220,9 +224,6 @@ export const DelegateView = () => {
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
           </Flex>
-          {/* <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-            <DelegatorsPreview address={address} />
-          </Flex> */}
         </Flex>
       </Flex>
     </Layout>
