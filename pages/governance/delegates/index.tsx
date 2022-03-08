@@ -14,6 +14,52 @@ import { Web3Provider } from '@ethersproject/providers';
 import Head from 'next/head'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
 
+export const SupportersTable = ({ delegators }: { delegators: any[] }) => {
+  const { chainId } = useWeb3React<Web3Provider>()
+
+  const router = useRouter()
+
+  const columns = [
+    {
+      field: 'address',
+      label: 'Supporter',
+      header: ({ ...props }) => <Flex minWidth={64} {...props} />,
+      value: ({ address }: Delegate, i: number) => {
+        const { addressName } = useNamedAddress(address, chainId);
+        return (
+          (
+            <Stack direction="row" align="center" spacing={4} minWidth={64}>
+              <Stack direction="row" align="center">
+                <Avatar address={address} sizePx={24} />
+                <Flex>{addressName}</Flex>
+              </Stack>
+            </Stack>
+          )
+        )
+      },
+    },
+    {
+      field: 'votingPower',
+      label: 'Votes',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
+      value: () => <Flex justify="flex-end" minWidth={32}>
+        
+      </Flex>,
+    },
+  ]
+
+  return (
+    <Container label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}`}>
+      <Table
+        columns={columns}
+        items={delegators}
+        keyName={'address'}
+        onClick={({ address }: Delegate) => router.push(`/governance/delegates/${address}`)}
+      />
+    </Container>
+  )
+}
+
 const DelegatesTable = () => {
   const { chainId } = useWeb3React<Web3Provider>()
 

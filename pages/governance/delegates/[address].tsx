@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Divider, Flex, Image, Stack, Text, useMediaQuery, VStack } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Image, Stack, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 import { Avatar } from '@app/components/common/Avatar'
 import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import Container from '@app/components/common/Container'
@@ -14,7 +14,7 @@ import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@app/components/common/Messages'
-import { NetworkIds } from '@app/types'
+import { Delegate, NetworkIds } from '@app/types'
 import { SignatureAnim } from '@app/components/common/Animation'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -23,6 +23,7 @@ import { useEnsProfile } from '@app/hooks/useEnsProfile'
 import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
+import { SupportersTable } from '.'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -58,7 +59,7 @@ const SOCIALS = [
 
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
-  const { delegates, isLoading } = useDelegates()
+  const { delegates, isLoading } = useDelegates(address)
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
   const { INV, XINV } = getNetworkConfigConstants(chainId)
@@ -97,42 +98,58 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
     alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
   }
 
+  const supporters = (delegate?.delegators||[]).filter(ad => ad !== address);
+
   return (
-    <Container
-      label={namedAddress(address, chainId, ensName)}
-      description={isLargerThan780 ? address : shortenAddress(address)}
-      href={`https://etherscan.io/address/${address}`}
-      image={<Avatar sizePx={50} address={address} />}
-      right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">{`Rank ${rank}`}</Text>}
-    >
-      <Box w="full">
-        <Flex alignItems="center">
-          <SignatureAnim height={40} width={40} loop={true} />
-          <Text ml="3" display="inline-block" fontSize="20" fontWeight="bold">
-            {isSelf ? 'Self-' : ''}Delegation
-          </Text>
-        </Flex>
+    <VStack>
+      <Container
+        label={namedAddress(address, chainId, ensName)}
+        description={isLargerThan780 ? address : shortenAddress(address)}
+        href={`https://etherscan.io/address/${address}`}
+        image={<Avatar sizePx={50} address={address} />}
+        right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">{`Rank ${rank}`}</Text>}
+      >
+        <Box w="full">
+          <Flex alignItems="center">
+            <SignatureAnim height={40} width={40} loop={true} />
+            <Text ml="3" display="inline-block" fontSize="20" fontWeight="bold">
+              {isSelf ? 'Self-' : ''}Delegation
+            </Text>
+          </Flex>
 
-        <Divider mt="3" mb="5" />
-        {hasEnsProfile && <VStack spacing="5" mb="5">
-          {ensProfile?.description && <i>&laquo; {ensProfile.description.replace(/"/g, '')} &raquo; - {ensName}</i>}
-          {
-            (ensProfile?.discord || ensProfile?.twitter || ensProfile?.github)
-            && <Stack direction="row" spacing={5} align="center">
-              {SOCIALS
-                .filter(({ type }) => !!ensProfile[type])
-                .map(({ href, image, type }, i) => (
-                  <Link isExternal key={i} href={`${ensProfile[type]?.includes('http') ? '' : href}${ensProfile[type]}`}>
-                    <Image src={image} />
-                  </Link>
-                ))}
-            </Stack>
-          }
-        </VStack>}
-        {delegationCases[delegationCase]}
+          <Divider mt="3" mb="5" />
+          {hasEnsProfile && <VStack spacing="5" mb="5">
+            {ensProfile?.description && <i>&laquo; {ensProfile.description.replace(/"/g, '')} &raquo; - {ensName}</i>}
+            {
+              (ensProfile?.discord || ensProfile?.twitter || ensProfile?.github)
+              && <Stack direction="row" spacing={5} align="center">
+                {SOCIALS
+                  .filter(({ type }) => !!ensProfile[type])
+                  .map(({ href, image, type }, i) => (
+                    <Link isExternal key={i} href={`${ensProfile[type]?.includes('http') ? '' : href}${ensProfile[type]}`}>
+                      <Image src={image} />
+                    </Link>
+                  ))}
+              </Stack>
+            }
+          </VStack>}
+          {delegationCases[delegationCase]}
 
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+      {
+        supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
+      }
+    </VStack>
+  )
+}
+
+export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<Delegate>, supporters: string[] }) => {
+  const items = supporters.map((d) => ({
+    address: d,
+  }));
+  return (
+    <SupportersTable delegators={items} />
   )
 }
 
