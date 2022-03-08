@@ -24,6 +24,8 @@ import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { SupportersTable } from '.'
+import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { getBnToNumber, shortenNumber } from '@app/util/markets'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -98,7 +100,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
     alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
   }
 
-  const supporters = (delegate?.delegators||[]).filter(ad => ad !== address);
+  const supporters = (delegate?.delegators || []).filter(ad => ad !== address);
 
   return (
     <VStack>
@@ -107,7 +109,9 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         description={isLargerThan780 ? address : shortenAddress(address)}
         href={`https://etherscan.io/address/${address}`}
         image={<Avatar sizePx={50} address={address} />}
-        right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">{`Rank ${rank}`}</Text>}
+        right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">
+          VP {shortenNumber(delegate?.votingPower)} - {`Rank ${rank}`}
+        </Text>}
       >
         <Box w="full">
           <Flex alignItems="center">
@@ -145,11 +149,37 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
 }
 
 export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<Delegate>, supporters: string[] }) => {
+  const { exchangeRates } = useExchangeRates();
   const items = supporters.map((d) => ({
     address: d,
   }));
+
+  const { INV, XINV } = getNetworkConfigConstants();
+
+  const { data: invBalances } = useEtherSWR([
+    ...items.map(item => [INV, 'balanceOf', item.address]),
+  ]);
+
+  const { data: xinvBalances } = useEtherSWR([
+    ...items.map(item => [XINV, 'balanceOf', item.address]),
+  ]);
+
+  const exRate = exchangeRates && exchangeRates[XINV] ? getBnToNumber(exchangeRates[XINV]) : 0;
+
+  const itemsWithVotingPower = items.map((item, i) => {
+    const invBalance = invBalances && invBalances[i] ? getBnToNumber(invBalances[i]) : 0;
+    const xinvBalance = xinvBalances && xinvBalances[i] ? getBnToNumber(xinvBalances[i]) : 0;
+    const delegatedPower = invBalance + xinvBalance * exRate;
+    return {
+      ...item,
+      inv: invBalance,
+      xinv: xinvBalance * exRate,
+      delegatedPower,
+    }
+  });
+
   return (
-    <SupportersTable delegators={items} />
+    <SupportersTable delegate={delegate} delegators={itemsWithVotingPower} />
   )
 }
 
@@ -190,9 +220,9 @@ export const DelegateView = () => {
           <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <VotingWallet address={address} onNewDelegate={(newDelegate) => setNewlyChosenDelegate(newDelegate)} />
           </Flex>
-          <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+          {/* <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
             <DelegatorsPreview address={address} />
-          </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
     </Layout>

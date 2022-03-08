@@ -1,4 +1,4 @@
-import { Flex, Stack } from '@chakra-ui/react'
+import { Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import { Avatar } from '@app/components/common/Avatar'
 import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import Container from '@app/components/common/Container'
@@ -13,9 +13,19 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import Head from 'next/head'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
+import { shortenNumber } from '@app/util/markets'
 
-export const SupportersTable = ({ delegators }: { delegators: any[] }) => {
+type Supporter = { address: string, inv: number, xinv: number, delegatedPower: number }
+
+export const SupportersTable = ({
+  delegate,
+  delegators,
+}: {
+  delegate: Partial<Delegate>,
+  delegators: Supporter[],
+}) => {
   const { chainId } = useWeb3React<Web3Provider>()
+  const [isSmaller] = useMediaQuery('(max-width: 500px)')
 
   const router = useRouter()
 
@@ -23,12 +33,12 @@ export const SupportersTable = ({ delegators }: { delegators: any[] }) => {
     {
       field: 'address',
       label: 'Supporter',
-      header: ({ ...props }) => <Flex minWidth={64} {...props} />,
-      value: ({ address }: Delegate, i: number) => {
+      header: ({ ...props }) => <Flex minWidth={'130px'} {...props} />,
+      value: ({ address }: Supporter, i: number) => {
         const { addressName } = useNamedAddress(address, chainId);
         return (
           (
-            <Stack direction="row" align="center" spacing={4} minWidth={64}>
+            <Stack direction="row" align="center" spacing={4} minWidth={'130px'}>
               <Stack direction="row" align="center">
                 <Avatar address={address} sizePx={24} />
                 <Flex>{addressName}</Flex>
@@ -39,21 +49,50 @@ export const SupportersTable = ({ delegators }: { delegators: any[] }) => {
       },
     },
     {
-      field: 'votingPower',
-      label: 'Votes',
-      header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
-      value: () => <Flex justify="flex-end" minWidth={32}>
-        
+      field: 'delegatedPower',
+      label: 'Power',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={'64px'} {...props} />,
+      value: ({ delegatedPower }: Supporter) => <Flex justify="flex-end" minWidth={'64px'}>
+        {shortenNumber(delegatedPower, 2)}
       </Flex>,
     },
-  ]
+  ];
+
+  if (!isSmaller) {
+    columns.splice(1, 0,
+      {
+        field: 'inv',
+        label: 'INV',
+        header: ({ ...props }) => <Flex justify="flex-end" minWidth={'50px'} {...props} />,
+        value: ({ inv }: Supporter) => <Flex justify="flex-end" minWidth={'50px'}>
+          {shortenNumber(inv, 2)}
+        </Flex>,
+      }
+    );
+    columns.splice(2, 0, {
+      field: 'xinv',
+      label: 'Staked INV',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={'80px'} {...props} />,
+      value: ({ xinv }: Supporter) => <Flex justify="flex-end" minWidth={'80px'}>
+        {shortenNumber(xinv, 2)}
+      </Flex>,
+    })
+  }
+
+  const genkidama = delegators.reduce((prev, curr) => prev + curr.delegatedPower, 0);
+  const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama/delegate.votingPower * 100 : 0
 
   return (
-    <Container label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}`}>
+    <Container
+      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}`}
+      description={`Total Power Received Thanks to Supporters: ${shortenNumber(genkidama, 2)} => ${shortenNumber(genkidamaPerc, 2)}%`}
+    >
       <Table
         columns={columns}
         items={delegators}
         keyName={'address'}
+        defaultSort="delegatedPower"
+        defaultSortDir="desc"
         onClick={({ address }: Delegate) => router.push(`/governance/delegates/${address}`)}
       />
     </Container>
