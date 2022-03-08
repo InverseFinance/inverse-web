@@ -46,6 +46,8 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import useFantomBalance from '@app/hooks/useFantomBalance'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
 import { getGasPrice } from '@app/util/etherscan'
+import { GasInfo } from '@app/components/common/Gas'
+import { formatUnits } from 'ethers/lib/utils';
 
 const NAV_ITEMS = MENUS.nav
 
@@ -77,7 +79,9 @@ const NetworkBadge = ({
   isWrongNetwork: boolean,
   showWrongNetworkModal: () => void
 }) => {
-  const { data: gasData } = useCustomSWR('gas-tracker', getGasPrice);
+  const { data } = useEtherSWR(['getGasPrice']);
+
+  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
 
   const network = getNetwork(chainId || '');
   const bgColor = network?.bgColor || 'primary.800';
@@ -87,6 +91,12 @@ const NetworkBadge = ({
       cursor={isWrongNetwork ? 'pointer' : 'default'}
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bgColor={bgColor}>
       <NetworkItem chainId={chainId} />
+      <Flex direction="row" color="red" ml="1">
+        {
+          !!gasPrice &&
+          <GasInfo value={gasPrice} />
+        }
+      </Flex>
     </NavBadge>
   )
 }
@@ -110,7 +120,7 @@ const INVBalance = () => {
   }, [data, userAddress], !userAddress, 1000)
 
   const goToSupply = () => {
-    if(router.pathname === '/anchor') {
+    if (router.pathname === '/anchor') {
       const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
       document.dispatchEvent(customEvent);
     } else {
