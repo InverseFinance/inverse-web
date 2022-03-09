@@ -87,7 +87,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   else if (!data) { return <></> }
 
   const [invDelegate, xinvDelegate, pageDelegate] = data;
-  
+
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
@@ -152,10 +152,14 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
             }
           </VStack>}
           {
-            pageDelegate === address ? 
-            delegationCases[delegationCase] 
-            :
-            <InfoMessage description={`${namedAddress(address, chainId, ensName)} is Delegating to ${pageDelegate[0] && isAddress(pageDelegate) ? namedAddress(pageDelegate, chainId) : 'Nobody'}`} />
+            pageDelegate === address || (!pageDelegate || pageDelegate === '0x0000000000000000000000000000000000000000') ?
+              delegationCases[delegationCase]
+              :
+              <InfoMessage description={
+                <>
+                  {namedAddress(address, chainId, ensName)} is Delegating to {pageDelegate && isAddress(pageDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/'+pageDelegate}>{namedAddress(pageDelegate, chainId)}</Link> : 'Nobody'}
+                </>
+              } />
           }
         </Box>
       </Container>

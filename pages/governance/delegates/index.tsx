@@ -80,7 +80,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
     {
       field: 'hasVotedWith',
       label: 'Power',
-      tooltip: "Delegate's Voting Power at the time of the Proposal creation that was used in case of voting",
+      tooltip: "Delegate's Voting Power at the time of the Proposal creation that was used when voting",
       header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
       value: ({ hasVoted, hasVotedWith }: DelegateVote) => <Flex fontWeight="extrabold" justify="center" minWidth={'70px'}>
         {hasVoted ? shortenNumber(hasVotedWith) : '-'}
