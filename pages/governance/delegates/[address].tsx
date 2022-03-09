@@ -72,6 +72,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
     [XINV, 'delegates', account],
+    [INV, 'delegates', address],
   ])
 
   useDualSpeedEffect(() => {
@@ -85,7 +86,8 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   }
   else if (!data) { return <></> }
 
-  const [invDelegate, xinvDelegate] = data;
+  const [invDelegate, xinvDelegate, pageDelegate] = data;
+  
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
@@ -149,8 +151,12 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
               </Stack>
             }
           </VStack>}
-          {delegationCases[delegationCase]}
-
+          {
+            pageDelegate === address ? 
+            delegationCases[delegationCase] 
+            :
+            <InfoMessage description={`${namedAddress(address, chainId, ensName)} is Delegating to ${pageDelegate[0] && isAddress(pageDelegate) ? namedAddress(pageDelegate, chainId) : 'Nobody'}`} />
+          }
         </Box>
       </Container>
       {

@@ -98,7 +98,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
 
   return (
     <Container
-      label="Delegate's Voting Activity"
+      label="Voting Activity"
       description="The proposal list is Updated every 15 min"
       contentProps={{ maxW: '90vw', overflowX: 'auto' }}
       collapsable={true}
