@@ -23,7 +23,7 @@ import { useEnsProfile } from '@app/hooks/useEnsProfile'
 import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
-import { SupportersTable } from '.'
+import { PastVotesTable, SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
@@ -155,6 +155,9 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       </Container>
       {
         supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
+      }
+      {
+        delegate?.address && <PastVotesTable delegate={delegate} />
       }
     </VStack>
   )
