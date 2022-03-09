@@ -101,6 +101,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       label="Delegate's Voting Activity"
       description="The proposal list is Updated every 15 min"
       contentProps={{ maxW: '90vw', overflowX: 'auto' }}
+      collapsable={true}
     >
       <Table
         columns={columns}
@@ -189,6 +190,7 @@ export const SupportersTable = ({
     <Container
       w='full'
       position="relative"
+      collapsable={true}
       label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length && ` (${nbActive} with power)`} - Updated Every 15 min`}
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
