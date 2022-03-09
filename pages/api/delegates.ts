@@ -6,6 +6,7 @@ import { NetworkIds } from '@app/types';
 const client = getRedisClient();
 
 export default async function handler(req, res) {
+  const { filter = '' } = req.query;
   try {
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
@@ -21,10 +22,12 @@ export default async function handler(req, res) {
       data = JSON.parse(data)
     }
 
+    const delegates = filter ? { [filter]: data.data[filter] } : data.data
+
     res.status(200).json( {
       blockNumber: data.blockNumber,
       timestamp: data.timestamp,
-      delegates: data.data,
+      delegates: delegates,
     });
   } catch (err) {
     console.error(err);
