@@ -191,7 +191,7 @@ export const SupportersTable = ({
       w='full'
       position="relative"
       collapsable={true}
-      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length && ` (${nbActive} with power)`} - Updated Every 15 min`}
+      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length  ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
           <Text fontSize="12px" color="secondaryTextColor">
