@@ -74,6 +74,7 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                                     ml="1"
                                     fontWeight="bold"
                                     display="inline-block"
+                                    color="secondary"
                                     href={{
                                         pathname: `/governance/propose`,
                                         query: { proposalLinkData: JSON.stringify({ title: 'Draft', description: 'Draft content', actions: [] }) }
