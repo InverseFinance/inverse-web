@@ -23,7 +23,7 @@ import { useEnsProfile } from '@app/hooks/useEnsProfile'
 import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
-import { SupportersTable } from '.'
+import { PastVotesTable, SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
@@ -72,6 +72,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
     [XINV, 'delegates', account],
+    [INV, 'delegates', address],
   ])
 
   useDualSpeedEffect(() => {
@@ -85,7 +86,8 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   }
   else if (!data) { return <></> }
 
-  const [invDelegate, xinvDelegate] = data;
+  const [invDelegate, xinvDelegate, pageDelegate] = data;
+
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
@@ -149,12 +151,23 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
               </Stack>
             }
           </VStack>}
-          {delegationCases[delegationCase]}
-
+          {
+            pageDelegate === address || (!pageDelegate || pageDelegate === '0x0000000000000000000000000000000000000000') ?
+              delegationCases[delegationCase]
+              :
+              <InfoMessage description={
+                <>
+                  {namedAddress(address, chainId, ensName)} is Delegating to {pageDelegate && isAddress(pageDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/'+pageDelegate}>{namedAddress(pageDelegate, chainId)}</Link> : 'Nobody'}
+                </>
+              } />
+          }
         </Box>
       </Container>
       {
         supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
+      }
+      {
+        delegate?.address && <PastVotesTable delegate={delegate} />
       }
     </VStack>
   )

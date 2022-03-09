@@ -60,7 +60,7 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
   }
 }
 
-const StatusBadge = ({ status }: { status: ProposalStatus }) => (
+export const StatusBadge = ({ status }: { status: ProposalStatus }) => (
   <Badge colorScheme={badgeColors[status]} pl={1} pr={1} fontSize="11px" fontWeight="extrabold">
     <Flex w={16} justify="center">
       {status}
@@ -68,7 +68,7 @@ const StatusBadge = ({ status }: { status: ProposalStatus }) => (
   </Badge>
 )
 
-const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
+export const EraBadge = ({ id, era }: { id: number, era: GovEra }) => (
   <Badge colorScheme={badgeColors[era]} pl={1} pr={1} w="fit-content" fontSize="11px" fontWeight="extrabold">
     <Flex justify="center">
       {`#${id.toString().padStart(3, '0')} - ${era} ERA`}

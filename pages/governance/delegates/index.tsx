@@ -1,4 +1,4 @@
-import { Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Flex, HStack, Stack, Switch, Text, useMediaQuery } from '@chakra-ui/react'
 import { Avatar } from '@app/components/common/Avatar'
 import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import Container from '@app/components/common/Container'
@@ -7,15 +7,127 @@ import { AppNav } from '@app/components/common/Navbar'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
 import { useTopDelegates } from '@app/hooks/useDelegates'
-import { Delegate } from '@app/types'
+import { Delegate, Proposal, ProposalStatus } from '@app/types'
 import { useRouter } from 'next/dist/client/router'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import Head from 'next/head'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
-import { shortenNumber } from '@app/util/markets'
+import { getBnToNumber, shortenNumber } from '@app/util/markets'
+import { useProposals } from '@app/hooks/useProposals'
+import useEtherSWR from '@app/hooks/useEtherSWR'
+import { getGovernanceAddress } from '@app/util/contracts';
+import { EraBadge, StatusBadge } from '@app/components/Governance'
+import { useState } from 'react'
 
 type Supporter = { address: string, inv: number, xinv: number, delegatedPower: number }
+type DelegateVote = Proposal & { hasVoted: boolean, hasVotedFor: boolean, hasVotedWith: number }
+
+export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) => {
+  const router = useRouter();
+  const { proposals } = useProposals();
+
+  const { data } = useEtherSWR([
+    ...proposals.map(p => {
+      return [getGovernanceAddress(p.era), 'getReceipt', p.id, delegate.address];
+    })
+  ]);
+
+  proposals.sort((a, b) => b.proposalNum - a.proposalNum)
+
+  const proposalsWithVotes = proposals.map((p, i) => {
+    return {
+      ...p,
+      hasVoted: data && data[i] && data[i][0],
+      hasVotedFor: data && data[i] && data[i][0] && data[i][1],
+      hasVotedWith: data && data[i] && data[i][2] && getBnToNumber(data[i][2]),
+    }
+  });
+
+  const columns = [
+    {
+      field: 'proposalNum',
+      label: 'Proposal',
+      header: ({ ...props }) => <Flex justify="flex-start" minWidth={'120px'} {...props} />,
+      value: ({ id, era }: DelegateVote) => <Flex justify="flex-start" minWidth={'120px'}>
+        <EraBadge id={id} era={era} />
+      </Flex>,
+    },
+    {
+      field: 'title',
+      label: 'Title',
+      header: ({ ...props }) => <Flex justify="flex-start" maxW={'200px'} minW={'200px'} {...props} />,
+      value: ({ title }: DelegateVote) => <Flex justify="flex-start" maxW={'200px'} minW={'200px'}>
+        <Text maxW={'200px'} minW={'200px'} textAlign="left" fontSize="12px">{title}</Text>
+      </Flex>,
+    },
+    {
+      field: 'hasVoted',
+      label: 'Voted?',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
+      value: ({ hasVoted, status }: DelegateVote) => <Flex color={hasVoted ? 'secondary' : 'warning'} justify="center" minWidth={'80px'}>
+        {status === ProposalStatus.active ? hasVoted ? 'Voted' : 'Not Yet' : hasVoted ? 'Voted' : 'Abstained'}
+      </Flex>,
+    },
+    {
+      field: 'hasVotedFor',
+      label: 'Decision',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
+      value: ({ hasVoted, hasVotedFor }: DelegateVote) => <Flex fontWeight="extrabold" color={hasVoted ? hasVotedFor ? 'secondary' : 'info' : 'white'} justify="center" minWidth={'70px'}>
+        {hasVoted ? hasVotedFor ? 'FOR' : 'AGAINST' : '-'}
+      </Flex>,
+    },
+    {
+      field: 'hasVotedWith',
+      label: 'Power',
+      tooltip: "Delegate's Voting Power at the time of the Proposal creation that was used when voting",
+      header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
+      value: ({ hasVoted, hasVotedWith }: DelegateVote) => <Flex fontWeight="extrabold" justify="center" minWidth={'70px'}>
+        {hasVoted ? shortenNumber(hasVotedWith) : '-'}
+      </Flex>,
+    },
+    {
+      field: 'status',
+      label: 'Status',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={'75px'} {...props} />,
+      value: ({ status }: DelegateVote) => <Flex justify="flex-end" minWidth={'75px'}>
+        <StatusBadge status={status} />
+      </Flex>,
+    },
+  ];
+
+  return (
+    <Container
+      label="Voting Activity"
+      description="The proposal list is Updated every 15 min"
+      contentProps={{ maxW: '90vw', overflowX: 'auto' }}
+      collapsable={true}
+    >
+      <Table
+        columns={columns}
+        items={proposalsWithVotes}
+        keyName={'proposalNum'}
+        defaultSort="proposalNum"
+        defaultSortDir="desc"
+        onClick={({ id, era }: DelegateVote) => router.push(`/governance/proposals/${era}/${id}`)}
+      />
+    </Container>
+  )
+}
+
+const SupporterField = ({ address }: { address: string }) => {
+  const { addressName } = useNamedAddress(address);
+  return (
+    (
+      <Stack direction="row" align="flex-start" spacing={4} minWidth={'200px'}>
+        <Stack direction="row" align="flex-start">
+          <Avatar address={address} sizePx={24} />
+          <Flex>{addressName}</Flex>
+        </Stack>
+      </Stack>
+    )
+  )
+}
 
 export const SupportersTable = ({
   delegate,
@@ -24,8 +136,8 @@ export const SupportersTable = ({
   delegate: Partial<Delegate>,
   delegators: Supporter[],
 }) => {
-  const { chainId } = useWeb3React<Web3Provider>()
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
+  const [isOnlyActive, setIsOnlyActive] = useState(true);
 
   const router = useRouter()
 
@@ -34,26 +146,15 @@ export const SupportersTable = ({
       field: 'address',
       label: 'Supporter',
       header: ({ ...props }) => <Flex minWidth={'200px'} {...props} />,
-      value: ({ address }: Supporter, i: number) => {
-        const { addressName } = useNamedAddress(address, chainId);
-        return (
-          (
-            <Stack direction="row" align="flex-start" spacing={4} minWidth={'200px'}>
-              <Stack direction="row" align="flex-start">
-                <Avatar address={address} sizePx={24} />
-                <Flex>{addressName}</Flex>
-              </Stack>
-            </Stack>
-          )
-        )
-      },
+      value: ({ address }: Supporter, i: number) => <SupporterField address={address} />
     },
     {
       field: 'delegatedPower',
       label: 'Power',
+      tooltip: "The Supporter's Voting Power being delegated",
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={'64px'} {...props} />,
       value: ({ delegatedPower }: Supporter) => <Flex justify="flex-end" minWidth={'64px'}>
-        {shortenNumber(delegatedPower, 2)}
+        {shortenNumber(delegatedPower, 2, false, true)}
       </Flex>,
     },
   ];
@@ -65,7 +166,7 @@ export const SupportersTable = ({
         label: 'INV',
         header: ({ ...props }) => <Flex justify="center" minWidth={'50px'} {...props} />,
         value: ({ inv }: Supporter) => <Flex justify="center" minWidth={'50px'}>
-          {shortenNumber(inv, 2)}
+          {shortenNumber(inv, 2, false, true)}
         </Flex>,
       }
     );
@@ -74,22 +175,38 @@ export const SupportersTable = ({
       label: 'Staked INV',
       header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
       value: ({ xinv }: Supporter) => <Flex justify="center" minWidth={'80px'}>
-        {shortenNumber(xinv, 2)}
+        {shortenNumber(xinv, 2, false, true)}
       </Flex>,
     })
   }
 
   const genkidama = delegators.reduce((prev, curr) => prev + curr.delegatedPower, 0);
-  const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama/delegate.votingPower * 100 : 0;
+  const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama / delegate.votingPower * 100 : 0;
+
+  const onlyActive = delegators.filter(d => d.delegatedPower > 0);
+  const nbActive = onlyActive.length;
 
   return (
     <Container
-      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''} - Updated Every 15 min`}
-      description={`Total Power Received Thanks to Supporters: ${shortenNumber(genkidama, 2)} => ${shortenNumber(genkidamaPerc, 2)}%${genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}`}
+      w='full'
+      position="relative"
+      collapsable={true}
+      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length && ` (${nbActive} with power)`} - Updated Every 15 min`}
+      description={
+        <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
+          <Text fontSize="12px" color="secondaryTextColor">
+            Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
+          </Text>
+          <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
+            <Text fontSize="12px">Only With Power:</Text>
+            <Switch isChecked={isOnlyActive} onChange={() => setIsOnlyActive(!isOnlyActive)} />
+          </HStack>
+        </Stack>
+      }
     >
       <Table
         columns={columns}
-        items={delegators}
+        items={isOnlyActive ? onlyActive : delegators}
         keyName={'address'}
         defaultSort="delegatedPower"
         defaultSortDir="desc"
