@@ -23,6 +23,11 @@ import { useState } from 'react'
 type Supporter = { address: string, inv: number, xinv: number, delegatedPower: number }
 type DelegateVote = Proposal & { hasVoted: boolean, hasVotedFor: boolean, hasVotedWith: number }
 
+
+export const DelegatingEventsTable = ({ delegator }: { delegator: string }) => {
+  return (<></>)
+}
+
 export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) => {
   const router = useRouter();
   const { proposals } = useProposals();

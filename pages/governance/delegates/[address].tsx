@@ -23,7 +23,7 @@ import { useEnsProfile } from '@app/hooks/useEnsProfile'
 import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
-import { PastVotesTable, SupportersTable } from '.'
+import { DelegatingEventsTable, PastVotesTable, SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
@@ -86,7 +86,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   }
   else if (!data) { return <></> }
 
-  const [invDelegate, xinvDelegate, pageDelegate] = data;
+  const [invDelegate, xinvDelegate, addressDelegate] = data;
 
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
@@ -115,6 +115,8 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   }
 
   const supporters = (delegate?.delegators || []).filter(ad => ad !== address);
+
+  const addressIsNotDelegating = addressDelegate === address || (!addressDelegate || addressDelegate === '0x0000000000000000000000000000000000000000');
 
   return (
     <VStack>
@@ -152,12 +154,12 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
             }
           </VStack>}
           {
-            pageDelegate === address || (!pageDelegate || pageDelegate === '0x0000000000000000000000000000000000000000') ?
+            addressIsNotDelegating ?
               delegationCases[delegationCase]
               :
               <InfoMessage description={
                 <>
-                  {namedAddress(address, chainId, ensName)} is Delegating to {pageDelegate && isAddress(pageDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/'+pageDelegate}>{namedAddress(pageDelegate, chainId)}</Link> : 'Nobody'}
+                  {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/'+addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
                 </>
               } />
           }
@@ -167,7 +169,10 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
       }
       {
-        delegate?.address && <PastVotesTable delegate={delegate} />
+        delegate?.address && addressIsNotDelegating ?
+         <PastVotesTable delegate={delegate} />
+         :
+         <DelegatingEventsTable delegator={delegate.address} />
       }
     </VStack>
   )
