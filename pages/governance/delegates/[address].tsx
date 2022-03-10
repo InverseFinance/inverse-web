@@ -71,7 +71,11 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
   const [notConnected, setNotConnected] = useState(false);
-  const [tab, setTab] = useState<Tabs>('votes');
+
+  const cachedDelegate = delegates && delegates[address];
+  const delegate = cachedDelegate && { ...cachedDelegate, votingPower } || { address, votingPower, votes: [], delegators: [], ensName: '' }
+
+  const [tab, setTab] = useState<Tabs>('delegations');
 
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
@@ -95,9 +99,6 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
-
-  const cachedDelegate = delegates && delegates[address];
-  const delegate = cachedDelegate && { ...cachedDelegate, votingPower } || { address, votingPower, votes: [], delegators: [], ensName: '' }
 
   if (!address || isLoading || !delegate) {
     return (
@@ -179,9 +180,9 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         }}
         radioCardProps={{ w: '120px', textAlign: 'center', p: '2' }}
         options={[
+          { label: 'Delegations', value: 'delegations' },
           { label: 'Supporters', value: 'supporters' },
           { label: 'Votes', value: 'votes' },
-          { label: 'Delegations', value: 'delegations' },
         ]}
       />
       <Divider py="1" />

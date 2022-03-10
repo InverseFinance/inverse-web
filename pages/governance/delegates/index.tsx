@@ -57,7 +57,11 @@ export const DelegatingEventsTable = ({
   const { events: eventsFromDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged2');
   const { events: eventsToDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged3');
 
-  const totalEvents = eventsByDelegator.concat(eventsFromDelegate, eventsToDelegate);
+  const totalEvents = eventsByDelegator
+    .concat(eventsFromDelegate, eventsToDelegate)
+    .map(e => ({ ...e, uniqueKey: e.transactionHash+e.logIndex  }))
+    // unique
+    .filter((value, index, self) => self.findIndex(event => event.uniqueKey === value.uniqueKey) === index)
 
   const items = totalEvents.map(e => {
     return {
@@ -77,7 +81,7 @@ export const DelegatingEventsTable = ({
       label: 'TX',
       header: ({ ...props }) => <Flex justify="flex-start" minWidth={'120px'} {...props} />,
       value: ({ txHash }: DelegateEventItem) => <Flex justify="flex-start" minWidth={'120px'}>
-        <ScannerLink value={txHash} />
+        <ScannerLink type="tx" value={txHash} />
       </Flex>,
     },
     {
@@ -116,7 +120,7 @@ export const DelegatingEventsTable = ({
 
   return (
     <Container
-      label="Delegation Changes"
+      label="Delegation Events"
       description="All the Delegation events involving the Delegate/Delegator"
       noPadding
       contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
@@ -125,7 +129,7 @@ export const DelegatingEventsTable = ({
       <Table
         columns={columns}
         items={items}
-        keyName={'txHash'}
+        keyName={'uniqueKey'}
         defaultSort="blockNumber"
         defaultSortDir="desc"
       />

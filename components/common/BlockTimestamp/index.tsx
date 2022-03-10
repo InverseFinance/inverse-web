@@ -20,10 +20,21 @@ export const BlockTimestamp = ({
 }) => {
     const { timestamp } = useBlockTimestamp(blockNumber);
     const isCol = direction!.indexOf('column') !== -1;
-    
-    return <Stack direction={direction} spacing={ isCol ? '0' : '1' } {...props}>
-        <Text>{moment(timestamp).fromNow()}</Text>
-        { !isCol && <Text>-</Text> }
-        <Text>{moment(timestamp).format(format)}</Text>
+
+    return <Stack direction={direction} spacing={isCol ? '0' : '1'} {...props}>
+        {
+            timestamp > 0 ?
+                <>
+                    <Text>{moment(timestamp).fromNow()}</Text>
+                    {!isCol && <Text>-</Text>}
+                    <Text>{moment(timestamp).format(format)}</Text>
+                </>
+                :
+                <>
+                    <Text>Fetching...</Text>
+                    {!isCol && <Text>For</Text>}
+                    <Text>BN {blockNumber}</Text>
+                </>
+        }
     </Stack>
 }
