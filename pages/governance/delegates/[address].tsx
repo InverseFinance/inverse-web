@@ -92,7 +92,11 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       <InfoMessage description="Please Connect your wallet" />
     </Container>
   }
-  else if (!data) { return <></> }
+  else if (!data) {
+    return <Container label={<SkeletonTitle />}>
+      <SkeletonBlob />
+    </Container>
+  }
 
   const [invDelegate, xinvDelegate, addressDelegate] = data;
 
@@ -181,7 +185,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         radioCardProps={{ w: '120px', textAlign: 'center', p: '2' }}
         options={[
           { label: 'Delegations', value: 'delegations' },
-          { label: 'Supporters', value: 'supporters' },
+          { label: 'Delegators', value: 'supporters' },
           { label: 'Votes', value: 'votes' },
         ]}
       />
@@ -191,7 +195,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       }
       {
         tab === 'delegations' && <DelegatingEventsTable
-          delegator={delegate.address}
+          srcAddress={delegate.address}
           fromDelegate={addressIsNotDelegating ? delegate.address : undefined}
           toDelegate={addressIsNotDelegating ? delegate.address : undefined}
         />

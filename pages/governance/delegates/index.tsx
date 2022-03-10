@@ -26,12 +26,13 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { BlockTimestamp } from '@app/components/common/BlockTimestamp'
 import { BURN_ADDRESS } from '@app/config/constants'
 import Link from '@app/components/common/Link'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
 
 const { INV } = getNetworkConfigConstants();
 
 type Supporter = { address: string, inv: number, xinv: number, delegatedPower: number }
 type DelegateVote = Proposal & { hasVoted: boolean, hasVotedFor: boolean, hasVotedWith: number }
-type DelegateEventItem = { blockNumber: number, txHash: string, delegator: string, fromDelegate: string, toDelegate: string }
+type DelegateEventItem = { blockNumber: number, txHash: string, delegator: string, fromDelegate: string, toDelegate: string, isNewSupport: boolean }
 
 const DelegateName = ({ delegate, delegator }: { delegate: string, delegator: string }) => {
   const { addressName } = useNamedAddress(delegate);
@@ -45,23 +46,27 @@ const DelegateName = ({ delegate, delegator }: { delegate: string, delegator: st
 }
 
 export const DelegatingEventsTable = ({
-  delegator = undefined,
+  srcAddress = undefined,
   fromDelegate = undefined,
   toDelegate = undefined,
 }: {
-  delegator?: string,
+  srcAddress?: string,
   fromDelegate?: string,
   toDelegate?: string,
 }) => {
-  const { events: eventsByDelegator } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [delegator, undefined, undefined], true, 'DelegateChanged1');
-  const { events: eventsFromDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged2');
-  const { events: eventsToDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged3');
+  const { events: eventsByDelegator } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [srcAddress, undefined, undefined], true, 'DelegateChanged-src' + srcAddress);
+  const { events: eventsFromDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged-from' + fromDelegate);
+  const { events: eventsToDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged-to' + toDelegate);
 
   const totalEvents = eventsByDelegator
     .concat(eventsFromDelegate, eventsToDelegate)
-    .map(e => ({ ...e, uniqueKey: e.transactionHash+e.logIndex  }))
+    .map(e => ({ ...e, uniqueKey: e.transactionHash + e.logIndex }))
     // unique
     .filter((value, index, self) => self.findIndex(event => event.uniqueKey === value.uniqueKey) === index)
+    // filter syncs
+    .filter(event => event.args.fromDelegate !== event.args.toDelegate);
+
+  const isSrcDelegate = fromDelegate || toDelegate;
 
   const items = totalEvents.map(e => {
     return {
@@ -70,6 +75,7 @@ export const DelegatingEventsTable = ({
       delegator: e.args.delegator,
       fromDelegate: e.args.fromDelegate,
       toDelegate: e.args.toDelegate,
+      isNewSupport: e.args.toDelegate === srcAddress,
     }
   });
 
@@ -96,7 +102,7 @@ export const DelegatingEventsTable = ({
       field: 'delegator',
       label: 'Delegator',
       header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
-      value: ({ toDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+      value: ({ delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
         <DelegateName delegate={delegator} delegator={''} />
       </Flex>,
     },
@@ -114,6 +120,23 @@ export const DelegatingEventsTable = ({
       header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
       value: ({ toDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
         <DelegateName delegate={toDelegate} delegator={delegator} />
+      </Flex>,
+    },
+    {
+      field: 'isNewSupport',
+      label: 'Result',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={'120px'} {...props} />,
+      value: ({ isNewSupport, delegator, toDelegate }: DelegateEventItem) => <Flex justify="flex-end" minWidth={'120px'}>
+        {
+          isSrcDelegate && (delegator !== srcAddress) ?
+            (isNewSupport ?
+              <Text color="secondary"><ArrowUpIcon fontSize="12px" /> Delegators</Text>
+              :
+              <Text color="warning"><ArrowDownIcon fontSize="12px" /> Delegators</Text>
+              )
+            : (isNewSupport ?
+              'Self-Delegate' : 'Delegate')
+        }
       </Flex>,
     },
   ];
@@ -259,7 +282,7 @@ export const SupportersTable = ({
   const columns = [
     {
       field: 'address',
-      label: 'Supporter',
+      label: 'Delegator',
       header: ({ ...props }) => <Flex minWidth={'200px'} {...props} />,
       value: ({ address }: Supporter, i: number) => <SupporterField address={address} />
     },
@@ -307,11 +330,11 @@ export const SupportersTable = ({
       noPadding
       position="relative"
       collapsable={true}
-      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
+      label={`${delegators.length} Delegator${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
           <Text fontSize="12px" color="secondaryTextColor">
-            Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
+            Total Power Received Thanks to Delegators: {shortenNumber(genkidama, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
           </Text>
           <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
             <Text fontSize="12px">Only With Power:</Text>
