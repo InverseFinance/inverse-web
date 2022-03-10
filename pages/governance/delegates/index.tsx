@@ -117,6 +117,8 @@ export const DelegatingEventsTable = ({
   return (
     <Container
       label="Delegation Changes"
+      description="All the Delegation events involving the Delegate/Delegator"
+      noPadding
       contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
       collapsable={true}
     >
@@ -126,7 +128,6 @@ export const DelegatingEventsTable = ({
         keyName={'txHash'}
         defaultSort="blockNumber"
         defaultSortDir="desc"
-      // onClick={({ toDelegate }: DelegateVote) => router.push(`/governance/delegates/${toDelegate}`)}
       />
     </Container>
   )
@@ -207,6 +208,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
 
   return (
     <Container
+      noPadding
       label="Voting Activity"
       description="The proposal list is Updated every 15 min"
       contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
@@ -298,6 +300,7 @@ export const SupportersTable = ({
   return (
     <Container
       w='full'
+      noPadding
       position="relative"
       collapsable={true}
       label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}

@@ -26,6 +26,7 @@ import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { DelegatingEventsTable, PastVotesTable, SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -59,6 +60,8 @@ const SOCIALS = [
   },
 ]
 
+type Tabs = 'votes' | 'supporters' | 'delegations';
+
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates(address)
@@ -68,6 +71,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
   const [notConnected, setNotConnected] = useState(false);
+  const [tab, setTab] = useState<Tabs>('votes');
 
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
@@ -121,6 +125,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   return (
     <VStack w="full">
       <Container
+        collapsable={true}
         label={namedAddress(address, chainId, ensName)}
         description={isLargerThan780 ? address : shortenAddress(address)}
         href={`https://etherscan.io/address/${address}`}
@@ -165,16 +170,33 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
           }
         </Box>
       </Container>
-      {
-        supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
-      }
-      <DelegatingEventsTable
-        delegator={delegate.address}
-        fromDelegate={addressIsNotDelegating ? delegate.address : undefined}
-        toDelegate={addressIsNotDelegating ? delegate.address : undefined}
+      <RadioCardGroup
+        wrapperProps={{ pt: '5', w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
+        group={{
+          name: 'bool',
+          defaultValue: tab,
+          onChange: (t) => setTab(t),
+        }}
+        radioCardProps={{ w: '120px', textAlign: 'center', p: '2' }}
+        options={[
+          { label: 'Supporters', value: 'supporters' },
+          { label: 'Votes', value: 'votes' },
+          { label: 'Delegations', value: 'delegations' },
+        ]}
       />
+      <Divider py="1" />
       {
-        delegate?.address && <PastVotesTable delegate={delegate} />
+        tab === 'supporters' && <DelegateDetails delegate={delegate} supporters={supporters} />
+      }
+      {
+        tab === 'delegations' && <DelegatingEventsTable
+          delegator={delegate.address}
+          fromDelegate={addressIsNotDelegating ? delegate.address : undefined}
+          toDelegate={addressIsNotDelegating ? delegate.address : undefined}
+        />
+      }
+      {
+        delegate?.address && tab === 'votes' && <PastVotesTable delegate={delegate} />
       }
     </VStack>
   )
