@@ -25,6 +25,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { BlockTimestamp } from '@app/components/common/BlockTimestamp'
 import { BURN_ADDRESS } from '@app/config/constants'
+import Link from '@app/components/common/Link'
 
 const { INV } = getNetworkConfigConstants();
 
@@ -35,7 +36,12 @@ type DelegateEventItem = { blockNumber: number, txHash: string, delegator: strin
 const DelegateName = ({ delegate, delegator }: { delegate: string, delegator: string }) => {
   const { addressName } = useNamedAddress(delegate);
   const label = delegate === BURN_ADDRESS ? 'Nobody' : delegate === delegator ? 'Self' : addressName
-  return <ScannerLink value={delegate} label={label} />;
+  return delegate === BURN_ADDRESS ?
+    <Text>{label}</Text>
+    :
+    <Link textDecoration="underline" href={`/governance/delegates/${delegate}`}>
+      {label}
+    </Link>;
 }
 
 export const DelegatingEventsTable = ({
@@ -47,9 +53,13 @@ export const DelegatingEventsTable = ({
   fromDelegate?: string,
   toDelegate?: string,
 }) => {
-  const { events } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [delegator, fromDelegate, toDelegate]);
+  const { events: eventsByDelegator } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [delegator, undefined, undefined], true, 'DelegateChanged1');
+  const { events: eventsFromDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged2');
+  const { events: eventsToDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged3');
 
-  const items = events.map(e => {
+  const totalEvents = eventsByDelegator.concat(eventsFromDelegate, eventsToDelegate);
+
+  const items = totalEvents.map(e => {
     return {
       blockNumber: e.blockNumber,
       txHash: e.transactionHash,
@@ -73,9 +83,17 @@ export const DelegatingEventsTable = ({
     {
       field: 'blockNumber',
       label: 'Date',
-      header: ({ ...props }) => <Flex justify="flex-start" maxW={'120px'} minW={'120px'} {...props} />,
-      value: ({ blockNumber }: DelegateEventItem) => <Flex justify="flex-start" maxW={'120px'} minW={'120px'}>
+      header: ({ ...props }) => <Flex justify="flex-start" minW={'120px'} {...props} />,
+      value: ({ blockNumber }: DelegateEventItem) => <Flex justify="flex-start" minW={'120px'}>
         <BlockTimestamp blockNumber={blockNumber} />
+      </Flex>,
+    },
+    {
+      field: 'delegator',
+      label: 'Delegator',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+      value: ({ toDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+        <DelegateName delegate={delegator} delegator={''} />
       </Flex>,
     },
     {
@@ -99,7 +117,7 @@ export const DelegatingEventsTable = ({
   return (
     <Container
       label="Delegation Changes"
-      contentProps={{ maxW: '90vw', overflowX: 'auto' }}
+      contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
       collapsable={true}
     >
       <Table
@@ -191,7 +209,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
     <Container
       label="Voting Activity"
       description="The proposal list is Updated every 15 min"
-      contentProps={{ maxW: '90vw', overflowX: 'auto' }}
+      contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
       collapsable={true}
     >
       <Table

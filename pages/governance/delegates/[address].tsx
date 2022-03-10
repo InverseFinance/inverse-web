@@ -119,7 +119,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const addressIsNotDelegating = addressDelegate === address || (!addressDelegate || addressDelegate === '0x0000000000000000000000000000000000000000');
 
   return (
-    <VStack>
+    <VStack w="full">
       <Container
         label={namedAddress(address, chainId, ensName)}
         description={isLargerThan780 ? address : shortenAddress(address)}
@@ -159,7 +159,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
               :
               <InfoMessage description={
                 <>
-                  {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/'+addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
+                  {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/' + addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
                 </>
               } />
           }
@@ -168,11 +168,13 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       {
         supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
       }
+      <DelegatingEventsTable
+        delegator={delegate.address}
+        fromDelegate={addressIsNotDelegating ? delegate.address : undefined}
+        toDelegate={addressIsNotDelegating ? delegate.address : undefined}
+      />
       {
-        delegate?.address && addressIsNotDelegating ?
-         <PastVotesTable delegate={delegate} />
-         :
-         <DelegatingEventsTable delegator={delegate.address} />
+        delegate?.address && <PastVotesTable delegate={delegate} />
       }
     </VStack>
   )
