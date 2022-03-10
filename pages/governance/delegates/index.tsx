@@ -19,13 +19,99 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { getGovernanceAddress } from '@app/util/contracts';
 import { EraBadge, StatusBadge } from '@app/components/Governance'
 import { useState } from 'react'
+import { useContractEvents } from '@app/hooks/useContractEvents'
+import { INV_ABI } from '@app/config/abis'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import ScannerLink from '@app/components/common/ScannerLink'
+import { BlockTimestamp } from '@app/components/common/BlockTimestamp'
+import { BURN_ADDRESS } from '@app/config/constants'
+
+const { INV } = getNetworkConfigConstants();
 
 type Supporter = { address: string, inv: number, xinv: number, delegatedPower: number }
 type DelegateVote = Proposal & { hasVoted: boolean, hasVotedFor: boolean, hasVotedWith: number }
+type DelegateEventItem = { blockNumber: number, txHash: string, delegator: string, fromDelegate: string, toDelegate: string }
 
+const DelegateName = ({ delegate, delegator }: { delegate: string, delegator: string }) => {
+  const { addressName } = useNamedAddress(delegate);
+  const label = delegate === BURN_ADDRESS ? 'Nobody' : delegate === delegator ? 'Self' : addressName
+  return <ScannerLink value={delegate} label={label} />;
+}
 
-export const DelegatingEventsTable = ({ delegator }: { delegator: string }) => {
-  return (<></>)
+export const DelegatingEventsTable = ({
+  delegator = undefined,
+  fromDelegate = undefined,
+  toDelegate = undefined,
+}: {
+  delegator?: string,
+  fromDelegate?: string,
+  toDelegate?: string,
+}) => {
+  const { events } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [delegator, fromDelegate, toDelegate]);
+
+  const items = events.map(e => {
+    return {
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash,
+      delegator: e.args.delegator,
+      fromDelegate: e.args.fromDelegate,
+      toDelegate: e.args.toDelegate,
+    }
+  });
+
+  items.sort((a, b) => b.blockNumber - a.blockNumber);
+
+  const columns = [
+    {
+      field: 'txHash',
+      label: 'TX',
+      header: ({ ...props }) => <Flex justify="flex-start" minWidth={'120px'} {...props} />,
+      value: ({ txHash }: DelegateEventItem) => <Flex justify="flex-start" minWidth={'120px'}>
+        <ScannerLink value={txHash} />
+      </Flex>,
+    },
+    {
+      field: 'blockNumber',
+      label: 'Date',
+      header: ({ ...props }) => <Flex justify="flex-start" maxW={'120px'} minW={'120px'} {...props} />,
+      value: ({ blockNumber }: DelegateEventItem) => <Flex justify="flex-start" maxW={'120px'} minW={'120px'}>
+        <BlockTimestamp blockNumber={blockNumber} />
+      </Flex>,
+    },
+    {
+      field: 'fromDelegate',
+      label: 'Old Delegate',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+      value: ({ fromDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+        <DelegateName delegate={fromDelegate} delegator={delegator} />
+      </Flex>,
+    },
+    {
+      field: 'toDelegate',
+      label: 'New Delegate',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+      value: ({ toDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+        <DelegateName delegate={toDelegate} delegator={delegator} />
+      </Flex>,
+    },
+  ];
+
+  return (
+    <Container
+      label="Delegation Changes"
+      contentProps={{ maxW: '90vw', overflowX: 'auto' }}
+      collapsable={true}
+    >
+      <Table
+        columns={columns}
+        items={items}
+        keyName={'txHash'}
+        defaultSort="blockNumber"
+        defaultSortDir="desc"
+      // onClick={({ toDelegate }: DelegateVote) => router.push(`/governance/delegates/${toDelegate}`)}
+      />
+    </Container>
+  )
 }
 
 export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) => {
@@ -196,7 +282,7 @@ export const SupportersTable = ({
       w='full'
       position="relative"
       collapsable={true}
-      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length  ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
+      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
           <Text fontSize="12px" color="secondaryTextColor">

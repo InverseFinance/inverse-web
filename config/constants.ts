@@ -32,3 +32,5 @@ export const DRAFT_SIGN_MSG = `Inverse Finance Draft Signature
 ✅ This action does not cost anything
 `
 export const FED_POLICY_SIGN_MSG = "Inverse Finance Fed Policy Update Signature"
+
+export const BURN_ADDRESS = '0x0000000000000000000000000000000000000000'
