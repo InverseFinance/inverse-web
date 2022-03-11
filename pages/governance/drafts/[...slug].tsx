@@ -13,6 +13,7 @@ import { usePublicDraftProposals } from '@app/hooks/useProposals';
 import Head from 'next/head'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
 import { useEffect } from 'react';
+import { DraftReviews } from '@app/components/Governance/DraftReviews'
 
 export const Drafts = () => {
   const { asPath } = useRouter();
@@ -38,10 +39,10 @@ export const Drafts = () => {
   })
 
   const proposal = previews?.find((p: Proposal) => {
-      return slug.length === 1 ?
-        p.id?.toString() === slug[0] :
-        p.era === slug[0] && p.id?.toString() === slug[1]
-    }) || {} as Proposal;
+    return slug.length === 1 ?
+      p.id?.toString() === slug[0] :
+      p.era === slug[0] && p.id?.toString() === slug[1]
+  }) || {} as Proposal;
 
   const { id = '', era = '' } = proposal;
 
@@ -49,7 +50,7 @@ export const Drafts = () => {
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
 
   useEffect(() => {
-    if(!proposal?.id) { return }
+    if (!proposal?.id) { return }
     updateReadGovernanceNotifs(`draft-${proposal.id}`);
   }, [proposal?.id]);
 
@@ -79,6 +80,9 @@ export const Drafts = () => {
                 </Flex>
                 <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
                   <ProposalActions proposal={proposal} />
+                </Flex>
+                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                  { !!id && <DraftReviews publicDraftId={id} /> }
                 </Flex>
               </Flex>
               <Flex direction="column">

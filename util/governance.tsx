@@ -350,3 +350,26 @@ export const updateReadGovernanceNotifs = async (readKey: string): Promise<void>
     current.push(readKey);
     await localforage.setItem('read-governance-notifs', current);
 }
+
+export const sendDraftReview = async (
+    signer: JsonRpcSigner,
+    draftId: number,
+    status?: boolean,
+    comment?: string,
+): Promise<any> => {
+    try {
+        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        
+        const rawResponse = await fetch(`/api/drafts/reviews/${draftId}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status, comment, sig })
+        });
+        return await rawResponse.json();
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
