@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
                 const sigReviewIndex = reviews.findIndex(review => review.reviewer === sigAddress);
 
-                if(sigReviewIndex === -1) {
+                if (sigReviewIndex === -1) {
                     reviews.unshift({
                         reviewer: sigAddress,
                         timestamp: Date.now(),
@@ -48,7 +48,11 @@ export default async function handler(req, res) {
 
                 await client.set(`${redisKey}-${id}`, JSON.stringify(reviews));
 
-                res.status(200).json({ status: 'success', message: `Review ${status === 'ok' ? 'Added' : 'Removed'}` })
+                res.status(200).json({
+                    status: 'success',
+                    message: `Review ${status === 'ok' ? 'Added' : 'Removed'}`,
+                    reviews,
+                })
             } catch (e) {
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }

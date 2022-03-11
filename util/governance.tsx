@@ -3,7 +3,7 @@ import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal } from '@app/types';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview } from '@app/types';
 import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS } from '@app/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
@@ -354,8 +354,9 @@ export const updateReadGovernanceNotifs = async (readKey: string): Promise<void>
 export const sendDraftReview = async (
     signer: JsonRpcSigner,
     draftId: number,
-    status?: boolean,
-    comment?: string,
+    status: boolean,
+    comment: string,
+    onSuccess: (reviews: DraftReview[]) => void,
 ): Promise<any> => {
     try {
         const sig = await signer.signMessage(DRAFT_SIGN_MSG);
@@ -368,7 +369,9 @@ export const sendDraftReview = async (
             },
             body: JSON.stringify({ status, comment, sig })
         });
-        return await rawResponse.json();
+        const result = await rawResponse.json();
+        if (onSuccess && result.status === 'success') { onSuccess(result.reviews) }
+        return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }
     }
