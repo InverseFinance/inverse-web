@@ -40,6 +40,16 @@ export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[]
   }
 }
 
+export const usePublicDraftReviews = (id: any): SWR & { reviews: any[] } => {
+  const { data, error } = useCustomSWR(`/api/drafts/reviews/${id}`, id ? fetcher : () => new Promise(r => r(undefined)))
+
+  return {
+    reviews: data?.reviews || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useGovernanceNotifs = (): SWR & {
   draftKeys: string[],
   activeProposalsKeys: string[],
