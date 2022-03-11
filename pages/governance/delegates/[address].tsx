@@ -65,7 +65,6 @@ type Tabs = 'votes' | 'supporters' | 'delegations';
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates(address)
-  const { votingPower } = useVotingPower(address);
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
   const { INV, XINV } = getNetworkConfigConstants(chainId)
@@ -73,7 +72,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const [notConnected, setNotConnected] = useState(false);
 
   const cachedDelegate = delegates && delegates[address];
-  const delegate = cachedDelegate && { ...cachedDelegate, votingPower } || { address, votingPower, votes: [], delegators: [], ensName: '' }
+  const delegate = cachedDelegate && { ...cachedDelegate } || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
 
   const [tab, setTab] = useState<Tabs>('delegations');
 
@@ -136,7 +135,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         href={`https://etherscan.io/address/${address}`}
         image={<Avatar sizePx={50} address={address} />}
         right={rank && <Text fontWeight="medium" fontSize="sm" color="secondaryTextColor">
-          VP {shortenNumber(votingPower)} - {`Rank ${rank}`}
+          VP {shortenNumber(delegate?.votingPower)} - {`Rank ${rank}`}
         </Text>}
       >
         <Box w="full">
