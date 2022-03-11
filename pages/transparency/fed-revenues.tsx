@@ -101,7 +101,7 @@ const columns = [
 
 export const FedRevenuesPage = () => {
     const { dolaTotalSupply, fantom } = useDAO();
-    const { totalEvents, totalRevenues } = useFedRevenues();
+    const { totalEvents, totalRevenues, isLoading } = useFedRevenues();
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
@@ -160,11 +160,10 @@ export const FedRevenuesPage = () => {
     })];
 
     // add today's timestamp and zero one day before first supply
-    if (chartData.length) {
-        const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-        chartData.unshift({ x: minX - oneDay, y: 0 });
-        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
-    }
+
+    const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+    chartData.unshift({ x: minX - oneDay, y: 0 });
+    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
 
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
@@ -254,7 +253,7 @@ export const FedRevenuesPage = () => {
                                     alternateBg={false}
                                     columns={columns}
                                     items={fedHistoricalEvents} />
-                                : <SkeletonBlob />
+                                : isLoading ? <SkeletonBlob /> : <Text>No Take Profit action has been executed yet</Text>
                         }
                     </Container>
                 </Flex>
