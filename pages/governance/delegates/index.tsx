@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Switch, Text, useMediaQuery } from '@chakra-ui/react'
+import { Flex, HStack, Stack, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 import { Avatar } from '@app/components/common/Avatar'
 import { Breadcrumbs } from '@app/components/common/Breadcrumbs'
 import Container from '@app/components/common/Container'
@@ -27,6 +27,7 @@ import { BlockTimestamp } from '@app/components/common/BlockTimestamp'
 import { BURN_ADDRESS } from '@app/config/constants'
 import Link from '@app/components/common/Link'
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 const { INV } = getNetworkConfigConstants();
 
@@ -338,6 +339,12 @@ export const SupportersTable = ({
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
           <Text fontSize="12px" color="secondaryTextColor">
             Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} / {shortenNumber(delegate.votingPower, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
+            <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '10px' }} message={
+              <VStack>
+                <Text><b>Delegators</b>: Includes the Delegate</Text>
+                <Text><b>Supporters</b>: Delegators excluding the Delegate</Text>
+              </VStack>
+            } />
           </Text>
           <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
             <Text fontSize="12px">Only With Power:</Text>
