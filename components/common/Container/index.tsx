@@ -62,6 +62,10 @@ export const Container = ({
     </Flex>
   )
 
+  const content = <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bg={contentBgColor ?? 'containerContentBackground'}>
+    {children}
+  </Flex>
+
   return (
     <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
       <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end">
@@ -74,11 +78,13 @@ export const Container = ({
         </Stack>
         {right}
       </Flex>
-      <ScaleFade in={!collapsed} unmountOnExit={true}>
-        <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bg={contentBgColor ?? 'containerContentBackground'}>
-          {children}
-        </Flex>
-      </ScaleFade>
+      {
+        collapsable ?
+          <ScaleFade in={!collapsed} unmountOnExit={true}>
+            {content}
+          </ScaleFade>
+          : content
+      }
     </Flex>
   )
 }
