@@ -10,11 +10,12 @@ import { Web3Provider } from '@ethersproject/providers';
 import Link from '@app/components/common/Link';
 import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { DraftReview } from '@app/types';
 
 const DraftReview = ({
     review
 }: {
-    review: any,
+    review: DraftReview,
 }) => {
     const { addressName } = useNamedAddress(review.reviewer);
     return (

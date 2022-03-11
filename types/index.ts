@@ -462,3 +462,10 @@ export type Bond = {
     pendingPayoutFor: number,
   }
 }
+
+export type DraftReview = {
+  reviewer: string,
+  timestamp: number,
+  status?: 'ok' | 'ko',
+  comment?: string,
+}

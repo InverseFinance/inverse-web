@@ -1,4 +1,5 @@
 import { DRAFT_SIGN_MSG } from '@app/config/constants';
+import { DraftReview } from '@app/types';
 import { getRedisClient } from '@app/util/redis';
 import { verifyMessage } from 'ethers/lib/utils';
 
@@ -30,7 +31,7 @@ export default async function handler(req, res) {
             };
 
             try {
-                const reviews = JSON.parse(await client.get(`${redisKey}-${id}`) || '[]');
+                const reviews: DraftReview[] = JSON.parse(await client.get(`${redisKey}-${id}`) || '[]');
 
                 const sigReviewIndex = reviews.findIndex(review => review.reviewer === sigAddress);
 
