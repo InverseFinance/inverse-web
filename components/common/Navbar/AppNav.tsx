@@ -48,6 +48,7 @@ import { useCustomSWR } from '@app/hooks/useCustomSWR'
 import { getGasPrice } from '@app/util/etherscan'
 import { GasInfo } from '@app/components/common/Gas'
 import { formatUnits } from 'ethers/lib/utils';
+import { gaEvent } from '@app/util/analytics'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -248,7 +249,8 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       close()
       // visually better
       setTimeout(() => {
-        activate(injectedConnector)
+        activate(injectedConnector);
+        gaEvent({ action: 'connect-metamask' })
       }, 100)
     }
   }
@@ -256,11 +258,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const connectWalletConnect = () => {
     close()
     activate(walletConnectConnector)
+    gaEvent({ action: 'connect-walletConnect' })
   }
 
   const connectCoinbaseWallet = () => {
     close()
     activate(walletLinkConnector)
+    gaEvent({ action: 'connect-coinbaseWallet' })
   }
 
   return (
@@ -335,7 +339,10 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               <Text fontWeight="semibold">Disconnect</Text>
             </ConnectionMenuItem>
             <ConnectionMenuItem
-              onClick={onViewAsOpen}
+              onClick={() => {
+                onViewAsOpen();
+                gaEvent({ action: 'open-view-address' });
+              }}
             >
               <ViewIcon color="blue.600" boxSize={3} />
               <Text fontWeight="semibold">View Address</Text>
