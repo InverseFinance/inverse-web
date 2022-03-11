@@ -40,8 +40,8 @@ export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[]
   }
 }
 
-export const usePublicDraftReviews = (id: any): SWR & { reviews: DraftReview[] } => {
-  const { data, error } = useCustomSWR(`/api/drafts/reviews/${id}`, id ? fetcher : () => new Promise(r => r(undefined)))
+export const usePublicDraftReviews = (id: number, refreshIndex: number): SWR & { reviews: DraftReview[] } => {
+  const { data, error } = useCustomSWR(`/api/drafts/reviews/${id}?refreshIndex=${refreshIndex}`, id ? fetcher : () => new Promise(r => r(undefined)))
 
   return {
     reviews: data?.reviews || [],

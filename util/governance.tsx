@@ -354,8 +354,10 @@ export const updateReadGovernanceNotifs = async (readKey: string): Promise<void>
 export const sendDraftReview = async (
     signer: JsonRpcSigner,
     draftId: number,
-    status?: boolean,
-    comment?: string,
+    status: boolean,
+    comment: string,
+    refreshIndex: number,
+    onSuccess: (refreshIndex: number) => void,
 ): Promise<any> => {
     try {
         const sig = await signer.signMessage(DRAFT_SIGN_MSG);
@@ -368,7 +370,9 @@ export const sendDraftReview = async (
             },
             body: JSON.stringify({ status, comment, sig })
         });
-        return await rawResponse.json();
+        const result = await rawResponse.json();
+        if (onSuccess && result.status === 'success') { onSuccess(refreshIndex+1) }
+        return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }
     }

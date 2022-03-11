@@ -9,8 +9,8 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import Link from '@app/components/common/Link';
 import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
-import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { DraftReview } from '@app/types';
+import { useState } from 'react';
 
 const DraftReview = ({
     review
@@ -37,14 +37,15 @@ export const DraftReviews = ({
     publicDraftId: any,
 }) => {
     const { account, library } = useWeb3React<Web3Provider>();
-    const { reviews, isLoading } = usePublicDraftReviews(publicDraftId);
+    const [refreshIndex, setRefreshIndex] = useState(0);
+    const { reviews, isLoading } = usePublicDraftReviews(publicDraftId, refreshIndex);
 
     const addReview = async () => {
-        return sendDraftReview(library?.getSigner(), publicDraftId, 'ok');
+        return sendDraftReview(library?.getSigner(), publicDraftId, 'ok', '', refreshIndex, setRefreshIndex);
     }
 
     const removeReview = async () => {
-        return sendDraftReview(library?.getSigner(), publicDraftId, 'remove');
+        return sendDraftReview(library?.getSigner(), publicDraftId, 'remove', '', refreshIndex, setRefreshIndex);
     }
 
     // const addComment = async () => {
@@ -62,7 +63,7 @@ export const DraftReviews = ({
             <VStack w='full'>
                 {
                     isLoading ?
-                        <SkeletonBlob />
+                        <Text>Loading...</Text>
                         :
                         reviews.length > 0 ?
                             reviews.map(review => {
@@ -75,11 +76,11 @@ export const DraftReviews = ({
                     !account ? null
                         :
                         !accountHasReviewedDraft ?
-                            <SubmitButton themeColor="green.500" w="fit-content" refreshOnSuccess={true} onClick={addReview}>
+                            <SubmitButton themeColor="green.500" w="fit-content" onClick={addReview}>
                                 <CheckIcon mr="1" />I Have Reviewed the Proposal
                             </SubmitButton>
                             :
-                            <SubmitButton themeColor="orange.400" w="fit-content" refreshOnSuccess={true} onClick={removeReview}>
+                            <SubmitButton themeColor="orange.400" w="fit-content" onClick={removeReview}>
                                 <CloseIcon mr="1" /> Remove My Proof of Review
                             </SubmitButton>
                 }
