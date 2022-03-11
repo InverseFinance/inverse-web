@@ -123,7 +123,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
     alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
   }
 
-  const supporters = (delegate?.delegators || []).filter(ad => ad !== address);
+  const supporters = (delegate?.delegators || []);
 
   const addressIsNotDelegating = addressDelegate === address || (!addressDelegate || addressDelegate === '0x0000000000000000000000000000000000000000');
 

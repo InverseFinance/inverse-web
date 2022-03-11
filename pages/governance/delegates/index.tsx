@@ -170,7 +170,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
     })
   ]);
 
-  proposals.sort((a, b) => b.proposalNum - a.proposalNum)
+  proposals.sort((a, b) => b.proposalNum - a.proposalNum);
 
   const proposalsWithVotes = proposals.map((p, i) => {
     return {
@@ -203,7 +203,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       label: 'Voted?',
       header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
       value: ({ hasVoted, status }: DelegateVote) => <Flex color={hasVoted ? 'secondary' : 'warning'} justify="center" minWidth={'80px'}>
-        {status === ProposalStatus.active ? hasVoted ? 'Voted' : 'Not Yet' : hasVoted ? 'Voted' : 'Abstained'}
+        {!data ? <>...</> : status === ProposalStatus.active ? hasVoted ? 'Voted' : 'Not Yet' : hasVoted ? 'Voted' : 'Abstained'}
       </Flex>,
     },
     {
@@ -211,7 +211,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       label: 'Decision',
       header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
       value: ({ hasVoted, hasVotedFor }: DelegateVote) => <Flex fontWeight="extrabold" color={hasVoted ? hasVotedFor ? 'secondary' : 'info' : 'white'} justify="center" minWidth={'70px'}>
-        {hasVoted ? hasVotedFor ? 'FOR' : 'AGAINST' : '-'}
+        {!data ? <>...</> : hasVoted ? hasVotedFor ? 'FOR' : 'AGAINST' : '-'}
       </Flex>,
     },
     {
@@ -220,7 +220,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       tooltip: "Delegate's Voting Power at the time of the Proposal creation that was used when voting",
       header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
       value: ({ hasVoted, hasVotedWith }: DelegateVote) => <Flex fontWeight="extrabold" justify="center" minWidth={'70px'}>
-        {hasVoted ? shortenNumber(hasVotedWith) : '-'}
+        {!data ? <>...</> : hasVoted ? shortenNumber(hasVotedWith) : '-'}
       </Flex>,
     },
     {
@@ -318,7 +318,10 @@ export const SupportersTable = ({
     })
   }
 
-  const genkidama = delegators.reduce((prev, curr) => prev + curr.delegatedPower, 0);
+  //                            .°.°.°.°.
+  // ༼ つ ◕_◕ ༽つ .°.°.°.°.°.°.°.°.°.°.°.°.
+  // ༼ つ ◕_◕ ༽つ .°.°.°.°.°.°.° ᕙ(⇀‸↼‶)ᕗ
+  const genkidama = delegators.filter(d => d.address !== delegate.address).reduce((prev, curr) => prev + curr.delegatedPower, 0);
   const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama / delegate.votingPower * 100 : 0;
 
   const onlyActive = delegators.filter(d => d.delegatedPower > 0);
@@ -334,7 +337,7 @@ export const SupportersTable = ({
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
           <Text fontSize="12px" color="secondaryTextColor">
-            Total Power Received Thanks to Delegators: {shortenNumber(genkidama, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
+            Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} / {shortenNumber(delegate.votingPower, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
           </Text>
           <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
             <Text fontSize="12px">Only With Power:</Text>
