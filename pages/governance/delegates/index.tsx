@@ -19,9 +19,146 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { getGovernanceAddress } from '@app/util/contracts';
 import { EraBadge, StatusBadge } from '@app/components/Governance'
 import { useState } from 'react'
+import { useContractEvents } from '@app/hooks/useContractEvents'
+import { INV_ABI } from '@app/config/abis'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import ScannerLink from '@app/components/common/ScannerLink'
+import { BlockTimestamp } from '@app/components/common/BlockTimestamp'
+import { BURN_ADDRESS } from '@app/config/constants'
+import Link from '@app/components/common/Link'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
+
+const { INV } = getNetworkConfigConstants();
 
 type Supporter = { address: string, inv: number, xinv: number, delegatedPower: number }
 type DelegateVote = Proposal & { hasVoted: boolean, hasVotedFor: boolean, hasVotedWith: number }
+type DelegateEventItem = { blockNumber: number, txHash: string, delegator: string, fromDelegate: string, toDelegate: string, isNewSupport: boolean }
+
+const DelegateName = ({ delegate, delegator }: { delegate: string, delegator: string }) => {
+  const { addressName } = useNamedAddress(delegate);
+  const label = delegate === BURN_ADDRESS ? 'Nobody' : delegate === delegator ? 'Self' : addressName
+  return delegate === BURN_ADDRESS ?
+    <Text>{label}</Text>
+    :
+    <Link textDecoration="underline" href={`/governance/delegates/${delegate}`}>
+      {label}
+    </Link>;
+}
+
+export const DelegatingEventsTable = ({
+  srcAddress = undefined,
+  fromDelegate = undefined,
+  toDelegate = undefined,
+}: {
+  srcAddress?: string,
+  fromDelegate?: string,
+  toDelegate?: string,
+}) => {
+  const { events: eventsByDelegator } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [srcAddress, undefined, undefined], true, 'DelegateChanged-src' + srcAddress);
+  const { events: eventsFromDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged-from' + fromDelegate);
+  const { events: eventsToDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged-to' + toDelegate);
+
+  const totalEvents = eventsByDelegator
+    .concat(eventsFromDelegate, eventsToDelegate)
+    .map(e => ({ ...e, uniqueKey: e.transactionHash + e.logIndex }))
+    // unique
+    .filter((value, index, self) => self.findIndex(event => event.uniqueKey === value.uniqueKey) === index)
+    // filter syncs
+    .filter(event => event.args.fromDelegate !== event.args.toDelegate);
+
+  const isSrcDelegate = fromDelegate || toDelegate;
+
+  const items = totalEvents.map(e => {
+    return {
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash,
+      delegator: e.args.delegator,
+      fromDelegate: e.args.fromDelegate,
+      toDelegate: e.args.toDelegate,
+      isNewSupport: e.args.toDelegate === srcAddress,
+    }
+  });
+
+  items.sort((a, b) => b.blockNumber - a.blockNumber);
+
+  const columns = [
+    {
+      field: 'txHash',
+      label: 'TX',
+      header: ({ ...props }) => <Flex justify="flex-start" minWidth={'120px'} {...props} />,
+      value: ({ txHash }: DelegateEventItem) => <Flex justify="flex-start" minWidth={'120px'}>
+        <ScannerLink type="tx" value={txHash} />
+      </Flex>,
+    },
+    {
+      field: 'blockNumber',
+      label: 'Date',
+      header: ({ ...props }) => <Flex justify="flex-start" minW={'120px'} {...props} />,
+      value: ({ blockNumber }: DelegateEventItem) => <Flex justify="flex-start" minW={'120px'}>
+        <BlockTimestamp blockNumber={blockNumber} />
+      </Flex>,
+    },
+    {
+      field: 'delegator',
+      label: 'Delegator',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+      value: ({ delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+        <DelegateName delegate={delegator} delegator={''} />
+      </Flex>,
+    },
+    {
+      field: 'fromDelegate',
+      label: 'Old Delegate',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+      value: ({ fromDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+        <DelegateName delegate={fromDelegate} delegator={delegator} />
+      </Flex>,
+    },
+    {
+      field: 'toDelegate',
+      label: 'New Delegate',
+      header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+      value: ({ toDelegate, delegator }: DelegateEventItem) => <Flex justify="center" minWidth={'120px'}>
+        <DelegateName delegate={toDelegate} delegator={delegator} />
+      </Flex>,
+    },
+    {
+      field: 'isNewSupport',
+      label: 'Result',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={'120px'} {...props} />,
+      value: ({ isNewSupport, delegator, toDelegate }: DelegateEventItem) => <Flex justify="flex-end" minWidth={'120px'}>
+        {
+          isSrcDelegate && (delegator !== srcAddress) ?
+            (isNewSupport ?
+              <Text color="secondary"><ArrowUpIcon fontSize="12px" /> Delegators</Text>
+              :
+              <Text color="warning"><ArrowDownIcon fontSize="12px" /> Delegators</Text>
+              )
+            : (isNewSupport ?
+              'Self-Delegate' : 'Delegate')
+        }
+      </Flex>,
+    },
+  ];
+
+  return (
+    <Container
+      label="Delegation Events"
+      description="All the Delegation events involving the Delegate/Delegator"
+      noPadding
+      contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+      collapsable={true}
+    >
+      <Table
+        columns={columns}
+        items={items}
+        keyName={'uniqueKey'}
+        defaultSort="blockNumber"
+        defaultSortDir="desc"
+      />
+    </Container>
+  )
+}
 
 export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) => {
   const router = useRouter();
@@ -33,7 +170,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
     })
   ]);
 
-  proposals.sort((a, b) => b.proposalNum - a.proposalNum)
+  proposals.sort((a, b) => b.proposalNum - a.proposalNum);
 
   const proposalsWithVotes = proposals.map((p, i) => {
     return {
@@ -66,7 +203,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       label: 'Voted?',
       header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
       value: ({ hasVoted, status }: DelegateVote) => <Flex color={hasVoted ? 'secondary' : 'warning'} justify="center" minWidth={'80px'}>
-        {status === ProposalStatus.active ? hasVoted ? 'Voted' : 'Not Yet' : hasVoted ? 'Voted' : 'Abstained'}
+        {!data ? <>...</> : status === ProposalStatus.active ? hasVoted ? 'Voted' : 'Not Yet' : hasVoted ? 'Voted' : 'Abstained'}
       </Flex>,
     },
     {
@@ -74,7 +211,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       label: 'Decision',
       header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
       value: ({ hasVoted, hasVotedFor }: DelegateVote) => <Flex fontWeight="extrabold" color={hasVoted ? hasVotedFor ? 'secondary' : 'info' : 'white'} justify="center" minWidth={'70px'}>
-        {hasVoted ? hasVotedFor ? 'FOR' : 'AGAINST' : '-'}
+        {!data ? <>...</> : hasVoted ? hasVotedFor ? 'FOR' : 'AGAINST' : '-'}
       </Flex>,
     },
     {
@@ -83,7 +220,7 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
       tooltip: "Delegate's Voting Power at the time of the Proposal creation that was used when voting",
       header: ({ ...props }) => <Flex justify="center" minWidth={'70px'} {...props} />,
       value: ({ hasVoted, hasVotedWith }: DelegateVote) => <Flex fontWeight="extrabold" justify="center" minWidth={'70px'}>
-        {hasVoted ? shortenNumber(hasVotedWith) : '-'}
+        {!data ? <>...</> : hasVoted ? shortenNumber(hasVotedWith) : '-'}
       </Flex>,
     },
     {
@@ -98,9 +235,10 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
 
   return (
     <Container
+      noPadding
       label="Voting Activity"
       description="The proposal list is Updated every 15 min"
-      contentProps={{ maxW: '90vw', overflowX: 'auto' }}
+      contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
       collapsable={true}
     >
       <Table
@@ -144,7 +282,7 @@ export const SupportersTable = ({
   const columns = [
     {
       field: 'address',
-      label: 'Supporter',
+      label: 'Delegator',
       header: ({ ...props }) => <Flex minWidth={'200px'} {...props} />,
       value: ({ address }: Supporter, i: number) => <SupporterField address={address} />
     },
@@ -180,7 +318,10 @@ export const SupportersTable = ({
     })
   }
 
-  const genkidama = delegators.reduce((prev, curr) => prev + curr.delegatedPower, 0);
+  //                            .°.°.°.°.
+  // ༼ つ ◕_◕ ༽つ .°.°.°.°.°.°.°.°.°.°.°.°.
+  // ༼ つ ◕_◕ ༽つ .°.°.°.°.°.°.° ᕙ(⇀‸↼‶)ᕗ
+  const genkidama = delegators.filter(d => d.address !== delegate.address).reduce((prev, curr) => prev + curr.delegatedPower, 0);
   const genkidamaPerc = genkidama && delegate?.votingPower ? genkidama / delegate.votingPower * 100 : 0;
 
   const onlyActive = delegators.filter(d => d.delegatedPower > 0);
@@ -189,13 +330,14 @@ export const SupportersTable = ({
   return (
     <Container
       w='full'
+      noPadding
       position="relative"
       collapsable={true}
-      label={`${delegators.length} Supporter${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length  ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
+      label={`${delegators.length} Delegator${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
           <Text fontSize="12px" color="secondaryTextColor">
-            Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
+            Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} / {shortenNumber(delegate.votingPower, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
           </Text>
           <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
             <Text fontSize="12px">Only With Power:</Text>

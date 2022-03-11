@@ -23,9 +23,10 @@ import { useEnsProfile } from '@app/hooks/useEnsProfile'
 import { Link } from '@app/components/common/Link';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
-import { PastVotesTable, SupportersTable } from '.'
+import { DelegatingEventsTable, PastVotesTable, SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -59,6 +60,8 @@ const SOCIALS = [
   },
 ]
 
+type Tabs = 'votes' | 'supporters' | 'delegations';
+
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useDelegates(address)
@@ -68,6 +71,11 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
   const [notConnected, setNotConnected] = useState(false);
+
+  const cachedDelegate = delegates && delegates[address];
+  const delegate = cachedDelegate && { ...cachedDelegate, votingPower } || { address, votingPower, votes: [], delegators: [], ensName: '' }
+
+  const [tab, setTab] = useState<Tabs>('delegations');
 
   const { data } = useEtherSWR([
     [INV, 'delegates', account],
@@ -84,16 +92,17 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       <InfoMessage description="Please Connect your wallet" />
     </Container>
   }
-  else if (!data) { return <></> }
+  else if (!data) {
+    return <Container label={<SkeletonTitle />}>
+      <SkeletonBlob />
+    </Container>
+  }
 
-  const [invDelegate, xinvDelegate, pageDelegate] = data;
+  const [invDelegate, xinvDelegate, addressDelegate] = data;
 
   const isAlreadySameDelegate = (newlyChosenDelegate || data[0]) === address && invDelegate === xinvDelegate;
 
   const isSelf = account === address;
-
-  const cachedDelegate = delegates && delegates[address];
-  const delegate = cachedDelegate && { ...cachedDelegate, votingPower } || { address, votingPower, votes: [], delegators: [], ensName: '' }
 
   if (!address || isLoading || !delegate) {
     return (
@@ -114,11 +123,14 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
     alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
   }
 
-  const supporters = (delegate?.delegators || []).filter(ad => ad !== address);
+  const supporters = (delegate?.delegators || []);
+
+  const addressIsNotDelegating = addressDelegate === address || (!addressDelegate || addressDelegate === '0x0000000000000000000000000000000000000000');
 
   return (
-    <VStack>
+    <VStack w="full">
       <Container
+        collapsable={true}
         label={namedAddress(address, chainId, ensName)}
         description={isLargerThan780 ? address : shortenAddress(address)}
         href={`https://etherscan.io/address/${address}`}
@@ -152,22 +164,44 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
             }
           </VStack>}
           {
-            pageDelegate === address || (!pageDelegate || pageDelegate === '0x0000000000000000000000000000000000000000') ?
+            addressIsNotDelegating ?
               delegationCases[delegationCase]
               :
               <InfoMessage description={
                 <>
-                  {namedAddress(address, chainId, ensName)} is Delegating to {pageDelegate && isAddress(pageDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/'+pageDelegate}>{namedAddress(pageDelegate, chainId)}</Link> : 'Nobody'}
+                  {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/' + addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
                 </>
               } />
           }
         </Box>
       </Container>
+      <RadioCardGroup
+        wrapperProps={{ pt: '5', w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
+        group={{
+          name: 'bool',
+          defaultValue: tab,
+          onChange: (t) => setTab(t),
+        }}
+        radioCardProps={{ w: '120px', textAlign: 'center', p: '2' }}
+        options={[
+          { label: 'Delegations', value: 'delegations' },
+          { label: 'Delegators', value: 'supporters' },
+          { label: 'Votes', value: 'votes' },
+        ]}
+      />
+      <Divider py="1" />
       {
-        supporters.length > 0 && <DelegateDetails delegate={delegate} supporters={supporters} />
+        tab === 'supporters' && <DelegateDetails delegate={delegate} supporters={supporters} />
       }
       {
-        delegate?.address && <PastVotesTable delegate={delegate} />
+        tab === 'delegations' && <DelegatingEventsTable
+          srcAddress={delegate.address}
+          fromDelegate={addressIsNotDelegating ? delegate.address : undefined}
+          toDelegate={addressIsNotDelegating ? delegate.address : undefined}
+        />
+      }
+      {
+        delegate?.address && tab === 'votes' && <PastVotesTable delegate={delegate} />
       }
     </VStack>
   )

@@ -38,14 +38,14 @@ export default async function handler(req, res) {
       // fetch chain data
       const [
         delegateChanged,
-        xinvDelegateChanged,
+        // xinvDelegateChanged,
         // gov mills
         votesCast,
         // gov Alpha (old)
         votesCastAlpha,
       ] = await Promise.all([
         inv.queryFilter(inv.filters.DelegateChanged()),
-        xinv.queryFilter(xinv.filters.DelegateChanged()),
+        // xinv.queryFilter(xinv.filters.DelegateChanged()),
         // gov mills
         governance.queryFilter(governance.filters.VoteCast()),
         // gov Alpha (old)
@@ -111,29 +111,22 @@ export default async function handler(req, res) {
         }
       })
 
-      const totalDelegateChanged = delegateChanged.concat(xinvDelegateChanged);
       const totalVotesCast = votesCast.concat(votesCastAlpha);
 
-      Object.keys(delegates).forEach((delegate: string) => {
-        const delegators = totalDelegateChanged
-          .filter(({ args }) => args.toDelegate === delegate)
-          .map(({ args }) => args.delegator)
-          .filter(onlyUniqueArrayFilter)
+      delegateChanged.sort((a, b) => b.blockNumber - a.blockNumber);
 
-        const undelegators = totalDelegateChanged
-          .filter(({ args }) => args.fromDelegate === delegate)
-          .map(({ args }) => args.delegator)
-          .filter(onlyUniqueArrayFilter)
+      Object.keys(delegates).forEach((delegate: string) => {
+        const uniqueDelegators = [...new Set(
+          delegateChanged.filter((item, index, self) => {
+            return item.args.toDelegate === delegate && self.findIndex(s => s.args.delegator === item.args.delegator) === index;
+          }).map(item => item.args.delegator)
+        )];
 
         const votes = totalVotesCast.filter(({ args }) => args.voter === delegate);
 
         delegates[delegate] = {
           ...delegates[delegate],
-          delegators: Array.from(
-            new Set(
-              delegators.filter((delegator) => !undelegators.includes(delegator))
-            )
-          ),
+          delegators: uniqueDelegators,
           votes: votes.map(({ args }) => ({
             proposalId: args.proposalId.toNumber(),
             support: args.support,
