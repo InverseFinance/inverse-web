@@ -38,7 +38,7 @@ export default async function handler(req, res) {
                 if (sigReviewIndex === -1) {
                     reviews.unshift({
                         reviewer: sigAddress,
-                        timestamp: Date.now(),
+                        timestamp: Date.now() - 30000,
                         status,
                         comment,
                     });
