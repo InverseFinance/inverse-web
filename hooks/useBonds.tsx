@@ -112,7 +112,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
         lastBlock: getBnToNumber(bondInfos[i][2], 0),
         truePricePaid: getBnToNumber(bondInfos[i][3], 7),
         vestingCompletionBlock: getBnToNumber(bondInfos[i][2], 0) + getBnToNumber(bondInfos[i][1], 0),
-        percentVestedFor: percentVestedFor[i],
+        percentVestedFor: Math.min(percentVestedFor[i], 100),
         pendingPayoutFor: pendingPayoutFor[i],
       }
     }
