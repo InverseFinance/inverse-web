@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       }),
     ])
 
-    const treasuryFundsToCheck = [DOLA, INV, DAI, USDC, INVDOLASLP];
+    const treasuryFundsToCheck = [DOLA, INV, DAI, USDC, INVDOLASLP, DOLA3POOLCRV];
     const treasuryBalances = await Promise.all([
       ...treasuryFundsToCheck.map((ad: string) => {
         const contract = new Contract(ad, ERC20_ABI, provider);
