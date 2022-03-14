@@ -24,7 +24,8 @@ const HumanReadableActionLabel = ({
     const destinator = namedAddress(callDatas[0]);
     const funName = signature.split('(')[0];
     const symbol = contractKnownToken.symbol;
-    const amount = `${commify(parseFloat(formatUnits(callDatas[1], contractKnownToken.decimals)))}`;
+    
+    const amount = `${commify(formatUnits(callDatas[1], contractKnownToken.decimals)).replace(/\.0$/, '')}`;
 
     let text;
 
