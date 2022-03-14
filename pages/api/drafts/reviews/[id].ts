@@ -23,9 +23,9 @@ export default async function handler(req, res) {
         case 'POST':
             const { sig, status, comment } = req.body
             const whitelisted = (process?.env?.DRAFT_ADDRESS_WHITELIST || '')?.replace(/\s/g, '').toLowerCase().split(',');
-            const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
+            const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig);
 
-            if (!whitelisted.includes(sigAddress)) {
+            if (!whitelisted.includes(sigAddress.toLowerCase())) {
                 res.status(401).json({ status: 'warning', message: 'Unauthorized' })
                 return
             };
