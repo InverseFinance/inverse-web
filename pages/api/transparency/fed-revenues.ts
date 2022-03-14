@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
     const { DOLA, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
     const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-    const cacheKey = `revenues-v1.0.3`;
+    const cacheKey = `revenues-v1.0.4`;
 
     try {
 

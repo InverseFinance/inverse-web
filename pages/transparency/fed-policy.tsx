@@ -122,7 +122,7 @@ export const FedPolicyPage = () => {
     const userAddress = (query?.viewAddress as string) || account;
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const [msgUpdates, setMsgUpdates] = useState(0)
-    const { totalEvents } = useFedHistory();
+    const { totalEvents, isLoading } = useFedHistory();
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(900);
@@ -178,11 +178,9 @@ export const FedPolicyPage = () => {
     })];
 
     // add today's timestamp and zero one day before first supply
-    if (chartData.length) {
-        const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-        chartData.unshift({ x: minX - oneDay, y: 0 });
-        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
-    }
+    const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+    chartData.unshift({ x: minX - oneDay, y: 0 });
+    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
 
     const handlePolicyEdit = async () => {
         try {
@@ -286,7 +284,7 @@ export const FedPolicyPage = () => {
                                     alternateBg={false}
                                     columns={columns}
                                     items={fedHistoricalEvents} />
-                                : <SkeletonBlob />
+                                : isLoading ? <SkeletonBlob /> : <Text>No Contraction or Expansion has been executed yet</Text>
                         }
                     </Container>
                 </Flex>
