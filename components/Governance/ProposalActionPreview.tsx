@@ -1,8 +1,48 @@
 import { ProposalFunction } from '@app/types'
-import { AbiCoder, FunctionFragment, isAddress } from 'ethers/lib/utils';
+import { AbiCoder, commify, FunctionFragment, isAddress } from 'ethers/lib/utils';
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
 import { namedAddress } from '@app/util';
+import { TOKENS } from '@app/variables/tokens';
+import { capitalize } from '@app/util/misc';
+import { formatUnits } from 'ethers/lib/utils';
+import { getNetworkConfigConstants } from '@app/util/networks';
+
+const { DOLA_PAYROLL, DOLA } = getNetworkConfigConstants();
+
+const HumanReadableActionLabel = ({
+    target,
+    signature,
+    callDatas,
+}: {
+    target: string,
+    signature: string,
+    callDatas: string[],
+}) => {
+    const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
+
+    const destinator = namedAddress(callDatas[0]);
+    const funName = signature.split('(')[0];
+    const symbol = contractKnownToken.symbol;
+    const amount = `${commify(parseFloat(formatUnits(callDatas[1], contractKnownToken.decimals)))}`;
+
+    let text;
+
+    if(target === DOLA_PAYROLL) {
+        text = `Add ${destinator} to the PayRolls with a yearly salary of ${amount} ${symbol}`
+    } else if(funName === 'approve') {
+        text = `Set ${destinator}'s ${symbol} Allowance to ${amount}`;
+    } else {
+        text = `${capitalize(funName)} ${amount} ${symbol} to ${destinator}`;
+    }
+
+    return (
+        <Text mb="2" fontStyle="italic">
+            &laquo; {text} &raquo; 
+        </Text>
+    ) 
+}
+
 
 export const ProposalActionPreview = (({
     target,
@@ -14,7 +54,9 @@ export const ProposalActionPreview = (({
     const callDatas = new AbiCoder()
         .decode(FunctionFragment.from(signature).inputs, callData)
         .toString()
-        .split(',')
+        .split(',');
+
+    const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
 
     return (
         <Stack w="full" spacing={1} {...props} textAlign="left">
@@ -26,6 +68,9 @@ export const ProposalActionPreview = (({
                     : null
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
+                {
+                    !!contractKnownToken && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+                }
                 <Flex fontSize="15px">
                     <Link isExternal href={`https://etherscan.io/address/${target}`} color="secondaryTextColor" fontWeight="semibold">
                         {namedAddress(target)}
