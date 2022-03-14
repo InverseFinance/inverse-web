@@ -57,6 +57,8 @@ export const ProposalActionPreview = (({
         .toString()
         .split(',');
 
+    const funName = signature.split('(')[0];
+    const isHumanRedeableCaseHandled = ['approve', 'transfer', 'mint', 'addRecipient'].includes(funName);
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
 
     return (
@@ -70,7 +72,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    !!contractKnownToken && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+                    isHumanRedeableCaseHandled && !!contractKnownToken && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                 }
                 <Flex fontSize="15px">
                     <Link isExternal href={`https://etherscan.io/address/${target}`} color="secondaryTextColor" fontWeight="semibold">
