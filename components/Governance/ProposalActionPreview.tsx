@@ -24,7 +24,8 @@ const HumanReadableActionLabel = ({
     const destinator = namedAddress(callDatas[0]);
     const funName = signature.split('(')[0];
     const symbol = contractKnownToken.symbol;
-    const amount = `${commify(parseFloat(formatUnits(callDatas[1], contractKnownToken.decimals)))}`;
+    
+    const amount = `${commify(formatUnits(callDatas[1], contractKnownToken.decimals)).replace(/\.0$/, '')}`;
 
     let text;
 
@@ -56,6 +57,8 @@ export const ProposalActionPreview = (({
         .toString()
         .split(',');
 
+    const funName = signature.split('(')[0];
+    const isHumanRedeableCaseHandled = ['approve', 'transfer', 'mint', 'addRecipient'].includes(funName);
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
 
     return (
@@ -69,7 +72,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    !!contractKnownToken && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+                    isHumanRedeableCaseHandled && !!contractKnownToken && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                 }
                 <Flex fontSize="15px">
                     <Link isExternal href={`https://etherscan.io/address/${target}`} color="secondaryTextColor" fontWeight="semibold">
