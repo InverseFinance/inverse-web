@@ -10,6 +10,40 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 
 const { DOLA_PAYROLL, DOLA } = getNetworkConfigConstants();
 
+const HumanReadableActionLabel = ({
+    target,
+    signature,
+    callDatas,
+}: {
+    target: string,
+    signature: string,
+    callDatas: string[],
+}) => {
+    const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
+
+    const destinator = namedAddress(callDatas[0]);
+    const funName = signature.split('(')[0];
+    const symbol = contractKnownToken.symbol;
+    const amount = `${commify(parseFloat(formatUnits(callDatas[1], contractKnownToken.decimals)))}`;
+
+    let text;
+
+    if(target === DOLA_PAYROLL) {
+        text = `Add ${destinator} to the PayRolls with a yearly salary of ${amount} ${symbol}`
+    } else if(funName === 'approve') {
+        text = `Set ${destinator}'s ${symbol} Allowance to ${amount}`;
+    } else {
+        text = `${capitalize(funName)} ${amount} ${symbol} to ${destinator}`;
+    }
+
+    return (
+        <Text mb="2" fontStyle="italic">
+            &laquo; {text} &raquo; 
+        </Text>
+    ) 
+}
+
+
 export const ProposalActionPreview = (({
     target,
     signature,
@@ -23,8 +57,6 @@ export const ProposalActionPreview = (({
         .split(',');
 
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
-    let funName = target === DOLA_PAYROLL ? 'add a Yearly Salary of' : signature.split('(')[0];
-    funName = capitalize(funName.replace(/^approve$/, 'set an Allowance of'));
 
     return (
         <Stack w="full" spacing={1} {...props} textAlign="left">
@@ -37,9 +69,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    !!contractKnownToken && <Text mb="2" fontStyle="italic">
-                        &laquo; {funName} {commify(parseFloat(formatUnits(callDatas[1], contractKnownToken.decimals)))} {contractKnownToken.symbol} to {namedAddress(callDatas[0])} &raquo;
-                    </Text>
+                    !!contractKnownToken && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                 }
                 <Flex fontSize="15px">
                     <Link isExternal href={`https://etherscan.io/address/${target}`} color="secondaryTextColor" fontWeight="semibold">
