@@ -10,7 +10,8 @@ import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { injectedConnector, walletLinkConnector } from '@app/variables/connectors'
+import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -165,15 +166,25 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
   return parseFloat(formatUnits(bnBalance, token.decimals));
 }
 
+export const getConnectorFromInstance = (connector: AbstractConnector | undefined) => {
+  if(connector instanceof InjectedConnector) {
+    return injectedConnector;
+  } else if(connector instanceof WalletLinkConnector) {
+    return walletLinkConnector;
+  } else if(connector instanceof WalletConnectConnector) {
+    return walletConnectConnector;
+  }
+  return null;
+}
+
 export const forceQuickAccountRefresh = (
   connector: AbstractConnector | undefined,
   deactivate: () => void,
-  activate: (c: InjectedConnector | WalletLinkConnector, onError?: () => void) => Promise<void>,
+  activate: (c: InjectedConnector | WalletLinkConnector | WalletConnectConnector, onError?: () => void) => Promise<void>,
   onActivateError?: () => void,
 ) => {
-  const isSupported = connector instanceof InjectedConnector || connector instanceof WalletLinkConnector;
-  if (!isSupported) { return }
-  deactivate()
-  const con = connector instanceof InjectedConnector ? injectedConnector : walletLinkConnector;
-  activate(con, onActivateError)
+  const supportedConnector = getConnectorFromInstance(connector);
+  if (supportedConnector === null) { return }
+  deactivate();
+  activate(supportedConnector, onActivateError)
 }
