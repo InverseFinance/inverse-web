@@ -49,6 +49,7 @@ import { getGasPrice } from '@app/util/etherscan'
 import { GasInfo } from '@app/components/common/Gas'
 import { formatUnits } from 'ethers/lib/utils';
 import { gaEvent } from '@app/util/analytics'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -228,6 +229,8 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       setIsPreviouslyConnected(true, 'coinbase');
     } else if (connector instanceof InjectedConnector && active) {
       setIsPreviouslyConnected(true, 'injected');
+    } else if (connector instanceof WalletConnectConnector && active) {
+      setIsPreviouslyConnected(true, 'walletConnect');
     }
   }, [active, userAddress, connector], !userAddress, 1000)
 
@@ -409,7 +412,12 @@ export const AppNav = ({ active }: { active?: string }) => {
   useEffect(() => {
     if (!walletActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
-      const connector = previousConnectorType === 'coinbase' ? walletLinkConnector : injectedConnector
+      const connectors = {
+        'coinbase': walletLinkConnector,
+        'injected': injectedConnector,
+        'walletConnect': walletConnectConnector,
+      }
+      const connector = connectors[previousConnectorType];
       activate(connector);
       setTimeout(() => activate(connector), 500);
     }
