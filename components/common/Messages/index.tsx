@@ -24,7 +24,7 @@ const statusAnims = {
 
 export const StatusMessage = ({ title, description, status = 'info', showIcon, alertProps, alertDescriptionProps, alertTitleProps }: Partial<MessageProps>) => {
     const alertPropsExtended = {
-        className: `blurred-container ${status}-bg`,
+        className: `blurred-container ${status}-bg compat-mode`,
         ...alertProps,
     };
     const IconComp = statusAnims[status];

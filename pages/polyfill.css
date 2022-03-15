@@ -26,6 +26,22 @@ body {
   
   /* slightly transparent fallback for Firefox (not supporting backdrop-filter) */
   @supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+    .compat-mode.info-bg {
+        background: linear-gradient(125deg, #4299e1 0%, #105b99 50%, #4299e1 100%);
+    }
+    .compat-mode.loading-bg {
+        background: linear-gradient(125deg, #4299e1 0%, #2e81c5 50%, #4299e1 100%);
+    }
+    .compat-mode.success-bg {
+        background: linear-gradient(125deg, #25C9A1 0%, #15b38b 50%, #25C9A1 100%)
+    }    
+    .compat-mode.error-bg {
+        background: linear-gradient(125deg, #F44061 0%, #d32a49 50%, #F44061 100%);
+    }
+    .compat-mode.warning-bg {
+        background: linear-gradient(125deg, #ed8936 0%, #d17225 50%, #ed8936 100%);
+    }
+
     .info-bg {
         background-color: #4299e1dd !important;
     }
