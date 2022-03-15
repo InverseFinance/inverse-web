@@ -7,6 +7,7 @@ import { TOKENS } from '@app/variables/tokens';
 import { capitalize } from '@app/util/misc';
 import { formatUnits } from 'ethers/lib/utils';
 import { getNetworkConfigConstants } from '@app/util/networks';
+import ScannerLink from '../common/ScannerLink';
 
 const { DOLA_PAYROLL, DOLA } = getNetworkConfigConstants();
 
@@ -21,7 +22,7 @@ const HumanReadableActionLabel = ({
 }) => {
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
 
-    const destinator = namedAddress(callDatas[0]);
+    const destinator = <ScannerLink value={callDatas[0]} label={namedAddress(callDatas[0])} />;
     const funName = signature.split('(')[0];
     const symbol = contractKnownToken.symbol;
     
@@ -30,7 +31,7 @@ const HumanReadableActionLabel = ({
     let text;
 
     if(target === DOLA_PAYROLL) {
-        text = `Add ${destinator} to the PayRolls with a yearly salary of ${amount} ${symbol}`
+        text = <Flex>Add ${destinator} to the PayRolls with a yearly salary of ${amount} ${symbol}</Flex>
     } else if(funName === 'approve') {
         text = `Set ${destinator}'s ${symbol} Allowance to ${amount}`;
     } else {
@@ -38,9 +39,9 @@ const HumanReadableActionLabel = ({
     }
 
     return (
-        <Text mb="2" fontStyle="italic">
+        <Flex mb="2" fontStyle="italic">
             &laquo; {text} &raquo; 
-        </Text>
+        </Flex>
     ) 
 }
 
