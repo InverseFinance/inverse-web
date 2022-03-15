@@ -82,7 +82,7 @@ export const MENUS = {
       items: [
         {
           label: 'Discord',
-          href: 'https://discord.gg/YpYJC7R5nv',
+          href: 'https://discord.com/invite/InverseFinance',
         },
         {
           label: 'Telegram',
@@ -110,7 +110,7 @@ export const MENUS = {
       image: '/assets/socials/twitter.svg',
     },
     {
-      href: 'https://discord.gg/YpYJC7R5nv',
+      href: 'https://discord.com/invite/InverseFinance',
       image: '/assets/socials/discord.svg',
     },
     {
