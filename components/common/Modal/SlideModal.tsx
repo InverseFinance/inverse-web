@@ -33,11 +33,12 @@ export const SlideModal = ({
                 contentProps={{
                     ref,
                     maxW: "1200px",
+                    position: 'relative',
                     border: "1px solid #ccc",
                     borderBottomWidth: "0",
                     borderBottomLeftRadius: 0,
                     borderBottomRightRadius: 0,
-                    className: "blurred-container info-bg",
+                    className: "blurred-container info-bg compat-mode",
                     boxShadow: '0px 0px 5px 5px #cccccc22',
                     pt: '4',
                 }}
