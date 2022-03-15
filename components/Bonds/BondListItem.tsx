@@ -32,7 +32,7 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
             </Flex>
             <Flex w='80px' position="relative">
                 <SubmitButton  w='full' onClick={() => handleDetails(bondIndex)}>
-                    Bond
+                    { bond.userInfos.percentVestedFor > 0 ? 'Details' : 'Bond' }
                 </SubmitButton>
                 {
                     bond.userInfos.percentVestedFor > 0 && <NotifBadge display="flex" alignItems="center" fontSize="10px">
