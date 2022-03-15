@@ -63,7 +63,7 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                             } />
                         <Box color="mainTextColor" mt="3">
                             You can share your proposal idea in our
-                            <Link fontWeight="bold" ml="1" href="https://discord.gg/YpYJC7R5nv" isExternal>
+                            <Link fontWeight="bold" ml="1" href="https://discord.com/invite/InverseFinance" isExternal>
                                 Discord
                             </Link>
                         </Box>
