@@ -3,18 +3,53 @@ import { AbiCoder, commify, FunctionFragment, isAddress } from 'ethers/lib/utils
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
 import { namedAddress } from '@app/util';
-import { TOKENS, UNDERLYING } from '@app/variables/tokens';
+import { REWARD_TOKEN, TOKENS, UNDERLYING } from '@app/variables/tokens';
 import { capitalize, removeScientificFormat } from '@app/util/misc';
 import { formatUnits } from 'ethers/lib/utils';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import ScannerLink from '@app/components/common/ScannerLink';
+import moment from 'moment';
+import { shortenNumber } from '@app/util/markets';
 
-const { DOLA_PAYROLL, DOLA, COMPTROLLER } = getNetworkConfigConstants();
+const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY } = getNetworkConfigConstants();
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
     return <Text display="inline-block" fontWeight="bold" color="secondary">
         {commify(removeScientificFormat(parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1))).replace(/\.0$/, '')}{isPerc && '%'}
     </Text>;
+}
+
+const XinvVestorHumanReadable = ({
+    target,
+    signature,
+    callDatas,
+}: {
+    target: string,
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text;
+
+    if (['deployVester'].includes(funName)) {
+        const [recipient, amountValue, startTimestampSec, durationSec, isCancellable] = callDatas;
+        const contractKnownToken = REWARD_TOKEN!;
+        const amount = <Amount value={amountValue} decimals={contractKnownToken.decimals} />;
+        const destinator = <ScannerLink color="info" value={recipient} label={namedAddress(recipient)} />;
+        const durationInDays = <b>{shortenNumber(parseInt(durationSec) / (3600 * 24), 0)} days</b>;
+        const startingDate = <b>{moment(parseInt(startTimestampSec)*1000).format('MMM Do YYYY')}</b>;
+
+        text = <Flex display="inline-block">
+            <Text>&laquo; Deploy a <b>{ isCancellable === 'false' && 'Non-' }Cancellable</b> XinvVester for {destinator}:</Text>
+            <Text>{amount} INV vested for {durationInDays} with a starting date of {startingDate} &raquo;</Text>
+        </Flex>
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+           {text}
+        </Flex>
+    )
 }
 
 const ComptrollerHumanReadableActionLabel = ({
@@ -90,6 +125,8 @@ const HumanReadableActionLabel = ({
         return <AnchorHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />;
     } else if (target === COMPTROLLER) {
         return <ComptrollerHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />;
+    } else if (target === XINV_VESTOR_FACTORY) {
+        return <XinvVestorHumanReadable target={target} signature={signature} callDatas={callDatas} />
     }
 
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
@@ -139,6 +176,7 @@ export const ProposalActionPreview = (({
         '_addReserves',
         '_setReserveFactor',
         '_setCollateralFactor',
+        'deployVester',
     ].includes(funName);
 
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target] || UNDERLYING[target];
@@ -154,7 +192,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    isHumanRedeableCaseHandled && (!!contractKnownToken || target === COMPTROLLER)
+                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY].includes(target))
                     && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                 }
                 <Flex fontSize="15px">
