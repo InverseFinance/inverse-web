@@ -70,7 +70,7 @@ export const DolaPayrollPage = () => {
     return event?.args[0].toLowerCase() === userAddress?.toLowerCase();
   });
 
-  userEvents.sort((a, b) => b.logIndex - a.logIndex);
+  userEvents.sort((a, b) => b.blockNumber - a.blockNumber);
 
   return (
     <Layout>

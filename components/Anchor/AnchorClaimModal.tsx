@@ -77,7 +77,7 @@ export const AnchorClaimModal = ({
                         Claim
                     </SubmitButton>
                     {
-                        !notEnoughAllowance && <InfoMessage
+                        notEnoughAllowance && <InfoMessage
                             alertProps={{ fontSize: '12px', w: 'full' }}
                             title="Anchor's INV available Rewards too low"
                             description="Claiming is temporarily unavailable at the moment as we need to replenish Anchor with INV tokens, please check the Governance page for more infos on the on-going process"
