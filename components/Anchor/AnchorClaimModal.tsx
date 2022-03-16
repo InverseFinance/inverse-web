@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { Modal } from '@app/components/common/Modal';
-import { Checkbox, CheckboxGroup, Stack, Text, Box } from '@chakra-ui/react';
+import { Checkbox, CheckboxGroup, Stack, Text, Box, VStack } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { useMarkets } from '@app/hooks/useMarkets';
 import { useSupplyBalances } from '@app/hooks/useBalances';
-import { getParsedBalance } from '@app/util/markets';
+import { getBnToNumber, getParsedBalance } from '@app/util/markets';
 import { claimInvRewards } from '@app/util/contracts';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { InfoMessage } from '@app/components/common/Messages';
+import useEtherSWR from '@app/hooks/useEtherSWR';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { REWARD_TOKEN } from '@app/variables/tokens';
+
+const { COMPTROLLER, INV, TREASURY } = getNetworkConfigConstants();
 
 type Props = {
     rewardAmount: number,
@@ -25,6 +30,9 @@ export const AnchorClaimModal = ({
     const { markets, isLoading: marketsLoading } = useMarkets()
     const { balances: supplyBalances, isLoading: balancesLoading } = useSupplyBalances()
     const [checkedMarkets, setCheckedMarkets] = useState<string[]>([]);
+    const { data: rewardsAllowance } = useEtherSWR([
+        INV, 'allowance', TREASURY, COMPTROLLER,
+    ])
 
     const close = () => {
         onClose()
@@ -51,7 +59,8 @@ export const AnchorClaimModal = ({
             {market.underlying.symbol}
         </Checkbox>)
 
-    const isDisabled = !checkedMarkets.length || marketsLoading || balancesLoading || !account;
+    const notEnoughAllowance = rewardAmount > (getBnToNumber(rewardsAllowance || 0, REWARD_TOKEN!.decimals));
+    const isDisabled = !checkedMarkets.length || marketsLoading || balancesLoading || !account || notEnoughAllowance;
 
     return (
         <Modal
@@ -63,9 +72,18 @@ export const AnchorClaimModal = ({
                 </Stack>
             }
             footer={
-                <SubmitButton disabled={isDisabled} onClick={handleClaim} refreshOnSuccess={true}>
-                    Claim
-                </SubmitButton>
+                <VStack w='full'>
+                    <SubmitButton disabled={isDisabled} onClick={handleClaim} refreshOnSuccess={true}>
+                        Claim
+                    </SubmitButton>
+                    {
+                        !notEnoughAllowance && <InfoMessage
+                            alertProps={{ fontSize: '12px', w: 'full' }}
+                            title="Anchor's INV available Rewards too low"
+                            description="Claiming is temporarily unavailable at the moment as we need to replenish Anchor with INV tokens, please check the Governance page for more infos on the on-going process"
+                        />
+                    }
+                </VStack>
             }
         >
             <CheckboxGroup colorScheme='green' defaultValue={[]} value={checkedMarkets} onChange={handleCheck}>
@@ -73,8 +91,8 @@ export const AnchorClaimModal = ({
                     <Text mb="4" fontSize="14px">
                         Pools giving {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards where you have <b>supplied tokens</b> :
                     </Text>
-                    { checkboxesWithBalance }
-                    { !checkboxesWithBalance.length ? 'None' : '' }
+                    {checkboxesWithBalance}
+                    {!checkboxesWithBalance.length ? 'None' : ''}
                     {
                         checkboxesWithoutBalance?.length > 0 &&
                         <>
