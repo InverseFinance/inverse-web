@@ -205,7 +205,7 @@ export const VesterPage = () => {
                             <SubmitButton
                               refreshOnSuccess={true}
                               disabled={newRecipient.toLowerCase() === userAddress.toLowerCase() || !newRecipient || !isAddress(newRecipient)}
-                              onClick={() => vesterChangeRecipient(library?.getSigner()!, vesterAddress, vesterDelegate)}>
+                              onClick={() => vesterChangeRecipient(library?.getSigner()!, vesterAddress, newRecipient)}>
                               TRANSFER RIGHTS
                             </SubmitButton>
                           </VStack>
