@@ -15,3 +15,8 @@ export const vesterClaim = (signer: JsonRpcSigner, vesterAd: string) => {
     const contract = new Contract(vesterAd, VESTER_ABI, signer);
     return contract.claim();
 }
+
+export const vesterChangeDelegate = (signer: JsonRpcSigner, vesterAd: string, newDelegate: string) => {
+    const contract = new Contract(vesterAd, VESTER_ABI, signer);
+    return contract.delegate(newDelegate);
+}
