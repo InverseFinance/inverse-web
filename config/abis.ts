@@ -239,6 +239,10 @@ export const BOND_ABI_VARIANT = BASE_BOND_ABI.concat([
 
 const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
 
+export const VESTER_FACTORY_ABI = [
+  "function vesters(uint256) public view returns (address)",
+]
+
 export const VESTER_ABI = [
   "function recipient() public view returns (address)",
   "function governance() public view returns (address)",
@@ -282,6 +286,8 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     FEDS,
     MULTISIGS,
     DOLA_PAYROLL,
+    XINV_VESTOR_FACTORY,
+    VESTERS,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -303,6 +309,8 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [TREASURY, TREASURY_ABI],
         [INTEREST_MODEL, INTEREST_MODEL_ABI],
         [DOLA_PAYROLL, DOLA_PAYROLL_ABI],
+        [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
+        ...VESTERS.map(vesterAd => [vesterAd, VESTER_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
