@@ -20,3 +20,13 @@ export const vesterChangeDelegate = (signer: JsonRpcSigner, vesterAd: string, ne
     const contract = new Contract(vesterAd, VESTER_ABI, signer);
     return contract.delegate(newDelegate);
 }
+
+export const vesterChangeRecipient = (signer: JsonRpcSigner, vesterAd: string, newRecipient: string) => {
+    const contract = new Contract(vesterAd, VESTER_ABI, signer);
+    return contract.setRecipient(newRecipient);
+}
+
+export const vesterCancel = (signer: JsonRpcSigner, vesterAd: string) => {
+    const contract = new Contract(vesterAd, VESTER_ABI, signer);
+    return contract.cancel();
+}

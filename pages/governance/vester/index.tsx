@@ -12,16 +12,17 @@ import { NetworkIds } from '@app/types';
 import { commify, isAddress } from 'ethers/lib/utils';
 import Container from '@app/components/common/Container';
 import { getScanner } from '@app/util/web3';
-import { vesterChangeDelegate, vesterClaim } from '@app/util/payroll';
+import { vesterChangeDelegate, vesterChangeRecipient, vesterClaim } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import moment from 'moment';
-import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
+import { ErrorMessage, InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BigNumber } from 'ethers';
 import { REWARD_TOKEN } from '@app/variables/tokens';
 import { Input } from '@app/components/common/Input';
 import { useState } from 'react';
 import { namedAddress } from '@app/util';
 import Link from '@app/components/common/Link';
+import { vesterCancel } from '@app/util/payroll';
 
 const { VESTERS, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -35,6 +36,7 @@ export const VesterPage = () => {
   const { query } = useRouter();
   const userAddress = (query?.viewAddress as string) || account;
   const [vesterDelegate, setVesterDelegate] = useState('');
+  const [newRecipient, setNewRecipient] = useState('');
 
   const { data: vesterRecipients } = useEtherSWR([
     ...VESTERS.map(vesterAd => [vesterAd, 'recipient']),
@@ -164,15 +166,17 @@ export const VesterPage = () => {
                             <Text>
                               Vester Contract's Delegate:
                             </Text>
-                            <WarningMessage
-                              alertProps={{ fontSize: '12px' }}
-                              title="Vester's Delegation Not Synced with yours"
-                              description={
-                                <Text fontWeight="normal">
-                                  You are delegating to <DelegateLink address={accountDelegate} /> but your Vester Contract is currently delegating to <DelegateLink address={currentVesterDelegate} />
-                                </Text>
-                              }
-                            />
+                            {
+                              accountDelegate.toLowerCase() !== currentVesterDelegate.toLowerCase() && <WarningMessage
+                                alertProps={{ fontSize: '12px', w: 'full' }}
+                                title="Vester's Delegation Not Synced with yours"
+                                description={
+                                  <Text fontWeight="normal">
+                                    You are delegating to <DelegateLink address={accountDelegate} /> but your Vester Contract is currently delegating to <DelegateLink address={currentVesterDelegate} />
+                                  </Text>
+                                }
+                              />
+                            }
                             <Input textAlign="left" fontSize="12px" placeholder={currentVesterDelegate} value={vesterDelegate} onChange={(e) => setVesterDelegate(e.target.value)} />
                             <SubmitButton
                               refreshOnSuccess={true}
@@ -182,6 +186,56 @@ export const VesterPage = () => {
                             </SubmitButton>
                           </VStack>
                         </Stack>
+                        <Divider />
+                        <Stack w='full'>
+                          <VStack fontWeight="bold" alignItems="flex-start" justify="flex-start">
+                            <Text>
+                              Vester Contract's Recipient:
+                            </Text>
+                            <WarningMessage
+                              alertProps={{ fontSize: '12px', w: 'full' }}
+                              title="Transfer Rights"
+                              description={
+                                <Text fontWeight="normal">
+                                  Changing the <b>Recipient</b> Address means transferring rights on the Vested tokens to another address, make sure you type the right address
+                                </Text>
+                              }
+                            />
+                            <Input textAlign="left" fontSize="12px" placeholder={userAddress} value={newRecipient} onChange={(e) => setNewRecipient(e.target.value)} />
+                            <SubmitButton
+                              refreshOnSuccess={true}
+                              disabled={newRecipient.toLowerCase() === userAddress.toLowerCase() || !newRecipient || !isAddress(newRecipient)}
+                              onClick={() => vesterChangeRecipient(library?.getSigner()!, vesterAddress, vesterDelegate)}>
+                              TRANSFER RIGHTS
+                            </SubmitButton>
+                          </VStack>
+                        </Stack>
+                        {
+                          isCancellable && !isCancelled && <>
+                            <Divider />
+                            <Stack w='full'>
+                              <VStack fontWeight="bold" alignItems="flex-start" justify="flex-start">
+                                <Text>
+                                  Cancel the Vester:
+                                </Text>
+                                <WarningMessage
+                                  alertProps={{ fontSize: '12px', w: 'full' }}
+                                  title="Claim and Return the Rest to Treasury"
+                                  description={
+                                    <Text fontWeight="normal">
+                                      This is similar to a Work Contract termination, cancelling the Vesting will give you the proportion of INV available to be claimed at the moment and the rest will return to the Treasury
+                                    </Text>
+                                  }
+                                />
+                                <SubmitButton
+                                  refreshOnSuccess={true}
+                                  onClick={() => vesterCancel(library?.getSigner()!, vesterAddress)}>
+                                  CANCEL VESTER
+                                </SubmitButton>
+                              </VStack>
+                            </Stack>
+                          </>
+                        }
                       </>
                       :
                       isLoading ?
