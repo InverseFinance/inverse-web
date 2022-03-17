@@ -193,7 +193,7 @@ export const VesterPage = () => {
                               Vester Contract's Recipient:
                             </Text>
                             <DangerMessage
-                              alertProps={{ fontSize: '12px', w: 'full'}}
+                              alertProps={{ fontSize: '12px', w: 'full' }}
                               title="Transfer Rights"
                               description={
                                 <Text fontWeight="normal">
@@ -203,6 +203,7 @@ export const VesterPage = () => {
                             />
                             <Input textAlign="left" fontSize="12px" placeholder={userAddress} value={newRecipient} onChange={(e) => setNewRecipient(e.target.value)} />
                             <SubmitButton
+                              themeColor="red.500"
                               refreshOnSuccess={true}
                               disabled={newRecipient.toLowerCase() === userAddress.toLowerCase() || !newRecipient || !isAddress(newRecipient)}
                               onClick={() => vesterChangeRecipient(library?.getSigner()!, vesterAddress, newRecipient)}>
@@ -228,6 +229,7 @@ export const VesterPage = () => {
                                   }
                                 />
                                 <SubmitButton
+                                  themeColor="red.500"
                                   refreshOnSuccess={true}
                                   onClick={() => vesterCancel(library?.getSigner()!, vesterAddress)}>
                                   CANCEL VESTER
