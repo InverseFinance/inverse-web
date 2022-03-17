@@ -15,7 +15,7 @@ import { getScanner } from '@app/util/web3';
 import { vesterChangeDelegate, vesterChangeRecipient, vesterClaim } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import moment from 'moment';
-import { ErrorMessage, InfoMessage, WarningMessage } from '@app/components/common/Messages';
+import { DangerMessage, InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BigNumber } from 'ethers';
 import { REWARD_TOKEN } from '@app/variables/tokens';
 import { Input } from '@app/components/common/Input';
@@ -192,8 +192,8 @@ export const VesterPage = () => {
                             <Text>
                               Vester Contract's Recipient:
                             </Text>
-                            <WarningMessage
-                              alertProps={{ fontSize: '12px', w: 'full' }}
+                            <DangerMessage
+                              alertProps={{ fontSize: '12px', w: 'full'}}
                               title="Transfer Rights"
                               description={
                                 <Text fontWeight="normal">
@@ -218,7 +218,7 @@ export const VesterPage = () => {
                                 <Text>
                                   Cancel the Vester:
                                 </Text>
-                                <WarningMessage
+                                <DangerMessage
                                   alertProps={{ fontSize: '12px', w: 'full' }}
                                   title="Claim and Return the Rest to Treasury"
                                   description={
