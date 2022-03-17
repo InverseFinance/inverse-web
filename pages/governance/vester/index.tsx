@@ -15,13 +15,19 @@ import { getScanner } from '@app/util/web3';
 import { vesterChangeDelegate, vesterClaim } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import moment from 'moment';
-import { InfoMessage } from '@app/components/common/Messages';
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BigNumber } from 'ethers';
 import { REWARD_TOKEN } from '@app/variables/tokens';
 import { Input } from '@app/components/common/Input';
 import { useState } from 'react';
+import { namedAddress } from '@app/util';
+import Link from '@app/components/common/Link';
 
 const { VESTERS, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+const DelegateLink = ({ address }: { address: string }) => {
+  return <Link fontWeight="bold" textDecoration="underline" display="inline-block" href={`/governance/delegates/${address}`}>{namedAddress(address)}</Link>
+}
 
 export const VesterPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
@@ -50,6 +56,7 @@ export const VesterPage = () => {
         [vesterAddress, 'isCancellable'],
         [vesterAddress, 'isCancelled'],
         [XINV, 'delegates', vesterAddress],
+        [XINV, 'delegates', userAddress],
       ]
       :
       [[]]
@@ -58,14 +65,14 @@ export const VesterPage = () => {
   const isLoading = vesterRecipients === undefined && recipientData === undefined;
   const hasNoVester = !isLoading && !vesterAddress;
 
-  const [claimableINV, vestingXinvAmount, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled, currentVesterDelegate] = recipientData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false, userAddress];
+  const [claimableINV, vestingXinvAmount, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled, currentVesterDelegate, accountDelegate] = recipientData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false, userAddress, userAddress];
 
   const widthdrawable = getBnToNumber(claimableINV, REWARD_TOKEN!.decimals);
   const totalIntialVested = getBnToNumber(vestingXinvAmount, REWARD_TOKEN!.decimals) * (getBnToNumber(exRate || 0));
   const startTimestamp = parseInt(vestingBegin.toString()) * 1000;
   const endTimestamp = parseInt(vestingEnd.toString()) * 1000;
   const lastClaimTimestamp = parseInt(lastUpdate.toString()) * 1000;
-  const vestingPerc = (Date.now() - startTimestamp) / (endTimestamp - startTimestamp) * 100;
+  const vestingPerc = Math.min((Date.now() - startTimestamp) / (endTimestamp - startTimestamp) * 100, 100);
 
   const formatDate = (timestamp: number, isSmaller: boolean) => {
     return `${moment(timestamp).format('MMM Do, YYYY')}${isSmaller ? '' : ` (${moment(timestamp).fromNow()})`}`
@@ -81,7 +88,7 @@ export const VesterPage = () => {
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="mainTextColor">
           <Container
             contentBgColor="gradient3"
-            label="Personal INV Vester"
+            label="Account's INV Vester"
             description="See Contract"
             maxWidth="1000px"
             minW="320px"
@@ -142,6 +149,9 @@ export const VesterPage = () => {
                                 </Text>
                                 <Text fontWeight="extrabold">{commify(widthdrawable.toFixed(2))} INV</Text>
                               </Flex>
+                              <Text textAlign="center" fontSize="12px">
+                                Reminder: Vested Tokens are already staked on Anchor and generating yield
+                              </Text>
                             </VStack>
                           }
                         />
@@ -150,17 +160,25 @@ export const VesterPage = () => {
                         </SubmitButton>
                         <Divider />
                         <Stack w='full'>
-
                           <VStack fontWeight="bold" alignItems="flex-start" justify="flex-start">
                             <Text>
                               Vester Contract's Delegate:
                             </Text>
+                            <WarningMessage
+                              alertProps={{ fontSize: '12px' }}
+                              title="Vester's Delegation Not Synced with yours"
+                              description={
+                                <Text fontWeight="normal">
+                                  You are delegating to <DelegateLink address={accountDelegate} /> but your Vester Contract is currently delegating to <DelegateLink address={currentVesterDelegate} />
+                                </Text>
+                              }
+                            />
                             <Input textAlign="left" fontSize="12px" placeholder={currentVesterDelegate} value={vesterDelegate} onChange={(e) => setVesterDelegate(e.target.value)} />
                             <SubmitButton
                               refreshOnSuccess={true}
                               disabled={currentVesterDelegate.toLowerCase() === vesterDelegate.toLowerCase() || !vesterDelegate || !isAddress(vesterDelegate)}
                               onClick={() => vesterChangeDelegate(library?.getSigner()!, vesterAddress, vesterDelegate)}>
-                              Change Delegate
+                              Change Vester Contract's Delegate
                             </SubmitButton>
                           </VStack>
                         </Stack>
