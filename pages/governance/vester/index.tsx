@@ -1,4 +1,4 @@
-import { Flex, Text, VStack, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Text, VStack, useMediaQuery, Stack, Divider } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -19,7 +19,7 @@ import { InfoMessage } from '@app/components/common/Messages';
 import { BigNumber } from 'ethers';
 import { REWARD_TOKEN } from '@app/variables/tokens';
 
-const { VESTERS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { VESTERS, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const VesterPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
@@ -33,6 +33,8 @@ export const VesterPage = () => {
 
   const recipientIndex = (vesterRecipients || []).findIndex(recipient => recipient === userAddress);
   const vesterAddress = VESTERS[recipientIndex];
+
+  const { data: exRate } = useEtherSWR([XINV, 'exchangeRateStored']);
 
   const { data: recipientData } = useEtherSWR(
     !!vesterAddress ?
@@ -55,6 +57,7 @@ export const VesterPage = () => {
   const [claimableINV, vestingXinvAmount, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled] = recipientData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false];
 
   const widthdrawable = getBnToNumber(claimableINV, REWARD_TOKEN!.decimals);
+  const totalIntialVested = getBnToNumber(vestingXinvAmount, REWARD_TOKEN!.decimals) * (getBnToNumber(exRate || 0));
   const startTimestamp = parseInt(vestingBegin.toString()) * 1000;
   const lastClaimTimestamp = parseInt(lastUpdate.toString()) * 1000;
 
@@ -88,6 +91,14 @@ export const VesterPage = () => {
                         alertProps={{ minW: '400px', w: 'full', py: isSmaller ? '10px' : '20px', fontSize: isSmaller ? '12px' : '14px' }}
                         description={
                           <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
+                            <Flex fontWeight="bold" alignItems="center" justify="space-between">
+                              <Text>
+                                - <b>Initial INV amount</b>:
+                              </Text>
+                              <Text fontWeight="extrabold">
+                                {commify(totalIntialVested.toFixed(2))} INV
+                              </Text>
+                            </Flex>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
                                 - <b>Start Time</b>:
@@ -101,10 +112,10 @@ export const VesterPage = () => {
                               <Text fontWeight="extrabold">{!lastClaimTimestamp || lastClaimTimestamp === startTimestamp ? 'Never claimed yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex fontWeight="bold" alignItems="center" justify="space-between">
-                              <Text color="secondary">
-                                - <b>Withdrawable</b>:
+                              <Text>
+                                - <b>Currently Claimable</b>:
                               </Text>
-                              <Text fontWeight="extrabold" color="secondary">{commify(widthdrawable.toFixed(2))} INV</Text>
+                              <Text fontWeight="extrabold">{commify(widthdrawable.toFixed(2))} INV</Text>
                             </Flex>
                           </VStack>
                         }
@@ -116,8 +127,12 @@ export const VesterPage = () => {
 
                   }
                   <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => vesterClaim(library?.getSigner()!, vesterAddress)}>
-                    Withdraw
+                    Claim
                   </SubmitButton>
+                  <Stack w='full'>
+                    <Divider />
+
+                  </Stack>
                 </VStack>
             }
           </Container>
