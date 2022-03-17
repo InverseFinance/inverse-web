@@ -221,7 +221,6 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     <Container
       contentBgColor="gradient2"
       label="Swap using Curve or the Stabilizer"
-      description={`This is a Beta version with stablecoins only - ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} will be added soon`}
     >
       <Stack w="full" direction="column" spacing="5">
         <AssetInput
