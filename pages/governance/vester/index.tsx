@@ -104,7 +104,7 @@ export const VesterPage = () => {
                     !isLoading && !hasNoVester ?
                       <>
                         <InfoMessage
-                          alertProps={{ minW: '400px', w: 'full', py: isSmaller ? '10px' : '20px', fontSize: isSmaller ? '12px' : '14px' }}
+                          alertProps={{ minW: { base: '40px', sm: '400px' }, w: 'full', py: isSmaller ? '10px' : '20px', fontSize: isSmaller ? '12px' : '14px' }}
                           description={
                             <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
                               <Flex fontWeight="bold" alignItems="center" justify="space-between">
