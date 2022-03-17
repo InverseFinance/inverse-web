@@ -12,7 +12,8 @@ type MessageProps = {
     alertProps?: AlertProps,
     alertTitleProps?: AlertTitleProps,
     alertDescriptionProps?: AlertDescriptionProps,
-    showIcon?: boolean
+    showIcon?: boolean,
+    iconStatus?: 'info' | 'success' | 'warning' | 'error' | 'danger',
 }
 
 const statusAnims = {
@@ -20,14 +21,15 @@ const statusAnims = {
     success: SuccessAnimIcon,
     warning: WarningAnimIcon,
     error: ErrorAnimIcon,
+    danger: WarningAnimIcon,
 }
 
-export const StatusMessage = ({ title, description, status = 'info', showIcon, alertProps, alertDescriptionProps, alertTitleProps }: Partial<MessageProps>) => {
+export const StatusMessage = ({ title, description, status = 'info', iconStatus ,showIcon, alertProps, alertDescriptionProps, alertTitleProps }: Partial<MessageProps>) => {
     const alertPropsExtended = {
         className: `blurred-container ${status}-bg compat-mode`,
         ...alertProps,
     };
-    const IconComp = statusAnims[status];
+    const IconComp = statusAnims[iconStatus || status];
     return <Message status={status}
         title={title}
         showIcon={showIcon}
@@ -59,6 +61,7 @@ export const InfoMessage = (props: Partial<MessageProps>) => <StatusMessage {...
 export const SuccessMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="success" />
 export const WarningMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="warning" />
 export const ErrorMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="error" />
+export const DangerMessage = (props: Partial<MessageProps>) => <StatusMessage {...props} status="error" iconStatus="warning" />
 
 export const AlertMessage = ({ title, description, alertProps }: Partial<MessageProps>) => {
     return <Message status="warning" title={title} description={description} icon={<WarningIcon mr="2" />} {...alertProps} />
