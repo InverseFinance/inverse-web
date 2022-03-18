@@ -3,6 +3,7 @@ import { namedAddress } from '@app/util';
 import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 import { NamedAddressBox } from '@app/components/common/NamedAddressBox/NamedAddressBox';
+import { NetworkIds } from '@app/types';
 
 const primaryStyle = { backgroundColor: '#5E17EBcc', color: 'white' }
 
@@ -27,7 +28,7 @@ export const MultisigsFlowChart = ({
   multisigs,
 }: {
   multisigs: {
-    address: string, name: string, owners: string[]
+    address: string, name: string, owners: string[], chainId: NetworkIds,
   }[]
 }) => {
   const [baseWidth, setBaseWidth] = useState('');
@@ -54,7 +55,7 @@ export const MultisigsFlowChart = ({
     const pos = positions[multisig.address.toLowerCase()] || { x: multisigX, y: 0 }
     return {
       label: `👥 ${namedAddress(multisig.address)}`,
-      id: multisig.address,
+      id: `${multisig.chainId}-${multisig.address}`,
       style: primaryStyle,
       ...pos,
       targets: multisig.owners.map((owner, j) => {
@@ -70,7 +71,7 @@ export const MultisigsFlowChart = ({
         }
         return {
           label: <NamedAddressBox children={owner} />,
-          id: owner,
+          id: `${multisig.chainId}-${owner}`,
           linkLabel: '',
           ...ownerPos,
         }

@@ -11,10 +11,14 @@ import { usePrices } from '@app/hooks/usePrices'
 import { Funds } from '@app/components/Transparency/Funds'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { NetworkIds } from '@app/types';
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
+import { useState } from 'react'
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
   const { prices } = usePrices();
+  const [chainId, setChainId] = useState(NetworkIds.mainnet);
 
   return (
     <Layout>
@@ -23,10 +27,26 @@ export const MultisigsDiagram = () => {
       </Head>
       <AppNav active="Transparency" />
       <TransparencyTabs active="multisigs" />
+      <RadioCardGroup
+            wrapperProps={{ w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
+            group={{
+              name: 'network',
+              defaultValue: NetworkIds.mainnet,
+              onChange: (t) => setChainId(t),
+            }}
+            radioCardProps={{ w: '120px', textAlign: 'center', p: '2' }}
+            options={[
+              { label: 'Ethereum', value: NetworkIds.mainnet },
+              { label: 'Fantom', value: NetworkIds.ftm },
+            ]}
+          />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
+
         <Flex direction="column" py="2">
-          <MultisigsFlowChart multisigs={multisigs} />
+          { chainId === NetworkIds.mainnet && <MultisigsFlowChart multisigs={multisigs.filter(m => m.chainId === NetworkIds.mainnet)} /> }
+          { chainId === NetworkIds.ftm && <MultisigsFlowChart multisigs={multisigs.filter(m => m.chainId === NetworkIds.ftm)} /> }
         </Flex>
+
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <ShrinkableInfoMessage
             title={<>🏛️ Multisig Wallets Purposes (<Link isExternal display="inline-block" href="https://help.gnosis-safe.io/en/articles/3876456-what-is-gnosis-safe">More Infos <ExternalLinkIcon mb="2px" /></Link>)</>}
