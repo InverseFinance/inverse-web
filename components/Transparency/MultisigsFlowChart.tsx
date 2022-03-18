@@ -13,11 +13,14 @@ const elementsOptions = {
 
 const positions: { [key: string]: { x: number, y: number } } = {
   '0x3fcb35a1cbfb6007f9bc638d388958bc4550cb28': { x: 600, y: -200 },
-  '0xb9f43e250dadf6b61872307396ad1b8beba27bcd': { x: 400, y: -50 },
+  '0xb9f43e250dadf6b61872307396ad1b8beba27bcd': { x: 600, y: 400 },
   '0x4b6c63e6a94ef26e2df60b89372db2d8e211f1b7': { x: 0, y: -300 },
   '0x77c64eef5f4781dd6e9405a8a77d80567cfd37e0': { x: 1200, y: -300 },
-  '0x07de0318c24d67141e6758370e9d7b6d863635aa': { x: 800, y: -50 },
-  '0x41225088326fe055fbf40ad34d862bbd7bd0c9b4': { x: 800, y: 150 },
+  '0x07de0318c24d67141e6758370e9d7b6d863635aa': { x: 1000, y: -50 },
+  '0x41225088326fe055fbf40ad34d862bbd7bd0c9b4': { x: 1100, y: 150 },
+  '0x9d5df30f475cea915b1ed4c0cca59255c897b61b': { x: 600, y: 0 },
+  '0xad4a190d4aea2180b66906537f1fd9700c83842a': { x: 400, y: -150 },
+  '0x962228a90eac69238c7d1f216d80037e61ea9255': { x: 350, y: 0 },
 }
 
 export const MultisigsFlowChart = ({
