@@ -41,7 +41,11 @@ export const MultisigsDiagram = () => {
                   <Text>Investments & Costs regarding Growth</Text>
                 </Flex>
                 <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Rewards Committee:</Text>
+                  <Text fontWeight="bold">- TWG:</Text>
+                  <Text>Optimize Inverse Treasury management</Text>
+                </Flex>
+                <Flex direction="row" w='full' justify="space-between">
+                  <Text fontWeight="bold">- Rewards Committee (deprecated):</Text>
                   <Text>Compensate contributors</Text>
                 </Flex>
               </>

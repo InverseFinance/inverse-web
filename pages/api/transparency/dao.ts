@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       }),
     ]);
 
-    const multisigsToShow = Object.entries(MULTISIGS).slice(0, 3);
+    const multisigsToShow = Object.entries(MULTISIGS);
 
     // Multisigs
     const multisigsOwners = await Promise.all([
