@@ -92,6 +92,7 @@ export const MultisigsFlowChart = ({
 
   return (
     <FlowChart
+      chainId={chainId}
       options={{
         showControls: !isLargerThan,
         showBackground: !isLargerThan,

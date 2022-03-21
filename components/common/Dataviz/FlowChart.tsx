@@ -5,7 +5,7 @@ import ReactFlow, {
   Background,
 } from 'react-flow-renderer';
 
-import { FlowChartData, FlowChartElementsOptions, FlowChartOptions } from '@app/types';
+import { FlowChartData, FlowChartElementsOptions, FlowChartOptions, NetworkIds } from '@app/types';
 import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@app/util';
 import ScannerLink from '@app/components/common/ScannerLink';
@@ -22,16 +22,16 @@ const defaultNodeSyle = {
 };
 
 
-const ElementLabel = ({ label, address }: { label: React.ReactNode, address: string }) => {
+const ElementLabel = ({ label, address, chainId }: { label: React.ReactNode, address: string, chainId: NetworkIds }) => {
   return (
     <VStack>
       <Flex fontWeight="bold" fontSize="18px" alignItems="center">{label}</Flex>
-      <ScannerLink _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
+      <ScannerLink chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
     </VStack>
   )
 }
 
-const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) => {
+const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, chainId: NetworkIds) => {
   const elements: any = [];
 
   const width = options?.width || 1000;
@@ -46,7 +46,7 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) 
     if (!elements.find((el) => el.id === id)) {
       elements.push({
         id,
-        data: { label: <ElementLabel label={link.label} address={id} /> },
+        data: { label: <ElementLabel chainId={chainId} label={link.label} address={id} /> },
         position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (originY + yGap * i) },
         style: { ...defaultNodeSyle, ...(link.style || {}) },
         targetPosition: link.targetPosition,
@@ -64,7 +64,7 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions) 
         const x = target.x ?? ((-xGap + originX + (xGap * j)) + (target.deltaX || 0))
         const y = target.y ?? (yGap * (i + 1) + (target.deltaY || 0))
         elements.push({
-          data: { label: <ElementLabel label={target.label} address={targetId} /> },
+          data: { label: <ElementLabel chainId={chainId} label={target.label} address={targetId} /> },
           id: targetId,
           position: { x, y },
           style: { ...defaultNodeSyle, ...(target.style || {}) },
@@ -108,10 +108,12 @@ export const FlowChart = ({
   flowData,
   options,
   boxProps,
+  chainId = NetworkIds.mainnet,
 }: {
   flowData: FlowChartData[],
   options?: FlowChartOptions,
   boxProps?: BoxProps
+  chainId?: NetworkIds,
 }) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams | undefined>(undefined)
 
@@ -135,7 +137,7 @@ export const FlowChart = ({
     return     <Box {...boxProps}></Box>
   }
 
-  const elements = toElements(flowData, options?.elementsOptions);
+  const elements = toElements(flowData, options?.elementsOptions, chainId);
 
   return (
     <Box {...boxProps}>
