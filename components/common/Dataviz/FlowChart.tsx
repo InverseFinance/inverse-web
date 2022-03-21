@@ -117,6 +117,10 @@ export const FlowChart = ({
 
   const handleLoad = (instance: OnLoadParams) => {
     instance.fitView();
+    setTimeout(() => {
+      instance.fitView();
+    }, 0);
+    
     if (!reactFlowInstance) {
       setReactFlowInstance(instance);
     }
