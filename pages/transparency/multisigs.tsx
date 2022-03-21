@@ -29,23 +29,23 @@ export const MultisigsDiagram = () => {
       <AppNav active="Transparency" />
       <TransparencyTabs active="multisigs" />
       <RadioCardGroup
-            wrapperProps={{ w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
-            group={{
-              name: 'network',
-              defaultValue: NetworkIds.mainnet,
-              onChange: (t) => setChainId(t),
-            }}
-            radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
-            options={[
-              { label: <Flex alignItems="center"><NetworkItem chainId={NetworkIds.mainnet} /></Flex>, value: NetworkIds.mainnet },
-              { label: <Flex alignItems="center"><NetworkItem ignoreUnsupportedWarning={true} chainId={NetworkIds.ftm} /></Flex>, value: NetworkIds.ftm },
-            ]}
-          />
+        wrapperProps={{ w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
+        group={{
+          name: 'network',
+          defaultValue: NetworkIds.mainnet,
+          onChange: (t) => setChainId(t),
+        }}
+        radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
+        options={[
+          { label: <Flex alignItems="center"><NetworkItem chainId={NetworkIds.mainnet} /></Flex>, value: NetworkIds.mainnet },
+          { label: <Flex alignItems="center"><NetworkItem ignoreUnsupportedWarning={true} chainId={NetworkIds.ftm} /></Flex>, value: NetworkIds.ftm },
+        ]}
+      />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
 
         <Flex direction="column" py="2">
-          { chainId === NetworkIds.mainnet && <MultisigsFlowChart chainId={NetworkIds.mainnet} multisigs={multisigs.filter(m => m.chainId === NetworkIds.mainnet)} /> }
-          { chainId === NetworkIds.ftm && <MultisigsFlowChart chainId={NetworkIds.ftm} multisigs={multisigs.filter(m => m.chainId === NetworkIds.ftm)} /> }
+          {chainId === NetworkIds.mainnet && <MultisigsFlowChart chainId={NetworkIds.mainnet} multisigs={multisigs.filter(m => m.chainId === NetworkIds.mainnet)} />}
+          {chainId === NetworkIds.ftm && <MultisigsFlowChart chainId={NetworkIds.ftm} multisigs={multisigs.filter(m => m.chainId === NetworkIds.ftm)} />}
         </Flex>
 
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
@@ -79,7 +79,14 @@ export const MultisigsDiagram = () => {
                 title={
                   <Flex alignItems="center">
                     👥 {multisig.name} (
-                    <Link isExternal href={`https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`}>
+                    <Link
+                      isExternal
+                      href={
+                        multisig.chainId === NetworkIds.mainnet ?
+                          `https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`
+                          :
+                          `https://safe.fantom.network/#/safes/${multisig.address}/transactions`
+                      }>
                       Transactions History <ExternalLinkIcon mb="2px" />
                     </Link>)
                   </Flex>
