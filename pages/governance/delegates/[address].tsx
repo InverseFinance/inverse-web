@@ -64,6 +64,8 @@ type Tabs = 'votes' | 'supporters' | 'delegations';
 
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
   const { chainId, library, active, account } = useWeb3React<Web3Provider>()
+  const { query } = useRouter();
+  const userAddress = (query?.viewAddress as string) || account;
   const { delegates, isLoading } = useDelegates(address)
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
@@ -163,14 +165,21 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
             }
           </VStack>}
           {
-            addressIsNotDelegating ?
-              delegationCases[delegationCase]
-              :
-              <InfoMessage description={
-                <>
-                  {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/' + addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
-                </>
-              } />
+            addressDelegate !== address && <InfoMessage alertProps={{ w: 'full' }} description={
+              <>
+                {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) && addressDelegate !== address ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/' + addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
+              </>
+            } />
+          }
+          {
+            addressDelegate === address && userAddress !== address && <InfoMessage alertProps={{ w: 'full' }} description={
+              <>
+                {namedAddress(address, chainId, ensName)} is Self-Delegating
+              </>
+            } />
+          }
+          {
+            delegationCases[delegationCase]
           }
         </Box>
       </Container>

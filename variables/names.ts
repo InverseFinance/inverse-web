@@ -41,6 +41,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x962228a90eac69238c7d1f216d80037e61ea9255': 'CryptoHarry',
     '0x6535020cceb810bdb3f3ca5e93de2460ff7989bb': 'AlienDev',
     '0x072938db4dd5c5f25b77d11fbecdb35a0f14e022': 'Knockerton',
+    '0x47936e516d11d987412e67e5c20c8fb831053653': 'Knockerton',
     '0xC8A6fDd2586AF7980776DC610C159A92E9Db11C3': '99Donuts99',
     '0xD32066c2E31961aDf2A6fd0D57326dFf1e33FC29': 'Akarin',
     '0x2723723FDd3Db8ba2D6f0e1B333e90A7E60A0411': 'Karm',
