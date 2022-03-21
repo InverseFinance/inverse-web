@@ -60,7 +60,7 @@ export const MultisigsFlowChart = ({
     const pos = positions[chainId][multisig.address.toLowerCase()] || { x: multisigX, y: 0 }
     return {
       label: `👥 ${namedAddress(multisig.address)}`,
-      id: `${multisig.chainId}-${multisig.address}`,
+      id: multisig.address,
       style: primaryStyle,
       ...pos,
       targets: multisig.owners.map((owner, j) => {
@@ -76,7 +76,7 @@ export const MultisigsFlowChart = ({
         }
         return {
           label: <NamedAddressBox children={owner} />,
-          id: `${multisig.chainId}-${owner}`,
+          id: owner,
           linkLabel: '',
           ...ownerPos,
         }
