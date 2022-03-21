@@ -73,7 +73,7 @@ export const MultisigsDiagram = () => {
             }
           />
           {
-            multisigs?.map(multisig => {
+            multisigs?.filter(m => m.chainId === chainId).map(multisig => {
               return <ShrinkableInfoMessage
                 key={multisig.name}
                 title={
