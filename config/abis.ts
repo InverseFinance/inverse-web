@@ -312,7 +312,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
         ...VESTERS.map(vesterAd => [vesterAd, VESTER_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
-        ...Object.values(MULTISIGS).map((address) => [address, MULTISIG_ABI]),
+        ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
       ],
       Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])

@@ -77,44 +77,50 @@ export default async function handler(req, res) {
       }),
     ]);
 
-    const multisigsToShow = Object.entries(MULTISIGS).slice(0, 3);
+    const multisigsToShow = MULTISIGS;
 
     // Multisigs
     const multisigsOwners = await Promise.all([
-      ...multisigsToShow.map(([address, name]) => {
-        const contract = new Contract(address, MULTISIG_ABI, provider);
+      ...multisigsToShow.map((m) => {
+        const provider = getProvider(m.chainId);
+        const contract = new Contract(m.address, MULTISIG_ABI, provider);
         return contract.getOwners();
       })
     ])
 
     const multisigsThresholds = await Promise.all([
-      ...multisigsToShow.map(([address, name]) => {
-        const contract = new Contract(address, MULTISIG_ABI, provider);
+      ...multisigsToShow.map((m) => {
+        const provider = getProvider(m.chainId);
+        const contract = new Contract(m.address, MULTISIG_ABI, provider);
         return contract.getThreshold();
       })
     ])
 
     const fundsToCheck = [INV, DOLA, DAI, WCOIN];
+    const ftmFundsToCheck = [ftmConfig?.INV, ftmConfig?.DOLA];
+
     const multisigsBalanceValues: BigNumber[][] = await Promise.all([
-      ...multisigsToShow.map(([multisigAd, name]) => {
+      ...multisigsToShow.map((m) => {
+        const provider = getProvider(m.chainId);
+        const chainFundsToCheck = (m.chainId === NetworkIds.mainnet ? fundsToCheck : ftmFundsToCheck);
         return Promise.all(
-          fundsToCheck.map(tokenAddress => {
+          chainFundsToCheck.map(tokenAddress => {
             const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-            return contract.balanceOf(multisigAd);
+            return contract.balanceOf(m.address);
           })
             .concat([
-              provider.getBalance(multisigAd),
+              provider.getBalance(m.address),
             ])
         )
       })
     ])
 
     const multisigsAllowanceValues: BigNumber[][] = await Promise.all([
-      ...multisigsToShow.map(([multisigAd, name]) => {
+      ...multisigsToShow.map((m) => {
         return Promise.all(
           fundsToCheck.map(tokenAddress => {
             const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-            return contract.allowance(TREASURY, multisigAd);
+            return contract.allowance(TREASURY, m.address);
           })
         )
       })
@@ -154,8 +160,8 @@ export default async function handler(req, res) {
         dolaTotalSupply: getBnToNumber(dolaFtmTotalSupply),
         invTotalSupply: getBnToNumber(invFtmTotalSupply),
       },
-      multisigs: multisigsToShow.map(([address, name], i) => ({
-        address, name, owners: multisigsOwners[i], funds: multisigsFunds[i], threshold: parseInt(multisigsThresholds[i].toString()),
+      multisigs: multisigsToShow.map((m, i) => ({
+        ...m, owners: multisigsOwners[i], funds: multisigsFunds[i], threshold: parseInt(multisigsThresholds[i].toString()),
       })),
       feds: FEDS.map((fed, i) => ({
         ...fed,

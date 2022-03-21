@@ -1,4 +1,4 @@
-import { FedEvent, FedWithData, SWR, Token, StabilizerEvent } from '@app/types'
+import { FedEvent, FedWithData, SWR, Token, StabilizerEvent, NetworkIds } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
 
@@ -17,6 +17,7 @@ type DAO = {
   multisigs: {
     address: string,
     name: string,
+    chainId: NetworkIds,
     owners: string[],
     funds: { token: Token, balance: number, allowance?: number }[],
     threshold: number,
