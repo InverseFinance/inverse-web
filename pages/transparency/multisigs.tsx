@@ -14,6 +14,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { NetworkIds } from '@app/types';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useState } from 'react'
+import { NetworkItem } from '@app/components/common/NetworkItem'
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
@@ -34,17 +35,17 @@ export const MultisigsDiagram = () => {
               defaultValue: NetworkIds.mainnet,
               onChange: (t) => setChainId(t),
             }}
-            radioCardProps={{ w: '120px', textAlign: 'center', p: '2' }}
+            radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
             options={[
-              { label: 'Ethereum', value: NetworkIds.mainnet },
-              { label: 'Fantom', value: NetworkIds.ftm },
+              { label: <Flex alignItems="center"><NetworkItem chainId={NetworkIds.mainnet} /></Flex>, value: NetworkIds.mainnet },
+              { label: <Flex alignItems="center"><NetworkItem ignoreUnsupportedWarning={true} chainId={NetworkIds.ftm} /></Flex>, value: NetworkIds.ftm },
             ]}
           />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
 
         <Flex direction="column" py="2">
-          { chainId === NetworkIds.mainnet && <MultisigsFlowChart multisigs={multisigs.filter(m => m.chainId === NetworkIds.mainnet)} /> }
-          { chainId === NetworkIds.ftm && <MultisigsFlowChart multisigs={multisigs.filter(m => m.chainId === NetworkIds.ftm)} /> }
+          { chainId === NetworkIds.mainnet && <MultisigsFlowChart chainId={NetworkIds.mainnet} multisigs={multisigs.filter(m => m.chainId === NetworkIds.mainnet)} /> }
+          { chainId === NetworkIds.ftm && <MultisigsFlowChart chainId={NetworkIds.ftm} multisigs={multisigs.filter(m => m.chainId === NetworkIds.ftm)} /> }
         </Flex>
 
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
