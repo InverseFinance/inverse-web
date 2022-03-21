@@ -15,10 +15,18 @@ import { NetworkIds } from '@app/types';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useState } from 'react'
 import { NetworkItem } from '@app/components/common/NetworkItem'
+import { useMarkets } from '@app/hooks/useMarkets'
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
-  const { prices } = usePrices();
+  const { prices: cgPrices } = usePrices();
+  const { markets } = useMarkets();
+
+  const oraclePrices = Object.fromEntries(new Map(markets.map(market => {
+    return [market.underlying.coingeckoId || market.underlying.symbol, { usd: market.oraclePrice }]
+  })));
+  const prices = { ...oraclePrices, ...cgPrices };
+ 
   const [chainId, setChainId] = useState(NetworkIds.mainnet);
 
   return (

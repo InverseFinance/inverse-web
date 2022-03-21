@@ -96,7 +96,7 @@ export default async function handler(req, res) {
       })
     ])
 
-    const fundsToCheck = [INV, DOLA, DAI, WCOIN];
+    const fundsToCheck = [INV, DOLA, DAI, WCOIN, INVDOLASLP, DOLA3POOLCRV];
     const ftmFundsToCheck = [ftmConfig?.INV, ftmConfig?.DOLA];
 
     const multisigsBalanceValues: BigNumber[][] = await Promise.all([
