@@ -19,6 +19,24 @@ export const MENUS = {
     {
       label: 'Governance',
       href: '/governance',
+      submenus: [
+        {
+          label: 'Drafts & Proposals',
+          href: '/governance',
+        },
+        {
+          label: 'Passed Proposals',
+          href: '/governance/proposals',
+        },
+        {
+          label: 'Delegates',
+          href: '/governance/delegates',
+        },
+        {
+          label: 'Your Profile',
+          href: '/governance/delegates/$account',
+        },
+      ]
     },
     {
       label: 'Transparency',

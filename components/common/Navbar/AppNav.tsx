@@ -10,6 +10,8 @@ import {
   Text,
   StackProps,
   useDisclosure,
+  Box,
+  VStack,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -491,7 +493,7 @@ export const AppNav = ({ active }: { active?: string }) => {
             <Logo boxSize={10} />
           </Link>
           <Stack direction="row" align="center" spacing={8} display={{ base: 'none', lg: 'flex' }}>
-            {NAV_ITEMS.map(({ label, href }, i) => (
+            {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Link
                 key={i}
                 href={href}
@@ -500,13 +502,31 @@ export const AppNav = ({ active }: { active?: string }) => {
                 _hover={{ color: 'mainTextColor' }}
                 position="relative"
               >
-                {label}
-                {
-                  href === '/governance' && nbNotif > 0 &&
-                  <NotifBadge>
-                    {nbNotif}
-                  </NotifBadge>
-                }
+                <Popover trigger="hover">
+                  <PopoverTrigger>
+                    <Box>
+                      {label}
+                      {
+                        href === '/governance' && nbNotif > 0 &&
+                        <NotifBadge>
+                          {nbNotif}
+                        </NotifBadge>
+                      }
+                    </Box>
+                  </PopoverTrigger>
+                  {
+                    submenus?.length > 0 &&
+                    <PopoverContent background="transparent" border="none" >
+                      <PopoverBody background="transparent" className="blurred-container info-bg" borderRadius="10px">
+                        <VStack spacing="4">
+                          {
+                            submenus?.map(s => <Link href={s.href}>{s.label}</Link>)
+                          }
+                        </VStack>
+                      </PopoverBody>
+                    </PopoverContent>
+                  }
+                </Popover>
               </Link>
             ))}
           </Stack>
