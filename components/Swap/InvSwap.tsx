@@ -6,15 +6,24 @@ import { ShrinkableInfoMessage } from '@app/components/common/Messages';
 
 const url = 'https://app.sushi.com/swap?inputCurrency=0x865377367054516e17014CcdED1e7d814EDC9ce4&outputCurrency=0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68';
 
-export const InvSwap = () => {
+export const InvSwap = ({
+    label = 'Get INV',
+    description = 'Open on Sushi',
+    href = url,
+}: {
+    label?: string,
+    description?: string,
+    href?: string,
+}) => {
     const { account } = useWeb3React<Web3Provider>();
     const minH = !!account ? '612px' : 'auto'
 
     return (
         <Container
             noPadding
-            label="Swap INV using Sushi"
-            description="Open on Sushi"
+            label={label}
+            description={description}
+            href={href}
             contentBgColor="transparent"
             contentProps={{
                 boxShadow: 'none',
@@ -26,7 +35,6 @@ export const InvSwap = () => {
                 padding: '0',
                 mb: '0',
             }}
-            href={url}
         >
             <Flex
                 overflow="hidden"

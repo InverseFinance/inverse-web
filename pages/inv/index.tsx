@@ -6,8 +6,7 @@ import { Link } from '@app/components/common/Link';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { ReactNode } from 'react';
 import { useMarkets } from '@app/hooks/useMarkets';
-import { LinkButton } from '@app/components/common/Button';
-import { RTOKEN_SYMBOL } from '@app/variables/tokens';
+import { InvSwap } from '@app/components/Swap/InvSwap';
 
 const Step = ({
   label,
@@ -46,7 +45,7 @@ export const InvPlus = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - INV</title>
       </Head>
       <AppNav active="INV" />
-      <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
+      <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1300px">
         <Flex direction={{ base: 'column', sm: 'row' }} pt="4" fontSize={{ base: '24px', md: '46px' }} fontWeight="bold" w={{ base: 'full' }} justify="center">
           <Text textAlign="center" display="inline-block">
             The First
@@ -55,13 +54,15 @@ export const InvPlus = () => {
             Positive Sum Rewards Token
           </Text>
         </Flex>
-        <Flex fontSize="23px" w={{ base: 'full' }} justify="center">
+
+        <Flex fontSize="23px" w={{ base: 'full' }} justify="center" mb="40px">
           <Text as="i" textAlign="center" fontSize="18px">
             Inverse Plus will bring revenue sharing and accelerated rewards to INV stakers
           </Text>
         </Flex>
+
         <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
-          <Flex direction="column" justifyContent="space-around" w={{ base: 'full', md: '40%' }} px="5">
+          <Flex w="50%" direction="column">
             <VStack pt="10" alignItems="flex-start">
               <VStack spacing="2" alignItems="left">
                 <Step label="Earn Continuous Staking Rewards" href="/anchor?market=inv&marketType=supply" />
@@ -70,23 +71,7 @@ export const InvPlus = () => {
                 <Step label="Vote in the Inverse DAO" href="/governance" />
               </VStack>
             </VStack>
-            <Box pt="10" fontSize="xl" color="mainTextColor">
-              <Text mb="2">
-                <b>Purchase INV</b> at a substantial <b>discount</b> by depositing your Sushi or Curve liquidity pool tokens on <b>Olympus Pro</b>.
-              </Text>
-              <Link textDecoration="underline" isExternal display="inline-block" mr="1"
-                href={process.env.NEXT_PUBLIC_BONDS_URL}>
-                Click here
-              </Link>
-              <Text display="inline-block" mr="1">for bonding or </Text>
-              <Link textDecoration="underline" isExternal display="inline-block"
-                href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds">
-                Learn more
-              </Link>.
-            </Box>
-          </Flex>
-          <Flex w={{ base: 'full', md: '40%' }} pr="5">
-            <VStack spacing="2" pt="10" alignItems="flex-start">
+            <VStack textAlign="left" maxW="80%" spacing="2" pt="10" alignItems="flex-start">
               <Text fontSize="16px" fontWeight="bold" color="secondary">What is Inverse Plus?</Text>
               <Text><b>Inverse Plus</b> adds new features to the INV governance token with new revenue sharing and higher staking rewards.</Text>
 
@@ -117,11 +102,15 @@ export const InvPlus = () => {
               </Box>
             </VStack>
           </Flex>
-        </Flex>
-        <Flex w="full" justify="center">
-          <LinkButton w="100px" target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!} mt="10" color="mainTextColor">
-            Buy {RTOKEN_SYMBOL}
-          </LinkButton>
+          <Flex w="50%" justify="flex-start" maxW="600px">
+            <Flex w='full' minW='300px' maxW="600px">
+              <InvSwap
+                label="Get INV Now"
+                description="Or Get INV at a discount in seven days thanks to Bonds"
+                href="/bonds"
+              />
+            </Flex>
+          </Flex>
         </Flex>
       </Flex>
     </Layout>

@@ -4,7 +4,6 @@ import { AppNav } from '@app/components/common/Navbar'
 import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
 import { SwapView } from '@app/components/Swap'
 import Head from 'next/head';
-import { InvSwap } from '@app/components/Swap/InvSwap';
 
 const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];
 type Params = { slug: string[] }
@@ -47,9 +46,6 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
       <Flex justify="center" direction="column">
         <Flex w={{ base: 'full', xl: '2xl' }}>
           <SwapView from={from} to={to} />
-        </Flex>
-        <Flex w={{ base: 'full', xl: '2xl' }}>
-          <InvSwap />
         </Flex>
         <Flex w={{ base: 'full', lg: '2xl' }} p={6}>
           <StabilizerOverview />
