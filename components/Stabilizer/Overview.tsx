@@ -15,10 +15,10 @@ type StabilizerOverviewFieldProps = {
 
 const StabilizerOverviewField = ({ label, children }: StabilizerOverviewFieldProps) => (
   <Flex justify="space-between">
-    <Text fontSize="sm" fontWeight="semibold">
+    <Text fontWeight="bold">
       {label}:
     </Text>
-    <Flex fontWeight="semibold" fontSize="sm">
+    <Flex fontWeight="bold">
       {children}
     </Flex>
   </Flex>
@@ -29,15 +29,18 @@ export const StabilizerOverview = () => {
 
   return (
     <InfoMessage
+      alertProps={{
+        fontSize: '12px',
+      }}
       description={
         <Stack spacing={4}>
           <Stack>
-            <Text fontWeight="semibold">What is the Stabilizer?</Text>
-            <Text fontSize="sm">
+            <Text fontWeight="bold">What is the Stabilizer?</Text>
+            <Text>
               The Stabilizer can be used by market participants as a source of liquidity for the <b>DAI-DOLA pair</b> to arbitrage away price
               differentials if DOLA moves away from a 1:1 peg against USD.
             </Text>
-            <Text fontSize="sm" fontWeight="bold">
+            <Text fontWeight="bold">
               There is no slippage when using the Stabilizer
             </Text>
           </Stack>

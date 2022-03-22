@@ -8,21 +8,33 @@ const url = 'https://app.sushi.com/swap?inputCurrency=0x865377367054516e17014Ccd
 
 export const InvSwap = () => {
     const { account } = useWeb3React<Web3Provider>();
+    const minH = !!account ? '612px' : 'auto'
 
     return (
         <Container
+            noPadding
             label="Swap INV using Sushi"
             description="Open on Sushi"
+            contentBgColor="transparent"
             contentProps={{
+                boxShadow: 'none',
                 position: 'relative',
-                minH: '600px',
+                minH,
                 overflow: 'hidden',
                 borderRadius: '10px',
-                justify: 'center',
+                justify: 'flex-start',
+                padding: '0',
+                mb: '0',
             }}
             href={url}
         >
-            <Flex justify="center" overflow="hidden" h='495px' borderRadius='10px' w='full'>
+            <Flex
+                overflow="hidden"
+                minH={!!account ? '495px' : 'auto'}
+                borderRadius='10px'
+                width="full"
+                minWidth= '300px'
+                w='full'>
                 {
                     !account ?
                         <ShrinkableInfoMessage
@@ -31,18 +43,18 @@ export const InvSwap = () => {
                         :
                         <iframe
                             src={url}
-                            height="600px"
+                            height={minH}
                             width="100%"
                             scrolling="no"
                             id="swapIframe"
                             style={{
-                                transform: 'translateY(-60px)',
+                                transform: 'translateY(-43px)',
                                 border: '0',
                                 margin: '0 auto',
                                 display: 'block',
                                 borderRadius: '10px',
-                                height: '600px',
-                                maxWidth: '600px',
+                                height: minH,
+                                width: 'full',
                                 minWidth: '300px',
                                 overflow: 'hidden',
                             }}
