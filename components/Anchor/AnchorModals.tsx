@@ -25,6 +25,7 @@ import { roundFloorString } from '@app/util/misc'
 import { getComptrollerContract } from '@app/util/contracts'
 import { Web3Provider } from '@ethersproject/providers';
 import { AnchorMarketInterestChart } from './AnchorMarketInterestChart'
+import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -176,7 +177,7 @@ export const AnchorModal = ({
         }
         {
           operations.length > 1 ?
-            <NavButtons options={operations} active={operation} onClick={setOperation} />
+            <NavButtons isStaking={asset.underlying.symbol == RTOKEN_SYMBOL} options={operations} active={operation} onClick={setOperation} />
             : null
         }
         {

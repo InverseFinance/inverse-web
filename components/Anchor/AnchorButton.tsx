@@ -18,6 +18,7 @@ import { handleTx } from '@app/util/transactions';
 import { hasAllowance } from '@app/util/web3';
 import { getMonthlyRate, getParsedBalance } from '@app/util/markets';
 import { removeScientificFormat, roundFloorString } from '@app/util/misc';
+import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -159,7 +160,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               refreshOnSuccess={true}
               isDisabled={isDisabled}
             >
-              Supply
+              { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Stake' : 'Supply' }
             </SubmitButton>
           )}
         </Stack>
@@ -191,7 +192,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               refreshOnSuccess={true}
               isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
             >
-              Withdraw
+              { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw' }
             </SubmitButton>
             <SubmitButton
               onClick={async () => {
@@ -202,7 +203,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
               rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind. May fail if you have the asset enabled as collateral and have outstanding debt.' />}
             >
-              Withdraw ALL
+              { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw' } ALL
             </SubmitButton>
           </SimpleGrid>
         </Stack>

@@ -131,9 +131,10 @@ type NavButtonProps = {
   onClick: (s: any) => void
   active: string
   options: string[]
+  isStaking?: boolean
 }
 
-export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
+export const NavButtons = ({ options, active, onClick, isStaking }: NavButtonProps) => (
   <Flex w="full" bgColor="primary.850" p={1} borderRadius={4} cursor="pointer">
     {options.map((option: string) => (
       <Flex
@@ -148,7 +149,7 @@ export const NavButtons = ({ options, active, onClick }: NavButtonProps) => (
         onClick={() => onClick(option)}
         bgColor={option === active ? 'primary.650' : 'primary.850'}
       >
-        {option}
+        {isStaking ? option.replace('Supply', 'Stake').replace('Withdraw', 'Unstake') : option}
       </Flex>
     ))}
   </Flex>
