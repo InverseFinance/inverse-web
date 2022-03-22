@@ -20,7 +20,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getBnToNumber, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
-import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
 import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
@@ -67,9 +67,15 @@ const getColumn = (
                   message={
                     claimable ?
                       "You can claim your withdrawn INV in the modal's withdraw tab"
-                      :  `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn INV ${moment(claimableTime).fromNow()}`
+                      : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn INV ${moment(claimableTime).fromNow()}`
                   }
                 />
+              </NotifBadge>
+            }
+            {
+              !claimableAmount && underlying.symbol === RTOKEN_SYMBOL &&
+              <NotifBadge bgColor="secondary">
+                Stake INV
               </NotifBadge>
             }
           </Stack>
@@ -178,10 +184,10 @@ export const AnchorSupplied = () => {
   const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
 
   const claims: { [key: string]: { withdrawalAmount?: BigNumber, withdrawalTime?: Date } } = {};
-  if(XINV) {
+  if (XINV) {
     claims[XINV] = { withdrawalAmount, withdrawalTime }
   }
-  if(XINV_V1) {
+  if (XINV_V1) {
     claims[XINV_V1] = { withdrawalAmount: withdrawalAmount_v1, withdrawalTime: withdrawalTime_v1 };
   }
 
@@ -379,7 +385,7 @@ export const AnchorSupply = () => {
 
   const handleExternalOpen = (marketName: string, markets: Market[]) => {
     const market = markets.filter(m => m.token !== OLD_XINV).find(m => m.underlying.symbol.toLowerCase() === marketName.toLowerCase());
-    
+
     if (!market?.mintable) { return }
     setDeepLinkUsed(true);
     handleSupply(market);

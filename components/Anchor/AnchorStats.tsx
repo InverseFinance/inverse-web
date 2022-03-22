@@ -3,13 +3,13 @@ import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
 import { useExchangeRates } from '@app/hooks/useExchangeRates'
 import { useAnchorPrices } from '@app/hooks/usePrices'
-import { Market, AnchorOperations, BigNumberList } from '@app/types'
+import { Market, AnchorOperations } from '@app/types'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { getBnToNumber, getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@app/util/markets';
+import { getBorrowInfosAfterSupplyChange, getBorrowLimitLabel, shortenNumber } from '@app/util/markets';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { commify } from '@ethersproject/units';
-import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { usePrices } from '@app/hooks/usePrices';
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 
@@ -82,16 +82,18 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
       parseFloat(formatUnits(exchangeRates[asset.token]))
       : 0
 
+  const wording = asset.underlying.symbol === RTOKEN_SYMBOL ? 'Staking' : 'Supply';
+
   return (
     <StatBlock
-      label="Supply Stats"
+      label={`${wording} Stats`}
       stats={[
         {
-          label: 'Supply APY',
+          label: `${wording} APY`,
           value: `${asset.supplyApy.toFixed(2)}%`,
         },
         {
-          label: 'Supply Balance',
+          label: `${wording} Balance`,
           value: `${shortenNumber(Math.floor(supplyBalance * 1e8) / 1e8)} ${asset.underlying.symbol}`,
         },
       ]}
@@ -147,6 +149,8 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
     getCollateralFactor(asset),
   ];
 
+  const wording = asset.underlying.symbol === RTOKEN_SYMBOL ? 'Staked' : 'Supplied';
+
   if (!isCollateralModal) {
     Array.prototype.push.apply(stats, [
       {
@@ -154,7 +158,7 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
         value: reserveFactor,
       },
       {
-        label: 'Total Supplied',
+        label: `Total ${wording}`,
         value: totalSuppliedUsd,
       },
       {

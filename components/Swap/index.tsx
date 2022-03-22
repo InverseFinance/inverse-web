@@ -219,8 +219,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   return (
     <Container
-      contentBgColor="gradient2"
-      label="Swap using Curve or the Stabilizer"
+      contentBgColor="gradient3"
+      label="Swap DOLA using Curve or the Stabilizer"
     >
       <Stack w="full" direction="column" spacing="5">
         <AssetInput
