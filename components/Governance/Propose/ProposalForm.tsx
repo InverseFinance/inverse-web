@@ -281,7 +281,7 @@ export const ProposalForm = ({
                                         table converter
                                     </Link>)
                                 </FormLabel>
-                                <Textarea minHeight="200px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder={"Proposal's description and summary of main actions"} />
+                                <Textarea minHeight="400px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder={"Proposal's description and summary of main actions"} />
                             </FormControl>
                         </Box>
                         {
