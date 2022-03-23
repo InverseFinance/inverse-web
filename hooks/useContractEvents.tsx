@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 
-export const useContractEvents = (address: string, abi: string[], method: string, args: any[] = [], ignoreIfArgsUndefined = false, swrKey = ''): { events: Event[] } => {
+export const useContractEvents = (address: string, abi: string[], method: string, args: any[] = [], ignoreIfArgsUndefined = false, swrKey = ''): { events: Event[], isLoading: boolean } => {
     const { account, library } = useWeb3React<Web3Provider>();
 
     const _swrKey = swrKey || `contract-event-${address}-${method}-${account}`;
@@ -18,5 +18,6 @@ export const useContractEvents = (address: string, abi: string[], method: string
 
     return {
         events: data || [],
+        isLoading: !data,
     }
 }

@@ -55,9 +55,9 @@ export const DelegatingEventsTable = ({
   fromDelegate?: string,
   toDelegate?: string,
 }) => {
-  const { events: eventsByDelegator } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [srcAddress, undefined, undefined], true, 'DelegateChanged-src' + srcAddress);
-  const { events: eventsFromDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged-from' + fromDelegate);
-  const { events: eventsToDelegate } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged-to' + toDelegate);
+  const { events: eventsByDelegator, isLoading: isLoading1 } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [srcAddress, undefined, undefined], true, 'DelegateChanged-src' + srcAddress);
+  const { events: eventsFromDelegate, isLoading: isLoading2 } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, fromDelegate, undefined], true, 'DelegateChanged-from' + fromDelegate);
+  const { events: eventsToDelegate, isLoading: isLoading3 } = useContractEvents(INV, INV_ABI, 'DelegateChanged', [undefined, undefined, toDelegate], true, 'DelegateChanged-to' + toDelegate);
 
   const totalEvents = eventsByDelegator
     .concat(eventsFromDelegate, eventsToDelegate)
@@ -134,7 +134,7 @@ export const DelegatingEventsTable = ({
               <Text color="secondary"><ArrowUpIcon fontSize="12px" /> Delegators</Text>
               :
               <Text color="warning"><ArrowDownIcon fontSize="12px" /> Delegators</Text>
-              )
+            )
             : (isNewSupport ?
               'Self-Delegate' : 'Delegate')
         }
@@ -150,13 +150,21 @@ export const DelegatingEventsTable = ({
       contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
       collapsable={true}
     >
-      <Table
-        columns={columns}
-        items={items}
-        keyName={'uniqueKey'}
-        defaultSort="blockNumber"
-        defaultSortDir="desc"
-      />
+      {
+        isLoading1 || isLoading2 || isLoading3 ?
+          <SkeletonBlob />
+          :
+          items.length > 0 ?
+            <Table
+              columns={columns}
+              items={items}
+              keyName={'uniqueKey'}
+              defaultSort="blockNumber"
+              defaultSortDir="desc"
+            />
+            :
+            <Text>No Delegation Events yet</Text>
+      }
     </Container>
   )
 }
@@ -353,14 +361,19 @@ export const SupportersTable = ({
         </Stack>
       }
     >
-      <Table
-        columns={columns}
-        items={isOnlyActive ? onlyActive : delegators}
-        keyName={'address'}
-        defaultSort="delegatedPower"
-        defaultSortDir="desc"
-        onClick={({ address }: Delegate) => router.push(`/governance/delegates/${address}`)}
-      />
+      {
+        delegators?.length > 0 ?
+          <Table
+            columns={columns}
+            items={isOnlyActive ? onlyActive : delegators}
+            keyName={'address'}
+            defaultSort="delegatedPower"
+            defaultSortDir="desc"
+            onClick={({ address }: Delegate) => router.push(`/governance/delegates/${address}`)}
+          />
+          :
+          <Text>No Delegators</Text>
+      }
     </Container>
   )
 }
