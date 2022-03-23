@@ -26,10 +26,13 @@ export const BondSlippage = ({
                 </Text>
                 <SlippageRadioGroup defaultValue={maxSlippage.toString()} onChange={onChange} />
             </Flex>
-            <Text color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" ml="2">
-                <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken.symbol} that you will receive`} />
-                Min. received&nbsp;:&nbsp;<b>{minReceived}</b>
-            </Text>
+            <Flex flexDirection={{ base: 'column', sm: 'row' }} color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" ml="2">
+                <Text color={color}>
+                    <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken.symbol} that you will receive`} />
+                    Min. received&nbsp;:&nbsp;
+                </Text>
+                <Text color={color}><b>{minReceived}</b></Text>
+            </Flex>
         </HStack>
     )
 }

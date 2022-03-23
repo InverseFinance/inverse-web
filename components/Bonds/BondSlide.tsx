@@ -149,8 +149,8 @@ export const BondSlide = ({
                             {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
                         </Text>
                     </HStack>
-                    <HStack w='full' justify="space-between">
-                        <Flex w='full' maxW="400px">
+                    <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
+                        <Flex w='full' maxW={{ base: 'full', sm: '400px' }}>
                             <BalanceInput
                                 value={amount}
                                 inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
@@ -158,7 +158,7 @@ export const BondSlide = ({
                                 onMaxClick={() => handleMax()}
                             />
                         </Flex>
-                        <Flex maxW="190px" minW="120px">
+                        <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
                             {
                                 !isApproved ?
                                     <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
@@ -168,16 +168,16 @@ export const BondSlide = ({
                                     </SubmitButton>
                             }
                         </Flex>
-                    </HStack>
+                    </Stack>
                     <HStack w='full'>
                         <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
                     </HStack>
-                    <HStack fontSize="18px" w='full' justify="space-between">
+                    <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
                         <Text fontWeight="bold">
                             Estimated INV amount to receive:
                         </Text>
                         <Text fontWeight="extrabold">
-                            {receiveAmount}
+                            {shortenNumber(parseFloat(receiveAmount), 4)}
                         </Text>
                     </HStack>
                 </VStack>
