@@ -63,7 +63,7 @@ export const BondSlide = ({
     const getMax = () => {
         const maxUser = parseFloat(bal);
         const maxDeposit = bond.maxPayout * bond.marketPrice / bond.inputUsdPrice;
-        return Math.min(maxUser, maxDeposit);
+        return maxUser > maxDeposit ? maxDeposit : bal;
     }
 
     const handleMax = () => {
@@ -158,7 +158,7 @@ export const BondSlide = ({
                                 onMaxClick={() => handleMax()}
                             />
                         </Flex>
-                        <Flex w="120px">
+                        <Flex maxW="190px" minW="120px">
                             {
                                 !isApproved ?
                                     <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
