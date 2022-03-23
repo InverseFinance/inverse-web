@@ -496,7 +496,7 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
           </Link>
           <Stack direction="row" align="center" spacing={8} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
-              <Link
+              <Box
                 key={i}
                 href={href}
                 fontWeight="medium"
@@ -504,11 +504,13 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
-                    <Box
-                      color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
-                      _hover={{ color: 'mainTextColor' }}
-                    >
-                      {label}
+                    <Box>
+                      <Link
+                        color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
+                        _hover={{ color: 'mainTextColor' }}
+                        href={href}>
+                        {label}
+                      </Link>
                       {
                         href === '/governance' && nbNotif > 0 &&
                         <NotifBadge>
@@ -525,14 +527,14 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
-                              ?.map(s => <Link color={ active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor' } href={s.href.replace('$account', userAddress||'')}>{s.label}</Link>)
+                              ?.map(s => <Link key={s.href} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
                           }
                         </VStack>
                       </PopoverBody>
                     </PopoverContent>
                   }
                 </Popover>
-              </Link>
+              </Box>
             ))}
           </Stack>
         </Stack>
