@@ -19,12 +19,14 @@ import { DangerMessage, InfoMessage, WarningMessage } from '@app/components/comm
 import { BigNumber } from 'ethers';
 import { REWARD_TOKEN } from '@app/variables/tokens';
 import { Input } from '@app/components/common/Input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { namedAddress } from '@app/util';
 import Link from '@app/components/common/Link';
 import { vesterCancel } from '@app/util/payroll';
+import { useContractEvents } from '@app/hooks/useContractEvents';
+import { INV_ABI } from '@app/config/abis';
 
-const { VESTERS, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { VESTERS, XINV, INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const DelegateLink = ({ address }: { address: string }) => {
   return <Link fontWeight="bold" textDecoration="underline" display="inline-block" href={`/governance/delegates/${address}`}>{namedAddress(address)}</Link>
@@ -37,12 +39,13 @@ export const VesterPage = () => {
   const userAddress = (query?.viewAddress as string) || account;
   const [vesterDelegate, setVesterDelegate] = useState('');
   const [newRecipient, setNewRecipient] = useState('');
+  const [alreadyClaimed, setAlreadyClaimed] = useState(0);
 
   const { data: vesterRecipients } = useEtherSWR([
     ...VESTERS.map(vesterAd => [vesterAd, 'recipient']),
   ]);
 
-  const recipientIndex = (vesterRecipients || []).findIndex(recipient => recipient === userAddress);
+  const recipientIndex = (vesterRecipients || []).findIndex(recipient => recipient.toLowerCase() === userAddress?.toLowerCase());
   const vesterAddress = VESTERS[recipientIndex];
 
   const { data: exRate } = useEtherSWR([XINV, 'exchangeRateStored']);
@@ -80,6 +83,15 @@ export const VesterPage = () => {
     return `${moment(timestamp).format('MMM Do, YYYY')}${isSmaller ? '' : ` (${moment(timestamp).fromNow()})`}`
   }
 
+  const { events } = useContractEvents(INV, INV_ABI, 'Transfer', [vesterAddress], true, `vester-claims-${vesterAddress}`);
+
+  useEffect(() => {
+    const alreadyClaimed = events
+      .filter(e => e.args.to.toLowerCase() !== XINV.toLowerCase())
+      .reduce((prev, curr) => prev + getBnToNumber(curr.args.amount, REWARD_TOKEN?.decimals), 0);
+      setAlreadyClaimed(alreadyClaimed);
+  }, [events, vesterAddress]);
+
   return (
     <Layout>
       <Head>
@@ -109,10 +121,10 @@ export const VesterPage = () => {
                             <VStack alignItems="left" spacing={{ base: '10px', sm: '10px' }}>
                               <Flex fontWeight="bold" alignItems="center" justify="space-between">
                                 <Text>
-                                  - <b>Vested Amount</b>:
+                                  - <b>Current Vested Amount</b>:
                                 </Text>
                                 <Text fontWeight="extrabold">
-                                  {commify(totalIntialVested.toFixed(2))} INV
+                                  {totalIntialVested ? commify((totalIntialVested - alreadyClaimed).toFixed(2)) : ''} INV
                                 </Text>
                               </Flex>
                               <Flex alignItems="center" justify="space-between">
@@ -145,13 +157,19 @@ export const VesterPage = () => {
                                 </Text>
                                 <Text fontWeight="extrabold">{!lastClaimTimestamp || lastClaimTimestamp === startTimestamp ? 'Never claimed yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
                               </Flex>
+                              <Flex alignItems="center" justify="space-between">
+                                <Text>
+                                  - <b>Already Claimed</b>:
+                                </Text>
+                                <Text fontWeight="extrabold">{shortenNumber(alreadyClaimed, 2)} INV</Text>
+                              </Flex>
                               <Flex fontWeight="bold" alignItems="center" justify="space-between">
                                 <Text>
                                   - <b>Currently Claimable</b>:
                                 </Text>
                                 <Text fontWeight="extrabold">{commify(widthdrawable.toFixed(2))} INV</Text>
                               </Flex>
-                              <Text textAlign="center" fontSize="12px">
+                              <Text textDecoration="underline" textAlign="center" fontSize="12px">
                                 Reminder: Vested Tokens are already staked on Anchor and generating yield
                               </Text>
                             </VStack>
