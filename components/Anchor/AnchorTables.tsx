@@ -20,7 +20,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getBnToNumber, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
-import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { REWARD_TOKEN, RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
 import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
@@ -73,7 +73,7 @@ const getColumn = (
               </NotifBadge>
             }
             {
-              !claimableAmount && underlying.symbol === RTOKEN_SYMBOL &&
+              !claimableAmount && underlying.address === REWARD_TOKEN?.address &&
               <NotifBadge bgColor="secondary">
                 Stake INV
               </NotifBadge>
