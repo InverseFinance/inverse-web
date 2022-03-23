@@ -3,6 +3,20 @@ export const MENUS = {
     {
       label: 'Anchor',
       href: '/anchor',
+      submenus: [
+        {
+          label: 'Overview',
+          href: '/anchor',
+        },
+        {
+          label: 'Stake INV',
+          href: '/anchor?marketType=supply&market=inv#',
+        },
+        {
+          label: 'Borrow DOLA',
+          href: '/anchor?marketType=borrow&market=dola#',
+        },
+      ],
     },
     {
       label: 'INV',
@@ -11,6 +25,20 @@ export const MENUS = {
     {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
+      submenus: [
+        {
+          label: 'Buy DOLA with DAI',
+          href: '/swap/DAI/DOLA',
+        },
+        {
+          label: 'Buy DOLA with USDC',
+          href: '/swap/USDC/DOLA',
+        },
+        {
+          label: 'Buy DOLA with USDT',
+          href: '/swap/USDT/USDT',
+        },
+      ]
     },
     {
       label: 'Bonds',
@@ -19,10 +47,66 @@ export const MENUS = {
     {
       label: 'Governance',
       href: '/governance',
+      submenus: [
+        {
+          label: 'Drafts & Proposals',
+          href: '/governance',
+        },
+        {
+          label: 'Passed Proposals',
+          href: '/governance/proposals',
+        },
+        {
+          label: 'Create a Draft',
+          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Draft+content"%2C"actions"%3A%5B%5D%7D#',
+        },
+        {
+          label: 'Delegates',
+          href: '/governance/delegates',
+        },
+        {
+          label: 'Your Profile',
+          href: '/governance/delegates/$account',
+        },
+      ]
     },
     {
       label: 'Transparency',
       href: '/transparency/overview',
+      submenus: [
+        {
+          href: '/transparency/overview',
+          label: 'Overview',
+        },
+        {
+          href: '/transparency/inv',
+          label: 'INV',
+        },
+        {
+          href: '/transparency/dola',
+          label: 'DOLA & the Feds',
+        },
+        {
+          href: '/transparency/fed-policy',
+          label: 'Fed Policy',
+        },
+        {
+          href: '/transparency/fed-revenues',
+          label: 'Fed Revenues',
+        },
+        {
+          href: '/transparency/interest-model',
+          label: 'Interest Rates',
+        },
+        {
+          href: '/transparency/multisigs',
+          label: 'Multisig Wallets',
+        },
+        {
+          href: '/transparency/stabilizer',
+          label: 'Stabilizer',
+        },
+      ]
     },
   ],
   "footerGroups": [

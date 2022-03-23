@@ -67,6 +67,14 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
 
   useEffect(() => {
+    if(!from || !to) { return }
+    const fromToken = getToken(TOKENS, from) || getToken(TOKENS, 'DOLA')!;
+    const toToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!;
+    setFromToken(fromToken);
+    setToToken(toToken.symbol !== fromToken.symbol ? toToken : fromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA]);
+  }, [from, to]);
+
+  useEffect(() => {
     setSwapDir(fromToken.symbol + toToken.symbol);
     const stablizerTokens = ['DOLA', 'DAI'];
     setCanUseStabilizer(stablizerTokens.includes(fromToken.symbol) && stablizerTokens.includes(toToken.symbol));

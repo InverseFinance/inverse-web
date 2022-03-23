@@ -34,7 +34,7 @@ export const MultisigsDiagram = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Multisigs</title>
       </Head>
-      <AppNav active="Transparency" />
+      <AppNav active="Transparency" activeSubmenu="Multisig Wallets" />
       <TransparencyTabs active="multisigs" />
       <RadioCardGroup
         wrapperProps={{ w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}

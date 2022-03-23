@@ -97,7 +97,7 @@ export const Overview = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Overview</title>
       </Head>
-      <AppNav active="Transparency" />
+      <AppNav active="Transparency" activeSubmenu="Overview" />
       <TransparencyTabs active="overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">

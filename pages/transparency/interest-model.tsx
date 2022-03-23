@@ -43,7 +43,7 @@ export const InterestModelPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Interest Rate Model</title>
             </Head>
-            <AppNav active="Transparency" />
+            <AppNav active="Transparency" activeSubmenu="Interest Rates" />
             <TransparencyTabs active="interest-model" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column" color="mainTextColor">

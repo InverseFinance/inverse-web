@@ -10,6 +10,8 @@ import {
   Text,
   StackProps,
   useDisclosure,
+  Box,
+  VStack,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -383,13 +385,15 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active }: { active?: string }) => {
+export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubmenu?: string }) => {
   const { query } = useRouter()
+  const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
+  const userAddress = (query?.viewAddress as string) || account;
   const [showMobileNav, setShowMobileNav] = useState(false)
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
-  const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
+
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
 
@@ -491,22 +495,43 @@ export const AppNav = ({ active }: { active?: string }) => {
             <Logo boxSize={10} />
           </Link>
           <Stack direction="row" align="center" spacing={8} display={{ base: 'none', lg: 'flex' }}>
-            {NAV_ITEMS.map(({ label, href }, i) => (
+            {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Link
                 key={i}
                 href={href}
                 fontWeight="medium"
-                color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
-                _hover={{ color: 'mainTextColor' }}
                 position="relative"
               >
-                {label}
-                {
-                  href === '/governance' && nbNotif > 0 &&
-                  <NotifBadge>
-                    {nbNotif}
-                  </NotifBadge>
-                }
+                <Popover trigger="hover">
+                  <PopoverTrigger>
+                    <Box
+                      color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
+                      _hover={{ color: 'mainTextColor' }}
+                    >
+                      {label}
+                      {
+                        href === '/governance' && nbNotif > 0 &&
+                        <NotifBadge>
+                          {nbNotif}
+                        </NotifBadge>
+                      }
+                    </Box>
+                  </PopoverTrigger>
+                  {
+                    submenus?.length > 0 &&
+                    <PopoverContent maxW="230px" background="transparent" border="none">
+                      <PopoverBody className="blurred-container primary-bg compat-mode2" borderRadius="10px">
+                        <VStack spacing="4" p="4">
+                          {
+                            submenus
+                              .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
+                              ?.map(s => <Link color={ active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor' } href={s.href.replace('$account', userAddress||'')}>{s.label}</Link>)
+                          }
+                        </VStack>
+                      </PopoverBody>
+                    </PopoverContent>
+                  }
+                </Popover>
               </Link>
             ))}
           </Stack>
