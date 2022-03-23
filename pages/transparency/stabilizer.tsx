@@ -151,7 +151,7 @@ export const StabilizerTransparency = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Stabilizer</title>
             </Head>
-            <AppNav active="Transparency" />
+            <AppNav active="Transparency" activeSubmenu="Stabilizer" />
             <TransparencyTabs active="stabilizer" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">

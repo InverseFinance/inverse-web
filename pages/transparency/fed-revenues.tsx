@@ -188,7 +188,7 @@ export const FedRevenuesPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed Revenue</title>
             </Head>
-            <AppNav active="Transparency" />
+            <AppNav active="Transparency" activeSubmenu="Fed Revenues" />
             <TransparencyTabs active="fed-revenues" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">

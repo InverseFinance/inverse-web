@@ -226,9 +226,9 @@ export const FedPolicyPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed History</title>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed Policy</title>
             </Head>
-            <AppNav active="Transparency" />
+            <AppNav active="Transparency" activeSubmenu="Fed Policy"/>
             <TransparencyTabs active="fed-policy" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">

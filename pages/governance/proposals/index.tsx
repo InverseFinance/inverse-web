@@ -11,7 +11,7 @@ export const Governance = () => (
     <Head>
       <title>{process.env.NEXT_PUBLIC_TITLE} - Proposals</title>
     </Head>
-    <AppNav active="Governance" />
+    <AppNav active="Governance" activeSubmenu="Passed Proposals" />
     <Breadcrumbs
       w="7xl"
       breadcrumbs={[

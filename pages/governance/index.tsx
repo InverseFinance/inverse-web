@@ -23,7 +23,7 @@ export const Governance = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Governance</title>
       </Head>
-      <AppNav active="Governance" />
+      <AppNav active="Governance" activeSubmenu="Drafts & Proposals" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           {

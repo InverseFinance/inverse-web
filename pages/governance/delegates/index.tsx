@@ -448,7 +448,7 @@ export const Stake = () => (
     <Head>
       <title>{process.env.NEXT_PUBLIC_TITLE} - Delegates</title>
     </Head>
-    <AppNav active="Governance" />
+    <AppNav active="Governance" activeSubmenu="Delegates" />
     <Breadcrumbs
       w="7xl"
       breadcrumbs={[

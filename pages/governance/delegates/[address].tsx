@@ -27,6 +27,7 @@ import { DelegatingEventsTable, PastVotesTable, SupportersTable } from '.'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
+import { BURN_ADDRESS } from '@app/config/constants'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="center">
@@ -167,7 +168,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
           {
             addressDelegate !== address && <InfoMessage alertProps={{ w: 'full' }} description={
               <>
-                {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) && addressDelegate !== address ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/' + addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
+                {namedAddress(address, chainId, ensName)} is Delegating to {addressDelegate && isAddress(addressDelegate) && addressDelegate !== address && addressDelegate !== BURN_ADDRESS ? <Link display="inline-block" textDecoration="underline" href={'/governance/delegates/' + addressDelegate}>{namedAddress(addressDelegate, chainId)}</Link> : 'Nobody'}
               </>
             } />
           }
@@ -255,8 +256,9 @@ export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<De
 
 export const DelegateView = () => {
   const [newlyChosenDelegate, setNewlyChosenDelegate] = useState('');
-  const { chainId } = useWeb3React<Web3Provider>()
+  const { chainId, account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
+  const userAddress = (query.viewAddress as string) || account;
 
   const address = query.address as string
   const title = isAddress(address) ? namedAddress(address, chainId) : address
@@ -266,7 +268,7 @@ export const DelegateView = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Delegate Page</title>
       </Head>
-      <AppNav active="Governance" />
+      <AppNav active="Governance" activeSubmenu={address === userAddress ? 'Your Profile' : ''} />
       <Breadcrumbs
         w="7xl"
         breadcrumbs={[

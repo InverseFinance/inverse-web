@@ -33,7 +33,7 @@ export const DolaDiagram = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Dola</title>
       </Head>
-      <AppNav active="Transparency" />
+      <AppNav active="Transparency" activeSubmenu="DOLA & the Feds" />
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column" py="2">
