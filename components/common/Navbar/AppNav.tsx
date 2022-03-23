@@ -385,13 +385,15 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active }: { active?: string }) => {
+export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubmenu?: string }) => {
   const { query } = useRouter()
+  const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
+  const userAddress = (query?.viewAddress as string) || account;
   const [showMobileNav, setShowMobileNav] = useState(false)
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
-  const { activate, active: walletActive, chainId, deactivate } = useWeb3React<Web3Provider>()
+
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
 
@@ -498,13 +500,14 @@ export const AppNav = ({ active }: { active?: string }) => {
                 key={i}
                 href={href}
                 fontWeight="medium"
-                color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
-                _hover={{ color: 'mainTextColor' }}
                 position="relative"
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
-                    <Box>
+                    <Box
+                      color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
+                      _hover={{ color: 'mainTextColor' }}
+                    >
                       {label}
                       {
                         href === '/governance' && nbNotif > 0 &&
@@ -516,11 +519,13 @@ export const AppNav = ({ active }: { active?: string }) => {
                   </PopoverTrigger>
                   {
                     submenus?.length > 0 &&
-                    <PopoverContent background="transparent" border="none" >
-                      <PopoverBody background="transparent" className="blurred-container info-bg" borderRadius="10px">
-                        <VStack spacing="4">
+                    <PopoverContent maxW="230px" background="transparent" border="none">
+                      <PopoverBody className="blurred-container primary-bg compat-mode2" borderRadius="10px">
+                        <VStack spacing="4" p="4">
                           {
-                            submenus?.map(s => <Link href={s.href}>{s.label}</Link>)
+                            submenus
+                              .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
+                              ?.map(s => <Link color={ activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor' } href={s.href.replace('$account', userAddress||'')}>{s.label}</Link>)
                           }
                         </VStack>
                       </PopoverBody>
