@@ -525,7 +525,7 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
-                              ?.map(s => <Link color={ activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor' } href={s.href.replace('$account', userAddress||'')}>{s.label}</Link>)
+                              ?.map(s => <Link color={ active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor' } href={s.href.replace('$account', userAddress||'')}>{s.label}</Link>)
                           }
                         </VStack>
                       </PopoverBody>
