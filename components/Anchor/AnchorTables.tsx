@@ -20,7 +20,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { AnchorPoolInfo } from './AnchorPoolnfo'
 import { dollarify, getBalanceInInv, getBnToNumber, getMonthlyRate, getParsedBalance, shortenNumber } from '@app/util/markets'
-import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { REWARD_TOKEN, RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
 import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
@@ -66,16 +66,16 @@ const getColumn = (
                 <AnimatedInfoTooltip iconProps={{ ml: '1', boxSize: '10px' }}
                   message={
                     claimable ?
-                      "You can claim your withdrawn INV in the modal's withdraw tab"
-                      : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn INV ${moment(claimableTime).fromNow()}`
+                      `You can claim your withdrawn ${RTOKEN_SYMBOL} in the modal's withdraw tab`
+                      : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn ${RTOKEN_SYMBOL} ${moment(claimableTime).fromNow()}`
                   }
                 />
               </NotifBadge>
             }
             {
-              !claimableAmount && underlying.symbol === RTOKEN_SYMBOL &&
+              !claimableAmount && underlying.address === REWARD_TOKEN?.address &&
               <NotifBadge bgColor="secondary">
-                Stake INV
+                Stake {RTOKEN_SYMBOL}
               </NotifBadge>
             }
           </Stack>
@@ -104,7 +104,7 @@ const getColumn = (
       </>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ rewardApr, monthlyInvRewards, priceUsd, underlying }: Market) => (
-        <AnchorPoolInfo value={rewardApr} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol="INV" type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
+        <AnchorPoolInfo value={rewardApr} priceUsd={priceUsd} isReward={true} monthlyValue={monthlyInvRewards} underlyingSymbol={underlying.symbol} symbol={RTOKEN_SYMBOL} type={'supply'} textProps={{ textAlign: "end", minWidth: minWidth }} />
       ),
     },
     balance: {
