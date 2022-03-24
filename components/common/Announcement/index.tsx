@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Text } from '@chakra-ui/react'
+import { HStack, Image, Text, VStack } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/layout'
 import Link from '@app/components/common/Link'
 import { TEST_IDS } from '@app/config/test-ids';
@@ -32,15 +32,21 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   </Link>
 }
 
+const logos = [...Array(23).keys()];
+
 export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => {
   const router = useRouter()
   const { balances } = useSupplyBalances()
   const needsXinvMigration = balances && balances[OLD_XINV] && Number(utils.formatEther(balances[OLD_XINV])) > 0.1
 
+  const replaceLogo = (idx: number) => {
+    document.querySelectorAll('img[src*=anchor-logo],img[src*=dola-],img[src*=fed],img[src*=logoTrial]').forEach(i => i.src = `/assets/dola/${idx}.png?logoTrial`)
+  }
+
   return (
     <Flex
-      bgColor={'announcementBarBackgroundColor'}
-      background={isLanding ? undefined : "announcementBarBackground"}
+      bgColor={'white'}
+      background={isLanding ? undefined : "white"}
       borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
       w="full"
       p={1}
@@ -51,19 +57,27 @@ export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => 
       alignItems="center"
       fontWeight="semibold"
       color={'mainTextColor'}
-      cursor="pointer"
-      onClick={() => router.push('/inv')}
+      // cursor="pointer"
+      // onClick={() => router.push('/inv')}
       data-testid={TEST_IDS.announcement}
     >
-      {
-        process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK ?
-            <MessageWithLink
-              href={process.env.NEXT_PUBLIC_ANNOUNCEMENT_LINK}
-              msg={process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG!}
+      <HStack spacing="6" w="fit-content">
+        <Text color="#333" fontSize="12px">Logos:</Text>
+        {logos.map((logo, i) => (
+          <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
+            <Text color="#333" fontSize="12px">{i}</Text>
+            <Image
+              // transition="ease-in-out"
+              // transitionDuration="500ms"
+              _hover={{ transform: 'scale(10) translateY(18px)' }}
+              src={`/assets/dola/${i}.png`}
+              ignoreFallback={true}
+              width="20px"
+              height="20px"
             />
-          :
-          <Text>{process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG}</Text>
-      }
+          </VStack>
+        ))}
+      </HStack>
     </Flex>
   )
 }
