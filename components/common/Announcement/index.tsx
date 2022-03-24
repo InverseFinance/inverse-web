@@ -67,9 +67,9 @@ export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => 
           <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
             <Text color="#333" fontSize="12px">{i}</Text>
             <Image
-              // transition="ease-in-out"
-              // transitionDuration="500ms"
-              _hover={{ transform: 'scale(10) translateY(18px)' }}
+              transition="ease-in-out"
+              transitionDuration="500ms"
+              _hover={{ transform: 'scale(10) translateY(8px)', zIndex: '99' }}
               src={`/assets/dola/${i}.png`}
               ignoreFallback={true}
               width="20px"
