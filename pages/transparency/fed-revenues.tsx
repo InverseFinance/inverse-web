@@ -144,7 +144,7 @@ export const FedRevenuesPage = () => {
                 {
                     !!fed.chainId && <Image ignoreFallback={true} src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
                 }
-                {fed.name}
+                {fed.name.replace(/ Fed$/, '')}
             </Flex>,
         }));
 
@@ -205,7 +205,7 @@ export const FedRevenuesPage = () => {
                                         defaultValue: '0',
                                         onChange: (v: string) => setChosenFedIndex(parseInt(v)),
                                     }}
-                                    radioCardProps={{ w: '150px', textAlign: 'center', p: '2', position: 'relative' }}
+                                    radioCardProps={{ w: '120px', textAlign: 'center', p: '2', position: 'relative' }}
                                     options={fedOptionList}
                                 />
                                 <Flex h="25px" position="relative" alignItems="center">
