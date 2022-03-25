@@ -50,7 +50,7 @@ export const SuppplyInfos = ({
                                 <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
                                     <Flex alignItems="center">
                                         <Text>-</Text>
-                                        <Img src={projectImage ? `/assets/projects/${projectImage}` : network.image!} />
+                                        <Img src={projectImage ? `${projectImage}` : network.image!} />
                                         <Text lineHeight="15px">On {name || network.name}:</Text>
                                     </Flex>
                                     <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>

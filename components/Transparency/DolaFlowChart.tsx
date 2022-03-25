@@ -39,7 +39,7 @@ export const DolaFlowChart = ({
   const fedLinks = feds?.map(fed => {
     return {
       label: <>
-        <Image src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="1" />
+        <Image src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="1" />
         {namedAddress(fed.address)}
         <Image position="absolute" left="0" right="0" top="5px" m="auto" h="15px" w="15px" src={getNetworkImage(fed.chainId)} />
       </>,
