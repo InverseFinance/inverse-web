@@ -56,7 +56,7 @@ const columns = [
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
         value: ({ fedName, isContraction, projectImage }) =>
             <Flex alignItems="center" color={isContraction ? 'info' : 'secondary'} minW="120px">
-                <Image ignoreFallback={true} src={`/assets/projects/${projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                <Image ignoreFallback={true} src={`${projectImage}`} w={'15px'} h={'15px'} mr="2" />
                 {fedName}
             </Flex>,
     },
@@ -152,7 +152,7 @@ export const FedPolicyPage = () => {
     const fedHistoricalEvents = isAllFedsCase ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
     const fedsIncludingAll = [{
         name: 'All Feds',
-        projectImage: 'eth-ftm.webp',
+        projectImage: '/assets/projects/eth-ftm.webp',
         address: '',
         chainId: NetworkIds.ethftm,
     }].concat(FEDS);
@@ -164,7 +164,7 @@ export const FedPolicyPage = () => {
             value: i.toString(),
             label: <Flex alignItems="center">
                 {
-                    !!fed.chainId && <Image ignoreFallback={true} src={`/assets/projects/${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                    !!fed.chainId && <Image borderRadius={ fed.address ? '10px' : undefined } ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
                 }
                 {fed.name.replace(/ Fed$/, '')}
             </Flex>,
