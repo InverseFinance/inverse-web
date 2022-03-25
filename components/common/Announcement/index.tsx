@@ -32,7 +32,7 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   </Link>
 }
 
-const logos = [...Array(20).keys()];
+const logos = [...Array(22).keys()];
 
 export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => {
   const router = useRouter()
