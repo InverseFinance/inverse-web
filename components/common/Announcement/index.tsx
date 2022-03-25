@@ -32,7 +32,7 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   </Link>
 }
 
-const logos = [...Array(23).keys()];
+const logos = [...Array(20).keys()];
 
 export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => {
   const router = useRouter()
@@ -44,41 +44,144 @@ export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => 
   }
 
   return (
-    <Flex
-      bgColor={'white'}
-      background={isLanding ? undefined : "white"}
-      borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
-      w="full"
-      p={1}
-      h="60px"
-      fontSize="lg"
-      justify="center"
-      textAlign="center"
-      alignItems="center"
-      fontWeight="semibold"
-      color={'mainTextColor'}
-      // cursor="pointer"
-      // onClick={() => router.push('/inv')}
-      data-testid={TEST_IDS.announcement}
-    >
-      <HStack spacing="6" w="fit-content">
-        <Text color="#333" fontSize="12px">Logos:</Text>
-        {logos.map((logo, i) => (
-          <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
-            <Text color="#333" fontSize="12px">{i}</Text>
-            <Image
-              transition="ease-in-out"
-              transitionDuration="500ms"
-              _hover={{ transform: 'scale(10) translateY(8px)', zIndex: '99' }}
-              src={`/assets/dola/${i}.png`}
-              ignoreFallback={true}
-              width="20px"
-              height="20px"
-            />
-          </VStack>
-        ))}
-      </HStack>
-    </Flex>
+    <>
+      <Flex
+        bgColor={'white'}
+        background={isLanding ? undefined : "white"}
+        borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
+        w="full"
+        h="100px"
+        fontSize="lg"
+        justify="center"
+        textAlign="center"
+        alignItems="center"
+        fontWeight="semibold"
+        color={'mainTextColor'}
+        // cursor="pointer"
+        // onClick={() => router.push('/inv')}
+        data-testid={TEST_IDS.announcement}
+      >
+        <HStack spacing="6" w="fit-content">
+          <Text color="#333" fontSize="12px">Logos:</Text>
+          {logos.map((logo, i) => (
+            <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
+              <Text color="#333" fontSize="12px">{i}</Text>
+              <Image
+                transition="ease-in-out"
+                transitionDuration="500ms"
+                _hover={{ transform: 'scale(10) translateY(8px)', zIndex: '99' }}
+                src={`/assets/dola/${i}.png`}
+                ignoreFallback={true}
+                width="20px"
+                height="20px"
+              />
+            </VStack>
+          ))}
+        </HStack>
+      </Flex>
+      <Flex
+        bgColor={'white'}
+        background={isLanding ? undefined : "black"}
+        borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
+        w="full"
+        h="100px"
+        fontSize="lg"
+        justify="center"
+        textAlign="center"
+        alignItems="center"
+        fontWeight="semibold"
+        color={'mainTextColor'}
+        // cursor="pointer"
+        // onClick={() => router.push('/inv')}
+        data-testid={TEST_IDS.announcement}
+      >
+        <HStack spacing="6" w="fit-content">
+          <Text color="#ccc" fontSize="12px">Logos:</Text>
+          {logos.map((logo, i) => (
+            <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
+              <Text color="#ccc" fontSize="12px">{i}</Text>
+              <Image
+                transition="ease-in-out"
+                transitionDuration="500ms"
+                _hover={{ transform: 'scale(10) translateY(8px)', zIndex: '99' }}
+                src={`/assets/dola/${i}.png`}
+                ignoreFallback={true}
+                width="20px"
+                height="20px"
+              />
+            </VStack>
+          ))}
+        </HStack>
+      </Flex>
+      <Flex
+        bgColor={'white'}
+        background={isLanding ? undefined : "mainBackgroundColor"}
+        borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
+        w="full"
+        h="100px"
+        fontSize="lg"
+        justify="center"
+        textAlign="center"
+        alignItems="center"
+        fontWeight="semibold"
+        color={'mainTextColor'}
+        // cursor="pointer"
+        // onClick={() => router.push('/inv')}
+        data-testid={TEST_IDS.announcement}
+      >
+        <HStack spacing="6" w="fit-content">
+          <Text color="#ccc" fontSize="12px">Logos:</Text>
+          {logos.map((logo, i) => (
+            <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
+              <Text color="#ccc" fontSize="12px">{i}</Text>
+              <Image
+                transition="ease-in-out"
+                transitionDuration="500ms"
+                _hover={{ transform: 'scale(10) translateY(8px)', zIndex: '99' }}
+                src={`/assets/dola/${i}.png`}
+                ignoreFallback={true}
+                width="20px"
+                height="20px"
+              />
+            </VStack>
+          ))}
+        </HStack>
+      </Flex>
+      <Flex
+        bgColor={'white'}
+        background={isLanding ? undefined : "#100e21"}
+        borderBottom={isLanding ? undefined : ANNOUNCEMENT_BAR_BORDER}
+        w="full"
+        h="100px"
+        fontSize="lg"
+        justify="center"
+        textAlign="center"
+        alignItems="center"
+        fontWeight="semibold"
+        color={'mainTextColor'}
+        // cursor="pointer"
+        // onClick={() => router.push('/inv')}
+        data-testid={TEST_IDS.announcement}
+      >
+        <HStack spacing="6" w="fit-content">
+          <Text color="#ccc" fontSize="12px">Logos:</Text>
+          {logos.map((logo, i) => (
+            <VStack onClick={() => replaceLogo(i)} cursor="pointer" position="relative">
+              <Text color="#ccc" fontSize="12px">{i}</Text>
+              <Image
+                transition="ease-in-out"
+                transitionDuration="500ms"
+                _hover={{ transform: 'scale(10) translateY(8px)', zIndex: '99' }}
+                src={`/assets/dola/${i}.png`}
+                ignoreFallback={true}
+                width="20px"
+                height="20px"
+              />
+            </VStack>
+          ))}
+        </HStack>
+      </Flex>
+    </>
   )
 }
 
