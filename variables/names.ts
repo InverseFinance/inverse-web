@@ -14,9 +14,10 @@ const namedAddresses: { [key: string]: string } = {
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
-    // Cross-Chain Feds
-    '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     '0x7765996dae0cf3ecb0e74c016fcdff3f055a5ad8': 'Fed Badger',
+    '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
+        // Cross-Chain Feds
+        '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // dao members
     '0x7165ac4008c3603AfE432787419eB61B3a2CEe8B': 'BenLavabo',
     '0x4db09171350Be4f317a67223825abeCC65482E32': 'Mr Brown Whale',

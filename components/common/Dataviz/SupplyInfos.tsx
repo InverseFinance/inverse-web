@@ -7,7 +7,7 @@ import { PieChart } from '@app/components/Transparency/PieChart';
 import { useEffect, useState } from 'react';
 
 const Img = ({ src }: { src: string }) =>
-    <Image mx="1" display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />
+    <Image mx="1" borderRadius="10px" display="inline-block" src={src} ignoreFallback={true} w='15px' h='15px' />
 
 export const SuppplyInfos = ({
     title,
