@@ -227,6 +227,7 @@ const BASE_BOND_ABI = [
   "function trueBondPrice() public view returns (uint256)",
   "function deposit(uint256 amount, uint256 maxPrice, address depositor) external returns (uint256)",
   "function redeem(address depositor) external returns (uint256)",
+  "function maxPayout() public view returns (uint256)",
 ]
 
 export const BOND_ABI = BASE_BOND_ABI.concat([

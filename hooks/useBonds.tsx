@@ -52,6 +52,13 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
     }),
   ]);
 
+
+  const { data: bondMaxPayouts, error: bondMaxPayoutsErr } = useEtherSWR([
+    ...BONDS.map(bond => {
+      return [bond.bondContract, 'maxPayout']
+    }),
+  ]);
+
   const { data: userBondInfo, error: userBondError } = useEtherSWR([
     ...BONDS.map(bond => {
       return [bond.bondContract, 'bondInfo', userAddress]
@@ -84,7 +91,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
     return prices[i] * inputPrices[i];
   })
 
-  // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout uint256, maxDebt uint256
+  // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout % uint256, maxDebt uint256
   const terms = (bondTerms || [...BONDS.map(b => termsDefaults)]);
 
   // payout,
@@ -105,7 +112,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
       inputUsdPrice: inputPrices[i],
       positiveRoi: marketPrice > trueBondPrices[i],
       vestingDays: parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY,
-      maxPayout: parseFloat(terms[i][3].toString()),
+      maxPayout: bondMaxPayouts ? getBnToNumber(bondMaxPayouts[i], REWARD_TOKEN?.decimals) : 0,
       userInfos: {
         payout: getBnToNumber(bondInfos[i][0], REWARD_TOKEN?.decimals),
         vesting : getBnToNumber(bondInfos[i][1], 0),
