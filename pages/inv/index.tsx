@@ -67,7 +67,7 @@ export const InvPlus = () => {
                 <Step label="Earn Continuous Staking Rewards" href="/anchor?market=inv&marketType=supply" />
                 <Step label="Earn Revenue Sharing Rewards" href="https://docs.inverse.finance/inverse-finance/basics/inv-token#revenue-sharing-rewards-rsr" />
                 <Step label="Borrow DOLA using INV as Collateral" href="/anchor?market=dola&marketType=borrow" />
-                <Step label="Vote in the Inverse DAO" href="/governance" />
+                <Step label="Vote in the Inverse Finance DAO" href="/governance" />
               </VStack>
             </VStack>
             <Box pt="10" fontSize="xl" color="mainTextColor">

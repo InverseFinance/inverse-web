@@ -14,7 +14,7 @@ export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Prom
             const account = await signer.getAddress();
             const invContract = getINVContract(signer);
 
-            const domain = { name: 'Inverse DAO', chainId, verifyingContract: invContract.address }
+            const domain = { name: 'Inverse Finance', chainId, verifyingContract: invContract.address }
 
             const types = {
                 Delegation: [
