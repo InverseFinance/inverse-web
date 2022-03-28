@@ -33,6 +33,7 @@
     "ethereum-blockies-base64": "^1.0.2",
     "ethers": "^5.3.1",
     "framer-motion": "^4.1.17",
+    "ganache": "^7.0.3",
     "handy-redis": "^2.2.2",
     "localforage": "^1.10.0",
     "moment": "^2.29.1",

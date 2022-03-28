@@ -5,7 +5,7 @@ import { FunctionFragment } from 'ethers/lib/utils';
 import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@app/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, submitProposal } from '@app/util/governance';
+import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, simulateOnChainActions, submitProposal } from '@app/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@app/util/transactions';
@@ -21,6 +21,7 @@ import { ProposalShareLink } from '../ProposalShareLink';
 import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 import { useRouter } from 'next/dist/client/router';
 import { Link } from '@app/components/common/Link';
+import { namedAddress } from '@app/util';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -58,7 +59,6 @@ export const ProposalForm = ({
 }) => {
     const router = useRouter()
     const isMountedRef = useRef(true)
-    const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
     const { library, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
@@ -86,16 +86,6 @@ export const ProposalForm = ({
         setIsFormValid(validFormGiven)
         setPreviewMode(validFormGiven && isPreview)
     }, [title, description, functions, isPreview])
-
-    useEffect(() => {
-        const init = async () => {
-            const alreadyAggreed = await localforage.getItem(PROPOSAL_WARNING_KEY)
-            if (!isMountedRef.current) { return }
-            setIsUnderstood(!!alreadyAggreed)
-        }
-        init()
-        return () => { isMountedRef.current = false }
-    }, [])
 
     useEffect(() => {
         setIsFormValid(!isProposalFormInvalid(form))
@@ -203,11 +193,6 @@ export const ProposalForm = ({
         return deleteDraft(draftId!, library.getSigner(), () => router.push('/governance'));
     }
 
-    const warningUnderstood = () => {
-        setIsUnderstood(true)
-        localforage.setItem(PROPOSAL_WARNING_KEY, true)
-    }
-
     const showTemplateModal = () => {
         onOpen()
     }
@@ -233,6 +218,22 @@ export const ProposalForm = ({
         status: title ? ProposalStatus.draft : ProposalStatus.active,
     } : {}
 
+    const handleSimulation = async () => {
+        return simulateOnChainActions(preview.functions!, (result) => {
+            const failedIdx = result.receipts.length - 1;
+            const failedAction = preview.functions[failedIdx];
+            showToast({
+                duration: 15000,
+                status: result.hasError ? 'error' : 'success',
+                title: 'On-Chain Actions Simulation',
+                description: result.hasError ?
+                    <>Action #{result.receipts.length} <b>{namedAddress(failedAction.target)}.{failedAction.signature.split('(')[0]}</b>: Failed!</>
+                    :
+                    'Simulations executed successfully',
+            })
+        });
+    }
+
     return (
         <Stack color="mainTextColor" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             <ProposalFloatingPreviewBtn onChange={() => setPreviewMode(!previewMode)} isEnabled={previewMode} />
@@ -251,10 +252,6 @@ export const ProposalForm = ({
                         functions={preview.functions!}
                     />
                 </Flex>
-            }
-            {
-                !isUnderstood ?
-                    <ProposalWarningMessage onOk={() => warningUnderstood()} /> : null
             }
             {
                 previewMode ?
@@ -276,7 +273,7 @@ export const ProposalForm = ({
                             <FormControl mt="2">
                                 <FormLabel>
                                     Details (Markdown <Link isExternal href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">
-                                         cheatsheet
+                                        cheatsheet
                                     </Link>, Excel table to markdown <Link isExternal href="https://tabletomarkdown.com/convert-spreadsheet-to-markdown/">
                                         table converter
                                     </Link>)
@@ -298,6 +295,7 @@ export const ProposalForm = ({
                 handleSubmitProposal={handleSubmitProposal}
                 handlePublishDraft={handlePublishDraft}
                 handleDeleteDraft={handleDeleteDraft}
+                handleSimulation={handleSimulation}
                 addAction={addAction}
                 setPreviewMode={setPreviewMode}
                 showTemplateModal={showTemplateModal}
