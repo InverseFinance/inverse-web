@@ -1,11 +1,9 @@
-import { Contract, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import ganache from 'ganache'
-import { INV_ABI, VESTER_FACTORY_ABI } from '@app/config/abis';
-import { getBnToNumber } from '@app/util/markets';
 
-const { TREASURY, XINV_VESTOR_FACTORY, INV } = getNetworkConfigConstants();
+const { TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { actions } = req.body;
@@ -36,7 +34,7 @@ export default async function handler(req, res) {
       {
         from: accounts[0],
         to: TREASURY,
-        value: "0x27f86babdb9b933",
+        value: "0x056bc75e2d63100000",
       }
     ]);
 
@@ -49,22 +47,19 @@ export default async function handler(req, res) {
           from: TREASURY,
           to: action.to,
           data: action.data,
+          gasLimit: '0x0f4240',
         }
       ]);
+
       const tx = await web3provider.getTransaction(hash);
       const receipt = await web3provider.getTransactionReceipt(hash);
       receipts.push(receipt);
 
-      if(receipt.status === 0) {
+      if (receipt.status === 0) {
         hasError = true
         break
-       }
+      }
     }
-
-    // const contract = new Contract(INV, INV_ABI, web3provider);
-
-    // const r = await contract.allowance(TREASURY, XINV_VESTOR_FACTORY);
-    // console.log(getBnToNumber(r))
 
     const result = {
       status: 'success',
