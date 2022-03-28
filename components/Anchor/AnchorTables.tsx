@@ -74,7 +74,7 @@ const getColumn = (
             }
             {
               !claimableAmount && underlying.address === REWARD_TOKEN?.address &&
-              <NotifBadge bgColor="secondary">
+              <NotifBadge top="auto" bgColor="secondary">
                 Stake {RTOKEN_SYMBOL}
               </NotifBadge>
             }

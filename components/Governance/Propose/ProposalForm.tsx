@@ -59,7 +59,6 @@ export const ProposalForm = ({
 }) => {
     const router = useRouter()
     const isMountedRef = useRef(true)
-    const [isUnderstood, setIsUnderstood] = useState(true);
     const [hasSuccess, setHasSuccess] = useState(false);
     const { library, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
@@ -87,16 +86,6 @@ export const ProposalForm = ({
         setIsFormValid(validFormGiven)
         setPreviewMode(validFormGiven && isPreview)
     }, [title, description, functions, isPreview])
-
-    useEffect(() => {
-        const init = async () => {
-            const alreadyAggreed = await localforage.getItem(PROPOSAL_WARNING_KEY)
-            if (!isMountedRef.current) { return }
-            setIsUnderstood(!!alreadyAggreed)
-        }
-        init()
-        return () => { isMountedRef.current = false }
-    }, [])
 
     useEffect(() => {
         setIsFormValid(!isProposalFormInvalid(form))
@@ -204,11 +193,6 @@ export const ProposalForm = ({
         return deleteDraft(draftId!, library.getSigner(), () => router.push('/governance'));
     }
 
-    const warningUnderstood = () => {
-        setIsUnderstood(true)
-        localforage.setItem(PROPOSAL_WARNING_KEY, true)
-    }
-
     const showTemplateModal = () => {
         onOpen()
     }
@@ -239,7 +223,7 @@ export const ProposalForm = ({
             const failedIdx = result.receipts.length - 1;
             const failedAction = preview.functions[failedIdx];
             showToast({
-                duration: null,
+                duration: 15000,
                 status: result.hasError ? 'error' : 'success',
                 title: 'On-Chain Actions Simulation',
                 description: result.hasError ?
@@ -268,10 +252,6 @@ export const ProposalForm = ({
                         functions={preview.functions!}
                     />
                 </Flex>
-            }
-            {
-                !isUnderstood ?
-                    <ProposalWarningMessage onOk={() => warningUnderstood()} /> : null
             }
             {
                 previewMode ?
