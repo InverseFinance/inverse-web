@@ -119,7 +119,7 @@ export const Landing = () => {
             maxW="900px"
           >
             <Text>
-              Here at Inverse, we're decentralized by design, moving past reckless, outdated systems towards a better solution: Positive Sum Defi.
+              Here at Inverse Finance, we're decentralized by design, moving past reckless, outdated systems towards a better solution: Positive Sum Defi.
               We help you maximize your earnings via revenue sharing, accumulate high yields with sustainable APYs, and benefit from low-cost stable coin borrowing. Join our community to grow and thrive.
             </Text>
           </Flex>
@@ -134,7 +134,7 @@ export const Landing = () => {
             </Flex>
           </Flex>
           <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
-            {process.env.NEXT_PUBLIC_SHORTNAME} is proudly partnered with leading cryptocurrency & DeFi protocols
+            Inverse Finance is proudly partnered with leading cryptocurrency & DeFi protocols
           </Text>
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
@@ -147,7 +147,7 @@ export const Landing = () => {
       </Flex>
       <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 24 }} p={8}>
         <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
-          Start Earning With Inverse Now:
+          Start Earning With Inverse Finance Now:
         </Text>
         <Stack
           w="full"
@@ -209,10 +209,10 @@ export const Landing = () => {
               </Link>.
             </Box>
             <Text fontSize="2xl" fontWeight="bold">
-              Join the Inverse DAO - Governance By The People
+              Join the Inverse Finance DAO - Governance By The People
             </Text>
             <Text fontSize="lg">
-              Inverse.finance was created by a sole developer in December 2020, and since then has grown to include
+              Inverse Finance was created by a sole developer in December 2020, and since then has grown to include
               hundreds of active DAO members voting on the direction of the organization.
             </Text>
             <Text fontSize="lg">
