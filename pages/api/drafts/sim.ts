@@ -1,9 +1,11 @@
-import { ethers } from 'ethers'
+import { Contract, ethers } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import ganache from 'ganache'
+import { INV_ABI, VESTER_FACTORY_ABI } from '@app/config/abis';
+import { getBnToNumber } from '@app/util/markets';
 
-const { TREASURY } = getNetworkConfigConstants();
+const { TREASURY, XINV_VESTOR_FACTORY, INV } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { actions } = req.body;
@@ -27,7 +29,7 @@ export default async function handler(req, res) {
 
     const accounts = await provider.request({
       method: "eth_accounts",
-      params: []
+      params: [],
     });
 
     await provider.send("eth_sendTransaction", [
@@ -38,32 +40,41 @@ export default async function handler(req, res) {
       }
     ]);
 
-    const results = [];
+    const receipts = [];
+    let hasError = false
 
     for (let action of actions) {
-      const result = await provider.send("eth_sendTransaction", [
+      const hash = await provider.send("eth_sendTransaction", [
         {
           from: TREASURY,
           to: action.to,
           data: action.data,
         }
       ]);
-      results.push(result);
+      const tx = await web3provider.getTransaction(hash);
+      const receipt = await web3provider.getTransactionReceipt(hash);
+      receipts.push(receipt);
+
+      if(receipt.status === 0) {
+        hasError = true
+        break
+       }
     }
+
+    // const contract = new Contract(INV, INV_ABI, web3provider);
+
+    // const r = await contract.allowance(TREASURY, XINV_VESTOR_FACTORY);
+    // console.log(getBnToNumber(r))
 
     const result = {
-      results,
+      status: 'success',
+      hasError,
+      receipts,
     }
 
-    res.status(200).json(result)
+    res.status(200).json(result);
   } catch (err) {
     console.error(err);
-    res.status(200).json(err)
-    // if an error occured, try to return last cached results
-    try {
-
-    } catch (e) {
-      console.error(e);
-    }
+    res.status(200).json({ success: false })
   }
 }

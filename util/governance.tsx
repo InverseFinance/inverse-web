@@ -1,6 +1,6 @@
 import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
-import { JsonRpcSigner, TransactionResponse } from '@ethersproject/providers';
-import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment } from 'ethers/lib/utils'
+import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
+import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview } from '@app/types';
@@ -261,7 +261,6 @@ export const publishDraft = async (
 ): Promise<any> => {
     try {
         const sig = await signer.signMessage(DRAFT_SIGN_MSG);
-        
         const rawResponse = await fetch(`/api/drafts${draftId ? `/${draftId}` : ''}`, {
             method: draftId ? 'PUT' : 'POST',
             headers: {
@@ -281,7 +280,6 @@ export const publishDraft = async (
 export const deleteDraft = async (publicDraftId: number, signer: JsonRpcSigner, onSuccess?: () => void) => {
     try {
         const sig = await signer.signMessage(DRAFT_SIGN_MSG);
-        
         const rawResponse = await fetch(`/api/drafts/${publicDraftId}`, {
             method: 'DELETE',
             headers: {
@@ -341,12 +339,12 @@ export const setLastNbNotif = (nbNotif: number): void => {
     localforage.setItem('last-nb-notifs', nbNotif);
     try {
         window.localStorage.setItem('last-nb-notifs', nbNotif.toString());
-    } catch (e) {}
+    } catch (e) { }
 }
 
 export const updateReadGovernanceNotifs = async (readKey: string): Promise<void> => {
     const current = await getReadGovernanceNotifs();
-    if(current.includes(readKey)) { return }
+    if (current.includes(readKey)) { return }
     current.push(readKey);
     await localforage.setItem('read-governance-notifs', current);
 }
@@ -360,7 +358,7 @@ export const sendDraftReview = async (
 ): Promise<any> => {
     try {
         const sig = await signer.signMessage(DRAFT_SIGN_MSG);
-        
+
         const rawResponse = await fetch(`/api/drafts/reviews/${draftId}`, {
             method: 'POST',
             headers: {
@@ -371,6 +369,36 @@ export const sendDraftReview = async (
         });
         const result = await rawResponse.json();
         if (onSuccess && result.status === 'success') { onSuccess(result.reviews) }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
+
+export const simulateOnChainActions = async (
+    functions: ProposalFunction[],
+    onSuccess: (reviews: DraftReview[]) => void,
+): Promise<{
+    hasError: boolean,
+    receipts: TransactionReceipt[],
+}> => {
+    try {
+        const actions = functions.map(f => {
+            const iface = new Interface([`function ${f.signature}`]);
+            const data = `${iface.getSighash(f.signature)}${f.callData.replace('0x', '')}`;
+            return { to: f.target, data  }
+        })
+        
+        const rawResponse = await fetch(`/api/drafts/sim`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ actions })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess && result.status === 'success') { onSuccess(result) }
         return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }
