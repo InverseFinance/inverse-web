@@ -115,6 +115,7 @@ export const FedRevenuesPage = () => {
     const feds = FEDS;
 
     const eventsWithFedInfos = totalEvents
+        .filter(e => !!feds[e.fedIndex])
         .map(e => {
             const fed = feds[e.fedIndex];
             return {
@@ -142,7 +143,7 @@ export const FedRevenuesPage = () => {
             value: i.toString(),
             label: <Flex alignItems="center">
                 {
-                    !!fed.chainId && <Image borderRadius={ fed.address ? '10px' : undefined } ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
                 }
                 {fed.name.replace(/ Fed$/, '')}
             </Flex>,

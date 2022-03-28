@@ -137,6 +137,7 @@ export const FedPolicyPage = () => {
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
     const eventsWithFedInfos = totalEvents
+        .filter(e => !!fedsWithData[e.fedIndex])
         .map(e => {
             const fed = fedsWithData[e.fedIndex];
             return {
