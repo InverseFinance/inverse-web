@@ -16,6 +16,7 @@ const positions: { [key: string]: { [key: string]: { x: number, y: number } } } 
   '1': {
     '0x3fcb35a1cbfb6007f9bc638d388958bc4550cb28': { x: 600, y: -200 },
     '0xb9f43e250dadf6b61872307396ad1b8beba27bcd': { x: 600, y: 400 },
+    '0x6535020cceb810bdb3f3ca5e93de2460ff7989bb': { x: -200, y: 400 },
     '0x4b6c63e6a94ef26e2df60b89372db2d8e211f1b7': { x: 0, y: -300 },
     '0x77c64eef5f4781dd6e9405a8a77d80567cfd37e0': { x: 1200, y: -300 },
     '0x07de0318c24d67141e6758370e9d7b6d863635aa': { x: 1000, y: -50 },

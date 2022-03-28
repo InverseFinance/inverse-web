@@ -13,7 +13,7 @@ export const BondsPage = () => {
             <AppNav active="Bonds" />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="900px">
                 <Flex w={{ base: 'full' }} justify="space-around" direction={{ base: 'column', md: 'row' }}>
-                    <Flex w={{ base: 'full' }} pr="5">
+                    <Flex w={{ base: 'full' }}>
                         <Flex w='full' spacing="2" alignItems="flex-start">
                             <BondsView />
                         </Flex>
