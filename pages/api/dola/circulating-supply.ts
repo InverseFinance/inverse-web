@@ -12,10 +12,9 @@ const {
   OP_BOND_MANAGER,
 } = getNetworkConfigConstants();
 
-// Anchor Dola Reserves will also be excluded
 const excluded = [
-  TREASURY,
-  OP_BOND_MANAGER,
+  // TREASURY,
+  // OP_BOND_MANAGER,
 ];
 
 const { ANCHOR_DOLA } = getNetworkConfigConstants();
@@ -46,7 +45,7 @@ export default async function handler(req, res) {
       .map(bn => getBnToNumber(bn))
       .reduce((prev, curr) => prev + curr, 0);
 
-    const circulatingSupply = getBnToNumber(totalSupply) - getBnToNumber(anDolaReserves) - totalInvExcluded;
+    const circulatingSupply = getBnToNumber(totalSupply)// - getBnToNumber(anDolaReserves) - totalInvExcluded;
 
     await redisSetWithTimestamp(cacheKey, circulatingSupply);
 

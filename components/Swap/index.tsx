@@ -328,7 +328,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
               handleSubmit={() => handleSubmit(fromToken, toToken)}
             />
             :
-            <InfoMessage alertProps={{ w: 'full' }} description="Pleace Connect your wallet" />
+            <InfoMessage alertProps={{ w: 'full' }} description="Please Connect your wallet" />
         }
       </Stack>
     </Container>
