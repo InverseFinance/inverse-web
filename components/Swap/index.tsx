@@ -58,7 +58,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [fromToken, setFromToken] = useState(defaultFromToken)
   const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
   const [bestRoute, setBestRoute] = useState<Swappers | ''>('')
-  const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.crv)
+  const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.stabilizer)
   const [manualChosenRoute, setManualChosenRoute] = useState<Swappers | ''>('')
   const [swapDir, setSwapDir] = useState<string>(fromToken.symbol + toToken.symbol)
   const [canUseStabilizer, setCanUseStabilizer] = useState(true);
