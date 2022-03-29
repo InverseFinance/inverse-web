@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { INV_ABI } from '@app/config/abis'
+import { CTOKEN_ABI, DOLA_ABI } from '@app/config/abis'
 import { getNetworkConfig } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -12,10 +12,13 @@ const {
   OP_BOND_MANAGER,
 } = getNetworkConfigConstants();
 
+// Anchor Dola Reserves will also be excluded
 const excluded = [
   TREASURY,
   OP_BOND_MANAGER,
 ];
+
+const { ANCHOR_DOLA } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
@@ -30,10 +33,12 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(networkConfig.chainId);
-    const contract = new Contract(process.env.NEXT_PUBLIC_DOLA!, INV_ABI, provider);
+    const contract = new Contract(process.env.NEXT_PUBLIC_DOLA!, DOLA_ABI, provider);
+    const anDola = new Contract(ANCHOR_DOLA, CTOKEN_ABI, provider);
 
-    const [totalSupply, ...excludedBalances] = await Promise.all([
+    const [totalSupply, anDolaReserves, ...excludedBalances] = await Promise.all([
       contract.totalSupply(),
+      anDola.totalReserves(),
       ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
     ]);
 
@@ -41,7 +46,7 @@ export default async function handler(req, res) {
       .map(bn => getBnToNumber(bn))
       .reduce((prev, curr) => prev + curr, 0);
 
-    const circulatingSupply = getBnToNumber(totalSupply) - totalInvExcluded;
+    const circulatingSupply = getBnToNumber(totalSupply) - getBnToNumber(anDolaReserves) - totalInvExcluded;
 
     await redisSetWithTimestamp(cacheKey, circulatingSupply);
 
