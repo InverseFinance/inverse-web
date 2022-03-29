@@ -112,7 +112,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       const isStabBuy = toToken.symbol === 'DOLA';
       let costStabInEth = (isStabBuy ? DEFAULT_STAB_BUY_COST : DEFAULT_STAB_SELL_COST) * gasPrice;
 
-      // try to get dynamic estimation, may fail if signer has not enough balance
+      // try to get dynamic estimation, may fail if signer has not enough balance or token is not approved yet
       try {
         const costCrv = await estimateCrvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'));
         const stabContract = getStabilizerContract(library.getSigner());
@@ -122,9 +122,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
         costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
         costStabInEth = parseFloat(formatUnits(costStab, 'gwei')) * gasPrice;
       } catch (e) {
-        console.log(e);
-        
-        console.log('can not estimate dynamically');
+        console.log('can not estimate gas fees dynamically: prolly not enough balance or allowance');
       }
 
       setTxCosts({ [Swappers.crv]: costCrvInEth, [Swappers.stabilizer]: costStabInEth });
