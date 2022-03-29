@@ -1,14 +1,14 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Prices, StringNumMap, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCustomSWR } from './useCustomSWR'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
-import { UNDERLYING } from '@app/variables/tokens'
+import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -59,14 +59,40 @@ export const useAnchorPricesUsd = () => {
 
   let usdPrices: StringNumMap = {}
   for (var key in prices) {
-      if (prices.hasOwnProperty(key)) {
-        usdPrices[key] = parseFloat(formatUnits(prices[key], BigNumber.from(36).sub(UNDERLYING[key].decimals)))
-      }
+    if (prices.hasOwnProperty(key)) {
+      usdPrices[key] = parseFloat(formatUnits(prices[key], BigNumber.from(36).sub(UNDERLYING[key].decimals)))
+    }
   }
 
   return {
     prices: usdPrices,
     isError,
     isLoading,
+  }
+}
+
+export const useGasPrice = () => {
+  const { data } = useEtherSWR(['getGasPrice']);
+  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
+  return gasPrice;
+}
+
+export const useTransactionCost = (contract: Contract, method: string, args: any[]) => {
+  const { prices } = usePrices();
+  const { data } = useEtherSWR(['getGasPrice']);
+  const { data: txGas } = useCustomSWR(`estimate-gas-${contract.address}-${method}`, async () => {
+    const gas = await contract.estimateGas[method](...args);
+    return gas;
+  });
+
+  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
+  const costEth = gasPrice * (txGas ? parseFloat(formatUnits(txGas, 'gwei')) : 0);
+  const costUsd = costEth * (prices ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0);
+
+  return {
+    gasPrice,
+    txGas,
+    costEth,
+    costUsd,
   }
 }

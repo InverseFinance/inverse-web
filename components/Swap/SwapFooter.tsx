@@ -38,6 +38,8 @@ export const SwapFooter = ({
     toAmount,
     isApproved,
     maxSlippage,
+    costs,
+    ethPriceUsd,
     onMaxSlippageChange,
 }: {
     bestRoute: Swappers | '',
@@ -56,6 +58,8 @@ export const SwapFooter = ({
     toAmount: string,
     fromAmount: string,
     maxSlippage: number,
+    costs: { [key: string]: number },
+    ethPriceUsd: number,
     onMaxSlippageChange: (v: number) => void
 }) => {
     const { active } = useWeb3React<Web3Provider>()
@@ -72,7 +76,7 @@ export const SwapFooter = ({
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
-            label: <SwapRoute label={route.label} isBestRoute={bestRoute === route.value} />
+            label: <SwapRoute cost={costs[route.value]} ethPriceUsd={ethPriceUsd} label={route.label} isBestRoute={bestRoute === route.value} />
         }
     })
 
@@ -98,7 +102,7 @@ export const SwapFooter = ({
                             value: chosenRoute,
                             onChange: onRouteChange,
                         }}
-                        radioCardProps={{ p: 0, mr: '4' }}
+                        radioCardProps={{ py: 0, px: '3', mr: '4' }}
                         options={routeRadioOptions}
                     />
                     <SwapText textAlign={{ base: 'center', sm: 'left' }}>

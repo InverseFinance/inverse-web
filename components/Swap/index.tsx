@@ -18,7 +18,7 @@ import { STABILIZER_FEE } from '@app/config/constants'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
-import { useGasPrice } from '@app/hooks/usePrices'
+import { useGasPrice, usePrices } from '@app/hooks/usePrices'
 
 const routes = [
   { value: Swappers.crv, label: 'Curve' },
@@ -28,8 +28,9 @@ const routes = [
 
 // TODO: refacto + add INV
 export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string }) => {
-  const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const { library, chainId } = useWeb3React<Web3Provider>()
   const gasPrice = useGasPrice();
+  const { prices } = usePrices();
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
 
   const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
@@ -67,6 +68,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [freshBalances, setFreshBalances] = useState<{ [key: string]: BigNumber }>({})
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
+  const [txCosts, setTxCosts] = useState({ [Swappers.crv]: 0, [Swappers.stabilizer]: 0 });
 
   useEffect(() => {
     if(!from || !to) { return }
@@ -105,6 +107,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       const costStab = await stabContract.estimateGas.buy(parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
       const costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
       const costStabInEth =  parseFloat(formatUnits(costStab, 'gwei')) * gasPrice;
+      setTxCosts({ [Swappers.crv]: costCrvInEth, [Swappers.stabilizer]: costStabInEth });
       
       const exRate = parseFloat(dy) / rateAmountRef;
       const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate }
@@ -283,6 +286,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
           toToken={toToken}
           toAmount={toAmount}
           maxSlippage={maxSlippage}
+          costs={txCosts}
+          ethPriceUsd={prices && prices[TOKENS.CHAIN_COIN.coingeckoId] ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0}
           onRouteChange={handleRouteChange}
           onMaxSlippageChange={setMaxSlippage}
           handleSubmit={() => handleSubmit(fromToken, toToken)}
