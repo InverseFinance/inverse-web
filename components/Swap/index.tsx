@@ -10,14 +10,15 @@ import { getTokenBalance, hasAllowance } from '@app/util/web3'
 import { getParsedBalance, getToken } from '@app/util/markets'
 import { Token, Swappers } from '@app/types';
 import { InverseAnimIcon } from '@app/components/common/Animation'
-import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
+import { crvGetDyUnderlying, crvSwap, estimateCrvSwap, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
 import { handleTx, HandleTxOptions } from '@app/util/transactions';
 import { constants, BigNumber } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils';
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@app/config/constants'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
+import { useGasPrice } from '@app/hooks/usePrices'
 
 const routes = [
   { value: Swappers.crv, label: 'Curve' },
@@ -28,6 +29,7 @@ const routes = [
 // TODO: refacto + add INV
 export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string }) => {
   const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const gasPrice = useGasPrice();
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
 
   const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
@@ -96,12 +98,20 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
+      const costCrv = await estimateCrvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount||'1'), parseFloat(toAmount||'1'));
+      const stabContract = getStabilizerContract(library.getSigner());
+      // buy and sell is around the same
+      const amountMinusFee = parseFloat(fromAmount||'1') - STABILIZER_FEE * parseFloat(fromAmount||'1');
+      const costStab = await stabContract.estimateGas.buy(parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
+      const costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
+      const costStabInEth =  parseFloat(formatUnits(costStab, 'gwei')) * gasPrice;
+      
       const exRate = parseFloat(dy) / rateAmountRef;
       const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate }
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromAmount, fromToken, toToken, swapDir], 500);
+  }, [library, fromAmount, fromToken, toToken, swapDir, gasPrice], 500);
 
   useEffect(() => {
     setManualChosenRoute('');
