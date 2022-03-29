@@ -1,4 +1,4 @@
-import { Text, VStack, Flex } from '@chakra-ui/react';
+import { Text, VStack } from '@chakra-ui/react';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { SlippageRadioGroup } from '@app/components/common/Input/SlippageRadioGroup';
 import { Token } from '@app/types';
@@ -19,14 +19,12 @@ export const SwapSlippage = ({
     const color = 'whiteAlpha.800'
 
     return (
-        <VStack alignItems="center" direction="column" color={color} w='full' spacing="2">
-            <Flex flexDirection={{ base: 'column', sm: 'row' }}>
-                <Text color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" mr="2">
-                    <AnimatedInfoTooltip size="intermediary" message="The maximum slippage accepted for the swap, if the slippage exceeds the maximum chosen the transaction will fail." />
-                    Max. slippage :
-                </Text>
-                <SlippageRadioGroup defaultValue={maxSlippage.toString()} onChange={onChange} />
-            </Flex>
+        <VStack direction="column" color={color} w='full' spacing="2">
+            <Text color={color} textAlign={{ base: 'center', sm: 'right' }} display="block" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px">
+                <AnimatedInfoTooltip size="intermediary" message="The maximum slippage accepted for the swap, if the slippage exceeds the maximum chosen the transaction will fail." />
+                Max. slippage :
+            </Text>
+            <SlippageRadioGroup defaultValue={maxSlippage.toString()} onChange={onChange} />
             <Text color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" ml="2">
                 <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken.symbol} that you will receive`} />
                 Min. received&nbsp;:&nbsp;<b>{commify(minReceived)}</b>

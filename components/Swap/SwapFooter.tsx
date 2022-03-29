@@ -1,19 +1,19 @@
 
 import { useEffect, useState } from 'react'
-import { Text, TextProps, VStack, Flex } from '@chakra-ui/react'
+import { Text, TextProps, VStack, Flex, HStack, Switch, AlertProps } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { Swappers, Token } from '@app/types';
 import { SubmitButton } from '@app/components/common/Button'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import { InfoMessage } from '@app/components/common/Messages'
+import { StatusMessage } from '@app/components/common/Messages'
 import { SwapSlippage } from './SwapSlippage'
 import { ethereumReady } from '@app/util/web3';
 import { SwapRoute } from './SwapRoute';
 
-const SwapInfoMessage = ({ description, height }: { description: string, height?: string }) => {
-    return <InfoMessage alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
+const SwapInfoMessage = ({ description, height, status = 'info' }: { description: string, height?: string, status?: AlertProps["status"] }) => {
+    return <StatusMessage status={status} alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
 }
 
 const SwapText = ({ children, ...props }: { children: React.ReactNode } & Partial<TextProps>) => {
@@ -38,6 +38,10 @@ export const SwapFooter = ({
     toAmount,
     isApproved,
     maxSlippage,
+    costs,
+    ethPriceUsd,
+    includeCostInBestRate,
+    onIncludeTxCostChange,
     onMaxSlippageChange,
 }: {
     bestRoute: Swappers | '',
@@ -56,6 +60,10 @@ export const SwapFooter = ({
     toAmount: string,
     fromAmount: string,
     maxSlippage: number,
+    costs: { [key: string]: number },
+    ethPriceUsd: number,
+    includeCostInBestRate: boolean,
+    onIncludeTxCostChange: () => void,
     onMaxSlippageChange: (v: number) => void
 }) => {
     const { active } = useWeb3React<Web3Provider>()
@@ -72,15 +80,15 @@ export const SwapFooter = ({
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
-            label: <SwapRoute label={route.label} isBestRoute={bestRoute === route.value} />
+            label: <SwapRoute includeCostInBestRate={includeCostInBestRate} cost={costs[route.value]} ethPriceUsd={ethPriceUsd} label={route.label} isBestRoute={bestRoute === route.value} />
         }
     })
 
     const isStabilizer = chosenRoute === Swappers.stabilizer;
 
     const slippageZone = isStabilizer ?
-        <Flex alignItems="center">
-            <SwapInfoMessage description="There is no slippage when using the Stabilizer" />
+        <Flex alignItems="center" w="full">
+            <SwapInfoMessage description="No slippage when using the Stabilizer" />
         </Flex>
         :
         <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
@@ -89,8 +97,18 @@ export const SwapFooter = ({
 
     return (
         <>
-            <Flex flexDirection={{ base: 'column', sm: 'row' }} w='full' justifyContent="space-between">
-                <VStack textAlign="left">
+            <HStack h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
+                <Text color="secondaryTextColor">
+                    <AnimatedInfoTooltip
+                        size="intermediary"
+                        message="If enabled (Recommended): calculates the Best Route in total USD terms, meaning it includes the USD worth of the Eth Gas Fees needed for the transaction with the current gas price. Gas Fees are estimations only, check the real cost in your wallet." />
+                    Best Rate Including Swap Gas Fees
+                </Text>
+                <Switch value="true" isChecked={includeCostInBestRate} onChange={onIncludeTxCostChange} />
+            </HStack>
+            <Flex alignItems="flex-start" flexDirection={{ base: 'column', sm: 'row' }} w='full' justifyContent="space-between">
+
+                <VStack textAlign="left" w='full'>
                     <RadioCardGroup
                         wrapperProps={{ w: 'full', alignItems: 'center', justify: { base: 'center', sm: 'left' } }}
                         group={{
@@ -98,7 +116,7 @@ export const SwapFooter = ({
                             value: chosenRoute,
                             onChange: onRouteChange,
                         }}
-                        radioCardProps={{ p: 0, mr: '4' }}
+                        radioCardProps={{ py: 0, px: '2', mr: '4', w: { base: 'full', sm: '135px' } }}
                         options={routeRadioOptions}
                     />
                     <SwapText textAlign={{ base: 'center', sm: 'left' }}>
@@ -111,14 +129,14 @@ export const SwapFooter = ({
                         }
                     </SwapText>
                 </VStack>
-                <VStack spacing={2} height={{ base: 'auto', sm: '60px' }}>
+                <VStack mt={{ base: '1' }} alignItems="flex-start" w={{ base: 'full', sm: 'auto' }} spacing={2} height={{ base: 'auto', sm: '60px' }}>
                     {slippageZone}
                 </VStack>
             </Flex>
 
             {
                 chosenRoute === Swappers.stabilizer && !canUseStabilizer ?
-                    <SwapInfoMessage description="The Stabilizer can only be used for the DAI-DOLA pair" />
+                    <SwapInfoMessage status="warning" description="The Stabilizer can only be used for the DAI-DOLA pair" />
                     :
                     chosenRoute === Swappers.stabilizer && noStabilizerLiquidity && !notEnoughTokens ?
                         <SwapInfoMessage description="There is not enough DAI liquidity in the Stabilizer right now for this swap" />
@@ -126,7 +144,7 @@ export const SwapFooter = ({
                         <>
                             <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
                                 {
-                                    notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Approve'
+                                    notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Step 1/2 - Approve'
                                 }
                                 {
                                     !isApproved ?

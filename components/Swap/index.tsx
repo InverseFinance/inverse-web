@@ -10,14 +10,16 @@ import { getTokenBalance, hasAllowance } from '@app/util/web3'
 import { getParsedBalance, getToken } from '@app/util/markets'
 import { Token, Swappers } from '@app/types';
 import { InverseAnimIcon } from '@app/components/common/Animation'
-import { crvGetDyUnderlying, crvSwap, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
+import { crvGetDyUnderlying, crvSwap, estimateCrvSwap, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
 import { handleTx, HandleTxOptions } from '@app/util/transactions';
 import { constants, BigNumber } from 'ethers'
-import { parseUnits } from 'ethers/lib/utils';
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@app/config/constants'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
+import { useGasPrice, usePrices } from '@app/hooks/usePrices'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const routes = [
   { value: Swappers.crv, label: 'Curve' },
@@ -25,9 +27,16 @@ const routes = [
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
 
+// multiply by Gas Price to get Eth cost
+const DEFAULT_STAB_BUY_COST = 0.000117044;
+const DEFAULT_STAB_SELL_COST = 0.000145434;
+const DEFAULT_CRV_COST = 0.000319716;
+
 // TODO: refacto + add INV
 export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string }) => {
   const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const gasPrice = useGasPrice();
+  const { prices } = usePrices();
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
 
   const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
@@ -49,7 +58,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [fromToken, setFromToken] = useState(defaultFromToken)
   const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
   const [bestRoute, setBestRoute] = useState<Swappers | ''>('')
-  const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.crv)
+  const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.stabilizer)
   const [manualChosenRoute, setManualChosenRoute] = useState<Swappers | ''>('')
   const [swapDir, setSwapDir] = useState<string>(fromToken.symbol + toToken.symbol)
   const [canUseStabilizer, setCanUseStabilizer] = useState(true);
@@ -65,9 +74,11 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [freshBalances, setFreshBalances] = useState<{ [key: string]: BigNumber }>({})
 
   const [isApproved, setIsApproved] = useState(hasAllowance(approvals, fromToken.address));
+  const [txCosts, setTxCosts] = useState({ [Swappers.crv]: 0, [Swappers.stabilizer]: 0 });
+  const [includeCostInBestRate, setIncludeCostInBestRate] = useState(true);
 
   useEffect(() => {
-    if(!from || !to) { return }
+    if (!from || !to) { return }
     const fromToken = getToken(TOKENS, from) || getToken(TOKENS, 'DOLA')!;
     const toToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!;
     setFromToken(fromToken);
@@ -96,26 +107,46 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
       const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
+
+      let costCrvInEth = DEFAULT_CRV_COST * gasPrice;
+      const isStabBuy = toToken.symbol === 'DOLA';
+      let costStabInEth = (isStabBuy ? DEFAULT_STAB_BUY_COST : DEFAULT_STAB_SELL_COST) * gasPrice;
+
+      // try to get dynamic estimation, may fail if signer has not enough balance or token is not approved yet
+      try {
+        const costCrv = await estimateCrvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'));
+        const stabContract = getStabilizerContract(library.getSigner());
+        // buy and sell is around the same
+        const amountMinusFee = parseFloat(fromAmount || '1') - STABILIZER_FEE * parseFloat(fromAmount || '1');
+        const costStab = await stabContract.estimateGas[isStabBuy ? 'buy' : 'sell'](parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
+        costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
+        costStabInEth = parseFloat(formatUnits(costStab, 'gwei')) * gasPrice;
+      } catch (e) {
+        console.log('can not estimate gas fees dynamically: prolly not enough balance or allowance');
+      }
+
+      setTxCosts({ [Swappers.crv]: costCrvInEth, [Swappers.stabilizer]: costStabInEth });
+
       const exRate = parseFloat(dy) / rateAmountRef;
       const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate }
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromAmount, fromToken, toToken, swapDir], 500);
+  }, [library, fromAmount, fromToken, toToken, swapDir, gasPrice], 500);
 
   useEffect(() => {
     setManualChosenRoute('');
-  }, [fromAmount, fromToken, toAmount, toToken]);
+  }, [fromAmount, fromToken, includeCostInBestRate]);
 
   useEffect(() => {
     if (!library || !exRates[Swappers.crv][swapDir]) { return }
     const newBestRoute = getBestRoute();
 
-    if (bestRoute === '' && newBestRoute || (newBestRoute && chosenRoute !==  newBestRoute && !manualChosenRoute)) {
+    if (bestRoute === '' && newBestRoute || (newBestRoute && chosenRoute !== newBestRoute && !manualChosenRoute)) {
       setChosenRoute(newBestRoute);
     }
     setBestRoute(newBestRoute);
-  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer]);
+  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer, txCosts, includeCostInBestRate, manualChosenRoute]);
 
   // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
@@ -126,8 +157,17 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     else if (canUseStabilizer) {
       const notEnoughLiquidity = toToken.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
       setNoStabilizerLiquidity(notEnoughLiquidity);
-      const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir]
-      return useCrv ? Swappers.crv : Swappers.stabilizer
+      const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir];
+
+      if (!includeCostInBestRate) {
+        return useCrv ? Swappers.crv : Swappers.stabilizer
+      } else {
+        const ethPrice = prices && prices[TOKENS.CHAIN_COIN.coingeckoId] ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0;
+        const crvTotal = parseFloat(fromAmount || '1') * exRates[Swappers.crv][swapDir] - txCosts[Swappers.crv] * ethPrice;
+        const stabTotal = parseFloat(fromAmount || '1') * exRates[Swappers.stabilizer][swapDir] - txCosts[Swappers.stabilizer] * ethPrice;
+        const useCrv = notEnoughLiquidity || crvTotal > stabTotal;
+        return useCrv ? Swappers.crv : Swappers.stabilizer
+      }
     }
     // for other cases crv
     return Swappers.crv
@@ -183,7 +223,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   }
 
   const onSwapSuccess = async (from: Token, to: Token) => {
-    if(!library?.getSigner()) { return }
+    if (!library?.getSigner()) { return }
     setFreshBalances({
       ...freshBalances,
       [from.address]: await getTokenBalance(from, library?.getSigner()),
@@ -225,6 +265,10 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const balances = { ...balancesWithCache, ...freshBalances }
   const commonAssetInputProps = { tokens: TOKENS, balances, showBalance: true }
 
+  const onIncludeTxCostChange = () => {
+    setIncludeCostInBestRate(!includeCostInBestRate);
+  }
+
   return (
     <Container
       contentBgColor="gradient3"
@@ -258,25 +302,34 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
         <Divider borderColor="#ccccccaa" />
 
-        <SwapFooter
-          bestRoute={bestRoute}
-          chosenRoute={chosenRoute}
-          routes={routes}
-          isApproved={isApproved}
-          isDisabled={isDisabled}
-          canUseStabilizer={canUseStabilizer}
-          noStabilizerLiquidity={noStabilizerLiquidity}
-          notEnoughTokens={notEnoughTokens}
-          exRates={exRates}
-          fromToken={fromToken}
-          fromAmount={fromAmount}
-          toToken={toToken}
-          toAmount={toAmount}
-          maxSlippage={maxSlippage}
-          onRouteChange={handleRouteChange}
-          onMaxSlippageChange={setMaxSlippage}
-          handleSubmit={() => handleSubmit(fromToken, toToken)}
-        />
+        {
+          !!account ?
+            <SwapFooter
+              bestRoute={bestRoute}
+              chosenRoute={chosenRoute}
+              routes={routes}
+              isApproved={isApproved}
+              isDisabled={isDisabled}
+              canUseStabilizer={canUseStabilizer}
+              noStabilizerLiquidity={noStabilizerLiquidity}
+              notEnoughTokens={notEnoughTokens}
+              exRates={exRates}
+              fromToken={fromToken}
+              fromAmount={fromAmount}
+              toToken={toToken}
+              toAmount={toAmount}
+              maxSlippage={maxSlippage}
+              costs={txCosts}
+              ethPriceUsd={prices && prices[TOKENS.CHAIN_COIN.coingeckoId] ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0}
+              includeCostInBestRate={includeCostInBestRate}
+              onIncludeTxCostChange={onIncludeTxCostChange}
+              onRouteChange={handleRouteChange}
+              onMaxSlippageChange={setMaxSlippage}
+              handleSubmit={() => handleSubmit(fromToken, toToken)}
+            />
+            :
+            <InfoMessage alertProps={{ w: 'full' }} description="Pleace Connect your wallet" />
+        }
       </Stack>
     </Container>
   )

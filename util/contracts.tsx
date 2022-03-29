@@ -114,7 +114,11 @@ export const getDolaCrvPoolContract = (signer: JsonRpcSigner | Web3Provider | un
 
 const CRV_INDEXES: any = { DOLA: 0, DAI: 1, USDC: 2, USDT: 3 }
 
-export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number, maxSlippage: number) => {
+export const estimateCrvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number) => {
+  return crvSwap(signer, fromUnderlying, toUnderlying, amount, toAmount, 1, true);
+}
+
+export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number, maxSlippage: number, isEstimate = false) => {
 
   const contract = getDolaCrvPoolContract(signer);
 
@@ -124,7 +128,11 @@ export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlyi
   const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
   const toIndex = CRV_INDEXES[toUnderlying.symbol]
 
-  return contract.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
+  if(isEstimate) {
+    return contract.estimateGas.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
+  } else {
+    return contract.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
+  }
 }
 // useful to get the exRate
 export const crvGetDyUnderlying = async (signerOrProvider: JsonRpcSigner | Web3Provider, fromUnderlying: Token, toUnderlying: Token, amount: number) => {
