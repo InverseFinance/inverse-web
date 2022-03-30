@@ -118,7 +118,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
         const stabContract = getStabilizerContract(library.getSigner());
         // buy and sell is around the same
         const amountMinusFee = parseFloat(fromAmount || '1') - STABILIZER_FEE * parseFloat(fromAmount || '1');
-        const costStab = await stabContract.estimateGas[isStabBuy ? 'buy' : 'sell'](parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
+        const stabAmount = parseUnits((isStabBuy ? amountMinusFee : parseFloat(fromAmount)).toFixed(fromToken.decimals));
+        const costStab = await stabContract.estimateGas[isStabBuy ? 'buy' : 'sell'](stabAmount);
         costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
         costStabInEth = parseFloat(formatUnits(costStab, 'gwei')) * gasPrice;
       } catch (e) {
@@ -240,10 +241,12 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
         tx = await crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
-        const stabilizerOperation: string = toToken.symbol === 'DOLA' ? 'buy' : 'sell'
+        const isStabBuy = toToken.symbol === 'DOLA';
+        const stabilizerOperation: string = isStabBuy ? 'buy' : 'sell';
         // reduce amount to cover stabilizer fee
         const amountMinusFee = parseFloat(fromAmount) - STABILIZER_FEE * parseFloat(fromAmount);
-        tx = contract[stabilizerOperation](parseUnits(amountMinusFee.toFixed(fromToken.decimals)));
+        const stabAmount = parseUnits((isStabBuy ? amountMinusFee : parseFloat(fromAmount)).toFixed(fromToken.decimals));
+        tx = await contract[stabilizerOperation](stabAmount);
       } // TODO : handle 1inch
       else {
 
