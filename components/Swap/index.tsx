@@ -10,9 +10,9 @@ import { getTokenBalance, hasAllowance } from '@app/util/web3'
 import { getParsedBalance, getToken } from '@app/util/markets'
 import { Token, Swappers } from '@app/types';
 import { InverseAnimIcon } from '@app/components/common/Animation'
-import { crvGetDyUnderlying, crvSwap, estimateCrvSwap, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
+import { crvGetDyUnderlying, crvGetDyUnderlyingRouted, crvSwap, crvSwapRouted, estimateCrvSwap, estimateCrvSwapRouted, getERC20Contract, getStabilizerContract } from '@app/util/contracts'
 import { handleTx, HandleTxOptions } from '@app/util/transactions';
-import { constants, BigNumber } from 'ethers'
+import { constants, BigNumber, Contract } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { STABILIZER_FEE } from '@app/config/constants'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
@@ -20,6 +20,7 @@ import { SwapFooter } from './SwapFooter'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { useGasPrice, usePrices } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
+import { SWAP_ROUTER_ABI } from '@app/config/abis'
 
 const routes = [
   { value: Swappers.crv, label: 'Curve' },
@@ -37,11 +38,14 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const { account, library, chainId } = useWeb3React<Web3Provider>()
   const gasPrice = useGasPrice();
   const { prices } = usePrices();
-  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER } = getNetworkConfigConstants(chainId)
+  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER } = getNetworkConfigConstants(chainId)
 
-  const contracts: { [key: string]: string } = { [Swappers.crv]: DOLA3POOLCRV, [Swappers.stabilizer]: STABILIZER }
+  const contracts: { [key: string]: string } = {
+    [Swappers.crv]: SWAP_ROUTER, 
+    [Swappers.stabilizer]: STABILIZER,
+   }
 
-  const swapOptions = [DOLA, DAI, USDC, USDT]//, INV];
+  const swapOptions = [DOLA, DAI, USDC, USDT, MIM]//, INV];
 
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
@@ -68,7 +72,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [isAnimStopped, setIsAnimStopped] = useState(true)
 
   const { balances: balancesWithCache } = useBalances(swapOptions)
-  const { approvals } = useAllowances(swapOptions, DOLA3POOLCRV)
+  const { approvals } = useAllowances(swapOptions, SWAP_ROUTER)
   const { approvals: stabilizerApprovals } = useStabilizerApprovals()
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
   const [freshBalances, setFreshBalances] = useState<{ [key: string]: BigNumber }>({})
@@ -106,7 +110,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
-      const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
+      // const dy = await crvGetDyUnderlying(library, fromToken, toToken, rateAmountRef);
+      const dy = await crvGetDyUnderlyingRouted(library, fromToken, toToken, rateAmountRef);
 
       let costCrvInEth = DEFAULT_CRV_COST * gasPrice;
       const isStabBuy = toToken.symbol === 'DOLA';
@@ -114,7 +119,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
       // try to get dynamic estimation, may fail if signer has not enough balance or token is not approved yet
       try {
-        const costCrv = await estimateCrvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'));
+        const costCrv = await estimateCrvSwapRouted(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'));
         const stabContract = getStabilizerContract(library.getSigner());
         // buy and sell is around the same
         const amountMinusFee = parseFloat(fromAmount || '1') - STABILIZER_FEE * parseFloat(fromAmount || '1');
@@ -234,10 +239,11 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const handleSubmit = async (from: Token, to: Token) => {
     if (!library?.getSigner()) { return }
     let tx;
+
     // 1inch v4 can "approve and swap" in 1 tx
     if (isApproved || chosenRoute === Swappers.oneinch) {
       if (chosenRoute === Swappers.crv) {
-        tx = await crvSwap(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
+        tx = await crvSwapRouted(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
         const stabilizerOperation: string = toToken.symbol === 'DOLA' ? 'buy' : 'sell'
