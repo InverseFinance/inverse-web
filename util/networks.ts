@@ -4,6 +4,7 @@ import { Fed, Network, NetworkConfig, NetworkIds, TokenList } from '@app/types';
 import { getToken } from '@app/util/markets';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
+import { SECONDS_PER_BLOCK } from '../config/constants';
 
 export const getNetworkImage = (chainId: string) => {
     const { image, codename } = getNetwork(chainId);
@@ -49,9 +50,6 @@ export const getNetworkConfigConstants = (
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ]
     
-
-    const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
-
     // Anchor
     const LENS = config.anchor.lens;
     const COMPTROLLER = config.anchor.comptroller;
