@@ -2,6 +2,9 @@ import { AlchemyProvider, InfuraProvider, CloudflareProvider, JsonRpcProvider, F
 import { NetworkIds } from '@app/types';
 
 export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
+    if(chainId === '31337') {
+        return new JsonRpcProvider('http://localhost:8545/');
+    }
     if(chainId === NetworkIds.ftm) {
         return new JsonRpcProvider('https://rpc.ftm.tools/');
     }
