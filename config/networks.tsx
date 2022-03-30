@@ -69,7 +69,7 @@ const networks: Network[] = [
   {
     id: '31337',
     codename: NETWORK_CODENAMES.ethereum,
-    name: 'Ethereum',
+    name: 'Local',
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: true,

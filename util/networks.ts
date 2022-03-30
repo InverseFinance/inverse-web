@@ -158,5 +158,6 @@ export const getNetworkConfigConstants = (
         OP_BOND_MANAGER: config.opBondManager,
         XINV_VESTOR_FACTORY: config.xinvVestorFactory,
         VESTERS: config.vesters,
+        SWAP_ROUTER: config.swapRouter,
     }
 }

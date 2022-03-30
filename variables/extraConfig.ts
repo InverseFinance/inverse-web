@@ -29,6 +29,7 @@ const mainConfig = {
         "0x90b7A0B834c830Aca8Cb9561A33e8C59E1248634",
         "0x849e21c3FB182D3D359595B0097b4AA249c16366",
     ],
+    swapRouter: '0xe1Fd27F4390DcBE165f4D60DBF821e4B9Bb02dEd',
 };
 
 export const EXTRA_CONFIG = {
