@@ -264,6 +264,12 @@ export const VESTER_ABI = [
   "function cancel() public",
 ]
 
+export const SWAP_ROUTER_ABI = [
+  "function get_dy_underlying_routed(int128[] memory ij, address[] memory path, uint256 dx) external view returns (uint256)",
+  "function find_coin_routes(address _from, address _to) external view returns(int128[] memory, address[] memory)",
+  "function exchange_underlying_routed( int128[] memory ij, address[] memory path, uint256 _dx, uint256 _min_dy, address _receiver ) external returns (uint256)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
