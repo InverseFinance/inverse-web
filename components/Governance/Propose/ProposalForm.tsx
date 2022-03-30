@@ -227,7 +227,10 @@ export const ProposalForm = ({
                 status: result.hasError ? 'error' : 'success',
                 title: 'On-Chain Actions Simulation',
                 description: result.hasError ?
-                    <>Action #{result.receipts.length} <b>{namedAddress(failedAction.target)}.{failedAction.signature.split('(')[0]}</b>: Failed!</>
+                    <>
+                        <Text>Action #{result.receipts.length} <b>{namedAddress(failedAction.target)}.{failedAction.signature.split('(')[0]}</b>: Failed!</Text>
+                        <Text>This could be False Negative.</Text>
+                    </>
                     :
                     'Simulations executed successfully',
             })
