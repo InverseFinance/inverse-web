@@ -1,5 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { Prices, StringNumMap, SWR } from '@app/types'
+import { Prices, StringNumMap, SWR, Token } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { BigNumber, Contract } from 'ethers'
 import useEtherSWR from './useEtherSWR'
@@ -9,6 +9,7 @@ import { useCustomSWR } from './useCustomSWR'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
+import { getLPPrice } from '@app/util/contracts'
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -95,4 +96,20 @@ export const useTransactionCost = (contract: Contract, method: string, args: any
     costEth,
     costUsd,
   }
+}
+
+export const useLpPrice = (LPToken: Token, chainId: string) => {
+  const data = useCustomSWR(`lp-price-${LPToken.symbol}-${chainId}`, async () => {
+    return await getLPPrice(LPToken, chainId);
+  })
+
+  return data||0;
+}
+
+export const useLpPrices = (LPTokens: Token[], chainId: string) => {
+  const data = useCustomSWR(`lp-prices-${LPTokens.map(t => t.symbol).join('-')}-${chainId}`, async () => {
+    return await Promise.all(LPTokens.map(lp => getLPPrice(lp, chainId)));
+  })
+
+  return data||LPTokens.map(lp => 0);
 }
