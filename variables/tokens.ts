@@ -29,7 +29,15 @@ const chainTokenAddresses = {
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
-  }
+    WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
+  },
+  "250": {
+    DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
+    SPOOKYLP: '0x49ec56cc2adaf19c1688d3131304dbc3df5e1ccd',
+    DOLA: '0x3129662808bEC728a27Ab6a6b9AFd3cBacA8A43c',
+    INV: '0xb84527D59b6Ecb96F433029ECc890D4492C5dCe1',
+    USDC: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
+  },
 }
 
 const chainTokens = {
@@ -121,7 +129,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DOLA3POOLCRV,
       name: 'Dola-3pool CRV LP',
       symbol: 'DOLA-3POOL',
-      coingeckoId: 'lp-3pool-curve',
+      coingeckoId: 'usd-coin',
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
     },
@@ -141,7 +149,41 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665',
       decimals: 9,
     },
-  }
+    [chainTokenAddresses["1"].WFTM]: {
+      address: chainTokenAddresses["1"].WFTM,
+      name: 'Fantom',
+      symbol: 'WFTM',
+      coingeckoId: 'fantom',
+      image: 'https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016',
+      decimals: 18,
+    },
+  },
+  "250": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'Fantom',
+      symbol: 'FTM',
+      coingeckoId: 'fantom',
+      image: 'https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016',
+      decimals: 18,
+    },
+    [chainTokenAddresses["250"].DOLA2POOLCRV]: {
+      address: chainTokenAddresses["250"].DOLA2POOLCRV,
+      name: 'Dola-2Pool CRV LP',
+      symbol: 'DOLA-2POOL',
+      coingeckoId: 'usd-coin',
+      image: 'https://assets.coingecko.com/markets/images/538/small/Curve.png?1591605481',
+      decimals: 18,
+    },
+    [chainTokenAddresses["250"].SPOOKYLP]: {
+      address: chainTokenAddresses["250"].SPOOKYLP,
+      name: 'Spooky LP',
+      symbol: 'SPOOKY-LP',
+      coingeckoId: '',
+      image: 'https://assets.coingecko.com/markets/images/662/small/spookyswap.png?1639279823',
+      decimals: 18,
+    },
+  },
 }
 
 export const TOKENS: TokenList = {
@@ -163,6 +205,16 @@ export const TOKENS: TokenList = {
     decimals: 18,
   },
 };
+
+const copyToFtm = ["DOLA", "INV", "USDC"];
+copyToFtm.forEach(sym => {
+  chainTokens["250"][chainTokenAddresses["250"][sym]] = {
+    ...TOKENS[chainTokenAddresses["1"][sym]],
+    address: chainTokenAddresses["250"][sym],
+  }
+});
+
+export const CHAIN_TOKENS = { ...chainTokens, [process.env.NEXT_PUBLIC_CHAIN_ID!]: TOKENS };
 
 /* 
  * Anchor Markets Underlyings
