@@ -1,5 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { Prices, StringNumMap, SWR } from '@app/types'
+import { Prices, StringNumMap, SWR, Token } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { BigNumber, Contract } from 'ethers'
 import useEtherSWR from './useEtherSWR'
@@ -9,6 +9,7 @@ import { useCustomSWR } from './useCustomSWR'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
+import { getLPPrice } from '@app/util/contracts'
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -32,6 +33,24 @@ export const usePrices = (): SWR & Prices => {
 
   return {
     prices: data || {},
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+// asUsdObject to get the same formatting as coingecko
+export const usePricesV2 = (asUsdObject = true): SWR & Prices => {
+  const { data, error } = useCustomSWR(
+    `/api/prices`,
+    fetcher
+  )
+
+  const d = (data || {});
+  const usdObjects = {};
+  Object.entries(d).forEach(([key, val]) => usdObjects[key] = { usd: val });
+
+  return {
+    prices: asUsdObject ? usdObjects : d,
     isLoading: !error && !data,
     isError: error,
   }
@@ -95,4 +114,22 @@ export const useTransactionCost = (contract: Contract, method: string, args: any
     costEth,
     costUsd,
   }
+}
+
+export const useLpPrice = (LPToken: Token, chainId: string) => {
+  const { account, library } = useWeb3React<Web3Provider>();
+  const data = useCustomSWR(`lp-price-${LPToken.symbol}-${chainId}-${account}`, async () => {
+    return await getLPPrice(LPToken, chainId, library?.getSigner());
+  })
+
+  return data||0;
+}
+
+export const useLpPrices = (LPTokens: Token[], chainIds: string[]) => {
+  const { account, library } = useWeb3React<Web3Provider>();
+  const data = useCustomSWR(`lp-prices-${LPTokens.map(t => t.symbol).join('-')}-${chainIds.join('-')}-${account}`, async () => {
+    return await Promise.all(LPTokens.map((lp, i) => getLPPrice(lp, chainIds[i], library?.getSigner())));
+  })
+
+  return data||LPTokens.map(lp => 0);
 }

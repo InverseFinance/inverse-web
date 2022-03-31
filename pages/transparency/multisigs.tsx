@@ -7,7 +7,7 @@ import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO } from '@app/hooks/useDAO'
 import { MultisigsFlowChart } from '@app/components/Transparency/MultisigsFlowChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
-import { usePrices } from '@app/hooks/usePrices'
+import { usePricesV2 } from '@app/hooks/usePrices'
 import { Funds } from '@app/components/Transparency/Funds'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
@@ -15,18 +15,11 @@ import { NetworkIds } from '@app/types';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useState } from 'react'
 import { NetworkItem } from '@app/components/common/NetworkItem'
-import { useMarkets } from '@app/hooks/useMarkets'
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
-  const { prices: cgPrices } = usePrices();
-  const { markets } = useMarkets();
+  const { prices } = usePricesV2(true);
 
-  const oraclePrices = Object.fromEntries(new Map(markets.map(market => {
-    return [market.underlying.coingeckoId || market.underlying.symbol, { usd: market.oraclePrice }]
-  })));
-  const prices = { ...oraclePrices, ...cgPrices };
- 
   const [chainId, setChainId] = useState(NetworkIds.mainnet);
 
   return (

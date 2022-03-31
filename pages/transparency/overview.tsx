@@ -10,7 +10,7 @@ import { NetworkIds } from '@app/types'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { commify, parseEther } from '@ethersproject/units'
 import { formatEther } from 'ethers/lib/utils';
-import { usePrices } from '@app/hooks/usePrices'
+import { usePricesV2 } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import Link from '@app/components/common/Link'
@@ -48,7 +48,7 @@ const defaultValues = {
 }
 
 export const Overview = () => {
-  const { prices: geckoPrices } = usePrices()
+  const { prices } = usePricesV2(true)
   const { data: tvlData } = useTVL()
   const { dolaTotalSupply, invTotalSupply, fantom, treasury, anchorReserves, bonds } = useDAO();
 
@@ -86,11 +86,6 @@ export const Overview = () => {
 
   const [quorumVotes, proposalThreshold] =
     otherData || [parseEther('4000'), parseEther('1000')];
-
-  const tvlprices = Object.fromEntries(new Map(tvlData?.anchor?.assets.map(assetWithBalance => {
-    return [assetWithBalance.coingeckoId || assetWithBalance.symbol, { usd: assetWithBalance.usdPrice }]
-  })));
-  const prices = { ...geckoPrices, ...tvlprices };
 
   return (
     <Layout>

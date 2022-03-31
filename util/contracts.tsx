@@ -1,4 +1,4 @@
-import { JsonRpcSigner, Web3Provider, FallbackProvider } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider, FallbackProvider, Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   COMPTROLLER_ABI,
@@ -20,6 +20,9 @@ import { Bond, GovEra, NetworkIds, Token } from '@app/types'
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { getProvider } from './providers'
+import { CHAIN_TOKENS } from '@app/variables/tokens'
+import { getBnToNumber } from './markets'
 
 export const getNewContract = (
   address: string,
@@ -128,7 +131,7 @@ export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlyi
   const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
   const toIndex = CRV_INDEXES[toUnderlying.symbol]
 
-  if(isEstimate) {
+  if (isEstimate) {
     return contract.estimateGas.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
   } else {
     return contract.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
@@ -136,12 +139,12 @@ export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlyi
 }
 // useful to get the exRate
 export const crvGetDyUnderlying = async (signerOrProvider: JsonRpcSigner | Web3Provider, fromUnderlying: Token, toUnderlying: Token, amount: number) => {
-  if(amount <= 0) { return '0' }
+  if (amount <= 0) { return '0' }
   const contract = getDolaCrvPoolContract(signerOrProvider);
 
   const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
   const toIndex = CRV_INDEXES[toUnderlying.symbol]
-  
+
   const bnAmount = parseUnits(amount.toFixed(fromUnderlying.decimals), fromUnderlying.decimals);
 
   try {
@@ -187,14 +190,47 @@ export const getBondContract = (bondAddress: string, signer: JsonRpcSigner) => {
 
 export const bondDeposit = (bond: Bond, signer: JsonRpcSigner, amount: string, maxSlippagePerc: number, depositor: string) => {
   const contract = getBondContract(bond.bondContract, signer);
-  const maxPrice = Math.floor(((bond.marketPrice + maxSlippagePerc/100 * bond.marketPrice) * 1e7)/1e7);
+  const maxPrice = Math.floor(((bond.marketPrice + maxSlippagePerc / 100 * bond.marketPrice) * 1e7) / 1e7);
   const maxPriceUint = parseUnits(maxPrice.toString(), 7);
   const amountUint = parseUnits(amount, bond.underlying.decimals);
-  
+
   return contract.deposit(amountUint, maxPriceUint, depositor);
 }
 
 export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string) => {
   const contract = getBondContract(bond.bondContract, signer);
   return contract.redeem(depositor);
+}
+
+export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<number> => {
+  if(LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
+  else if(!providerOrSigner) { return new Promise(r => r(0)) }
+
+  const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply());
+
+  const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+
+  const coingeckoIds = tokens
+    .map(({ coingeckoId }) => coingeckoId)
+
+  const [balancesInLp, cgPrices] = await Promise.all([
+    await Promise.all(
+      LPToken.pairs.map(address => {
+        return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
+      }),
+    ),
+    fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)
+  ]);
+
+  const balances = balancesInLp.map((bn, i) => {
+    return getBnToNumber(bn, tokens[i].decimals);
+  });
+
+  const prices = await cgPrices.json();
+
+  const lpPrice = tokens.reduce((prev, curr, idx) => {
+    return prev + (balances[idx] * (prices[curr.coingeckoId].usd||0) / getBnToNumber(lpTokenTotalSupply));
+  }, 0);
+
+  return lpPrice;
 }
