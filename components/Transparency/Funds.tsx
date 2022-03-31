@@ -26,6 +26,12 @@ const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, sho
     )
 }
 
+const getPrice = (prices: Prices["prices"] | undefined, token: Token) => {
+    const p1 = (!!prices && !!token.symbol && !!prices[token.symbol] && prices[token.symbol].usd);
+    const p2 = (!!prices && !!token.coingeckoId && !!prices[token.coingeckoId] && prices[token.coingeckoId].usd);
+    return p1 || p2 || 0;
+}
+
 export const Funds = ({
     funds,
     prices,
@@ -49,8 +55,7 @@ export const Funds = ({
 
     const positiveFunds = (funds || [])
         .map(({ token, balance, allowance, usdPrice }) => {
-            const priceKey = token.coingeckoId || token.symbol;
-            const price = usdPrice ?? (!!prices && !!priceKey && !!prices[priceKey] && prices[priceKey].usd);
+            const price = usdPrice ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
             const totalBalance = balance || 0 + (allowance || 0)
