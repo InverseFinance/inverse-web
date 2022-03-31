@@ -12,6 +12,9 @@ export interface Token {
   decimals: number
   coingeckoId?: string
   isWrappedChainCoin?: boolean
+  isLP?: boolean
+  lpPrice?: number
+  pairs?: string[]
 }
 
 export interface TokenWithBalance extends Token {

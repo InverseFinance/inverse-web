@@ -1,4 +1,3 @@
-import { BOND_ABI, BOND_ABI_VARIANT } from '@app/config/abis';
 import { HAS_REWARD_TOKEN } from '@app/config/constants';
 import { TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
@@ -37,6 +36,7 @@ const chainTokenAddresses = {
     DOLA: '0x3129662808bEC728a27Ab6a6b9AFd3cBacA8A43c',
     INV: '0xb84527D59b6Ecb96F433029ECc890D4492C5dCe1',
     USDC: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
+    WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
   },
 }
 
@@ -124,6 +124,10 @@ const chainTokens = {
       //coingeckoId: 'staked-ether',
       image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
       decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
+      ],
     },
     [chainTokenAddresses["1"].DOLA3POOLCRV]: {
       address: chainTokenAddresses["1"].DOLA3POOLCRV,
@@ -132,6 +136,8 @@ const chainTokens = {
       coingeckoId: 'usd-coin',
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
+      isLP: true,
+      lpPrice: 1,
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
@@ -174,6 +180,8 @@ const chainTokens = {
       coingeckoId: 'usd-coin',
       image: 'https://assets.coingecko.com/markets/images/538/small/Curve.png?1591605481',
       decimals: 18,
+      isLP: true,
+      lpPrice: 1,
     },
     [chainTokenAddresses["250"].SPOOKYLP]: {
       address: chainTokenAddresses["250"].SPOOKYLP,
@@ -182,6 +190,10 @@ const chainTokens = {
       coingeckoId: '',
       image: 'https://assets.coingecko.com/markets/images/662/small/spookyswap.png?1639279823',
       decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["250"].DOLA, chainTokenAddresses["250"].WFTM
+      ],
     },
   },
 }
@@ -206,7 +218,7 @@ export const TOKENS: TokenList = {
   },
 };
 
-const copyToFtm = ["DOLA", "INV", "USDC"];
+const copyToFtm = ["DOLA", "INV", "USDC", "WFTM"];
 copyToFtm.forEach(sym => {
   chainTokens["250"][chainTokenAddresses["250"][sym]] = {
     ...TOKENS[chainTokenAddresses["1"][sym]],
@@ -214,7 +226,7 @@ copyToFtm.forEach(sym => {
   }
 });
 
-export const CHAIN_TOKENS = { ...chainTokens, [process.env.NEXT_PUBLIC_CHAIN_ID!]: TOKENS };
+export const CHAIN_TOKENS: { [key: string]: TokenList } = { ...chainTokens, [process.env.NEXT_PUBLIC_CHAIN_ID!]: TOKENS };
 
 /* 
  * Anchor Markets Underlyings
@@ -268,6 +280,7 @@ export const BONDS = [
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
     bondContract: '0xdBfBb1140F8ba147ca4C8c27A2e576dfed0449BD',
     howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+    inputPrice: 1,
   },
   {
     input: chainTokenAddresses["1"].DOLA3POOLCRV,
@@ -276,5 +289,6 @@ export const BONDS = [
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
     bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
     howToGetLink: 'https://curve.fi/factory/27/deposit',
+    inputPrice: 1,
   },
 ]
