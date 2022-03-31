@@ -1,4 +1,4 @@
-import { JsonRpcSigner, Web3Provider, FallbackProvider } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider, FallbackProvider, Provider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
   COMPTROLLER_ABI,
@@ -202,11 +202,11 @@ export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string)
   return contract.redeem(depositor);
 }
 
-export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Promise<number> => {
+export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<number> => {
   if(LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
+  else if(!providerOrSigner) { return new Promise(r => r(0)) }
 
-  const provider = getProvider(chainId);
-  const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, provider).totalSupply());
+  const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply());
 
   const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
 
@@ -216,7 +216,7 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   const [balancesInLp, cgPrices] = await Promise.all([
     await Promise.all(
       LPToken.pairs.map(address => {
-        return new Contract(address, ERC20_ABI, provider).balanceOf(LPToken.address)
+        return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
       }),
     ),
     fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)

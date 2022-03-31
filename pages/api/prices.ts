@@ -3,6 +3,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Prices, Token } from '@app/types'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
+import { getProvider } from '@app/util/providers'
 
 export default async function handler(req, res) {
   const cacheKey = `prices-v1.0.0`;
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
 
     const lpData = await Promise.all([
       ...lps.map(lp => {
-        return getLPPrice(lp.token, lp.chainId);
+        return getLPPrice(lp.token, lp.chainId, getProvider(lp.chainId));
       })
     ]);
 

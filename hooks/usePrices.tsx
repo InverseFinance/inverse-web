@@ -117,16 +117,18 @@ export const useTransactionCost = (contract: Contract, method: string, args: any
 }
 
 export const useLpPrice = (LPToken: Token, chainId: string) => {
-  const data = useCustomSWR(`lp-price-${LPToken.symbol}-${chainId}`, async () => {
-    return await getLPPrice(LPToken, chainId);
+  const { account, library } = useWeb3React<Web3Provider>();
+  const data = useCustomSWR(`lp-price-${LPToken.symbol}-${chainId}-${account}`, async () => {
+    return await getLPPrice(LPToken, chainId, library?.getSigner());
   })
 
   return data||0;
 }
 
 export const useLpPrices = (LPTokens: Token[], chainIds: string[]) => {
-  const data = useCustomSWR(`lp-prices-${LPTokens.map(t => t.symbol).join('-')}-${chainIds.join('-')}`, async () => {
-    return await Promise.all(LPTokens.map((lp, i) => getLPPrice(lp, chainIds[i])));
+  const { account, library } = useWeb3React<Web3Provider>();
+  const data = useCustomSWR(`lp-prices-${LPTokens.map(t => t.symbol).join('-')}-${chainIds.join('-')}-${account}`, async () => {
+    return await Promise.all(LPTokens.map((lp, i) => getLPPrice(lp, chainIds[i], library?.getSigner())));
   })
 
   return data||LPTokens.map(lp => 0);
