@@ -38,6 +38,24 @@ export const usePrices = (): SWR & Prices => {
   }
 }
 
+// asUsdObject to get the same formatting as coingecko
+export const usePricesV2 = (asUsdObject = true): SWR & Prices => {
+  const { data, error } = useCustomSWR(
+    `/api/prices`,
+    fetcher
+  )
+
+  const d = (data || {});
+  const usdObjects = {};
+  Object.entries(d).forEach(([key, val]) => usdObjects[key] = { usd: val });
+
+  return {
+    prices: asUsdObject ? usdObjects : d,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useAnchorPrices = (): any => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1, ORACLE } = getNetworkConfigConstants(chainId)
