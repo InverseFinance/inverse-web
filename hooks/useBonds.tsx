@@ -1,11 +1,11 @@
 
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { Bond, SWR, Token } from '@app/types'
+import { Bond, SWR } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
 import { BONDS, REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens'
 import { BigNumber } from 'ethers';
-import { useAnchorPricesUsd } from './usePrices';
+import { useLpPrice } from './usePrices';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { BLOCKS_PER_DAY } from '@app/config/constants';
 import { usePrices } from '@app/hooks/usePrices';
@@ -33,7 +33,7 @@ const bondInfoDefaults = [
 ]
 
 export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
-  const { prices: oraclePrices } = useAnchorPricesUsd();
+  const { data: invDolaLpPrice } = useLpPrice(BONDS[0].underlying, "1");
   const { prices: cgPrices } = usePrices();
   const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter();
@@ -84,7 +84,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   const pendingPayoutFor = (dataPendingPayoutFor || BONDS.map(b => BigNumber.from('0')))?.map((bn, i) => getBnToNumber(bn, BONDS[i].underlying.decimals));
 
   const inputPrices = BONDS.map((bond, i) => {
-    return (oraclePrices && oraclePrices[bond.ctoken]) || 0;
+    return bond.inputPrice || invDolaLpPrice || 0;
   })
 
   const trueBondPrices = BONDS.map((bond, i) => {

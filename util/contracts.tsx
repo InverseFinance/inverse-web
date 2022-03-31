@@ -202,7 +202,9 @@ export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string)
   return contract.redeem(depositor);
 }
 
-export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!) => {
+export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Promise<number> => {
+  if(LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
+
   const provider = getProvider(chainId);
   const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, provider).totalSupply());
 
