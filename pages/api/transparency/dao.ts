@@ -6,6 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
+import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
 
   const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WCOIN, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-  const cacheKey = `dao-cache-v1.1.7`;
+  const cacheKey = `dao-cache-v1.1.8`;
 
   try {
 
@@ -96,13 +97,22 @@ export default async function handler(req, res) {
       })
     ])
 
-    const fundsToCheck = [INV, DOLA, DAI, WCOIN, INVDOLASLP, DOLA3POOLCRV];
-    const ftmFundsToCheck = [ftmConfig?.INV, ftmConfig?.DOLA];
+
+    const ftmTokens = CHAIN_TOKENS[NetworkIds.ftm];
+    const multisigsFundsToCheck = {
+      [NetworkIds.mainnet]: [INV, DOLA, DAI, WCOIN, INVDOLASLP, DOLA3POOLCRV],
+      [NetworkIds.ftm]: [
+        ftmConfig?.INV,
+        ftmConfig?.DOLA,
+        getToken(ftmTokens, "DOLA-2POOL")?.address,
+        getToken(ftmTokens, "SPOOKY-LP")?.address,
+      ],
+    }
 
     const multisigsBalanceValues: BigNumber[][] = await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
-        const chainFundsToCheck = (m.chainId === NetworkIds.mainnet ? fundsToCheck : ftmFundsToCheck);
+        const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
         return Promise.all(
           chainFundsToCheck.map(tokenAddress => {
             const contract = new Contract(tokenAddress, ERC20_ABI, provider);
@@ -117,8 +127,10 @@ export default async function handler(req, res) {
 
     const multisigsAllowanceValues: BigNumber[][] = await Promise.all([
       ...multisigsToShow.map((m) => {
+        const provider = getProvider(m.chainId);
+        const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
         return Promise.all(
-          fundsToCheck.map(tokenAddress => {
+          chainFundsToCheck.map(tokenAddress => {
             const contract = new Contract(tokenAddress, ERC20_ABI, provider);
             return contract.allowance(TREASURY, m.address);
           })
@@ -127,8 +139,10 @@ export default async function handler(req, res) {
     ])
 
     const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
+      const multisig = multisigsToShow[i];
+      const chainFundsToCheck = multisigsFundsToCheck[multisig.chainId];
       return bns.map((bn, j) => {
-        const token = TOKENS[fundsToCheck[j]] || TOKENS['CHAIN_COIN'];
+        const token = CHAIN_TOKENS[multisig.chainId][chainFundsToCheck[j]] || CHAIN_TOKENS[multisig.chainId]['CHAIN_COIN'];
         const allowance = multisigsAllowanceValues[i][j]
         return {
           token,
@@ -151,7 +165,7 @@ export default async function handler(req, res) {
       dolaTotalSupply: getBnToNumber(dolaTotalSupply),
       invTotalSupply: getBnToNumber(invTotalSupply),
       dolaOperator,
-      bonds:{
+      bonds: {
         balances: bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
       anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])),
