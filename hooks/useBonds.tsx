@@ -6,15 +6,12 @@ import { getBnToNumber } from '@app/util/markets';
 import { BONDS, REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens'
 import { BigNumber } from 'ethers';
 import { useLpPrice } from './usePrices';
-import { getNetworkConfigConstants } from '@app/util/networks';
 import { BLOCKS_PER_DAY } from '@app/config/constants';
 import { usePrices } from '@app/hooks/usePrices';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-
-const { XINV } = getNetworkConfigConstants();
 
 // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout uint256, maxDebt uint256
 const termsDefaults = [

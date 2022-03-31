@@ -124,9 +124,9 @@ export const useLpPrice = (LPToken: Token, chainId: string) => {
   return data||0;
 }
 
-export const useLpPrices = (LPTokens: Token[], chainId: string) => {
-  const data = useCustomSWR(`lp-prices-${LPTokens.map(t => t.symbol).join('-')}-${chainId}`, async () => {
-    return await Promise.all(LPTokens.map(lp => getLPPrice(lp, chainId)));
+export const useLpPrices = (LPTokens: Token[], chainIds: string[]) => {
+  const data = useCustomSWR(`lp-prices-${LPTokens.map(t => t.symbol).join('-')}-${chainIds.join('-')}`, async () => {
+    return await Promise.all(LPTokens.map((lp, i) => getLPPrice(lp, chainIds[i])));
   })
 
   return data||LPTokens.map(lp => 0);
