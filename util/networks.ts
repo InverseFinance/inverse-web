@@ -41,14 +41,7 @@ export const getNetworkConfigConstants = (
         isSupportedNetwork(configOrChainId.chainId) ?
             configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
 
-    const MULTISIGS = [
-        { address: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7', name: 'Policy Committee', chainId: NetworkIds.mainnet },
-        { address: '0x07de0318c24D67141e6758370e9D7B6d863635AA', name: 'Growth Working Group', chainId: NetworkIds.mainnet },
-        { address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B', name: 'Treasury Working Group', chainId: NetworkIds.mainnet },
-        { address: '0x7f063F7B7A1326eE8B64ACFdc81Bf544ecc974bC', name: 'TWG on FTM', chainId: NetworkIds.ftm },
-        // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
-    ]
-    
+    const MULTISIGS = config.multisigs;
 
     const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
 

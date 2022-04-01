@@ -2,7 +2,7 @@ import { FedEvent, FedWithData, SWR, Token, StabilizerEvent, NetworkIds } from '
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
 
-type DAO = {
+export type DAO = {
   dolaTotalSupply: number
   invTotalSupply: number
   dolaOperator: string

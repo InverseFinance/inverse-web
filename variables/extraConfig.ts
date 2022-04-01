@@ -1,3 +1,5 @@
+import { NetworkIds } from '@app/types';
+
 export const EXTRA_CONFIG = {
     "1": {
         INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
@@ -29,6 +31,44 @@ export const EXTRA_CONFIG = {
             "0x38843a25edCc739C8600E2AD6C0caF6b03cc58f5",
             "0x90b7A0B834c830Aca8Cb9561A33e8C59E1248634",
             "0x849e21c3FB182D3D359595B0097b4AA249c16366",
+        ],
+        multisigs: [
+            {
+                address: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
+                name: 'Policy Committee',
+                shortName: 'PC',
+                purpose: 'Handle Reward Rates and Bonds Policies',
+                chainId: NetworkIds.mainnet,
+            },
+            {
+                address: '0x07de0318c24D67141e6758370e9D7B6d863635AA',
+                name: 'Growth Working Group',
+                shortName: 'GWG',
+                purpose: 'Handle Investments & Costs regarding Growth',
+                chainId: NetworkIds.mainnet,
+            },
+            {
+                address: '0xa40FBd692350C9Ed22137F97d64E6Baa4f869E8C',
+                name: 'Community Working Group',
+                shortName: 'CWG',
+                purpose: 'Boost Community participation and improve On-Boarding',
+                chainId: NetworkIds.mainnet,
+            },
+            {
+                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
+                name: 'Treasury Working Group',
+                shortName: 'TWG',
+                purpose: 'Optimize Inverse Treasury management on Ethereum',
+                chainId: NetworkIds.mainnet,
+            },
+            {
+                address: '0x7f063F7B7A1326eE8B64ACFdc81Bf544ecc974bC',
+                name: 'Treasury Working Group on Fantom',
+                shortName: 'TWG on FTM',
+                purpose: 'Optimize Inverse Treasury management on Fantom',
+                chainId: NetworkIds.ftm,
+            },
+            // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
         ],
     }
 }
