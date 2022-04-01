@@ -17,14 +17,15 @@ export const Propose = () => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const userAddress = query?.viewAddress || account
-  const { INV, XINV } = getNetworkConfigConstants(chainId)
+  const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
     [XINV, 'exchangeRateStored'],
     [INV, 'getCurrentVotes', userAddress],
     [XINV, 'getCurrentVotes', userAddress],
+    [GOVERNANCE, 'proposerWhitelist', userAddress],
   ])
 
-  const [exchangeRate, currentVotes, currentVotesX] = data || [1, 0, 0];
+  const [exchangeRate, currentVotes, currentVotesX, isWhitelisted] = data || [1, 0, 0, false];
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) +
     parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
@@ -44,7 +45,7 @@ export const Propose = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-            <ProposalFormContainer votingPower={votingPower} />
+            <ProposalFormContainer isWhitelisted={isWhitelisted} votingPower={votingPower} />
           </Flex>
         </Flex>
         <Flex direction="column">

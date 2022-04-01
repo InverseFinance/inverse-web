@@ -90,7 +90,7 @@ export const MultisigsDiagram = () => {
                   <Link href={multisig.governanceLink}>
                     - 🏛️ Related Governance Proposal
                   </Link>
-                  <Text fontWeight="bold">- 🎯 Purpose:</Text>
+                  <Text fontWeight="bold">- 🎯 Objective:</Text>
                   <Text as="i">{multisig.purpose}</Text>
                   <VStack spacing="0" w="full">
                     <Flex direction="row" w='full' justify="space-between">

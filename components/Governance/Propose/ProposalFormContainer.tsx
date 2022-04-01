@@ -13,12 +13,19 @@ import { formatUnits } from 'ethers/lib/utils';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { useRouter } from 'next/dist/client/router';
-import { publishDraft } from '@app/util/governance';
 
 const DEFAULT_REQUIRED_VOTING_POWER = 1000;
 const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
-export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPower: number, publicDraft?: Partial<Proposal> }) => {
+export const ProposalFormContainer = ({
+    votingPower,
+    isWhitelisted,
+    publicDraft,
+}: {
+    votingPower: number,
+    isWhitelisted: boolean,
+    publicDraft?: Partial<Proposal>,
+}) => {
     const { library, account } = useWeb3React<Web3Provider>();
     const [requiredVotingPower, setRequiredVotingPower] = useState(DEFAULT_REQUIRED_VOTING_POWER);
     const [lastProposalId, setLastProposalId] = useState(0);
@@ -52,7 +59,7 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                 (Governance Contract : <ScannerLink value={GOVERNANCE} shorten={true} />)
             </Text>
             {
-                (!proposalLinkData && !publicDraft) && (votingPower < requiredVotingPower || !account) ?
+                (!proposalLinkData && !publicDraft) && ((votingPower < requiredVotingPower && !isWhitelisted) || !account) ?
                     <Box w="full" textAlign="center">
                         <InfoMessage
                             alertProps={{ textAlign: "center", p: '6' }}
@@ -69,7 +76,7 @@ export const ProposalFormContainer = ({ votingPower, publicDraft }: { votingPowe
                         </Box>
                         {
                             account && <Box color="mainTextColor" mt="3" fontSize="14px">
-                                Or you can 
+                                Or you can
                                 <Link
                                     ml="1"
                                     fontWeight="bold"
