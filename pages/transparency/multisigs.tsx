@@ -77,33 +77,28 @@ export const MultisigsDiagram = () => {
             multisig &&
             <ShrinkableInfoMessage
               title={
-                <Flex alignItems="center">
-                  👥 {multisig.name} (
-                  <Link
-                    isExternal
-                    href={
-                      multisig.chainId === NetworkIds.mainnet ?
-                        `https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`
-                        :
-                        `https://safe.fantom.network/#/safes/${multisig.address}/transactions`
-                    }>
-                    Details <ExternalLinkIcon mb="2px" />
-                  </Link>)
+                <Flex fontSize="16px" fontWeight="bold" alignItems="center">
+                  👥 {multisig.name}
                 </Flex>
               }
               description={
-                <>
-                  <Flex direction="row" w='full' justify="space-between">
+                <VStack alignItems="flex-start" spacing="2">
+                  <Flex pt="2" direction="row" w='full' justify="space-between">
                     <Text>- Required approvals to act:</Text>
                     <Text>{multisig.threshold} out of {multisig.owners.length} the members</Text>
                   </Flex>
-                  <Text mt="5" fontWeight="bold">Purpose:</Text>
-                  <Text>{multisig.purpose}</Text>
-                  <Flex mt="5" direction="row" w='full' justify="space-between">
-                    <Text fontWeight="bold">Multisig Wallet Funds:</Text>
-                  </Flex>
-                  <Funds prices={prices} funds={multisig.funds} showPerc={false} />
-                </>
+                  <Link href={multisig.governanceLink}>
+                    - 🏛️ Related Governance Proposal
+                  </Link>
+                  <Text fontWeight="bold">- 🎯 Purpose:</Text>
+                  <Text as="i">{multisig.purpose}</Text>
+                  <VStack spacing="0" w="full">
+                    <Flex direction="row" w='full' justify="space-between">
+                      <Text fontWeight="bold">Multisig Wallet Funds:</Text>
+                    </Flex>
+                    <Funds prices={prices} funds={multisig.funds} showPerc={false} />
+                  </VStack>
+                </VStack>
               }
             />
           }

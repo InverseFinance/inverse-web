@@ -38,6 +38,7 @@ export const EXTRA_CONFIG = {
                 name: 'Treasury Working Group',
                 shortName: 'TWG',
                 purpose: 'Optimize Inverse Treasury management on Ethereum',
+                governanceLink: 'https://www.inverse.finance/governance/proposals/mills/10',
                 chainId: NetworkIds.mainnet,
             },
             {
@@ -45,6 +46,7 @@ export const EXTRA_CONFIG = {
                 name: 'Treasury Working Group on Fantom',
                 shortName: 'TWG on FTM',
                 purpose: 'Optimize Inverse Treasury management on Fantom',
+                governanceLink: 'https://www.inverse.finance/governance/proposals/mills/10',
                 chainId: NetworkIds.ftm,
             },
             {
@@ -52,6 +54,7 @@ export const EXTRA_CONFIG = {
                 name: 'Policy Committee',
                 shortName: 'PC',
                 purpose: 'Handle Reward Rates and Bonds Policies',
+                governanceLink: 'https://www.inverse.finance/governance/proposals/mills/6',
                 chainId: NetworkIds.mainnet,
             },
             {
@@ -59,6 +62,7 @@ export const EXTRA_CONFIG = {
                 name: 'Growth Working Group',
                 shortName: 'GWG',
                 purpose: 'Handle Investments & Costs regarding Growth',
+                governanceLink: 'https://www.inverse.finance/governance/proposals/mills/5',
                 chainId: NetworkIds.mainnet,
             },
             {
@@ -66,6 +70,15 @@ export const EXTRA_CONFIG = {
                 name: 'Community Working Group',
                 shortName: 'CWG',
                 purpose: 'Boost Community participation and improve On-Boarding',
+                governanceLink: 'https://www.inverse.finance/governance/proposals/mills/14',
+                chainId: NetworkIds.mainnet,
+            },
+            {
+                address: '0x943dBdc995add25A1728A482322F9b3c575b16fb',
+                name: 'Bug Bounty Program',
+                shortName: 'BBP',
+                purpose: 'Handle rewards for Bug Bounties',
+                governanceLink: 'https://www.inverse.finance/governance/proposals/mills/17',
                 chainId: NetworkIds.mainnet,
             },
             // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
