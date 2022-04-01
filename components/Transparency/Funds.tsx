@@ -9,8 +9,10 @@ const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, sho
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
                 <Text>-</Text>
-                <Image display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' mr="2" ml="1" />
-                <Text lineHeight="15px">{token.symbol}{token.address === OLD_XINV && ' (old)'}:</Text>
+                {
+                    token.image && <Image display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' mr="1" ml="1" />
+                }
+                <Text ml="1" lineHeight="15px">{token.symbol}{token.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
             <Flex alignItems="center">
                 <Text>
@@ -32,6 +34,28 @@ const getPrice = (prices: Prices["prices"] | undefined, token: Token) => {
     return p1 || p2 || 0;
 }
 
+type FundsProps = {
+    prices?: Prices["prices"],
+    funds: { token: Token, balance: number, allowance?: number, usdPrice?: number }[],
+    totalLabel?: string
+    boldTotal?: boolean,
+    showPerc?: boolean,
+    showTotal?: boolean,
+    chartMode?: boolean,
+    showPrice?: boolean
+};
+
+export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
+    if(fundsType === 'both'){
+        return getFundsTotalUsd(funds, prices, 'balance') + getFundsTotalUsd(funds, prices, 'allowance');
+    }
+    return (funds || prices).reduce((prev, curr) => {
+            const price = curr.usdPrice ?? getPrice(prices, curr.token);
+            const value = price && curr[fundsType] ? curr[fundsType] * price : 0;
+            return prev + value;
+        }, 0);
+}
+
 export const Funds = ({
     funds,
     prices,
@@ -41,16 +65,7 @@ export const Funds = ({
     showTotal = true,
     chartMode = false,
     showPrice = false,
-}: {
-    prices?: Prices["prices"],
-    funds: { token: Token, balance: number, allowance?: number, usdPrice?: number }[],
-    totalLabel?: string
-    boldTotal?: boolean,
-    showPerc?: boolean,
-    showTotal?: boolean,
-    chartMode?: boolean,
-    showPrice?: boolean
-}) => {
+}: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
