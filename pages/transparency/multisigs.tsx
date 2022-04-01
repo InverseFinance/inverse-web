@@ -1,10 +1,10 @@
-import { Flex, Text, VStack } from '@chakra-ui/react'
+import { Flex, Image, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO } from '@app/hooks/useDAO'
+import { DAO, useDAO } from '@app/hooks/useDAO'
 import { MultisigsFlowChart } from '@app/components/Transparency/MultisigsFlowChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { usePricesV2 } from '@app/hooks/usePrices'
@@ -13,14 +13,37 @@ import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { NetworkIds } from '@app/types';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
-import { useState } from 'react'
-import { NetworkItem } from '@app/components/common/NetworkItem'
+import { useEffect, useState } from 'react'
+import { getNetworkConfigConstants, getNetworkImage } from '@app/util/networks';
+
+const { MULTISIGS } = getNetworkConfigConstants()
+
+const MultisigTabLabel = ({ multisig }: { multisig: DAO["multisigs"] }) => {
+  return <Flex alignItems="center">
+    <Image src={getNetworkImage(multisig.chainId)} ignoreFallback={true} alt="" w={5} h={5} mr="2" />
+    <Text>{multisig.shortName}</Text>
+  </Flex>
+}
 
 export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
   const { prices } = usePricesV2(true);
 
-  const [chainId, setChainId] = useState(NetworkIds.mainnet);
+  const [multisigAd, setMultisigAd] = useState(null);
+  const [multisig, setMultisig] = useState(null);
+
+  useEffect(() => {
+    const newM = multisigs.find(m => m.address === multisigAd)
+    if (newM) {
+      setMultisig(newM);
+    }
+  }, [multisigAd])
+
+  useEffect(() => {
+    if (!multisigAd && multisigs?.length > 0) {
+      setMultisigAd(multisigs[0].address);
+    }
+  }, [multisigs])
 
   return (
     <Layout>
@@ -32,80 +55,52 @@ export const MultisigsDiagram = () => {
       <RadioCardGroup
         wrapperProps={{ w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
         group={{
-          name: 'network',
-          defaultValue: NetworkIds.mainnet,
-          onChange: (t) => setChainId(t),
+          name: 'multisig',
+          defaultValue: MULTISIGS[0].address,
+          onChange: (t) => setMultisigAd(t),
         }}
-        radioCardProps={{ w: '150px', textAlign: 'center', p: '2' }}
-        options={[
-          { label: <Flex alignItems="center"><NetworkItem chainId={NetworkIds.mainnet} /></Flex>, value: NetworkIds.mainnet },
-          { label: <Flex alignItems="center"><NetworkItem ignoreUnsupportedWarning={true} chainId={NetworkIds.ftm} /></Flex>, value: NetworkIds.ftm },
-        ]}
+        radioCardProps={{ minW: '80px', w: 'fit-content', textAlign: 'center', p: '2', fontSize: '12px' }}
+        options={
+          multisigs.map(m => ({
+            label: <MultisigTabLabel multisig={m} />,
+            value: m.address,
+          }))
+        }
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-
         <Flex direction="column" py="2">
-          {chainId === NetworkIds.mainnet && <MultisigsFlowChart chainId={NetworkIds.mainnet} multisigs={multisigs.filter(m => m.chainId === NetworkIds.mainnet)} />}
-          {chainId === NetworkIds.ftm && <MultisigsFlowChart chainId={NetworkIds.ftm} multisigs={multisigs.filter(m => m.chainId === NetworkIds.ftm)} />}
+          {!!multisig && <MultisigsFlowChart chainId={multisig.chainId} multisigs={[multisig]} />}
         </Flex>
 
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <ShrinkableInfoMessage
-            title={<>🏛️ Multisig Wallets Purposes (<Link isExternal display="inline-block" href="https://help.gnosis-safe.io/en/articles/3876456-what-is-gnosis-safe">More Infos <ExternalLinkIcon mb="2px" /></Link>)</>}
-            description={
-              <>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Policy Committee:</Text>
-                  <Text>Handle Reward Rates Policies</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- GWG:</Text>
-                  <Text>Investments & Costs regarding Growth</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- TWG:</Text>
-                  <Text>Optimize Inverse Treasury management</Text>
-                </Flex>
-                {/* <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Rewards Committee (deprecated):</Text>
-                  <Text>Compensate contributors</Text>
-                </Flex> */}
-              </>
-            }
-          />
           {
-            multisigs?.filter(m => m.chainId === chainId).map(multisig => {
-              return <ShrinkableInfoMessage
-                key={multisig.name}
-                title={
-                  <Flex alignItems="center">
-                    👥 {multisig.name} (
-                    <Link
-                      isExternal
-                      href={
-                        multisig.chainId === NetworkIds.mainnet ?
-                          `https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`
-                          :
-                          `https://safe.fantom.network/#/safes/${multisig.address}/transactions`
-                      }>
-                      Transactions History <ExternalLinkIcon mb="2px" />
-                    </Link>)
+            multisig &&
+            <ShrinkableInfoMessage
+              title={
+                <Flex fontSize="16px" fontWeight="bold" alignItems="center">
+                  👥 {multisig.name}
+                </Flex>
+              }
+              description={
+                <VStack alignItems="flex-start" spacing="2">
+                  <Flex pt="2" direction="row" w='full' justify="space-between">
+                    <Text>- Required approvals to act:</Text>
+                    <Text>{multisig.threshold} out of {multisig.owners.length} the members</Text>
                   </Flex>
-                }
-                description={
-                  <>
+                  <Link href={multisig.governanceLink}>
+                    - 🏛️ Related Governance Proposal
+                  </Link>
+                  <Text fontWeight="bold">- 🎯 Purpose:</Text>
+                  <Text as="i">{multisig.purpose}</Text>
+                  <VStack spacing="0" w="full">
                     <Flex direction="row" w='full' justify="space-between">
-                      <Text>- Required approvals to act:</Text>
-                      <Text>{multisig.threshold} out of {multisig.owners.length} the members</Text>
-                    </Flex>
-                    <Flex mt="5" direction="row" w='full' justify="space-between">
                       <Text fontWeight="bold">Multisig Wallet Funds:</Text>
                     </Flex>
                     <Funds prices={prices} funds={multisig.funds} showPerc={false} />
-                  </>
-                }
-              />
-            })
+                  </VStack>
+                </VStack>
+              }
+            />
           }
         </VStack>
       </Flex>

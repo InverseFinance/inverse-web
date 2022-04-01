@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WCOIN, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
-  const cacheKey = `dao-cache-v1.1.8`;
+  const cacheKey = `dao-cache-v1.1.9`;
 
   try {
 
