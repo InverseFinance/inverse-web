@@ -289,6 +289,5 @@ export const BONDS = [
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
     bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
     howToGetLink: 'https://curve.fi/factory/27/deposit',
-    inputPrice: 1,
   },
 ]

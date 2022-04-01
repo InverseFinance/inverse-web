@@ -5,7 +5,7 @@ import { getBnToNumber } from '@app/util/markets';
 
 import { BONDS, REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens'
 import { BigNumber } from 'ethers';
-import { useLpPrice } from './usePrices';
+import { useLpPrices } from './usePrices';
 import { BLOCKS_PER_DAY } from '@app/config/constants';
 import { usePrices } from '@app/hooks/usePrices';
 import { useWeb3React } from '@web3-react/core';
@@ -30,7 +30,8 @@ const bondInfoDefaults = [
 ]
 
 export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
-  const { data: invDolaLpPrice } = useLpPrice(BONDS[0].underlying, "1");
+  const lpInputs = BONDS.filter(b => !b.inputPrice).map(b => b.underlying)
+  const { data: lpInputPrices } = useLpPrices(lpInputs, ["1", "1"]);
   const { prices: cgPrices } = usePrices();
   const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter();
@@ -77,11 +78,11 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   const error = bondPricesError || bondTermsError;
 
   const prices = (bondPrices || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 7));
-  const percentVestedFor = (dataPercentVestedFor || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 0)/100);
+  const percentVestedFor = (dataPercentVestedFor || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 0) / 100);
   const pendingPayoutFor = (dataPendingPayoutFor || BONDS.map(b => BigNumber.from('0')))?.map((bn, i) => getBnToNumber(bn, BONDS[i].underlying.decimals));
 
   const inputPrices = BONDS.map((bond, i) => {
-    return bond.inputPrice || invDolaLpPrice || 0;
+    return bond.inputPrice || (lpInputPrices && lpInputPrices[lpInputs.map(lp => lp.symbol).indexOf(bond.underlying.symbol)]) || 0;
   })
 
   const trueBondPrices = BONDS.map((bond, i) => {
@@ -112,7 +113,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
       maxPayout: bondMaxPayouts ? getBnToNumber(bondMaxPayouts[i], REWARD_TOKEN?.decimals) : 0,
       userInfos: {
         payout: getBnToNumber(bondInfos[i][0], REWARD_TOKEN?.decimals),
-        vesting : getBnToNumber(bondInfos[i][1], 0),
+        vesting: getBnToNumber(bondInfos[i][1], 0),
         lastBlock: getBnToNumber(bondInfos[i][2], 0),
         truePricePaid: getBnToNumber(bondInfos[i][3], 7),
         vestingCompletionBlock: getBnToNumber(bondInfos[i][2], 0) + getBnToNumber(bondInfos[i][1], 0),
