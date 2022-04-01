@@ -30,7 +30,7 @@ export const Drafts = () => {
       functions: d.functions,
       createdAt: d.createdAt,
       updatedAt: d.updatedAt,
-      proposer: '',
+      proposer: d.createdBy || '',
       era: GovEra.mills,
       startTimestamp: Date.now(),
       endTimestamp: (new Date()).setDate(now.getDate() + 3),
