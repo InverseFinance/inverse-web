@@ -110,6 +110,7 @@ export const GOVERNANCE_ABI = [
   "function xinvExchangeRates(uint256) public view returns (uint256)",
   "function proposalThreshold() public view returns (uint256)",
   "function castVote(uint256, bool)",
+  "function proposerWhitelist(address) public view returns (bool)",
   "function getReceipt(uint256, address) public view returns (bool, bool, uint256)",
   "function proposalCount() public view returns (uint256)",
   "function proposals(uint256) public view returns (uint256 id, address proposer, uint256 eta, uint256 startBlock, uint256 endBlock, uint256 forVotes, uint256 againstVotes, bool canceled, bool executed)",
