@@ -137,7 +137,7 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
       isLP: true,
-      lpPrice: 1,
+      isCrvLP: true,
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
@@ -181,7 +181,7 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/markets/images/538/small/Curve.png?1591605481',
       decimals: 18,
       isLP: true,
-      lpPrice: 1,
+      isCrvLP: true,
     },
     [chainTokenAddresses["250"].SPOOKYLP]: {
       address: chainTokenAddresses["250"].SPOOKYLP,

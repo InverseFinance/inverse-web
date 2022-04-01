@@ -205,6 +205,9 @@ export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string)
 export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<number> => {
   if(LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
   else if(!providerOrSigner) { return new Promise(r => r(0)) }
+  else if(LPToken.isCrvLP) {
+    return getBnToNumber(await (new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+  }
 
   const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply());
 

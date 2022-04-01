@@ -171,6 +171,7 @@ export const DOLA3POOLCRV_ABI = [
   */
   "function exchange_underlying(int128 i, int128 j, uint256 _dx, uint256 _min_dy) external returns (uint256)",
   "function get_dy_underlying(int128 i, int128 j, uint256 _dx) external view returns (uint256)",
+  "function get_virtual_price() external view returns (uint256)",
 ];
 
 export const FED_ABI = [
