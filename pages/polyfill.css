@@ -1,6 +1,10 @@
 body {
     overflow-x: hidden !important;
 }
+
+.svg-overflow-visible svg {
+    overflow: visible !important;
+}
     
 @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
     .blurred-container {

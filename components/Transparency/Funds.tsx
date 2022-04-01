@@ -95,7 +95,7 @@ export const Funds = ({
         <>
             {
                 chartMode ? <PieChart data={
-                    positiveBalances.map(fund => ({ x: fund.token.symbol, y: fund.usdBalance, perc: fund.balancePerc }))
+                    positiveBalances.map(fund => ({ x: fund.token.symbol, y: fund.usdBalance, perc: fund.balancePerc, fund }))
                 } />
                     :
                     <>
