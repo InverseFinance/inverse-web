@@ -34,6 +34,20 @@ export const EXTRA_CONFIG = {
         ],
         multisigs: [
             {
+                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
+                name: 'Treasury Working Group',
+                shortName: 'TWG',
+                purpose: 'Optimize Inverse Treasury management on Ethereum',
+                chainId: NetworkIds.mainnet,
+            },
+            {
+                address: '0x7f063F7B7A1326eE8B64ACFdc81Bf544ecc974bC',
+                name: 'Treasury Working Group on Fantom',
+                shortName: 'TWG on FTM',
+                purpose: 'Optimize Inverse Treasury management on Fantom',
+                chainId: NetworkIds.ftm,
+            },
+            {
                 address: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
                 name: 'Policy Committee',
                 shortName: 'PC',
@@ -53,20 +67,6 @@ export const EXTRA_CONFIG = {
                 shortName: 'CWG',
                 purpose: 'Boost Community participation and improve On-Boarding',
                 chainId: NetworkIds.mainnet,
-            },
-            {
-                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
-                name: 'Treasury Working Group',
-                shortName: 'TWG',
-                purpose: 'Optimize Inverse Treasury management on Ethereum',
-                chainId: NetworkIds.mainnet,
-            },
-            {
-                address: '0x7f063F7B7A1326eE8B64ACFdc81Bf544ecc974bC',
-                name: 'Treasury Working Group on Fantom',
-                shortName: 'TWG on FTM',
-                purpose: 'Optimize Inverse Treasury management on Fantom',
-                chainId: NetworkIds.ftm,
             },
             // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
         ],
