@@ -13,6 +13,7 @@ export interface Token {
   coingeckoId?: string
   isWrappedChainCoin?: boolean
   isLP?: boolean
+  isCrvLP?: boolean
   lpPrice?: number
   pairs?: string[]
 }

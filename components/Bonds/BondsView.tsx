@@ -54,7 +54,7 @@ export const BondsView = () => {
             <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="INV Market Price" contentBgColor="gradient3">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text fontWeight="bold">
-                        The Return On Investment is calculated with the Coingecko Market Price, the INV Oracle Price which is updated less frequently is shown for convenience as it used in Olympus Pro's UI
+                        The Return On Investment is calculated with the Coingecko Market Price, the INV Oracle Price which is updated less frequently is shown for convenience only.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
                         <Flex direction={{ base: 'column', sm: 'row' }} alignItems="flex-end">
