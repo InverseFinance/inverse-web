@@ -314,6 +314,8 @@ export type DraftProposal = {
 
 export type PublicDraftProposal = Omit<DraftProposal, "draftId"> & {
   publicDraftId: number
+  createdBy: string
+  updatedBy: string
 }
 
 export type FlowChartData = {
