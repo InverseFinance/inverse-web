@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 60);
+        const validCache = await getCacheFromRedis(cacheKey, true, 10);
 
         if (validCache && !accounts) {
             res.status(200).json(validCache);
@@ -114,7 +114,12 @@ export default async function handler(req, res) {
             shortfallAccounts.map(p => {
                 return Promise.all(
                     contracts.map((contract, i) => {
-                        return !borrowPaused[i] ? contract.borrowBalanceStored(p.account) : BigNumber.from('0');
+                        return !borrowPaused[i] || [
+                            '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+                            '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
+                            '0xde2af899040536884e062D3a334F2dD36F34b4a4',
+                            '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
+                        ].includes(contract.address) ? contract.borrowBalanceStored(p.account) : BigNumber.from('0');
                     })
                 );
             })
