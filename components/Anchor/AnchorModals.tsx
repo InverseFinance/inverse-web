@@ -153,13 +153,21 @@ export const AnchorModal = ({
             && <WarningMessage alertProps={{ mt: '1', fontSize: '12px', w: 'full' }}
               description="Enabled as collateral, withdrawing reduces borrowing limit" />
           }
-          <AnchorButton
-            operation={operation}
-            asset={asset}
-            amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
-            needWithdrawWarning={needWithdrawWarning}
-            isDisabled={flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
-          />
+          {
+            (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && operation === AnchorOperations.withdraw ?
+              <InfoMessage
+                alertProps={{ w: 'full', fontSize: '12px' }}
+                description="Not enough Liquidity at the moment"
+              />
+              :
+              <AnchorButton
+                operation={operation}
+                asset={asset}
+                amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+                needWithdrawWarning={needWithdrawWarning}
+                isDisabled={flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
+              />
+          }
         </Box>
       }
       data-testid={`${TEST_IDS.anchor.modal}-${operation}`}
