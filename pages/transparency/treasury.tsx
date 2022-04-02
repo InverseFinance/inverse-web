@@ -18,7 +18,7 @@ const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, pri
         funds?.length && <Funds prices={prices} funds={funds} chartMode={true} showTotal={true} />
       }
     </Stack>
-    <Stack>
+    <Stack fontSize="12px">
       <Funds prices={prices} funds={funds} showPrice={false} showTotal={false} />
     </Stack>
   </Stack>
