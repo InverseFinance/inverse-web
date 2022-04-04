@@ -266,6 +266,12 @@ export const VESTER_ABI = [
   "function cancel() public",
 ]
 
+export const SWAP_ROUTER_ABI = [
+  "function get_dy_underlying_routed(int128[] memory ij, address[] memory path, uint256 dx) external view returns (uint256)",
+  "function find_coin_routes(address _from, address _to) external view returns(int128[] memory, address[] memory)",
+  "function exchange_underlying_routed( int128[] memory ij, address[] memory path, uint256 _dx, uint256 _min_dy, address _receiver ) external returns (uint256)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -291,6 +297,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     DOLA_PAYROLL,
     XINV_VESTOR_FACTORY,
     VESTERS,
+    SWAP_ROUTER,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -313,6 +320,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [INTEREST_MODEL, INTEREST_MODEL_ABI],
         [DOLA_PAYROLL, DOLA_PAYROLL_ABI],
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
+        [SWAP_ROUTER, SWAP_ROUTER_ABI],
         ...VESTERS.map(vesterAd => [vesterAd, VESTER_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),

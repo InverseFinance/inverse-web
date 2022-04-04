@@ -259,6 +259,7 @@ export type RadioCardGroupOptions = { value: string, label?: React.ReactNode }[]
 
 export enum Swappers {
   crv = 'crv',
+  crvRouter = 'crvRouter',
   oneinch = '1inch',
   stabilizer = 'stabilizer',
 }

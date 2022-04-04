@@ -29,6 +29,7 @@ const chainTokenAddresses = {
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
+    MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -39,6 +40,7 @@ const chainTokenAddresses = {
     WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
   },
 }
+chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
 const chainTokens = {
   "1": {
@@ -167,6 +169,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016',
       decimals: 18,
     },
+    [chainTokenAddresses["1"].MIM]: {
+      address: chainTokenAddresses["1"].MIM,
+      name: 'MIM',
+      symbol: 'MIM',
+      coingeckoId: 'magic-internet-money',
+      image: 'https://assets.coingecko.com/coins/images/16786/small/mimlogopng.png?1624979612',
+      decimals: 18,
+    },
   },
   "250": {
     CHAIN_COIN: {
@@ -201,6 +211,7 @@ const chainTokens = {
     },
   },
 }
+chainTokens["31337"] = chainTokens["1"];
 
 export const TOKENS: TokenList = {
   ...chainTokens[process.env.NEXT_PUBLIC_CHAIN_ID!],
@@ -250,6 +261,7 @@ const chainUnderlying = {
     '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B': getToken(TOKENS, chainTokenAddresses["1"].FLOKI),
   }
 }
+chainUnderlying["31337"] = chainUnderlying["1"];
 
 const underlying: TokenList = {
   ...chainUnderlying[process.env.NEXT_PUBLIC_CHAIN_ID!],
