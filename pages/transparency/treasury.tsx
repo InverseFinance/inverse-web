@@ -45,10 +45,10 @@ export const Overview = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Overview</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Treasury</title>
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Overview" />
-      <TransparencyTabs active="overview" />
+      <AppNav active="Transparency" activeSubmenu="Treasury" />
+      <TransparencyTabs active="treasury" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">

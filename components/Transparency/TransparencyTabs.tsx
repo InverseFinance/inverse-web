@@ -1,9 +1,10 @@
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
-type TabsType = 'overview' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'fed-policy' | 'fed-revenues' | 'stabilizer';
+type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'fed-policy' | 'fed-revenues' | 'stabilizer';
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
+    { page: 'treasury', label: 'Treasury' },
     { page: 'inv', label: 'INV' },
     { page: 'dola', label: 'DOLA & the Feds' },
     { page: 'fed-policy', label: 'Fed Policy' },
