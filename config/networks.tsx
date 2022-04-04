@@ -64,7 +64,16 @@ const networks: Network[] = [
     isSupported: true,
     scan: 'https://etherscan.io',
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
-    // bgColor: '',
+  },
+  {
+    id: '31337',
+    codename: NETWORK_CODENAMES.ethereum,
+    name: 'Localhost',
+    coinSymbol: 'eth',
+    isTestnet: false,
+    isSupported: true,
+    scan: 'https://etherscan.io',
+    image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
   {
     id: '3',
@@ -222,5 +231,8 @@ const networks: Network[] = [
 ];
 
 networks[networks.findIndex(net => net.id === envConfig.chainId)].config = envConfig;
+if(envConfig.chainId === '31337'){
+  networks[networks.findIndex(net => net.id === '1')].config = { ...envConfig, chainId: '1' };
+}
 
 export const NETWORKS = networks;

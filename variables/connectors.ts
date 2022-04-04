@@ -7,6 +7,7 @@ const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID!);
 export const injectedConnector = new InjectedConnector({
     supportedChainIds: [
         CHAIN_ID,
+        31337,
     ],
 })
 

@@ -39,6 +39,7 @@ const chainTokenAddresses = {
     WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
   },
 }
+chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
 const chainTokens = {
   "1": {
@@ -201,6 +202,7 @@ const chainTokens = {
     },
   },
 }
+chainTokens["31337"] = chainTokens["1"];
 
 export const TOKENS: TokenList = {
   ...chainTokens[process.env.NEXT_PUBLIC_CHAIN_ID!],
@@ -250,6 +252,7 @@ const chainUnderlying = {
     '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B': getToken(TOKENS, chainTokenAddresses["1"].FLOKI),
   }
 }
+chainUnderlying["31337"] = chainUnderlying["1"];
 
 const underlying: TokenList = {
   ...chainUnderlying[process.env.NEXT_PUBLIC_CHAIN_ID!],
