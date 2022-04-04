@@ -16,7 +16,7 @@ const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, sho
             </Flex>
             <Flex alignItems="center">
                 <Text>
-                    {shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} ` }({shortenNumber(usdValue, 2, true, true)})
+                    {shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} `}({shortenNumber(usdValue, 2, true, true)})
                 </Text>
                 {
                     showPerc && <Text ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
@@ -46,14 +46,14 @@ type FundsProps = {
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
-    if(fundsType === 'both'){
+    if (fundsType === 'both') {
         return getFundsTotalUsd(funds, prices, 'balance') + getFundsTotalUsd(funds, prices, 'allowance');
     }
     return (funds || prices).reduce((prev, curr) => {
-            const price = curr.usdPrice ?? getPrice(prices, curr.token);
-            const value = price && curr[fundsType] ? curr[fundsType] * price : 0;
-            return prev + value;
-        }, 0);
+        const price = curr.usdPrice ?? getPrice(prices, curr.token);
+        const value = price && curr[fundsType] ? curr[fundsType] * price : 0;
+        return prev + value;
+    }, 0);
 }
 
 export const Funds = ({
@@ -103,17 +103,25 @@ export const Funds = ({
 
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance, allowancePerc, usdPrice }) => {
-            return <FundLine key={token.address || token.symbol} showPrice={showPrice}  usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine key={token.address || token.symbol} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     return (
         <>
             {
                 chartMode ? <PieChart data={
-                    positiveBalances.map(fund => ({ x: fund.token.symbol, y: fund.usdBalance, perc: fund.balancePerc, fund }))
+                    fundsWithPerc
+                        .filter(({ usdBalance, usdAllowance }) => usdAllowance > 0 || usdBalance > 0)
+                        .map(fund => ({ x: fund.token.symbol, y: fund.usdBalance + fund.usdAllowance, perc: fund.overallPerc, fund }))
                 } />
                     :
                     <>
+                        {
+                            positiveBalances.length > 0 && positiveAllowances.length > 0 &&
+                            <Flex direction="row" w='full' justify="space-between">
+                                <Text fontWeight="bold">Holdings:</Text>
+                            </Flex>
+                        }
                         {balancesContent}
                         {
                             positiveAllowances.length > 0 &&
