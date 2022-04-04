@@ -43,7 +43,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number) =
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-policy-cache-v1.0.7`;
+  const cacheKey = `fed-policy-cache-v1.0.8`;
 
   try {
 
