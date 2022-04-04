@@ -154,6 +154,10 @@ const chainTokens = {
       coingeckoId: 'floki-inu',
       image: 'https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665',
       decimals: 9,
+      badge: {
+        text: "DEPRECATED",
+        color: "gray",
+      },
     },
     [chainTokenAddresses["1"].WFTM]: {
       address: chainTokenAddresses["1"].WFTM,

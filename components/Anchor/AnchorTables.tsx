@@ -1,4 +1,4 @@
-import { Flex, Stack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
+import { Flex, Stack, HStack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorBorrowModal, AnchorCollateralModal, AnchorSupplyModal } from '@app/components/Anchor/AnchorModals'
 import Container from '@app/components/common/Container'
@@ -57,7 +57,22 @@ const getColumn = (
         const claimable = moment(claimableTime).isBefore(moment());
         return (
           <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
-            <UnderlyingItem textProps={{ color }} label={underlying.symbol} image={underlying.image} address={token} />
+            <UnderlyingItem
+              Container={HStack}
+              containerProps={{ position: 'relative' }}
+              badge={
+                !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN ?
+                {
+                  text: `STAKE ${RTOKEN_SYMBOL}`,
+                  color: 'secondary',
+                }
+                : underlying.badge
+              }
+              textProps={{ color }}
+              label={underlying.symbol}
+              image={underlying.image}
+              address={token}
+            />
             {
               !!claimableAmount && claimableAmount > 0
               &&
@@ -70,12 +85,6 @@ const getColumn = (
                       : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn ${RTOKEN_SYMBOL} ${moment(claimableTime).fromNow()}`
                   }
                 />
-              </NotifBadge>
-            }
-            {
-              !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN &&
-              <NotifBadge top="auto" bgColor="secondary">
-                Stake {RTOKEN_SYMBOL}
               </NotifBadge>
             }
           </Stack>
@@ -418,7 +427,7 @@ export const AnchorSupply = () => {
   })
 
   const columns = [
-    getColumn('asset', 32, true),
+    getColumn('asset', '32', true),
     getColumn('supplyApy', 20, true),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('wallet', 24, true),

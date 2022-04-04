@@ -154,6 +154,24 @@ export const AnchorModal = ({
               description="Enabled as collateral, withdrawing reduces borrowing limit" />
           }
           {
+            operation === AnchorOperations.supply &&
+            ['WBTC', 'YFI', 'ETH'].includes(asset.underlying.symbol)
+            && <WarningMessage
+              alertProps={{
+                fontSize: '12px'
+              }}
+              title="WARNING: this market has Bad Debts"
+              description={
+                <>
+                  Due to Bad Debts on the {asset.underlying.symbol} Market, there's a high risk that you will not be able to withdraw your deposits for a while (until bad debts are repaid).
+                  <Text color="error" fontWeight="bold">
+                    Only Supply on the {asset.underlying.symbol} Market if you accept the risk of not being able to withdraw for an undetermined amount of time.
+                  </Text>
+                </>
+              }
+            />
+          }
+          {
             (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && operation === AnchorOperations.withdraw ?
               <InfoMessage
                 alertProps={{ w: 'full', fontSize: '12px' }}
