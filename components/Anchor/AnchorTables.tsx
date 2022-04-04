@@ -1,4 +1,4 @@
-import { Flex, Stack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
+import { Flex, Stack, HStack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorBorrowModal, AnchorCollateralModal, AnchorSupplyModal } from '@app/components/Anchor/AnchorModals'
 import Container from '@app/components/common/Container'
@@ -57,7 +57,15 @@ const getColumn = (
         const claimable = moment(claimableTime).isBefore(moment());
         return (
           <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
-            <UnderlyingItem textProps={{ color }} label={underlying.symbol} image={underlying.image} address={token} />
+            <UnderlyingItem
+              Container={HStack}
+              containerProps={{ position: 'relative' }}
+              badge={underlying.badge}
+              textProps={{ color }}
+              label={underlying.symbol}
+              image={underlying.image}
+              address={token}
+            />
             {
               !!claimableAmount && claimableAmount > 0
               &&

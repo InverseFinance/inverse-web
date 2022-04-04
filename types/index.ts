@@ -16,6 +16,10 @@ export interface Token {
   isCrvLP?: boolean
   lpPrice?: number
   pairs?: string[]
+  badge?: {
+    text: string
+    color: BackgroundProps["bgColor"]
+  }
 }
 
 export interface TokenWithBalance extends Token {

@@ -1,5 +1,10 @@
-import { Image, ImageProps, Text } from '@chakra-ui/react'
+import { Image, ImageProps, Text, TextProps } from '@chakra-ui/react'
 import { OLD_XINV } from '@app/config/constants'
+import { NotifBadge } from '@app/components/common/NotifBadge'
+import React from 'react'
+import { Token } from '@app/types';
+
+const DEFAULT_CONTAINER = React.Fragment;
 
 export const UnderlyingItem = ({
     label,
@@ -8,6 +13,9 @@ export const UnderlyingItem = ({
     imgSize = 5,
     imgProps,
     textProps,
+    badge,
+    Container = DEFAULT_CONTAINER,
+    containerProps,
 }: {
     label: string,
     image: string,
@@ -15,9 +23,18 @@ export const UnderlyingItem = ({
     imgSize?: ImageProps["w"],
     imgProps?: Partial<ImageProps>,
     textProps?: Partial<TextProps>,
+    badge?: Token["badge"],
+    Container?: React.ComponentType<any>,
+    containerProps?: any,
 }) => {
-    return <>
+    return <Container {...containerProps}>
         <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
-    </>
+        {
+              !!badge &&
+              <NotifBadge fontSize="12px" left="100%" w="fit-content" top="auto" bgColor={badge.color}>
+                {badge.text}
+              </NotifBadge>
+            }
+    </Container>
 }
