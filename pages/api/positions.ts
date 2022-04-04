@@ -9,6 +9,32 @@ import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
 import { StringNumMap } from '@app/types';
 
+const fillPositionsWithRetry = async (
+    positions: [number, BigNumber, BigNumber, string, number][],
+    comptroller: Contract,
+    maxRetries = 4,
+    currentRetry = 0,
+) => {
+    const toFill = positions.filter(p => p[0] === 1);
+
+    const results = await Promise.allSettled(toFill.map(p => p[3]).map((account) => comptroller.getAccountLiquidity(account)));
+    const positionsResults = results.map((r, i) => {
+        return r.status === 'fulfilled' ? r.value : toFill[i];
+    });
+
+    positionsResults.forEach((r, i) => {
+        if (r[0] !== 1) {
+            positions.splice(toFill[i][4], 1, r);
+        }
+    })
+
+    const stillNeedRetry = positions.filter(p => p[0] === 1);
+    if (stillNeedRetry.length > 0 && currentRetry < maxRetries) {
+        await new Promise((r) => setTimeout(() => r(true), 1000));
+        await fillPositionsWithRetry(positions, comptroller, maxRetries, currentRetry + 1);
+    }
+}
+
 export default async function handler(req, res) {
     const { accounts = '' } = req.query;
     // defaults to mainnet data if unsupported network
@@ -75,15 +101,13 @@ export default async function handler(req, res) {
 
         let uniqueUsers = Array.from(usersSet);
 
-        if(accounts?.length) {
+        if (accounts?.length) {
             const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
             uniqueUsers = uniqueUsers.filter(ad => filterAccounts.map(a => a.toLowerCase()).includes(ad.toLowerCase()));
         }
 
-        const positionsResults = await Promise.allSettled(uniqueUsers.map(account => comptroller.getAccountLiquidity(account)));
-        const positions = positionsResults.map(r => {
-            return r.status === 'fulfilled' ? r.value : [1, BigNumber.from('0'), BigNumber.from('0')];
-        })
+        const positions = uniqueUsers.map((account, i) => [1, BigNumber.from('0'), BigNumber.from('0'), account, i]);
+        await fillPositionsWithRetry(positions, comptroller, 4, 0);
 
         let marketDecimals: number[] = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
@@ -106,7 +130,7 @@ export default async function handler(req, res) {
             }
         });
 
-        if(!accounts) {
+        if (!accounts) {
             shortfallAccounts = shortfallAccounts.filter(p => p.usdShortfall > 0.1);
         }
 
@@ -119,7 +143,10 @@ export default async function handler(req, res) {
                             '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
                             '0xde2af899040536884e062D3a334F2dD36F34b4a4',
                             '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
-                        ].includes(contract.address) ? contract.borrowBalanceStored(p.account) : BigNumber.from('0');
+                        ].includes(contract.address) ?
+                            contract.borrowBalanceStored(p.account)
+                            :
+                            BigNumber.from('0');
                     })
                 );
             })
@@ -180,7 +207,7 @@ export default async function handler(req, res) {
             positions: positionDetails,
         };
 
-        if(!accounts?.length) {
+        if (!accounts?.length) {
             await redisSetWithTimestamp(cacheKey, resultData);
         }
 
