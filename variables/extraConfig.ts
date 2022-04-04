@@ -19,6 +19,7 @@ const mainConfig = {
     policyCommittee: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
     opBondManager: '0x9de7b925247c9bd98ecee5abb7ea06a4aa7d13cd',
     xinvVestorFactory: '0xe1C67007D1074bcAcC577DD946661F0CB9053A19',
+    swapRouter: '0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d',
     vesters: [
         "0x60f491CEF0602eaC0b485e6551eeE2eFee934546",
         "0x5D4bd975b8eB5A0AA8bEDf765929DB98cA6A44a1",

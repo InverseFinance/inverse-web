@@ -14,6 +14,7 @@ import {
   DOLA3POOLCRV_ABI,
   AN_CHAIN_COIN_REPAY_ALL_ABI,
   BOND_ABI,
+  SWAP_ROUTER_ABI,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
@@ -29,6 +30,11 @@ export const getNewContract = (
   abi: string[],
   signer: JsonRpcSigner | Web3Provider | undefined
 ) => new Contract(address, abi, signer)
+
+export const getSwapRouterContract = (signer: JsonRpcSigner | Web3Provider | undefined) => {
+  const { SWAP_ROUTER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
+  return getNewContract(SWAP_ROUTER, SWAP_ROUTER_ABI, signer);
+}
 
 export const getComptrollerContract = (signer: JsonRpcSigner | undefined) => {
   const { COMPTROLLER } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
@@ -119,6 +125,42 @@ const CRV_INDEXES: any = { DOLA: 0, DAI: 1, USDC: 2, USDT: 3 }
 
 export const estimateCrvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number) => {
   return crvSwap(signer, fromUnderlying, toUnderlying, amount, toAmount, 1, true);
+}
+
+export const estimateCrvSwapRouted = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number) => {
+  return crvSwapRouted(signer, fromUnderlying, toUnderlying, amount, toAmount, 1, true);
+}
+
+export const crvSwapRouted = async (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number, maxSlippage: number, isEstimate = false) => {
+
+  const contract = getSwapRouterContract(signer);
+  const [indices, pools] = await contract.find_coin_routes(fromUnderlying.address, toUnderlying.address);
+  const bnAmount = parseUnits(amount.toString(), fromUnderlying.decimals);
+  const minReveived = (toAmount - (toAmount * maxSlippage / 100)).toFixed(toUnderlying.decimals);
+  const bnMinReceived = parseUnits(minReveived, toUnderlying.decimals);
+
+  const receiver = await signer.getAddress();
+
+  if(isEstimate) {
+    return contract.estimateGas.exchange_underlying_routed(indices, pools, bnAmount, bnMinReceived, receiver);
+  } else {
+    return contract.exchange_underlying_routed(indices, pools, bnAmount, bnMinReceived, receiver);
+  }
+}
+// useful to get the exRate
+export const crvGetDyUnderlyingRouted = async (signerOrProvider: JsonRpcSigner | Web3Provider, fromUnderlying: Token, toUnderlying: Token, amount: number) => {
+  if(amount <= 0) { return '0' }
+  const contract = getSwapRouterContract(signerOrProvider);
+  const [indices, pools] = await contract.find_coin_routes(fromUnderlying.address, toUnderlying.address);
+
+  const bnAmount = parseUnits(amount.toFixed(fromUnderlying.decimals), fromUnderlying.decimals);
+
+  try {
+    return formatUnits(await contract.get_dy_underlying_routed(indices, pools, bnAmount), toUnderlying.decimals);
+  } catch (e) {
+    console.log(e);
+    return '0'
+  }
 }
 
 export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number, maxSlippage: number, isEstimate = false) => {

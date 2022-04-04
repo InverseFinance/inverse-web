@@ -29,6 +29,7 @@ const chainTokenAddresses = {
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
+    MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -166,6 +167,14 @@ const chainTokens = {
       symbol: 'WFTM',
       coingeckoId: 'fantom',
       image: 'https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016',
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].MIM]: {
+      address: chainTokenAddresses["1"].MIM,
+      name: 'MIM',
+      symbol: 'MIM',
+      coingeckoId: 'magic-internet-money',
+      image: 'https://assets.coingecko.com/coins/images/16786/small/mimlogopng.png?1624979612',
       decimals: 18,
     },
   },

@@ -71,6 +71,7 @@ export const getNetworkConfigConstants = (
     const INV = Object.values(TOKENS).find(token => token.symbol === process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL)?.address!;
     const DOLA = Object.values(TOKENS).find(token => token.symbol === 'DOLA')?.address!;
     const DAI = Object.values(TOKENS).find(token => token.symbol === 'DAI')?.address!;
+    const MIM = Object.values(TOKENS).find(token => token.symbol === 'MIM')?.address!;
     const USDC = Object.values(TOKENS).find(token => token.symbol === 'USDC')?.address!;
     const USDT = Object.values(TOKENS).find(token => token.symbol === 'USDT')?.address!;
     const YFI = Object.values(TOKENS).find(token => token.symbol === 'YFI')?.address!;
@@ -129,6 +130,7 @@ export const getNetworkConfigConstants = (
         INV,
         DOLA,
         DAI,
+        MIM,
         USDC,
         USDT,
         WCOIN,
@@ -151,5 +153,6 @@ export const getNetworkConfigConstants = (
         OP_BOND_MANAGER: config.opBondManager,
         XINV_VESTOR_FACTORY: config.xinvVestorFactory,
         VESTERS: config.vesters,
+        SWAP_ROUTER: config.swapRouter,
     }
 }
