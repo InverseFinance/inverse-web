@@ -31,10 +31,10 @@ export const UnderlyingItem = ({
         <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
         {
-              !!badge &&
-              <NotifBadge fontSize="12px" left="100%" w="fit-content" top="auto" bgColor={badge.color}>
+            !!badge &&
+            <NotifBadge fontSize="12px" left="100%" w="fit-content" top="auto" bgColor={badge.color}>
                 {badge.text}
-              </NotifBadge>
-            }
+            </NotifBadge>
+        }
     </Container>
 }

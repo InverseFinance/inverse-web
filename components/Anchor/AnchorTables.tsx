@@ -60,7 +60,14 @@ const getColumn = (
             <UnderlyingItem
               Container={HStack}
               containerProps={{ position: 'relative' }}
-              badge={underlying.badge}
+              badge={
+                !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN ?
+                {
+                  text: `STAKE ${RTOKEN_SYMBOL}`,
+                  color: 'secondary',
+                }
+                : underlying.badge
+              }
               textProps={{ color }}
               label={underlying.symbol}
               image={underlying.image}
@@ -78,12 +85,6 @@ const getColumn = (
                       : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn ${RTOKEN_SYMBOL} ${moment(claimableTime).fromNow()}`
                   }
                 />
-              </NotifBadge>
-            }
-            {
-              !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN &&
-              <NotifBadge top="auto" bgColor="secondary">
-                Stake {RTOKEN_SYMBOL}
               </NotifBadge>
             }
           </Stack>
@@ -426,7 +427,7 @@ export const AnchorSupply = () => {
   })
 
   const columns = [
-    getColumn('asset', 32, true),
+    getColumn('asset', '32', true),
     getColumn('supplyApy', 20, true),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('wallet', 24, true),
