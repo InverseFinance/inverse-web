@@ -31,7 +31,10 @@ export const getNetworkConfig = (chainId: string | number, returnMainIfUnsupport
 }
 
 export const getNetworks = (): Network[] => NETWORKS;
-export const getSupportedNetworks = (): Network[] => NETWORKS.filter(network => network.isSupported);
+export const getSupportedNetworks = (): Network[] => NETWORKS
+    // .filter(network => network.isSupported)
+    .filter(network => network.id === process.env.NEXT_PUBLIC_CHAIN_ID)
+
 
 export const getNetworkConfigConstants = (
     configOrChainId: NetworkConfig | string | number = process.env.NEXT_PUBLIC_CHAIN_ID!,
