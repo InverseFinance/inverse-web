@@ -8,6 +8,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
 import { StringNumMap } from '@app/types';
+import { throttledPromises } from '@app/util/misc';
 
 const fillPositionsWithRetry = async (
     positions: [number, BigNumber, BigNumber, string, number][],
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 10);
+        const validCache = await getCacheFromRedis(cacheKey, true, 300);
 
         if (validCache && !accounts) {
             res.status(200).json(validCache);
@@ -112,6 +113,7 @@ export default async function handler(req, res) {
         let marketDecimals: number[] = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
         )
+
         marketDecimals = marketDecimals.map(v => parseInt(v));
 
         const collateralFactors = marketsDetails.map(m => parseFloat(formatUnits(m[1])));
@@ -134,8 +136,8 @@ export default async function handler(req, res) {
             shortfallAccounts = shortfallAccounts.filter(p => p.usdShortfall > 0.1);
         }
 
-        const borrowedAssets = await Promise.all(
-            shortfallAccounts.map(p => {
+        const borrowedAssets = await throttledPromises(
+            (p) => {
                 return Promise.all(
                     contracts.map((contract, i) => {
                         return !borrowPaused[i] || [
@@ -149,13 +151,21 @@ export default async function handler(req, res) {
                             BigNumber.from('0');
                     })
                 );
-            })
+            },
+            shortfallAccounts,
+            20,
+            100
         )
 
         const [
             assetsIn,
         ] = await Promise.all([
-            Promise.all(shortfallAccounts.map(position => comptroller.getAssetsIn(position.account))),
+            throttledPromises(
+                position => comptroller.getAssetsIn(position.account),
+                shortfallAccounts,
+                20,
+                100,
+            )
         ])
 
         const positionDetails = shortfallAccounts.map((position, i) => {

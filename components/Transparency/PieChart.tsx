@@ -3,6 +3,7 @@ import { VictoryChart, VictoryLabel, VictoryAxis, VictoryPie, VictoryTheme, Vict
 import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
+import { CHART_COLORS } from '@app/variables/theme';
 
 type Props = { x: string, y: number, perc?: number }[]
 
@@ -35,11 +36,13 @@ export const PieChart = ({
     width = 250,
     height = 250,
     padding = defaultPadding,
+    colorScale = CHART_COLORS
 }: {
     data: Props,
     width?: number,
     height?: number,
-    padding?: { left? :number, right?: number, top?: number, bottom?: number },
+    padding?: { left?: number, right?: number, top?: number, bottom?: number },
+    colorScale: string[],
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
 
@@ -53,6 +56,7 @@ export const PieChart = ({
             width={width}
             height={height}
             position="relative"
+            className="svg-overflow-visible"
         >
             <VictoryChart
                 theme={VictoryTheme.material}
@@ -83,6 +87,7 @@ export const PieChart = ({
                     labelComponent={<CustomLabel />}
                     padAngle={20}
                     innerRadius={30}
+                    colorScale={colorScale}
                     style={{
                         data: {
                             fillOpacity: 0.9, stroke: "#fff", strokeWidth: 1

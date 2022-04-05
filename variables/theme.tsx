@@ -69,4 +69,16 @@ const theme = extendTheme({
   },
 })
 
+export const CHART_COLORS = [
+  '#bbb7e0',
+  '#9993d1',
+  '#776fc2',
+  '#564bb1',
+  '#453c8d',
+  '#332d69',
+  '#221d45',
+  '#100e21',
+  '#0f0d1f',
+];
+
 export default theme
