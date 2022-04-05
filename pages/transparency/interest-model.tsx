@@ -32,7 +32,7 @@ export const InterestModelPage = () => {
     }, [markets]);
 
     const optionList = markets
-        .filter(m => m.borrowable)
+        .filter(m => m.totalBorrows > 0 || m.borrowable)
         .map((market, i) => ({
             value: market.token,
             label: <UnderlyingItemBlock w="100px" symbol={market?.underlying.symbol} nameAttribute="symbol" />,
