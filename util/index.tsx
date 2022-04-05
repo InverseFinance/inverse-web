@@ -47,7 +47,6 @@ export const checkEnv = () => {
     || !process.env.NEXT_PUBLIC_ANCHOR_ORACLE
     || !process.env.NEXT_PUBLIC_ANCHOR_TREASURY
     || !process.env.NEXT_PUBLIC_ANCHOR_ESCROW
-    || !process.env.NEXT_PUBLIC_INTEREST_MODEL
     || (
       process.env.NEXT_PUBLIC_HAS_REWARD_TOKEN === 'true'
       && (!process.env.NEXT_PUBLIC_REWARD_TOKEN || !process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN || !process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL)

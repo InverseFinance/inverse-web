@@ -16,7 +16,7 @@ import { getBnToNumber, toApr, toApy } from '@app/util/markets';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.7`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.8`;
 
   try {
     const {
@@ -61,6 +61,7 @@ export default async function handler(req, res) {
       borrowPaused,
       mintPaused,
       oraclePrices,
+      interestRateModels,
     ]: any = await Promise.all([
       Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
       Promise.all(contracts.map((contract) => contract.totalReserves())),
@@ -86,6 +87,7 @@ export default async function handler(req, res) {
         )
       ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
+      Promise.all(contracts.map(contract => contract.interestRateModel())),
     ]);
 
     let xinvExRate = BigNumber.from('0');
@@ -157,7 +159,8 @@ export default async function handler(req, res) {
         totalBorrows: borrows,
         collateralFactor: parseFloat(formatUnits(collateralFactors[i][1])),
         reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
-        supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals))
+        supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals)),
+        interestRateModel: interestRateModels[i],
       }
     });
 

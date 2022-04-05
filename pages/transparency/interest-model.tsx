@@ -17,12 +17,11 @@ import { shortenAddress } from '@app/util'
 import { Container } from '@app/components/common/Container';
 import { AnchorMarketInterestChart } from '@app/components/Anchor/AnchorMarketInterestChart'
 import { useInterestModel } from '@app/hooks/useInterestModel'
-import { INTEREST_MODEL } from '@app/config/constants'
 
 export const InterestModelPage = () => {
-    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear } = useInterestModel();
     const { markets } = useMarkets();
     const [chosenMarket, setChosenMarket] = useState<Market | null>(null);
+    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear, model } = useInterestModel(chosenMarket?.interestRateModel||'');
     const [useAutocompounding, setUseAutocompounding] = useState(true);
 
     useEffect(() => {
@@ -111,7 +110,7 @@ export const InterestModelPage = () => {
                                 </Text>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text>- Contract:</Text>
-                                    <ScannerLink value={INTEREST_MODEL} />
+                                    <ScannerLink value={model} />
                                 </Flex>
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text>- Kink (threshold before "jump"):</Text>

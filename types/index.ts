@@ -61,6 +61,7 @@ export type Market = {
   claimableAmount?: number
   claimableTime?: number
   rewardsPerMonth: number
+  interestRateModel?: string
 }
 
 export enum GovEra {

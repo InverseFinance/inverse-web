@@ -18,7 +18,6 @@ export const QUORUM_VOTES = 4000;
 // Migration
 export const OLD_XINV = process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD
 export const HAS_REWARD_TOKEN = process.env.NEXT_PUBLIC_HAS_REWARD_TOKEN === 'true';
-export const INTEREST_MODEL = process.env.NEXT_PUBLIC_INTEREST_MODEL!;
 
 export const CURRENT_ERA = GovEra.mills;
 export const STABILIZER_FEE = 0.004
