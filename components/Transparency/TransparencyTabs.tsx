@@ -4,7 +4,7 @@ type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'intere
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
-    { page: 'treasury', label: 'Treasury' },
+    // { page: 'treasury', label: 'Treasury' },
     { page: 'inv', label: 'INV' },
     { page: 'dola', label: 'DOLA & the Feds' },
     { page: 'fed-policy', label: 'Fed Policy' },
