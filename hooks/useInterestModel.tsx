@@ -22,12 +22,12 @@ export const useInterestModel = (): SWR & InterestModelParameters => {
 
   return {
     kink: data?.kink || KINK,
-    multiplierPerYear: data?.multiplierPerYear || MULTIPLIER_PER_YEAR,
-    jumpMultiplierPerYear: data?.jumpMultiplierPerYear || JUMP_MULTIPLIER_PER_YEAR,
-    baseRatePerYear: data?.baseRatePerYear || 0,
-    multiplierPerBlock: data?.multiplierPerBlock || MULTIPLIER_PER_YEAR / BLOCKS_PER_YEAR,
-    jumpMultiplierPerBlock: data?.jumpMultiplierPerBlock || JUMP_MULTIPLIER_PER_YEAR / BLOCKS_PER_YEAR,
-    baseRatePerBlock: data?.baseRatePerBlock || 0,
+    multiplierPerYear: data?.multiplierPerYear ?? MULTIPLIER_PER_YEAR,
+    jumpMultiplierPerYear: data?.jumpMultiplierPerYear ?? JUMP_MULTIPLIER_PER_YEAR,
+    baseRatePerYear: data?.baseRatePerYear ?? 0,
+    multiplierPerBlock: data?.multiplierPerBlock ?? MULTIPLIER_PER_YEAR / BLOCKS_PER_YEAR,
+    jumpMultiplierPerBlock: data?.jumpMultiplierPerBlock ?? JUMP_MULTIPLIER_PER_YEAR / BLOCKS_PER_YEAR,
+    baseRatePerBlock: data?.baseRatePerBlock ?? 0,
     isLoading: !error && !data,
     isError: error,
   }
