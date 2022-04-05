@@ -4,6 +4,7 @@ import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR'
 
 type InterestModelParameters = {
+  model: string
   kink: number
   multiplierPerYear: number
   jumpMultiplierPerYear: number
@@ -17,10 +18,13 @@ const KINK = 75;
 const MULTIPLIER_PER_YEAR = 5.33;
 const JUMP_MULTIPLIER_PER_YEAR = 150;
 
-export const useInterestModel = (): SWR & InterestModelParameters => {
-  const { data, error } = useCustomSWR(`/api/transparency/interest-model?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+export const useInterestModel = (model: string): SWR & InterestModelParameters => {
+  const { data: allModels, error } = useCustomSWR(`/api/transparency/interest-model?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+
+  const data = allModels ? allModels[model] : {};
 
   return {
+    model: data?.model || '',
     kink: data?.kink || KINK,
     multiplierPerYear: data?.multiplierPerYear ?? MULTIPLIER_PER_YEAR,
     jumpMultiplierPerYear: data?.jumpMultiplierPerYear ?? JUMP_MULTIPLIER_PER_YEAR,

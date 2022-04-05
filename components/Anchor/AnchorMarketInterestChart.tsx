@@ -21,7 +21,7 @@ export const AnchorMarketInterestChart = ({
     autocompounds?: boolean,
     title?: string,
 }) => {
-    const { kink, multiplierPerBlock, jumpMultiplierPerBlock, baseRatePerBlock } = useInterestModel();
+    const { kink, multiplierPerBlock, jumpMultiplierPerBlock, baseRatePerBlock } = useInterestModel(market?.interestRateModel);
     const [chartWidth, setChartWidth] = useState<number>(maxWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth+50}px)`)
 

@@ -1,6 +1,5 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BONDS } from '@app/variables/tokens';
-import { INTEREST_MODEL } from './constants';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -48,6 +47,7 @@ export const CTOKEN_ABI = [
   "function reserveFactorMantissa() external view returns (uint256)",
   "function underlying() external view returns (address)",
   "function decimals() view returns (uint8)",
+  "function interestRateModel() view returns (address)",
   "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
@@ -317,7 +317,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [ORACLE, ORACLE_ABI],
         [DOLA3POOLCRV, DOLA3POOLCRV_ABI],
         [TREASURY, TREASURY_ABI],
-        [INTEREST_MODEL, INTEREST_MODEL_ABI],
         [DOLA_PAYROLL, DOLA_PAYROLL_ABI],
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
