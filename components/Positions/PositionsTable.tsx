@@ -93,11 +93,15 @@ export const PositionsTable = ({
     prices,
     positions,
     collateralFactors,
+    defaultSort = "usdShortfall",
+    defaultSortDir = "desc",
 }: {
     markets: string[],
     prices: number[],
     positions: AccountPosition[],
     collateralFactors: number[],
+    defaultSort?: string,
+    defaultSortDir?: string,
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedPosition, setSelectedPosition] = useState<AccountPositionDetailed | null>(null);
@@ -151,8 +155,8 @@ export const PositionsTable = ({
         <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} />
         <Table
             keyName="account"
-            defaultSort="usdShortfall"
-            defaultSortDir="desc"
+            defaultSort={defaultSort}
+            defaultSortDir={defaultSortDir}
             columns={columns}
             items={detailedPositions}
             onClick={handleDetails}
