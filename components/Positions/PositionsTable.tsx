@@ -11,9 +11,10 @@ import { UNDERLYING } from '@app/variables/tokens'
 import { PositionSlide } from './PositionSlide'
 
 const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] }) => {
+    const uniques = [...new Set(list?.map((s, i) => s?.underlying.image))];
     return <HStack minW="100px" position="relative">
         {
-            list?.map((s, i) => <Image key={s.ctoken} width={'15px'} src={s?.underlying.image} ignoreFallback={true} />)
+            uniques?.map((imgSrc, i) => <Image key={imgSrc} width={'15px'} src={imgSrc} ignoreFallback={true} />)
         }
     </HStack>
 }
@@ -152,7 +153,7 @@ export const PositionsTable = ({
     })
 
     return <>
-        <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} />
+        <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} needFresh={false} />
         <Table
             keyName="account"
             defaultSort={defaultSort}

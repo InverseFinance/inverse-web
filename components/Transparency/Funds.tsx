@@ -3,6 +3,7 @@ import { OLD_XINV } from '@app/config/constants';
 import { Prices, Token } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { PieChart } from './PieChart';
+import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 
 const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, showPrice = false }: { token: Token, value: number, usdPrice: number, usdValue: number, perc: number, showPerc?: boolean, showPrice?: boolean }) => {
     return (
@@ -69,7 +70,7 @@ export const Funds = ({
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
-        .map(({ token, balance, allowance, usdPrice }) => {
+        .map(({ token, balance, allowance, usdPrice, ctoken }) => {
             const price = usdPrice ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
@@ -78,7 +79,8 @@ export const Funds = ({
             usdTotals.balance += usdBalance;
             usdTotals.allowance += usdAllowance;
             usdTotals.overall += totalUsd;
-            return { token, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price };
+            const _token = ctoken === OLD_XINV ? { ...token, symbol: `${RTOKEN_SYMBOL}-old` } : token;
+            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price };
         })
         .filter(({ totalBalance }) => totalBalance > 0)
         .sort((a, b) => b.totalUsd - a.totalUsd)
@@ -94,16 +96,16 @@ export const Funds = ({
     positiveBalances.sort((a, b) => b.usdBalance - a.usdBalance);
 
     const balancesContent = positiveBalances
-        .map(({ token, balance, usdBalance, balancePerc, usdPrice }) => {
-            return <FundLine key={token.address || token.symbol} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+        .map(({ token, balance, usdBalance, balancePerc, usdPrice, ctoken }) => {
+            return <FundLine key={ctoken || token.address || token.symbol} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
     positiveAllowances.sort((a, b) => b.usdAllowance - a.usdAllowance);
 
     const allowancesContent = positiveAllowances
-        .map(({ token, allowance, usdAllowance, allowancePerc, usdPrice }) => {
-            return <FundLine key={token.address || token.symbol} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+        .map(({ token, allowance, usdAllowance, allowancePerc, usdPrice, ctoken }) => {
+            return <FundLine key={ctoken || token.address || token.symbol} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     return (
