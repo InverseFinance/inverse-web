@@ -14,7 +14,7 @@ export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Prom
             const account = await signer.getAddress();
             const invContract = getINVContract(signer);
 
-            const domain = { name: 'Inverse Finance', chainId, verifyingContract: invContract.address }
+            const domain = { name: 'Inverse DAO', chainId, verifyingContract: invContract.address }
 
             const types = {
                 Delegation: [
@@ -37,6 +37,7 @@ export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Prom
                     sig: signature,
                     nonce: value.nonce,
                     expiry: value.expiry,
+                    delegatee: value.delegatee,
                     chainId,
                     signer: account,
                 })
@@ -62,17 +63,16 @@ export const isValidSignature = (sig: string): boolean => {
     return true;
 }
 
-export const submitMultiDelegation = async (signer: JsonRpcSigner, signatures: string[], delegatee?: string): Promise<TransactionResponse> => {
+export const submitMultiDelegation = async (signer: JsonRpcSigner, signatures: string[]): Promise<TransactionResponse> => {
     return new Promise(async (resolve, reject) => {
         try {
             const contract = getMultiDelegatorContract(signer);
-            const signerAddress = await signer.getAddress();
             const signatureObjects = signatures.map(sig => JSON.parse(sig));
             const vrs = signatureObjects.map(sigObj => splitSignature(sigObj.sig));
 
             // delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)
             const promise = contract.delegateBySig(
-                delegatee || signerAddress,
+                signatureObjects[0].delegatee,
                 signatureObjects.map(sigObj => sigObj.signer),
                 signatureObjects.map(sigObj => BigNumber.from(sigObj.nonce)),
                 signatureObjects.map(sigObj => BigNumber.from(sigObj.expiry)),

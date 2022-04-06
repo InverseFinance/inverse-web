@@ -116,7 +116,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
 
   const rank = (topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1) || ''
 
-  const signDisabled = !active || chainId?.toString() !== NetworkIds.mainnet;
+  const signDisabled = !active;
 
   const delegationCase = (isAlreadySameDelegate ? 'alreadyDelegating' : 'changingDelegation');
 
