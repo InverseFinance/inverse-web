@@ -18,6 +18,7 @@ export const useDAO = (): SWR & DAO => {
     },
     feds: data?.feds || [],
     multisigs: data?.multisigs || [],
+    pols: data?.pols || [],
     isLoading: !error && !data,
     isError: error,
   }

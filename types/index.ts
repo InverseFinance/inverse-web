@@ -505,4 +505,5 @@ export type DAO = {
   bonds: { balances: { token: Token, balance: number }[] },
   feds: FedWithData[],
   multisigs: Multisig[]
+  pols: { totalSupply: number, ownedAmount: number }[]
 }
