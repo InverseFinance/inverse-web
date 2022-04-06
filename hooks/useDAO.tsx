@@ -1,28 +1,6 @@
-import { FedEvent, FedWithData, SWR, Token, StabilizerEvent, NetworkIds } from '@app/types'
+import { FedEvent, SWR, StabilizerEvent, DAO } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
-
-export type DAO = {
-  dolaTotalSupply: number
-  invTotalSupply: number
-  dolaOperator: string
-  fantom: {
-    dolaTotalSupply: number
-    invTotalSupply: number
-  }
-  treasury: { token: Token, balance: number }[],
-  anchorReserves: { token: Token, balance: number }[],
-  bonds: { balances: { token: Token, balance: number }[] },
-  feds: FedWithData[],
-  multisigs: {
-    address: string,
-    name: string,
-    chainId: NetworkIds,
-    owners: string[],
-    funds: { token: Token, balance: number, allowance?: number }[],
-    threshold: number,
-  }[]
-}
 
 export const useDAO = (): SWR & DAO => {
   const { data, error } = useCustomSWR(`/api/transparency/dao`, fetcher)
@@ -40,6 +18,7 @@ export const useDAO = (): SWR & DAO => {
     },
     feds: data?.feds || [],
     multisigs: data?.multisigs || [],
+    pols: data?.pols || [],
     isLoading: !error && !data,
     isError: error,
   }

@@ -141,7 +141,7 @@ export const crvSwapRouted = async (signer: JsonRpcSigner, fromUnderlying: Token
 
   const receiver = await signer.getAddress();
 
-  if(isEstimate) {
+  if (isEstimate) {
     return contract.estimateGas.exchange_underlying_routed(indices, pools, bnAmount, bnMinReceived, receiver);
   } else {
     return contract.exchange_underlying_routed(indices, pools, bnAmount, bnMinReceived, receiver);
@@ -149,7 +149,7 @@ export const crvSwapRouted = async (signer: JsonRpcSigner, fromUnderlying: Token
 }
 // useful to get the exRate
 export const crvGetDyUnderlyingRouted = async (signerOrProvider: JsonRpcSigner | Web3Provider, fromUnderlying: Token, toUnderlying: Token, amount: number) => {
-  if(amount <= 0) { return '0' }
+  if (amount <= 0) { return '0' }
   const contract = getSwapRouterContract(signerOrProvider);
   const [indices, pools] = await contract.find_coin_routes(fromUnderlying.address, toUnderlying.address);
 
@@ -245,37 +245,43 @@ export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string)
 }
 
 export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<number> => {
-  if(LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
-  else if(!providerOrSigner) { return new Promise(r => r(0)) }
-  else if(LPToken.isCrvLP) {
+  if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
+  else if (!providerOrSigner) { return new Promise(r => r(0)) }
+  else if (LPToken.isCrvLP) {
     return getBnToNumber(await (new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   }
 
-  const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply());
+  let lpPrice = 0
 
-  const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+  try {
+    const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply());
 
-  const coingeckoIds = tokens
-    .map(({ coingeckoId }) => coingeckoId)
+    const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
 
-  const [balancesInLp, cgPrices] = await Promise.all([
-    await Promise.all(
-      LPToken.pairs.map(address => {
-        return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
-      }),
-    ),
-    fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)
-  ]);
+    const coingeckoIds = tokens
+      .map(({ coingeckoId }) => coingeckoId)
 
-  const balances = balancesInLp.map((bn, i) => {
-    return getBnToNumber(bn, tokens[i].decimals);
-  });
+    const [balancesInLp, cgPrices] = await Promise.all([
+      await Promise.all(
+        LPToken.pairs.map(address => {
+          return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
+        }),
+      ),
+      fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)
+    ]);
 
-  const prices = await cgPrices.json();
+    const balances = balancesInLp.map((bn, i) => {
+      return getBnToNumber(bn, tokens[i].decimals);
+    });
 
-  const lpPrice = tokens.reduce((prev, curr, idx) => {
-    return prev + (balances[idx] * (prices[curr.coingeckoId].usd||0) / getBnToNumber(lpTokenTotalSupply));
-  }, 0);
+    const prices = await cgPrices.json();
+
+    lpPrice = tokens.reduce((prev, curr, idx) => {
+      return prev + (balances[idx] * (prices[curr.coingeckoId].usd || 0) / getBnToNumber(lpTokenTotalSupply));
+    }, 0);
+  } catch (e) {
+    
+  }
 
   return lpPrice;
 }

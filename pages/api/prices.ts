@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     let lps: { token: Token, chainId: string }[] = [];
 
     Object.entries(CHAIN_TOKENS)
+      .filter(([chainId]) => chainId !== '31337')
       .forEach(([chainId, tokenList]) => {
         Object.values(tokenList)
           .filter(t => (t.pairs?.length > 0 || t.lpPrice || t.isCrvLP))

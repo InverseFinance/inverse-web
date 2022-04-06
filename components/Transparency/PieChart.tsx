@@ -17,10 +17,18 @@ class CustomLabel extends React.Component {
                 <VictoryLabel {...this.props} />
                 <VictoryTooltip
                     {...this.props}
-                    flyoutWidth={200}
-                    labelComponent={<VictoryLabel text={`${datum.x}: ${shortenNumber(datum.y, 2, true)} (${shortenNumber(datum.perc, 2)}%)`} />}
+                    flyoutWidth={250}
+                    labelComponent={<VictoryLabel
+                        style={{ fontSize: '14px', fill: '#fff', fontFamily: 'Inter' }}
+                        text={[
+                            `${datum.x}`,
+                            ' ',
+                            `${shortenNumber(datum.y, 2, true)} (${shortenNumber(datum.perc, 2)}%)`,
+                        ]}
+                    />}
                     flyoutStyle={{ fill: "#8881c9" }}
                     flyoutPadding={10}
+                    flyoutHeight={80}
                 />
             </g>
         );
