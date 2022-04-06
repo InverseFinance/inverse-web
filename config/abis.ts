@@ -97,6 +97,7 @@ export const HARVESTER_ABI = [
 
 export const INV_ABI = ERC20_ABI.concat([
   "function delegate(address)",
+  "function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s) public",
   "function delegates(address) external view returns (address)",
   "function getCurrentVotes(address) external view returns (uint96)",
   "function getPriorVotes(address, uint256) external view returns (uint96)",
@@ -160,7 +161,7 @@ export const TREASURY_ABI = [
 
 export const MULTIDELEGATOR_ABI = [
   "function inv() external view returns (address)",
-  "function delegateBySig(address delegatee, address[] delegator, uint256[] nonce, uint256[] expiry, uint8[] v, bytes32[] r, bytes32[] s)",
+  "function delegateBySig(address delegatee, address[] delegator, uint[] nonce, uint[] expiry, uint8[] v, bytes32[] r, bytes32[] s)",
 ];
 
 export const DOLA3POOLCRV_ABI = [
