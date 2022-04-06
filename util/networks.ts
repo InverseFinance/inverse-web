@@ -1,7 +1,6 @@
 import { TOKENS, UNDERLYING } from '@app/variables/tokens';
 import { NETWORKS } from '@app/config/networks';
-import { Fed, Network, NetworkConfig, NetworkIds, TokenList } from '@app/types';
-import { getToken } from '@app/util/markets';
+import { Fed, Multisig, Network, NetworkConfig, NetworkIds, TokenList } from '@app/types';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
 
@@ -44,7 +43,7 @@ export const getNetworkConfigConstants = (
         isSupportedNetwork(configOrChainId.chainId) ?
             configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
 
-    const MULTISIGS = config.multisigs;
+    const MULTISIGS: Multisig[] = config.multisigs;
 
     const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
 

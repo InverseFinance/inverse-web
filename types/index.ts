@@ -481,3 +481,28 @@ export type DraftReview = {
   status?: 'ok' | 'ko',
   comment?: string,
 }
+
+export type Multisig = {
+  address: string,
+  name: string,
+  shortName: string,
+  chainId: NetworkIds,
+  owners: string[],
+  funds: { token: Token, balance: number, allowance?: number }[],
+  threshold: number,
+}
+
+export type DAO = {
+  dolaTotalSupply: number
+  invTotalSupply: number
+  dolaOperator: string
+  fantom: {
+    dolaTotalSupply: number
+    invTotalSupply: number
+  }
+  treasury: { token: Token, balance: number }[],
+  anchorReserves: { token: Token, balance: number }[],
+  bonds: { balances: { token: Token, balance: number }[] },
+  feds: FedWithData[],
+  multisigs: Multisig[]
+}
