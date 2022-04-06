@@ -11,12 +11,14 @@ import { Funds, getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { CHAIN_TOKENS, RTOKEN_SYMBOL } from '@app/variables/tokens'
 
 const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, prices: Prices["prices"] }) => {
-  return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }} maxW={{ base: 'full', sm: '400px' }} >
+  return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }}>
     <Stack>
       <Text color="secondary" fontSize="20px" fontWeight="extrabold">{title}:</Text>
-      {
-        funds?.length && <Funds prices={prices} funds={funds} chartMode={true} showTotal={true} />
-      }
+      <Stack justify="center" alignItems="center">
+        {
+          funds?.length && <Funds prices={prices} funds={funds} chartMode={true} showTotal={true} />
+        }
+      </Stack>
     </Stack>
     <Stack fontSize="12px">
       <Funds prices={prices} funds={funds} showPrice={false} showTotal={false} />
