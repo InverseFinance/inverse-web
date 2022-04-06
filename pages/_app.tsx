@@ -55,6 +55,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           <meta name="twitter:image" content="https://www.inverse.finance/assets/logo.png" />
           <meta name="twitter:image:alt" content="inverse finance" />
           <meta name="twitter:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Earn interest by supplying WBTC, ETH, stETH, YFI and other assets, borrow ETH, WBTC, YFI or DOLA our over-collaterized stablecoin. Buy INV and join our DAO to vote for the futur of Inverse Finance." />
+          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <meta property="twitter:card" content="summary_large_image" />
 
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
