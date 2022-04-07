@@ -46,15 +46,18 @@ export const PieChart = ({
     width = 250,
     height = 250,
     padding = defaultPadding,
-    colorScale = CHART_COLORS
+    colorScale = CHART_COLORS,
+    handleDrill,
 }: {
     data: Props,
     width?: number,
     height?: number,
     padding?: { left?: number, right?: number, top?: number, bottom?: number },
-    colorScale: string[],
+    colorScale?: string[],
+    handleDrill?: (datum: any) => void
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
+    const [drill, setDrill] = useState(null);
 
     useDebouncedEffect(() => {
         const _data = data.length === 1 && data[0].y === 0 ? [{ ...data[0], y: 1e-18 }] : data;
@@ -98,6 +101,14 @@ export const PieChart = ({
                     padAngle={20}
                     innerRadius={30}
                     colorScale={colorScale}
+                    events={[{
+                        target: "data",
+                        eventHandlers: {
+                            onClick: (a, b) => {
+                                if(handleDrill) { handleDrill(b.datum) }
+                            }
+                        }
+                    }]}
                     style={{
                         data: {
                             fillOpacity: 0.9, stroke: "#fff", strokeWidth: 1
