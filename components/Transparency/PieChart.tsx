@@ -7,7 +7,7 @@ import { CHART_COLORS } from '@app/variables/theme';
 
 type Props = { x: string, y: number, perc?: number }[]
 
-const defaultGraphicData = [{ y: 100 }]; // Data used to make the animate prop work
+const defaultGraphicData = [{ x: 'Loading...', y: 100 }]; // Data used to make the animate prop work
 
 class CustomLabel extends React.Component {
     render() {

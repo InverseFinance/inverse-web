@@ -66,13 +66,13 @@ export const Overview = () => {
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
             <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="100px" spacingY="40px">
               <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} />
-              <FundsDetails title="Multisigs's Holdings & Allowances" funds={totalMultisigs} prices={prices} />
+              <FundsDetails title="Multisigs's Holdings & Allowances from Treasury" funds={totalMultisigs} prices={prices} />
               <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} />
               <FundsDetails title="In Anchor Reserves" funds={anchorReserves} prices={prices} />
-              <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} />
-              <FundsDetails title="TWG on Fantom" funds={TWGFtmfunds} prices={prices} />
               <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} />
+              <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} />
+              <FundsDetails title="TWG on Fantom" funds={TWGFtmfunds} prices={prices} />              
               {
                 polsFunds.map(p => {
                   return <FundsDetails title={p.title} funds={p.funds} prices={prices} />
