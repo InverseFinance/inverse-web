@@ -17,9 +17,11 @@ class CustomLabel extends React.Component {
                 <VictoryLabel {...this.props} />
                 <VictoryTooltip
                     {...this.props}
+                    pointerLength={20}
+                    pointerWidth={20}
                     flyoutWidth={250}
                     labelComponent={<VictoryLabel
-                        style={{ fontSize: '14px', fill: '#fff', fontFamily: 'Inter' }}
+                        style={{ fontSize: '14px', fill: '#fff', fontFamily: 'Inter', fontWeight: 'bold' }}
                         text={[
                             `${datum.x}`,
                             ' ',
