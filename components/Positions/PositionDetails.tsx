@@ -7,7 +7,6 @@ import { shortenNumber } from '@app/util/markets';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import ScannerLink from '@app/components/common/ScannerLink';
 
 import { LiquidationForm } from './LiquidationForm';
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity';
