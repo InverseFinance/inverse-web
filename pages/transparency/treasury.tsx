@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeftIcon } from '@chakra-ui/icons'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
-const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, prices: Prices["prices"] }) => {
+const FundsDetails = ({ funds, title, prices, type = 'both' }: { funds: any, title: string, prices: Prices["prices"], type?: 'both' | 'balance' | 'allowance' }) => {
   const [data, setData] = useState(funds);
   const [isDrilled, setIsDrilled] = useState(false);
   const [isAfterSlideEffect, setIsAfterSlideEffect] = useState(false);
@@ -56,20 +56,20 @@ const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, pri
           </Flex>
         }
         {
-          data?.length && <Funds handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} />
+          data?.length && <Funds type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} />
         }
       </Stack>
     </Stack>
 
     <SlideFade in={!isDrilled} unmountOnExit={true}>
       <Stack fontSize="12px" spacing="2">
-        <Funds prices={prices} funds={funds} showPrice={false} showTotal={false} />
+        <Funds type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
       </Stack>
     </SlideFade>
     {
       isAfterSlideEffect && <SlideFade in={isDrilled} unmountOnExit={true}>
         <Stack fontSize="12px" spacing="2">
-          <Funds prices={prices} funds={data} showPrice={false} showTotal={false} />
+          <Funds type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
         </Stack>
       </SlideFade>
     }
@@ -115,7 +115,7 @@ export const Overview = () => {
         <Flex direction="column" py="2" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
             <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="100px" spacingY="40px">
-              <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} />
+              <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
               <FundsDetails title="Multisigs's Holdings & Allowances from Treasury" funds={totalMultisigs} prices={prices} />
               <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} />
               <FundsDetails title="In Anchor Reserves" funds={anchorReserves} prices={prices} />

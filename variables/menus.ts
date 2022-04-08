@@ -79,6 +79,10 @@ export const MENUS = {
           label: 'Overview',
         },
         {
+          href: '/transparency/treasury',
+          label: 'Treasury',
+        },
+        {
           href: '/transparency/inv',
           label: 'INV',
         },
