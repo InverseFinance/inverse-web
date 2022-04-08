@@ -1,4 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react'
+import '../blog/styles/index.css'
 import './polyfill.css'
 import '@fontsource/inter/100.css'
 import '@fontsource/inter/200.css'
