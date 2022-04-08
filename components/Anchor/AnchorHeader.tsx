@@ -75,9 +75,8 @@ export const AnchorHeader = () => {
             </LinkButton>
           }
           {
-            !!process.env.NEXT_PUBLIC_BUY_DOLA_URL
-            && <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={process.env.NEXT_PUBLIC_BUY_DOLA_URL}
-              target={process.env.NEXT_PUBLIC_BUY_DOLA_URL.startsWith('http') ? '_blank' : '_self'}>
+            <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={'/swap/DAI/DOLA'}
+              target={'_self'}>
               Buy DOLA
             </LinkButton>
           }
