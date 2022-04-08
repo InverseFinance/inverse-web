@@ -3,12 +3,11 @@ import { VictoryChart, VictoryLabel, VictoryAxis, VictoryPie, VictoryTheme, Vict
 import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
-import { CHART_COLORS } from '@app/variables/theme';
+import THEME, { CHART_COLORS } from '@app/variables/theme';
 
 type Props = { x: string, y: number, perc?: number }[]
 
 const defaultGraphicData = [{ x: 'Loading...', y: 100 }]; // Data used to make the animate prop work
-
 class CustomLabel extends React.Component {
     render() {
         const { datum } = this.props;
@@ -57,7 +56,6 @@ export const PieChart = ({
     handleDrill?: (datum: any) => void
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
-    const [drill, setDrill] = useState(null);
 
     useDebouncedEffect(() => {
         const _data = data.length === 1 && data[0].y === 0 ? [{ ...data[0], y: 1e-18 }] : data;
@@ -101,21 +99,105 @@ export const PieChart = ({
                     padAngle={20}
                     innerRadius={30}
                     colorScale={colorScale}
-                    events={[{
-                        target: "data",
-                        eventHandlers: {
-                            onClick: (a, b) => {
-                                if(handleDrill) { handleDrill(b.datum) }
-                            }
-                        }
-                    }]}
+                    events={[
+                        {
+                            target: "data",
+                            eventHandlers: {
+                                onClick: (a, b) => {
+                                    if (handleDrill) { handleDrill(b.datum) }
+                                },
+                                onMouseOver: (e, b) => {
+                                    return [
+                                        {
+                                            target: "data",
+                                            mutation: !handleDrill || !b?.datum?.fund?.drill ?
+                                                () => { }
+                                                :
+                                                (opt) => {
+                                                    return ({
+                                                        style: { ...opt.style, fill: THEME.colors.secondary }
+                                                    })
+                                                }
+                                        },
+                                        {
+                                            target: "labels",
+                                            mutation: () => ({ active: true })
+                                        },
+                                    ];
+                                },
+                                onMouseOut: () => {
+                                    return [
+                                        {
+                                            target: "data",
+                                            mutation: () => { }
+                                        },
+                                        {
+                                            target: "labels",
+                                            mutation: () => ({ active: false })
+                                        },
+                                    ];
+                                }
+                            },
+                        },
+                        {
+                            target: "labels",
+                            eventHandlers: {
+                                onClick: (a, b) => {
+                                    if (handleDrill) { handleDrill(b.datum) }
+                                },
+                                onMouseOver: (e, b) => {
+                                    return [
+                                        {
+                                            target: "data",
+                                            mutation: !handleDrill || !b?.datum?.fund?.drill ?
+                                                () => { }
+                                                :
+                                                (opt) => {
+                                                    return ({
+                                                        style: { ...opt.style, fill: THEME.colors.secondary }
+                                                    })
+                                                }
+                                        },
+                                        {
+                                            target: "labels",
+                                            mutation: !handleDrill || !b?.datum?.fund?.drill ?
+                                                () => { }
+                                                :
+                                                (opt) => {
+                                                    return ({
+                                                        style: { ...opt.style, fill: THEME.colors.secondary }
+                                                    })
+                                                }
+                                        },
+                                    ];
+                                },
+                                onMouseOut: () => {
+                                    return [
+                                        {
+                                            target: "data",
+                                            mutation: () => { }
+                                        },
+                                        {
+                                            target: "labels",
+                                            mutation: () => { }
+                                        },
+                                    ];
+                                }
+                            },
+                        },
+                    ]}
                     style={{
                         data: {
-                            fillOpacity: 0.9, stroke: "#fff", strokeWidth: 1
+                            fillOpacity: 0.9,
+                            stroke: "#fff",
+                            strokeWidth: 1,
+                            cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
                         },
                         labels: {
-                            fontSize: 12, fill: "#fff"
-                        }
+                            fontSize: 12,
+                            fill: "#fff",
+                            cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
+                        },
                     }}
                 />
             </VictoryChart>

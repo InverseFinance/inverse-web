@@ -17,6 +17,7 @@ const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, pri
   const [data, setData] = useState(funds);
   const [isDrilled, setIsDrilled] = useState(false);
   const [isAfterSlideEffect, setIsAfterSlideEffect] = useState(false);
+  const [subtitle, setSubtitle] = useState('');
 
   useEffect(() => {
     setData(funds);
@@ -26,6 +27,7 @@ const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, pri
     if (datum?.fund?.drill) {
       setData(datum?.fund?.drill);
       setIsDrilled(true);
+      setSubtitle(datum?.fund?.label || datum?.fund?.token?.symbol);
     }
   }
 
@@ -41,12 +43,20 @@ const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, pri
   return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }}>
     <Stack>
       <Text color="secondary" fontSize="20px" fontWeight="extrabold">{title}:</Text>
-      <Stack justify="center" alignItems="center" position="relative">
+      <Stack spacing="0" justify="center" alignItems="center" position="relative">
         {
-          isDrilled && <ArrowLeftIcon color="white" cursor="pointer" position="absolute" left="0" top="0" onClick={reset} />
+          isDrilled && <Flex cursor="pointer" onClick={reset} alignItems="center"  color="secondary" fontSize="12px" position="absolute" left="0" top="0">
+            <ArrowLeftIcon fontSize="10px" color="secondary"/>
+            <Text ml="1"  color="secondary">Back</Text>
+          </Flex>
         }
         {
-          data?.length && <Funds handleDrill={handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} />
+          isDrilled && <Flex alignItems="center"  color="secondary" fontSize="12px" position="absolute" right="0" top="0">
+            <Text color="secondary">{subtitle}</Text>
+          </Flex>
+        }
+        {
+          data?.length && <Funds handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} />
         }
       </Stack>
     </Stack>
@@ -91,7 +101,7 @@ export const Overview = () => {
   })
 
   const totalMultisigs = multisigs?.map(m => {
-    return { token: { symbol: m.name, address: m.address }, balance: getFundsTotalUsd(m.funds, prices, 'both'), usdPrice: 1, drill: m.funds }
+    return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'both'), usdPrice: 1, drill: m.funds }
   });
 
   return (
