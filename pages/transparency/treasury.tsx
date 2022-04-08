@@ -45,7 +45,7 @@ const FundsDetails = ({ funds, title, prices }: { funds: any, title: string, pri
       <Text color="secondary" fontSize="20px" fontWeight="extrabold">{title}:</Text>
       <Stack spacing="0" justify="center" alignItems="center" position="relative">
         {
-          isDrilled && <Flex cursor="pointer" onClick={reset} alignItems="center"  color="secondary" fontSize="12px" position="absolute" left="0" top="0">
+          isDrilled && <Flex cursor="pointer" onClick={reset} alignItems="center" color="secondary" fontSize="12px" position="absolute" left="0" top="0">
             <ArrowLeftIcon fontSize="10px" color="secondary"/>
             <Text ml="1"  color="secondary">Back</Text>
           </Flex>

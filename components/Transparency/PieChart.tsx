@@ -27,7 +27,7 @@ class CustomLabel extends React.Component {
                             `${shortenNumber(datum.y, 2, true)} (${shortenNumber(datum.perc, 2)}%)`,
                         ]}
                     />}
-                    flyoutStyle={{ fill: "#8881c9" }}
+                    flyoutStyle={{ fill: THEME.colors.darkPrimary, stroke: '#fff' }}
                     flyoutPadding={10}
                     flyoutHeight={80}
                 />
@@ -47,13 +47,15 @@ export const PieChart = ({
     padding = defaultPadding,
     colorScale = CHART_COLORS,
     handleDrill,
+    showTotalUsd = false,
 }: {
     data: Props,
     width?: number,
     height?: number,
     padding?: { left?: number, right?: number, top?: number, bottom?: number },
     colorScale?: string[],
-    handleDrill?: (datum: any) => void
+    handleDrill?: (datum: any) => void,
+    showTotalUsd?: boolean,
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
 
@@ -61,6 +63,8 @@ export const PieChart = ({
         const _data = data.length === 1 && data[0].y === 0 ? [{ ...data[0], y: 1e-18 }] : data;
         setChartData(_data);
     }, [data], 500)
+
+    const total = data.reduce((prev, curr) => prev + curr.y, 0);
 
     return (
         <Box
@@ -97,7 +101,7 @@ export const PieChart = ({
                     data={chartData}
                     labelComponent={<CustomLabel />}
                     padAngle={20}
-                    innerRadius={30}
+                    innerRadius={35}
                     colorScale={colorScale}
                     events={[
                         {
@@ -200,6 +204,18 @@ export const PieChart = ({
                         },
                     }}
                 />
+                {
+                    showTotalUsd && <text
+                        fill="#fff"
+                        dominant-baseline="middle"
+                        text-anchor="middle"
+                        x="50%"
+                        y="50%"
+                        fontSize="12px"
+                    >
+                        {shortenNumber(total, 2, true)}
+                    </text>
+                }
             </VictoryChart>
         </Box >
     )

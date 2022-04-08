@@ -114,7 +114,7 @@ export const Funds = ({
     return (
         <>
             {
-                chartMode ? <PieChart handleDrill={handleDrill} data={
+                chartMode ? <PieChart showTotalUsd={showTotal} handleDrill={handleDrill} data={
                     fundsWithPerc
                         .filter(({ usdBalance, usdAllowance }) => usdAllowance > 0 || usdBalance > 0)
                         .map(fund => ({ x: fund.label||fund.token?.symbol, y: fund.usdBalance + fund.usdAllowance, perc: fund.overallPerc, fund }))
