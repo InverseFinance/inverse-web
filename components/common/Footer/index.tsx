@@ -15,7 +15,7 @@ export const Footer = () => (
         <Text fontWeight="bold">{process.env.NEXT_PUBLIC_TITLE}</Text>
       </Stack>
       <Text fontSize="13px">
-        {process.env.NEXT_PUBLIC_FOOTER_SHORT_DESCRIPTION}
+      Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can participate in the decision-making process. Join us!
       </Text>
       <Stack direction="row" spacing={5} align="center">
         {SOCIALS.map(({ href, image }, i) => (
