@@ -9,11 +9,12 @@ import { SubmitButton } from '@app/components/common/Button'
 import { AccountPositionDetailed, Token, TokenList } from '@app/types'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { getParsedBalance, shortenNumber } from '@app/util/markets';
+import { getParsedBalance, shortenNumber, getBnToNumber } from '@app/util/markets';
 import { useAnchorPricesUsd } from '@app/hooks/usePrices'
 import { liquidateBorrow } from '@app/util/contracts'
 import { useLiquidationIncentive } from '@app/hooks/usePositions'
 import { removeScientificFormat, roundFloorString } from '@app/util/misc';
+import useEtherSWR from '@app/hooks/useEtherSWR'
 
 const formattedInfo = (bal: number | string, priceUsd: number) => {
     return <b>{shortenNumber(parseFloat(bal), 4, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
@@ -54,6 +55,9 @@ export const LiquidationForm = ({
     const [seizeToken, setSeizeToken] = useState(collateralUnderlyings[0]);
     const [seizableDetails, setSeizableDetails] = useState(position.supplied[0]);
     const [repayAmount, setRepayAmount] = useState('0');
+    const { data: seizableLiquidityBn } = useEtherSWR([seizableDetails.ctoken, 'getCash']);
+
+    const seizeTokenLiquidity = seizableLiquidityBn ? getBnToNumber(seizableLiquidityBn, seizeToken.decimals) : 0;
 
     useEffect(() => {
         setRepayToken(borrowedUnderlyings[0])
@@ -72,11 +76,12 @@ export const LiquidationForm = ({
         if (!borrowed) { return }
         setBorrowedDetails(borrowed!);
 
-        const maxSeizableWorth = seizableDetails.balance * (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
+        const seizableQty = Math.min(seizeTokenLiquidity, seizableDetails.balance);
+        const maxSeizableWorth = seizableQty * (oraclePrices[seizableDetails.ctoken] || seizableDetails.usdPrice);
         const repayAmountToSeizeMax = (maxSeizableWorth / bonusFactor) / (oraclePrices[borrowed.ctoken] || borrowed.usdPrice);
         
         setMaxRepayAmount(roundFloorString(Math.min(liquidatorBal, borrowed?.balance!, repayAmountToSeizeMax), borrowed.underlying.decimals));
-    }, [repayToken, seizableDetails, oraclePrices])
+    }, [repayToken, seizableDetails, oraclePrices, seizeTokenLiquidity])
 
     useEffect(() => {
         const seizable = position.supplied.find(m => m.underlying.symbol === seizeToken.symbol);
@@ -132,6 +137,9 @@ export const LiquidationForm = ({
                 />
                 <Text fontSize="12px" fontWeight="bold">
                     You can seize {shortenNumber((bonusFactor - 1) * 100, 2)}% more in USD than what you Repay in USD
+                </Text>
+                <Text fontSize="12px" color={ seizeTokenLiquidity < 0.01 ? 'warning' : 'mainTextColor' }>
+                    {seizableDetails.underlying.symbol} Market liquidity: {shortenNumber(seizeTokenLiquidity, 2, false, true)}
                 </Text>
                 <Text fontSize="12px">
                     Collateral balance: {formattedInfo(seizableDetails.balance, seizableDetails.usdPrice)}, You will seize an estimated {formattedInfo(seizeAmount, seizableDetails.usdPrice)}

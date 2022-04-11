@@ -45,6 +45,9 @@ type FundsProps = {
     showTotal?: boolean,
     chartMode?: boolean,
     showPrice?: boolean
+    handleDrill?: (datum: any) => void
+    minUsd?: number
+    type?: 'both' | 'allowance' | 'balance'
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
@@ -67,23 +70,27 @@ export const Funds = ({
     showTotal = true,
     chartMode = false,
     showPrice = false,
+    handleDrill,
+    minUsd = 0,
+    type = 'both',
 }: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
-        .map(({ token, balance, allowance, usdPrice, ctoken, label }) => {
+        .map(({ token, balance, allowance, usdPrice, ctoken, label, drill }) => {
             const price = usdPrice ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
-            const totalBalance = balance || 0 + (allowance || 0)
-            const totalUsd = usdBalance + usdAllowance
+            const totalBalance = balance || 0 + (allowance || 0);
+            const totalUsd = type === 'both' ? usdBalance + usdAllowance : type === 'balance' ? usdBalance : usdAllowance;
             usdTotals.balance += usdBalance;
             usdTotals.allowance += usdAllowance;
             usdTotals.overall += totalUsd;
             const _token = ctoken === OLD_XINV ? { ...token, symbol: `${RTOKEN_SYMBOL}-old` } : token;
-            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label };
+            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill };
         })
         .filter(({ totalBalance }) => totalBalance > 0)
+        .filter(({ totalUsd }) => totalUsd >= minUsd)
         .sort((a, b) => b.totalUsd - a.totalUsd)
 
     const fundsWithPerc = positiveFunds.map(f => ({
@@ -112,27 +119,27 @@ export const Funds = ({
     return (
         <>
             {
-                chartMode ? <PieChart data={
+                chartMode ? <PieChart showTotalUsd={showTotal} handleDrill={handleDrill} data={
                     fundsWithPerc
-                        .filter(({ usdBalance, usdAllowance }) => usdAllowance > 0 || usdBalance > 0)
-                        .map(fund => ({ x: fund.label||fund.token?.symbol, y: fund.usdBalance + fund.usdAllowance, perc: fund.overallPerc, fund }))
+                        .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
+                        .map(fund => ({ x: fund.label||fund.token?.symbol, y: fund.totalUsd, perc: fund.overallPerc, fund }))
                 } />
                     :
                     <>
                         {
-                            positiveBalances.length > 0 && positiveAllowances.length > 0 &&
+                            positiveBalances.length > 0 && positiveAllowances.length > 0 && type === 'both' &&
                             <Flex direction="row" w='full' justify="space-between">
                                 <Text fontWeight="bold">Holdings:</Text>
                             </Flex>
                         }
-                        {balancesContent}
+                        {['both', 'balance'].includes(type) && balancesContent}
                         {
-                            positiveAllowances.length > 0 &&
+                            positiveAllowances.length > 0 && ['allowance', 'both'].includes(type) &&
                             <Flex direction="row" w='full' justify="space-between">
                                 <Text fontWeight="bold">Allowances:</Text>
                             </Flex>
                         }
-                        {allowancesContent}
+                        {['both', 'allowance'].includes(type) && allowancesContent}
                     </>
             }
             {

@@ -11,7 +11,7 @@ import { UNDERLYING } from '@app/variables/tokens'
 import { PositionSlide } from './PositionSlide'
 
 const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] }) => {
-    const uniques = [...new Set(list?.map((s, i) => s?.underlying.image))];
+    const uniques = [...new Set(list?.map((s, i) => s?.underlying?.image))].filter(v => !!v);
     return <HStack minW="100px" position="relative">
         {
             uniques?.map((imgSrc, i) => <Image key={imgSrc} width={'15px'} src={imgSrc} ignoreFallback={true} />)
