@@ -12,6 +12,7 @@ author {
   }
 }
 excerpt
+readtime
 content {
   json
   links {
