@@ -3,7 +3,7 @@ import { Flex, SimpleGrid, SlideFade, Stack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { DAO, Prices } from '@app/types'
+import { Prices } from '@app/types'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import { useDAO } from '@app/hooks/useDAO'
@@ -76,8 +76,9 @@ const FundsDetails = ({ funds, title, prices, type = 'both' }: { funds: any, tit
   </Stack >
 }
 
-export const TreasuryPage = ({ prices, daoData }: { prices: Prices["prices"], daoData: DAO }) => {
-  const { treasury, anchorReserves, bonds, multisigs, pols } = daoData;
+export const Overview = () => {
+  const { prices } = usePricesV2(true)
+  const { treasury, anchorReserves, bonds, multisigs, pols } = useDAO();
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
   const TWGFtmfunds = multisigs?.find(m => m.shortName === 'TWG on FTM')?.funds || [];
@@ -135,23 +136,4 @@ export const TreasuryPage = ({ prices, daoData }: { prices: Prices["prices"], da
   )
 }
 
-export default TreasuryPage
-
-export async function getServerSideProps(context) {
-  const protocol = context.req.headers.referer.split('://')[0];
-
-  const [pricesRes, daoDataRes] = (await Promise.all([
-    fetch(`${protocol}://${context.req.headers.host}/api/prices`),
-    fetch(`${protocol}://${context.req.headers.host}/api/transparency/dao`),
-  ]))
-
-  const prices = await pricesRes.json();
-  const usdObjects = {};
-  Object.entries(prices).forEach(([key, val]) => usdObjects[key] = { usd: val });
-  const daoData = await daoDataRes.json()
-
-  return {
-    props: { prices: usdObjects, daoData },
-  }
-}
-
+export default Overview
