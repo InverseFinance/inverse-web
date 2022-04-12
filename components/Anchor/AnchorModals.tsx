@@ -3,7 +3,7 @@ import { AnchorButton } from '@app/components/Anchor/AnchorButton'
 import { AnchorStats } from '@app/components/Anchor/AnchorStats'
 import { BalanceInput } from '@app/components/common/Input'
 import { Modal, ModalProps } from '@app/components/common/Modal'
-import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { useAccountLiquidity, useAccountSnapshot } from '@app/hooks/useAccountLiquidity'
 import { useAccountBalances, useSupplyBalances, useBorrowBalances } from '@app/hooks/useBalances'
 import { useExchangeRates } from '@app/hooks/useExchangeRates'
 import { useAnchorPrices } from '@app/hooks/usePrices'
@@ -26,6 +26,7 @@ import { getComptrollerContract } from '@app/util/contracts'
 import { Web3Provider } from '@ethersproject/providers';
 import { AnchorMarketInterestChart } from './AnchorMarketInterestChart'
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { useRouter } from 'next/router'
 
 type AnchorModalProps = ModalProps & {
   asset: Market
@@ -299,9 +300,13 @@ export const AnchorCollateralModal = ({
   onClose,
   asset,
 }: AnchorModalProps) => {
-  const { library } = useWeb3React<Web3Provider>();
+  const { library, account } = useWeb3React<Web3Provider>();
+  const { query } = useRouter();
+  const userAddress = (query?.viewAddress as string) || account;
   const { prices: anchorPrices } = useAnchorPrices()
   const { usdBorrowable, usdBorrow } = useAccountLiquidity()
+  // can't disable collateral if there is a borrowed amount in same asset
+  const { owed } = useAccountSnapshot(asset, userAddress);
 
   const actionName = asset.isCollateral ? 'Stop using' : 'Enable';
   const status = asset.isCollateral ? 'warning' : 'info';
@@ -309,7 +314,7 @@ export const AnchorCollateralModal = ({
 
   const { newPerc } = getBorrowInfosAfterSupplyChange({ market: asset, prices: anchorPrices, usdBorrow, usdBorrowable, amount: -(asset.balance || 0) });
 
-  const preventDisabling = newPerc >= 99 && asset.isCollateral;
+  const preventDisabling = owed > 0 || (newPerc >= 99 && asset.isCollateral);
 
   const handleConfirm = async () => {
     const contract = getComptrollerContract(library?.getSigner());
@@ -334,13 +339,18 @@ export const AnchorCollateralModal = ({
           {
             preventDisabling ?
               <WarningMessage
-                title={`Borrow Limit Check: Can't Disable ${asset.underlying.symbol} as Collaterals`}
+                title={`${!owed ? 'Borrow Limit Check: ' : ''}Can't Disable ${asset.underlying.symbol} as Collateral`}
                 alertProps={{ fontSize: '12px', w: 'full' }}
                 description={
-                  <>
-                    Your <b>{shortenNumber(usdBorrow, 2, true)} debt</b> needs to be covered by enough collaterals.
-                    <Text fontWeight="bold" mt="2">You first need to repay enough debt or add another collateral to cover more than your debt.</Text>
-                  </>
+                  owed > 0 ?
+                    <>
+                      To disable {asset.underlying.symbol} as collateral you must first Repay All the borrowed {asset.underlying.symbol} you have.
+                    </>
+                    :
+                    <>
+                      Your <b>{shortenNumber(usdBorrow, 2, true)} debt</b> needs to be covered by enough collaterals.
+                      <Text fontWeight="bold" mt="2">You first need to repay enough debt or add another collateral to cover more than your debt.</Text>
+                    </>
                 }
               />
               :
