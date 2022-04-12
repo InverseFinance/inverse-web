@@ -10,7 +10,6 @@ import SectionSeparator from '../../blog/components/section-separator'
 import Layout from '../../blog/components/layout'
 import { getAllPostsWithSlug, getPostAndMorePosts } from '../../blog/lib/api'
 import PostTitle from '../../blog/components/post-title'
-import { CMS_NAME } from '../../blog/lib/constants'
 
 export default function Post({ post, morePosts, preview }) {
   const router = useRouter()
@@ -30,7 +29,7 @@ export default function Post({ post, morePosts, preview }) {
             <article>
               <Head>
                 <title>
-                  {post.title} | Next.js Blog Example with {CMS_NAME}
+                  {post.title} | Inverse Finance Blog
                 </title>
                 <meta property="og:image" content={post.coverImage.url} />
               </Head>

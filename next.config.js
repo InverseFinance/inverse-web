@@ -52,6 +52,11 @@ const redirects = async () => {
       destination: '/swap',
       permanent: true,
     },
+    {
+      source: '/blog',
+      destination: '/blog/en-US',
+      permanent: true,
+    },
   ]
 }
 

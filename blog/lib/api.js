@@ -13,6 +13,10 @@ author {
 }
 excerpt
 readtime
+category {
+  name
+  label
+}
 content {
   json
   links {
@@ -82,10 +86,16 @@ export async function getAllPostsWithSlug() {
   return extractPostEntries(entries)
 }
 
-export async function getAllPostsForHome(preview) {
+export async function getAllPostsForHome(preview, locale = 'en-US', category = '') {
+  const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
   const entries = await fetchGraphQL(
     `query {
-      postCollection(order: date_DESC, preview: ${preview ? 'true' : 'false'}) {
+      postCollection(
+        order: date_DESC,
+         locale: "${locale}",
+          preview: ${preview ? 'true' : 'false'}
+          ${categoryFilter}
+        ) {
         items {
           ${POST_GRAPHQL_FIELDS}
         }
@@ -125,4 +135,20 @@ export async function getPostAndMorePosts(slug, preview) {
     post: extractPost(entry),
     morePosts: extractPostEntries(entries),
   }
+}
+
+export async function getCategories(preview, locale = 'en-US') {
+  const categories = await fetchGraphQL(
+    `query {
+      categoryCollection(order: order_ASC, locale: "${locale}", preview: ${preview ? 'true' : 'false'}) {
+        items {
+          name
+          label
+          order
+        }
+      }
+    }`,
+    preview
+  )
+  return categories.data?.categoryCollection?.items;
 }
