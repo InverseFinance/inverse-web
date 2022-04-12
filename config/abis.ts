@@ -49,6 +49,7 @@ export const CTOKEN_ABI = [
   "function decimals() view returns (uint8)",
   "function interestRateModel() view returns (address)",
   "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
+  "function getAccountSnapshot(address account) external view returns (uint, uint, uint, uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
 ];
 

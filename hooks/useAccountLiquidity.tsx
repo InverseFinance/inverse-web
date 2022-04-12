@@ -4,12 +4,13 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { useExchangeRates } from '@app/hooks/useExchangeRates'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { useAnchorPrices, usePrices } from '@app/hooks/usePrices'
-import { StringNumMap, SWR } from '@app/types'
+import { Market, StringNumMap, SWR } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useRouter } from 'next/dist/client/router'
+import { getBnToNumber } from '@app/util/markets';
 
 type AccountLiquidity = {
   usdSupply: number
@@ -104,5 +105,14 @@ export const useAccountLiquidity = (address?: string): SWR & AccountLiquidity =>
     usdShortfall: parseFloat(formatUnits(shortfallAmount)),
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useAccountSnapshot = (market: Market, userAddress: string | undefined) => {
+  const { data } = useEtherSWR([market.token, 'getAccountSnapshot', userAddress])
+  const [err, held, owed, exRate] = data || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')];
+  return {
+    held: getBnToNumber(held, market.underlying.decimals) * getBnToNumber(exRate, market.underlying.decimals),
+    owed: getBnToNumber(owed, market.underlying.decimals),
   }
 }
