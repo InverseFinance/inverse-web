@@ -7,19 +7,23 @@ import { getAllPostsForHome, getCategories } from '../../blog/lib/api'
 import Head from 'next/head'
 import Categories from '../../blog/components/categories'
 import { getBlogContext } from '../../blog/lib/utils'
+import React from 'react'
+
+export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
 export default function Index({ preview, allPosts, categories, locale, category }) {
-  const heroPost = allPosts[0]
-  const morePosts = allPosts.slice(1)
+  const heroPost = allPosts[0];
+  const morePosts = allPosts.slice(1);
+
   return (
-    <>
+    <BlogContext.Provider value={{ locale, category }}>
       <Layout preview={preview}>
         <Head>
           <title>Inverse Finance Blog</title>
         </Head>
         <Container>
           <Intro />
-          <Categories categories={categories} locale={locale} active={category} />    
+          <Categories categories={categories} active={category} />    
           {heroPost && (
             <HeroPost
               {...heroPost}
@@ -28,7 +32,7 @@ export default function Index({ preview, allPosts, categories, locale, category 
           {morePosts.length > 0 && <MoreStories posts={morePosts} />}
         </Container>
       </Layout>
-    </>
+    </BlogContext.Provider>
   )
 }
 

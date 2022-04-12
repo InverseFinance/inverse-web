@@ -106,10 +106,10 @@ export async function getAllPostsForHome(preview, locale = 'en-US', category = '
   return extractPostEntries(entries)
 }
 
-export async function getPostAndMorePosts(slug, preview) {
+export async function getPostAndMorePosts(slug, preview, locale = 'en-US') {
   const entry = await fetchGraphQL(
     `query {
-      postCollection(where: { slug: "${slug}" }, preview: ${
+      postCollection(locale: "${locale}", where: { slug: "${slug[1]}" }, preview: ${
       preview ? 'true' : 'false'
     }, limit: 1) {
         items {
@@ -121,7 +121,7 @@ export async function getPostAndMorePosts(slug, preview) {
   )
   const entries = await fetchGraphQL(
     `query {
-      postCollection(where: { slug_not_in: "${slug}" }, order: date_DESC, preview: ${
+      postCollection(locale: "${locale}", where: { slug_not_in: "${slug[1]}" }, order: date_DESC, preview: ${
       preview ? 'true' : 'false'
     }, limit: 2) {
         items {
