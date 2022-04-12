@@ -1,7 +1,10 @@
+import { Text } from '@chakra-ui/react';
+import { BLOG_THEME } from '../lib/constants';
+
 export default function PostTitle({ children }) {
   return (
-    <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-tight md:leading-none mb-12 text-center md:text-left">
+    <Text mb="5" textAlign="center" as="h1" color={BLOG_THEME.colors.activeTextColor} fontSize="90" fontWeight="extrabold">
       {children}
-    </h1>
+    </Text>
   )
 }

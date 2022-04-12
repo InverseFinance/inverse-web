@@ -12,6 +12,7 @@ import { getAllPostsWithSlug, getPostAndMorePosts } from '../../../blog/lib/api'
 import PostTitle from '../../../blog/components/post-title'
 import { getBlogContext } from '../../../blog/lib/utils'
 import { BlogContext } from '../[...slug]'
+import PostFooter from '../../../blog/components/post-footer'
 
 export default function Post({ post, morePosts, preview, locale }) {
   const router = useRouter()
@@ -32,7 +33,7 @@ export default function Post({ post, morePosts, preview, locale }) {
               <article>
                 <Head>
                   <title>
-                    {post.title} | Inverse Finance Blog
+                    {post.pageTitle || post.title}
                   </title>
                   {
                     !!post.coverImage?.url && <meta property="og:image" content={post.coverImage?.url} />
@@ -40,16 +41,19 @@ export default function Post({ post, morePosts, preview, locale }) {
                   <meta name="description" content={`${post.metaDescription || post.excerpt}`}></meta>
                   <meta name="keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
 
-                  <meta name="og:description" content={`${post.metaDescription || post.excerpt}`}></meta>
+                  <meta name="og:description" content={`${post.opengraphDescription || post.metaDescription || post.excerpt}`}></meta>
                   <meta name="og:keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
 
                   <meta name="twitter:title" content={`${post.title}`} />
-                  <meta name="twitter:description" content={`${post.metaDescription || post.excerpt}`} />
+                  <meta name="twitter:description" content={`${post.excerpt}`} />
                 </Head>
                 <PostHeader
                   {...post}
                 />
-                <PostBody content={post.content} />
+                <PostBody title={post.title} coverImage={post.coverImage} content={post.content} />
+                <PostFooter
+                  {...post}
+                />
               </article>
               <SectionSeparator />
               {morePosts && morePosts.length > 0 && (

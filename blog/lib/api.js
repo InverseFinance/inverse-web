@@ -24,6 +24,8 @@ tagsCollection {
   }
 }
 metaDescription
+opengraphDescription
+pageTitle
 content {
   json
   links {
