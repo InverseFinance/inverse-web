@@ -30,7 +30,7 @@ export default function HeroPost({
             </Link>
           </h3>
           <div className="mb-4 md:mb-0 text-lg">
-            <DateComponent dateString={date} /> - {readtime} min read
+            <DateComponent dateString={date} readtime={readtime} />
           </div>
         </div>
         <div>

@@ -14,16 +14,24 @@ export const BlogContext = React.createContext({ locale: 'en-US', category: 'hom
 export default function Index({ preview, allPosts, categories, locale, category }) {
   const heroPost = allPosts[0];
   const morePosts = allPosts.slice(1);
+  const categoryObject = categories.find(c => c.name === category) || {};
 
   return (
     <BlogContext.Provider value={{ locale, category }}>
       <Layout preview={preview}>
         <Head>
           <title>Inverse Finance Blog</title>
+          <meta name="description" content={`Inverse Finance Blog | ${categoryObject?.label}`}></meta>
+          <meta name="keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto, ${categoryObject?.label}`}></meta>
+
+          <meta name="og:description" content={`Inverse Finance Blog | ${categoryObject?.label}`}></meta>
+          <meta name="og:keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto, ${categoryObject?.label}`}></meta>
+
+          <meta name="twitter:title" content="Inverse Finance Blog" />
         </Head>
         <Container>
           <Intro />
-          <Categories categories={categories} active={category} />    
+          <Categories categories={categories} active={category} />
           {heroPost && (
             <HeroPost
               {...heroPost}

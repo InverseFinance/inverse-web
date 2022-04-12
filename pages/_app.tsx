@@ -57,6 +57,8 @@ const App = ({ Component, pageProps }: AppProps) => {
           <meta property="twitter:card" content="summary_large_image" />
 
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
+          <meta property="twitter:card" content="summary_large_image" />
+          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <script
             async
             src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}

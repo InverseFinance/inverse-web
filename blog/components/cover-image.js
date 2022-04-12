@@ -1,8 +1,11 @@
 import ContentfulImage from './contentful-image'
 import Link from 'next/link'
 import cn from 'classnames'
+import { useContext } from 'react'
+import { BlogContext } from '../../pages/blog/[...slug]'
 
 export default function CoverImage({ title, url, slug }) {
+  const { locale } = useContext(BlogContext);
   const image = (
     <ContentfulImage
       width={2000}
@@ -18,7 +21,7 @@ export default function CoverImage({ title, url, slug }) {
   return (
     <div className="sm:mx-0">
       {slug ? (
-        <Link href={`/posts/${slug}`}>
+        <Link href={`/blog/posts/${locale}/${slug}`}>
           <a aria-label={title}>{image}</a>
         </Link>
       ) : (

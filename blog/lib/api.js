@@ -17,6 +17,13 @@ category {
   name
   label
 }
+tagsCollection {
+  items {
+    name
+    label
+  }
+}
+metaDescription
 content {
   json
   links {
@@ -94,7 +101,8 @@ export async function getAllPostsForHome(preview, locale = 'en-US', category = '
         order: date_DESC,
          locale: "${locale}",
           preview: ${preview ? 'true' : 'false'}
-          ${categoryFilter}
+          ${categoryFilter},
+          limit: 20,
         ) {
         items {
           ${POST_GRAPHQL_FIELDS}
@@ -103,6 +111,7 @@ export async function getAllPostsForHome(preview, locale = 'en-US', category = '
     }`,
     preview
   )
+  console.log(entries)
   return extractPostEntries(entries)
 }
 

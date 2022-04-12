@@ -34,13 +34,20 @@ export default function Post({ post, morePosts, preview, locale }) {
                   <title>
                     {post.title} | Inverse Finance Blog
                   </title>
-                  <meta property="og:image" content={post.coverImage.url} />
+                  {
+                    !!post.coverImage?.url && <meta property="og:image" content={post.coverImage?.url} />
+                  }
+                  <meta name="description" content={`${post.metaDescription || post.excerpt}`}></meta>
+                  <meta name="keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
+
+                  <meta name="og:description" content={`${post.metaDescription || post.excerpt}`}></meta>
+                  <meta name="og:keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
+
+                  <meta name="twitter:title" content={`${post.title}`} />
+                  <meta name="twitter:description" content={`${post.metaDescription || post.excerpt}`} />
                 </Head>
                 <PostHeader
-                  title={post.title}
-                  coverImage={post.coverImage}
-                  date={post.date}
-                  author={post.author}
+                  {...post}
                 />
                 <PostBody content={post.content} />
               </article>

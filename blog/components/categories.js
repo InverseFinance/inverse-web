@@ -1,6 +1,7 @@
 import { HStack, Link } from '@chakra-ui/react'
 import { useContext } from 'react'
 import { BlogContext } from '../../pages/blog/[...slug]'
+import { BLOG_THEME } from '../lib/constants';
 
 export default function Categories({ categories }) {
     const { locale, category } = useContext(BlogContext);
@@ -10,7 +11,7 @@ export default function Categories({ categories }) {
                 return <Link
                     key={c.order}
                     href={`/blog/${locale}/${c.name}`}
-                    color={category === c.name ? '#1a202c' : '#777'}
+                    color={category === c.name ? BLOG_THEME.colors.activeTextColor : BLOG_THEME.colors.passiveTextColor}
                     fontSize="20px"
                     fontWeight={category === c.name ? 'extrabold' : 'bold'}
                     className="">
