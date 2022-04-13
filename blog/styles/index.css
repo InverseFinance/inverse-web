@@ -3,3 +3,7 @@
 @tailwind components;
 /* purgecss end ignore */
 @tailwind utilities;
+
+.blog-post-body a {
+    text-decoration: underline;
+}

@@ -1,11 +1,13 @@
-import { CMS_NAME, CMS_URL } from '../lib/constants'
+import { Flex } from '@chakra-ui/react'
+import LangsSelector from './langs-selector'
 
 export default function Intro() {
   return (
-    <section className="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
+    <Flex alignItems="center" justifyContent="space-between" my="10">
       <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">
         Inverse Finance Blog
       </h1>
-    </section>
+      <LangsSelector />
+    </Flex>
   )
 }

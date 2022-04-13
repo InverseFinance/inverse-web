@@ -5,7 +5,13 @@ import { useContext } from 'react'
 import { BlogContext } from '../../pages/blog/[...slug]'
 import { Image } from '@chakra-ui/react'
 
-export default function CoverImage({ title, url, slug }) {
+export default function CoverImage({
+  title,
+  url,
+  slug,
+  height,
+  width,
+}) {
   const { locale } = useContext(BlogContext);
   const image = (
     // <ContentfulImage
@@ -17,7 +23,7 @@ export default function CoverImage({ title, url, slug }) {
     //   })}
     //   src={url}
     // />
-    <Image src={url} />
+    <Image src={url} height={height} width={width} />
   )
 
   return (
