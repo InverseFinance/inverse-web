@@ -4,6 +4,10 @@ import DateComponent from '../components/date'
 import CoverImage from '../components/cover-image'
 import { useContext } from 'react'
 import { BlogContext } from '../../pages/blog/[...slug]'
+import TagsBar from './tags-bar'
+import { HStack, Stack, VStack, Text, SimpleGrid } from '@chakra-ui/react'
+import { BLOG_THEME } from '../lib/constants'
+import Excerpt from './excerpt'
 
 export default function HeroPost({
   title,
@@ -13,31 +17,32 @@ export default function HeroPost({
   author,
   slug,
   readtime,
+  tagsCollection,
+  content,
 }) {
   const { locale } = useContext(BlogContext)
+  const url = `/blog/posts/${locale}/${slug}`;
   return (
-    <section>
-      {
-        !!coverImage?.url && <div className="mb-8 md:mb-16">
-          <CoverImage title={title} slug={slug} url={coverImage.url} />
-        </div>
-      }
-      <div className="md:grid md:grid-cols-2 md:gap-x-16 lg:gap-x-8 mb-20 md:mb-28">
-        <div>
-          <h3 className="mb-4 text-4xl lg:text-6xl leading-tight font-bold">
-            <Link href={`/blog/posts/${locale}/${slug}`}>
-              <a className="hover:underline">{title}</a>
-            </Link>
-          </h3>
-          <div className="mb-4 md:mb-0 text-lg">
-            <DateComponent dateString={date} readtime={readtime} />
-          </div>
-        </div>
-        <div>
-          <p className="text-lg leading-relaxed mb-4">{excerpt}</p>
-          {author && <Avatar name={author.name} picture={author.picture} />}
-        </div>
-      </div>
-    </section>
+    <Stack as="section" direction={{ base: 'column', lg: 'column' }} w='full' maxWidth="900px" spacing="6">
+      <VStack justifyContent="space-between" alignItems="flex-start">
+        <Text w='full' as="h3" color={BLOG_THEME.colors.activeTextColor} fontSize="4xl" fontWeight="extrabold">
+          <Link href={url}>
+            <a className="hover:underline">{title}</a>
+          </Link>
+        </Text>
+        {author && <Avatar name={author.name} picture={author.picture} title={author.title} />}
+        <Stack w='full' direction={{ base: 'column', lg: 'row' }} justifyContent="space-between">
+          <DateComponent dateString={date} readtime={readtime} />
+          <TagsBar tagsCollection={tagsCollection} />
+        </Stack>
+      </VStack>
+      <VStack alignItems="flex-start" spacing="5">
+        {
+          !!coverImage?.url &&
+          <CoverImage title={title} slug={slug} url={coverImage.url} maxHeight={'300px'} />
+        }
+        <Excerpt excerpt={excerpt} content={content} url={url} />
+      </VStack>
+    </Stack>
   )
 }

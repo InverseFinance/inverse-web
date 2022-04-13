@@ -37,7 +37,7 @@ export default function Index({ preview, allPosts, categories, locale, category 
               {...heroPost}
             />
           )}
-          {morePosts.length > 0 && <MoreStories posts={morePosts} />}
+          {morePosts.length > 0 && <MoreStories posts={morePosts} mt="8" />}
         </Container>
       </Layout>
     </BlogContext.Provider>

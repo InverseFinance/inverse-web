@@ -7,7 +7,9 @@ export default function Tag({ name, label }) {
         px="3"
         borderRadius="10"
         color={BLOG_THEME.colors.activeTextColor}
-        bgColor={BLOG_THEME.colors.badgeBgColor}>
+        bgColor={BLOG_THEME.colors.badgeBgColor}
+        fontSize="14px"
+    >
         {label}
     </Text>
 }

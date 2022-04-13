@@ -8,6 +8,7 @@ export const BLOG_THEME = {
   colors: {
     activeTextColor: '#1a202c',
     passiveTextColor: '#777',
+    secondaryTextColor: '#555',
     badgeBgColor: '#eee',
   }
 }

@@ -1,10 +1,10 @@
-import { Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import PostPreview from '../components/post-preview'
 import { BLOG_THEME } from '../lib/constants'
 
-export default function MoreStories({ posts }) {
+export default function MoreStories({ posts, ...props }) {
   return (
-    <section>
+    <Box as="section" {...props}>
       <Text as="h2" mb="8" fontSize="6xl" color={BLOG_THEME.colors.activeTextColor} fontWeight="extrabold">
         More Stories
       </Text>
@@ -16,6 +16,6 @@ export default function MoreStories({ posts }) {
           />
         ))}
       </div>
-    </section>
+    </Box>
   )
 }

@@ -7,6 +7,7 @@ coverImage {
 date
 author {
   name
+  title
   picture {
     url
   }

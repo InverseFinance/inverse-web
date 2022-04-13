@@ -9,8 +9,7 @@ export default function PostFooter({ date, author, readtime, tagsCollection }) {
       <Divider my="5" />
       <Flex direction={{ base: 'column', sm: 'row' }} w="full" justifyContent="space-between">
         <HStack>
-          {author && <Avatar name={author.name} picture={author.picture} />}
-          <DateComponent dateString={date} readtime={readtime} />
+          {author && <Avatar name={author.name} picture={author.picture} title={author.title} />}
         </HStack>
         <TagsBar tagsCollection={tagsCollection} />
       </Flex>

@@ -11,6 +11,7 @@ export default function CoverImage({
   slug,
   height,
   width,
+  maxHeight,
 }) {
   const { locale } = useContext(BlogContext);
   const image = (
@@ -23,7 +24,7 @@ export default function CoverImage({
     //   })}
     //   src={url}
     // />
-    <Image src={url} height={height} width={width} />
+    <Image src={url} height={height} width={width} maxHeight={maxHeight} />
   )
 
   return (
