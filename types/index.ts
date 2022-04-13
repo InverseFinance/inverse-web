@@ -490,6 +490,8 @@ export type Multisig = {
   owners: string[],
   funds: { token: Token, balance: number, allowance?: number }[],
   threshold: number,
+  governanceLink: string
+  purpose: string
 }
 
 export type DAO = {

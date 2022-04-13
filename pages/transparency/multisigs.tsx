@@ -4,21 +4,21 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { DAO, useDAO } from '@app/hooks/useDAO'
+import { useDAO } from '@app/hooks/useDAO'
 import { MultisigsFlowChart } from '@app/components/Transparency/MultisigsFlowChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { Funds } from '@app/components/Transparency/Funds'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { NetworkIds } from '@app/types';
+import { Multisig, NetworkIds } from '@app/types';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react'
 import { getNetworkConfigConstants, getNetworkImage } from '@app/util/networks';
 
 const { MULTISIGS } = getNetworkConfigConstants()
 
-const MultisigTabLabel = ({ multisig }: { multisig: DAO["multisigs"] }) => {
+const MultisigTabLabel = ({ multisig }: { multisig: Multisig }) => {
   return <Flex alignItems="center">
     <Image src={getNetworkImage(multisig.chainId)} ignoreFallback={true} alt="" w={5} h={5} mr="2" />
     <Text>{multisig.shortName}</Text>
@@ -29,8 +29,8 @@ export const MultisigsDiagram = () => {
   const { multisigs } = useDAO();
   const { prices } = usePricesV2(true);
 
-  const [multisigAd, setMultisigAd] = useState(null);
-  const [multisig, setMultisig] = useState(null);
+  const [multisigAd, setMultisigAd] = useState('');
+  const [multisig, setMultisig] = useState<Multisig | null>(null);
 
   useEffect(() => {
     const newM = multisigs.find(m => m.address === multisigAd)
@@ -86,6 +86,20 @@ export const MultisigsDiagram = () => {
                   <Flex pt="2" direction="row" w='full' justify="space-between">
                     <Text>- Required approvals to act:</Text>
                     <Text>{multisig.threshold} out of {multisig.owners.length} the members</Text>
+                  </Flex>
+                  <Flex direction="row" w='full'>
+                    <Text>-</Text>
+                    <Link
+                      ml="1"
+                      isExternal
+                      href={
+                        multisig.chainId === NetworkIds.mainnet ?
+                          `https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`
+                          :
+                          `https://safe.fantom.network/#/safes/${multisig.address}/transactions`
+                      }>
+                      View on Gnosis Safe <ExternalLinkIcon mb="2px" />
+                    </Link>
                   </Flex>
                   <Link href={multisig.governanceLink}>
                     - 🏛️ Related Governance Proposal
