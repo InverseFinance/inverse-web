@@ -8,10 +8,11 @@ import Head from 'next/head'
 import Categories from '../../blog/components/categories'
 import { getBlogContext } from '../../blog/lib/utils'
 import React from 'react'
+import BlogText from '../../blog/components/common/text'
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
-export default function Index({ preview, allPosts, categories, locale, category }) {
+export default function Index({ preview, allPosts, categories, locale, category, byAuthor }) {
   const heroPost = allPosts[0];
   const morePosts = allPosts.slice(1);
   const categoryObject = categories.find(c => c.name === category) || {};
@@ -31,13 +32,23 @@ export default function Index({ preview, allPosts, categories, locale, category 
         </Head>
         <Container>
           <Intro />
-          <Categories categories={categories} active={category} />
+          <Categories categories={categories} isByAuthor={!!byAuthor}  />
+          {
+            !!byAuthor && <BlogText as="h2" fontSize="5xl" fontWeight="extrabold" mb="5">
+              Stories by {byAuthor}
+            </BlogText>
+          }
+          {
+            !!byAuthor && allPosts.length === 0 && <BlogText>
+              No Stories published yet
+            </BlogText>
+          }
           {heroPost && (
             <HeroPost
               {...heroPost}
             />
           )}
-          {morePosts.length > 0 && <MoreStories posts={morePosts} mt="8" />}
+          {morePosts.length > 0 && <MoreStories byAuthor={byAuthor} posts={morePosts} mt="8" />}
         </Container>
       </Layout>
     </BlogContext.Provider>
@@ -45,10 +56,10 @@ export default function Index({ preview, allPosts, categories, locale, category 
 }
 
 export async function getServerSideProps({ preview = false, ...context }) {
-  const { locale, category } = getBlogContext(context);
-  const allPosts = await getAllPostsForHome(preview, locale, category) ?? []
+  const { locale, category, byAuthor } = getBlogContext(context);
+  const allPosts = await getAllPostsForHome(preview, locale, category, byAuthor) ?? []
   const categories = await getCategories(preview, locale) ?? []
   return {
-    props: { preview, allPosts, categories, locale, category },
+    props: { preview, allPosts, categories, locale, category, byAuthor },
   }
 }

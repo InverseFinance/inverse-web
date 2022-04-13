@@ -1,17 +1,15 @@
-import { Text } from '@chakra-ui/react';
-import { BLOG_THEME } from '../lib/constants';
+import BlogText from './common/text';
 
 export default function PostTitle({ children }) {
   return (
-    <Text
+    <BlogText
       w='full'
       mb="8"
       textAlign="center"
       as="h1"
-      color={BLOG_THEME.colors.activeTextColor}
       fontSize={{ base: '30', sm: '40', lg: '60' }}
       fontWeight="extrabold">
       {children}
-    </Text>
+    </BlogText>
   )
 }

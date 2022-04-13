@@ -1,15 +1,14 @@
-import { Text } from '@chakra-ui/react';
 import { BLOG_THEME } from '../lib/constants';
+import BlogText from './common/text';
 
-export default function Tag({ name, label }) {
-    return <Text
+export default function Tag({ label }) {
+    return <BlogText
         py="1"
         px="3"
         borderRadius="10"
-        color={BLOG_THEME.colors.activeTextColor}
         bgColor={BLOG_THEME.colors.badgeBgColor}
         fontSize="14px"
     >
         {label}
-    </Text>
+    </BlogText>
 }

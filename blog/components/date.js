@@ -5,6 +5,7 @@ import { enUS, fr, de } from 'date-fns/locale';
 import { useContext } from 'react';
 import { BlogContext } from '../../pages/blog/[...slug]';
 import { BLOG_THEME } from '../lib/constants';
+import BlogText from './common/text';
 
 const locales = {
   fr,
@@ -21,7 +22,7 @@ export default function DateComponent({ dateString, readtime = 5 }) {
       </time>
       <HStack color={BLOG_THEME.colors.activeTextColor}>
         <TimeIcon />
-        <Text color={BLOG_THEME.colors.activeTextColor}>{readtime||5} min</Text>
+        <BlogText>{readtime||5} min</BlogText>
       </HStack>
     </HStack>
   )

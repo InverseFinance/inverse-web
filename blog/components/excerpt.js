@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function Excerpt({ excerpt, content, url }) {
     return (
         <Link href={url}>
-            <Text color={BLOG_THEME.colors.secondaryTextColor} cursor="pointer">
+            <Text as="a" color={BLOG_THEME.colors.secondaryTextColor} cursor="pointer">
                 {excerpt || (documentToPlainTextString(content.json).substring(0, 200) + '...')}
             </Text>
         </Link>

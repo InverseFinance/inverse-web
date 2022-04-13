@@ -1,25 +1,37 @@
-import { Text, VStack } from '@chakra-ui/react'
-import { BLOG_THEME } from '../lib/constants'
+import { Box, Text, VStack } from '@chakra-ui/react'
+import Link from 'next/link';
+import { useContext } from 'react';
+import { BlogContext } from '../../pages/blog/[...slug]';
+import BlogLink from './common/blog-link';
+import BlogText from './common/text';
 import ContentfulImage from './contentful-image'
 
-export default function Avatar({ name, picture, title }) {
+export default function Avatar({ name, picture, title, size = '60px' }) {
+  const { locale } = useContext(BlogContext);
+  const url = `/blog/${locale}?byAuthor=${encodeURIComponent(name)}`
+
   return (
     <div className="flex items-center">
-      <div className="relative w-12 h-12 mr-4">
-        <ContentfulImage
-          src={picture.url}
-          layout="fill"
-          className="rounded-full"
-          alt={name}
-        />
-      </div>
+      <Box boxSize={size} position="relative" mr="5">
+        <Link href={url}>
+          <ContentfulImage
+            src={picture.url}
+            layout="fill"
+            className="rounded-full cursor-pointer"
+            alt={name}
+          />
+        </Link>
+      </Box>
       {
-        (!!name || !!title) && <VStack alignItems="flex-start">
+        (!!name || !!title) && <VStack alignItems="flex-start" >
           {
-            !!name && <Text fontWeight="bold" color={BLOG_THEME.colors.activeTextColor} fontSize="18px">{name}</Text>
+            !!name &&
+            <BlogLink href={url} fontSize="18px">
+              {name}
+            </BlogLink>
           }
           {
-            !!title && <Text color={BLOG_THEME.colors.activeTextColor} fontSize="12px">{title}</Text>
+            !!title && <BlogText fontSize="12px">{title}</BlogText>
           }
         </VStack>
       }
