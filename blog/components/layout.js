@@ -1,6 +1,7 @@
 import { Image } from '@chakra-ui/react'
 import Link from 'next/link'
 import Meta from '../components/meta'
+import Footer from './footer'
 
 export default function Layout({ preview, children }) {
   return (
@@ -23,7 +24,7 @@ export default function Layout({ preview, children }) {
           {children}
         </main>
       </div>
-      {/* <Footer /> */}
+      <Footer />
     </>
   )
 }
