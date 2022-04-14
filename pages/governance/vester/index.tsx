@@ -17,7 +17,7 @@ import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import moment from 'moment';
 import { DangerMessage, InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BigNumber } from 'ethers';
-import { REWARD_TOKEN } from '@app/variables/tokens';
+import { REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens';
 import { Input } from '@app/components/common/Input';
 import { useEffect, useState } from 'react';
 import { namedAddress } from '@app/util';
@@ -25,6 +25,7 @@ import Link from '@app/components/common/Link';
 import { vesterCancel } from '@app/util/payroll';
 import { useContractEvents } from '@app/hooks/useContractEvents';
 import { INV_ABI } from '@app/config/abis';
+import { usePricesV2 } from '@app/hooks/usePrices';
 
 const { VESTERS, XINV, INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -40,6 +41,7 @@ export const VesterPage = () => {
   const [vesterDelegate, setVesterDelegate] = useState('');
   const [newRecipient, setNewRecipient] = useState('');
   const [alreadyClaimed, setAlreadyClaimed] = useState(0);
+  const { prices } = usePricesV2();
 
   const { data: vesterRecipients } = useEtherSWR([
     ...VESTERS.map(vesterAd => [vesterAd, 'recipient']),
@@ -89,8 +91,11 @@ export const VesterPage = () => {
     const alreadyClaimed = events
       .filter(e => e.args.to.toLowerCase() !== XINV.toLowerCase())
       .reduce((prev, curr) => prev + getBnToNumber(curr.args.amount, REWARD_TOKEN?.decimals), 0);
-      setAlreadyClaimed(alreadyClaimed);
+    setAlreadyClaimed(alreadyClaimed);
   }, [events, vesterAddress]);
+
+  const currentVestedAmount = totalIntialVested ? totalIntialVested - alreadyClaimed : 0;
+  const invPrice = (prices && prices[RTOKEN_CG_ID]?.usd) || 0;
 
   return (
     <Layout>
@@ -124,7 +129,8 @@ export const VesterPage = () => {
                                   - <b>Current Vested Amount</b>:
                                 </Text>
                                 <Text fontWeight="extrabold">
-                                  {totalIntialVested ? commify((totalIntialVested - alreadyClaimed).toFixed(2)) : ''} INV
+                                  {currentVestedAmount ? commify((currentVestedAmount).toFixed(2)) : ''} INV
+                                  ({shortenNumber(currentVestedAmount * invPrice, 2, true)})
                                 </Text>
                               </Flex>
                               <Flex alignItems="center" justify="space-between">
@@ -161,13 +167,17 @@ export const VesterPage = () => {
                                 <Text>
                                   - <b>Already Claimed</b>:
                                 </Text>
-                                <Text fontWeight="extrabold">{shortenNumber(alreadyClaimed, 2)} INV</Text>
+                                <Text fontWeight="extrabold">
+                                  {shortenNumber(alreadyClaimed, 2)} INV ({shortenNumber(alreadyClaimed * invPrice, 2, true)})
+                                </Text>
                               </Flex>
                               <Flex fontWeight="bold" alignItems="center" justify="space-between">
                                 <Text>
                                   - <b>Currently Claimable</b>:
                                 </Text>
-                                <Text fontWeight="extrabold">{commify(widthdrawable.toFixed(2))} INV</Text>
+                                <Text fontWeight="extrabold">
+                                  {commify(widthdrawable.toFixed(2))} INV ({shortenNumber(widthdrawable * invPrice, 2, true)})
+                                </Text>
                               </Flex>
                               <Text textDecoration="underline" textAlign="center" fontSize="12px">
                                 Reminder: Vested Tokens are already staked on Anchor and generating yield
