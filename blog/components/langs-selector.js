@@ -13,12 +13,12 @@ const flags = {
 
 const { activeTextColor, passiveTextColor } = BLOG_THEME.colors;
 
-export default function LangsSelector({ locales }) {
+export default function LangsSelector({ ...props }) {
     const { locale } = useContext(BlogContext);
     const { asPath } = useRouter()
     
     return (
-        <Box minW="fit-content">
+        <Box minW="fit-content" {...props}>
             <Popover trigger="hover">
                 <PopoverTrigger>
                     <Text w='full' cursor="pointer" color={activeTextColor} textTransform="uppercase">

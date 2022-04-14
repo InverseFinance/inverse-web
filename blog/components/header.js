@@ -2,7 +2,6 @@ import { Flex } from '@chakra-ui/react';
 import Link from 'next/link'
 import { useContext } from 'react'
 import { BlogContext } from '../../pages/blog/[...slug]'
-import LangsSelector from './langs-selector';
 
 export default function Header() {
   const { locale } = useContext(BlogContext);
@@ -13,7 +12,6 @@ export default function Header() {
           <a className="hover:underline">Inverse Finance Blog</a>
         </Link>
       </h2>
-      <LangsSelector />
     </Flex>
   )
 }

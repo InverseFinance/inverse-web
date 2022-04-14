@@ -1,5 +1,4 @@
 import { Flex } from '@chakra-ui/react'
-import LangsSelector from './langs-selector'
 
 export default function Intro() {
   return (
@@ -7,7 +6,6 @@ export default function Intro() {
       <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">
         Inverse Finance Blog
       </h1>
-      <LangsSelector />
     </Flex>
   )
 }
