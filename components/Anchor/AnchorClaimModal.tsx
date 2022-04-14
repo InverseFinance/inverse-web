@@ -47,14 +47,15 @@ export const AnchorClaimModal = ({
         setCheckedMarkets(marketAddresses)
     }
 
+    const hadRewardsInThePast = ['xSUSHI', 'WBTC', 'YFI', 'FLOKI', 'ETH'];
     const checkboxesWithBalance = markets
-        .filter(market => market.rewardApr > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) > 0)
+        .filter(market => (market.rewardApr > 0 || hadRewardsInThePast.includes(market.underlying.symbol)) && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) > 0)
         .map(market => <Checkbox w='200px' key={market.token} value={market.token}>
             {market.underlying.symbol}
         </Checkbox>)
 
     const checkboxesWithoutBalance = markets
-        .filter(market => market.rewardApr > 0 && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) === 0)
+        .filter(market => (market.rewardApr > 0 || hadRewardsInThePast.includes(market.underlying.symbol)) && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) === 0)
         .map(market => <Checkbox w='200px' key={market.token} value={market.token}>
             {market.underlying.symbol}
         </Checkbox>)
@@ -89,7 +90,7 @@ export const AnchorClaimModal = ({
             <CheckboxGroup colorScheme='green' defaultValue={[]} value={checkedMarkets} onChange={handleCheck}>
                 <Box p="5" textAlign="left" justifyContent="left" w="full">
                     <Text mb="4" fontSize="14px">
-                        Pools giving {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards where you have <b>supplied tokens</b> :
+                        Pools giving {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards (or used to give it) where you have <b>supplied tokens</b> :
                     </Text>
                     {checkboxesWithBalance}
                     {!checkboxesWithBalance.length ? 'None' : ''}
@@ -97,7 +98,7 @@ export const AnchorClaimModal = ({
                         checkboxesWithoutBalance?.length > 0 &&
                         <>
                             <Text my="4" fontSize="14px">
-                                Other pools giving {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards :
+                                Other pools giving {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards (or used to give it) :
                             </Text>
                             {checkboxesWithoutBalance}
                         </>
