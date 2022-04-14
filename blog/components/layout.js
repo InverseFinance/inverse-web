@@ -1,5 +1,5 @@
-import Alert from '../components/alert'
-import Footer from '../components/footer'
+import { Image } from '@chakra-ui/react'
+import Link from 'next/link'
 import Meta from '../components/meta'
 
 export default function Layout({ preview, children }) {
@@ -8,7 +8,20 @@ export default function Layout({ preview, children }) {
       <Meta />
       <div className="min-h-screen">
         {/* <Alert preview={preview} /> */}
-        <main>{children}</main>
+        <main>
+          <Link href="/anchor">
+            <Image              
+              cursor="pointer"
+              src="/assets/inv-square-dark.jpeg"
+              h="30px"
+              position="absolute"
+              top="15px"
+              left="15px"
+              borderRadius="30px"
+            />
+          </Link>
+          {children}
+        </main>
       </div>
       {/* <Footer /> */}
     </>

@@ -135,7 +135,7 @@ export async function getPostAndMorePosts(slug, preview, locale = 'en-US') {
     `query {
       postCollection(locale: "${locale}", where: { slug_not_in: "${slug[1]}" }, order: date_DESC, preview: ${
       preview ? 'true' : 'false'
-    }, limit: 2) {
+    }, limit: 10) {
         items {
           ${POST_GRAPHQL_FIELDS}
         }
@@ -176,6 +176,7 @@ export async function getAuthors(preview, locale = 'en-US') {
           picture {
             url
           }
+          twitterHandle
         }
       }
     }`,

@@ -1,4 +1,4 @@
-import { Box, Text, VStack } from '@chakra-ui/react'
+import { Box, Image, Flex, VStack } from '@chakra-ui/react'
 import Link from 'next/link';
 import { useContext } from 'react';
 import { BlogContext } from '../../pages/blog/[...slug]';
@@ -6,7 +6,7 @@ import BlogLink from './common/blog-link';
 import BlogText from './common/text';
 import ContentfulImage from './contentful-image'
 
-export default function Avatar({ name, picture, title, size = '60px' }) {
+export default function Avatar({ name, picture, title, twitterHandle, size = '60px' }) {
   const { locale } = useContext(BlogContext);
   const url = `/blog/${locale}?byAuthor=${encodeURIComponent(name)}`
 
@@ -32,6 +32,21 @@ export default function Avatar({ name, picture, title, size = '60px' }) {
           }
           {
             !!title && <BlogText fontSize="12px">{title}</BlogText>
+          }
+          {
+            !!twitterHandle
+            &&
+            <Flex
+              as="a"
+              href={`https://twitter.com/${twitterHandle}`}
+              alignItems="center"
+              fontSize="12px"
+              target="_blank"
+              cursor="pointer"
+              >
+              <Image mr="1" src={`/assets/socials/twitter.png`} h="10px" verticalAlign="middle" />
+              <BlogText color="#0a8dfe">@{twitterHandle}</BlogText>
+            </Flex>
           }
         </VStack>
       }
