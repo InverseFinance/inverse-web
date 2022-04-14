@@ -26,6 +26,8 @@ import { vesterCancel } from '@app/util/payroll';
 import { useContractEvents } from '@app/hooks/useContractEvents';
 import { INV_ABI } from '@app/config/abis';
 import { usePricesV2 } from '@app/hooks/usePrices';
+import { ETH_MANTISSA } from '@app/config/constants';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 
 const { VESTERS, XINV, INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -50,7 +52,13 @@ export const VesterPage = () => {
   const recipientIndex = (vesterRecipients || []).findIndex(recipient => recipient.toLowerCase() === userAddress?.toLowerCase());
   const vesterAddress = VESTERS[recipientIndex];
 
-  const { data: exRate } = useEtherSWR([XINV, 'exchangeRateStored']);
+  const { data: xinvData } = useEtherSWR([
+    [XINV, 'balanceOf', vesterAddress],
+    [XINV, 'exchangeRateStored'],
+  ])
+
+  const [xinvBalance, exRate] = xinvData || [0, 0, 1];
+  const currentVestedAmount = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA);
 
   const { data: recipientData } = useEtherSWR(
     !!vesterAddress ?
@@ -75,7 +83,6 @@ export const VesterPage = () => {
   const [claimableINV, vestingXinvAmount, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled, currentVesterDelegate, accountDelegate] = recipientData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false, userAddress, userAddress];
 
   const widthdrawable = getBnToNumber(claimableINV, REWARD_TOKEN!.decimals);
-  const totalIntialVested = getBnToNumber(vestingXinvAmount, REWARD_TOKEN!.decimals) * (getBnToNumber(exRate || 0));
   const startTimestamp = parseInt(vestingBegin.toString()) * 1000;
   const endTimestamp = parseInt(vestingEnd.toString()) * 1000;
   const lastClaimTimestamp = parseInt(lastUpdate.toString()) * 1000;
@@ -94,7 +101,6 @@ export const VesterPage = () => {
     setAlreadyClaimed(alreadyClaimed);
   }, [events, vesterAddress]);
 
-  const currentVestedAmount = totalIntialVested ? totalIntialVested - alreadyClaimed : 0;
   const invPrice = (prices && prices[RTOKEN_CG_ID]?.usd) || 0;
 
   return (
@@ -128,10 +134,14 @@ export const VesterPage = () => {
                                 <Text>
                                   - <b>Current Vested Amount</b>:
                                 </Text>
-                                <Text fontWeight="extrabold">
-                                  {currentVestedAmount ? commify((currentVestedAmount).toFixed(2)) : ''} INV
-                                  ({shortenNumber(currentVestedAmount * invPrice, 2, true)})
-                                </Text>
+                                <Link href={`/anchor?viewAddress=${vesterAddress}`} isExternal>
+                                  <AnimatedInfoTooltip message="View the Vester on Anchor">
+                                    <Text fontWeight="extrabold" textDecoration="underline">
+                                      {currentVestedAmount ? commify((currentVestedAmount).toFixed(2)) : ''} INV
+                                      ({shortenNumber(currentVestedAmount * invPrice, 2, true)})
+                                    </Text>
+                                  </AnimatedInfoTooltip>
+                                </Link>
                               </Flex>
                               <Flex alignItems="center" justify="space-between">
                                 <Text>
