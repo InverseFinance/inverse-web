@@ -22,7 +22,7 @@ export default function PostHeader({ title, coverImage, date, author, readtime, 
         position="absolute"
         fontSize={"48px"}
         left="2%"
-        top="22px"
+        top={{ base: '0', lg: '22px' }}
         color={BLOG_THEME.colors.passiveTextColor}
         _hover={{ color: BLOG_THEME.colors.activeTextColor }}
         transitionProperty="color, font-size"

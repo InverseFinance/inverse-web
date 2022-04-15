@@ -85,7 +85,7 @@ export default function PostSearch({ ...props }) {
                                     _hover={{ bgColor: '#ddd' }}
                                     as="a"
                                 >
-                                    <BlogText>
+                                    <BlogText fontWeight="bold">
                                         {item.title}
                                     </BlogText>
                                     <Excerpt excerpt={item.excerpt} content={item.content} url={url} charLimit={100} />
