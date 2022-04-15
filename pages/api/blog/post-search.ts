@@ -6,11 +6,11 @@ export default async function handler(req, res) {
         search,
         byAuthor,
         category,
+        locale,
     } = req.query;
 
     try {
-        const posts = await getAllPostsForHome(false, 'en-US', category, byAuthor, search);
-        console.log(search)
+        const posts = await getAllPostsForHome(false, locale, category, byAuthor, search);
 
         res.status(200).send(posts);
     } catch (err) {

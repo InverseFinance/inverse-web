@@ -13,10 +13,10 @@ const locales = {
   de,
 }
 
-export default function DateComponent({ dateString, readtime = 5 }) {
+export default function DateComponent({ dateString, readtime = 5, ...props }) {
   const { locale } = useContext(BlogContext);
   return (
-    <HStack spacing="2" color={BLOG_THEME.colors.activeTextColor}>
+    <HStack spacing="2" color={BLOG_THEME.colors.activeTextColor} {...props}>
       <time dateTime={dateString}>
         {format(new Date(dateString), 'PPP', { locale: locales[locale] || locales["en-US"] })}
       </time>

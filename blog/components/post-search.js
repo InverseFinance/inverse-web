@@ -9,6 +9,8 @@ import { BLOG_THEME } from '../lib/constants';
 import { SearchIcon } from '@chakra-ui/icons';
 import useSWR from 'swr';
 import BlogText from './common/text';
+import DateComponent from './date';
+import Link from 'next/link';
 
 export default function PostSearch({ ...props }) {
     const [query, setQuery] = useState('');
@@ -41,7 +43,7 @@ export default function PostSearch({ ...props }) {
                 />
                 <Input
                     w={isFocused ? { base: "100%", sm: '500px' } : { base: '100%', sm: '200px' }}
-                    onBlur={() => setIsFocused(false)}
+                    onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                     onClick={() => setIsFocused(!isFocused)}
                     type="search"
                     value={query}
@@ -72,20 +74,24 @@ export default function PostSearch({ ...props }) {
                     {
                         results && results?.map((item, i) => {
                             const url = `/blog/posts/${locale}/${item.slug}`
-                            return <VStack
-                                key={item.slug}
-                                cursor="pointer"
-                                p="4"
-                                w='full'
-                                alignItems="flex-start"
-                                borderTop={i > 0 ? '1px solid #ddd' : undefined}
-                                _hover={{ bgColor: '#ddd' }}
-                            >
-                                <BlogLink href={url}>
-                                    {item.title}
-                                </BlogLink>
-                                <Excerpt excerpt={item.excerpt} content={item.content} url={url} charLimit={100} />
-                            </VStack>
+                            return <Link href={url}>
+                                <VStack
+                                    key={item.slug}
+                                    cursor="pointer"
+                                    p="4"
+                                    w='full'
+                                    alignItems="flex-start"
+                                    borderTop={i > 0 ? '1px solid #ddd' : undefined}
+                                    _hover={{ bgColor: '#ddd' }}
+                                    as="a"
+                                >
+                                    <BlogLink href={url}>
+                                        {item.title}
+                                    </BlogLink>
+                                    <Excerpt excerpt={item.excerpt} content={item.content} url={url} charLimit={100} />
+                                    <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" />
+                                </VStack>
+                            </Link>
                         })
                     }
                     {
