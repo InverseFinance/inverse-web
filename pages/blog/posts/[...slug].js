@@ -4,7 +4,6 @@ import ErrorPage from 'next/error'
 import Container from '../../../blog/components/container'
 import PostBody from '../../../blog/components/post-body'
 import MoreStories from '../../../blog/components/more-stories'
-import Header from '../../../blog/components/header'
 import PostHeader from '../../../blog/components/post-header'
 import SectionSeparator from '../../../blog/components/section-separator'
 import Layout from '../../../blog/components/layout'
@@ -16,7 +15,7 @@ import PostFooter from '../../../blog/components/post-footer'
 
 export default function Post({ post, morePosts, preview, locale }) {
   const router = useRouter()
-
+  
   if (!router.isFallback && !post) {
     return <ErrorPage statusCode={404} />
   }
@@ -25,7 +24,6 @@ export default function Post({ post, morePosts, preview, locale }) {
     <BlogContext.Provider value={{ locale }}>
       <Layout preview={preview}>
         <Container>
-          <Header />
           {router.isFallback ? (
             <PostTitle>Loading…</PostTitle>
           ) : (

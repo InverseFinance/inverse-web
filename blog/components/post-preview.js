@@ -29,7 +29,7 @@ export default function PostPreview({
       }
       <BlogText as="h3" fontWeight="bold" fontSize="3xl">
         <Link href={url}>
-          <a className="hover:underline">{title}</a>
+          <a>{title}</a>
         </Link>
       </BlogText>
       <Excerpt excerpt={excerpt} content={content} url={url} />
