@@ -100,7 +100,7 @@ export async function getAllPostsWithSlug() {
   return extractPostEntries(entries)
 }
 
-export async function getAllPostsForHome(preview, locale = 'en-US', category = '', byAuthor = '', fulltext = '', limit = 20) {
+export async function getAllPostsForHome(preview, locale = 'en-US', category = '', byAuthor = '', fulltext = '', limit = 50) {
   const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
   const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
@@ -169,6 +169,25 @@ export async function getCategories(preview, locale = 'en-US') {
     preview
   )
   return categories.data?.categoryCollection?.items;
+}
+
+export async function getTag(preview, locale = 'en-US', byTag) {
+  const tags = await fetchGraphQL(
+    `query {
+      tagCollection(
+        locale: "${locale}", preview: ${preview ? 'true' : 'false'},
+        where: { name: "${byTag}" },
+        limit: 1
+        ) {
+        items {
+          name
+          label
+        }
+      }
+    }`,
+    preview
+  )
+  return tags.data?.tagCollection?.items[0];
 }
 
 export async function getAuthors(preview, locale = 'en-US') {

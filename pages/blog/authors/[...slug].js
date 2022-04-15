@@ -22,7 +22,7 @@ export default function Post({ authors, preview, locale, categories }) {
       <Layout preview={preview}>
         <Container>
           <Intro />
-          <Categories categories={categories} isAuthorsPage={true} customPage={'authors'} />
+          <Categories categories={categories} customPage={'authors'} />
           <SimpleGrid columns={{ base: '1', md: '2', lg: '3' }} autoColumns gap="8" mt="5">
             {authors.sort((a, b) => a.name < b.name ? -1 : 1).map(author => {
               return <Avatar size={'100px'} {...author} />

@@ -3,7 +3,7 @@ import MoreStories from '../../blog/components/more-stories'
 import HeroPost from '../../blog/components/hero-post'
 import Intro from '../../blog/components/intro'
 import Layout from '../../blog/components/layout'
-import { getAllPostsForHome, getCategories } from '../../blog/lib/api'
+import { getAllPostsForHome, getCategories, getTag } from '../../blog/lib/api'
 import Head from 'next/head'
 import Categories from '../../blog/components/categories'
 import { getBlogContext } from '../../blog/lib/utils'
@@ -12,7 +12,7 @@ import BlogText from '../../blog/components/common/text'
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
-export default function Index({ preview, allPosts, categories, locale, category, byAuthor }) {
+export default function Index({ preview, allPosts, categories, locale, category, byAuthor, tag }) {
   const heroPost = allPosts[0];
   const morePosts = allPosts.slice(1);
   const categoryObject = categories.find(c => c.name === category) || {};
@@ -32,14 +32,14 @@ export default function Index({ preview, allPosts, categories, locale, category,
         </Head>
         <Container>
           <Intro />
-          <Categories categories={categories} isByAuthor={!!byAuthor}  />
+          <Categories categories={categories} isNotOnCategoryPage={!!byAuthor || !!tag}  />
           {
-            !!byAuthor && <BlogText as="h2" fontSize="5xl" fontWeight="extrabold" mb="5">
-              Stories by {byAuthor}
+            (!!byAuthor || !!tag) && <BlogText as="h2" fontSize="5xl" fontWeight="extrabold" mb="5">
+              { byAuthor ? `Stories by ${byAuthor}` : `${tag.label} Stories` }
             </BlogText>
           }
           {
-            !!byAuthor && allPosts.length === 0 && <BlogText>
+            (!!byAuthor || !!tag) && allPosts.length === 0 && <BlogText>
               No Stories published yet
             </BlogText>
           }
@@ -56,10 +56,11 @@ export default function Index({ preview, allPosts, categories, locale, category,
 }
 
 export async function getServerSideProps({ preview = false, ...context }) {
-  const { locale, category, byAuthor } = getBlogContext(context);
+  const { locale, category, byAuthor, byTag } = getBlogContext(context);
   const allPosts = await getAllPostsForHome(preview, locale, category, byAuthor) ?? []
   const categories = await getCategories(preview, locale) ?? []
+  const tag = byTag ? await getTag(preview, locale, byTag) : null;
   return {
-    props: { preview, allPosts, categories, locale, category, byAuthor },
+    props: { preview, allPosts, categories, locale, category, byAuthor, tag },
   }
 }

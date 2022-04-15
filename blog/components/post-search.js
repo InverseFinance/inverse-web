@@ -85,9 +85,9 @@ export default function PostSearch({ ...props }) {
                                     _hover={{ bgColor: '#ddd' }}
                                     as="a"
                                 >
-                                    <BlogLink href={url}>
+                                    <BlogText>
                                         {item.title}
-                                    </BlogLink>
+                                    </BlogText>
                                     <Excerpt excerpt={item.excerpt} content={item.content} url={url} charLimit={100} />
                                     <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" />
                                 </VStack>

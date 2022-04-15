@@ -11,7 +11,7 @@ export default function Layout({ preview, children }) {
       <Meta />
       <div className="min-h-screen">
         <main>
-          <HStack spacing="0" justifyContent="space-between" m={{ base: '10px', sm: '15px' }} w='full'>
+          <HStack spacing="0" justifyContent="space-between" p={{ base: '10px', sm: '15px' }} w='full'>
             <Link href="/anchor">
               <Image
                 cursor="pointer"
@@ -21,7 +21,7 @@ export default function Layout({ preview, children }) {
               />
             </Link>
             <PostSearch display={{ base: 'inline-flex', sm: 'none' }} />
-            <HStack spacing={{ base: '0', sm: '2' }}>
+            <HStack spacing={{ base: '0', sm: '4' }}>
               <PostSearch display={{ base: 'none', sm: 'inline-flex' }} maxW="500px" />
               <LangsSelector />
             </HStack>
