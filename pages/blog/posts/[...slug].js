@@ -15,7 +15,7 @@ import PostFooter from '../../../blog/components/post-footer'
 
 export default function Post({ post, morePosts, preview, locale }) {
   const router = useRouter()
-  
+
   if (!router.isFallback && !post) {
     return <ErrorPage statusCode={404} />
   }
@@ -48,7 +48,7 @@ export default function Post({ post, morePosts, preview, locale }) {
                 <PostHeader
                   {...post}
                 />
-                <PostBody title={post.title} coverImage={post.coverImage} content={post.content} />
+                <PostBody title={post.title} content={post.content} />
                 <PostFooter
                   {...post}
                 />

@@ -29,7 +29,6 @@
 .blog-post-body ul, ol {
     padding: 0px;
     margin: 0px 0px 1.25rem 1.25rem;
-    line-height: 0.5em;
 }
 .blog-post-body ul {
     list-style-type: disc;
@@ -40,7 +39,6 @@
 .blog-post-body ol {
     padding: 0px;
     margin: 0px 0px 1.25rem 1.25rem;
-    line-height: 0.5em;
 }
 .blog-post-body li {
     margin: 0;
@@ -53,4 +51,3 @@
     top: 0; 
     left: 0;
 }
-

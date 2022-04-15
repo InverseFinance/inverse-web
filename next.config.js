@@ -68,6 +68,9 @@ module.exports = (phase) => {
         env: {
           COINGECKO_PRICE_API: 'https://api.coingecko.com/api/v3/simple/price',
         },
+        images: {
+          domains: ['images.ctfassets.net'],
+        },
       }
     default:
       return {
@@ -77,6 +80,9 @@ module.exports = (phase) => {
         },
         env: {
           COINGECKO_PRICE_API: 'https://api.coingecko.com/api/v3/simple/price',
+        },
+        images: {
+          domains: ['images.ctfassets.net'],
         },
       }
   }
