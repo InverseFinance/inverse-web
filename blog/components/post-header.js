@@ -17,7 +17,9 @@ export default function PostHeader({ title, coverImage, date, author, readtime, 
         <VStack pt="8" alignItems="flex-start" w="full" spacing="4">
           <DateComponent dateString={date} readtime={readtime} />
           <Flex w='full' justifyContent="center">
-            <CoverImage title={title} url={coverImage.url} />
+            {
+              !!coverImage?.url && <CoverImage title={title} url={coverImage.url} />
+            }
           </Flex>
         </VStack>
       </Box>

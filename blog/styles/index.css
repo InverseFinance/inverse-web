@@ -7,3 +7,50 @@
 .blog-post-body a {
     text-decoration: underline;
 }
+.blog-post-body h1 {
+    font-size: 36px;
+}
+.blog-post-body h1,.blog-post-body h2, .blog-post-bodyh3,.blog-post-body h4,.blog-post-body h5,.blog-post-body h6 {
+    font-weight: bold;
+}
+
+.blog-post-body code {
+    background-color: #eee;
+    padding: 1rem;
+    font-size: 14px;
+    border: 1px solid #ddd;
+}
+
+.blog-post-body blockquote {
+    border-left: 6px solid #e7ebee;
+    padding-left: 0.875rem;
+}
+
+.blog-post-body ul, ol {
+    padding: 0px;
+    margin: 0px 0px 1.25rem 1.25rem;
+    line-height: 0.5em;
+}
+.blog-post-body ul {
+    list-style-type: disc;
+}
+.blog-post-body ol {
+    list-style-type: decimal;
+}
+.blog-post-body ol {
+    padding: 0px;
+    margin: 0px 0px 1.25rem 1.25rem;
+    line-height: 0.5em;
+}
+.blog-post-body li {
+    margin: 0;
+    list-style: inherit;
+}
+.blog-post-body iframe {
+    height: 100%;
+    width: 100%;
+    position: absolute; 
+    top: 0; 
+    left: 0;
+}
+
