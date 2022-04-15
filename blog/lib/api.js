@@ -36,7 +36,11 @@ content {
           id
         }
         url
+        title
+        width
+        height
         description
+        contentType
       }
     }
   }
@@ -96,16 +100,17 @@ export async function getAllPostsWithSlug() {
   return extractPostEntries(entries)
 }
 
-export async function getAllPostsForHome(preview, locale = 'en-US', category = '', byAuthor = '') {
+export async function getAllPostsForHome(preview, locale = 'en-US', category = '', byAuthor = '', fulltext = '') {
   const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
+  const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
   const entries = await fetchGraphQL(
     `query {
       postCollection(
         order: date_DESC,
          locale: "${locale}",
           preview: ${preview ? 'true' : 'false'}
-          ${categoryFilter}${authorFilter},
+          ${categoryFilter}${authorFilter}${fullTextFilter},
           limit: 20,
         ) {
         items {
