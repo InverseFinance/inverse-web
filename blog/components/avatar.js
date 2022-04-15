@@ -14,12 +14,14 @@ export default function Avatar({ name, picture, title, twitterHandle, size = '60
     <div className="flex items-center">
       <Box boxSize={size} position="relative" mr="5">
         <Link href={url}>
-          <ContentfulImage
-            src={picture.url}
-            layout="fill"
-            className="rounded-full cursor-pointer"
-            alt={name}
-          />
+          <a>
+            <ContentfulImage
+              src={picture.url}
+              layout="fill"
+              className="rounded-full cursor-pointer"
+              alt={name}
+            />
+          </a>
         </Link>
       </Box>
       {
@@ -43,7 +45,7 @@ export default function Avatar({ name, picture, title, twitterHandle, size = '60
               fontSize="12px"
               target="_blank"
               cursor="pointer"
-              >
+            >
               <Image mr="1" src={`/assets/socials/twitter.png`} h="10px" verticalAlign="middle" />
               <BlogText color="#0a8dfe">@{twitterHandle}</BlogText>
             </Flex>

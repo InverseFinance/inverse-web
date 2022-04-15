@@ -8,7 +8,7 @@ import Header from '../../../blog/components/header'
 import PostHeader from '../../../blog/components/post-header'
 import SectionSeparator from '../../../blog/components/section-separator'
 import Layout from '../../../blog/components/layout'
-import { getAllPostsWithSlug, getPostAndMorePosts } from '../../../blog/lib/api'
+import { getPostAndMorePosts } from '../../../blog/lib/api'
 import PostTitle from '../../../blog/components/post-title'
 import { getBlogContext } from '../../../blog/lib/utils'
 import { BlogContext } from '../[...slug]'
@@ -39,10 +39,10 @@ export default function Post({ post, morePosts, preview, locale }) {
                     !!post.coverImage?.url && <meta property="og:image" content={post.coverImage?.url} />
                   }
                   <meta name="description" content={`${post.metaDescription || post.excerpt}`}></meta>
-                  <meta name="keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
+                  <meta name="og:keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
 
                   <meta name="og:description" content={`${post.opengraphDescription || post.metaDescription || post.excerpt}`}></meta>
-                  <meta name="og:keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
+                  <meta name="og:keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
 
                   <meta name="twitter:title" content={`${post.title}`} />
                   <meta name="twitter:description" content={`${post.excerpt}`} />
