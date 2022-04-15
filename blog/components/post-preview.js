@@ -24,7 +24,7 @@ export default function PostPreview({
   const url = `/blog/posts/${locale}/${slug}`;
   return (
     <VStack spacing="4" alignItems="flex-start">
-      <CoverImage title={title} slug={slug} url={coverImage.url} height={'150px'} />
+      <CoverImage title={title} slug={slug} url={coverImage.url} />
       <BlogText as="h3" fontWeight="bold" fontSize="3xl">
         <Link href={url}>
           <a className="hover:underline">{title}</a>

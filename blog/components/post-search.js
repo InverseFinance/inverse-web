@@ -67,6 +67,7 @@ export default function PostSearch({ ...props }) {
                     right={{ base: '0', sm: 'auto' }}
                     spacing="0"
                     zIndex="2"
+                    w={isFocused ? { base: "100%", sm: '500px' } : { base: '100%', sm: '200px' }}
                 >
                     {
                         results && results?.map((item, i) => {

@@ -31,7 +31,7 @@ export default function HeroPost({
       <VStack alignItems="flex-start" spacing="5">
         {
           !!coverImage?.url &&
-          <CoverImage title={title} slug={slug} url={coverImage.url} maxHeight={'300px'} />
+          <CoverImage title={title} slug={slug} url={coverImage.url} />
         }
         <Excerpt excerpt={excerpt} content={content} url={url} />
         <Stack w='full' direction={{ base: 'column', lg: 'row' }} justifyContent="space-between">

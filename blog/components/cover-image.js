@@ -3,28 +3,26 @@ import Link from 'next/link'
 import cn from 'classnames'
 import { useContext } from 'react'
 import { BlogContext } from '../../pages/blog/[...slug]'
-import { Image } from '@chakra-ui/react'
 
+// standard image size for posts are 1200x630
 export default function CoverImage({
   title,
   url,
   slug,
-  height,
-  width,
-  maxHeight,
+  width = 1200,
+  height = 630,
 }) {
   const { locale } = useContext(BlogContext);
   const image = (
-    // <ContentfulImage
-    //   width={2000}
-    //   height={500}
-    //   alt={`Cover Image for ${title}`}
-    //   className={cn('shadow-small', {
-    //     'hover:shadow-medium transition-shadow duration-200': slug,
-    //   })}
-    //   src={url}
-    // />
-    <Image src={url} height={height} width={width} maxHeight={maxHeight} />
+    <ContentfulImage
+      width={width}
+      height={height}
+      alt={`Cover Image for ${title}`}
+      className={cn('shadow-small', {
+        'hover:shadow-medium transition-shadow duration-200': slug,
+      })}
+      src={url}
+    />
   )
 
   return (
