@@ -44,6 +44,12 @@ export const InvPlus = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - INV</title>
+        <meta name="og:title" content="Inverse Finance - INV" />
+        <meta name="og:description" content="INV is Inverse Finance's Governance Token, Stake INV to earn rewards" />
+        <meta name="twitter:title" content="Inverse Finance - INV" />
+        <meta name="twitter:description" content={"INV is Inverse Finance's Governance Token, Stake INV to earn rewards"} />
+        <meta name="description" content="INV is Inverse Finance's Governance Token, Stake INV to earn rewards" />
+        <meta name="keywords" content="Inverse Finance, inv, token, fairdrop, erc20, governance, DeFi, apy, rewards" />
       </Head>
       <AppNav active="INV" />
       <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">

@@ -9,16 +9,83 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
 import { Proposal, GovEra, ProposalStatus } from '@app/types';
-import { usePublicDraftProposals } from '@app/hooks/useProposals';
 import Head from 'next/head'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
 import { useEffect } from 'react';
 import { DraftReviews } from '@app/components/Governance/DraftReviews'
+import { getRedisClient } from '@app/util/redis'
 
-export const Drafts = () => {
+export const Drafts = ({ proposal }) => {
   const { asPath } = useRouter();
   const slug = asPath.replace('/governance/drafts/', '').replace(/\?.*$/, '').split('/');
-  const { drafts, isLoading } = usePublicDraftProposals();
+  // const { drafts, isLoading } = usePublicDraftProposals();
+
+  const { id = '', era = '' } = proposal || {};
+
+  const notFound = !id;
+  const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
+
+  useEffect(() => {
+    if (!proposal?.id) { return }
+    updateReadGovernanceNotifs(`draft-${proposal.id}`);
+  }, [proposal?.id]);
+
+  return (
+    <Layout>
+      <Head>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Draft Details</title>
+        <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
+        <meta name="og:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
+        <meta name="twitter:title" content="Inverse Finance - Draft Proposal" />
+        <meta name="twitter:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
+        <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
+        <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
+      </Head>
+      <AppNav active="Governance" />
+      <Breadcrumbs
+        w="7xl"
+        breadcrumbs={[
+          { label: 'Governance', href: '/governance' },
+          { label: `Draft ${proposalBreadLabel}`, href: '#' },
+        ]}
+      />
+      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
+        {
+          notFound ? <Flex w="full" justifyContent="center" pt="50">
+            <Text fontSize="xl">Draft not found, please check the url</Text>
+          </Flex>
+            :
+            <>
+              <Flex direction="column">
+                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                  <ProposalDetails proposal={proposal} isPublicDraft={true} />
+                </Flex>
+                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                  <ProposalActions proposal={proposal} />
+                </Flex>
+                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                  {!!id && <DraftReviews publicDraftId={id} />}
+                </Flex>
+              </Flex>
+              <Flex direction="column">
+                <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
+                  <VotingWallet />
+                </Flex>
+              </Flex>
+            </>
+        }
+      </Flex>
+    </Layout>
+  )
+}
+
+export default Drafts
+
+// not static as draft may change very often
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+  const client = getRedisClient();
+  const drafts = JSON.parse(await client.get('drafts') || '[]');
 
   const now = new Date();
 
@@ -44,57 +111,7 @@ export const Drafts = () => {
       p.era === slug[0] && p.id?.toString() === slug[1]
   }) || {} as Proposal;
 
-  const { id = '', era = '' } = proposal;
-
-  const notFound = !isLoading && !id;
-  const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
-
-  useEffect(() => {
-    if (!proposal?.id) { return }
-    updateReadGovernanceNotifs(`draft-${proposal.id}`);
-  }, [proposal?.id]);
-
-  return (
-    <Layout>
-      <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Draft Details</title>
-      </Head>
-      <AppNav active="Governance" />
-      <Breadcrumbs
-        w="7xl"
-        breadcrumbs={[
-          { label: 'Governance', href: '/governance' },
-          { label: `Draft ${proposalBreadLabel}`, href: '#' },
-        ]}
-      />
-      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-        {
-          notFound ? <Flex w="full" justifyContent="center" pt="50">
-            <Text fontSize="xl">Draft not found, please check the url</Text>
-          </Flex>
-            :
-            <>
-              <Flex direction="column">
-                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-                  <ProposalDetails proposal={proposal} isPublicDraft={true} />
-                </Flex>
-                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-                  <ProposalActions proposal={proposal} />
-                </Flex>
-                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-                  { !!id && <DraftReviews publicDraftId={id} /> }
-                </Flex>
-              </Flex>
-              <Flex direction="column">
-                <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
-                  <VotingWallet />
-                </Flex>
-              </Flex>
-            </>
-        }
-      </Flex>
-    </Layout>
-  )
+  return {
+    props: { proposal },
+  }
 }
-
-export default Drafts

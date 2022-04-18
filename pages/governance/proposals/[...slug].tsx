@@ -12,31 +12,22 @@ import {
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
-import { Proposal, GovEra } from '@app/types';
-import { useProposals } from '@app/hooks/useProposals';
+import { Proposal, GovEra, ProposalStatus } from '@app/types';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
+import { getRedisClient } from '@app/util/redis'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
 
-// TODO: use SSG
 // urls can be /governance/proposals/<numProposal> or /governance/proposals/<era>/<proposalId>
-export const Governance = () => {
+export const Governance = ({ proposal }: { proposal: Proposal }) => {
   const { asPath } = useRouter();
   const slug = asPath.replace('/governance/proposals/', '').replace(/\?.*$/, '').split('/');
-  const { proposals, isLoading } = useProposals();
 
-  const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
-    .find((p: Proposal) => {
-      return slug.length === 1 ?
-        p.proposalNum.toString() === slug[0] :
-        p.era === fixEraTypo(slug[0]) && p.id.toString() === slug[1]
-    }) || {} as Proposal;
+  const { id = '', era = '' } = proposal || {};
 
-  const { id = '', era = '' } = proposal;
-
-  const notFound = !isLoading && !id;
+  const notFound = !id;
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
 
   useEffect(() => {
@@ -48,6 +39,12 @@ export const Governance = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Proposal Details</title>
+        <meta name="og:title" content={`Inverse Finance - Proposal`} />
+        <meta name="og:description" content={`${proposal?.title || 'Proposal Not Found'}`} />
+        <meta name="twitter:title" content="Inverse Finance - Proposal" />
+        <meta name="twitter:description" content={`${proposal?.title || 'Proposal Not Found'}`} />
+        <meta name="description" content={`Inverse Finance DAO's Proposal: ${proposal?.title || 'Proposal Not Found'}`} />
+        <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal`} />
       </Head>
       <AppNav active="Governance" />
       <Breadcrumbs
@@ -100,3 +97,36 @@ export const Governance = () => {
 }
 
 export default Governance
+
+// static with revalidate as on-chain proposal content cannot change but the status/votes can
+export async function getStaticProps(context) {
+  const { slug } = context.params;
+  const client = getRedisClient();
+  const { proposals } = JSON.parse(await client.get(`${process.env.NEXT_PUBLIC_CHAIN_ID}-proposals`) || '{"proposals": []}');
+
+  const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
+    .find((p: Proposal) => {
+      return slug.length === 1 ?
+        p.proposalNum.toString() === slug[0] :
+        p.era === fixEraTypo(slug[0]) && p.id.toString() === slug[1]
+    }) || {} as Proposal;
+
+  return {
+    props: { proposal: proposal },
+    revalidate: [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled] ? undefined : 60,
+  }
+}
+
+export async function getStaticPaths() {
+  const client = getRedisClient();
+  const { proposals } = JSON.parse(await client.get(`${process.env.NEXT_PUBLIC_CHAIN_ID}-proposals`) || '{"proposals": []}');
+  
+  const possiblePaths = proposals.map(p => {
+    return `/governance/proposals/${p.era}/${p.id}`;
+  });
+
+  return {
+    paths: possiblePaths,
+    fallback: true,
+  }
+}

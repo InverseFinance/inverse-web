@@ -48,11 +48,11 @@ const App = ({ Component, pageProps }: AppProps) => {
           
           <meta name="og:title" content="Inverse Finance" />
           <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Earn interest by supplying WBTC, ETH, stETH, YFI and other assets, borrow ETH, WBTC, YFI or DOLA our over-collaterized stablecoin. Buy INV and join our DAO to vote for the future of Inverse Finance." />
-          <meta name="og:image" content="https://www.inverse.finance/assets/logo.png" />
+          <meta name="og:image" content="https://www.inverse.finance/assets/inv-square-dark.jpeg" />
 
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:title" content="Positive-Sum DeFi" />
-          <meta name="twitter:image" content="https://www.inverse.finance/assets/logo.png" />
+          <meta name="twitter:image" content="https://www.inverse.finance/assets/inv-square-dark.jpeg" />
           <meta name="twitter:image:alt" content="inverse finance" />
           <meta name="twitter:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Earn interest by supplying WBTC, ETH, stETH, YFI and other assets, borrow ETH, WBTC, YFI or DOLA our over-collaterized stablecoin. Buy INV and join our DAO to vote for the future of Inverse Finance." />
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />

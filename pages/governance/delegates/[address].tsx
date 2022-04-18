@@ -258,6 +258,7 @@ export const DelegateView = () => {
   const [newlyChosenDelegate, setNewlyChosenDelegate] = useState('');
   const { chainId, account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
+
   const userAddress = (query.viewAddress as string) || account;
 
   const address = query.address as string
@@ -267,6 +268,12 @@ export const DelegateView = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Delegate Page</title>
+        <meta name="og:title" content="Inverse Finance - Governance" />
+        <meta name="og:description" content="Delegate Page" />
+        <meta name="twitter:title" content="Inverse Finance - Governance" />
+        <meta name="twitter:description" content="Delegate Page" />
+        <meta name="description" content="Inverse Finance DAO's Delegate Page" />
+        <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, voting power, delegate" />
       </Head>
       <AppNav active="Governance" activeSubmenu={address === userAddress ? 'Your Profile' : ''} />
       <Breadcrumbs

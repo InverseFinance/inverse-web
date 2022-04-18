@@ -76,6 +76,10 @@ export const DolaPayrollPage = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Payroll</title>
+        <meta name="og:title" content="Inverse Finance - Payroll" />
+        <meta name="og:description" content="Payroll Portal" />
+        <meta name="twitter:title" content="Inverse Finance - Payroll" />
+        <meta name="twitter:description" content={`Payroll Portal`} />
       </Head>
       <AppNav active="Governance" />
       <Flex justify="center" direction="column">
