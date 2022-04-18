@@ -9,6 +9,7 @@ import Avatar from '../../../blog/components/avatar'
 import { SimpleGrid } from '@chakra-ui/react'
 import Intro from '../../../blog/components/intro'
 import Categories from '../../../blog/components/categories'
+import Head from 'next/head'
 
 export default function Post({ authors, preview, locale, categories }) {
   const router = useRouter()
@@ -20,6 +21,13 @@ export default function Post({ authors, preview, locale, categories }) {
   return (
     <BlogContext.Provider value={{ locale }}>
       <Layout preview={preview}>
+        <Head>
+          <title>Inverse Finance Blog</title>
+          <meta name="description" content={`Inverse Finance Blog, get the latest news about Inverse Finance`}></meta>
+          <meta name="keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto`}></meta>
+          <meta name="og:description" content={`Inverse Finance Blog - Authors`}></meta>
+          <meta name="og:keywords" content={`Inverse Finance, blog, authors`}></meta>
+        </Head>
         <Container>
           <Intro />
           <Categories categories={categories} customPage={'authors'} />
@@ -37,7 +45,7 @@ export default function Post({ authors, preview, locale, categories }) {
 export async function getServerSideProps(context) {
   const { preview = false } = context;
   const { locale, isPreviewUrl } = getBlogContext(context);
-  const isPreview = preview||isPreviewUrl;
+  const isPreview = preview || isPreviewUrl;
   const authors = await getAuthors(preview, locale)
   const categories = await getCategories(preview, locale) ?? []
 

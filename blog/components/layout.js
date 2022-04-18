@@ -1,6 +1,5 @@
 import { HStack, Image } from '@chakra-ui/react'
 import Link from 'next/link'
-import Meta from '../components/meta'
 import BlogFooter from './blog-footer'
 import LangsSelector from './langs-selector'
 import PostSearch from './post-search'
@@ -8,7 +7,6 @@ import PostSearch from './post-search'
 export default function Layout({ preview, children }) {
   return (
     <>
-      <Meta />
       <div className="min-h-screen">
         <main>
           <HStack spacing="0" justifyContent="space-between" p={{ base: '10px', sm: '15px' }} w='full'>

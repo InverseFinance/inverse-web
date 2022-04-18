@@ -24,11 +24,11 @@ export default function Index({ preview, allPosts, categories, locale, category,
           <title>Inverse Finance Blog</title>
           <meta name="description" content={`Inverse Finance Blog | ${categoryObject?.label}`}></meta>
           <meta name="keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto, ${categoryObject?.label}`}></meta>
-
+          {
+            !!heroPost?.coverImage?.url && <meta name="og:image" content={`${heroPost?.coverImage?.url}`} />
+          }
           <meta name="og:description" content={`Inverse Finance Blog | ${categoryObject?.label}`}></meta>
           <meta name="og:keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto, ${categoryObject?.label}`}></meta>
-
-          <meta name="twitter:title" content="Inverse Finance Blog" />
         </Head>
         <Container>
           <Intro />

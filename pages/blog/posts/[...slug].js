@@ -12,6 +12,7 @@ import PostTitle from '../../../blog/components/post-title'
 import { getBlogContext } from '../../../blog/lib/utils'
 import { BlogContext } from '../[...slug]'
 import PostFooter from '../../../blog/components/post-footer'
+import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer'
 
 export default function Post({ post, morePosts, preview, locale }) {
   const router = useRouter()
@@ -36,14 +37,10 @@ export default function Post({ post, morePosts, preview, locale }) {
                   {
                     !!post.coverImage?.url && <meta property="og:image" content={post.coverImage?.url} />
                   }
-                  <meta name="description" content={`${post.metaDescription || post.excerpt}`}></meta>
-                  <meta name="og:keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
-
-                  <meta name="og:description" content={`${post.opengraphDescription || post.metaDescription || post.excerpt}`}></meta>
-                  <meta name="og:keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
-
-                  <meta name="twitter:title" content={`${post.title}`} />
-                  <meta name="twitter:description" content={`${post.excerpt}`} />
+                  <meta name="description" content={`${post.metaDescription || post.excerpt || (documentToPlainTextString(post.content).substring(0, 100) + '...')}`}></meta>
+                  <meta name="keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
+                  <meta name="og:type" content="article" />
+                  <meta name="og:description" content={`${post.opengraphDescription || post.metaDescription || post.excerpt || (documentToPlainTextString(post.content).substring(0, 100) + '...')}`}></meta>
                 </Head>
                 <PostHeader
                   {...post}
