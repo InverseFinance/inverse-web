@@ -35,7 +35,7 @@ export default function Post({ post, morePosts, preview, locale }) {
                     {post.pageTitle || post.title}
                   </title>
                   {
-                    !!post.coverImage?.url && <meta property="og:image" content={post.coverImage?.url} />
+                    !!post.coverImage?.url && <meta name="og:image" content={post.coverImage?.url} />
                   }
                   <meta name="description" content={`${post.metaDescription || post.excerpt || (documentToPlainTextString(post.content).substring(0, 100) + '...')}`}></meta>
                   <meta name="keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
