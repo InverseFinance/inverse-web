@@ -56,11 +56,12 @@ export default function Index({ preview, allPosts, categories, locale, category,
 }
 
 export async function getServerSideProps({ preview = false, ...context }) {
-  const { locale, category, byAuthor, byTag } = getBlogContext(context);
-  const allPosts = await getAllPostsForHome(preview, locale, category, byAuthor) ?? []
-  const categories = await getCategories(preview, locale) ?? []
-  const tag = byTag ? await getTag(preview, locale, byTag) : null;
+  const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
+  const isPreview = preview||isPreviewUrl;
+  const allPosts = await getAllPostsForHome(isPreview, locale, category, byAuthor) ?? []
+  const categories = await getCategories(isPreview, locale) ?? []
+  const tag = byTag ? await getTag(isPreview, locale, byTag) : null;
   return {
-    props: { preview, allPosts, categories, locale, category, byAuthor, tag },
+    props: { preview: isPreview, allPosts, categories, locale, category, byAuthor, tag },
   }
 }

@@ -67,12 +67,13 @@ export default function Post({ post, morePosts, preview, locale }) {
 
 export async function getServerSideProps(context) {
   const { params, preview = false } = context;
-  const { locale } = getBlogContext(context);
-  const data = await getPostAndMorePosts(params.slug, preview, locale)
+  const { locale, isPreviewUrl } = getBlogContext(context);
+  const isPreview = preview||isPreviewUrl;
+  const data = await getPostAndMorePosts(params.slug, isPreview, locale)
 
   return {
     props: {
-      preview,
+      preview: isPreview,
       post: data?.post ?? null,
       morePosts: data?.morePosts ?? null,
       locale,

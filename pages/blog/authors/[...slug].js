@@ -36,13 +36,14 @@ export default function Post({ authors, preview, locale, categories }) {
 
 export async function getServerSideProps(context) {
   const { preview = false } = context;
-  const { locale } = getBlogContext(context);
+  const { locale, isPreviewUrl } = getBlogContext(context);
+  const isPreview = preview||isPreviewUrl;
   const authors = await getAuthors(preview, locale)
   const categories = await getCategories(preview, locale) ?? []
 
   return {
     props: {
-      preview,
+      preview: isPreview,
       authors: authors ?? null,
       categories,
       locale,
