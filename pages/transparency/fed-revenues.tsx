@@ -188,6 +188,11 @@ export const FedRevenuesPage = () => {
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed Revenue</title>
+                <meta name="og:title" content="Inverse Finance - Transparency" />
+                <meta name="og:description" content="Dola & the Feds Revenue" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-fed-revenues.png" />
+                <meta name="description" content="Dola & the Feds Revenue" />
+                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, revenue" />
             </Head>
             <AppNav active="Transparency" activeSubmenu="Fed Revenues" />
             <TransparencyTabs active="fed-revenues" />

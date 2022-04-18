@@ -21,7 +21,7 @@ import { useInterestModel } from '@app/hooks/useInterestModel'
 export const InterestModelPage = () => {
     const { markets } = useMarkets();
     const [chosenMarket, setChosenMarket] = useState<Market | null>(null);
-    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear, model } = useInterestModel(chosenMarket?.interestRateModel||'');
+    const { kink, multiplierPerYear, jumpMultiplierPerYear, baseRatePerYear, model } = useInterestModel(chosenMarket?.interestRateModel || '');
     const [useAutocompounding, setUseAutocompounding] = useState(true);
 
     useEffect(() => {
@@ -41,6 +41,11 @@ export const InterestModelPage = () => {
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Interest Rate Model</title>
+                <meta name="og:title" content="Inverse Finance - Transparency" />
+                <meta name="og:description" content="Interest Rates" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-interest-rates.png" />
+                <meta name="description" content="Inverse Finance Interest Rates" />
+                <meta name="keywords" content="Inverse Finance, transparency, interest rates, apy, borrow, supply" />
             </Head>
             <AppNav active="Transparency" activeSubmenu="Interest Rates" />
             <TransparencyTabs active="interest-model" />

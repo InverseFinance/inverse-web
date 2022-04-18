@@ -72,6 +72,11 @@ export const InvPage = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Overview</title>
+        <meta name="og:title" content="Inverse Finance - Transparency" />
+        <meta name="og:description" content="INV Governance Token" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-inv.png" />
+        <meta name="description" content="INV Governance Token Details" />
+        <meta name="keywords" content="Inverse Finance, dao, transparency, inv, supply, xinv" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="INV" />
       <TransparencyTabs active="inv" />
