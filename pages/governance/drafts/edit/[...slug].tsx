@@ -88,6 +88,8 @@ export async function getServerSideProps(context) {
   const client = getRedisClient();
   const drafts = JSON.parse(await client.get('drafts') || '[]');
 
+  const now = new Date();
+
   const previews: Partial<Proposal>[] = drafts.map(d => {
     return {
       id: d.publicDraftId,
