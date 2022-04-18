@@ -78,8 +78,8 @@ export const Drafts = ({ proposal }) => {
 
 export default Drafts
 
-// not static as draft may change very often
-export async function getServerSideProps(context) {
+// static with 1 sec revalidation
+export async function getStaticProps(context) {
   const { slug } = context.params;
   const client = getRedisClient();
   const drafts = JSON.parse(await client.get('drafts') || '[]');
@@ -110,5 +110,20 @@ export async function getServerSideProps(context) {
 
   return {
     props: { proposal },
+    revalidate: 1,
+  }
+}
+
+export async function getStaticPaths() {
+  const client = getRedisClient();
+  const drafts = JSON.parse(await client.get('drafts') || '[]');
+  
+  const possiblePaths = drafts.map(p => {
+    return `/governance/drafts/${p.era}/${p.id}`;
+  });
+
+  return {
+    paths: possiblePaths,
+    fallback: true,
   }
 }
