@@ -23,7 +23,7 @@ export const ProposalFormContainer = ({
     publicDraft,
 }: {
     votingPower: number,
-    isWhitelisted: boolean,
+    isWhitelisted?: boolean,
     publicDraft?: Partial<Proposal>,
 }) => {
     const { library, account } = useWeb3React<Web3Provider>();

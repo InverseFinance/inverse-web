@@ -91,6 +91,11 @@ export const Overview = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Overview</title>
+        <meta name="og:title" content="Inverse Finance - Transparency" />
+        <meta name="og:description" content="Overview with Contracts Flowchart and key metrics" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-overview.png" />
+        <meta name="description" content="Overview with Contracts Flowchart and key metrics" />
+        <meta name="keywords" content="Inverse Finance, dao, transparency, overview" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Overview" />
       <TransparencyTabs active="overview" />

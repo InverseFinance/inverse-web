@@ -9,6 +9,7 @@ import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
+import Head from 'next/head'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -89,6 +90,10 @@ export const Landing = () => {
 
   return (
     <Layout bgColor="#020207" bg="radial-gradient(circle at center, #2a2557, #020207 33%)" pt="0">
+      <Head>
+        <title>{process.env.NEXT_PUBLIC_TITLE}</title>
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/home.png" />
+      </Head>
       <Flex w="full" bgImage="/assets/landing/graphic1.png" bgRepeat="no-repeat" direction="column">
         <LandingNav />
         <Stack w="full" align="center" mt={{ base: 4, md: 28 }} spacing={4} p={2}>

@@ -22,6 +22,10 @@ export const Governance = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Governance</title>
+        <meta name="og:title" content="Inverse Finance - Governance" />
+        <meta name="og:description" content="On-Chain Governance Proposals and Off-Chain Drafts" />
+        <meta name="description" content="Inverse Finance DAO's On-Chain Proposals and Off-Chain Drafts" />
+        <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, draft, governance, DeFi, vote" />
       </Head>
       <AppNav active="Governance" activeSubmenu="Drafts & Proposals" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>

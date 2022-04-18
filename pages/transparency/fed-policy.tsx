@@ -165,7 +165,7 @@ export const FedPolicyPage = () => {
             value: i.toString(),
             label: <Flex alignItems="center">
                 {
-                    !!fed.chainId && <Image borderRadius={ fed.address ? '10px' : undefined } ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
                 }
                 {fed.name.replace(/ Fed$/, '')}
             </Flex>,
@@ -228,8 +228,13 @@ export const FedPolicyPage = () => {
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed Policy</title>
+                <meta name="og:title" content="Inverse Finance - Transparency" />
+                <meta name="og:description" content="DOLA Fed Policy" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-fed-policy.png" />
+                <meta name="description" content="Dola & the Feds policy" />
+                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="Fed Policy"/>
+            <AppNav active="Transparency" activeSubmenu="Fed Policy" />
             <TransparencyTabs active="fed-policy" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">

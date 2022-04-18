@@ -107,6 +107,8 @@ export const VesterPage = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Vester</title>
+        <meta name="og:title" content="Inverse Finance - Vester Portal" />
+        <meta name="og:description" content="Vester Portal" />
       </Head>
       <AppNav active="Governance" />
       <Flex justify="center" direction="column">

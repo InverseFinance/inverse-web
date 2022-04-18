@@ -36,10 +36,10 @@ export const Animation = ({ animData, height = 30, width = 30, loop = false, aut
     )
 }
 
-export type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps }
+export type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps, canClick?: boolean }
 
-export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps }: AnimIconProps) => {
-    return <Box display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
+export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
+    return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined } display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
         <Animation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
     </Box>;
 }
@@ -49,5 +49,5 @@ export const ErrorAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} anim
 export const WarningAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={warningLottie} />
 export const InfoAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={infoBubbleLottie} />
 export const SuccessAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={successLottie} />
-export const InverseAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={inverseLottie} />
+export const InverseAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={inverseLottie} canClick={true} />
 export const LaunchAnim = (props: AnimIconProps) => <AnimIcon {...props} animData={launchLottie} />

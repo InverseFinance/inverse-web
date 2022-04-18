@@ -7,7 +7,6 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
 import { Proposal, GovEra, ProposalStatus } from '@app/types';
-import { usePublicDraftProposals } from '@app/hooks/useProposals';
 import Head from 'next/head'
 import { ProposalFormContainer } from '@app/components/Governance/Propose/ProposalFormContainer'
 import { useWeb3React } from '@web3-react/core';
@@ -15,8 +14,9 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { formatUnits } from 'ethers/lib/utils';
 import { Web3Provider } from '@ethersproject/providers';
+import { getRedisClient } from '@app/util/redis'
 
-export const Drafts = () => {
+export const Drafts = ({ proposal }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const userAddress = query?.viewAddress || account
@@ -33,39 +33,20 @@ export const Drafts = () => {
 
   const { asPath } = useRouter();
   const slug = asPath.replace('/governance/drafts/edit/', '').replace(/\?.*$/, '').split('/');
-  const { drafts, isLoading } = usePublicDraftProposals();
 
-  const now = new Date();
+  const { id = '', era = '' } = proposal || {};
 
-  const previews: Partial<Proposal>[] = drafts.map(d => {
-    return {
-      id: d.publicDraftId,
-      title: d.title,
-      description: d.description,
-      functions: d.functions,
-      proposer: '',
-      era: GovEra.mills,
-      startTimestamp: Date.now(),
-      endTimestamp: (new Date()).setDate(now.getDate() + 3),
-      status: ProposalStatus.draft,
-    }
-  })
-
-  const proposal = previews?.find((p: Proposal) => {
-    return slug.length === 1 ?
-      p.id?.toString() === slug[0] :
-      p.era === slug[0] && p.id?.toString() === slug[1]
-  }) || {} as Proposal;
-
-  const { id = '', era = '' } = proposal;
-
-  const notFound = !isLoading && !id;
+  const notFound = !id;
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
 
   return (
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Edit Draft</title>
+        <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
+        <meta name="og:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
+        <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
+        <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
       </Head>
       <AppNav active="Governance" />
       <Breadcrumbs
@@ -100,3 +81,34 @@ export const Drafts = () => {
 }
 
 export default Drafts
+
+// not static as draft may change very often
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+  const client = getRedisClient();
+  const drafts = JSON.parse(await client.get('drafts') || '[]');
+
+  const previews: Partial<Proposal>[] = drafts.map(d => {
+    return {
+      id: d.publicDraftId,
+      title: d.title,
+      description: d.description,
+      functions: d.functions,
+      proposer: '',
+      era: GovEra.mills,
+      startTimestamp: Date.now(),
+      endTimestamp: (new Date()).setDate(now.getDate() + 3),
+      status: ProposalStatus.draft,
+    }
+  })
+
+  const proposal = previews?.find((p: Proposal) => {
+    return slug.length === 1 ?
+      p.id?.toString() === slug[0] :
+      p.era === slug[0] && p.id?.toString() === slug[1]
+  }) || {} as Proposal;
+
+  return {
+    props: { proposal },
+  }
+}
