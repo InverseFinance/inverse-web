@@ -5,6 +5,10 @@ body {
 .svg-overflow-visible svg {
     overflow: visible !important;
 }
+
+.app-anim-box-no-pointer * {
+    cursor: default;
+}
     
 @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
     .blurred-container {
