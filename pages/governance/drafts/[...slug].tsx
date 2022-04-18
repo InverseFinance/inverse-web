@@ -18,7 +18,6 @@ import { getRedisClient } from '@app/util/redis'
 export const Drafts = ({ proposal }) => {
   const { asPath } = useRouter();
   const slug = asPath.replace('/governance/drafts/', '').replace(/\?.*$/, '').split('/');
-  // const { drafts, isLoading } = usePublicDraftProposals();
 
   const { id = '', era = '' } = proposal || {};
 
@@ -36,8 +35,6 @@ export const Drafts = ({ proposal }) => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Draft Details</title>
         <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
         <meta name="og:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
-        <meta name="twitter:title" content="Inverse Finance - Draft Proposal" />
-        <meta name="twitter:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
         <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
         <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
       </Head>

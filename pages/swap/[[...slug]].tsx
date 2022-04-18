@@ -42,9 +42,8 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Swap</title>
         <meta name="og:title" content="Inverse Finance - Swap" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/swap.png" />
         <meta name="og:description" content="Swap between DOLA and other stablecoins with the best rates" />
-        <meta name="twitter:title" content="Inverse Finance - Swap" />
-        <meta name="twitter:description" content={"Swap between DOLA and other stablecoins with the best rates"} />
         <meta name="description" content="Swap between DOLA and other stablecoins with the best rates" />
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DAI, USDT, USDC, best rate" />
       </Head>

@@ -24,8 +24,6 @@ export const Governance = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Governance</title>
         <meta name="og:title" content="Inverse Finance - Governance" />
         <meta name="og:description" content="On-Chain Governance Proposals and Off-Chain Drafts" />
-        <meta name="twitter:title" content="Inverse Finance - Governance" />
-        <meta name="twitter:description" content="On-Chain Governance Proposals and Off-Chain Drafts" />
         <meta name="description" content="Inverse Finance DAO's On-Chain Proposals and Off-Chain Drafts" />
         <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, draft, governance, DeFi, vote" />
       </Head>

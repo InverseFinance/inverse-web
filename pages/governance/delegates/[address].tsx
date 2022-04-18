@@ -270,8 +270,6 @@ export const DelegateView = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Delegate Page</title>
         <meta name="og:title" content="Inverse Finance - Governance" />
         <meta name="og:description" content="Delegate Page" />
-        <meta name="twitter:title" content="Inverse Finance - Governance" />
-        <meta name="twitter:description" content="Delegate Page" />
         <meta name="description" content="Inverse Finance DAO's Delegate Page" />
         <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, voting power, delegate" />
       </Head>

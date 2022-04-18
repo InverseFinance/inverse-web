@@ -45,8 +45,6 @@ export const Drafts = ({ proposal }) => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Edit Draft</title>
         <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
         <meta name="og:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
-        <meta name="twitter:title" content="Inverse Finance - Draft Proposal" />
-        <meta name="twitter:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
         <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
         <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
       </Head>

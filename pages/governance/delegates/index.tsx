@@ -462,8 +462,6 @@ export const Stake = () => (
       <title>{process.env.NEXT_PUBLIC_TITLE} - Delegates</title>
       <meta name="og:title" content="Inverse Finance - Governance" />
       <meta name="og:description" content="Top 100 delegates" />
-      <meta name="twitter:title" content="Inverse Finance - Governance" />
-      <meta name="twitter:description" content="Top 100 delegates" />
       <meta name="description" content="Inverse Finance DAO's top 100 delegates" />
       <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, voting power, delegates" />
     </Head>
