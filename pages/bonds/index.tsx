@@ -11,7 +11,6 @@ export const BondsPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - INV</title>
                 <meta name="og:title" content="Inverse Finance - Bonds" />
                 <meta name="og:description" content="Buy INV at a discount thanks to bonds" />
-                <meta name="og:image" content="https://www.inverse.finance/assets/inv-square-dark.jpeg" />
                 <meta name="description" content="Buy INV at a discount thanks to bonds" />
                 <meta name="keywords" content="Inverse Finance, inv, token, DeFi, bonds, discount, olympus, ohm" />
             </Head>
