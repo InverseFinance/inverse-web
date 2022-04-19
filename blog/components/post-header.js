@@ -16,12 +16,11 @@ export default function PostHeader({ title, coverImage, date, author, readtime, 
   return (
     <Box w='full' mx="auto" position="relative">
       <ChevronLeftIcon
-        display={{ base: 'none', sm: 'block' }}
         onClick={() => router.push(`/blog/${locale}`)}
         cursor="pointer"
         position="absolute"
         fontSize={"48px"}
-        left="2%"
+        left={{ base: '-30px', lg: '2%' }}
         top={{ base: '0', lg: '22px' }}
         color={BLOG_THEME.colors.passiveTextColor}
         _hover={{ color: BLOG_THEME.colors.activeTextColor }}

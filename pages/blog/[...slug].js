@@ -27,7 +27,8 @@ export default function Index({ preview, allPosts, categories, locale, category,
           {
             !!heroPost?.coverImage?.url && <meta name="og:image" content={`${heroPost?.coverImage?.url}`} />
           }
-          <meta name="og:description" content={`Inverse Finance Blog | ${categoryObject?.label}`}></meta>
+          <meta name="og:title" content={`Inverse Finance Blog`}></meta>
+          <meta name="og:description" content={`Latest news from Inverse Finance`}></meta>
           <meta name="og:keywords" content={`Inverse Finance, blog, DeFi, inv, dola, web3, lending, crypto, ${categoryObject?.label}`}></meta>
         </Head>
         <Container>

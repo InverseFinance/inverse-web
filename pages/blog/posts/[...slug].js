@@ -39,6 +39,7 @@ export default function Post({ post, morePosts, preview, locale }) {
                   }
                   <meta name="description" content={`${post.metaDescription || post.excerpt || (documentToPlainTextString(post.content).substring(0, 100) + '...')}`}></meta>
                   <meta name="keywords" content={`Inverse Finance, blog, ${post.tagsCollection?.items.map(item => item.label)}`}></meta>
+                  <meta name="og:title" content={`${post.pageTitle || post.title}`} />
                   <meta name="og:type" content="article" />
                   <meta name="og:description" content={`${post.opengraphDescription || post.metaDescription || post.excerpt || (documentToPlainTextString(post.content).substring(0, 100) + '...')}`}></meta>
                 </Head>
