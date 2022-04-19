@@ -135,6 +135,8 @@ export const LENS_ABI = [
 export const STABILIZER_ABI = [
   "function buy(uint256)",
   "function sell(uint256)",
+  "function buyFee() public view returns (uint)",
+  "function sellFee() public view returns (uint)",
   "function supply() external view returns (uint256)",
   "event Buy (address indexed user, uint256 purchased, uint256 spent)",
   "event Sell (address indexed user, uint256 sold, uint256 received)",
@@ -300,6 +302,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     XINV_VESTOR_FACTORY,
     VESTERS,
     SWAP_ROUTER,
+    STABILIZER,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -322,6 +325,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DOLA_PAYROLL, DOLA_PAYROLL_ABI],
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
+        [STABILIZER, STABILIZER_ABI],
         ...VESTERS.map(vesterAd => [vesterAd, VESTER_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
