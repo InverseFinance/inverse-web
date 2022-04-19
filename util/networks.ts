@@ -111,6 +111,7 @@ export const getNetworkConfigConstants = (
         { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8', name: 'Badger Fed', projectImage: '/assets/projects/Badger.jpg' },
         { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C', name: '0xb1 Fed', projectImage: 'https://unavatar.io/twitter/0x_b1' },
         { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36', name: 'Fuse24 Fed', projectImage: '/assets/projects/Fuse.png' },
+        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xcc180262347F84544c3a4854b87C34117ACADf94', name: 'Yearn Fed', projectImage: '/assets/projects/YFI.svg' },
         { chainId: NetworkIds.ftm, isXchain: true, abi: XCHAIN_FED_ABI, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
     ];
 
