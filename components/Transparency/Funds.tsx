@@ -13,7 +13,7 @@ const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, sho
                 {
                     token?.image && <Image display="inline-block" src={token?.image} ignoreFallback={true} w='15px' h='15px' mr="1" ml="1" />
                 }
-                <Text ml="1" lineHeight="15px">{label||token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
+                <Text ml="1" lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
             <Flex alignItems="center">
                 <Text>
@@ -30,7 +30,7 @@ const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, sho
 }
 
 const getPrice = (prices: Prices["prices"] | undefined, token: Token | undefined) => {
-    if(!token){ return 0 }
+    if (!token) { return 0 }
     const p1 = (!!prices && !!token.symbol && !!prices[token.symbol] && prices[token.symbol].usd);
     const p2 = (!!prices && !!token.coingeckoId && !!prices[token.coingeckoId] && prices[token.coingeckoId].usd);
     return p1 || p2 || 0;
@@ -43,6 +43,8 @@ type FundsProps = {
     boldTotal?: boolean,
     showPerc?: boolean,
     showTotal?: boolean,
+    showChartTotal?: boolean,
+    labelWithPercInChart?: boolean,
     chartMode?: boolean,
     showPrice?: boolean
     handleDrill?: (datum: any) => void
@@ -68,6 +70,8 @@ export const Funds = ({
     boldTotal = true,
     showPerc = true,
     showTotal = true,
+    showChartTotal = true,
+    labelWithPercInChart = false,
     chartMode = false,
     showPrice = false,
     handleDrill,
@@ -119,10 +123,17 @@ export const Funds = ({
     return (
         <>
             {
-                chartMode ? <PieChart showTotalUsd={showTotal} handleDrill={handleDrill} data={
+                chartMode ? <PieChart showTotalUsd={showChartTotal} handleDrill={handleDrill} data={
                     fundsWithPerc
                         .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
-                        .map(fund => ({ x: fund.label||fund.token?.symbol, y: fund.totalUsd, perc: fund.overallPerc, fund }))
+                        .map(fund => {
+                            return {
+                                x: `${fund.label || fund.token?.symbol}${labelWithPercInChart ? ` ${shortenNumber(fund.overallPerc, 2)}%` : ''}`,
+                                y: fund.totalUsd,
+                                perc: fund.overallPerc,
+                                fund,
+                            }
+                        })
                 } />
                     :
                     <>

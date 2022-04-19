@@ -130,7 +130,7 @@ export const Overview = () => {
               <FundsDetails title="TWG on Fantom" funds={TWGFtmfunds} prices={prices} />
               {
                 polsFunds.map(p => {
-                  return <FundsDetails title={p.title} funds={p.funds} prices={prices} />
+                  return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} />
                 })
               }
             </SimpleGrid>

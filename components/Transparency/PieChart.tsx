@@ -207,8 +207,8 @@ export const PieChart = ({
                 {
                     showTotalUsd && <text
                         fill="#fff"
-                        dominant-baseline="middle"
-                        text-anchor="middle"
+                        dominantBaseline="middle"
+                        textAnchor="middle"
                         x="50%"
                         y="50%"
                         fontSize="12px"
