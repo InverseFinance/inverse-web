@@ -57,7 +57,7 @@ export default function PostSearch({ ...props }) {
             {
                 results && isFocused && <VStack
                     alignItems="flex-start"
-                    position="fixed"
+                    position="absolute"
                     bgColor={BLOG_THEME.colors.badgeBgColor}
                     p="0"
                     maxH="500px"
