@@ -181,30 +181,30 @@ export const YearnFed = () => {
         <Flex direction="column" py="2" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
 
-            <Container label="Curve Pool Assets" m="0" p="0" contentProps={{ px: '8' }}>
-              <HStack justifyContent="space-between" w='full'>
-                <VStack w='500px'>
-                  <Funds showTotal={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address), label: c.name }))} prices={prices} type='balance' />
+            <Container label="Curve Pool Assets" m="0" p="0" contentProps={{ px: { lg: '8' } }}>
+              <Stack direction={{ base: 'column-reverse', lg: 'row' }} alignItems="center" justifyContent="space-between" w='full'>
+                <VStack w={{ base: '100%', lg:'500px' }}>
+                  <Funds showTotal={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} prices={prices} type='balance' />
                 </VStack>
-                <VStack fontWeight="bold" pr="100px">
+                <VStack fontWeight="bold" pr={{ base: '0', lg: '100px' }}>
                   <Funds labelWithPercInChart={true} showTotal={false} showChartTotal={true} chartMode={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} prices={prices} type='balance' />
                 </VStack>
-              </HStack>
+              </Stack>
             </Container>
 
             <Container label="Strategies, Vaults and Pools Infos" m="0" p="0">
-              <HStack w='full'>
+              <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
                 {yearnFedData.yearn.strategies.map((s, i) => {
                   const { management_fee, deposit_limit } = yearnFedData.yearn.vaults[i];
                   const { slippage_deposit_1M, slippage_withdraw_1M } = yearnFedData.curve.pool.coins[i];
                   return <InfoMessage
-                    alertProps={{ w: '50%', textAlign: 'left', fontSize: '14px' }}
+                    alertProps={{ w: { base: '100%', lg: '50%' }, textAlign: 'left', fontSize: '14px' }}
                     title={<Text fontWeight="extrabold" fontSize="16px">{s.name}</Text>}
                     description={
                       <VStack pt="2" spacing="1" w='full' alignItems="flex-start">
                         <HStack w='full' justifyContent="space-between">
                           <Text>Last Report:</Text>
-                          <Text>{moment(s.last_report * 1000).format('MMM Do YYYY')}, {moment(s.last_report * 1000).fromNow()}</Text>
+                          <Text textAlign='right'>{moment(s.last_report * 1000).format('MMM Do YYYY')}, {moment(s.last_report * 1000).fromNow()}</Text>
                         </HStack>
                         <HStack w='full' justifyContent="space-between">
                           <Text>Address:</Text>
@@ -263,7 +263,7 @@ export const YearnFed = () => {
                       </VStack>
                     } />
                 })}
-              </HStack>
+              </Stack>
             </Container>
 
             <Container
