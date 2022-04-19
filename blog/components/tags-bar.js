@@ -4,7 +4,7 @@ import Tag from './tag'
 export default function TagsBar({ tagsCollection }) {
     return (
         <HStack overflowX={{ base: 'auto', lg: 'visible' }} maxWidth="100%">
-            {tagsCollection?.items?.map(tag => <Tag key={tag.name} {...tag} />)}
+            {tagsCollection?.items?.filter(tag => !!tag).map(tag => <Tag key={tag.name} {...tag} />)}
         </HStack>
     )
 }
