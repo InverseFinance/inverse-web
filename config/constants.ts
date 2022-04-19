@@ -20,7 +20,6 @@ export const OLD_XINV = process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD
 export const HAS_REWARD_TOKEN = !!process.env.NEXT_PUBLIC_REWARD_TOKEN;
 
 export const CURRENT_ERA = GovEra.mills;
-export const STABILIZER_FEE = 0.004
 
 export const GRACE_PERIOD_MS = 1209600000; // 14 days in milliseconds
 export const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds

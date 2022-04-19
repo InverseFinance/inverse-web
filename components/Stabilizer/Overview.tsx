@@ -5,6 +5,7 @@ import { dollarify } from '@app/util/markets';
 import ScannerLink from '../common/ScannerLink';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types';
+import { useStabilizerFees } from '@app/hooks/usePrices';
 
 const { STABILIZER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -26,6 +27,7 @@ const StabilizerOverviewField = ({ label, children }: StabilizerOverviewFieldPro
 
 export const StabilizerOverview = () => {
   const { balance } = useStabilizerBalance()
+  const { buyFee, sellFee } = useStabilizerFees();
 
   return (
     <InfoMessage
@@ -45,8 +47,12 @@ export const StabilizerOverview = () => {
             </Text>
           </Stack>
           <Stack>
-            <StabilizerOverviewField label="Swap Fee">0.4%</StabilizerOverviewField>
-            <StabilizerOverviewField label="Rate">Fixed rate of 0.996 either way</StabilizerOverviewField>
+            <StabilizerOverviewField label="Swap Fee">
+              { buyFee === sellFee ? `${buyFee * 100}%` : `${buyFee * 100}% for buying and ${sellFee * 100}% for selling` }
+            </StabilizerOverviewField>
+            <StabilizerOverviewField label="Rate">
+              { buyFee === sellFee ? `Fixed rate of ${1-buyFee}`: `Fixed rate of ${1-buyFee} for buying, ${1-sellFee} for selling` }
+            </StabilizerOverviewField>
             <StabilizerOverviewField label="Dai Liquidity">
               {dollarify(balance || 0, 2)}
             </StabilizerOverviewField>

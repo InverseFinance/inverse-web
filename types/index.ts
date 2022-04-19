@@ -48,6 +48,7 @@ export type Market = {
   mintable: boolean
   priceUsd: number
   oraclePrice: number
+  oracleFeed: string
   priceXinv: number
   balance?: number
   isCollateral?: boolean

@@ -251,7 +251,7 @@ export const FedPolicyPage = () => {
                                         defaultValue: '0',
                                         onChange: (v: string) => setChosenFedIndex(parseInt(v)),
                                     }}
-                                    radioCardProps={{ w: '110px', textAlign: 'center', p: '2', position: 'relative' }}
+                                    radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
                                     options={fedOptionList}
                                 />
                                 <Flex h="25px" position="relative" alignItems="center">

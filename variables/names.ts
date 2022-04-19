@@ -17,6 +17,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x7765996dae0cf3ecb0e74c016fcdff3f055a5ad8': 'Fed Badger',
     '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
+    '0xcc180262347F84544c3a4854b87C34117ACADf94': 'Fed Yearn',
     // Cross-Chain Feds
     '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // dao members
@@ -50,6 +51,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x2723723FDd3Db8ba2D6f0e1B333e90A7E60A0411': 'Karm',
     '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE': 'Naoufel',
     '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb': 'Nour',
+    '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Edo',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {

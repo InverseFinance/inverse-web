@@ -14,11 +14,10 @@ import { crvGetDyUnderlying, crvGetDyUnderlyingRouted, crvSwap, crvSwapRouted, e
 import { handleTx, HandleTxOptions } from '@app/util/transactions';
 import { constants, BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { STABILIZER_FEE } from '@app/config/constants'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { SwapFooter } from './SwapFooter'
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
-import { useGasPrice, usePrices } from '@app/hooks/usePrices'
+import { useGasPrice, usePrices, useStabilizerFees } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 
 const routes = [
@@ -38,6 +37,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const { account, library, chainId } = useWeb3React<Web3Provider>()
   const gasPrice = useGasPrice();
   const { prices } = usePrices();
+  const { buyFee, sellFee } = useStabilizerFees();
   const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER } = getNetworkConfigConstants(chainId)
 
   const swapOptions = [DOLA, DAI, USDC, USDT]//, INV];
@@ -46,7 +46,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const [toAmount, setToAmount] = useState<string>('')
   const [exRates, setExRates] = useState<{ [key: string]: { [key: string]: number } }>({
     [Swappers.crv]: {},
-    [Swappers.stabilizer]: { 'DAIDOLA': 1 - STABILIZER_FEE, 'DOLADAI': 1 - STABILIZER_FEE },
+    [Swappers.stabilizer]: { 'DAIDOLA': 1 - buyFee, 'DOLADAI': 1 - sellFee },
     [Swappers.oneinch]: {},
   })
   const [maxSlippage, setMaxSlippage] = useState<number>(1)
@@ -105,6 +105,13 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     changeAmount(fromAmount, true)
   }, [exRates, chosenRoute])
 
+  useEffect(() => {
+    setExRates({
+      ...exRates,
+      [Swappers.stabilizer]: { 'DAIDOLA': 1 - buyFee, 'DOLADAI': 1 - sellFee },
+    });
+  }, [buyFee, sellFee]);
+
   useDebouncedEffect(() => {
     const fetchRates = async () => {
       if (!library) { return }
@@ -124,7 +131,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
         const costCrv = await crvEstimateFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'));
         const stabContract = getStabilizerContract(library.getSigner());
         // buy and sell is around the same
-        const amountMinusFee = parseFloat(fromAmount || '1') - STABILIZER_FEE * parseFloat(fromAmount || '1');
+        const amountMinusFee = parseFloat(fromAmount || '1') - buyFee * parseFloat(fromAmount || '1');
         const stabAmount = parseUnits((isStabBuy ? amountMinusFee : parseFloat(fromAmount)).toFixed(fromToken.decimals));
         const costStab = await stabContract.estimateGas[isStabBuy ? 'buy' : 'sell'](stabAmount);
         costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
@@ -140,7 +147,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       setExRates({ ...exRates, [Swappers.crv]: crvRates });
     }
     fetchRates()
-  }, [library, fromAmount, fromToken, toToken, swapDir, gasPrice, needsCurveRouter], 500);
+  }, [library, fromAmount, fromToken, toToken, swapDir, gasPrice, needsCurveRouter, buyFee], 500);
 
   useEffect(() => {
     setManualChosenRoute('');
@@ -256,7 +263,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
         const isStabBuy = toToken.symbol === 'DOLA';
         const stabilizerOperation: string = isStabBuy ? 'buy' : 'sell';
         // reduce amount to cover stabilizer fee
-        const amountMinusFee = parseFloat(fromAmount) - STABILIZER_FEE * parseFloat(fromAmount);
+        const amountMinusFee = parseFloat(fromAmount) - buyFee * parseFloat(fromAmount);
         const stabAmount = parseUnits((isStabBuy ? amountMinusFee : parseFloat(fromAmount)).toFixed(fromToken.decimals));
         tx = await contract[stabilizerOperation](stabAmount);
       } // TODO : handle 1inch

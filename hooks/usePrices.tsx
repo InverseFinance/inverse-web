@@ -10,6 +10,7 @@ import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
+import { getBnToNumber } from '@app/util/markets';
 
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
@@ -132,4 +133,24 @@ export const useLpPrices = (LPTokens: Token[], chainIds: string[]) => {
   })
 
   return data||LPTokens.map(lp => 0);
+}
+
+export const useStabilizerFees = (): SWR & { buyFee:number, sellFee: number } => {
+  const { STABILIZER } = getNetworkConfigConstants();
+
+  const { data: apiData, error } = useCustomSWR(
+    `/api/stabilizer`,
+    fetcher
+  );
+
+  const { data: realTimeData } = useEtherSWR([
+    [STABILIZER, 'buyFee'],
+    [STABILIZER, 'sellFee'],
+  ]);
+
+  return {
+    buyFee:  (realTimeData && getBnToNumber(realTimeData[0], 4)) ?? (apiData && apiData.buyFee) ?? 0.004,
+    sellFee: (realTimeData && getBnToNumber(realTimeData[1], 4)) ?? (apiData && apiData.sellFee) ?? 0.004,
+    isError: error,
+  }
 }
