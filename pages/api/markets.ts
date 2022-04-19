@@ -3,6 +3,7 @@ import {
   ETH_MANTISSA,
   BLOCKS_PER_DAY,
   HAS_REWARD_TOKEN,
+  BURN_ADDRESS,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -61,6 +62,7 @@ export default async function handler(req, res) {
       borrowPaused,
       mintPaused,
       oraclePrices,
+      oracleFeeds,
       interestRateModels,
     ]: any = await Promise.all([
       Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
@@ -87,6 +89,7 @@ export default async function handler(req, res) {
         )
       ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
+      Promise.all(addresses.map(address => oracle.feeds(address))),
       Promise.all(contracts.map(contract => contract.interestRateModel())),
     ]);
 
@@ -132,7 +135,7 @@ export default async function handler(req, res) {
 
     const markets = contracts.map(({ address }, i) => {
       const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
-
+      const oracleFeedIdx = addresses.indexOf(address);
       const liquidity = getBnToNumber(cashes[i], underlying.decimals);
       const reserves = getBnToNumber(totalReserves[i], underlying.decimals);
       const borrows = getBnToNumber(totalBorrows[i], underlying.decimals);
@@ -150,9 +153,11 @@ export default async function handler(req, res) {
         rewardsPerMonth: rewardsPerMonth[i] || 0,
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
-        priceUsd: prices[contracts[i].address],
-        oraclePrice: prices[contracts[i].address],
-        priceXinv: prices[contracts[i].address] / prices[XINV],
+        priceUsd: prices[address],
+        oraclePrice: prices[address],
+        // if it's a fixedPrice case then the feed source is the Oracle contract itself
+        oracleFeed: oracleFeeds[oracleFeedIdx] === BURN_ADDRESS ? ORACLE : oracleFeeds[oracleFeedIdx],
+        priceXinv: prices[address] / prices[XINV],
         utilizationRate: utilisationRate,
         liquidity,
         totalReserves: reserves,
@@ -198,6 +203,7 @@ export default async function handler(req, res) {
         rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * 30,
         priceUsd: prices[xinvAddress] / parsedExRate,
         oraclePrice: prices[xinvAddress],
+        oracleFeed: oracleFeeds[addresses.indexOf(xinvAddress)],
         priceXinv: 1 / parsedExRate,
         // in days
         escrowDuration: parseInt((await escrowContract.callStatic.duration()).toString()) / 86400

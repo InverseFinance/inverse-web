@@ -12,6 +12,7 @@ import { commify } from '@ethersproject/units';
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { usePrices } from '@app/hooks/usePrices';
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
+import ScannerLink from '../common/ScannerLink'
 
 type Stat = {
   label: string
@@ -135,15 +136,17 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
 
   const oraclePrice = asset.oraclePrice;
   const cgPrice = cgPrices && cgPrices[asset.underlying.coingeckoId] ? cgPrices[asset.underlying.coingeckoId]?.usd : null;
-  const rtokenPrice = cgPrices ? cgPrices[RTOKEN_CG_ID]?.usd||0 : 0;
-  
+  const rtokenPrice = cgPrices ? cgPrices[RTOKEN_CG_ID]?.usd || 0 : 0;
+
   const stats = [
     {
-      label: `Price (Oracle): ${oraclePrice === null ? '-' : shortenNumber(oraclePrice, 2, true, true)}`,
+      label: <ScannerLink value={asset.oracleFeed} chainId={process.env.NEXT_PUBLIC_CHAIN_ID!}>
+        Price (Oracle): {oraclePrice === null ? '-' : shortenNumber(oraclePrice, 2, true, true)}
+      </ScannerLink>,
       value: `Price (Coingecko): ${cgPrice === null ? '-' : shortenNumber(cgPrice, 2, true, true)}`,
       tooltipMsg: <>
-      The price used in smart contracts is the <b>Oracle price</b>, it means that the borrowing limits and liquidations are calculated with this price.
-      <Text mt="2">The Oracle price can be different than the live coingecko price as it's not updated that frequently, oracle update takes time to kick in when price goes up to prevent manipulation.</Text>
+        The price used in smart contracts is the <b>Oracle price</b>, it means that the borrowing limits and liquidations are calculated with this price.
+        <Text mt="2">The Oracle price can be different than the live coingecko price as it's not updated that frequently, oracle update takes time to kick in when price goes up to prevent manipulation.</Text>
       </>,
     },
     getCollateralFactor(asset),

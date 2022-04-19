@@ -24,7 +24,10 @@ export const COMPTROLLER_ABI = [
   "function liquidateCalculateSeizeTokens(address ctokenBorrowed, address ctokenSeize, uint256 repayAmount) public view returns (uint256, uint256)",
 ];
 
-export const ORACLE_ABI = ['function getUnderlyingPrice(address) public view returns (uint)']
+export const ORACLE_ABI = [
+  'function getUnderlyingPrice(address) public view returns (uint)',
+  'function feeds(address) public view returns (address)',
+]
 
 export const CTOKEN_ABI = [
   "function balanceOf(address) external view returns (uint256)",
