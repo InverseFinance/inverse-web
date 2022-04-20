@@ -6,7 +6,8 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
+import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { isAddress } from 'ethers/lib/utils';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -14,7 +15,7 @@ const formatBn = (bn: BigNumber, token: Token) => {
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, DAI, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, USDC, WCOIN, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
   const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
   const cacheKey = `dao-cache-v1.1.92`;
 
@@ -63,7 +64,7 @@ export default async function handler(req, res) {
       }),
     ])
 
-    const treasuryFundsToCheck = [DOLA, INV, DAI, USDC, INVDOLASLP, DOLA3POOLCRV];
+    const treasuryFundsToCheck = Object.keys(TOKENS).filter(key => isAddress(key));
     const treasuryBalances = await Promise.all([
       ...treasuryFundsToCheck.map((ad: string) => {
         const contract = new Contract(ad, ERC20_ABI, provider);
@@ -100,16 +101,9 @@ export default async function handler(req, res) {
 
 
     const ftmTokens = CHAIN_TOKENS[NetworkIds.ftm];
-    const SPOOKYLP = getToken(ftmTokens, "SPOOKY-LP")?.address
-    const DOLA2POOLCRV = getToken(ftmTokens, "DOLA-2POOL")?.address
     const multisigsFundsToCheck = {
-      [NetworkIds.mainnet]: [INV, DOLA, DAI, WCOIN, INVDOLASLP, DOLA3POOLCRV],
-      [NetworkIds.ftm]: [
-        ftmConfig?.INV,
-        ftmConfig?.DOLA,
-        DOLA2POOLCRV,
-        SPOOKYLP,
-      ],
+      [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet]).filter(key => isAddress(key)),
+      [NetworkIds.ftm]: Object.keys(CHAIN_TOKENS[NetworkIds.ftm]).filter(key => isAddress(key)),
     }
 
     const multisigsBalanceValues: BigNumber[][] = await Promise.all([
@@ -166,10 +160,12 @@ export default async function handler(req, res) {
 
     // POL
     const lps = [
-      { address: INVDOLASLP, chainId: NetworkIds.mainnet },
-      { address: DOLA3POOLCRV, chainId: NetworkIds.mainnet },
-      { address: SPOOKYLP, chainId: NetworkIds.ftm },
-      { address: DOLA2POOLCRV, chainId: NetworkIds.ftm },
+      ...Object
+        .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ isLP }) => isLP)
+        .map(({ address }) => ({ address, chainId: NetworkIds.mainnet })),
+      ...Object
+        .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
+        .map(({ address }) => ({ address, chainId: NetworkIds.ftm })),
     ]
 
     const chainTWG: { [key: string]: Multisig } = {
