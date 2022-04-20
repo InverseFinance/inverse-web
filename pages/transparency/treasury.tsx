@@ -12,8 +12,9 @@ import { CHAIN_TOKENS, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useEffect, useState } from 'react'
 import { ArrowLeftIcon } from '@chakra-ui/icons'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
+import theme from '@app/variables/theme'
 
-const FundsDetails = ({ funds, title, prices, type = 'both' }: { funds: any, title: string, prices: Prices["prices"], type?: 'both' | 'balance' | 'allowance' }) => {
+const FundsDetails = ({ funds, title, prices, type = 'both', labelWithPercInChart = false }: { funds: any, title: string, prices: Prices["prices"], type?: 'both' | 'balance' | 'allowance', labelWithPercInChart?: boolean }) => {
   const [data, setData] = useState(funds);
   const [isDrilled, setIsDrilled] = useState(false);
   const [isAfterSlideEffect, setIsAfterSlideEffect] = useState(false);
@@ -56,7 +57,7 @@ const FundsDetails = ({ funds, title, prices, type = 'both' }: { funds: any, tit
           </Flex>
         }
         {
-          data?.length && <Funds type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} />
+          data?.length && <Funds type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
         }
       </Stack>
     </Stack>
@@ -94,7 +95,7 @@ export const Overview = () => {
     return {
       title: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol} Liquidity`,
       funds: [
-        { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Protocol Owned', balance: p.ownedAmount },
+        { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Protocol Owned', chartFillColor: theme.colors.secondary, chartLabelFillColor: theme.colors.secondary, balance: p.ownedAmount },
         { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Not Protocol Owned', balance: p.totalSupply - p.ownedAmount },
       ],
     }
@@ -130,7 +131,7 @@ export const Overview = () => {
               <FundsDetails title="TWG on Fantom" funds={TWGFtmfunds} prices={prices} />
               {
                 polsFunds.map(p => {
-                  return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} />
+                  return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} labelWithPercInChart={true} />
                 })
               }
             </SimpleGrid>

@@ -195,11 +195,12 @@ export const PieChart = ({
                             fillOpacity: 0.9,
                             stroke: "#fff",
                             strokeWidth: 1,
-                            cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
+                            cursor: ({ datum }) => datum.fund?.drill ? 'pointer' : 'normal',
+                            fill: ({ datum }) => datum.fill || colorScale[datum._x - 1],
                         },
                         labels: {
                             fontSize: 12,
-                            fill: "#fff",
+                            fill: ({ datum }) => datum.labelFill || '#fff',
                             cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
                         },
                     }}
