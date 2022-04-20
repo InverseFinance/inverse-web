@@ -76,39 +76,34 @@ export const VesterPage = () => {
 
   const vesterAddress = myVesters?.length ? myVesters[selectedVesterIndex] : undefined;
 
-  const { data: xinvData } = useEtherSWR(
-    !!vesterAddress ?
-      [
-        [XINV, 'balanceOf', vesterAddress],
-        [XINV, 'exchangeRateStored'],
-      ]
-      : [[]]
-  )
+  const { data: exRate } = useEtherSWR([XINV, 'exchangeRateStored']);
 
-  const [xinvBalance, exRate] = xinvData || [0, 0];
-  const currentVestedAmount = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA);
-
-  const { data: recipientData } = useEtherSWR(
-    !!vesterAddress ?
-      [
-        [vesterAddress, 'claimableINV'],
-        [vesterAddress, 'vestingXinvAmount'],
-        [vesterAddress, 'vestingBegin'],
-        [vesterAddress, 'vestingEnd'],
-        [vesterAddress, 'lastUpdate'],
-        [vesterAddress, 'isCancellable'],
-        [vesterAddress, 'isCancelled'],
-        [XINV, 'delegates', vesterAddress],
+  const myVestersDataReq = [
+    ...myVesters.reduce((prev, vesterAd) => [
+      ...prev,
+      ...[
+        [vesterAd, 'claimableINV'],
+        [vesterAd, 'vestingBegin'],
+        [vesterAd, 'vestingEnd'],
+        [vesterAd, 'lastUpdate'],
+        [vesterAd, 'isCancellable'],
+        [vesterAd, 'isCancelled'],
+        [XINV, 'delegates', vesterAd],
         [XINV, 'delegates', userAddress],
-      ]
-      :
-      [[]]
-  );
+        [XINV, 'balanceOf', vesterAd],
+      ],
+    ], [])
+  ]
 
-  const isLoading = vesterRecipients === undefined && recipientData === undefined;
+  const { data: myVestersData } = useEtherSWR(myVestersDataReq);
+
+  const nbDataPerVester = myVesters.length > 0 ? myVestersDataReq.length / myVesters.length : 0;
+  const selectedVesterData = myVestersData && myVestersData.slice(nbDataPerVester * selectedVesterIndex, nbDataPerVester);
+  const [claimableINV, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled, currentVesterDelegate, accountDelegate, xinvBalance] = selectedVesterData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false, userAddress, userAddress, BigNumber.from('0')];
+  const currentVestedAmount = (xinvBalance / ETH_MANTISSA) * ((exRate || 0) / ETH_MANTISSA);
+
+  const isLoading = vesterRecipients === undefined && selectedVesterData === undefined;
   const hasNoVester = !isLoading && !vesterAddress;
-
-  const [claimableINV, vestingXinvAmount, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled, currentVesterDelegate, accountDelegate] = recipientData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false, userAddress, userAddress];
 
   const widthdrawable = getBnToNumber(claimableINV, REWARD_TOKEN!.decimals);
   const startTimestamp = parseInt(vestingBegin.toString()) * 1000;
@@ -131,6 +126,11 @@ export const VesterPage = () => {
 
   const invPrice = (prices && prices[RTOKEN_CG_ID]?.usd) || 0;
 
+  const totalVested = myVesters.length > 0 && myVestersData ?
+    myVesters.reduce((prev, vesterAd, i) => prev + (myVestersData[8] / ETH_MANTISSA) * ((exRate || 0) / ETH_MANTISSA), 0)
+    :
+    0;
+
   return (
     <Layout>
       <Head>
@@ -145,6 +145,9 @@ export const VesterPage = () => {
             {
               myVesters?.length > 1 && <VStack px="6" w='full' mt="5" w='full' alignItems="flex-start">
                 <Text fontSize="30px" fontWeight='bold'>Select one of the Vester Contracts Found:</Text>
+                <Text fontSize="20px" fontWeight='bold'>
+                  Total Currently Vested: {commify((totalVested).toFixed(2))} INV ({shortenNumber(totalVested * invPrice, 2, true)})
+                </Text>
                 <RadioCardGroup
                   wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
                   group={{
