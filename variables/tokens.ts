@@ -25,6 +25,7 @@ const chainTokenAddresses = {
     WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
     STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
+    INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
@@ -123,12 +124,22 @@ const chainTokens = {
       address: chainTokenAddresses["1"].INVDOLASLP,
       name: 'INV-DOLA SLP',
       symbol: 'INV-DOLA-SLP',
-      //coingeckoId: 'staked-ether',
       image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
       decimals: 18,
       isLP: true,
       pairs: [
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
+      ],
+    },
+    [chainTokenAddresses["1"].INVETHSLP]: {
+      address: chainTokenAddresses["1"].INVETHSLP,
+      name: 'INV-ETH SLP',
+      symbol: 'INV-ETH-SLP',
+      image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].WETH
       ],
     },
     [chainTokenAddresses["1"].DOLA3POOLCRV]: {
