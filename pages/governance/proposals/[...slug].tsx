@@ -111,7 +111,7 @@ export async function getStaticProps(context) {
 
   return {
     props: { proposal: proposal },
-    revalidate: [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled] ? undefined : 60,
+    revalidate: [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(proposal.status) ? undefined : 60,
   }
 }
 
