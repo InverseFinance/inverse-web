@@ -7,7 +7,7 @@ export default function Categories({ categories, isNotOnCategoryPage = false, cu
     const { locale, category } = useContext(BlogContext);
     return <HStack pb="5" spacing="10">
         {
-            categories.map(c => {
+            categories.filter(c => !!c).map(c => {
                 const isActive = (category === c.name && !isNotOnCategoryPage) || (c.isCustomPage && c.name === customPage);
                 const url = !c.isCustomPage ? `/blog/${locale}/${c.name}` : `/blog/${c.name}/${locale}`;
                 return <Link

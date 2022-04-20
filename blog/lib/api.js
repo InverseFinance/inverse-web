@@ -66,11 +66,11 @@ async function fetchGraphQL(query, preview = false) {
 }
 
 function extractPost(fetchResponse) {
-  return fetchResponse?.data?.postCollection?.items?.[0]
+  return fetchResponse?.data?.postCollection?.items?.filter(item => !!item)?.[0]
 }
 
 function extractPostEntries(fetchResponse) {
-  return fetchResponse?.data?.postCollection?.items
+  return fetchResponse?.data?.postCollection?.items?.filter(item => !!item)
 }
 
 export async function getPreviewPostBySlug(slug) {
@@ -168,7 +168,7 @@ export async function getCategories(preview, locale = 'en-US') {
     }`,
     preview
   )
-  return categories.data?.categoryCollection?.items;
+  return categories.data?.categoryCollection?.items?.filter(item => !!item);
 }
 
 export async function getTag(preview, locale = 'en-US', byTag) {
@@ -187,7 +187,7 @@ export async function getTag(preview, locale = 'en-US', byTag) {
     }`,
     preview
   )
-  return tags.data?.tagCollection?.items[0];
+  return tags.data?.tagCollection?.items?.[0];
 }
 
 export async function getAuthors(preview, locale = 'en-US') {
@@ -207,5 +207,5 @@ export async function getAuthors(preview, locale = 'en-US') {
     preview
   )
 
-  return authors.data?.authorCollection?.items;
+  return authors.data?.authorCollection?.items?.filter(item => !!item);
 }
