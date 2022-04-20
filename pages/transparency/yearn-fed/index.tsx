@@ -410,7 +410,7 @@ export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
 
 export default YearnFed
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const yearnFedData = await fetchJson('http://34.205.72.180:4444/api');
     return {
