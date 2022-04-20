@@ -332,11 +332,11 @@ export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
                               <Text>Total Gain:</Text>
-                              <Text>{shortenNumber(s.total_gain, 2)}</Text>
+                              <Text>{shortenNumber(s.total_gain, 2)} ({shortenNumber(s.total_gain_usd, 2, true)})</Text>
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
                               <Text>Total Loss:</Text>
-                              <Text>{shortenNumber(s.total_loss, 2)}</Text>
+                              <Text>{shortenNumber(s.total_loss, 2)}  ({shortenNumber(s.total_loss_usd, 2, true)})</Text>
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
                               <Text>Total Assets:</Text>
