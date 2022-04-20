@@ -38,7 +38,7 @@ const getPrice = (prices: Prices["prices"] | undefined, token: Token | undefined
 
 type FundsProps = {
     prices?: Prices["prices"],
-    funds: { token: Token, balance: number, allowance?: number, usdPrice?: number }[],
+    funds: { token: Token, balance: number, allowance?: number, usdPrice?: number, chartFillColor?: string, chartLabelFillColor?: string }[],
     totalLabel?: string
     boldTotal?: boolean,
     showPerc?: boolean,
@@ -81,7 +81,7 @@ export const Funds = ({
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
-        .map(({ token, balance, allowance, usdPrice, ctoken, label, drill }) => {
+        .map(({ token, balance, allowance, usdPrice, ctoken, label, drill, chartFillColor, chartLabelFillColor }) => {
             const price = usdPrice ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
@@ -91,7 +91,7 @@ export const Funds = ({
             usdTotals.allowance += usdAllowance;
             usdTotals.overall += totalUsd;
             const _token = ctoken === OLD_XINV ? { ...token, symbol: `${RTOKEN_SYMBOL}-old` } : token;
-            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill };
+            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill, chartFillColor, chartLabelFillColor };
         })
         .filter(({ totalBalance }) => totalBalance > 0)
         .filter(({ totalUsd }) => totalUsd >= minUsd)
@@ -132,6 +132,8 @@ export const Funds = ({
                                 y: fund.totalUsd,
                                 perc: fund.overallPerc,
                                 fund,
+                                fill: fund.chartFillColor,
+                                labelFill: fund.chartLabelFillColor,
                             }
                         })
                 } />
