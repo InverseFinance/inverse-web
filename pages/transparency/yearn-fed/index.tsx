@@ -183,8 +183,28 @@ export const YearnFed = () => {
 
             <Container label="Curve Pool Assets" m="0" p="0" contentProps={{ px: { lg: '8' } }}>
               <Stack direction={{ base: 'column-reverse', lg: 'row' }} alignItems="center" justifyContent="space-between" w='full'>
-                <VStack w={{ base: '100%', lg:'500px' }}>
+                <VStack w={{ base: '100%', lg: '500px' }}>
                   <Funds showTotal={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} prices={prices} type='balance' />
+                  <HStack pt="4" borderTop="1px solid #ccc" w="full">
+                    {yearnFedData.curve.pool.coins.map(({ symbol, slippage_deposit_1M, slippage_withdraw_1M }) => {
+                      return <InfoMessage
+                        title={`${symbol.toUpperCase()} Slippages`}
+                        alertProps={{ w:'50%' }}
+                        description={
+                          <VStack spacing="0" fontSize="12px" key={symbol}>
+                            <HStack w='full' justifyContent="space-between">
+                              <Text>1M Deposit:</Text>
+                              <Text>{shortenNumber(slippage_deposit_1M * 100, 4)}%</Text>
+                            </HStack>
+                            <HStack w='full' justifyContent="space-between">
+                              <Text>1M Withdraw:</Text>
+                              <Text>{shortenNumber(slippage_withdraw_1M * 100, 4)}%</Text>
+                            </HStack>
+                          </VStack>
+                        }
+                      />
+                    })}
+                  </HStack>
                 </VStack>
                 <VStack fontWeight="bold" pr={{ base: '0', lg: '100px' }}>
                   <Funds labelWithPercInChart={true} showTotal={false} showChartTotal={true} chartMode={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} prices={prices} type='balance' />
@@ -195,8 +215,7 @@ export const YearnFed = () => {
             <Container label="Strategies, Vaults and Pools Infos" m="0" p="0">
               <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
                 {yearnFedData.yearn.strategies.map((s, i) => {
-                  const { management_fee, deposit_limit } = yearnFedData.yearn.vaults[i];
-                  const { slippage_deposit_1M, slippage_withdraw_1M } = yearnFedData.curve.pool.coins[i];
+                  const { management_fee, deposit_limit, vault_performance_fee } = yearnFedData.yearn.vaults[i];
                   return <InfoMessage
                     alertProps={{ w: { base: '100%', lg: '50%' }, textAlign: 'left', fontSize: '14px' }}
                     title={<Text fontWeight="extrabold" fontSize="16px">{s.name}</Text>}
@@ -207,7 +226,7 @@ export const YearnFed = () => {
                           <Text textAlign='right'>{moment(s.last_report * 1000).format('MMM Do YYYY')}, {moment(s.last_report * 1000).fromNow()}</Text>
                         </HStack>
                         <HStack w='full' justifyContent="space-between">
-                          <Text>Address:</Text>
+                          <Text>Strategy:</Text>
                           <ScannerLink value={s.address} />
                         </HStack>
                         <HStack w='full' justifyContent="space-between">
@@ -230,35 +249,17 @@ export const YearnFed = () => {
                           <Text>Total Assets:</Text>
                           <Text>{shortenNumber(s.total_assets, 2)}</Text>
                         </HStack>
-                        <Text fontWeight="bold">Parameters:</Text>
                         <HStack w='full' justifyContent="space-between">
                           <Text>Deposit Limit:</Text>
                           <Text>{shortenNumber(deposit_limit, 2)}</Text>
                         </HStack>
                         <HStack w='full' justifyContent="space-between">
-                          <Text>Max Slippage In:</Text>
-                          <Text>{shortenNumber(s.max_slippage_in, 2)}%</Text>
+                          <Text>Max Slippage In / Out:</Text>
+                          <Text>{shortenNumber(s.max_slippage_in / 100, 2)}% / {shortenNumber(s.max_slippage_out / 100, 2)}%</Text>
                         </HStack>
                         <HStack w='full' justifyContent="space-between">
-                          <Text>Max Slippage Out:</Text>
-                          <Text>{shortenNumber(s.max_slippage_out, 2)}%</Text>
-                        </HStack>
-                        <HStack w='full' justifyContent="space-between">
-                          <Text>Performance Fee:</Text>
-                          <Text>{s.strat_performance_fee / 100}%</Text>
-                        </HStack>
-                        <HStack w='full' justifyContent="space-between">
-                          <Text>Management Fee:</Text>
-                          <Text>{management_fee / 100}%</Text>
-                        </HStack>
-                        <Text fontWeight='bold'>Pool Slippages:</Text>
-                        <HStack w='full' justifyContent="space-between">
-                          <Text>Deposit Slippage for 1M:</Text>
-                          <Text>{shortenNumber(slippage_deposit_1M * 100, 4)}%</Text>
-                        </HStack>
-                        <HStack w='full' justifyContent="space-between">
-                          <Text>Withdraw Slippage for 1M:</Text>
-                          <Text>{shortenNumber(slippage_withdraw_1M * 100, 4)}%</Text>
+                          <Text>Performance Fee / Management Fee:</Text>
+                          <Text>{(s.strat_performance_fee + vault_performance_fee) / 100}% / {management_fee / 100}%</Text>
                         </HStack>
                       </VStack>
                     } />
