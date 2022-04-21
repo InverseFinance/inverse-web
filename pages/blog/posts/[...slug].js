@@ -81,7 +81,7 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
-  const allPosts = await getAllPostsWithSlug()
+  const allPosts = await getAllPostsWithSlug();
   const paths = [];
   BLOG_LOCALES.forEach(l => {
     allPosts?.forEach(({ slug }) => `/blog/posts/${l}/${slug}`)

@@ -14,8 +14,9 @@ import { BLOG_LOCALES } from '../../blog/lib/constants'
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
 export default function Index({ preview, allPosts, categories, locale, category, byAuthor, tag }) {
-  const heroPost = allPosts[0];
-  const morePosts = allPosts.slice(1);
+  const posts = allPosts.filter(p => Date.parse(p.date) <= Date.now());
+  const heroPost = posts[0];
+  const morePosts = posts.slice(1);
   const categoryObject = categories.find(c => c.name === category) || {};
 
   return (
@@ -41,7 +42,7 @@ export default function Index({ preview, allPosts, categories, locale, category,
             </BlogText>
           }
           {
-            (!!byAuthor || !!tag) && allPosts.length === 0 && <BlogText>
+            (!!byAuthor || !!tag) && posts.length === 0 && <BlogText>
               No Stories published yet
             </BlogText>
           }
