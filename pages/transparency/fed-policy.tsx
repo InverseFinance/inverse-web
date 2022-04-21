@@ -14,8 +14,7 @@ import Table from '@app/components/common/Table'
 import { Container } from '@app/components/common/Container';
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, EditIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
-import { useEffect, useState } from 'react'
-import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
+import { useState } from 'react'
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
@@ -25,6 +24,7 @@ import { useRouter } from 'next/router'
 import { FED_POLICY_SIGN_MSG } from '@app/config/constants'
 import { showToast } from '@app/util/notify'
 import { FedAreaChart } from '@app/components/Transparency/FedAreaChart'
+import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -126,7 +126,6 @@ export const FedPolicyPage = () => {
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [now, setNow] = useState<number>(Date.now());
 
-
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
     const eventsWithFedInfos = totalEvents
@@ -152,17 +151,6 @@ export const FedPolicyPage = () => {
     }].concat(FEDS);
 
     const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
-
-    const fedOptionList = fedsIncludingAll
-        .map((fed, i) => ({
-            value: i.toString(),
-            label: <Flex alignItems="center">
-                {
-                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
-                }
-                {fed.name.replace(/ Fed$/, '')}
-            </Flex>,
-        }));
 
     const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
         return {
@@ -237,16 +225,7 @@ export const FedPolicyPage = () => {
                         label="Fed Supplies Contractions and Expansions"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <RadioCardGroup
-                                    wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
-                                    group={{
-                                        name: 'bool',
-                                        defaultValue: '0',
-                                        onChange: (v: string) => setChosenFedIndex(parseInt(v)),
-                                    }}
-                                    radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
-                                    options={fedOptionList}
-                                />
+                                <FedsSelector feds={fedsIncludingAll} chosenFedIndex={chosenFedIndex} setChosenFedIndex={setChosenFedIndex} />
                                 <FedAreaChart
                                     title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
                                     fed={chosenFedHistory}

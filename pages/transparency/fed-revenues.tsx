@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Image, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
+import { Box, Flex, Image, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
 import Layout from '@app/components/common/Layout'
@@ -15,12 +15,12 @@ import { Container } from '@app/components/common/Container';
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
-import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
-import { BarChart } from '@app/components/Transparency/BarChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { FedAreaChart } from '@app/components/Transparency/FedAreaChart'
+import { FedBarChart } from '@app/components/Transparency/FedBarChart'
+import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -113,6 +113,15 @@ export const FedRevenuesPage = () => {
 
     const feds = FEDS;
 
+    const fedsIncludingAll = [{
+        name: 'All Feds',
+        projectImage: '/assets/projects/eth-ftm.webp',
+        address: '',
+        chainId: NetworkIds.ethftm,
+    }].concat(feds);
+
+    const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
+
     const eventsWithFedInfos = totalEvents
         .filter(e => !!feds[e.fedIndex])
         .map(e => {
@@ -128,25 +137,6 @@ export const FedRevenuesPage = () => {
     const isAllFedsCase = chosenFedIndex === 0;
 
     const fedHistoricalEvents = isAllFedsCase ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
-    const fedsIncludingAll = [{
-        name: 'All Feds',
-        projectImage: '/assets/projects/eth-ftm.webp',
-        address: '',
-        chainId: NetworkIds.ethftm,
-    }].concat(feds);
-
-    const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
-
-    const fedOptionList = fedsIncludingAll
-        .map((fed, i) => ({
-            value: i.toString(),
-            label: <Flex alignItems="center">
-                {
-                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
-                }
-                {fed.name.replace(/ Fed$/, '')}
-            </Flex>,
-        }));
 
     const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
         const date = new Date(event.timestamp);
@@ -203,16 +193,7 @@ export const FedRevenuesPage = () => {
                         label="Fed Revenues"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <RadioCardGroup
-                                    wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
-                                    group={{
-                                        name: 'bool',
-                                        defaultValue: '0',
-                                        onChange: (v: string) => setChosenFedIndex(parseInt(v)),
-                                    }}
-                                    radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
-                                    options={fedOptionList}
-                                />
+                                <FedsSelector feds={fedsIncludingAll} chosenFedIndex={chosenFedIndex} setChosenFedIndex={setChosenFedIndex} />
                                 <FedAreaChart
                                     title={`${chosenFedHistory.name} Revenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
                                     fed={chosenFedHistory}
@@ -220,14 +201,7 @@ export const FedRevenuesPage = () => {
                                     domainYpadding={50000}
                                     mainColor="secondary"
                                 />
-                                <BarChart
-                                    width={chartWidth}
-                                    height={300}
-                                    title="Monthly profits for the last 12 months"
-                                    groupedData={barChartData}
-                                    colorScale={['#34E795']}
-                                    isDollars={true}
-                                />
+                                <FedBarChart chartData={barChartData} />
                             </Box>
                         }
                     >
