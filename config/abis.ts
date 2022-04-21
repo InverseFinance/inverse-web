@@ -303,7 +303,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     MULTISIGS,
     DOLA_PAYROLL,
     XINV_VESTOR_FACTORY,
-    VESTERS,
     SWAP_ROUTER,
     STABILIZER,
   } = getNetworkConfigConstants(networkConfig);
@@ -329,7 +328,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
         [STABILIZER, STABILIZER_ABI],
-        ...VESTERS.map(vesterAd => [vesterAd, VESTER_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

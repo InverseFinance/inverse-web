@@ -24,7 +24,7 @@ import { namedAddress, shortenAddress } from '@app/util';
 import Link from '@app/components/common/Link';
 import { vesterCancel } from '@app/util/payroll';
 import { useContractEvents } from '@app/hooks/useContractEvents';
-import { INV_ABI, VESTER_FACTORY_ABI } from '@app/config/abis';
+import { INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI } from '@app/config/abis';
 import { usePricesV2 } from '@app/hooks/usePrices';
 import { ETH_MANTISSA } from '@app/config/constants';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
@@ -62,9 +62,10 @@ export const VesterPage = () => {
 
   const vesters = vestersData ? vestersData.filter(r => r.status === 'fulfilled').map(r => r.value) : [];
 
-  const { data: vesterRecipients } = useEtherSWR([
-    ...vesters.map(vesterAd => [vesterAd, 'recipient']),
-  ]);
+  const { data: vesterRecipients } = useEtherSWR({ 
+    args: [...vesters.map(vesterAd => [vesterAd, 'recipient'])], 
+    abi: VESTER_ABI,
+   });
 
   const myVesters = (vesterRecipients || [])
     .map((v, i) => ({
@@ -88,18 +89,34 @@ export const VesterPage = () => {
         [vesterAd, 'lastUpdate'],
         [vesterAd, 'isCancellable'],
         [vesterAd, 'isCancelled'],
+      ],
+    ], [])
+  ]
+
+  const { data: myVestersData } = useEtherSWR({
+    args: myVestersDataReq,
+    abi: VESTER_ABI,
+  });
+
+  const { data: xinvDatas } = useEtherSWR([
+    ...myVesters.reduce((prev, vesterAd) => [
+      ...prev,
+      ...[
         [XINV, 'delegates', vesterAd],
         [XINV, 'delegates', userAddress],
         [XINV, 'balanceOf', vesterAd],
       ],
     ], [])
-  ]
-
-  const { data: myVestersData } = useEtherSWR(myVestersDataReq);
+  ])
 
   const nbDataPerVester = myVesters.length > 0 ? myVestersDataReq.length / myVesters.length : 0;
+  const nbXinvDataPerVester = myVesters.length > 0 ? 3 / myVesters.length : 0;
+
   const selectedVesterData = myVestersData && myVestersData.slice(nbDataPerVester * selectedVesterIndex, nbDataPerVester);
-  const [claimableINV, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled, currentVesterDelegate, accountDelegate, xinvBalance] = selectedVesterData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false, userAddress, userAddress, BigNumber.from('0')];
+  const selectedXinvVesterData = xinvDatas && xinvDatas.slice(nbXinvDataPerVester * selectedVesterIndex, nbXinvDataPerVester);
+
+  const [claimableINV, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled] = selectedVesterData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false];
+  const [currentVesterDelegate, accountDelegate, xinvBalance] = selectedXinvVesterData || [userAddress, userAddress, BigNumber.from('0')];
   const currentVestedAmount = (xinvBalance / ETH_MANTISSA) * ((exRate || 0) / ETH_MANTISSA);
 
   const isLoading = vesterRecipients === undefined && selectedVesterData === undefined;
