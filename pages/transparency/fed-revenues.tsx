@@ -17,11 +17,10 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import { shortenAddress } from '@app/util'
-import { AreaChart } from '@app/components/Transparency/AreaChart'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
 import { BarChart } from '@app/components/Transparency/BarChart'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
+import { FedAreaChart } from '@app/components/Transparency/FedAreaChart'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -214,30 +213,12 @@ export const FedRevenuesPage = () => {
                                     radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
                                     options={fedOptionList}
                                 />
-                                <Flex h="25px" position="relative" alignItems="center">
-                                    {
-                                        !!chosenFedHistory.address &&
-                                        <>
-                                            <Text display="inline-block" mr="2">Contract:</Text>
-                                            <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
-                                        </>
-                                    }
-                                    <HStack position="absolute" right={{ base: 0, sm: '50px' }} top="3px">
-                                        <Text fontSize="12px">
-                                            Smooth line
-                                        </Text>
-                                        <Switch value="true" isChecked={useSmoothLine} onChange={() => setUseSmoothLine(!useSmoothLine)} />
-                                    </HStack>
-                                </Flex>
-                                <AreaChart
+                                <FedAreaChart
                                     title={`${chosenFedHistory.name} Revenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
-                                    showTooltips={true}
-                                    height={300}
-                                    width={chartWidth}
-                                    data={chartData}
+                                    fed={chosenFedHistory}
+                                    chartData={chartData}
                                     domainYpadding={50000}
                                     mainColor="secondary"
-                                    interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                 />
                                 <BarChart
                                     width={chartWidth}

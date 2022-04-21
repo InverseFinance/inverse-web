@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Image, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
+import { Box, Flex, Image, Text, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
 import Layout from '@app/components/common/Layout'
@@ -17,8 +17,6 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import { shortenAddress } from '@app/util'
-import { AreaChart } from '@app/components/Transparency/AreaChart'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { useWeb3React } from '@web3-react/core';
@@ -26,6 +24,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router'
 import { FED_POLICY_SIGN_MSG } from '@app/config/constants'
 import { showToast } from '@app/util/notify'
+import { FedAreaChart } from '@app/components/Transparency/FedAreaChart'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -125,14 +124,8 @@ export const FedPolicyPage = () => {
     const { totalEvents, isLoading } = useFedHistory();
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
-    const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
-    const [useSmoothLine, setUseSmoothLine] = useState(false);
-    const [isLargerThan] = useMediaQuery('(min-width: 900px)')
 
-    useEffect(() => {
-        setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
-    }, [isLargerThan]);
 
     const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
 
@@ -254,29 +247,11 @@ export const FedPolicyPage = () => {
                                     radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
                                     options={fedOptionList}
                                 />
-                                <Flex h="25px" position="relative" alignItems="center">
-                                    {
-                                        !!chosenFedHistory.address &&
-                                        <>
-                                            <Text display="inline-block" mr="2">Contract:</Text>
-                                            <ScannerLink chainId={chosenFedHistory.chainId} value={chosenFedHistory.address} label={shortenAddress(chosenFedHistory.address)} />
-                                        </>
-                                    }
-                                    <HStack position="absolute" right={{ base: 0, sm: '50px' }} top="3px">
-                                        <Text fontSize="12px">
-                                            Smooth line
-                                        </Text>
-                                        <Switch value="true" isChecked={useSmoothLine} onChange={() => setUseSmoothLine(!useSmoothLine)} />
-                                    </HStack>
-                                </Flex>
-                                <AreaChart
+                                <FedAreaChart
                                     title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
-                                    showTooltips={true}
-                                    height={300}
-                                    width={chartWidth}
-                                    data={chartData}
+                                    fed={chosenFedHistory}
+                                    chartData={chartData}
                                     domainYpadding={5000000}
-                                    interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
                                 />
                             </Box>
                         }
