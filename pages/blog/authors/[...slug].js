@@ -42,7 +42,8 @@ export default function Post({ authors, preview, locale, categories }) {
   )
 }
 
-export async function getServerSideProps(context) {
+// revalidation vya webhook
+export async function getStaticProps(context) {
   const { preview = false } = context;
   const { locale, isPreviewUrl } = getBlogContext(context);
   const isPreview = preview || isPreviewUrl;
@@ -56,5 +57,6 @@ export async function getServerSideProps(context) {
       categories,
       locale,
     },
+    fallback: false,
   }
 }

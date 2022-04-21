@@ -9,6 +9,7 @@ import Categories from '../../blog/components/categories'
 import { getBlogContext } from '../../blog/lib/utils'
 import React from 'react'
 import BlogText from '../../blog/components/common/text'
+import { BLOG_LOCALES } from '../../blog/lib/constants'
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
@@ -56,7 +57,8 @@ export default function Index({ preview, allPosts, categories, locale, category,
   )
 }
 
-export async function getServerSideProps({ preview = false, ...context }) {
+// revalidation via webhook
+export async function getStaticProps({ preview = false, ...context }) {
   const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
   const isPreview = preview||isPreviewUrl;
   const allPosts = await getAllPostsForHome(isPreview, locale, category, byAuthor) ?? []
@@ -64,5 +66,12 @@ export async function getServerSideProps({ preview = false, ...context }) {
   const tag = byTag ? await getTag(isPreview, locale, byTag) : null;
   return {
     props: { preview: isPreview, allPosts, categories, locale, category, byAuthor, tag },
+  }
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: BLOG_LOCALES.map(l => `/blog/${l}`),
+    fallback: false,
   }
 }

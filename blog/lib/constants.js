@@ -12,3 +12,5 @@ export const BLOG_THEME = {
     badgeBgColor: '#eee',
   }
 }
+
+export const BLOG_LOCALES = ['en-US', 'fr'];

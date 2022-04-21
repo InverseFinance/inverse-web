@@ -13,6 +13,7 @@ import { getBlogContext } from '../../../blog/lib/utils'
 import { BlogContext } from '../[...slug]'
 import PostFooter from '../../../blog/components/post-footer'
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer'
+import { BLOG_LOCALES } from '../../../blog/lib/constants'
 
 export default function Post({ post, morePosts, preview, locale }) {
   const router = useRouter()
@@ -63,7 +64,7 @@ export default function Post({ post, morePosts, preview, locale }) {
   )
 }
 
-export async function getServerSideProps(context) {
+export async function getStaticProps(context) {
   const { params, preview = false } = context;
   const { locale, isPreviewUrl } = getBlogContext(context);
   const isPreview = preview||isPreviewUrl;
@@ -79,10 +80,14 @@ export async function getServerSideProps(context) {
   }
 }
 
-// export async function getStaticPaths() {
-//   const allPosts = await getAllPostsWithSlug()
-//   return {
-//     paths: allPosts?.map(({ slug }) => `/blog/posts/${slug}`) ?? [],
-//     fallback: true,
-//   }
-// }
+export async function getStaticPaths() {
+  const allPosts = await getAllPostsWithSlug()
+  const paths = [];
+  BLOG_LOCALES.forEach(l => {
+    allPosts?.forEach(({ slug }) => `/blog/posts/${l}/${slug}`)
+  });
+  return {
+    paths,
+    fallback: true,
+  }
+}
