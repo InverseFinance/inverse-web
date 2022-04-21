@@ -60,30 +60,31 @@ const redirects = async () => {
   ]
 }
 
+const common = {
+  images: {
+    domains: ['images.ctfassets.net'],
+  },
+  redirects,
+}
+
 module.exports = (phase) => {
   switch (phase) {
     case PHASE_DEVELOPMENT_SERVER:
       return {
-        redirects,
         env: {
           COINGECKO_PRICE_API: 'https://api.coingecko.com/api/v3/simple/price',
         },
-        images: {
-          domains: ['images.ctfassets.net'],
-        },
+        ...common
       }
     default:
       return {
-        redirects,
         typescript: {
           ignoreBuildErrors: true,
         },
         env: {
           COINGECKO_PRICE_API: 'https://api.coingecko.com/api/v3/simple/price',
         },
-        images: {
-          domains: ['images.ctfassets.net'],
-        },
+        ...common
       }
   }
 }
