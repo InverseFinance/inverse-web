@@ -25,10 +25,30 @@ export function getContract(address, abi, signer) {
   return contract
 }
 
-function useEtherSWR(...args) {
+const getArgs = (...args) => args;
+
+// [contractAddres, function, ...parameters] or [[contractAddres, function, ...parameters], etc] or { args: sameAsBefore, abi }
+function useEtherSWR(..._args) {
   const { library, chainId } = useWeb3React<Web3Provider>()
 
+  const withCustomAbiParam = _args.length > 0 && _args[0].args;
+  const args = withCustomAbiParam ? getArgs(_args[0].args) : _args;
+
   const ABIs = getAbis(chainId);
+
+  if (withCustomAbiParam) {
+    if (withCustomAbiParam && _args[0].args[0] && _args[0].args[0].length > 0) {
+      _args[0].args.forEach((a, i) => {
+        if (!_args[0].args[i]) {
+          // nada
+        } else if (Array.isArray(_args[0].args[i][0])) {
+          ABIs.set(_args[0].args[i][0][0], _args[0].abi);
+        } else {
+          ABIs.set(_args[0].args[i][0], _args[0].abi);
+        }
+      })
+    }
+  }
 
   let _key: ethKeyInterface
   let fn: any
