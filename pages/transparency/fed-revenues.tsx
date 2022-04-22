@@ -1,4 +1,4 @@
-import { Box, Flex, Image, Text, useMediaQuery, VStack } from '@chakra-ui/react'
+import { Box, Flex, useMediaQuery, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
 import Layout from '@app/components/common/Layout'
@@ -10,93 +10,20 @@ import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useFedRevenues } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
-import Table from '@app/components/common/Table'
 import { Container } from '@app/components/common/Container';
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
-import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { FedAreaChart } from '@app/components/Transparency/fed/FedAreaChart'
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
+import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
 
-const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS_WITH_ALL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const months = [...Array(12).keys()];
 
 const oneDay = 86400000;
-
-const SupplyChange = ({ newSupply, changeAmount }: { newSupply: number, changeAmount: number }) => {
-    return (
-        <Flex alignItems="center" justify="space-between" pl="2" minW="140px">
-            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 2)}</Text>
-            <ArrowForwardIcon />
-            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 2)}</Text>
-        </Flex>
-    )
-}
-
-const columns = [
-    {
-        field: 'fedName',
-        label: 'Fed',
-        header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ fedName, projectImage }) =>
-            <Flex alignItems="center" minW="120px">
-                <Image ignoreFallback={true} src={`${projectImage}`} w={'15px'} h={'15px'} mr="2" />
-                {fedName}
-            </Flex>,
-    },
-    {
-        field: 'timestamp',
-        label: 'Time',
-        header: ({ ...props }) => <Flex minW="100px" {...props} />,
-        value: ({ timestamp }) => {
-            const textColor = 'info'
-            return (
-                <Flex minW="100px">
-                    <VStack spacing="0">
-                        <Text color={textColor} fontSize="12px">{moment(timestamp).fromNow()}</Text>
-                        <Text color={textColor} fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
-                    </VStack>
-                </Flex>
-            )
-        },
-    },
-    {
-        field: 'transactionHash',
-        label: 'Transaction',
-        header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ transactionHash, chainId }) => <Flex minW="120px">
-            <ScannerLink value={transactionHash} type="tx" chainId={chainId} />
-        </Flex>,
-    },
-    {
-        field: 'profit',
-        label: 'Profit',
-        tooltip: 'After the bridging fee',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="60px" {...props} />,
-        value: ({ profit }) => <Flex justify="flex-end" minW="60px" >
-            {shortenNumber(profit, 2)}
-        </Flex>,
-    },
-    {
-        field: 'accProfit',
-        label: 'New Fed Revenue',
-        header: ({ ...props }) => <Flex justify="center" minW="140px" {...props} />,
-        value: ({ accProfit, profit }) =>
-            <SupplyChange newSupply={accProfit} changeAmount={profit} />
-    },
-    {
-        field: 'totalAccProfit',
-        label: 'New TOTAL Revenue',
-        header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
-        value: ({ totalAccProfit, profit }) =>
-            <SupplyChange newSupply={totalAccProfit} changeAmount={profit} />
-    },
-]
 
 export const FedRevenuesPage = () => {
     const { dolaTotalSupply, fantom, feds } = useDAO();
@@ -110,14 +37,7 @@ export const FedRevenuesPage = () => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    const fedsIncludingAll = [{
-        name: 'All Feds',
-        projectImage: '/assets/projects/eth-ftm.webp',
-        address: '',
-        chainId: NetworkIds.ethftm,
-    }].concat(FEDS);
-
-    const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
+    const chosenFedHistory = FEDS_WITH_ALL[chosenFedIndex];
 
     const isAllFedsCase = chosenFedIndex === 0;
 
@@ -135,7 +55,6 @@ export const FedRevenuesPage = () => {
     })];
 
     // add today's timestamp and zero one day before first supply
-
     const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
     chartData.unshift({ x: minX - oneDay, y: 0 });
     chartData.push({ x: now, y: chartData[chartData.length - 1].y });
@@ -178,7 +97,7 @@ export const FedRevenuesPage = () => {
                         label="Fed Revenues"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <FedsSelector feds={fedsIncludingAll} setChosenFedIndex={setChosenFedIndex} />
+                                <FedsSelector feds={FEDS_WITH_ALL} setChosenFedIndex={setChosenFedIndex} />
                                 <FedAreaChart
                                     title={`${chosenFedHistory.name} Revenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
                                     fed={chosenFedHistory}
@@ -190,17 +109,7 @@ export const FedRevenuesPage = () => {
                             </Box>
                         }
                     >
-                        {
-                            fedHistoricalEvents?.length > 0 ?
-                                <Table
-                                    keyName="transactionHash"
-                                    defaultSort="timestamp"
-                                    defaultSortDir="desc"
-                                    alternateBg={false}
-                                    columns={columns}
-                                    items={fedHistoricalEvents} />
-                                : isLoading ? <SkeletonBlob /> : <Text>No Take Profit action has been executed yet</Text>
-                        }
+                        <FedRevenueTable fedHistoricalEvents={fedHistoricalEvents} isLoading={isLoading} />
                     </Container>
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>

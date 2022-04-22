@@ -108,6 +108,8 @@ export const getNetworkConfigConstants = (
     const FEDS: Fed[] = config.feds.map((fed) => {
         return { ...fed, abi: fed.isXchain ? XCHAIN_FED_ABI : FED_ABI }
     });
+    const FEDS_WITH_ALL = [{ name: 'All Feds', projectImage: '/assets/projects/eth-ftm.webp', address: '', chainId: NetworkIds.ethftm }]
+        .concat(FEDS)
 
     return {
         LENS,
@@ -143,6 +145,7 @@ export const getNetworkConfigConstants = (
         NAMED_ADDRESSES,
         DOLA_PAYROLL,
         FEDS,
+        FEDS_WITH_ALL,
         DEPLOYER,
         MULTISIGS,
         SECONDS_PER_BLOCK,
