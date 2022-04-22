@@ -28,14 +28,6 @@ import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
-    return {
-        ...fed,
-        events: [],
-        supply: 0,
-    }
-}))
-
 const oneDay = 86400000;
 
 const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: number, changeAmount: number, isContraction: boolean }) => {
@@ -121,24 +113,10 @@ export const FedPolicyPage = () => {
     const userAddress = (query?.viewAddress as string) || account;
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const [msgUpdates, setMsgUpdates] = useState(0)
-    const { totalEvents, isLoading } = useFedHistory();
+    const { totalEvents: eventsWithFedInfos, isLoading } = useFedHistory();
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [now, setNow] = useState<number>(Date.now());
-
-    const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
-
-    const eventsWithFedInfos = totalEvents
-        .filter(e => !!fedsWithData[e.fedIndex])
-        .map(e => {
-            const fed = fedsWithData[e.fedIndex];
-            return {
-                ...e,
-                chainId: fed.chainId,
-                fedName: fed.name,
-                projectImage: fed.projectImage,
-            }
-        })
 
     const isAllFedsCase = chosenFedIndex === 0;
 
@@ -225,7 +203,7 @@ export const FedPolicyPage = () => {
                         label="Fed Supplies Contractions and Expansions"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <FedsSelector feds={fedsIncludingAll} chosenFedIndex={chosenFedIndex} setChosenFedIndex={setChosenFedIndex} />
+                                <FedsSelector feds={fedsIncludingAll} setChosenFedIndex={setChosenFedIndex} />
                                 <FedAreaChart
                                     title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
                                     fed={chosenFedHistory}
@@ -274,7 +252,7 @@ export const FedPolicyPage = () => {
                     />
                     <SuppplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-                        supplies={fedsWithData}
+                        supplies={feds}
                     />
                 </VStack>
             </Flex>

@@ -99,40 +99,25 @@ const columns = [
 ]
 
 export const FedRevenuesPage = () => {
-    const { dolaTotalSupply, fantom } = useDAO();
-    const { totalEvents, totalRevenues, isLoading } = useFedRevenues();
+    const { dolaTotalSupply, fantom, feds } = useDAO();
+    const { totalEvents: eventsWithFedInfos, totalRevenues, isLoading } = useFedRevenues();
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
-    const [useSmoothLine, setUseSmoothLine] = useState(false);
     const [isLargerThan] = useMediaQuery('(min-width: 900px)')
 
     useEffect(() => {
         setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    const feds = FEDS;
-
     const fedsIncludingAll = [{
         name: 'All Feds',
         projectImage: '/assets/projects/eth-ftm.webp',
         address: '',
         chainId: NetworkIds.ethftm,
-    }].concat(feds);
+    }].concat(FEDS);
 
     const chosenFedHistory = fedsIncludingAll[chosenFedIndex];
-
-    const eventsWithFedInfos = totalEvents
-        .filter(e => !!feds[e.fedIndex])
-        .map(e => {
-            const fed = feds[e.fedIndex];
-            return {
-                ...e,
-                chainId: fed.chainId,
-                fedName: fed.name,
-                projectImage: fed.projectImage,
-            }
-        })
 
     const isAllFedsCase = chosenFedIndex === 0;
 
@@ -193,7 +178,7 @@ export const FedRevenuesPage = () => {
                         label="Fed Revenues"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <FedsSelector feds={fedsIncludingAll} chosenFedIndex={chosenFedIndex} setChosenFedIndex={setChosenFedIndex} />
+                                <FedsSelector feds={fedsIncludingAll} setChosenFedIndex={setChosenFedIndex} />
                                 <FedAreaChart
                                     title={`${chosenFedHistory.name} Revenue Evolution (Current accumulated revenue: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2) : 0})`}
                                     fed={chosenFedHistory}

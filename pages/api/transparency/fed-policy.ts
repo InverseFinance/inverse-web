@@ -120,6 +120,7 @@ export default async function handler(req, res) {
     const resultData = {
       fedPolicyMsg,
       totalEvents,
+      feds: FEDS,
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));
