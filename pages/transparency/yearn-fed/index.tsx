@@ -207,11 +207,12 @@ export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
                   <Stack direction={{ base: 'column-reverse', lg: 'row' }} alignItems="center" justifyContent="space-between" w='full'>
                     <VStack w={{ base: '100%', lg: '500px' }}>
                       <Funds showTotal={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} prices={prices} type='balance' />
-                      <HStack pt="4" borderTop="1px solid #ccc" w="full">
+                      <Stack direction={{ base: 'column', md: 'row' }} pt="4" borderTop="1px solid #ccc" w="full">
                         {yearnFedData.curve.pool.coins.map(({ symbol, slippage_deposit_1M, slippage_withdraw_1M }) => {
                           return <InfoMessage
+                            key={symbol}
                             title={`${symbol.toUpperCase()} Slippages`}
-                            alertProps={{ w: '50%' }}
+                            alertProps={{ w: { base: '100%', md: '50%' } }}
                             description={
                               <VStack spacing="0" fontSize="12px" key={symbol}>
                                 <HStack w='full' justifyContent="space-between">
@@ -226,7 +227,7 @@ export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
                             }
                           />
                         })}
-                      </HStack>
+                      </Stack>
                     </VStack>
                     <VStack fontWeight="bold" pr={{ base: '0', lg: '100px' }}>
                       <Funds labelWithPercInChart={true} showTotal={false} showChartTotal={true} chartMode={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} prices={prices} type='balance' />
