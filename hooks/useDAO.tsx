@@ -3,14 +3,15 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
 
+const oneDay = 86400000;
 
 const { FEDS } = getNetworkConfigConstants();
 
 const defaultFedsData = FEDS.map(((fed) => {
   return {
-      ...fed,
-      events: [],
-      supply: 0,
+    ...fed,
+    events: [],
+    supply: 0,
   }
 }))
 
@@ -56,7 +57,7 @@ export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: 
   const totalEvents = data?.totalEvents || [];
 
   return {
-    totalEvents: addFedInfosToEvent(totalEvents, data?.feds||[]),
+    totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
     isLoading: !error && !data,
     isError: error,
@@ -80,7 +81,7 @@ export const useFedRevenues = (): SWR & { totalEvents: FedEvent[], totalRevenues
   const totalRevenues = data?.totalRevenues || {};
 
   return {
-    totalEvents: addFedInfosToEvent(totalEvents, data?.feds||[]),
+    totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
     totalRevenues,
     isLoading: !error && !data,
     isError: error,
@@ -96,5 +97,47 @@ export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
     totalEvents,
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useFedRevenuesChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
+  const now = new Date()
+  const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+    const date = new Date(event.timestamp);
+    return {
+      x: event.timestamp,
+      y: event[isAllFedsCase ? 'totalAccProfit' : 'accProfit'],
+      profit: event.profit,
+      month: date.getUTCMonth(),
+      year: date.getUTCFullYear(),
+    }
+  })];
+
+  // add today's timestamp and zero one day before first supply
+  const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+  chartData.unshift({ x: minX - oneDay, y: 0 });
+  chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+
+  return {
+    chartData,
+  }
+}
+
+export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
+  const now = new Date()
+  const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+    return {
+      x: event.timestamp,
+      y: event[isAllFedsCase ? 'newTotalSupply' : 'newSupply'],
+    }
+  })];
+
+  // add today's timestamp and zero one day before first supply
+  const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+  chartData.unshift({ x: minX - oneDay, y: 0 });
+  chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+
+  return {
+    chartData,
   }
 }

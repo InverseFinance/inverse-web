@@ -7,7 +7,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO, useFedHistory, useFedPolicyMsg } from '@app/hooks/useDAO'
+import { useDAO, useFedHistory, useFedPolicyChartData, useFedPolicyMsg } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Container } from '@app/components/common/Container';
@@ -37,25 +37,10 @@ export const FedPolicyPage = () => {
     const { totalEvents: eventsWithFedInfos, isLoading } = useFedHistory();
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
-    const [now, setNow] = useState<number>(Date.now());
-
     const isAllFedsCase = chosenFedIndex === 0;
-
     const fedHistoricalEvents = isAllFedsCase ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
-
+    const { chartData } = useFedPolicyChartData(fedHistoricalEvents, isAllFedsCase);
     const chosenFedHistory = FEDS_WITH_ALL[chosenFedIndex];
-
-    const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
-        return {
-            x: event.timestamp,
-            y: event[isAllFedsCase ? 'newTotalSupply' : 'newSupply'],
-        }
-    })];
-
-    // add today's timestamp and zero one day before first supply
-    const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-    chartData.unshift({ x: minX - oneDay, y: 0 });
-    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
 
     const handlePolicyEdit = async () => {
         try {
