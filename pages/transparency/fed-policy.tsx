@@ -23,7 +23,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router'
 import { FED_POLICY_SIGN_MSG } from '@app/config/constants'
 import { showToast } from '@app/util/notify'
-import { FedAreaChart } from '@app/components/Transparency/FedAreaChart'
+import { FedAreaChart } from '@app/components/Transparency/fed/FedAreaChart'
 import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 
 const { DOLA, TOKENS, FEDS, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);

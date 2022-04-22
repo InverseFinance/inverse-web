@@ -1,7 +1,7 @@
 import theme from '@app/variables/theme';
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { BarChart } from './BarChart'
+import { BarChart } from '../BarChart'
 
 export const FedBarChart = ({ chartData, ...props }: { chartData: any }) => {
     const [chartWidth, setChartWidth] = useState<number>(900);

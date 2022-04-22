@@ -1,5 +1,6 @@
-import { useRadio, UseRadioProps, Box, UseRadioGroupProps, useRadioGroup, HStack, BoxProps, StackProps } from '@chakra-ui/react'
-import { RadioCardGroupOptions } from '@app/types'
+import { useRadio, UseRadioProps, Box, UseRadioGroupProps, useRadioGroup, HStack, BoxProps, StackProps, SimpleGrid, SimpleGridProps } from '@chakra-ui/react'
+import { GenericComponent, RadioCardGroupOptions } from '@app/types'
+import React from 'react'
 
 export const RadioCard = ({ radioProps, ...props }: { radioProps: UseRadioProps } & Partial<BoxProps>) => {
     const { getInputProps, getCheckboxProps } = useRadio(radioProps)
@@ -35,18 +36,20 @@ export const RadioCardGroup = ({
     group,
     radioCardProps,
     wrapperProps,
+    WrapperComponent = HStack,
 }: {
     options: RadioCardGroupOptions,
     group: UseRadioGroupProps,
     radioCardProps?: Partial<BoxProps>,
     wrapperProps?: Partial<StackProps>,
+    WrapperComponent?: GenericComponent,
 }) => {
     const { getRootProps, getRadioProps } = useRadioGroup(group)
 
     const groupProps = getRootProps()
 
     return (
-        <HStack {...wrapperProps} {...groupProps}>
+        <WrapperComponent  {...wrapperProps} {...groupProps}>
             {options.map((option, i) => {
                 const radioProps = getRadioProps({ value: option.value })
                 return (
@@ -55,6 +58,18 @@ export const RadioCardGroup = ({
                     </RadioCard>
                 )
             })}
-        </HStack>
+        </WrapperComponent>
     )
+}
+
+export const RadioGridCardGroup = (props: {
+    options: RadioCardGroupOptions,
+    group: UseRadioGroupProps,
+    radioCardProps?: Partial<BoxProps>,
+    wrapperProps?: Partial<SimpleGridProps>,
+}) => {
+    return <RadioCardGroup
+        {...props}
+        WrapperComponent={SimpleGrid}
+    />
 }

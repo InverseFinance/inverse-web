@@ -2,8 +2,8 @@ import { Fed } from '@app/types'
 import { shortenAddress } from '@app/util'
 import { Flex,Text, HStack, Switch, useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import ScannerLink from '../common/ScannerLink'
-import { AreaChart } from './AreaChart'
+import ScannerLink from '../../common/ScannerLink'
+import { AreaChart } from '../AreaChart'
 
 export const FedAreaChart = ({ fed, chartData, ...props }: { fed: Fed, chartData: any }) => {
     const [useSmoothLine, setUseSmoothLine] = useState(false);

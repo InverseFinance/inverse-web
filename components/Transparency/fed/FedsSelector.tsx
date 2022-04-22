@@ -1,8 +1,7 @@
-import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
-import { NetworkIds } from '@app/types';
-import { Flex, Image } from '@chakra-ui/react';
+import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { Box, Flex, Image } from '@chakra-ui/react';
 
-export const FedsSelector = ({ feds, chosenFedIndex, setChosenFedIndex }) => {
+export const FedsSelector = ({ feds, setChosenFedIndex }) => {
     const fedOptionList = feds
         .map((fed, i) => ({
             value: i.toString(),
@@ -15,15 +14,25 @@ export const FedsSelector = ({ feds, chosenFedIndex, setChosenFedIndex }) => {
         }));
 
     return (
-        <RadioCardGroup
-            wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
-            group={{
-                name: 'bool',
-                defaultValue: '0',
-                onChange: (v: string) => setChosenFedIndex(parseInt(v)),
-            }}
-            radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
-            options={fedOptionList}
-        />
+        <Box maxW="850px">
+            <RadioGridCardGroup
+                wrapperProps={{
+                    minChildWidth: '95px',
+                    spacing: '2',
+                    overflow: 'auto',
+                    position: 'relative',
+                    mt: '2',
+                    mb: '2',
+                    maxW: { base: '90vw', sm: 'auto-fit' },
+                }}
+                group={{
+                    name: 'bool',
+                    defaultValue: '0',
+                    onChange: (v: string) => setChosenFedIndex(parseInt(v)),
+                }}
+                radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
+                options={fedOptionList}
+            />
+        </Box>
     )
 }

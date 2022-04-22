@@ -18,8 +18,8 @@ import { useEffect, useState } from 'react'
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos';
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
-import { FedAreaChart } from '@app/components/Transparency/FedAreaChart'
-import { FedBarChart } from '@app/components/Transparency/FedBarChart'
+import { FedAreaChart } from '@app/components/Transparency/fed/FedAreaChart'
+import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 
 const { DOLA, TOKENS, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
