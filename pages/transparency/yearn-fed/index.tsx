@@ -1,14 +1,12 @@
-import { Flex, HStack, Stack, Text, VStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { FedHistory } from '@app/types'
 import { usePricesV2 } from '@app/hooks/usePrices'
-import { useDAO, useFedHistory, useFedRevenues } from '@app/hooks/useDAO'
+import { useDAO, useFedHistory, useFedPolicyChartData, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
 import { Funds } from '@app/components/Transparency/Funds'
 import { TOKENS, getToken } from '@app/variables/tokens'
-import { useEffect, useState } from 'react'
 import Table from '@app/components/common/Table'
 import moment from 'moment'
 import ScannerLink from '@app/components/common/ScannerLink'
@@ -16,21 +14,9 @@ import { shortenNumber } from '@app/util/markets'
 import Container from '@app/components/common/Container'
 import { getScanner } from '@app/util/web3'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
-import { getNetworkConfigConstants } from '@app/util/networks'
-import { AreaChart } from '@app/components/Transparency/AreaChart'
 import { fetchJson } from 'ethers/lib/utils'
-
-const { FEDS } = getNetworkConfigConstants();
-
-const defaultFeds: FedHistory[] = FEDS.map(((fed) => {
-  return {
-    ...fed,
-    events: [],
-    supply: 0,
-  }
-}))
-
-const oneDay = 86400000;
+import { FedAreaChart } from '@app/components/Transparency/fed/FedAreaChart'
+import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 
 const columns = [
   {
@@ -185,77 +171,20 @@ export interface YearnFed {
   actions: (any)[];
 }
 
-
 export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
   const { prices } = usePricesV2(true)
   const { feds } = useDAO();
-  const { totalEvents } = useFedHistory();
+  const { totalEvents: policyEvents } = useFedHistory();
   const { totalEvents: profitsEvents } = useFedRevenues();
-  const [chartWidth, setChartWidth] = useState<number>(900);
-  const [now, setNow] = useState<number>(Date.now());
-  const [isLargerThan] = useMediaQuery('(min-width: 1200px)');
 
   const chosenFedIndex = feds.findIndex(f => f.address === '0xcc180262347F84544c3a4854b87C34117ACADf94');
+  const yearnFed = feds[chosenFedIndex];
 
-  useEffect(() => {
-    setChartWidth(isLargerThan ? 1200 : (screen.availWidth || screen.width) - 40)
-  }, [isLargerThan]);
+  const fedHistoricalEvents = policyEvents.filter(e => e.fedIndex === (chosenFedIndex));
+  const fedProfitsEvents = profitsEvents.filter(e => e.fedIndex === (chosenFedIndex));
 
-  const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
-
-  const eventsWithFedInfos = totalEvents
-    .filter(e => !!fedsWithData[e.fedIndex])
-    .map(e => {
-      const fed = fedsWithData[e.fedIndex];
-      return {
-        ...e,
-        chainId: fed.chainId,
-        fedName: fed.name,
-        projectImage: fed.projectImage,
-      }
-    })
-
-  const eventsProfitsWithFedInfos = profitsEvents
-    .filter(e => !!fedsWithData[e.fedIndex])
-    .map(e => {
-      const fed = fedsWithData[e.fedIndex];
-      return {
-        ...e,
-        chainId: fed.chainId,
-        fedName: fed.name,
-        projectImage: fed.projectImage,
-      }
-    })
-
-  const fedHistoricalEvents = eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex));
-  const fedProfitsEvents = eventsProfitsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex));
-
-  const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
-    return {
-      x: event.timestamp,
-      y: event['newSupply'],
-    }
-  })];
-
-  const chartProfitsData = [...fedProfitsEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
-    const date = new Date(event.timestamp);
-    return {
-      x: event.timestamp,
-      y: event['accProfit'],
-      profit: event.profit,
-      month: date.getUTCMonth(),
-      year: date.getUTCFullYear(),
-    }
-  })];
-
-  // add today's timestamp and zero one day before first supply
-  const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-  chartData.unshift({ x: minX - oneDay, y: 0 });
-  chartData.push({ x: now, y: chartData[chartData.length - 1].y });
-
-  const minProfitsX = chartProfitsData.length > 0 ? Math.min(...chartProfitsData.map(d => d.x)) : 1577836800000;
-  chartProfitsData.unshift({ x: minProfitsX - oneDay, y: 0 });
-  chartProfitsData.push({ x: now, y: chartProfitsData[chartProfitsData.length - 1].y });
+  const { chartData: chartDataPolicies } = useFedPolicyChartData(fedHistoricalEvents, false);
+  const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, false);
 
   return (
     <Layout>
@@ -268,7 +197,7 @@ export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
       <AppNav active="Transparency" activeSubmenu="Treasury" />
       {
         !yearnFedData ?
-          <WarningMessage alertProps={{  mt:"8" }} description="Could not fetch data form API" />
+          <WarningMessage alertProps={{ mt: "8" }} description="Could not fetch data form API" />
           :
           <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
             <Flex direction="column" py="2" px="5" maxWidth="1200px" w='full'>
@@ -376,33 +305,33 @@ export const YearnFed = ({ yearnFedData }: { yearnFedData: YearnFedData }) => {
                     items={yearnFedData.curve.gauge_votes} />
                 </Container>
 
-                <Container p="0" m="0" label="Fed Contractions & Expansions Events">
-                  <AreaChart
-                    title={`Yearn Fed Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
-                    showTooltips={true}
-                    height={300}
-                    width={chartWidth}
-                    data={chartData}
+                <Container p="0" m="0" label="Yearn Fed Supply">
+                  <FedAreaChart
+                    title={`Current supply: ${chartDataPolicies.length ? shortenNumber(chartDataPolicies[chartDataPolicies.length - 1].y, 1) : 0}`}
+                    chartData={chartDataPolicies}
                     domainYpadding={5000000}
-                    interpolation={'stepAfter'}
+                    fed={yearnFed}
+                    onlyChart={true}
+                    maxChartWidth={1200}
                   />
                 </Container>
-                <Container p="0" m="0" label="Fed Take Profits Events">
-                  <AreaChart
-                    title={`Revenue Evolution (Current accumulated revenue: ${chartProfitsData.length ? shortenNumber(chartProfitsData[chartProfitsData.length - 1].y, 2) : 0})`}
-                    showTooltips={true}
-                    height={300}
-                    width={chartWidth}
-                    data={chartProfitsData}
+                <Container p="0" m="0" label="Yearn Fed Accumulated Revenue">
+                  <FedAreaChart
+                    title={`Current Accumulated Revenue: ${chartDataRevenues.length ? shortenNumber(chartDataRevenues[chartDataRevenues.length - 1].y, 2) : 0}`}
+                    chartData={chartDataRevenues}
                     domainYpadding={50000}
+                    fed={yearnFed}
+                    onlyChart={true}
+                    maxChartWidth={1200}
                     mainColor="secondary"
-                    interpolation={'stepAfter'}
                   />
+                </Container>
+                <Container p="0" m="0" label="Yearn Fed Monthly Revenue">
+                  <FedBarChart chartData={chartDataRevenues} maxChartWidth={1200} />
                 </Container>
               </Stack>
             </Flex>
           </Flex>
-
       }
     </Layout>
   )

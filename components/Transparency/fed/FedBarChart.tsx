@@ -7,12 +7,12 @@ import { shortenNumber } from '@app/util/markets';
 
 const months = [...Array(12).keys()];
 
-export const FedBarChart = ({ chartData, ...props }: { chartData: any }) => {
-    const [chartWidth, setChartWidth] = useState<number>(900);
-    const [isLargerThan] = useMediaQuery('(min-width: 900px)')
+export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { chartData: any, maxChartWidth?: number }) => {
+    const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? 900 : (screen.availWidth || screen.width) - 40)
+        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
     const currentYear = new Date().getFullYear();
