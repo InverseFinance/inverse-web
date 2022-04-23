@@ -1,11 +1,41 @@
-import { Flex, Image, Text } from '@chakra-ui/react';
+import { Flex, Image, SimpleGrid, Text } from '@chakra-ui/react';
 import { OLD_XINV } from '@app/config/constants';
 import { Prices, Token } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { PieChart } from './PieChart';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 
-const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, showPrice = false, label }: { token: Token, value: number, usdPrice: number, usdValue: number, perc: number, showPerc?: boolean, showPrice?: boolean, label?: string }) => {
+const FundLine = ({
+    token,
+    value,
+    usdValue,
+    usdPrice,
+    perc,
+    showPerc = true,
+    showPrice = false,
+    label,
+    showAsAmountOnly,
+}: {
+    token: Token,
+    value: number,
+    usdPrice: number,
+    usdValue: number,
+    perc: number,
+    showPerc?: boolean,
+    showPrice?: boolean,
+    label?: string,
+    showAsAmountOnly?: boolean
+}) => {
+    const rightSideContent = <>
+        <Text textAlign="right">
+            {shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} `}{!showAsAmountOnly && `(${shortenNumber(usdValue, 2, true, true)})`}
+        </Text>
+        {
+            showPerc && <Text ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
+                {!!showAsAmountOnly && `  `}{shortenNumber(perc, 2, false, true).padStart(5, '  ')}%
+            </Text>
+        }
+    </>
     return (
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
@@ -15,16 +45,15 @@ const FundLine = ({ token, value, usdValue, usdPrice, perc, showPerc = true, sho
                 }
                 <Text ml="1" lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
-            <Flex alignItems="center">
-                <Text>
-                    {shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} `}({shortenNumber(usdValue, 2, true, true)})
-                </Text>
-                {
-                    showPerc && <Text ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
-                        {shortenNumber(perc, 2, false, true).padStart(5, '  ')}%
-                    </Text>
-                }
-            </Flex>
+            {
+                !!showAsAmountOnly ? <SimpleGrid w="140px" spacing="1" columns={2} alignItems="center">
+                    {rightSideContent}
+                </SimpleGrid>
+                    :
+                    <Flex alignItems="center">
+                        {rightSideContent}
+                    </Flex>
+            }
         </Flex>
     )
 }
@@ -50,6 +79,7 @@ type FundsProps = {
     handleDrill?: (datum: any) => void
     minUsd?: number
     type?: 'both' | 'allowance' | 'balance'
+    showAsAmountOnly?: boolean
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
@@ -77,12 +107,13 @@ export const Funds = ({
     handleDrill,
     minUsd = 0,
     type = 'both',
+    showAsAmountOnly = false,
 }: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
         .map(({ token, balance, allowance, usdPrice, ctoken, label, drill, chartFillColor, chartLabelFillColor }) => {
-            const price = usdPrice ?? getPrice(prices, token);
+            const price = showAsAmountOnly ? 1 : usdPrice ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
             const totalBalance = balance || 0 + (allowance || 0);
@@ -109,7 +140,7 @@ export const Funds = ({
 
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance, balancePerc, usdPrice, ctoken, label }) => {
-            return <FundLine key={ctoken || token?.address || label || token?.symbol} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+            return <FundLine key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
@@ -117,13 +148,13 @@ export const Funds = ({
 
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance, allowancePerc, usdPrice, ctoken, label }) => {
-            return <FundLine key={ctoken || token?.address || label || token?.symbol} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     return (
         <>
             {
-                chartMode ? <PieChart showTotalUsd={showChartTotal} handleDrill={handleDrill} data={
+                chartMode ? <PieChart showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly} data={
                     fundsWithPerc
                         .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
                         .map(fund => {
@@ -164,7 +195,7 @@ export const Funds = ({
                     showTotal &&
                     <Flex fontWeight={boldTotal ? 'bold' : undefined} direction="row" w='full' justify="space-between">
                         <Text>{totalLabel}</Text>
-                        <Text>{shortenNumber(usdTotals.overall, 2, true, true)}</Text>
+                        <Text>{shortenNumber(usdTotals.overall, 2, !showAsAmountOnly, true)}</Text>
                     </Flex>
             }
         </>

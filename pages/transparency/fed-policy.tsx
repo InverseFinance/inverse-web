@@ -26,8 +26,6 @@ import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
 
 const { DOLA, TOKENS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const oneDay = 86400000;
-
 export const FedPolicyPage = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { query } = useRouter();
