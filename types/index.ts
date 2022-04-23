@@ -20,6 +20,7 @@ export interface Token {
     text: string
     color: BackgroundProps["bgColor"]
   }
+  isInPausedSection?: boolean,
 }
 
 export interface TokenWithBalance extends Token {

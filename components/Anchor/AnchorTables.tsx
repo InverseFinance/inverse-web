@@ -367,10 +367,12 @@ export const AnchorBorrowed = () => {
   )
 }
 
-const AnchorSupplyContainer = ({ ...props }) => {
+const AnchorSupplyContainer = ({ paused = false, ...props }) => {
+  const title = paused ? 'Supply - Paused or Deprecated assets' : 'Borrow'
+
   return (
     <Container
-      label="Supply"
+      label={title}
       description="Earn interest on your deposits"
       href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       {...props}
@@ -379,13 +381,15 @@ const AnchorSupplyContainer = ({ ...props }) => {
 }
 
 // TODO: refacto components
-export const AnchorSupply = () => {
+export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   const { query } = useRouter()
-  const { markets, isLoading } = useMarkets()
+  const { markets: marketsData, isLoading } = useMarkets()
   const { balances } = useAccountBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
+
+  const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
@@ -433,9 +437,9 @@ export const AnchorSupply = () => {
     getColumn('wallet', 24, true),
   ].filter(c => !!c);
 
-  if (isLoading || !markets) {
+  if (isLoading || !marketsData) {
     return (
-      <AnchorSupplyContainer>
+      <AnchorSupplyContainer paused={paused}>
         <SkeletonList />
       </AnchorSupplyContainer>
     )
@@ -444,16 +448,16 @@ export const AnchorSupply = () => {
   const mintableMarkets = marketsWithBalance.filter(m => m.mintable);
 
   return (
-    <AnchorSupplyContainer>
+    <AnchorSupplyContainer paused={paused}>
       <Table columns={columns} items={mintableMarkets} keyName="token" defaultSortDir="desc" defaultSort="supplyApy" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </AnchorSupplyContainer>
   )
 }
 
-export const AnchorBorrow = () => {
+export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
   const { query } = useRouter()
-  const { markets, isLoading } = useMarkets()
+  const { markets: marketsData, isLoading } = useMarkets()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [deepLinkUsed, setDeepLinkUsed] = useState(false)
@@ -463,6 +467,8 @@ export const AnchorBorrow = () => {
     setModalAsset(asset)
     onOpen()
   }
+
+  const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
   useEffect(() => {
     if (!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
@@ -501,10 +507,12 @@ export const AnchorBorrow = () => {
     },
   ]
 
-  if (isLoading || !markets) {
+  const title = paused ? 'Borrow - Paused or Deprecated assets' : 'Borrow'
+
+  if (isLoading || !marketsData) {
     return (
       <Container
-        label="Borrow"
+        label={title}
         description="Borrow against your supplied collateral"
         href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
       >
@@ -515,7 +523,7 @@ export const AnchorBorrow = () => {
 
   return (
     <Container
-      label="Borrow"
+      label={title}
       description="Borrow against your supplied collateral"
       href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
