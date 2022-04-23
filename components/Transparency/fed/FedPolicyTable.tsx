@@ -75,6 +75,9 @@ const columns = [
         value: ({ newSupply, value, isContraction }) =>
             <SupplyChange newSupply={newSupply} changeAmount={value} isContraction={isContraction} />
     },
+]
+
+const columnsWithTotal = columns.concat([
     {
         field: 'newTotalSupply',
         label: 'New TOTAL Supply',
@@ -82,9 +85,9 @@ const columns = [
         value: ({ newTotalSupply, value, isContraction }) =>
             <SupplyChange newSupply={newTotalSupply} changeAmount={value} isContraction={isContraction} />
     },
-]
+])
 
-export const FedPolicyTable = ({ fedHistoricalEvents, isLoading }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean }) => {
+export const FedPolicyTable = ({ fedHistoricalEvents, isLoading, showTotalCol = true }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean, showTotalCol?: boolean }) => {
     return (
         fedHistoricalEvents?.length > 0 ?
             <Table
@@ -92,7 +95,7 @@ export const FedPolicyTable = ({ fedHistoricalEvents, isLoading }: { fedHistoric
                 defaultSort="timestamp"
                 defaultSortDir="desc"
                 alternateBg={false}
-                columns={columns}
+                columns={showTotalCol ? columnsWithTotal : columns}
                 items={fedHistoricalEvents} />
             : isLoading ? <SkeletonBlob /> : <Text>
                 No Contraction or Expansion has been executed yet

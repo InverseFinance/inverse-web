@@ -68,6 +68,9 @@ const columns = [
         value: ({ accProfit, profit }) =>
             <SupplyChange newSupply={accProfit} changeAmount={profit} />
     },
+]
+
+const columnsWithTotal = columns.concat([
     {
         field: 'totalAccProfit',
         label: 'New TOTAL Revenue',
@@ -75,9 +78,9 @@ const columns = [
         value: ({ totalAccProfit, profit }) =>
             <SupplyChange newSupply={totalAccProfit} changeAmount={profit} />
     },
-]
+])
 
-export const FedRevenueTable = ({ fedHistoricalEvents, isLoading }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean }) => {
+export const FedRevenueTable = ({ fedHistoricalEvents, isLoading, showTotalCol = true }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean, showTotalCol?: boolean }) => {
     return (
         fedHistoricalEvents?.length > 0 ?
             <Table
@@ -85,7 +88,7 @@ export const FedRevenueTable = ({ fedHistoricalEvents, isLoading }: { fedHistori
                 defaultSort="timestamp"
                 defaultSortDir="desc"
                 alternateBg={false}
-                columns={columns}
+                columns={showTotalCol ? columnsWithTotal : columns}
                 items={fedHistoricalEvents} />
             : isLoading ? <SkeletonBlob /> : <Text>No Take Profit action has been executed yet</Text>
 

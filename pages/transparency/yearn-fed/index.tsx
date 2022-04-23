@@ -380,7 +380,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                   </Stack>
                 </Container>
 
-                <Container label="Strategies, Vaults and Pools Infos" m="0" p="0">
+                <Container label="Strategies" m="0" p="0">
                   <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
                     {yearnFedData.yearn.strategies.map((s, i) => {
                       const { management_fee, deposit_limit, vault_performance_fee } = yearnFedData.yearn.vaults[i];
@@ -528,7 +528,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       description="Fed Contract"
                       href={`${getScanner('1')}/address/${yearnFed.address}`}
                     >
-                      <FedPolicyTable fedHistoricalEvents={fedHistoricalEvents} isLoading={isPolicyLoading} />
+                      <FedPolicyTable showTotalCol={false} fedHistoricalEvents={fedHistoricalEvents} isLoading={isPolicyLoading} />
                     </Container>
                   </>
                 }
@@ -558,7 +558,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                     <Container p="0" m="0" label="Yearn Fed Take Profits Events" noPadding
                       description="Fed Contract"
                       href={`${getScanner('1')}/address/${yearnFed.address}`}>
-                      <FedRevenueTable fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
+                      <FedRevenueTable showTotalCol={false} fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
                     </Container>
                   </>
                 }
