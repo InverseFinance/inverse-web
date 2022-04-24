@@ -168,6 +168,7 @@ export interface GaugeVote {
 
 export interface Pool {
   coins: Coin[];
+  dominance: number
   tvl: number;
 }
 
@@ -344,7 +345,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                   contentProps={{ px: { lg: '8' } }}
                 >
                   <Stack direction={{ base: 'column-reverse', lg: 'row' }} alignItems="center" justifyContent="space-between" w='full'>
-                    <VStack w={{ base: '100%', lg: '500px' }}>
+                    <VStack w={{ base: '100%', lg: '500px' }} alignItems="flex-start">
                       <Funds
                         showTotal={true}
                         showAsAmountOnly={true}
@@ -352,6 +353,10 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                         funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))}
                         type='balance'
                       />
+                      <HStack justifyContent="space-between" w='full'>
+                        <Text fontWeight="bold">Pool Dominance:</Text>
+                        <Text fontWeight="bold">{shortenNumber(yearnFedData.curve.pool.dominance * 100, 2)}%</Text>
+                      </HStack>
                       <Stack direction={{ base: 'column', md: 'row' }} pt="4" borderTop="1px solid #ccc" w="full">
                         {yearnFedData.curve.pool.coins.map(({ symbol, slippage_deposit_1M, slippage_withdraw_1M }) => {
                           return <InfoMessage
