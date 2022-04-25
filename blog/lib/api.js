@@ -168,7 +168,7 @@ export async function getCategories(preview, locale = 'en-US') {
     }`,
     preview
   )
-  return categories.data?.categoryCollection?.items?.filter(item => !!item);
+  return categories.data?.categoryCollection?.items?.filter(item => !!item && !!item.name);
 }
 
 export async function getTag(preview, locale = 'en-US', byTag) {
@@ -190,6 +190,24 @@ export async function getTag(preview, locale = 'en-US', byTag) {
   return tags.data?.tagCollection?.items?.[0];
 }
 
+export async function getTags(preview, locale = 'en-US') {
+  const tags = await fetchGraphQL(
+    `query {
+      tagCollection(
+        locale: "${locale}", preview: ${preview ? 'true' : 'false'},
+        limit: 50
+        ) {
+        items {
+          name
+          label
+        }
+      }
+    }`,
+    preview
+  )
+  return tags.data?.tagCollection?.items?.filter(item => !!item && !!item.name);
+}
+
 export async function getAuthors(preview, locale = 'en-US') {
   const authors = await fetchGraphQL(
     `query {
@@ -207,5 +225,5 @@ export async function getAuthors(preview, locale = 'en-US') {
     preview
   )
 
-  return authors.data?.authorCollection?.items?.filter(item => !!item);
+  return authors.data?.authorCollection?.items?.filter(item => !!item && !!item.name && !!item.picture?.url);
 }

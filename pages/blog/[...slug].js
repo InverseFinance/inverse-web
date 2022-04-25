@@ -3,7 +3,7 @@ import MoreStories from '../../blog/components/more-stories'
 import HeroPost from '../../blog/components/hero-post'
 import Intro from '../../blog/components/intro'
 import Layout from '../../blog/components/layout'
-import { getAllPostsForHome, getCategories, getTag } from '../../blog/lib/api'
+import { getAllPostsForHome, getAuthors, getCategories, getTag, getTags } from '../../blog/lib/api'
 import Head from 'next/head'
 import Categories from '../../blog/components/categories'
 import { getBlogContext } from '../../blog/lib/utils'
@@ -14,7 +14,7 @@ import { BLOG_LOCALES } from '../../blog/lib/constants'
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
 export default function Index({ preview, allPosts, categories, locale, category, byAuthor, tag }) {
-  const posts = allPosts.filter(p => Date.parse(p.date) <= Date.now());
+  const posts = allPosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
   const heroPost = posts[0];
   const morePosts = posts.slice(1);
   const categoryObject = categories.find(c => c.name === category) || {};
@@ -35,10 +35,10 @@ export default function Index({ preview, allPosts, categories, locale, category,
         </Head>
         <Container>
           <Intro />
-          <Categories categories={categories} isNotOnCategoryPage={!!byAuthor || !!tag}  />
+          <Categories categories={categories} isNotOnCategoryPage={!!byAuthor || !!tag} />
           {
             (!!byAuthor || !!tag) && <BlogText as="h2" fontSize="5xl" fontWeight="extrabold" mb="5">
-              { byAuthor ? `Stories by ${byAuthor}` : `${tag.label} Stories` }
+              {byAuthor ? `Stories by ${byAuthor}` : `${tag.label} Stories`}
             </BlogText>
           }
           {
@@ -61,7 +61,7 @@ export default function Index({ preview, allPosts, categories, locale, category,
 // revalidation via webhook
 export async function getStaticProps({ preview = false, ...context }) {
   const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
-  const isPreview = preview||isPreviewUrl;
+  const isPreview = preview || isPreviewUrl;
   const allPosts = await getAllPostsForHome(isPreview, locale, category, byAuthor) ?? []
   const categories = await getCategories(isPreview, locale) ?? []
   const tag = byTag ? await getTag(isPreview, locale, byTag) : null;
@@ -71,8 +71,20 @@ export async function getStaticProps({ preview = false, ...context }) {
 }
 
 export async function getStaticPaths() {
+  const categories = await getCategories(true, 'en-US') ?? []
+  const authors = await getAuthors(true, 'en-US') ?? []
+  const tags = await getTags(true, 'en-US') ?? []
+  const paths = BLOG_LOCALES.map(l => {
+    return `/blog/${l}`
+  });
+  BLOG_LOCALES.forEach(l => {
+    categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+    authors?.forEach(({ name }) => paths.push(`/blog/${l}?byAuthor=${name}`))
+    tags?.forEach(({ name }) => paths.push(`/blog/${l}?byTag=${name}`))
+  });
+  console.log('main paths', paths);
   return {
-    paths: BLOG_LOCALES.map(l => `/blog/${l}`),
-    fallback: false,
+    paths: paths,
+    fallback: true,
   }
 }

@@ -10,8 +10,9 @@ import { SimpleGrid } from '@chakra-ui/react'
 import Intro from '../../../blog/components/intro'
 import Categories from '../../../blog/components/categories'
 import Head from 'next/head'
+import { BLOG_LOCALES } from '../../../blog/lib/constants'
 
-export default function Post({ authors, preview, locale, categories }) {
+export default function Authors({ authors, preview, locale, categories }) {
   const router = useRouter()
 
   if (!router.isFallback && !authors) {
@@ -57,6 +58,13 @@ export async function getStaticProps(context) {
       categories,
       locale,
     },
-    fallback: false,
   }
 }
+
+export async function getStaticPaths() {
+  return {
+    paths: BLOG_LOCALES.map(l => `/blog/authors/${l}`),
+    fallback: true,
+  }
+}
+
