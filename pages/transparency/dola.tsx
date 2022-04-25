@@ -12,21 +12,13 @@ import { useDAO } from '@app/hooks/useDAO'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 
-const { DOLA, TOKENS, FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const defaultFeds = FEDS.map(((fed) => {
-  return {
-    ...fed,
-    supply: 0,
-    chair: DEPLOYER,
-    gov: TREASURY,
-  }
-}))
 
 export const DolaDiagram = () => {
   const { dolaTotalSupply, dolaOperator, fantom, feds } = useDAO();
 
-  const fedsWithData = feds?.length > 0 ? feds : defaultFeds;
+  const fedsWithData = feds;
 
   return (
     <Layout>

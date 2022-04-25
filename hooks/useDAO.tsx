@@ -5,13 +5,15 @@ import { useCustomSWR } from './useCustomSWR';
 
 const oneDay = 86400000;
 
-const { FEDS } = getNetworkConfigConstants();
+const { FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants();
 
 const defaultFedsData = FEDS.map(((fed) => {
   return {
     ...fed,
     events: [],
     supply: 0,
+    chair: DEPLOYER,
+    gov: TREASURY,
   }
 }))
 
