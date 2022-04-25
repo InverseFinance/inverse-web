@@ -1,14 +1,15 @@
 import { Box, Image, Flex, VStack } from '@chakra-ui/react'
 import Link from 'next/link';
 import { useContext } from 'react';
-import { BlogContext } from '../../pages/blog/[...slug]';
+
 import BlogLink from './common/blog-link';
 import BlogText from './common/text';
 import ContentfulImage from './contentful-image'
+import { BlogContext } from '../../pages/_app';
 
 export default function Avatar({ name, picture, title, twitterHandle, size = '60px' }) {
   const { locale } = useContext(BlogContext);
-  const url = `/blog/${locale}?byAuthor=${encodeURIComponent(name)}`
+  const url = `/blog/${locale}/author/${encodeURIComponent(name)}`
 
   return (
     <div className="flex items-center">

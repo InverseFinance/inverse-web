@@ -1,3 +1,4 @@
+import { getAuthorById, getAuthors, getCategories, getTags } from '@app/blog/lib/api';
 import { BLOG_LOCALES } from 'blog/lib/constants'
 
 export default async function handler(req, res) {
@@ -8,24 +9,54 @@ export default async function handler(req, res) {
 
     const { type } = req.query;
     const { body } = req;
+    let results;
 
     try {
+
         if (type === 'blog') {
-            if(body?.fields?.slug) {
-                // with post
-                await Promise.all([
+            if (body?.sys?.contentType?.sys?.id === 'post') {
+                const authorId = body?.fields?.author['en-US']?.sys?.id;
+                const tagIds = body?.fields?.tags['en-US']?.map(t => t?.sys?.id);
+
+                const [author, tags] = await Promise.all([
+                    getAuthorById(true, 'en-US', authorId),
+                    getTags(true, 'en-US', tagIds)
+                ])
+
+                const tagsRevalidations = BLOG_LOCALES
+                    .map(l => tags.map(t => res.unstable_revalidate(`/blog/${l}/tag/${t.name}`)))
+                    .reduce((prev, curr) => [...prev, ...curr], []);
+
+                results = await Promise.allSettled([
                     ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/${l}`)),
-                    ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/authors/${l}`)),
+                    ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/${l}/author/${author.name}`)),
                     ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/posts/${l}/${body?.fields?.slug['en-US']}`)),
+                    ...tagsRevalidations
                 ]);
             } else {
-                await Promise.all([
-                    ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/${l}`)),
-                    ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/authors/${l}`)),
+                const [categories, authors, tags] = await Promise.all([
+                    getCategories(true, 'en-US'),
+                    getAuthors(true, 'en-US'),
+                    getTags(true, 'en-US'),
+                ])
+
+                const paths = BLOG_LOCALES.map(l => {
+                    return `/blog/${l}`
+                });
+
+                BLOG_LOCALES.forEach(l => {
+                    paths.push(`/blog/authors/${l}`)
+                    categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+                    authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
+                    tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
+                });
+
+                results = await Promise.allSettled([
+                    ...paths.map(p => res.unstable_revalidate(p)),
                 ]);
             }
         }
-        return res.json({ revalidated: true })
+        return res.json({ revalidated: true, failed: results?.filter(r => r.status === 'rejected') })
     } catch (err) {
         console.log(err)
         // If there was an error, Next.js will continue

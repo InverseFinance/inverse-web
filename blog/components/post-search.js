@@ -2,7 +2,7 @@ import { Flex, Input, InputGroup, VStack, InputLeftElement } from '@chakra-ui/re
 import { useContext, useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 import { fetchJson } from 'ethers/lib/utils';
-import { BlogContext } from '../../pages/blog/[...slug]';
+import { BlogContext } from '../../pages/_app';
 import Excerpt from './excerpt';
 import BlogLink from './common/blog-link';
 import { BLOG_THEME } from '../lib/constants';

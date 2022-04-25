@@ -1,7 +1,7 @@
 import { VStack } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 import Avatar from '../components/avatar'
 import DateComponent from '../components/date'
 import BlogText from './common/text'

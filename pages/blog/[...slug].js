@@ -8,12 +8,18 @@ import Head from 'next/head'
 import Categories from '../../blog/components/categories'
 import { getBlogContext } from '../../blog/lib/utils'
 import React from 'react'
-import BlogText from '../../blog/components/common/text'
+import { BlogContext } from '../../pages/_app';
 import { BLOG_LOCALES } from '../../blog/lib/constants'
-
-export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
+import BlogText from '../../blog/components/common/text'
+import { useRouter } from 'next/router'
 
 export default function Index({ preview, allPosts, categories, locale, category, byAuthor, tag }) {
+  const router = useRouter();
+  
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
+
   const posts = allPosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
   const heroPost = posts[0];
   const morePosts = posts.slice(1);
@@ -62,7 +68,7 @@ export default function Index({ preview, allPosts, categories, locale, category,
 export async function getStaticProps({ preview = false, ...context }) {
   const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
   const isPreview = preview || isPreviewUrl;
-  const allPosts = await getAllPostsForHome(isPreview, locale, category, byAuthor) ?? []
+  const allPosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag }) ?? []
   const categories = await getCategories(isPreview, locale) ?? []
   const tag = byTag ? await getTag(isPreview, locale, byTag) : null;
   return {
@@ -71,18 +77,20 @@ export async function getStaticProps({ preview = false, ...context }) {
 }
 
 export async function getStaticPaths() {
-  const categories = await getCategories(true, 'en-US') ?? []
-  const authors = await getAuthors(true, 'en-US') ?? []
-  const tags = await getTags(true, 'en-US') ?? []
+  const [categories, authors, tags] = await Promise.all([
+    getCategories(true, 'en-US'),
+    getAuthors(true, 'en-US'),
+    getTags(true, 'en-US'),
+  ])
   const paths = BLOG_LOCALES.map(l => {
     return `/blog/${l}`
   });
   BLOG_LOCALES.forEach(l => {
     categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
-    authors?.forEach(({ name }) => paths.push(`/blog/${l}?byAuthor=${name}`))
-    tags?.forEach(({ name }) => paths.push(`/blog/${l}?byTag=${name}`))
+    authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
+    tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
   });
-  console.log('main paths', paths);
+  // console.log('main paths', paths);
   return {
     paths: paths,
     fallback: true,

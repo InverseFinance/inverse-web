@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { BlogContext } from '../../pages/blog/[...slug]';
+import { BlogContext } from '../../pages/_app';
 import { BLOG_THEME } from '../lib/constants';
 import BlogText from './common/text';
 
@@ -12,7 +12,7 @@ export default function Tag({ label, name }) {
         borderRadius="10"
         bgColor={BLOG_THEME.colors.badgeBgColor}
         fontSize="14px"
-        href={`/blog/${locale}?byTag=${name}`}
+        href={`/blog/${locale}/tag/${name}`}
         transitionProperty="background-color, color"
         transitionDuration="500ms"
         _hover={{

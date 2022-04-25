@@ -8,7 +8,7 @@ import { ChevronLeftIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import { BLOG_THEME } from '../lib/constants'
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 
 export default function PostHeader({ title, coverImage, date, author, readtime, tagsCollection }) {
   const router = useRouter();

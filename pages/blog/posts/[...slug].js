@@ -7,10 +7,10 @@ import MoreStories from '../../../blog/components/more-stories'
 import PostHeader from '../../../blog/components/post-header'
 import SectionSeparator from '../../../blog/components/section-separator'
 import Layout from '../../../blog/components/layout'
-import { getPostAndMorePosts } from '../../../blog/lib/api'
+import { getAllPostsWithSlug, getPostAndMorePosts } from '../../../blog/lib/api'
 import PostTitle from '../../../blog/components/post-title'
 import { getBlogContext } from '../../../blog/lib/utils'
-import { BlogContext } from '../[...slug]'
+import { BlogContext } from '../../../pages/_app';
 import PostFooter from '../../../blog/components/post-footer'
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer'
 import { BLOG_LOCALES } from '../../../blog/lib/constants'
@@ -18,7 +18,9 @@ import { BLOG_LOCALES } from '../../../blog/lib/constants'
 export default function Post({ post, morePosts, preview, locale }) {
   const router = useRouter()
 
-  if (!router.isFallback && !post) {
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  } else if (!router.isFallback && !post) {
     return <ErrorPage statusCode={404} />
   }
 
@@ -86,6 +88,7 @@ export async function getStaticPaths() {
   BLOG_LOCALES.forEach(l => {
     allPosts?.forEach(({ slug }) => paths.push(`/blog/posts/${l}/${slug}`))
   });
+
   return {
     paths,
     fallback: true,

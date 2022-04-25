@@ -3,7 +3,7 @@ import { HStack, Text } from '@chakra-ui/react';
 import { format } from 'date-fns'
 import { enUS, fr, de } from 'date-fns/locale';
 import { useContext } from 'react';
-import { BlogContext } from '../../pages/blog/[...slug]';
+import { BlogContext } from '../../pages/_app';
 import { BLOG_THEME } from '../lib/constants';
 import BlogText from './common/text';
 

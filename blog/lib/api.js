@@ -92,7 +92,7 @@ export async function getAllPostsWithSlug() {
     `query {
       postCollection(where: { slug_exists: true }, order: date_DESC) {
         items {
-          ${POST_GRAPHQL_FIELDS}
+          slug
         }
       }
     }`
@@ -100,7 +100,7 @@ export async function getAllPostsWithSlug() {
   return extractPostEntries(entries)
 }
 
-export async function getAllPostsForHome(preview, locale = 'en-US', category = '', byAuthor = '', fulltext = '', limit = 50) {
+export async function getAllPostsForHome({ preview, locale = 'en-US', category = '', byAuthor = '', byTag = '', fulltext = '', limit = 50 }) {
   const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
   const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
@@ -120,7 +120,8 @@ export async function getAllPostsForHome(preview, locale = 'en-US', category = '
     }`,
     preview
   )
-  return extractPostEntries(entries)
+  const posts = extractPostEntries(entries);
+  return byTag ? posts.filter(p => !!p.tagsCollection.items.find(tag => tag.name === byTag)) : posts
 }
 
 export async function getPostAndMorePosts(slug, preview, locale = 'en-US') {
@@ -190,12 +191,14 @@ export async function getTag(preview, locale = 'en-US', byTag) {
   return tags.data?.tagCollection?.items?.[0];
 }
 
-export async function getTags(preview, locale = 'en-US') {
+export async function getTags(preview, locale = 'en-US', ids) {
+  const filterByIds = ids ? `, where: { sys: { id_in: ${JSON.stringify(ids)}] } }` : '';
   const tags = await fetchGraphQL(
     `query {
       tagCollection(
         locale: "${locale}", preview: ${preview ? 'true' : 'false'},
-        limit: 50
+        limit: ${ids ? ids.length : 50}
+        ${filterByIds}
         ) {
         items {
           name
@@ -224,6 +227,25 @@ export async function getAuthors(preview, locale = 'en-US') {
     }`,
     preview
   )
-
   return authors.data?.authorCollection?.items?.filter(item => !!item && !!item.name && !!item.picture?.url);
+}
+
+export async function getAuthorById(preview, locale = 'en-US', id) {
+  const authors = await fetchGraphQL(
+    `query {
+      authorCollection(locale: "${locale}", where: { sys: { id: "${id}"} }, limit: 1) {
+        items {
+          name
+          title
+          picture {
+            url
+          }
+          twitterHandle
+        }
+      }
+    }`,
+    preview
+  )
+
+  return authors.data?.authorCollection?.items?.[0];
 }

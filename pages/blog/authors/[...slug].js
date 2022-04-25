@@ -4,7 +4,7 @@ import Container from '../../../blog/components/container'
 import Layout from '../../../blog/components/layout'
 import { getAuthors, getCategories } from '../../../blog/lib/api'
 import { getBlogContext } from '../../../blog/lib/utils'
-import { BlogContext } from '../[...slug]'
+import { BlogContext } from '../../../pages/_app';
 import Avatar from '../../../blog/components/avatar'
 import { SimpleGrid } from '@chakra-ui/react'
 import Intro from '../../../blog/components/intro'
@@ -15,7 +15,9 @@ import { BLOG_LOCALES } from '../../../blog/lib/constants'
 export default function Authors({ authors, preview, locale, categories }) {
   const router = useRouter()
 
-  if (!router.isFallback && !authors) {
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  } else if (!router.isFallback && !authors) {
     return <ErrorPage statusCode={404} />
   }
 
@@ -33,8 +35,8 @@ export default function Authors({ authors, preview, locale, categories }) {
           <Intro />
           <Categories categories={categories} customPage={'authors'} />
           <SimpleGrid columns={{ base: '1', md: '2', lg: '3' }} autoColumns gap="8" mt="5">
-            {authors.sort((a, b) => a.name < b.name ? -1 : 1).map(author => {
-              return <Avatar size={'100px'} {...author} />
+            {authors?.sort((a, b) => a.name < b.name ? -1 : 1).map(author => {
+              return <Avatar key={author.name} size={'100px'} {...author} />
             })}
           </SimpleGrid>
         </Container>
@@ -54,7 +56,7 @@ export async function getStaticProps(context) {
   return {
     props: {
       preview: isPreview,
-      authors: authors ?? null,
+      authors: authors ?? [],
       categories,
       locale,
     },

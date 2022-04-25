@@ -2,7 +2,7 @@ import ContentfulImage from './contentful-image'
 import Link from 'next/link'
 import cn from 'classnames'
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 
 // standard image size for posts are 1200x630
 export default function CoverImage({

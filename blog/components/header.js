@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/react';
 import Link from 'next/link'
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 
 export default function Header() {
   const { locale } = useContext(BlogContext);

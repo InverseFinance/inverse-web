@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     } = req.query;
 
     try {
-        const posts = await getAllPostsForHome(false, locale, category, byAuthor, search, 20);
+        const posts = await getAllPostsForHome({ preview: false, locale, category, byAuthor, fulltext: search, limit: 20 });
 
         res.status(200).send(posts);
     } catch (err) {

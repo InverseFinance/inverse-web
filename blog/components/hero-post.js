@@ -2,7 +2,7 @@ import Avatar from '../components/avatar'
 import DateComponent from '../components/date'
 import CoverImage from '../components/cover-image'
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 import TagsBar from './tags-bar'
 import { Stack, VStack } from '@chakra-ui/react'
 import Excerpt from './excerpt'

@@ -3,7 +3,7 @@ import { Box, Popover, PopoverBody, PopoverTrigger, Text, PopoverContent, VStack
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 import { BLOG_THEME } from '../lib/constants';
 
 const flags = {
@@ -16,7 +16,7 @@ const { activeTextColor, passiveTextColor } = BLOG_THEME.colors;
 export default function LangsSelector({ ...props }) {
     const { locale } = useContext(BlogContext);
     const { asPath } = useRouter()
-    
+
     return (
         <Box minW="fit-content" {...props}>
             <Popover trigger="hover">

@@ -1,6 +1,6 @@
 import { HStack, Link } from '@chakra-ui/react'
 import { useContext } from 'react'
-import { BlogContext } from '../../pages/blog/[...slug]'
+import { BlogContext } from '../../pages/_app';
 import { BLOG_THEME } from '../lib/constants';
 
 export default function Categories({ categories, isNotOnCategoryPage = false, customPage = '' }) {
