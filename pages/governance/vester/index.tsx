@@ -110,10 +110,9 @@ export const VesterPage = () => {
   ])
 
   const nbDataPerVester = myVesters.length > 0 ? myVestersDataReq.length / myVesters.length : 0;
-  const nbXinvDataPerVester = myVesters.length > 0 ? 3 / myVesters.length : 0;
 
-  const selectedVesterData = myVestersData && myVestersData.slice(nbDataPerVester * selectedVesterIndex, nbDataPerVester);
-  const selectedXinvVesterData = xinvDatas && xinvDatas.slice(nbXinvDataPerVester * selectedVesterIndex, nbXinvDataPerVester);
+  const selectedVesterData = myVestersData && myVestersData.slice(nbDataPerVester * selectedVesterIndex, nbDataPerVester + nbDataPerVester * selectedVesterIndex);
+  const selectedXinvVesterData = xinvDatas && xinvDatas.slice(3 * selectedVesterIndex, 3 + selectedVesterIndex * 3);
 
   const [claimableINV, vestingBegin, vestingEnd, lastUpdate, isCancellable, isCancelled] = selectedVesterData || [BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0'), false, false];
   const [currentVesterDelegate, accountDelegate, xinvBalance] = selectedXinvVesterData || [userAddress, userAddress, BigNumber.from('0')];
@@ -143,8 +142,8 @@ export const VesterPage = () => {
 
   const invPrice = (prices && prices[RTOKEN_CG_ID]?.usd) || 0;
 
-  const totalVested = myVesters.length > 0 && myVestersData ?
-    myVesters.reduce((prev, vesterAd, i) => prev + (myVestersData[8] / ETH_MANTISSA) * ((exRate || 0) / ETH_MANTISSA), 0)
+  const totalVested = myVesters.length > 0 && xinvDatas && exRate ?
+    myVesters.reduce((prev, vesterAd, i) => prev + (xinvDatas[2 + 3 * i] / ETH_MANTISSA) * ((exRate || 0) / ETH_MANTISSA), 0)
     :
     0;
 
