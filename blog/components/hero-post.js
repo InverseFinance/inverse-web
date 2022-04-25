@@ -22,7 +22,7 @@ export default function HeroPost({
   const { locale } = useContext(BlogContext)
   const url = `/blog/posts/${locale}/${slug}`;
   return (
-    <VStack as="section" w='full' maxWidth="900px" spacing="4">
+    <VStack alignItems="flex-start" as="section" w='full' maxWidth="900px" spacing="4">
 
       <BlogLink _hover={{}} href={url} w='full' as="h3" fontSize="4xl" fontWeight="extrabold">
         {title}
