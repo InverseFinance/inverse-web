@@ -38,20 +38,18 @@ export default async function handler(req, res) {
 
     try {
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 300);
+        const validCache = await getCacheFromRedis(cacheKey, true, 150);
         if (validCache) {
             res.status(200).json(validCache);
             return
         }
 
-        const feds = FEDS;
-
         const transfers = await Promise.all(
-            feds.map(fed => getTransfers(fed.isXchain ? ftmConfig?.DOLA! :  DOLA, fed.address, 1000, 0, fed.chainId))
+            FEDS.map(fed => getTransfers(fed.isXchain ? ftmConfig?.DOLA! :  DOLA, fed.address, 1000, 0, fed.chainId))
         )
 
         const filteredTransfers = transfers.map((r, i) => {
-            const fed = feds[i];
+            const fed = FEDS[i];
             const toAddress = fed.isXchain ? '0x0000000000000000000000000000000000000000' : TREASURY.toLowerCase();  
 
             const items = r.data.items
@@ -94,6 +92,7 @@ export default async function handler(req, res) {
         const resultData = {
             totalRevenues: accProfits,
             totalEvents: fedRevenues,
+            feds: FEDS,
         }
 
         await redisSetWithTimestamp(cacheKey, resultData);

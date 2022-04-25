@@ -510,3 +510,5 @@ export type DAO = {
   multisigs: Multisig[]
   pols: { totalSupply: number, ownedAmount: number }[]
 }
+
+export type GenericComponent = React.ComponentType<any>;

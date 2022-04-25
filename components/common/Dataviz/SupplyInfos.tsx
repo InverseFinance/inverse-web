@@ -31,6 +31,8 @@ export const SuppplyInfos = ({
         )
     }, [supplies]);
 
+    const sortedSupplies = [...supplies].sort((a, b) => b.supply - a.supply);
+
     return (
         <InfoMessage
             title={
@@ -44,7 +46,7 @@ export const SuppplyInfos = ({
             description={
                 <>
                     {
-                        supplies.map(({ supply, chainId, name, projectImage }, i) => {
+                        sortedSupplies.map(({ supply, chainId, name, projectImage }, i) => {
                             const network = getNetwork(chainId);
                             return (
                                 <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">

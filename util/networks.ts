@@ -105,15 +105,11 @@ export const getNetworkConfigConstants = (
     MULTISIGS.forEach(m => NAMED_ADDRESSES[m.address] = m.name)
 
     // FEDS
-    const FEDS: Fed[] = [
-        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Anchor Fed', projectImage: '/assets/projects/Anchor.png' },
-        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
-        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8', name: 'Badger Fed', projectImage: '/assets/projects/Badger.jpg' },
-        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C', name: '0xb1 Fed', projectImage: 'https://unavatar.io/twitter/0x_b1' },
-        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36', name: 'Fuse24 Fed', projectImage: '/assets/projects/Fuse.png' },
-        { chainId: NetworkIds.mainnet, abi: FED_ABI, address: '0xcc180262347F84544c3a4854b87C34117ACADf94', name: 'Yearn Fed', projectImage: '/assets/projects/YFI.svg' },
-        { chainId: NetworkIds.ftm, isXchain: true, abi: XCHAIN_FED_ABI, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
-    ];
+    const FEDS: Fed[] = config.feds.map((fed) => {
+        return { ...fed, abi: fed.isXchain ? XCHAIN_FED_ABI : FED_ABI }
+    });
+    const FEDS_WITH_ALL = [{ name: 'All Feds', projectImage: '/assets/projects/eth-ftm.webp', address: '', chainId: NetworkIds.ethftm }]
+        .concat(FEDS)
 
     return {
         LENS,
@@ -149,6 +145,7 @@ export const getNetworkConfigConstants = (
         NAMED_ADDRESSES,
         DOLA_PAYROLL,
         FEDS,
+        FEDS_WITH_ALL,
         DEPLOYER,
         MULTISIGS,
         SECONDS_PER_BLOCK,

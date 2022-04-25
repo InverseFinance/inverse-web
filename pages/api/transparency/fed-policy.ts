@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 900);
+    const validCache = await getCacheFromRedis(cacheKey, true, 150);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -120,6 +120,7 @@ export default async function handler(req, res) {
     const resultData = {
       fedPolicyMsg,
       totalEvents,
+      feds: FEDS,
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));

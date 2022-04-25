@@ -1,0 +1,38 @@
+import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { Box, Flex, Image } from '@chakra-ui/react';
+
+export const FedsSelector = ({ feds, setChosenFedIndex }) => {
+    const fedOptionList = feds
+        .map((fed, i) => ({
+            value: i.toString(),
+            label: <Flex alignItems="center">
+                {
+                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                }
+                {fed.name.replace(/ Fed$/, '')}
+            </Flex>,
+        }));
+
+    return (
+        <Box maxW="850px">
+            <RadioGridCardGroup
+                wrapperProps={{
+                    minChildWidth: '95px',
+                    spacing: '2',
+                    overflow: 'auto',
+                    position: 'relative',
+                    mt: '2',
+                    mb: '2',
+                    maxW: { base: '90vw', sm: 'auto-fit' },
+                }}
+                group={{
+                    name: 'bool',
+                    defaultValue: '0',
+                    onChange: (v: string) => setChosenFedIndex(parseInt(v)),
+                }}
+                radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
+                options={fedOptionList}
+            />
+        </Box>
+    )
+}

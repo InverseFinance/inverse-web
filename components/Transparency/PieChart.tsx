@@ -10,7 +10,7 @@ type Props = { x: string, y: number, perc?: number }[]
 const defaultGraphicData = [{ x: 'Loading...', y: 100 }]; // Data used to make the animate prop work
 class CustomLabel extends React.Component {
     render() {
-        const { datum } = this.props;
+        const { datum, showAsAmountOnly } = this.props;
         return (
             <g>
                 <VictoryLabel {...this.props} />
@@ -24,7 +24,7 @@ class CustomLabel extends React.Component {
                         text={[
                             `${datum.x}`,
                             ' ',
-                            `${shortenNumber(datum.y, 2, true)} (${shortenNumber(datum.perc, 2)}%)`,
+                            `${shortenNumber(datum.y, 2, !showAsAmountOnly)} (${shortenNumber(datum.perc, 2)}%)`,
                         ]}
                     />}
                     flyoutStyle={{ fill: THEME.colors.darkPrimary, stroke: '#fff' }}
@@ -48,6 +48,7 @@ export const PieChart = ({
     colorScale = CHART_COLORS,
     handleDrill,
     showTotalUsd = false,
+    showAsAmountOnly = false,
 }: {
     data: Props,
     width?: number,
@@ -56,6 +57,7 @@ export const PieChart = ({
     colorScale?: string[],
     handleDrill?: (datum: any) => void,
     showTotalUsd?: boolean,
+    showAsAmountOnly?: boolean,
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
 
@@ -99,7 +101,7 @@ export const PieChart = ({
                     padding={{ ...defaultPadding, ...padding }}
                     theme={VictoryTheme.material}
                     data={chartData}
-                    labelComponent={<CustomLabel />}
+                    labelComponent={<CustomLabel showAsAmountOnly={showAsAmountOnly} />}
                     padAngle={20}
                     innerRadius={35}
                     colorScale={colorScale}
@@ -214,7 +216,7 @@ export const PieChart = ({
                         y="50%"
                         fontSize="12px"
                     >
-                        {shortenNumber(total, 2, true)}
+                        {shortenNumber(total, 2, !showAsAmountOnly)}
                     </text>
                 }
             </VictoryChart>

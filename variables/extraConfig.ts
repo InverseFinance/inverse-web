@@ -20,6 +20,15 @@ const mainConfig = {
     opBondManager: '0x9de7b925247c9bd98ecee5abb7ea06a4aa7d13cd',
     xinvVestorFactory: '0xe1C67007D1074bcAcC577DD946661F0CB9053A19',
     swapRouter: '0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d',
+    feds: [
+        { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Anchor Fed', projectImage: '/assets/projects/Anchor.png' },
+        { chainId: NetworkIds.mainnet, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
+        { chainId: NetworkIds.mainnet, address: '0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8', name: 'Badger Fed', projectImage: '/assets/projects/Badger.jpg' },
+        { chainId: NetworkIds.mainnet, address: '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C', name: '0xb1 Fed', projectImage: 'https://unavatar.io/twitter/0x_b1' },
+        { chainId: NetworkIds.mainnet, address: '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36', name: 'Fuse24 Fed', projectImage: '/assets/projects/Fuse.png' },
+        { chainId: NetworkIds.mainnet, address: '0xcc180262347F84544c3a4854b87C34117ACADf94', name: 'Yearn Fed', projectImage: '/assets/projects/YFI.svg' },
+        { chainId: NetworkIds.ftm, isXchain: true, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
+    ],
     multisigs: [
         {
             address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
