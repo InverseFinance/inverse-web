@@ -17,10 +17,10 @@ const deprecatedBadge = {
   color: "gray",
 }
 
-const pausedBadge = {
-  text: "PAUSED",
-  color: "gray",
-}
+// const pausedBadge = {
+//   text: "PAUSED",
+//   color: "gray",
+// }
 
 const chainTokenAddresses = {
   "1": {
@@ -64,7 +64,6 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
       decimals: 18,
       isInPausedSection: true,
-      badge: pausedBadge,
     },
     // Tokens
     [chainTokenAddresses["1"].DAI]: {
@@ -108,7 +107,6 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
       decimals: 18,
       isInPausedSection: true,
-      badge: pausedBadge,
     },
     [chainTokenAddresses["1"].XSUSHI]: {
       address: chainTokenAddresses["1"].XSUSHI,
@@ -126,7 +124,6 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
       decimals: 8,
       isInPausedSection: true,
-      badge: pausedBadge,
     },
     [chainTokenAddresses["1"].STETH]: {
       address: chainTokenAddresses["1"].STETH,

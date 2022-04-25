@@ -1,8 +1,9 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box } from '@chakra-ui/react'
+import { Flex, Stack, Box, Text } from '@chakra-ui/react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
+import { InfoMessage } from '../Messages';
 
 export type Column = {
   label: string
@@ -20,9 +21,10 @@ type TableProps = {
   defaultSortDir?: string
   alternateBg?: boolean
   onClick?: (e: any) => void
+  noDataMessage?: string
 }
 
-export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', defaultSort, alternateBg = true, onClick, ...props }: TableProps) => {
+export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir = 'asc', defaultSort, alternateBg = true, onClick, ...props }: TableProps) => {
   const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
 
@@ -126,6 +128,10 @@ export const Table = ({ columns, items, keyName, defaultSortDir = 'asc', default
           ))}
         </Flex>
       ))}
+      {
+        !sortedItems.length > 0 && !!noDataMessage && 
+        <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
+      }
     </Stack>
   )
 }

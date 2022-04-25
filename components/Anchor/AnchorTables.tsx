@@ -59,7 +59,7 @@ const getColumn = (
           <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
             <UnderlyingItem
               Container={HStack}
-              containerProps={{ position: 'relative' }}
+              containerProps={{ position: 'relative', w: 'full' }}
               badge={
                 !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN ?
                 {
@@ -223,7 +223,7 @@ export const AnchorSupplied = () => {
   })
 
   const columns = [
-    getColumn('asset', 32),
+    getColumn('asset', '180px', true),
     getColumn('supplyApy', 24),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('supplyBalance', 24),
@@ -323,7 +323,7 @@ export const AnchorBorrowed = () => {
   })
 
   const columns = [
-    getColumn('asset', 16),
+    getColumn('asset', 16, false, true),
     getColumn('borrowApy', 20),
     getColumn('borrowBalance', 24),
   ]
@@ -368,13 +368,13 @@ export const AnchorBorrowed = () => {
 }
 
 const AnchorSupplyContainer = ({ paused = false, ...props }) => {
-  const title = paused ? 'Supply - Paused or Deprecated assets' : 'Borrow'
+  const title = paused ? 'Supply - Paused or Deprecated assets' : 'Supply'
 
   return (
     <Container
       label={title}
-      description="Earn interest on your deposits"
-      href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
+      description={ paused ? undefined : 'Earn interest on your deposits' }
+      href={paused ? undefined : process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       {...props}
     />
   )
@@ -431,7 +431,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   })
 
   const columns = [
-    getColumn('asset', '32', true),
+    getColumn('asset', '180px', true),
     getColumn('supplyApy', 20, true),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('wallet', 24, true),
@@ -527,7 +527,7 @@ export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
       description="Borrow against your supplied collateral"
       href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
-      <Table columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
+      <Table noDataMessage="DOLA borrowing will be back soon" columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
