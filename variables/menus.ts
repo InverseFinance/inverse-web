@@ -91,12 +91,8 @@ export const MENUS = {
           label: 'DOLA & the Feds',
         },
         {
-          href: '/transparency/fed-policy',
-          label: 'Fed Policy',
-        },
-        {
-          href: '/transparency/fed-revenues',
-          label: 'Fed Revenues',
+          href: '/transparency/feds',
+          label: 'Feds',
         },
         {
           href: '/transparency/interest-model',
