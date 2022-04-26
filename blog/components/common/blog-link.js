@@ -5,7 +5,7 @@ import { BLOG_THEME } from '../../lib/constants'
 export default function BlogLink({ href, children, ...props }) {
     return (
         <Link href={href}>
-            <Text as="a" _hover={{ textDecoration: 'underline' }} cursor="pointer" fontWeight="bold" color={BLOG_THEME.colors.activeTextColor} {...props}>
+            <Text href={href} as="a" _hover={{ textDecoration: 'underline' }} cursor="pointer" fontWeight="bold" color={BLOG_THEME.colors.activeTextColor} {...props}>
                 {children}
             </Text>
         </Link>

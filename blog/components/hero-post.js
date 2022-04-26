@@ -24,9 +24,11 @@ export default function HeroPost({
   return (
     <VStack alignItems="flex-start" as="section" w='full' maxWidth="900px" spacing="4">
 
-      <BlogLink _hover={{}} href={url} w='full' as="h3" fontSize="4xl" fontWeight="extrabold">
-        {title}
-      </BlogLink>
+      <h3>
+        <BlogLink _hover={{}} href={url} w='full' fontSize="4xl" fontWeight="extrabold">
+          {title}
+        </BlogLink>
+      </h3>
 
       <VStack alignItems="flex-start" spacing="5">
         {
