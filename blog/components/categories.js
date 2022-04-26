@@ -5,7 +5,7 @@ import { BLOG_THEME } from '../lib/constants';
 
 export default function Categories({ categories, isNotOnCategoryPage = false, customPage = '' }) {
     const { locale, category } = useContext(BlogContext);
-    return <HStack pb="5" spacing="10">
+    return <HStack pb="5" spacing="10" overflow="auto">
         {
             categories.filter(c => !!c).map(c => {
                 const isActive = (category === c.name && !isNotOnCategoryPage) || (c.isCustomPage && c.name === customPage);
