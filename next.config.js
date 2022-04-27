@@ -8,6 +8,26 @@ const redirects = async () => {
       permanent: true,
     },
     {
+      source: '/transparency/fed-policy',
+      destination: '/transparency/feds/policy/all',
+      permanent: true,
+    },
+    {
+      source: '/transparency/feds',
+      destination: '/transparency/feds/policy/all',
+      permanent: true,
+    },
+    {
+      source: '/transparency/feds/policy',
+      destination: '/transparency/feds/policy/all',
+      permanent: true,
+    },
+    {
+      source: '/transparency/fed-revenues',
+      destination: '/transparency/feds/revenue/all',
+      permanent: true,
+    },
+    {
       source: '/vaults',
       destination: 'https://old.inverse.finance/vaults',
       permanent: true,

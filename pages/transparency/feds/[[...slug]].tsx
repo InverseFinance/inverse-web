@@ -1,4 +1,4 @@
-import { Box, Flex, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 
 import moment from 'moment'
 import Layout from '@app/components/common/Layout'
@@ -7,7 +7,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO, useFedHistory, useFedPolicyChartData, useFedPolicyMsg } from '@app/hooks/useDAO'
+import { useDAO, useFedHistory, useFedPolicyChartData, useFedPolicyMsg, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Container } from '@app/components/common/Container';
@@ -23,22 +23,46 @@ import { showToast } from '@app/util/notify'
 import { FedAreaChart } from '@app/components/Transparency/fed/FedAreaChart'
 import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
+import { useEffect } from 'react';
+import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
+import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
+import theme from '@app/variables/theme'
 
 const { DOLA, TOKENS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { query } = useRouter();
+
+    const slug = query?.slug || ['policy', 'all'];
+    const queryFedName = slug[1] || 'all';
     const userAddress = (query?.viewAddress as string) || account;
     const { dolaTotalSupply, fantom, feds } = useDAO();
     const [msgUpdates, setMsgUpdates] = useState(0)
-    const { totalEvents: eventsWithFedInfos, isLoading } = useFedHistory();
+
+    const { totalEvents: policyEvents, isLoading: isPolicyLoading } = useFedHistory();
+    const { totalEvents: profitsEvents, totalRevenues, isLoading: isProfitsLoading } = useFedRevenues();
+
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
-    const [chosenFedIndex, setChosenFedIndex] = useState<number>(0);
+    const [detailsType, setDetailsType] = useState(slug[0]);
+
+    const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => fed.name.replace(' Fed', '').toLowerCase() === queryFedName.toLowerCase())
+    const [chosenFedIndex, setChosenFedIndex] = useState<number>(queryFedIndex === -1 ? 0 : queryFedIndex);
     const isAllFedsCase = chosenFedIndex === 0;
-    const fedHistoricalEvents = isAllFedsCase ? eventsWithFedInfos : eventsWithFedInfos.filter(e => e.fedIndex === (chosenFedIndex - 1));
-    const { chartData } = useFedPolicyChartData(fedHistoricalEvents, isAllFedsCase);
-    const chosenFedHistory = FEDS_WITH_ALL[chosenFedIndex];
+
+    const fedPolicyEvents = isAllFedsCase ? policyEvents : policyEvents.filter(e => e.fedIndex === (chosenFedIndex - 1));
+    const fedProfitsEvents = isAllFedsCase ? profitsEvents : profitsEvents.filter(e => e.fedIndex === (chosenFedIndex - 1));
+
+    const { chartData: chartDataPolicies } = useFedPolicyChartData(fedPolicyEvents, isAllFedsCase);
+    const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, isAllFedsCase);
+
+    const chosenFed = FEDS_WITH_ALL[chosenFedIndex];
+
+    useEffect(() => {
+        const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => fed.name.replace(' Fed', '').toLowerCase() === queryFedName.toLowerCase())
+        setChosenFedIndex(queryFedIndex === -1 ? 0 : queryFedIndex)
+        setDetailsType(slug && slug[0] ? slug[0] : 'policy')
+    }, [queryFedIndex, queryFedName, slug])
 
     const handlePolicyEdit = async () => {
         try {
@@ -84,34 +108,62 @@ export const FedPolicyPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Fed Policy</title>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Feds</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
-                <meta name="og:description" content="DOLA Fed Policy" />
+                <meta name="og:description" content="Feds Policy & Revenues" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-fed-policy.png" />
-                <meta name="description" content="Dola & the Feds policy" />
-                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply" />
+                <meta name="description" content="Feds Policy & Revenues" />
+                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, revenue" />
             </Head>
             <AppNav active="Transparency" activeSubmenu="Fed Policy" />
-            <TransparencyTabs active="fed-policy" />
+            <TransparencyTabs active="feds" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
                     <Container
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}
-                        label="Fed Supplies Contractions and Expansions"
+                        label={
+                            <HStack alignItems="center" mb="2" spacing="4">
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} color={detailsType === 'policy' ? theme.colors.mainTextColor : 'gray.600'} onClick={() => setDetailsType('policy')}>
+                                    Policy
+                                </Text>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} color={detailsType === 'revenue' ? theme.colors.mainTextColor : 'gray.600'} onClick={() => setDetailsType('revenue')}>
+                                    Revenue
+                                </Text>
+                            </HStack>
+                        }
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <FedsSelector feds={FEDS_WITH_ALL} setChosenFedIndex={setChosenFedIndex} />
-                                <FedAreaChart
-                                    title={`${chosenFedHistory.name} Supply Evolution (Current supply: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 1) : 0})`}
-                                    fed={chosenFedHistory}
-                                    chartData={chartData}
-                                    domainYpadding={5000000}
-                                />
+                                <FedsSelector pb="2" feds={FEDS_WITH_ALL} setChosenFedIndex={setChosenFedIndex} value={chosenFedIndex} />
+                                {
+                                    detailsType === 'policy' ?
+                                        <FedAreaChart
+                                            title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(chartDataPolicies[chartDataPolicies.length - 1].y, 1) : 0})`}
+                                            fed={chosenFed}
+                                            chartData={chartDataPolicies}
+                                            domainYpadding={5000000}
+                                        />
+                                        :
+                                        <>
+                                            <FedAreaChart
+                                                title={`${chosenFed.name} Revenue Evolution (Current accumulated revenue: ${chartDataRevenues.length ? shortenNumber(chartDataRevenues[chartDataRevenues.length - 1].y, 2) : 0})`}
+                                                fed={chosenFed}
+                                                chartData={chartDataRevenues}
+                                                domainYpadding={50000}
+                                                mainColor="secondary"
+                                            />
+                                            <FedBarChart chartData={chartDataRevenues} />
+                                        </>
+                                }
                             </Box>
                         }
                     >
-                        <FedPolicyTable fedHistoricalEvents={fedHistoricalEvents} isLoading={isLoading} />
+                        {
+                            detailsType === 'policy' ?
+                                <FedPolicyTable fedHistoricalEvents={fedPolicyEvents} isLoading={isPolicyLoading} />
+                                :
+                                <FedRevenueTable fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
+                        }
                     </Container>
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
@@ -141,6 +193,14 @@ export const FedPolicyPage = () => {
                     <SuppplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
                         supplies={feds}
+                    />
+                    <SuppplyInfos
+                        title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
+                        supplies={
+                            feds.map((fed, fedIndex) => {
+                                return { supply: totalRevenues[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                            })
+                        }
                     />
                 </VStack>
             </Flex>

@@ -12,6 +12,16 @@ export const getRewardToken = () => {
   return getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN!)
 }
 
+const deprecatedBadge = {
+  text: "DEPRECATED",
+  color: "gray",
+}
+
+// const pausedBadge = {
+//   text: "PAUSED",
+//   color: "gray",
+// }
+
 const chainTokenAddresses = {
   "1": {
     INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
@@ -53,6 +63,7 @@ const chainTokens = {
       coingeckoId: 'ethereum',
       image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
       decimals: 18,
+      isInPausedSection: true,
     },
     // Tokens
     [chainTokenAddresses["1"].DAI]: {
@@ -95,6 +106,7 @@ const chainTokens = {
       coingeckoId: 'yearn-finance',
       image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
       decimals: 18,
+      isInPausedSection: true,
     },
     [chainTokenAddresses["1"].XSUSHI]: {
       address: chainTokenAddresses["1"].XSUSHI,
@@ -111,6 +123,7 @@ const chainTokens = {
       coingeckoId: 'wrapped-bitcoin',
       image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
       decimals: 8,
+      isInPausedSection: true,
     },
     [chainTokenAddresses["1"].STETH]: {
       address: chainTokenAddresses["1"].STETH,
@@ -167,10 +180,8 @@ const chainTokens = {
       coingeckoId: 'floki-inu',
       image: 'https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665',
       decimals: 9,
-      badge: {
-        text: "DEPRECATED",
-        color: "gray",
-      },
+      isInPausedSection: true,
+      badge: deprecatedBadge,
     },
     [chainTokenAddresses["1"].WFTM]: {
       address: chainTokenAddresses["1"].WFTM,

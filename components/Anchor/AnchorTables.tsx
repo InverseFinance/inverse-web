@@ -59,7 +59,7 @@ const getColumn = (
           <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
             <UnderlyingItem
               Container={HStack}
-              containerProps={{ position: 'relative' }}
+              containerProps={{ position: 'relative', w: 'full' }}
               badge={
                 !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN ?
                 {
@@ -223,7 +223,7 @@ export const AnchorSupplied = () => {
   })
 
   const columns = [
-    getColumn('asset', 32),
+    getColumn('asset', '180px', true),
     getColumn('supplyApy', 24),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('supplyBalance', 24),
@@ -323,7 +323,7 @@ export const AnchorBorrowed = () => {
   })
 
   const columns = [
-    getColumn('asset', 16),
+    getColumn('asset', 16, false, true),
     getColumn('borrowApy', 20),
     getColumn('borrowBalance', 24),
   ]
@@ -367,25 +367,29 @@ export const AnchorBorrowed = () => {
   )
 }
 
-const AnchorSupplyContainer = ({ ...props }) => {
+const AnchorSupplyContainer = ({ paused = false, ...props }) => {
+  const title = paused ? 'Supply - Paused or Deprecated assets' : 'Supply'
+
   return (
     <Container
-      label="Supply"
-      description="Earn interest on your deposits"
-      href={process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
+      label={title}
+      description={ paused ? undefined : 'Earn interest on your deposits' }
+      href={paused ? undefined : process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       {...props}
     />
   )
 }
 
 // TODO: refacto components
-export const AnchorSupply = () => {
+export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   const { query } = useRouter()
-  const { markets, isLoading } = useMarkets()
+  const { markets: marketsData, isLoading } = useMarkets()
   const { balances } = useAccountBalances()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
+
+  const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
   const handleSupply = (asset: Market) => {
     setModalAsset(asset)
@@ -427,15 +431,15 @@ export const AnchorSupply = () => {
   })
 
   const columns = [
-    getColumn('asset', '32', true),
+    getColumn('asset', '180px', true),
     getColumn('supplyApy', 20, true),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
     getColumn('wallet', 24, true),
   ].filter(c => !!c);
 
-  if (isLoading || !markets) {
+  if (isLoading || !marketsData) {
     return (
-      <AnchorSupplyContainer>
+      <AnchorSupplyContainer paused={paused}>
         <SkeletonList />
       </AnchorSupplyContainer>
     )
@@ -444,16 +448,16 @@ export const AnchorSupply = () => {
   const mintableMarkets = marketsWithBalance.filter(m => m.mintable);
 
   return (
-    <AnchorSupplyContainer>
+    <AnchorSupplyContainer paused={paused}>
       <Table columns={columns} items={mintableMarkets} keyName="token" defaultSortDir="desc" defaultSort="supplyApy" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </AnchorSupplyContainer>
   )
 }
 
-export const AnchorBorrow = () => {
+export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
   const { query } = useRouter()
-  const { markets, isLoading } = useMarkets()
+  const { markets: marketsData, isLoading } = useMarkets()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [deepLinkUsed, setDeepLinkUsed] = useState(false)
@@ -463,6 +467,8 @@ export const AnchorBorrow = () => {
     setModalAsset(asset)
     onOpen()
   }
+
+  const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
   useEffect(() => {
     if (!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
@@ -501,10 +507,12 @@ export const AnchorBorrow = () => {
     },
   ]
 
-  if (isLoading || !markets) {
+  const title = paused ? 'Borrow - Paused or Deprecated assets' : 'Borrow'
+
+  if (isLoading || !marketsData) {
     return (
       <Container
-        label="Borrow"
+        label={title}
         description="Borrow against your supplied collateral"
         href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
       >
@@ -515,11 +523,11 @@ export const AnchorBorrow = () => {
 
   return (
     <Container
-      label="Borrow"
+      label={title}
       description="Borrow against your supplied collateral"
       href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
-      <Table columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
+      <Table noDataMessage="DOLA borrowing will be back soon" columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
