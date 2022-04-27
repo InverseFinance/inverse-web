@@ -368,7 +368,7 @@ export const AnchorBorrowed = () => {
 }
 
 const AnchorSupplyContainer = ({ paused = false, ...props }) => {
-  const title = paused ? 'Supply - Paused or Deprecated assets' : 'Supply'
+  const title = paused ? 'Supply - Paused or Deprecated Assets' : 'Supply'
 
   return (
     <Container
@@ -507,7 +507,7 @@ export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
     },
   ]
 
-  const title = paused ? 'Borrow - Paused or Deprecated assets' : 'Borrow'
+  const title = paused ? 'Borrow - Paused or Deprecated Assets' : 'Borrow'
 
   if (isLoading || !marketsData) {
     return (
