@@ -172,6 +172,7 @@ export const getProposalActionFromFunction = (actionId: number, func: ProposalFu
         args: getArgs(fragment, func.callData),
         fragment,
         func: func.signature || '',
+        collapsed: true,
     }
 }
 

@@ -85,13 +85,18 @@ export const ProposalPreview = ({
   isLocalDraft?: boolean,
   isPublicDraft?: boolean,
 }) => {
+  const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const { unreadKeys } = useGovernanceNotifs()
   const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
 
   const totalVotes = forVotes + againstVotes
+
+  const whitelisted = (process?.env?.NEXT_PUBLIC_DRAFT_WHITELIST || '')?.replace(/\s/g, '').toLowerCase().split(',');
+  const canDraft = whitelisted.includes((account||'')?.toLowerCase());
+
   const href = !isLocalDraft ?
-    { pathname: `/governance/${isPublicDraft ? 'drafts' : 'proposals'}/${era}/${id}`, query }
+    { pathname: `/governance/${isPublicDraft ? 'drafts' + (canDraft ? '/edit' : '') : 'proposals'}/${era}/${id}`, query }
     : {
       pathname: `/governance/propose`, query: {
         proposalLinkData: JSON.stringify({
