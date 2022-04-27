@@ -139,7 +139,7 @@ export const useStabilizerFees = (): SWR & { buyFee:number, sellFee: number } =>
   const { STABILIZER } = getNetworkConfigConstants();
 
   const { data: apiData, error } = useCustomSWR(
-    `/api/stabilizer`,
+    `/api/stabilizer?v=1`,
     fetcher
   );
 
@@ -150,7 +150,7 @@ export const useStabilizerFees = (): SWR & { buyFee:number, sellFee: number } =>
 
   return {
     buyFee:  (realTimeData && getBnToNumber(realTimeData[0], 4)) ?? (apiData && apiData.buyFee) ?? 0.004,
-    sellFee: (realTimeData && getBnToNumber(realTimeData[1], 4)) ?? (apiData && apiData.sellFee) ?? 0.004,
+    sellFee: (realTimeData && getBnToNumber(realTimeData[1], 4)) ?? (apiData && apiData.sellFee) ?? 0.001,
     isError: error,
   }
 }
