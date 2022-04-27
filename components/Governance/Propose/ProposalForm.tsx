@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
 import { Textarea } from '@app/components/common/Input';
 import { FunctionFragment } from 'ethers/lib/utils';
@@ -11,9 +11,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@app/util/transactions';
 import { TEST_IDS } from '@app/config/test-ids';
 import { ProposalActions, ProposalDetails } from '../Proposal';
-import { ProposalWarningMessage } from './ProposalWarningMessage';
 import { showToast } from '@app/util/notify';
-import localforage from 'localforage';
 import { ActionTemplateModal } from './ActionTemplateModal';
 import { ProposalFormBtns } from './ProposalFormBtns';
 import { ProposalFunction } from '@app/types';
@@ -31,8 +29,6 @@ const EMPTY_ACTION = {
     value: '',
     fragment: undefined,
 };
-
-const PROPOSAL_WARNING_KEY = 'proposalWarningAgreed';
 
 const DEFAULT_FUNCTIONS: ProposalFunction[] = []
 
@@ -58,7 +54,6 @@ export const ProposalForm = ({
     updatedAt?: number
 }) => {
     const router = useRouter()
-    const isMountedRef = useRef(true)
     const [hasSuccess, setHasSuccess] = useState(false);
     const { library, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
