@@ -91,7 +91,7 @@ export const MENUS = {
           label: 'DOLA & the Feds',
         },
         {
-          href: '/transparency/feds',
+          href: '/transparency/feds/policy/all',
           label: 'Feds',
         },
         {
