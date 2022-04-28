@@ -172,6 +172,23 @@ export async function getCategories(preview, locale = 'en-US') {
   return categories.data?.categoryCollection?.items?.filter(item => !!item && !!item.name);
 }
 
+export async function getCategoryById(id, locale = 'en-US') {
+  const categories = await fetchGraphQL(
+    `query {
+      categoryCollection(locale: "${locale}", where: { sys: { id: "${id}" }}, limit: 1) {
+        items {
+          name
+          label
+          order
+          isCustomPage
+        }
+      }
+    }`,
+    preview
+  )
+  return categories.data?.categoryCollection?.items?.[0];
+}
+
 export async function getTag(preview, locale = 'en-US', byTag) {
   const tags = await fetchGraphQL(
     `query {
