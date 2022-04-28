@@ -1,4 +1,4 @@
-import { getAuthorById, getAuthors, getCategories, getTags } from '@app/blog/lib/api';
+import { getAllPostsForHome, getAuthorById, getAuthors, getCategories, getTags } from '@app/blog/lib/api';
 import { BLOG_LOCALES } from 'blog/lib/constants'
 
 export default async function handler(req, res) {
@@ -34,6 +34,30 @@ export default async function handler(req, res) {
                     ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/posts/${l}/${body?.fields?.slug['en-US']}`)),
                     ...tagsRevalidations
                 ]);
+            } else if (body?.sys?.contentType?.sys?.id === 'author') {
+                const paths = BLOG_LOCALES.map(l => {
+                    return `/blog/${l}`
+                }).concat(['/blog']);
+
+                BLOG_LOCALES.forEach(l => {
+                    paths.push(`/blog/authors/${l}`)
+                });
+
+                const authorId = body?.sys?.id;
+                const posts = await getAllPostsForHome({
+                    preview: true,
+                    customWhere: `{ author: { sys: { id: "${authorId}" } } }`,
+                    fieldsGraph: "slug"
+                })
+
+                posts.forEach(p => {
+                    BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${p.slug}`))
+                })
+
+                await Promise.allSettled([
+                    ...paths.map(p => res.unstable_revalidate(p)),
+                ]);
+
             } else {
                 const [categories, authors, tags] = await Promise.all([
                     getCategories(true, 'en-US'),

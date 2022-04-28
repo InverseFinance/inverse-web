@@ -100,7 +100,7 @@ export async function getAllPostsWithSlug() {
   return extractPostEntries(entries)
 }
 
-export async function getAllPostsForHome({ preview, locale = 'en-US', category = '', byAuthor = '', byTag = '', fulltext = '', limit = 50 }) {
+export async function getAllPostsForHome({ preview, locale = 'en-US', category = '', byAuthor = '', byTag = '', fulltext = '', limit = 50, fieldsGraph = POST_GRAPHQL_FIELDS , customWhere}) {
   const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
   const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
@@ -110,11 +110,11 @@ export async function getAllPostsForHome({ preview, locale = 'en-US', category =
         order: date_DESC,
          locale: "${locale}",
           preview: ${preview ? 'true' : 'false'}
-          ${categoryFilter}${authorFilter}${fullTextFilter},
+          ${categoryFilter}${authorFilter}${fullTextFilter}${customWhere ? ', where: ' + customWhere : ''},
           limit: ${limit},
         ) {
         items {
-          ${POST_GRAPHQL_FIELDS}
+          ${fieldsGraph}
         }
       }
     }`,
