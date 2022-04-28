@@ -1,0 +1,13 @@
+name: 1-minute-blog-cron
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call our blog revalidate API
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/revalidate?type=blog' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
