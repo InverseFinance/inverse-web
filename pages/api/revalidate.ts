@@ -28,6 +28,7 @@ export default async function handler(req, res) {
                     .reduce((prev, curr) => [...prev, ...curr], []);
 
                 results = await Promise.allSettled([
+                    res.unstable_revalidate(`/blog`),
                     ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/${l}`)),
                     ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/${l}/author/${author.name}`)),
                     ...BLOG_LOCALES.map(l => res.unstable_revalidate(`/blog/posts/${l}/${body?.fields?.slug['en-US']}`)),
@@ -42,14 +43,16 @@ export default async function handler(req, res) {
 
                 const paths = BLOG_LOCALES.map(l => {
                     return `/blog/${l}`
-                });
+                }).concat(['/blog']);
 
                 BLOG_LOCALES.forEach(l => {
                     paths.push(`/blog/authors/${l}`)
-                    categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+                    categories?.filter(c => !c.isCustomPage).forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
                     authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
                     tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
                 });
+
+                console.log(paths)
 
                 results = await Promise.allSettled([
                     ...paths.map(p => res.unstable_revalidate(p)),
