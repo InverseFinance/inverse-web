@@ -19,8 +19,8 @@ export default function BlogHome({ preview, allPosts, categories, locale, catego
     const posts = allPosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
     const heroPost = posts[0];
     const morePosts = posts.slice(1);
-    const categoryObject = categories.find(c => c.label === category) || {};
-
+    const categoryObject = categories.find(c => c.name === category) || {};
+  
     return (
       <BlogContext.Provider value={{ locale, category }}>
         <Layout preview={preview}>

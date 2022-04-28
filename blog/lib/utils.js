@@ -6,7 +6,7 @@ export const getBlogContext = (context) => {
 
     return {
         locale: (slug[0] || 'en-US').replace('undefined', 'en-US'),
-        category: slug[1] && !['posts', 'author', 'tag'].includes(slug[1]) ? decodeURIComponent(slug[1]) : '',
+        category: slug[1] && !['posts', 'author', 'tag'].includes(slug[1]) ? slug[1] : 'home',
         byAuthor: slug[1] === 'author' ? slug[2] : '',
         byTag: slug[1] === 'tag' ? slug[2] : '',
         isPreviewUrl: previewKey === process.env.CONTENTFUL_PREVIEW_SECRET,
@@ -16,10 +16,8 @@ export const getBlogContext = (context) => {
 export const getBlogHomeProps = async ({ preview = false, ...context }) => {
     const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
-
-    const categories = await getCategories(isPreview, locale) ?? []
     const allPosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag }) ?? []
-
+    const categories = await getCategories(isPreview, locale) ?? []
     const tag = byTag ? await getTag(isPreview, locale, byTag) : null;
     return {
         props: { preview: isPreview, allPosts, categories, locale, category, byAuthor, tag },
