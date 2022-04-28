@@ -101,7 +101,7 @@ export async function getAllPostsWithSlug() {
 }
 
 export async function getAllPostsForHome({ preview, locale = 'en-US', category = '', byAuthor = '', byTag = '', fulltext = '', limit = 50 }) {
-  const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
+  const categoryFilter = category && category !== 'home' ? `, where: { category: { label: "${category}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
   const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
   const entries = await fetchGraphQL(
