@@ -10,6 +10,7 @@ import PostFooter from '../post-footer';
 import PostHeader from '../post-header';
 import PostTitle from '../post-title';
 import SectionSeparator from '../section-separator';
+import Blog404 from './blog-404';
 
 export default function BlogPost({ post, morePosts, preview, locale }) {
     const router = useRouter()
@@ -17,7 +18,7 @@ export default function BlogPost({ post, morePosts, preview, locale }) {
     if (router.isFallback) {
       return <div>Loading...</div>
     } else if (!router.isFallback && !post) {
-      return <ErrorPage statusCode={404} />
+      return <Blog404 locale={locale} />
     }
   
     return (

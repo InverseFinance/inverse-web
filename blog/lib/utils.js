@@ -18,7 +18,8 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
     const isPreview = preview || isPreviewUrl;
     const allPosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag }) ?? []
     const categories = await getCategories(isPreview, locale) ?? []
-    const tag = byTag ? await getTag(isPreview, locale, byTag) : null;
+    const tag = byTag ? await getTag(isPreview, locale, byTag) || null : null;
+
     return {
         props: { preview: isPreview, allPosts, categories, locale, category, byAuthor, tag },
     }
