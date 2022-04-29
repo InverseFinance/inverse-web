@@ -8,7 +8,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
 import { useEscrow } from '@app/hooks/useEscrow'
-import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@app/hooks/useMarkets'
 import { usePrices } from '@app/hooks/usePrices'
 import { Market, Token } from '@app/types'
@@ -171,7 +171,7 @@ export const AnchorSupplied = () => {
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdSupplyCoingecko, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useSupplyBalances()
-  const { exchangeRates } = useExchangeRates()
+  const { exchangeRates } = useExchangeRatesV2()
   const { prices } = usePrices()
 
   const { markets: accountMarkets } = useAccountMarkets()
@@ -305,7 +305,7 @@ export const AnchorBorrowed = () => {
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
   const { balances, isLoading: balancesLoading } = useBorrowBalances()
-  const { exchangeRates } = useExchangeRates()
+  const { exchangeRates } = useExchangeRatesV2()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
 

@@ -46,12 +46,12 @@ import { InjectedConnector } from '@web3-react/injected-connector';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import useFantomBalance from '@app/hooks/useFantomBalance'
-import { useCustomSWR } from '@app/hooks/useCustomSWR'
-import { getGasPrice } from '@app/util/etherscan'
 import { GasInfo } from '@app/components/common/Gas'
 import { formatUnits } from 'ethers/lib/utils';
 import { gaEvent } from '@app/util/analytics'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
+import { BigNumber } from 'ethers'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -112,15 +112,17 @@ const INVBalance = () => {
   const userAddress = (query?.viewAddress as string) || account;
   const { inv: invBalOnFantom } = useFantomBalance(userAddress)
   const { INV, XINV } = getNetworkConfigConstants(chainId);
+  const { exchangeRates } = useExchangeRatesV2()
   const { data } = useEtherSWR([
     [INV, 'balanceOf', userAddress],
     [XINV, 'balanceOf', userAddress],
-    [XINV, 'exchangeRateStored'],
   ])
   const [formattedBalance, setFormattedBalance] = useState<ReactNode>(null)
 
+  const exRate = exchangeRates ? exchangeRates[XINV] : 0;
+
   useDualSpeedEffect(() => {
-    setFormattedBalance(userAddress ? formatData(data) : null)
+    setFormattedBalance(userAddress ? formatData(data, exRate) : null)
   }, [data, userAddress], !userAddress, 1000)
 
   const goToSupply = () => {
@@ -132,8 +134,8 @@ const INVBalance = () => {
     }
   }
 
-  const formatData = (data: [number, number, number] | undefined) => {
-    const [invBalance, xinvBalance, exchangeRate] = data || [0, 0, 1]
+  const formatData = (data: [number, number] | undefined, exchangeRate: BigNumber) => {
+    const [invBalance, xinvBalance] = data || [0, 0, 1]
     const inv = invBalance / ETH_MANTISSA
     const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
     const hasUnstakedBal = inv >= 0.01

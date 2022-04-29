@@ -95,7 +95,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
         <VotingWalletField label={rtokenSymbol}>
           {(invBalance ? parseFloat(formatUnits(invBalance)) : 0).toFixed(4)}
         </VotingWalletField>
-        <VotingWalletField label={`x${rtokenSymbol}`}>
+        <VotingWalletField label={`Eligible x${rtokenSymbol}`}>
           {(xinvBalance ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>

@@ -106,7 +106,7 @@ export const PositionDetails = ({
                 </ScaleFade>
             }
             <Text fontSize="12px" pt={ isOpen ? 2 : 0 }>
-                Calculations here use <b>Oracle Prices</b>, these can differ from Coingecko's
+                Calculations here use <b>Oracle Prices</b>, these can differ from Coingecko's, displayed balances are the "stored" balances snapshoted at last interest accrual (= not real time)
             </Text>
             <Stack spacing="5" direction="row" w="full">
                 <Text fontWeight="bold" color={freshPosition.borrowLimitPercent >= 100 ? 'error' : 'mainTextColor'}>
