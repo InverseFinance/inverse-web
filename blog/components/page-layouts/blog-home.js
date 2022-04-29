@@ -9,14 +9,14 @@ import Intro from '../intro';
 import Layout from '../layout';
 import MoreStories from '../more-stories';
 
-export default function BlogHome({ preview, allPosts, categories, locale, category, byAuthor, tag }) {
+export default function BlogHome({ preview, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts }) {
     const router = useRouter();
   
     if (router.isFallback) {
       return <div>Loading...</div>
     }
   
-    const posts = allPosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
+    const posts = homePosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
     const heroPost = posts[0];
     const morePosts = posts.slice(1);
     const categoryObject = categories.find(c => c.name === category) || {};
@@ -53,7 +53,7 @@ export default function BlogHome({ preview, allPosts, categories, locale, catego
                 {...heroPost}
               />
             )}
-            {morePosts.length > 0 && <MoreStories byAuthor={byAuthor} posts={morePosts} mt="8" />}
+            {morePosts.length > 0 && <MoreStories byAuthor={byAuthor} posts={morePosts} nbTotalPosts={nbTotalPosts} mt="8" />}
           </Container>
         </Layout>
       </BlogContext.Provider>

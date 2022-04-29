@@ -1,4 +1,5 @@
 import { getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag } from './api';
+import { BLOG_PAGINATION_SIZE } from './constants';
 
 export const getBlogContext = (context) => {
     const { slug } = context.params || { slug: ['en-US'] };
@@ -16,12 +17,14 @@ export const getBlogContext = (context) => {
 export const getBlogHomeProps = async ({ preview = false, ...context }) => {
     const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
-    const allPosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag }) ?? []
+    const homePosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: BLOG_PAGINATION_SIZE }) ?? []
+    const totalPostsToCount = (await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: 999, fieldsGraph: 'slug' }) ?? [])
     const categories = await getCategories(isPreview, locale) ?? []
     const tag = byTag ? await getTag(isPreview, locale, byTag) || null : null;
+    const nbTotalPosts = totalPostsToCount.length;
 
     return {
-        props: { preview: isPreview, allPosts, categories, locale, category, byAuthor, tag },
+        props: { preview: isPreview, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts },
     }
 }
 
