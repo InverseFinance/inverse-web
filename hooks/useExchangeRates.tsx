@@ -5,6 +5,9 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { HAS_REWARD_TOKEN } from '@app/config/constants';
+import { useCustomSWR } from './useCustomSWR';
+import { getBnToNumber } from '@app/util/markets';
+import { parseEther } from '@ethersproject/units';
 
 type ExchangeRates = {
   exchangeRates: { [key: string]: BigNumber }
@@ -26,4 +29,22 @@ export const useExchangeRates = (): SWR & ExchangeRates => {
     isLoading: !error && !data,
     isError: error,
   }
+}
+
+export const useExchangeRatesV2 = (): SWR & ExchangeRates => {
+  const { exchangeRates: storedRates } = useExchangeRates();
+  const { data: simData } = useCustomSWR('/api/ex-rates');
+
+  const isLoading = !storedRates || !simData;
+  const freshRates: { [key:string]: BigNumber } = {};
+
+  if(!isLoading) {
+    const { exRates: simExRates } = simData;
+    Object.keys(storedRates).map(ctoken => {
+      const stored = getBnToNumber(storedRates[ctoken]);
+      freshRates[ctoken] = parseEther(Math.max(stored, simExRates[ctoken]?.realTime).toString());
+    });
+  }
+
+  return { exchangeRates: isLoading ? storedRates : freshRates, isLoading }
 }

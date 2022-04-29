@@ -1,7 +1,7 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
-import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { useAnchorPrices } from '@app/hooks/usePrices'
 import { Market, AnchorOperations } from '@app/types'
 import { BigNumber } from 'ethers'
@@ -75,7 +75,7 @@ const getBorrowLimitUsed = (perc: number, before: string, after: string): Stat =
 
 const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
   const { balances: supplyBalances } = useSupplyBalances()
-  const { exchangeRates } = useExchangeRates()
+  const { exchangeRates } = useExchangeRatesV2()
 
   const supplyBalance =
     supplyBalances && exchangeRates

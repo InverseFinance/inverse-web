@@ -7,7 +7,7 @@ import { commify, formatUnits } from 'ethers/lib/utils'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances';
-import { useExchangeRates } from '@app/hooks/useExchangeRates'
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@app/hooks/useMarkets'
 import { Interests } from '@app/types'
 import { getTotalInterests } from '@app/util/markets';
@@ -29,7 +29,7 @@ export const AnchorOverview = () => {
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { markets } = useMarkets()
-  const { exchangeRates } = useExchangeRates()
+  const { exchangeRates } = useExchangeRatesV2()
   const { prices } = usePrices()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure()
