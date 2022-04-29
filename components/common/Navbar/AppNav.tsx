@@ -123,7 +123,7 @@ const INVBalance = () => {
 
   useDualSpeedEffect(() => {
     setFormattedBalance(userAddress ? formatData(data, exRate) : null)
-  }, [data, userAddress], !userAddress, 1000)
+  }, [data, userAddress, exRate], !userAddress, 1000)
 
   const goToSupply = () => {
     if (router.pathname === '/anchor') {
