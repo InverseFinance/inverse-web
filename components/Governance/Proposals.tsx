@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
+import { Flex, HStack, Stack, Switch, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { ProposalPreview } from '@app/components/Governance/Proposal'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
@@ -9,7 +9,10 @@ import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers';
 import { DeleteIcon } from '@chakra-ui/icons'
 import { clearLocalDrafts } from '@app/util/governance'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import theme from '@app/variables/theme'
+import useStorage from '@app/hooks/useStorage'
+import { AnimatedInfoTooltip } from '../common/Tooltip'
 
 export const Proposals = () => {
   const { proposals, isLoading } = useProposals()
@@ -48,6 +51,8 @@ export const Proposals = () => {
 export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { account } = useWeb3React<Web3Provider>()
   const { nbDraftNotif } = useGovernanceNotifs()
+  const { value: draftLinkPrefStored, setter: saveDraftLinkPref } = useStorage('draft-link-pref');
+  const [prefersEditMode, setPrefersEditMode] = useState(!!draftLinkPrefStored);
   const now = new Date()
 
   const previews: Partial<Proposal>[] = drafts.map(d => {
@@ -66,16 +71,44 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
     }
   })
 
+  const whitelisted = (process?.env?.NEXT_PUBLIC_DRAFT_WHITELIST || '')?.replace(/\s/g, '').toLowerCase().split(',');
+  const canDraft = whitelisted.includes((account || '')?.toLowerCase());
+
+  const handleEditPref = () => {
+    const newVal = !prefersEditMode;
+    setPrefersEditMode(newVal);
+    saveDraftLinkPref(newVal);
+  }
+
+  useEffect(() => {
+    setPrefersEditMode(draftLinkPrefStored)
+  }, [draftLinkPrefStored]);
+
   return (
     <Container
       label="Draft Proposals"
       contentBgColor="gradient3"
       nbNotif={nbDraftNotif}
-      description="Off-Chain Draft Proposals"
+      description={
+        <Flex fontSize="14px">
+          <Text color={theme.colors.secondaryTextColor} fontSize="14px">
+            Off-Chain Draft Proposals
+          </Text>
+          {
+            canDraft && <HStack alignItems="center" ml="2">
+              <Text color={theme.colors.secondaryTextColor}>
+                - Directly use Draft Edit Links?
+                <AnimatedInfoTooltip iconProps={{ ml: '2', fontSize: '12px' }} message="Only whitelisted addresses see this option. Your choice will be remembered in your browser's cache." />
+              </Text>
+              <Switch isChecked={prefersEditMode} onChange={handleEditPref} />
+            </HStack>
+          }
+        </Flex>
+      }
     >
       <Stack w="full" spacing={1}>
         {
-          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} isPublicDraft={true} proposal={proposal} />)
+          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} preferseEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
         }
       </Stack>
     </Container>
