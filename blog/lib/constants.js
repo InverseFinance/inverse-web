@@ -15,4 +15,4 @@ export const BLOG_THEME = {
 
 export const BLOG_LOCALES = ['en-US', 'fr'];
 
-export const BLOG_PAGINATION_SIZE = 5;
+export const BLOG_PAGINATION_SIZE = 10;
