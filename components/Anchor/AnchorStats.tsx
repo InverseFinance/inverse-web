@@ -83,19 +83,21 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
       parseFloat(formatUnits(exchangeRates[asset.token]))
       : 0
 
-  const wording = asset.underlying.symbol === RTOKEN_SYMBOL ? 'Staking' : 'Supply';
+  const wordingAPY = asset.underlying.symbol === RTOKEN_SYMBOL ? 'Staking' : 'Supply';
+  const wordingBal = asset.underlying.symbol === RTOKEN_SYMBOL ? 'Estimated Realtime Staking' : 'Supply';
 
   return (
     <StatBlock
-      label={`${wording} Stats`}
+      label={`${wordingAPY} Stats`}
       stats={[
         {
-          label: `${wording} APY`,
+          label: `${wordingAPY} APY`,
           value: `${asset.supplyApy.toFixed(2)}%`,
         },
         {
-          label: `${wording} Balance`,
+          label: `${wordingBal} Balance`,
           value: `${shortenNumber(Math.floor(supplyBalance * 1e8) / 1e8)} ${asset.underlying.symbol}`,
+          tooltipMsg: 'Realtime Estimation can be more than the max withdrawable amount displayed',
         },
       ]}
     />
