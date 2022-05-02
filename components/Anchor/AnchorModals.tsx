@@ -111,7 +111,7 @@ export const AnchorModal = ({
       case AnchorOperations.supply:
         return 'Wallet'
       case AnchorOperations.withdraw:
-        return 'Withdrawable Now'
+        return 'Max. Withdrawable is at least'
       case AnchorOperations.borrow:
         return 'Borrowable'
       case AnchorOperations.repay:

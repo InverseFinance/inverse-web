@@ -11,7 +11,7 @@ const theme = extendTheme({
     gradient1: 'linear-gradient(125deg, rgba(42,37,87,1) 0%, rgba(69,60,141,1) 50%, rgba(42,37,87,1) 100%);',
     mainBackground: 'radial-gradient(circle at center, #2a2557, #100e21 50%)',
     announcementBarBackgroundColor: "transparent",
-    announcementBarBackground: "url('/assets/landing/graphic1.png')",
+    announcementBarBackground: "url('/assets/landing/graphic1.webp')",
     mainTextColor: '#fff',
     secondaryTextColor: '#bbb7e0',
     accentTextColor: '#34E795',

@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Box, Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Spacer, Stack, Text } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -10,6 +10,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
+import Image from 'next/image'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -94,7 +95,7 @@ export const Landing = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE}</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/home.png" />
       </Head>
-      <Flex w="full" bgImage="/assets/landing/graphic1.png" bgRepeat="no-repeat" direction="column">
+      <Flex w="full" bgImage="/assets/landing/graphic1.webp" bgRepeat="no-repeat" direction="column">
         <LandingNav />
         <Stack w="full" align="center" mt={{ base: 4, md: 28 }} spacing={4} p={2}>
           <Flex direction="column">
@@ -144,7 +145,7 @@ export const Landing = () => {
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
               <Flex key={project} w={16} h={16} m={6}>
-                <Image w={16} h={16} src={project} />
+                <Image width={'64px'} height={'64px'} src={project} />
               </Flex>
             ))}
           </Stack>
@@ -189,7 +190,7 @@ export const Landing = () => {
       </Stack>
       <Flex
         w="full"
-        bgImage="/assets/landing/graphic2.png"
+        bgImage="/assets/landing/graphic2.webp"
         bgRepeat="no-repeat"
         bgPosition="right top"
         justify="center"
@@ -243,7 +244,7 @@ export const Landing = () => {
       >
         <Flex
           position="absolute"
-          bgImage="/assets/landing/graphic3.png"
+          bgImage="/assets/landing/graphic3.webp"
           bgRepeat="no-repeat"
           bgSize="100% 100%"
           w="full"
