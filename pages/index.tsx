@@ -190,7 +190,7 @@ export const Landing = () => {
       </Stack>
       <Flex
         w="full"
-        bgImage="/assets/landing/graphic2.png"
+        bgImage="/assets/landing/graphic2.webp"
         bgRepeat="no-repeat"
         bgPosition="right top"
         justify="center"
@@ -244,7 +244,7 @@ export const Landing = () => {
       >
         <Flex
           position="absolute"
-          bgImage="/assets/landing/graphic3.png"
+          bgImage="/assets/landing/graphic3.webp"
           bgRepeat="no-repeat"
           bgSize="100% 100%"
           w="full"
