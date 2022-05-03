@@ -36,7 +36,7 @@ export const Footer = () => (
     >
       {LINK_GROUPS.map(({ groupLabel, items }) => (
         <Stack key={groupLabel} w={24} mb={4}>
-          <Text fontWeight="bold">{groupLabel}</Text>
+          <Text fontSize="14px" fontWeight="bold">{groupLabel}</Text>
           {items.map(({ label, href }, i) => (
             <Link key={i} href={href} fontSize="13px">
               {label}

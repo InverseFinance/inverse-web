@@ -37,7 +37,7 @@ export default function MoreStories({ posts, byAuthor, nbTotalPosts, ...props })
 
   return (
     <Box id="morePostsBox" as="section" {...props}>
-      <BlogText as="h2" mb="8" fontSize={{ base: '4xl', sm: '6xl' }} fontWeight="extrabold">
+      <BlogText as="h2" mb="8" fontSize={{ base: '3xl', sm: '6xl' }} fontWeight="extrabold">
         More Stories{byAuthor ? ` by ${byAuthor}` : ''}
       </BlogText>
       <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32 mb-32">

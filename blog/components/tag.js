@@ -11,10 +11,11 @@ export default function Tag({ label, name }) {
         px="3"
         borderRadius="10"
         bgColor={BLOG_THEME.colors.badgeBgColor}
-        fontSize="14px"
+        fontSize="12px"
         href={`/blog/${locale}/tag/${name}`}
         transitionProperty="background-color, color"
         transitionDuration="500ms"
+        textTransform="uppercase"
         _hover={{
             bgColor: '#ddd',
             color: '#000'
