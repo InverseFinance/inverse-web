@@ -42,9 +42,10 @@
     "**/*.ts",
     "**/*.tsx",
     "__tests__/setupEnv.js"
-  ],
+, "blog/components/blog-footer.js"  ],
   "exclude": [
     "node_modules",
-    "cypress"
+    "cypress",
+    "blog",
   ]
 }

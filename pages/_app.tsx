@@ -1,4 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react'
+import '../blog/styles/index.css'
 import './polyfill.css'
 import '@fontsource/inter/100.css'
 import '@fontsource/inter/200.css'
@@ -16,9 +17,11 @@ import { Web3ReactProvider } from '@web3-react/core'
 import { AppProps } from 'next/app'
 import Head from 'next/head'
 import { SWRConfig } from 'swr'
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
+
+export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
 const App = ({ Component, pageProps }: AppProps) => {
   const router = useRouter()
@@ -56,6 +59,8 @@ const App = ({ Component, pageProps }: AppProps) => {
           <meta property="twitter:card" content="summary_large_image" />
 
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
+          <meta property="twitter:card" content="summary_large_image" />
+          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <script
             async
             src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
