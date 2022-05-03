@@ -164,6 +164,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isCrvLP: true,
+      isInPausedSection: true,
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,

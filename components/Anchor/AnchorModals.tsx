@@ -34,7 +34,7 @@ type AnchorModalProps = ModalProps & {
 
 const LP_POOL_LINKS: { [key: string]: { name: string, url: string } } = {
   'INV-DOLA-SLP': { name: 'Sushi', url: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014CcdED1e7d814EDC9ce4' },
-  'DOLA-3POOL': { name: 'Crv', url: 'https://curve.fi/factory/27/deposit' },
+  'DOLA-3POOL': { name: 'Curve', url: 'https://curve.fi/factory/27/deposit' },
 }
 
 export const AnchorModal = ({
@@ -213,13 +213,28 @@ export const AnchorModal = ({
           && maxFloat() <= 1
           && <InfoMessage
             alertProps={{ w: 'full' }}
+            title={asset.underlying.symbol === 'INV-DOLA-SLP' ? null : <>
+              Curve Wars!
+            </>}
             description={
               <>
-                <Text>Get the {asset.underlying.symbol} token on
-                  <Link ml="1" isExternal href={LP_POOL_LINKS[asset.underlying.symbol].url}>
-                    {LP_POOL_LINKS[asset.underlying.symbol].name}
-                  </Link>
-                </Text>
+                {
+                  asset.underlying.symbol === 'INV-DOLA-SLP' ?
+                    <Text fontSize="12px">Get {asset.underlying.symbol} on
+                      <Link ml="1" isExternal href={LP_POOL_LINKS[asset.underlying.symbol].url}>
+                        {LP_POOL_LINKS[asset.underlying.symbol].name}
+                      </Link>
+                    </Text>
+                    :
+                    <Text display="inline-block" fontSize="12px">
+                      Get <b>{asset.underlying.symbol}</b> on <Link isExternal href={LP_POOL_LINKS[asset.underlying.symbol].url}>
+                        {LP_POOL_LINKS[asset.underlying.symbol].name}</Link> and deposit it on <Link isExternal href={"https://yearn.finance/#/vault/0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C"}>
+                        Yearn
+                      </Link> or <Link isExternal href={"https://www.convexfinance.com/stake"}>
+                        Convex
+                      </Link> to earn yields in stables or stables + CVR/CVX
+                    </Text>
+                }
               </>
             } />
         }
