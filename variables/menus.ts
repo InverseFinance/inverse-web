@@ -172,10 +172,10 @@ export const MENUS = {
           label: 'Telegram',
           href: 'https://t.me/InverseFinance',
         },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
+        // {
+        //   label: 'Blog',
+        //   href: '/blog',
+        // },
       ],
     },
     {
