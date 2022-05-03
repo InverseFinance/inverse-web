@@ -12,7 +12,7 @@ export default function MoreStories({ posts, byAuthor, nbTotalPosts, ...props })
   const isMountedRef = useRef(true);
   const onScreen = useOnScreen(ref, "1800px");
 
-  const hasMore = (morePosts.length + 1) < nbTotalPosts;
+  const hasMore = !nbTotalPosts ? false : (morePosts.length + 1) < nbTotalPosts;
 
   const fetchData = async () => {
     return fetch(`/api/blog/posts?skip=${morePosts.length + 1}&limit=${BLOG_PAGINATION_SIZE}`)
@@ -49,7 +49,7 @@ export default function MoreStories({ posts, byAuthor, nbTotalPosts, ...props })
           />
         ))}
       </div>
-      <div ref={ref}></div>
+      <Box ref={ref}></Box>
     </Box>
   )
 }

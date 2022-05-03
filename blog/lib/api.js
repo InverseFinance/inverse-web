@@ -55,8 +55,8 @@ async function fetchGraphQL(query, preview = false) {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${preview
-            ? process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
-            : process.env.CONTENTFUL_ACCESS_TOKEN
+          ? process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
+          : process.env.CONTENTFUL_ACCESS_TOKEN
           }`,
       },
       body: JSON.stringify({ query }),
@@ -110,27 +110,38 @@ export async function getAllPostsForHome({
   fieldsGraph = POST_GRAPHQL_FIELDS,
   customWhere,
   skip,
+  isCount = false,
 }) {
   const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
   const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
-  const entries = await fetchGraphQL(
-    `query {
-      postCollection(
-        order: date_DESC,
-         locale: "${locale}",
-          preview: ${preview ? 'true' : 'false'}
-          ${categoryFilter}${authorFilter}${fullTextFilter}${customWhere ? ', where: ' + customWhere : ''},
-          limit: ${limit},
-          ${skip ? `skip: ${skip},` : ''}
-        ) {
-        items {
-          ${fieldsGraph}
-        }
+  const q = `query {
+    postCollection(
+        ${isCount ? '' : 'order: date_DESC,'}
+        ${isCount ? `locale: "${locale}",` : ''}
+        preview: ${preview ? 'true' : 'false'},
+        ${categoryFilter}${authorFilter}${fullTextFilter}${customWhere ? ', where: ' + customWhere + ',' : ''}
+        limit: ${limit},
+        ${skip ? `skip: ${skip},` : ''}
+      ) {
+      items {
+        ${!isCount ? fieldsGraph : ''}
+        ${isCount ?
+      `tagsCollection {
+            items {
+              name
+            }
+          }
+          ` : ''
+    }
       }
-    }`,
+    }
+  }`
+  const entries = await fetchGraphQL(
+    q,
     preview
   )
+
   const posts = extractPostEntries(entries);
   return byTag ? posts.filter(p => !!p.tagsCollection.items.find(tag => tag.name === byTag)) : posts
 }
@@ -150,7 +161,7 @@ export async function getPostAndMorePosts(slug, preview, locale = 'en-US') {
   const entries = await fetchGraphQL(
     `query {
       postCollection(locale: "${locale}", where: { slug_not_in: "${slug[1]}" }, order: date_DESC, preview: ${preview ? 'true' : 'false'
-    }, limit: 10) {
+    }, limit: 6) {
         items {
           ${POST_GRAPHQL_FIELDS}
         }

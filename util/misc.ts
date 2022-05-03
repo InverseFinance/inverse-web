@@ -79,7 +79,8 @@ export const throttledPromises = (
     asyncFunction,
     items = [],
     batchSize = 1,
-    delay = 0
+    delay = 0,
+    promiseMethod = 'all',
 ) => {
     const clonedItems = [...items];
     return new Promise(async (resolve, reject) => {
@@ -87,7 +88,7 @@ export const throttledPromises = (
         const batches = split(clonedItems, batchSize);
         await asyncForEach(batches, async (batch) => {
             const promises = batch.map(asyncFunction).map(p => p.catch(reject));
-            const results = await Promise.all(promises);
+            const results = await Promise[promiseMethod](promises);
             output.push(...results);
             await delayMS(delay);
         });

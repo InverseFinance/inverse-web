@@ -1,4 +1,5 @@
 import { getAllPostsForHome, getAllPostsWithSlug, getAuthorById, getAuthors, getCategories, getCategoryById, getTags } from '@app/blog/lib/api';
+import { throttledPromises } from '@app/util/misc';
 import { BLOG_LOCALES } from 'blog/lib/constants'
 
 export default async function handler(req, res) {
@@ -8,12 +9,13 @@ export default async function handler(req, res) {
 
     const { type } = req.query;
     const { body } = req;
-    let results;
+    let results = [];
     let paths: string[];
 
     try {
 
         if (type === 'blog') {
+            // post creation/update/delete
             if (body?.sys?.contentType?.sys?.id === 'post') {
                 const authorId = body?.fields?.author['en-US']?.sys?.id;
                 const categoryId = body?.fields?.category['en-US']?.sys?.id;
@@ -37,10 +39,6 @@ export default async function handler(req, res) {
                 BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}`))
                 BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}/author/${author.name}`))
                 BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${body?.fields?.slug['en-US']}`))
-
-                results = await Promise.allSettled([
-                    ...paths.map(p => res.unstable_revalidate(p)),
-                ]);
             } else if (body?.sys?.contentType?.sys?.id === 'author') {
                 paths = BLOG_LOCALES.map(l => {
                     return `/blog/${l}`
@@ -60,10 +58,6 @@ export default async function handler(req, res) {
                 posts.forEach(p => {
                     BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${p.slug}`))
                 })
-
-                await Promise.allSettled([
-                    ...paths.map(p => res.unstable_revalidate(p)),
-                ]);
             } else {
                 const [categories, authors, tags, posts] = await Promise.all([
                     getCategories(true, 'en-US'),
@@ -83,15 +77,21 @@ export default async function handler(req, res) {
                     tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
                     posts?.forEach(({ slug }) => paths.push(`/blog/posts/${l}/${slug}`))
                 });
-
-                results = await Promise.allSettled([
-                    ...paths.map(p => res.unstable_revalidate(p)),
-                ]);
             }
         }
+
+        results = await throttledPromises(
+            (p) => res.unstable_revalidate(p),
+            paths,
+            10,
+            100,
+            'allSettled',
+        );
+
         return res.json({
             revalidated: true,
-            failed: results?.map((r, i) => ({ result: r, path: paths[i] })).filter((r, i) => r.result.status === 'rejected')
+            failed: results?.map((r, i) => ({ result: r, path: paths[i] })).filter((r, i) => r.result.status === 'rejected'),
+            paths,
         })
     } catch (err) {
         console.log(err)

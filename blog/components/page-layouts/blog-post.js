@@ -12,7 +12,7 @@ import PostTitle from '../post-title';
 import SectionSeparator from '../section-separator';
 import Blog404 from './blog-404';
 
-export default function BlogPost({ post, morePosts, preview, locale }) {
+export default function BlogPost({ post, morePosts, preview, nbTotalPosts, locale }) {
     const router = useRouter()
   
     if (router.isFallback) {
@@ -53,7 +53,7 @@ export default function BlogPost({ post, morePosts, preview, locale }) {
                 </article>
                 <SectionSeparator />
                 {morePosts && morePosts.length > 0 && (
-                  <MoreStories posts={morePosts} />
+                  <MoreStories posts={morePosts} nbTotalPosts={nbTotalPosts} />
                 )}
               </>
             )}
