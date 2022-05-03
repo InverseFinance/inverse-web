@@ -27,7 +27,7 @@ export default function PostPreview({
       {
         !!coverImage?.url && <CoverImage title={title} slug={slug} url={coverImage.url} />
       }
-      <BlogText as="h3" fontWeight="bold" fontSize="3xl">
+      <BlogText as="h3" fontWeight="bold" fontSize={{ base: 'xl', sm: '3xl' }}>
         <Link href={url}>
           <a>{title}</a>
         </Link>
