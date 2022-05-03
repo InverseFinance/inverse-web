@@ -18,10 +18,10 @@ export default function Layout({ preview, children }) {
                 borderRadius="30px"
               />
             </Link>
-            <PostSearch display={{ base: 'inline-flex', sm: 'none' }} />
-            <HStack spacing={{ base: '0', sm: '4' }}>
+            <PostSearch display={{ base: 'inline-flex', sm: 'none' }} width={{ base: '80%' }} maxW="500px" />
+            <HStack display={{ base: 'none', sm: 'flex' }} spacing={{ base: '0', sm: '4' }}>
               <PostSearch display={{ base: 'none', sm: 'inline-flex' }} maxW="500px" />
-              <LangsSelector />
+              {/* <LangsSelector /> */}
             </HStack>
           </HStack>
           {children}
