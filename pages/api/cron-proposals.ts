@@ -144,7 +144,7 @@ export default async function handler(req, res) {
 
       const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mills, previouslyArchivedProposals);
       const proposalsAlpha = await getProposals(proposalCountAlpha, governanceAlpha, proposalsCreatedAlpha, votesCastAlpha, quorumVotesAlpha, GovEra.alpha, previouslyArchivedProposals);
-      
+
       const totalProposals = proposals.concat(proposalsAlpha, previouslyArchivedProposals);
 
       await client.set(`${chainId}-proposals`, JSON.stringify({
@@ -162,6 +162,17 @@ export default async function handler(req, res) {
         timestamp: Date.now(),
         proposals: currentArchivedProposals,
       }))
+
+      if (process.env.NODE_ENV === 'production') {
+        // poke pages to trigger cache revalidation
+        const previouslyArchivedNums = previouslyArchivedProposals.map(p => p.proposalNum);
+        const toRefresh = totalProposals
+          .filter(p => {
+            return !previouslyArchivedNums.includes(p.proposalNum);
+          })
+          .map(p => `https://${req.headers.host}/governance/proposals/${p.era}/${p.id}`)
+        await Promise.all(toRefresh.map(p => fetch(p)));
+      }
 
       res.status(200).json({ success: true });
     } catch (err) {
