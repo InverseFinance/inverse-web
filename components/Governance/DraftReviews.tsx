@@ -12,7 +12,7 @@ import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { DraftReview } from '@app/types';
 import { useEffect, useState } from 'react';
 
-const DraftReview = ({
+const DraftReviewItem = ({
     review
 }: {
     review: DraftReview,
@@ -76,7 +76,7 @@ export const DraftReviews = ({
                         :
                         reviews.length > 0 ?
                             reviews.map(review => {
-                                return <DraftReview key={review.reviewer} review={review} />
+                                return <DraftReviewItem key={review.reviewer} review={review} />
                             })
                             :
                             <Text>No Proof Of Review yet</Text>

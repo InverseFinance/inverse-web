@@ -16,3 +16,8 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-ex-rates' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Blog revalidations
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/revalidate?type=blog' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'

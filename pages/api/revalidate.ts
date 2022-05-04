@@ -2,6 +2,7 @@ import { getAllPostsForHome, getAllPostsWithSlug, getAuthorById, getAuthors, get
 import { throttledPromises } from '@app/util/misc';
 import { BLOG_LOCALES } from 'blog/lib/constants'
 
+/* CANT USE unstable_revalidate with current NextJS < 12.1 */
 export default async function handler(req, res) {
     // Check for secret to confirm this is a valid request
 
@@ -13,84 +14,103 @@ export default async function handler(req, res) {
     let paths: string[];
 
     try {
-
         if (type === 'blog') {
-            // post creation/update/delete
-            if (body?.sys?.contentType?.sys?.id === 'post') {
-                const authorId = body?.fields?.author['en-US']?.sys?.id;
-                const categoryId = body?.fields?.category['en-US']?.sys?.id;
-                const tagIds = body?.fields?.tags['en-US']?.map(t => t?.sys?.id);
+            const [categories, authors, tags, posts] = await Promise.all([
+                getCategories(true, 'en-US'),
+                getAuthors(true, 'en-US'),
+                getTags(true, 'en-US'),
+                getAllPostsWithSlug(),
+            ])
 
-                const [author, tags, category] = await Promise.all([
-                    getAuthorById(true, 'en-US', authorId),
-                    getTags(true, 'en-US', tagIds),
-                    getCategoryById(categoryId, 'en-US'),
-                ])
+            paths = BLOG_LOCALES.map(l => {
+                return `/blog/${l}`
+            });
 
-                paths = ['/blog'];
+            BLOG_LOCALES.forEach(l => {
+                paths.push(`/blog/authors/${l}`)
+                categories?.filter(c => !c.isCustomPage).forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+                authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
+                tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
+                posts?.forEach(({ slug }) => paths.push(`/blog/posts/${l}/${slug}`))
+            });
+            // // post creation/update/delete
+            // if (body?.sys?.contentType?.sys?.id === 'post') {
+            //     const authorId = body?.fields?.author['en-US']?.sys?.id;
+            //     const categoryId = body?.fields?.category['en-US']?.sys?.id;
+            //     const tagIds = body?.fields?.tags['en-US']?.map(t => t?.sys?.id);
 
-                BLOG_LOCALES
-                    .forEach(l => tags.forEach(t => paths.push(`/blog/${l}/tag/${t.name}`)))
+            //     const [author, tags, category] = await Promise.all([
+            //         getAuthorById(true, 'en-US', authorId),
+            //         getTags(true, 'en-US', tagIds),
+            //         getCategoryById(categoryId, 'en-US'),
+            //     ])
 
-                if (categoryId && !category?.isCustomPage) {
-                    BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}/${category.name}`))
-                }
+            //     paths = ['/blog'];
 
-                BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}`))
-                BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}/author/${author.name}`))
-                BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${body?.fields?.slug['en-US']}`))
-            } else if (body?.sys?.contentType?.sys?.id === 'author') {
-                paths = BLOG_LOCALES.map(l => {
-                    return `/blog/${l}`
-                }).concat(['/blog']);
+            //     BLOG_LOCALES
+            //         .forEach(l => tags.forEach(t => paths.push(`/blog/${l}/tag/${t.name}`)))
 
-                BLOG_LOCALES.forEach(l => {
-                    paths.push(`/blog/authors/${l}`)
-                });
+            //     if (categoryId && !category?.isCustomPage) {
+            //         BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}/${category.name}`))
+            //     }
 
-                const authorId = body?.sys?.id;
-                const posts = await getAllPostsForHome({
-                    preview: true,
-                    customWhere: `{ author: { sys: { id: "${authorId}" } } }`,
-                    fieldsGraph: "slug"
-                })
+            //     BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}`))
+            //     BLOG_LOCALES.forEach(l => paths.push(`/blog/${l}/author/${author.name}`))
+            //     BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${body?.fields?.slug['en-US']}`))
+            // } else if (body?.sys?.contentType?.sys?.id === 'author') {
+            //     paths = BLOG_LOCALES.map(l => {
+            //         return `/blog/${l}`
+            //     }).concat(['/blog']);
 
-                posts.forEach(p => {
-                    BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${p.slug}`))
-                })
-            } else {
-                const [categories, authors, tags, posts] = await Promise.all([
-                    getCategories(true, 'en-US'),
-                    getAuthors(true, 'en-US'),
-                    getTags(true, 'en-US'),
-                    getAllPostsWithSlug(),
-                ])
+            //     BLOG_LOCALES.forEach(l => {
+            //         paths.push(`/blog/authors/${l}`)
+            //     });
 
-                paths = BLOG_LOCALES.map(l => {
-                    return `/blog/${l}`
-                });
+            //     const authorId = body?.sys?.id;
+            //     const posts = await getAllPostsForHome({
+            //         preview: true,
+            //         customWhere: `{ author: { sys: { id: "${authorId}" } } }`,
+            //         fieldsGraph: "slug"
+            //     })
 
-                BLOG_LOCALES.forEach(l => {
-                    paths.push(`/blog/authors/${l}`)
-                    categories?.filter(c => !c.isCustomPage).forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
-                    authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
-                    tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
-                    posts?.forEach(({ slug }) => paths.push(`/blog/posts/${l}/${slug}`))
-                });
-            }
+            //     posts.forEach(p => {
+            //         BLOG_LOCALES.forEach(l => paths.push(`/blog/posts/${l}/${p.slug}`))
+            //     })
+            // } else {
+            //     const [categories, authors, tags, posts] = await Promise.all([
+            //         getCategories(true, 'en-US'),
+            //         getAuthors(true, 'en-US'),
+            //         getTags(true, 'en-US'),
+            //         getAllPostsWithSlug(),
+            //     ])
+
+            //     paths = BLOG_LOCALES.map(l => {
+            //         return `/blog/${l}`
+            //     });
+
+            //     BLOG_LOCALES.forEach(l => {
+            //         paths.push(`/blog/authors/${l}`)
+            //         categories?.filter(c => !c.isCustomPage).forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+            //         authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
+            //         tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
+            //         posts?.forEach(({ slug }) => paths.push(`/blog/posts/${l}/${slug}`))
+            //     });
+            // }
         }
 
-        results = await throttledPromises(
-            (p) => res.unstable_revalidate(p),
-            paths,
-            10,
-            100,
-            'allSettled',
-        );
+        // results = await throttledPromises(
+        //     (p) => res.unstable_revalidate(p),
+        //     paths,
+        //     10,
+        //     100,
+        //     'allSettled',
+        // );
+
+        paths.forEach(p => fetch(`https://${req.headers.host}${p}`))
 
         return res.json({
             revalidated: true,
-            failed: results?.map((r, i) => ({ result: r, path: paths[i] })).filter((r, i) => r.result.status === 'rejected'),
+            // failed: results?.map((r, i) => ({ result: r, path: paths[i] })).filter((r, i) => r.result.status === 'rejected'),
             paths,
         })
     } catch (err) {
