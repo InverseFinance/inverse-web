@@ -108,7 +108,7 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
     >
       <Stack w="full" spacing={1}>
         {
-          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} preferseEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
+          previews.map((proposal: Proposal) => <ProposalPreview key={proposal.id} prefersEditLinks={prefersEditMode} isPublicDraft={true} proposal={proposal} />)
         }
       </Stack>
     </Container>
