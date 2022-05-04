@@ -7,7 +7,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
 import { GovEra } from '@app/types';
-import { PROPOSAL_DURATION } from '@app/config/constants';
+import { BLOCKS_PER_SECOND, PROPOSAL_DURATION } from '@app/config/constants';
 import { getProposalStatus } from '@app/util/governance';
 import { ProposalStatus } from '@app/types';
 import { Proposal } from '@app/types';
@@ -114,7 +114,10 @@ export default async function handler(req, res) {
               proposer: proposer,
               etaTimestamp: etaTimestamp,
               startTimestamp: startBlocks[i].timestamp * 1000,
-              endTimestamp: blockNumber > endBlock.toNumber() ? endBlocks[i].timestamp * 1000 : (startBlocks[i].timestamp * 1000) + PROPOSAL_DURATION,
+              endTimestamp: blockNumber > endBlock.toNumber() ?
+                endBlocks[i].timestamp * 1000
+                :
+                (endBlock.toNumber() - startBlock.toNumber()) * BLOCKS_PER_SECOND * 1000 + Date.now(),
               startBlock: startBlock.toNumber(),
               endBlock: endBlock.toNumber(),
               forVotes: parseFloat(formatUnits(forVotes)),
