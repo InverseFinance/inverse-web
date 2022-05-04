@@ -2,6 +2,7 @@ import { getAllPostsForHome, getAllPostsWithSlug, getAuthorById, getAuthors, get
 import { throttledPromises } from '@app/util/misc';
 import { BLOG_LOCALES } from 'blog/lib/constants'
 
+/* CANT USE unstable_revalidate with current NextJS < 12.1 */
 export default async function handler(req, res) {
     // Check for secret to confirm this is a valid request
 

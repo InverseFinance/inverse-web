@@ -8,7 +8,7 @@ export default function BlogPostSSG(props) {
 }
 
 export async function getStaticProps(context) {
-  return getBlogPostProps(context);
+  return { ...await getBlogPostProps(context), revalidate: 600 };
 }
 
 export async function getStaticPaths() {
