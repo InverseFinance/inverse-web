@@ -78,6 +78,14 @@ const mainConfig = {
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/17',
             chainId: NetworkIds.mainnet,
         },
+        {
+            address: '0x49BB4559e65fc5f2236780079265d2f8F4f75c03',
+            name: 'Analytics Working Group',
+            shortName: 'AWG',
+            purpose: 'Handle analytics costs (The Graph etc)',
+            governanceLink: 'https://www.inverse.finance/governance/proposals/mills/25',
+            chainId: NetworkIds.mainnet,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };
