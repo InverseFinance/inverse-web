@@ -11,7 +11,7 @@ import ScannerLink from '@app/components/common/ScannerLink';
 import moment from 'moment';
 import { shortenNumber } from '@app/util/markets';
 
-const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER } = getNetworkConfigConstants();
+const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE } = getNetworkConfigConstants();
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
     return <Text display="inline-block" fontWeight="bold" color="secondary">
@@ -138,6 +138,32 @@ const StabilizerHumanReadableActionLabel = ({
     )
 }
 
+const GovernanceHumanReadableActionLabel = ({
+    target,
+    signature,
+    callDatas,
+}: {
+    target: string,
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text;
+
+    if (['updateProposalQuorum', 'updateProposalThreshold'].includes(funName)) {
+        const amount = <Amount value={callDatas[0]} decimals={18} />;
+        text = <Flex display="inline-block">
+            Set <b>{ funName === 'updateProposalQuorum' ? 'Proposal Success Quorum' : 'Proposal Submit Threshold' }</b> to {amount}
+        </Flex>
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
 const HumanReadableActionLabel = ({
     target,
     signature,
@@ -155,6 +181,8 @@ const HumanReadableActionLabel = ({
         return <XinvVestorHumanReadable target={target} signature={signature} callDatas={callDatas} />
     } else if (target === STABILIZER) {
         return <StabilizerHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+    } else if (target === GOVERNANCE) {
+        return <GovernanceHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
     }
 
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
@@ -207,6 +235,8 @@ export const ProposalActionPreview = (({
         'deployVester',
         'setSellFee',
         'setBuyFee',
+        'updateProposalQuorum',
+        'updateProposalThreshold',
     ].includes(funName);
 
     const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target] || UNDERLYING[target];
@@ -222,7 +252,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER].includes(target))
+                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE].includes(target))
                     && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                 }
                 <Flex fontSize="15px">
