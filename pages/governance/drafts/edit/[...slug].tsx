@@ -18,7 +18,7 @@ import { getRedisClient } from '@app/util/redis'
 
 export const Drafts = ({ proposal }) => {
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const { query } = useRouter()
+  const { query, isFallback } = useRouter()
   const userAddress = query?.viewAddress || account
   const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { data } = useEtherSWR([
@@ -36,7 +36,7 @@ export const Drafts = ({ proposal }) => {
 
   const { id = '', era = '' } = proposal || {};
 
-  const notFound = !id;
+  const notFound = !id && !isFallback;
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
 
   return (
@@ -58,8 +58,11 @@ export const Drafts = ({ proposal }) => {
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         {
-          notFound ? <Flex w="full" justifyContent="center" pt="50">
-            <Text fontSize="xl">Draft not found, please check the url</Text>
+          notFound || isFallback ? <Flex w="full" justifyContent="center" pt="50">
+            <Text fontSize="xl">{
+              isFallback ? 'Loading...' : 'Draft not found or removed'
+            }
+            </Text>
           </Flex>
             :
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>

@@ -31,18 +31,18 @@ const badgeColors: { [key: string]: string } = {
   [GovEra.mills]: 'teal',
 }
 
-const getDate = (timestamp: moment.MomentInput, addHours = false) => {
+const getDate = (timestamp: moment.MomentInput, addHours = false, isEstimation = false) => {
   return moment(timestamp, 'x').format(
-    `MMM Do${addHours ? ' h:mm a' : ''}, YYYY`
+    `${addHours && isEstimation ? '~' : ''}MMM Do${addHours ? ' h:mm a' : ''}, YYYY`
   )
 }
 
-const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number) => {
+const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number, endBlock?: number) => {
   switch (status) {
     case ProposalStatus.pending:
       return `Will be opened to votes on ${getDate(start, isDetails)}`
     case ProposalStatus.active:
-      return `Voting open until ${getDate(end, isDetails)}`
+      return `Voting open until block ${endBlock}, ${getDate(end, isDetails, true)}`
     case ProposalStatus.succeeded:
       return `To be queued (will enter a 48h lock period)`
     case ProposalStatus.queued:
@@ -128,7 +128,7 @@ export const ProposalPreview = ({
               {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
             </Stack>
             <Text textAlign="left" fontSize="13px" color="primary.100" fontWeight="semibold">
-              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt)}
+              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock)}
             </Text>
           </Stack>
         </Flex>
@@ -195,7 +195,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
             }
           </Stack>
           <Text textAlign="left" fontSize="sm">
-            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true, createdAt, updatedAt)}
+            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true, createdAt, updatedAt, proposal.endBlock)}
           </Text>
         </Stack>
       }

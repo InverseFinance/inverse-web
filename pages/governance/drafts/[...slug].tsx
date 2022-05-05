@@ -16,12 +16,13 @@ import { DraftReviews } from '@app/components/Governance/DraftReviews'
 import { getRedisClient } from '@app/util/redis'
 
 export const Drafts = ({ proposal }) => {
-  const { asPath } = useRouter();
+  const { asPath, isFallback } = useRouter();
+
   const slug = asPath.replace('/governance/drafts/', '').replace(/\?.*$/, '').split('/');
 
   const { id = '', era = '' } = proposal || {};
 
-  const notFound = !id;
+  const notFound = !id && !isFallback;
   const proposalBreadLabel = !notFound ? `#${id.toString().padStart(3, '0')} of ${era.toUpperCase()} Era` : slug.join('/');
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const Drafts = ({ proposal }) => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Draft Details</title>
         <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
-        <meta name="og:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
+        <meta name="og:description" content={`${proposal?.title || 'Draft'}`} />
         <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
         <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
       </Head>
@@ -48,8 +49,11 @@ export const Drafts = ({ proposal }) => {
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         {
-          notFound ? <Flex w="full" justifyContent="center" pt="50">
-            <Text fontSize="xl">Draft not found, please check the url</Text>
+          notFound || isFallback ? <Flex w="full" justifyContent="center" pt="50">
+            <Text fontSize="xl">{
+              isFallback ? 'Loading...' : 'Draft not found or removed'
+            }
+            </Text>
           </Flex>
             :
             <>
@@ -117,7 +121,7 @@ export async function getStaticProps(context) {
 export async function getStaticPaths() {
   const client = getRedisClient();
   const drafts = JSON.parse(await client.get('drafts') || '[]');
-  
+
   const possiblePaths = drafts.map(p => {
     return `/governance/drafts/${p.era}/${p.id}`;
   });
