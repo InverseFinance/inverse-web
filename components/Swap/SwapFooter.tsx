@@ -80,7 +80,14 @@ export const SwapFooter = ({
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
-            label: <SwapRoute includeCostInBestRate={includeCostInBestRate} cost={costs[route.value]} ethPriceUsd={ethPriceUsd} label={route.label} isBestRoute={bestRoute === route.value} />
+            label: <SwapRoute
+                includeCostInBestRate={includeCostInBestRate}
+                cost={costs[route.value]}
+                ethPriceUsd={ethPriceUsd}
+                label={route.label}
+                isBestRoute={bestRoute === route.value}
+                image={route.image}
+            />
         }
     })
 

@@ -21,9 +21,9 @@ import { useGasPrice, usePrices, useStabilizerFees } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 
 const routes = [
-  { value: Swappers.crv, label: 'Curve' },
+  { value: Swappers.crv, label: 'Curve', image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484' },
   // { value: Swappers.crvRouter, label: 'Curve Router' },
-  { value: Swappers.stabilizer, label: 'Stabilizer' },
+  { value: Swappers.stabilizer, label: 'Stabilizer', image: '/assets/inv-square-dark.jpeg' },
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
 
