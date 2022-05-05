@@ -1,5 +1,5 @@
 import { shortenNumber } from '@app/util/markets';
-import { Badge, Box, Text } from '@chakra-ui/react';
+import { Badge, Box, Image, Text } from '@chakra-ui/react';
 import { getNetworkConfigConstants } from '@app/util/networks';
 
 const { TOKENS } = getNetworkConfigConstants();
@@ -11,12 +11,14 @@ export const SwapRoute = ({
     cost,
     ethPriceUsd,
     includeCostInBestRate,
+    image,
 }: {
     label: string,
     isBestRoute: boolean,
     cost: number,
     ethPriceUsd: number,
     includeCostInBestRate: boolean,
+    image: string,
 }) => {
     return (
         <Box position="relative" px="3" py="3" w="full" fontSize={{ base: '12px', sm: '14px' }}>
@@ -30,6 +32,7 @@ export const SwapRoute = ({
             <Text fontSize="12px">
                 ~{shortenNumber(cost * ethPriceUsd, 2, true)}
             </Text>
+            <Image ignoreFallback={true} src={image} h="20px" w="20px" position="absolute" bottom="10px" right="0" borderRadius="20px" />
             {isBestRoute ?
                 <Badge
                     bgColor="secondary"
