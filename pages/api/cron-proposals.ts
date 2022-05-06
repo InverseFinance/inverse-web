@@ -117,7 +117,7 @@ export default async function handler(req, res) {
               endTimestamp: blockNumber > endBlock.toNumber() ?
                 endBlocks[i].timestamp * 1000
                 :
-                (endBlock.toNumber() - startBlock.toNumber()) * SECONDS_PER_BLOCK * 1000 + Date.now(),
+                (endBlock.toNumber() - Math.max(startBlock.toNumber(), blockNumber)) * SECONDS_PER_BLOCK * 1000 + Date.now(),
               startBlock: startBlock.toNumber(),
               endBlock: endBlock.toNumber(),
               forVotes: parseFloat(formatUnits(forVotes)),
