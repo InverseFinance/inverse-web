@@ -1,9 +1,10 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
 import { SwapView } from '@app/components/Swap'
 import Head from 'next/head';
+import { InfoMessage } from '@app/components/common/Messages';
 
 const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];
 type Params = { slug: string[] }
@@ -48,11 +49,21 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DAI, USDT, USDC, best rate" />
       </Head>
       <AppNav active="Swap" />
-      <Flex justify="center" direction="column">
+      <Flex justify="center" direction={{ base: 'column', lg: 'row' }} alignItems="center">
         <Flex w={{ base: 'full', xl: '2xl' }}>
           <SwapView from={from} to={to} />
         </Flex>
-        <Flex w={{ base: 'full', lg: '2xl' }} p={6}>
+        <Flex direction="column" w={{ base: 'full', lg: '500px' }} p={6}  alignItems="flex-end">
+          <InfoMessage
+            title="What is DOLA?"
+            alertProps={{ fontSize: '12px', mb: '2' }}
+            description={
+              <>
+                <Text>DOLA is fully-collaterized decentralized debt-backed stablecoin on Ethereum and Fantom</Text>
+                <Text>This page is the place to get DOLA with cheap fees on Ethereum</Text>
+              </>
+            }
+          />
           <StabilizerOverview />
         </Flex>
       </Flex>
