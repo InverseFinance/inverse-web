@@ -1,4 +1,4 @@
-import { Flex, Text, VStack } from '@chakra-ui/react'
+import { Flex, Stack, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
@@ -49,19 +49,25 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DAI, USDT, USDC, best rate" />
       </Head>
       <AppNav active="Swap" />
-      <Flex justify="center" direction={{ base: 'column', lg: 'row' }} alignItems="center">
-        <Flex w={{ base: 'full', xl: '2xl' }}>
+      <Flex
+        maxW={{ base: 'full', lg: '650px', xl: 'none' }}
+        justify="center"
+        direction={{ base: 'column', xl: 'row' }}
+        alignItems={{ base: 'center', xl: 'flex-end' }}>
+        <Flex w={{ base: 'full' }}>
           <SwapView from={from} to={to} />
         </Flex>
-        <Flex direction="column" w={{ base: 'full', lg: '500px' }} p={6}  alignItems="flex-end">
+        <Flex direction="column" w={{ base: 'full', xl: '500px' }} mt={{ base: '4', xl: '0' }} p={{ base: '6', xl: '0' }} alignItems="flex-end">
           <InfoMessage
-            title="What is DOLA?"
-            alertProps={{ fontSize: '12px', mb: '2' }}
+            alertProps={{ fontSize: '12px', mb: '4' }}
             description={
-              <>
-                <Text>DOLA is fully-collaterized decentralized debt-backed stablecoin on Ethereum and Fantom</Text>
-                <Text>This page is the place to get DOLA with cheap fees on Ethereum</Text>
-              </>
+              <Stack>
+                <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
+                <Text mt="">
+                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum and Fantom, 
+                  every single DOLA in circulation is backed by collateral worth a higher value making it what is called an over-collateralized stablecoin.
+                </Text>
+              </Stack>
             }
           />
           <StabilizerOverview />
