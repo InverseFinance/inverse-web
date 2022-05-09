@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import theme from '@app/variables/theme'
 import useStorage from '@app/hooks/useStorage'
 import { AnimatedInfoTooltip } from '../common/Tooltip'
+import { DRAFT_WHITELIST } from '@app/config/constants'
 
 export const Proposals = () => {
   const { proposals, isLoading } = useProposals()
@@ -71,7 +72,7 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
     }
   })
 
-  const whitelisted = (process?.env?.NEXT_PUBLIC_DRAFT_WHITELIST || '')?.replace(/\s/g, '').toLowerCase().split(',');
+  const whitelisted = DRAFT_WHITELIST;
   const canDraft = whitelisted.includes((account || '')?.toLowerCase());
 
   const handleEditPref = () => {
