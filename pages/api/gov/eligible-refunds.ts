@@ -1,11 +1,13 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getTxsOf } from '@app/util/covalent';
 import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
+
+const client = getRedisClient();
 
 const refundWhitelist = [
   ...DRAFT_WHITELIST,
@@ -19,9 +21,8 @@ const toCallSig = (name, params) => {
 const formatResults = (data, type) => {
   const { items, chain_id } = data;
   return items
-    .filter(item => refundWhitelist.includes(item.from_address))
     .map(item => {
-      const decoded = item.log_events?.map(e => e.decoded).filter(d => !!d);
+      const decoded = item.log_events?.map(e => e.decoded).filter(d => !!d).slice(0, 1);
       const hasDecoded = !!decoded?.length;
       return {
         from: item.from_address,
@@ -30,12 +31,18 @@ const formatResults = (data, type) => {
         timestamp: Date.parse(item.block_signed_at),
         successful: item.successful,
         fees: formatEther(item.fees_paid),
-        name: hasDecoded ? decoded[0] : 'Unknown',
-        events: hasDecoded ? decoded.map(d => ({ name: d.name, call: toCallSig(d.name, d.params) })) : [],
+        name: hasDecoded ? decoded[0]?.name : 'Unknown',
+        call: hasDecoded ? toCallSig(decoded[0].name, decoded[0].params) : '',
         chainId: chain_id,
         type,
+        refunded: false,
       }
     })
+    .filter(item => type === 'governance' ?
+      refundWhitelist.includes(item.from.toLowerCase()) || item.name !== 'VoteCast'
+      :
+      refundWhitelist.includes(item.from.toLowerCase())
+    )
 }
 
 export default async function handler(req, res) {
