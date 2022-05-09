@@ -143,3 +143,13 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
     chartData,
   }
 }
+
+export const useEligibleRefunds = (): SWR & { transactions: any[] } => {
+  const { data, error } = useCustomSWR(`/api/gov/refunds`, fetcher)
+
+  return {
+    transactions: data?.transactions || [],
+    isLoading: !data && !error,
+    isError: !!error,
+  }
+}

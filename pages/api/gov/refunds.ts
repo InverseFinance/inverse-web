@@ -2,33 +2,38 @@ import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getRedisClient } from '@app/util/redis';
 import { getTxsOf } from '@app/util/covalent';
 import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
-
-const client = getRedisClient()
 
 const refundWhitelist = [
   ...DRAFT_WHITELIST,
   ...Object.keys(CUSTOM_NAMED_ADDRESSES),
 ]
 
-const formatResults = (data) => {
+const toCallSig = (name, params) => {
+  return `${name}(${params?.map(p => p.value).join(', ')})`
+}
+
+const formatResults = (data, type) => {
   const { items, chain_id } = data;
   return items
     .filter(item => refundWhitelist.includes(item.from_address))
     .map(item => {
+      const decoded = item.log_events?.map(e => e.decoded).filter(d => !!d);
+      const hasDecoded = !!decoded?.length;
       return {
         from: item.from_address,
+        to: item.to_address,
         txHash: item.tx_hash,
         timestamp: Date.parse(item.block_signed_at),
         successful: item.successful,
         fees: formatEther(item.fees_paid),
-        name: item.log_events?.map(e => e.decoded?.name),
-        events: item.log_events?.map(e => e.decoded),
+        name: hasDecoded ? decoded[0] : 'Unknown',
+        events: hasDecoded ? decoded.map(d => ({ name: d.name, call: toCallSig(d.name, d.params) })) : [],
         chainId: chain_id,
+        type,
       }
     })
 }
@@ -51,9 +56,12 @@ export default async function handler(req, res) {
       ...MULTISIGS.map(m => getTxsOf(m.address, 1000, 0, m.chainId))
     ])
 
+    const totalItems = formatResults(gov.data, 'governance')
+      .concat(formatResults(multisigs.data, 'multisig'))
+      .sort((a, b) => a.timestamp - b.timestamp);
+
     const resultData = {
-      gov: formatResults(gov.data),
-      multisigs: formatResults(multisigs.data),
+      transactions: totalItems,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
