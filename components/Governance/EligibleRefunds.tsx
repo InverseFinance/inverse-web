@@ -25,7 +25,7 @@ const columns = [
     },
     {
         field: 'fees',
-        label: 'Fees',
+        label: 'Paid Fees',
         header: ({ ...props }) => <Flex justify="flex-end" minWidth={'200px'} {...props} />,
         value: ({ fees }) => <Flex justify="flex-end" minWidth={'200px'} alignItems="center">
             <Text mr="1">{fees}</Text>
@@ -69,9 +69,13 @@ const columns = [
 export const EligibleRefunds = () => {
     const { transactions: items, isLoading } = useEligibleRefunds();
 
+    const handleRefund = () => {
+        
+    }
+
     return (
         <Container
-            label="Eligible Transactions for Refund"
+            label="Potentially Eligible Transactions for Gas Refunds"
             description="Taken into consideration: GovMills txs (VoteCasting: only for delegates) and Multisig txs"
             noPadding
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
@@ -88,6 +92,7 @@ export const EligibleRefunds = () => {
                             keyName={'txHash'}
                             defaultSort="timestamp"
                             defaultSortDir="desc"
+                            onClick={handleRefund}
                         />
                         :
                         <Text>No Delegation Events yet</Text>

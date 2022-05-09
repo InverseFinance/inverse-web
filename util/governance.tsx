@@ -4,7 +4,7 @@ import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Inte
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview } from '@app/types';
-import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS } from '@app/config/constants';
+import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS, REFUND_TX_SIGN_MSG } from '@app/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -400,6 +400,29 @@ export const simulateOnChainActions = async (
         });
         const result = await rawResponse.json();
         if (onSuccess && result.status === 'success') { onSuccess(result) }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
+
+export const submitRefunds = async (
+    tx: any,
+    signer: JsonRpcSigner,
+    onSuccess?: (id: number) => void,
+): Promise<any> => {
+    try {
+        const sig = await signer.signMessage(REFUND_TX_SIGN_MSG);
+        const rawResponse = await fetch(`/api/gov/submit-refunds`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sig, refunds: [tx] })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess && !!result.publicDraftId) { onSuccess(result.publicDraftId) }
         return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }
