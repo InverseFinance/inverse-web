@@ -32,7 +32,7 @@ const customMarkdownOptions = (content) => ({
         return <IframeContainer><iframe src={embedUri} allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" frameBorder="0" allowFullScreen></iframe></IframeContainer>
       } else if (node.data.uri.includes('https://twitter.com') && node.data.uri.includes('/status/')) {
         const xLink = node.data.uri.replace(/(https:\/\/twitter\.com\/)([a-zA-Z0-9]+)/i, '$1x');
-        return <blockquote className="twitter-tweet" style={{ width: '100%', border: '1px solid red' }}>
+        return <blockquote className="twitter-tweet" style={{ width: '100%' }}>
           <a href={`${xLink}`}>{xLink}</a>
         </blockquote>
       } else {
