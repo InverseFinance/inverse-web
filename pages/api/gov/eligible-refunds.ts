@@ -36,6 +36,7 @@ const formatResults = (data, type): RefundableTransaction[] => {
         chainId: chain_id,
         type,
         refunded: false,
+        block: item.block_height,
       }
     })
     .filter(item => type === 'governance' ?
@@ -73,12 +74,13 @@ export default async function handler(req, res) {
     }
 
     const [gov, multisigs] = await Promise.all([
-      getTxsOf(GOVERNANCE),
+      getTxsOf(GOVERNANCE, 1000, 0, NetworkIds.mainnet),
       ...MULTISIGS.map(m => getTxsOf(m.address, 1000, 0, m.chainId))
     ])
 
     const totalItems = formatResults(gov.data, 'governance')
       .concat(formatResults(multisigs.data, 'multisig'))
+      .filter(t => t.block >= 14746112 && t.successful)
       .sort((a, b) => a.timestamp - b.timestamp);
 
     const resultData = {
@@ -86,7 +88,6 @@ export default async function handler(req, res) {
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
-
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);

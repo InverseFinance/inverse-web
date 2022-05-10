@@ -526,6 +526,7 @@ export type RefundableTransaction = {
   chainId: NetworkIds,
   type: string,
   refunded: boolean,
+  block: number,
   signedAt?: number,
   signedBy: string,
   refundTxHash?: string

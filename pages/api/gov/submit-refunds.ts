@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'POST':
             try {
-                const { sig, refunds } = req.body;
+                const { sig, refunds, refundTxHash } = req.body;
                 const whitelisted = DRAFT_WHITELIST;
                 const signedBy = verifyMessage(SIGN_MSG, sig).toLowerCase();
 
@@ -28,9 +28,11 @@ export default async function handler(req, res) {
                 refunded = JSON.parse(await client.get('refunded-txs') || '[]');
                 refunds.forEach(r => {
                     const existingIndex = refunded.findIndex(past => past.txHash === r.txHash);
-                    const refund = { ...r, refunded: true, signedAt, signedBy };
-                    if(existingIndex !== -1) {
+                    const refund = { ...r, refunded: !!refundTxHash, signedAt, signedBy, refundTxHash };
+                    if (existingIndex !== -1 && !refundTxHash) {
                         refunded.splice(existingIndex, 1);
+                    } else if (existingIndex !== -1) {
+                        refunded[existingIndex] = refund;
                     } else {
                         refunded.push(refund);
                     };
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
 
                 await client.set('refunded-txs', JSON.stringify(refunded));
 
-                res.status(200).json({ status: 'success', message: 'Refunds Updated', refunds, signedAt, signedBy  })
+                res.status(200).json({ status: 'success', message: 'Refunds Updated', refunds, signedAt, signedBy })
             } catch (e) {
                 res.status(500).json({ status: 'error', message: 'An error occured' })
             }
