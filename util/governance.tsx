@@ -3,8 +3,8 @@ import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersp
 import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
-import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview } from '@app/types';
-import { CURRENT_ERA, DRAFT_SIGN_MSG, GRACE_PERIOD_MS, REFUND_TX_SIGN_MSG } from '@app/config/constants';
+import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview, RefundableTransaction } from '@app/types';
+import { CURRENT_ERA, SIGN_MSG, GRACE_PERIOD_MS } from '@app/config/constants';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -261,7 +261,7 @@ export const publishDraft = async (
     onSuccess?: (id: number) => void,
 ): Promise<any> => {
     try {
-        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        const sig = await signer.signMessage(SIGN_MSG);
         const rawResponse = await fetch(`/api/drafts${draftId ? `/${draftId}` : ''}`, {
             method: draftId ? 'PUT' : 'POST',
             headers: {
@@ -280,7 +280,7 @@ export const publishDraft = async (
 
 export const deleteDraft = async (publicDraftId: number, signer: JsonRpcSigner, onSuccess?: () => void) => {
     try {
-        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        const sig = await signer.signMessage(SIGN_MSG);
         const rawResponse = await fetch(`/api/drafts/${publicDraftId}`, {
             method: 'DELETE',
             headers: {
@@ -358,7 +358,7 @@ export const sendDraftReview = async (
     onSuccess: (reviews: DraftReview[]) => void,
 ): Promise<any> => {
     try {
-        const sig = await signer.signMessage(DRAFT_SIGN_MSG);
+        const sig = await signer.signMessage(SIGN_MSG);
 
         const rawResponse = await fetch(`/api/drafts/reviews/${draftId}`, {
             method: 'POST',
@@ -407,12 +407,12 @@ export const simulateOnChainActions = async (
 }
 
 export const submitRefunds = async (
-    tx: any,
+    tx: RefundableTransaction,
     signer: JsonRpcSigner,
-    onSuccess?: (id: number) => void,
+    onSuccess?: (updated: RefundableTransaction[]) => void,
 ): Promise<any> => {
     try {
-        const sig = await signer.signMessage(REFUND_TX_SIGN_MSG);
+        const sig = await signer.signMessage(SIGN_MSG);
         const rawResponse = await fetch(`/api/gov/submit-refunds`, {
             method: 'POST',
             headers: {
@@ -422,7 +422,7 @@ export const submitRefunds = async (
             body: JSON.stringify({ sig, refunds: [tx] })
         });
         const result = await rawResponse.json();
-        if (onSuccess && !!result.publicDraftId) { onSuccess(result.publicDraftId) }
+        if (onSuccess) { onSuccess(result) }
         return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }

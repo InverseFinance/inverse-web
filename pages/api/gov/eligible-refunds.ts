@@ -1,7 +1,7 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
+import { NetworkIds, RefundableTransaction } from '@app/types';
 import { getTxsOf } from '@app/util/covalent';
 import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
@@ -18,7 +18,7 @@ const toCallSig = (name, params) => {
   return `${name}(${params?.map(p => p.value).join(', ')})`
 }
 
-const formatResults = (data, type) => {
+const formatResults = (data, type): RefundableTransaction[] => {
   const { items, chain_id } = data;
   return items
     .map(item => {
@@ -45,6 +45,17 @@ const formatResults = (data, type) => {
     )
 }
 
+const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
+  const txs = [...transactions];
+  refunded.forEach(r => {
+    const found = transactions.findIndex(t => t.txHash === r.txHash);
+    if(found !== -1) {
+      txs[found] = { ...txs[found], refunded: true, ...r }
+    }
+  })
+  return txs;
+}
+
 export default async function handler(req, res) {
 
   const { GOVERNANCE, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -52,9 +63,12 @@ export default async function handler(req, res) {
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 150);
+    // refunded txs, manually submitted by signature in UI
+    const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
+
+    const validCache = await getCacheFromRedis(cacheKey, true, 60);
     if (validCache) {
-      res.status(200).json(validCache);
+      res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
       return
     }
 
@@ -68,7 +82,7 @@ export default async function handler(req, res) {
       .sort((a, b) => a.timestamp - b.timestamp);
 
     const resultData = {
-      transactions: totalItems,
+      transactions: addRefundedData(totalItems, refunded),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

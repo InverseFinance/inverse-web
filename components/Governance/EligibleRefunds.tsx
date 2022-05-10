@@ -1,5 +1,10 @@
 import { useEligibleRefunds } from '@app/hooks/useDAO';
+import { RefundableTransaction } from '@app/types';
+import { submitRefunds } from '@app/util/governance';
 import { Flex, Text } from '@chakra-ui/react';
+import { Web3Provider } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
+import { useEffect, useState } from 'react';
 import { Timestamp } from '../common/BlockTimestamp/Timestamp';
 import Container from '../common/Container';
 import ScannerLink from '../common/ScannerLink';
@@ -64,13 +69,38 @@ const columns = [
             {successful ? 'yes' : 'no' }
         </Flex>,
     },
+    {
+        field: 'refunded',
+        label: 'Refunded?',
+        header: ({ ...props }) => <Flex justify="center" minWidth={'40px'} {...props} />,
+        value: ({ refunded }) => <Flex justify="center" minWidth={'40px'}>
+            {refunded ? 'yes' : 'no' }
+        </Flex>,
+    },
 ];
 
 export const EligibleRefunds = () => {
+    const { library } = useWeb3React<Web3Provider>();
     const { transactions: items, isLoading } = useEligibleRefunds();
+    const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
 
-    const handleRefund = () => {
-        
+    useEffect(() => {
+        setEligibleTxs(items)
+    }, [items])
+
+    const handleRefund = (item) => {
+        if(!library?.getSigner()) { return }
+        submitRefunds(item, library?.getSigner(), ({ refunds, signedBy, signedAt }) => {
+            const refundsTxHashes = refunds.map(r => r.txHash);
+            const updatedItems = [...eligibleTxs];
+            eligibleTxs.forEach((et, i) => {
+                if(refundsTxHashes.includes(et.txHash)){
+                    const isRefunded = !et.refunded;
+                    updatedItems[i] = { ...et, refunded: isRefunded, signedBy, signedAt }
+                }
+            })
+            setEligibleTxs(updatedItems)
+        })
     }
 
     return (
@@ -85,10 +115,10 @@ export const EligibleRefunds = () => {
                 isLoading ?
                     <SkeletonBlob />
                     :
-                    items.length > 0 ?
+                    eligibleTxs.length > 0 ?
                         <Table
                             columns={columns}
-                            items={items}
+                            items={eligibleTxs}
                             keyName={'txHash'}
                             defaultSort="timestamp"
                             defaultSortDir="desc"
