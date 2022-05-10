@@ -1,7 +1,7 @@
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
 import { submitRefunds } from '@app/util/governance';
-import { CheckIcon } from '@chakra-ui/icons';
+import { CheckIcon, MinusIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Flex, Stack, Text, VStack } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
