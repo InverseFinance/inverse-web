@@ -407,7 +407,7 @@ export const simulateOnChainActions = async (
 }
 
 export const submitRefunds = async (
-    tx: RefundableTransaction,
+    txs: RefundableTransaction[],
     signer: JsonRpcSigner,
     onSuccess?: (updated: RefundableTransaction[]) => void,
 ): Promise<any> => {
@@ -419,7 +419,7 @@ export const submitRefunds = async (
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ sig, refunds: [tx] })
+            body: JSON.stringify({ sig, refunds: txs })
         });
         const result = await rawResponse.json();
         if (onSuccess) { onSuccess(result) }
