@@ -52,8 +52,8 @@ export const EligibleRefunds = () => {
             field: 'txHash',
             label: 'TX',
             header: ({ ...props }) => <Flex justify="flex-start" minWidth={'110px'} {...props} />,
-            value: ({ txHash }) => <Flex justify="flex-start" minWidth={'110px'}>
-                <ScannerLink type="tx" value={txHash} />
+            value: ({ txHash, chainId }) => <Flex justify="flex-start" minWidth={'110px'}>
+                <ScannerLink type="tx" value={txHash} chainId={chainId} />
             </Flex>,
         },
         {
@@ -109,12 +109,12 @@ export const EligibleRefunds = () => {
             field: 'refunded',
             label: 'Refunded?',
             header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
-            value: ({ refunded, refundTxHash }) => <Flex justify="center" minWidth={'120px'}>
+            value: ({ refunded, refundTxHash, chainId }) => <Flex justify="center" minWidth={'120px'}>
                 {
                     refunded ?
                         <VStack>
                             <CheckIcon color="secondary" />
-                            <ScannerLink value={refundTxHash} />
+                            <ScannerLink value={refundTxHash} type="tx" chainId={chainId} />
                         </VStack>
                         :
                         <MinusIcon />
