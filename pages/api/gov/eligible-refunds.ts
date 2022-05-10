@@ -59,7 +59,7 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
 
 export default async function handler(req, res) {
 
-  const { GOVERNANCE, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `refunds-v1.0.0`;
 
   try {
@@ -73,14 +73,16 @@ export default async function handler(req, res) {
       return
     }
 
-    const [gov, multisigs] = await Promise.all([
-      getTxsOf(GOVERNANCE, 1000, 0, NetworkIds.mainnet),
+    const [gov, multidelegator, multisigs] = await Promise.all([
+      getTxsOf(GOVERNANCE),
+      getTxsOf(MULTI_DELEGATOR),
       ...MULTISIGS.map(m => getTxsOf(m.address, 1000, 0, m.chainId))
     ])
 
     const totalItems = formatResults(gov.data, 'governance')
+      .concat(formatResults(multidelegator.data, 'multidelegator'))
       .concat(formatResults(multisigs.data, 'multisig'))
-      .filter(t => t.block >= 14746112 && t.successful)
+      .filter(t => t.timestamp >= Date.UTC(2022, 4, 10) && t.successful)
       .sort((a, b) => a.timestamp - b.timestamp);
 
     const resultData = {
