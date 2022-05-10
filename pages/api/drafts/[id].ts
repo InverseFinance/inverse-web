@@ -1,4 +1,4 @@
-import { DRAFT_SIGN_MSG, DRAFT_WHITELIST } from '@app/config/constants';
+import { SIGN_MSG, DRAFT_WHITELIST } from '@app/config/constants';
 import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@app/util/governance';
 import { getRedisClient } from '@app/util/redis';
 import { verifyMessage } from 'ethers/lib/utils';
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         case 'DELETE':
             const { sig, ...updatedData } = req.body
             const whitelisted = DRAFT_WHITELIST;
-            const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
+            const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
 
             if (!whitelisted.includes(sigAddress)) {
                 res.status(401).json({ status: 'warning', message: 'Unauthorized' })

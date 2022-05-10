@@ -513,3 +513,21 @@ export type DAO = {
 }
 
 export type GenericComponent = React.ComponentType<any>;
+
+export type RefundableTransaction = {
+  from: string,
+  to: string,
+  txHash: string,
+  timestamp: number,
+  successful: boolean,
+  fees: number,
+  name: string,
+  call: string,
+  chainId: NetworkIds,
+  type: string,
+  refunded: boolean,
+  block: number,
+  signedAt?: number,
+  signedBy: string,
+  refundTxHash?: string
+}

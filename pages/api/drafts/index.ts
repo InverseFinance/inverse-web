@@ -3,7 +3,7 @@ import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFu
 import { getRedisClient } from '@app/util/redis';
 import { ProposalFormActionFields } from '@app/types';
 import { verifyMessage } from 'ethers/lib/utils';
-import { DRAFT_SIGN_MSG, DRAFT_WHITELIST } from '@app/config/constants';
+import { SIGN_MSG, DRAFT_WHITELIST } from '@app/config/constants';
 
 const client = getRedisClient();
 
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
             try {
                 const { sig, ...draft } = req.body
                 const whitelisted = DRAFT_WHITELIST;
-                const sigAddress = verifyMessage(DRAFT_SIGN_MSG, sig).toLowerCase();
+                const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
 
                 if (!whitelisted.includes(sigAddress)) {
                     res.status(401).json({ status: 'warning', message: 'Unauthorized' })

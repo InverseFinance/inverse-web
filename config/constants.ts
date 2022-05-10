@@ -23,9 +23,9 @@ export const CURRENT_ERA = GovEra.mills;
 
 export const GRACE_PERIOD_MS = 1209600000; // 14 days in milliseconds
 export const PROPOSAL_DURATION = 259200 * 1000 // 3 days in milliseconds
-export const DRAFT_SIGN_MSG = `Inverse Finance Draft Signature
+export const SIGN_MSG = `Inverse Finance Signature
 
-✅ This is to verify your rights regarding the publishing and edition of drafts
+✅ This is to verify your rights
 
 ✅ This action does not cost anything
 `
