@@ -423,7 +423,7 @@ export const submitRefunds = async (
             body: JSON.stringify({ sig, refunds: txs.map(t => ({ ...t, checked: undefined })), refundTxHash })
         });
         const result = await rawResponse.json();
-        if (onSuccess) { onSuccess(result) }
+        if (onSuccess && result.status === 'success') { onSuccess(result) }
         return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }
