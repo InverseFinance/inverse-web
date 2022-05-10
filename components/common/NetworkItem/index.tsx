@@ -5,9 +5,11 @@ import { WarningIcon } from '@chakra-ui/icons';
 export const NetworkItem = ({
     chainId,
     ignoreUnsupportedWarning = false,
+    networkAttribute = 'name',
 }: {
     chainId?: string | number,
     ignoreUnsupportedWarning?: boolean,
+    networkAttribute?: 'name' | 'coinSymbol' | 'codename' | null,
 }) => {
     if (!chainId) { return <></> }
     const network = getNetwork(chainId);
@@ -25,7 +27,7 @@ export const NetworkItem = ({
                         <WarningIcon color="orange.100" w={5} h={5} mr="2" />
                     </Tooltip>
             }
-            {network?.name || 'Unknown Network'}
+            {network && network[networkAttribute] ? network[networkAttribute] : networkAttribute === null ? null : 'Unknown Network'}
         </>
     )
 }

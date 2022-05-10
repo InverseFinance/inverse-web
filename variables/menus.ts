@@ -65,10 +65,6 @@ export const MENUS = {
           href: '/governance/delegates',
         },
         {
-          label: 'Blog',
-          href: '/blog',
-        },
-        {
           label: 'Your Profile',
           href: '/governance/delegates/$account',
         },
@@ -112,6 +108,10 @@ export const MENUS = {
         },
       ]
     },
+    {
+      label: 'Blog',
+      href: '/blog',
+    }
   ],
   "footerGroups": [
     {

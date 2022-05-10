@@ -2,7 +2,7 @@ import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
 import { submitRefunds } from '@app/util/governance';
 import { CheckIcon, MinusIcon } from '@chakra-ui/icons';
-import { Box, Checkbox, Flex, Stack, Text, VStack } from '@chakra-ui/react';
+import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, VStack } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
@@ -19,11 +19,17 @@ export const EligibleRefunds = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { transactions: items, isLoading } = useEligibleRefunds();
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
+    const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
     const [checkedTxs, setCheckedTxs] = useState<string[]>([]);
     const [refundTxHash, setRefundTxHash] = useState('');
+    const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
 
     useEffect(() => {
-        if(checkedTxs.length > 0 || eligibleTxs.length > 0){ return }
+        setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
+    }, [hideAlreadyRefunded, eligibleTxs])
+
+    useEffect(() => {
+        if (checkedTxs.length > 0 || eligibleTxs.length > 0) { return }
         setEligibleTxs(items)
     }, [items, checkedTxs, eligibleTxs]);
 
@@ -46,8 +52,8 @@ export const EligibleRefunds = () => {
             field: 'txHash',
             label: 'TX',
             header: ({ ...props }) => <Flex justify="flex-start" minWidth={'110px'} {...props} />,
-            value: ({ txHash }) => <Flex justify="flex-start" minWidth={'110px'}>
-                <ScannerLink type="tx" value={txHash} />
+            value: ({ txHash, chainId }) => <Flex justify="flex-start" minWidth={'110px'}>
+                <ScannerLink type="tx" value={txHash} chainId={chainId} />
             </Flex>,
         },
         {
@@ -103,12 +109,12 @@ export const EligibleRefunds = () => {
             field: 'refunded',
             label: 'Refunded?',
             header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
-            value: ({ refunded, refundTxHash }) => <Flex justify="center" minWidth={'120px'}>
+            value: ({ refunded, refundTxHash, chainId }) => <Flex justify="center" minWidth={'120px'}>
                 {
                     refunded ?
                         <VStack>
                             <CheckIcon color="secondary" />
-                            <ScannerLink value={refundTxHash} />
+                            <ScannerLink value={refundTxHash} type="tx" chainId={chainId} />
                         </VStack>
                         :
                         <MinusIcon />
@@ -151,51 +157,63 @@ export const EligibleRefunds = () => {
             noPadding
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             collapsable={true}
-            right={<Stack direction={{ base: 'column-reverse', xl: 'row' }} w="700px" justifyContent="flex-end" alignItems={{ base: 'flex-end', xl: 'center' }}>
-                {
-                    checkedTxs.length > 0 && !!account ?
-                        <>
-                            <SubmitButton
-                                disabled={!checkedTxs.length}
-                                w="240px"
-                                onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
-                                {refundTxHash ? `Submit ${checkedTxs.length} Refund(s)` : `Cancel ${checkedTxs.length} Refund(s)`}
-                            </SubmitButton>
-                        </>
-                        :
-                        !!account ?
-                            <InfoMessage alertProps={{ fontSize: '12px', w:'500px' }} description="Check at least one Transaction" />
-                            :
-                            <InfoMessage alertProps={{ fontSize: '12px' }} description="Please Connect Wallet" />
-
-                }
-                <Input
-                    textAlign="left"
-                    h="40px"
-                    py="0"
-                    fontSize="12px"
-                    maxW="350px"
-                    placeholder="Refund TX hash or Leave Blank to cancel refund action"
-                    value={refundTxHash}
-                    onChange={(e) => setRefundTxHash(e.target.value)}
-                />
-            </Stack>}
+            right={
+                !account ?
+                    <InfoMessage alertProps={{ fontSize: '12px' }} description="Please Connect Wallet" />
+                    :
+                    <InfoMessage alertProps={{ fontSize: '12px', w: '500px' }} description="Check at least one Transaction" />
+            }
         >
             {
                 isLoading ?
                     <SkeletonBlob />
                     :
-                    eligibleTxs.length > 0 ?
-                        <Table
-                            columns={columns}
-                            items={eligibleTxs}
-                            keyName={'txHash'}
-                            defaultSort="timestamp"
-                            defaultSortDir="desc"
-                            maxH="calc(100vh - 300px)"
-                        />
+                    filteredTxs.length > 0 ?
+                        <VStack spacing="4" w='full' alignItems="space-between">
+                            <Stack
+                                direction={{ base: 'column-reverse', xl: 'row' }}
+                                justifyContent="space-between"
+                                alignItems={{ base: 'flex-end', xl: 'center' }}>
+                                <HStack>
+                                    <Input
+                                        textAlign="left"
+                                        h="40px"
+                                        py="0"
+                                        fontSize="12px"
+                                        w="370px"
+                                        placeholder="Input a Tx hash Refund to Mark or Leave Blank to Unmark"
+                                        value={refundTxHash}
+                                        onChange={(e) => setRefundTxHash(e.target.value)}
+                                    />
+                                    <SubmitButton
+                                        disabled={!checkedTxs.length || !account}
+                                        w="240px"
+                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
+                                        {
+                                            refundTxHash ?
+                                                `Mark ${checkedTxs.length} Tx As Refunded`
+                                                :
+                                                `Unmark ${checkedTxs.length} Tx As Refunded`
+                                        }
+                                    </SubmitButton>
+                                </HStack>
+                                <HStack alignItems="center">
+                                    <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
+                                    <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
+                                </HStack>
+                            </Stack>
+                            <Divider />
+                            <Table
+                                columns={columns}
+                                items={filteredTxs}
+                                keyName={'txHash'}
+                                defaultSort="timestamp"
+                                defaultSortDir="desc"
+                                maxH="calc(100vh - 300px)"
+                            />
+                        </VStack>
                         :
-                        <Text>No Eligible Transactions</Text>
+                        <Text>No Result</Text>
             }
         </Container>
     )
