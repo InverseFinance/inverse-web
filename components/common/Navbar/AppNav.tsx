@@ -12,6 +12,7 @@ import {
   useDisclosure,
   Box,
   VStack,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -58,7 +59,7 @@ const NAV_ITEMS = MENUS.nav
 const NavBadge = (props: any) => (
   <Flex
     justify="center"
-    fontSize="12px"
+    fontSize={{ base: '10px', xl: '12px' }}
     h="40px"
     align="center"
     bgColor="primary.800"
@@ -68,8 +69,7 @@ const NavBadge = (props: any) => (
     fontWeight="semibold"
     color="mainTextColor"
     p={2}
-    pl={4}
-    pr={4}
+    px={{ base: '2', xl: '4' }}
     {...props}
   />
 )
@@ -83,6 +83,7 @@ const NetworkBadge = ({
   isWrongNetwork: boolean,
   showWrongNetworkModal: () => void
 }) => {
+  const [isSmallerThan] = useMediaQuery('(max-width: 1200px)')
   const { data } = useEtherSWR(['getGasPrice']);
 
   const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
@@ -94,7 +95,7 @@ const NetworkBadge = ({
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bgColor={bgColor}>
-      <NetworkItem chainId={chainId} />
+      <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -187,7 +188,7 @@ const ETHBalance = () => {
   const [formattedBalance, setFormattedBalance] = useState('')
 
   useDualSpeedEffect(() => {
-    setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(4) : '')
+    setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(2) : '')
   }, [balance, userAddress], !userAddress, 1000)
 
   if (!formattedBalance || !chainId) {
