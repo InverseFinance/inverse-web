@@ -54,6 +54,8 @@ const namedAddresses: { [key: string]: string } = {
     '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Edo',
     '0x8E199c07E9c8D5CCbCA86fF5665A5b171b20D5E7': 'Marshmellow',
     '0x27b8D1347bE36Ff697b48d1D74323E6a9f28eA6D': 'Ishita',
+    '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': '0xMT',
+    '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'yellowtail',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {
