@@ -102,8 +102,8 @@ export const EligibleRefunds = () => {
         {
             field: 'refunded',
             label: 'Refunded?',
-            header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-            value: ({ refunded, refundTxHash }) => <Flex justify="center" minWidth={'80px'}>
+            header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+            value: ({ refunded, refundTxHash }) => <Flex justify="center" minWidth={'120px'}>
                 {
                     refunded ?
                         <VStack>
