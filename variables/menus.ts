@@ -106,6 +106,10 @@ export const MENUS = {
           href: '/transparency/stabilizer',
           label: 'Stabilizer',
         },
+        {
+          href: '/transparency/analytics',
+          label: 'Analytics',
+        },
       ]
     },
     {
@@ -149,6 +153,10 @@ export const MENUS = {
         {
           label: 'Forum',
           href: 'https://forum.inverse.finance',
+        },
+        {
+          label: 'Analytics',
+          href: '/transparency/analytics',
         },
       ],
     },
