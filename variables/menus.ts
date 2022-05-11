@@ -109,12 +109,12 @@ export const MENUS = {
       ]
     },
     {
-      label: 'Blog',
-      href: '/blog',
-    },
-    {
       href: '/analytics',
       label: 'Analytics',
+    },
+    {
+      label: 'Blog',
+      href: '/blog',
     },
   ],
   "footerGroups": [

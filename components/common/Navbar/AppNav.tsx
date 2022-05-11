@@ -53,6 +53,7 @@ import { gaEvent } from '@app/util/analytics'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
+import PostSearch from 'blog/components/post-search'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -388,7 +389,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubmenu?: string }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
@@ -482,8 +483,8 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
         isOpen={isWrongNetOpen}
         onClose={onWrongNetClose}
       />
-      <Flex
-        w="99vw"
+      <Flex        
+        w={ isBlog ? '100vw' : '99vw' }
         backgroundColor="navBarBackground"
         borderColor="navBarBorderColor"
         borderBottomWidth={showMobileNav ? 0 : 1}
@@ -498,7 +499,7 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
           <Link href="/">
             <Logo boxSize={10} />
           </Link>
-          <Stack direction="row" align="center" spacing={isLargerThan ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
+          <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}
@@ -527,7 +528,7 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
                   </PopoverTrigger>
                   {
                     submenus?.length > 0 &&
-                    <PopoverContent maxW="230px" background="transparent" border="none">
+                    <PopoverContent maxW="230px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
                       <PopoverBody className="blurred-container primary-bg compat-mode2" borderRadius="10px">
                         <VStack spacing="4" p="4">
                           {
@@ -544,9 +545,29 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
             ))}
           </Stack>
         </Stack>
-        <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
-          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
-        </Stack>
+        {
+          isBlog ?
+            <PostSearch />
+            :
+            <>
+              <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
+                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
+              </Stack>
+
+              <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
+                {
+                  isLargerThan && <INVBalance />
+                }
+                <ETHBalance />
+                {
+                  badgeChainId ?
+                    <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
+                    : null
+                }
+                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
+              </Stack>
+            </>
+        }
         <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
             <Image w={4} h={4} src="/assets/cancel.svg" />
@@ -559,18 +580,6 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
             </NotifBadge>
           }
         </Flex>
-        <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
-          {
-            isLargerThan && <INVBalance />
-          }
-          <ETHBalance />
-          {
-            badgeChainId ?
-              <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
-              : null
-          }
-          <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
-        </Stack>
       </Flex>
       {showMobileNav && (
         <Flex w="full" position="fixed" top="0" zIndex="9" transitionDuration="0.1s" transitionTimingFunction="ease">
