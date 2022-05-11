@@ -4,6 +4,7 @@ type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'intere
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
+    { page: 'analytics', label: 'Analytics' },
     { page: 'treasury', label: 'Treasury' },
     { page: 'inv', label: 'INV' },
     { page: 'dola', label: 'DOLA & the Feds' },
@@ -11,7 +12,6 @@ const tabs = [
     { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
-    { page: 'analytics', label: 'Analytics' },
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {
