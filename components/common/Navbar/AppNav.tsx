@@ -390,6 +390,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 
 export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubmenu?: string }) => {
   const { query } = useRouter()
+  const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
   const [showMobileNav, setShowMobileNav] = useState(false)
@@ -493,22 +494,24 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
         position="fixed"
         top="0"
       >
-        <Stack direction="row" align="center" spacing={8}>
+        <Stack direction="row" align="center" spacing={5}>
           <Link href="/">
             <Logo boxSize={10} />
           </Link>
-          <Stack direction="row" align="center" spacing={8} display={{ base: 'none', lg: 'flex' }}>
+          <Stack direction="row" align="center" spacing={ isLargerThan ? 6 : 5} display={{ base: 'none', xl: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}
                 href={href}
                 fontWeight="medium"
                 position="relative"
+                
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
                     <Box>
-                      <Link
+                      <Link 
+                        fontSize={ isLargerThan ? '16px' : '15px' }
                         color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
                         _hover={{ color: 'mainTextColor' }}
                         href={href}>
@@ -541,10 +544,10 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
             ))}
           </Stack>
         </Stack>
-        <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
+        <Stack display={{ base: 'flex', xl: 'none' }} direction="row" align="center">
           <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
         </Stack>
-        <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
+        <Flex position="relative" display={{ base: 'flex', xl: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
             <Image w={4} h={4} src="/assets/cancel.svg" />
           ) : (
@@ -556,7 +559,7 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
             </NotifBadge>
           }
         </Flex>
-        <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
+        <Stack direction="row" align="center" display={{ base: 'none', xl: 'flex' }}>
           <INVBalance />
           <ETHBalance />
           {
