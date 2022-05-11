@@ -86,6 +86,14 @@ const mainConfig = {
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/25',
             chainId: NetworkIds.mainnet,
         },
+        {
+            address: '0x8F97cCA30Dbe80e7a8B462F1dD1a51C32accDfC8',
+            name: 'Fed Chair',
+            shortName: 'FedChair',
+            purpose: 'Manage Fed Policies',
+            governanceLink: 'https://www.inverse.finance/governance',
+            chainId: NetworkIds.mainnet,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };
