@@ -512,7 +512,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
                   <PopoverTrigger>
                     <Box>
                       <Link
-                        fontSize={isLargerThan ? '16px' : '15px'}
+                        fontSize={isLargerThan || isBlog ? '16px' : '15px'}
                         color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
                         _hover={{ color: 'mainTextColor' }}
                         href={href}>

@@ -13,7 +13,7 @@ export const Analytics = () => {
         <meta name="description" content="Inverse Finance Analytics" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, analytics, dune" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Analytics"/>
+      <AppNav active="Analytics" />
       <Flex direction="column" w={{ base: 'full' }} p="0" m="0">
         <iframe width="100%" height="900px" src="https://datastudio.google.com/embed/reporting/cb58a483-78a0-4f08-9625-25ea42a2bd12/page/Iz7jC"></iframe>
       </Flex>
