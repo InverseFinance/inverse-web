@@ -7,16 +7,16 @@ import { Announcement } from '@app/components/common/Announcement'
 
 const INVERSE_NAV = [
   {
-    label: 'Blog',
-    href: '/blog',
-  },
-  {
     label: 'Docs',
     href: 'https://docs.inverse.finance/',
   },
   {
     label: 'Analytics',
     href: '/transparency/analytics',
+  },
+  {
+    label: 'Blog',
+    href: '/blog',
   },
 ]
 

@@ -79,10 +79,6 @@ export const MENUS = {
           label: 'Overview',
         },
         {
-          href: '/transparency/analytics',
-          label: 'Analytics',
-        },
-        {
           href: '/transparency/treasury',
           label: 'Treasury',
         },
@@ -113,9 +109,13 @@ export const MENUS = {
       ]
     },
     {
+      href: '/analytics',
+      label: 'Analytics',
+    },
+    {
       label: 'Blog',
       href: '/blog',
-    }
+    },
   ],
   "footerGroups": [
     {
