@@ -59,7 +59,7 @@ const NAV_ITEMS = MENUS.nav
 const NavBadge = (props: any) => (
   <Flex
     justify="center"
-    fontSize={{ base: '10px', xl: '12px' }}
+    fontSize="12px"
     h="40px"
     align="center"
     bgColor="primary.800"
@@ -498,20 +498,20 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
           <Link href="/">
             <Logo boxSize={10} />
           </Link>
-          <Stack direction="row" align="center" spacing={ isLargerThan ? 6 : 5} display={{ base: 'none', xl: 'flex' }}>
+          <Stack direction="row" align="center" spacing={isLargerThan ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}
                 href={href}
                 fontWeight="medium"
                 position="relative"
-                
+
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
                     <Box>
-                      <Link 
-                        fontSize={ isLargerThan ? '16px' : '15px' }
+                      <Link
+                        fontSize={isLargerThan ? '16px' : '15px'}
                         color={active === label ? 'mainTextColor' : 'secondaryTextColor'}
                         _hover={{ color: 'mainTextColor' }}
                         href={href}>
@@ -544,10 +544,10 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
             ))}
           </Stack>
         </Stack>
-        <Stack display={{ base: 'flex', xl: 'none' }} direction="row" align="center">
+        <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
           <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
         </Stack>
-        <Flex position="relative" display={{ base: 'flex', xl: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
+        <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
             <Image w={4} h={4} src="/assets/cancel.svg" />
           ) : (
@@ -559,8 +559,10 @@ export const AppNav = ({ active, activeSubmenu }: { active?: string, activeSubme
             </NotifBadge>
           }
         </Flex>
-        <Stack direction="row" align="center" display={{ base: 'none', xl: 'flex' }}>
-          <INVBalance />
+        <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
+          {
+            isLargerThan && <INVBalance />
+          }
           <ETHBalance />
           {
             badgeChainId ?
