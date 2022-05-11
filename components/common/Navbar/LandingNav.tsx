@@ -16,7 +16,7 @@ const INVERSE_NAV = [
   },
   {
     label: 'Analytics',
-    href: 'https://duneanalytics.com/naoufel/inverse-dao',
+    href: '/transparency/analytics',
   },
 ]
 
