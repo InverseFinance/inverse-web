@@ -9,6 +9,10 @@ export const Analytics = () => {
     <Layout bg="#100e21" bgColor="#100e21">
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Analytics</title>
+        <meta name="og:title" content="Inverse Finance - Analytics" />
+        <meta name="og:description" content="Detailed Analytics" />
+        <meta name="description" content="Inverse Finance Analytics" />
+        <meta name="keywords" content="Inverse Finance, dao, transparency, analytics, dune" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Analytics"/>
       <TransparencyTabs active="analytics" />

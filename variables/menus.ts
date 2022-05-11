@@ -151,12 +151,12 @@ export const MENUS = {
           href: '/transparency',
         },
         {
-          label: 'Forum',
-          href: 'https://forum.inverse.finance',
-        },
-        {
           label: 'Analytics',
           href: '/transparency/analytics',
+        },
+        {
+          label: 'Forum',
+          href: 'https://forum.inverse.finance',
         },
       ],
     },
