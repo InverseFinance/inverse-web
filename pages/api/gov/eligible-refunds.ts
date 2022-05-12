@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
       getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
-      ...MULTISIGS.map(m => getTxsOf(m.address, 1000, 0, m.chainId))
+      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 1000, 0))
     ])
 
     const totalItems = formatResults(gov.data, 'governance')

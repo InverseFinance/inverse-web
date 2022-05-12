@@ -45,7 +45,7 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
     }
 
     const handleSuccess = (tx: TransactionResponse) => {
-        return submitRefunds(txs, tx.hash, library?.getSigner(), onSuccess)
+        return submitRefunds(txs, tx.hash, onSuccess)
     }
 
     return (

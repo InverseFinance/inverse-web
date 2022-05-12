@@ -1,5 +1,6 @@
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
+import { shortenNumber } from '@app/util/markets';
 import { CheckIcon, MinusIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
@@ -8,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { Timestamp } from '../../common/BlockTimestamp/Timestamp';
 import { SubmitButton } from '../../common/Button';
 import Container from '../../common/Container';
-import { Input } from '../../common/Input';
 import { InfoMessage } from '../../common/Messages';
 import ScannerLink from '../../common/ScannerLink';
 import { SkeletonBlob } from '../../common/Skeleton';
@@ -22,7 +22,6 @@ export const EligibleRefunds = () => {
     const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
     const [checkedTxs, setCheckedTxs] = useState<string[]>([]);
-    const [refundTxHash, setRefundTxHash] = useState('');
     const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
     const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -67,9 +66,9 @@ export const EligibleRefunds = () => {
         {
             field: 'fees',
             label: 'Paid Fees',
-            header: ({ ...props }) => <Flex justify="flex-end" minWidth={'200px'} {...props} />,
-            value: ({ fees }) => <Flex justify="flex-end" minWidth={'200px'} alignItems="center">
-                <Text mr="1">{fees}</Text>
+            header: ({ ...props }) => <Flex justify="flex-end" minWidth={'100px'} {...props} />,
+            value: ({ fees }) => <Flex justify="flex-end" minWidth={'100px'} alignItems="center">
+                <Text mr="1">~{shortenNumber(parseFloat(fees), 5)}</Text>
                 {/* <AnimatedInfoTooltip message={fees} /> */}
             </Flex>,
         },
@@ -139,7 +138,7 @@ export const EligibleRefunds = () => {
         onOpen();
     }
 
-    const handleSuccess = ({ refunds, signedBy, signedAt }) => {
+    const handleSuccess = ({ refunds, signedBy, signedAt, refundTxHash }) => {
         const refundsTxHashes = refunds.map(r => r.txHash);
         const updatedItems = [...eligibleTxs];
         eligibleTxs.forEach((et, i) => {
@@ -150,7 +149,7 @@ export const EligibleRefunds = () => {
         })
         setEligibleTxs(updatedItems)
         setCheckedTxs([]);
-        setRefundTxHash('');
+        onClose();
     }
 
     return (
@@ -175,7 +174,7 @@ export const EligibleRefunds = () => {
                         <VStack spacing="4" w='full' alignItems="space-between">
                             <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} />
                             <Stack
-                                direction={{ base: 'column-reverse', xl: 'row' }}
+                                direction="row"
                                 justifyContent="space-between"
                                 alignItems={{ base: 'flex-end', xl: 'center' }}>
                                 <HStack alignItems="center">
@@ -204,7 +203,7 @@ export const EligibleRefunds = () => {
                                 keyName={'txHash'}
                                 defaultSort="timestamp"
                                 defaultSortDir="desc"
-                                maxH="calc(100vh - 300px)"
+                                maxH="calc(100vh - 400px)"
                             />
                         </VStack>
                         :
