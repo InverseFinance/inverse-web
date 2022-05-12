@@ -2,7 +2,7 @@
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { EligibleRefunds } from '@app/components/Governance/EligibleRefunds';
+import { EligibleRefunds } from '@app/components/Governance/Refunds/EligibleRefunds';
 
 export const GovRefunds = () => {
 

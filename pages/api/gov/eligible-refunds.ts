@@ -73,15 +73,17 @@ export default async function handler(req, res) {
       return
     }
 
-    const [gov, multidelegator, multisigs] = await Promise.all([
+    const [gov, multidelegator, gno, multisigs] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
-      ...MULTISIGS.map(m => getTxsOf(m.address, 1000, 0, m.chainId))
+      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
+      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 1000, 0))
     ])
 
     const totalItems = formatResults(gov.data, 'governance')
       .concat(formatResults(multidelegator.data, 'multidelegator'))
       .concat(formatResults(multisigs.data, 'multisig'))
+      .concat(formatResults(gno.data, 'gnosis'))
       .filter(t => t.timestamp >= Date.UTC(2022, 4, 10) && t.successful)
       .sort((a, b) => a.timestamp - b.timestamp);
 

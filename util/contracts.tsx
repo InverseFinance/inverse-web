@@ -15,15 +15,17 @@ import {
   AN_CHAIN_COIN_REPAY_ALL_ABI,
   BOND_ABI,
   SWAP_ROUTER_ABI,
+  DISPERSE_APP_ABI,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils';
 import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { getProvider } from './providers'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
+import { BigNumber } from 'ethers'
 
 export const getNewContract = (
   address: string,
@@ -284,4 +286,19 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   }
 
   return lpPrice;
+}
+
+export const disperseEther = (params: { address: string, value: string }[], signer: JsonRpcSigner) => {
+  const { DISPERSE_APP } = getNetworkConfigConstants();
+  const contract = new Contract(DISPERSE_APP, DISPERSE_APP_ABI, signer);
+  const addresses = params.map(p => p.address);
+  const values = params.map(p => parseEther(p.value));
+  const total = values.reduce((prev, curr) => prev.add(curr), BigNumber.from('0'));
+  return contract.disperseEther(addresses, values, { value: total });
+}
+
+export const disperseToken = (token: Token, params: { address: string, value: string }[], signer: JsonRpcSigner) => {
+  const { DISPERSE_APP } = getNetworkConfigConstants();
+  const contract = new Contract(DISPERSE_APP, DISPERSE_APP_ABI, signer);
+  return contract.disperseToken(token.address, params.map(p => p.address), params.map(p => parseUnits(p.value, token.decimals)));
 }

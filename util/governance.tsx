@@ -409,18 +409,16 @@ export const simulateOnChainActions = async (
 export const submitRefunds = async (
     txs: RefundableTransaction[],
     refundTxHash: string,
-    signer: JsonRpcSigner,
     onSuccess?: (updated: RefundableTransaction[]) => void,
 ): Promise<any> => {
     try {
-        const sig = await signer.signMessage(SIGN_MSG);
         const rawResponse = await fetch(`/api/gov/submit-refunds`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ sig, refunds: txs.map(t => ({ ...t, checked: undefined })), refundTxHash })
+            body: JSON.stringify({ refunds: txs.map(t => ({ ...t, checked: undefined })), refundTxHash })
         });
         const result = await rawResponse.json();
         if (onSuccess && result.status === 'success') { onSuccess(result) }

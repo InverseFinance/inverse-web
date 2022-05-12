@@ -15,7 +15,8 @@ export const getTransfers = async (contractAd: string, from: string, pageSize = 
 }
 
 export const getTxsOf = async (ad: string, pageSize = 1000, pageNumber = 0, chainId = process.env.NEXT_PUBLIC_CHAIN_ID) => {
-    const path = `/${chainId}/address/${ad}/transactions_v2/?quote-currency=USD&page-number=${pageNumber}&page-size=${pageSize}&format=JSON&key=${process.env.COVALENT_API_KEY}`
+    const _chainId = chainId === '31337' ? '1' : chainId
+    const path = `/${_chainId}/address/${ad}/transactions_v2/?quote-currency=USD&page-number=${pageNumber}&page-size=${pageSize}&format=JSON&key=${process.env.COVALENT_API_KEY}`
     const res = await fetch(`${baseUrl}${path}`);
 
     return res.json();

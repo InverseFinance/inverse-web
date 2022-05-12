@@ -1,28 +1,29 @@
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
-import { submitRefunds } from '@app/util/governance';
+import { shortenNumber } from '@app/util/markets';
 import { CheckIcon, MinusIcon } from '@chakra-ui/icons';
-import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, VStack } from '@chakra-ui/react';
+import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
-import { Timestamp } from '../common/BlockTimestamp/Timestamp';
-import { SubmitButton } from '../common/Button';
-import Container from '../common/Container';
-import { Input } from '../common/Input';
-import { InfoMessage } from '../common/Messages';
-import ScannerLink from '../common/ScannerLink';
-import { SkeletonBlob } from '../common/Skeleton';
-import Table from '../common/Table';
+import { Timestamp } from '../../common/BlockTimestamp/Timestamp';
+import { SubmitButton } from '../../common/Button';
+import Container from '../../common/Container';
+import { InfoMessage } from '../../common/Messages';
+import ScannerLink from '../../common/ScannerLink';
+import { SkeletonBlob } from '../../common/Skeleton';
+import Table from '../../common/Table';
+import { RefundsModal } from './RefundModal';
 
 export const EligibleRefunds = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { transactions: items, isLoading } = useEligibleRefunds();
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
     const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
+    const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
     const [checkedTxs, setCheckedTxs] = useState<string[]>([]);
-    const [refundTxHash, setRefundTxHash] = useState('');
     const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
+    const { isOpen, onClose, onOpen } = useDisclosure();
 
     useEffect(() => {
         setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
@@ -34,12 +35,10 @@ export const EligibleRefunds = () => {
     }, [items, checkedTxs, eligibleTxs]);
 
     useEffect(() => {
-        console.log(checkedTxs)
         setEligibleTxs(eligibleTxs.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
     }, [checkedTxs])
 
     const handleCheckTx = (txHash: string) => {
-        console.log(txHash)
         if (checkedTxs.includes(txHash)) {
             setCheckedTxs(checkedTxs.filter(h => txHash !== h));
         } else {
@@ -67,9 +66,9 @@ export const EligibleRefunds = () => {
         {
             field: 'fees',
             label: 'Paid Fees',
-            header: ({ ...props }) => <Flex justify="flex-end" minWidth={'200px'} {...props} />,
-            value: ({ fees }) => <Flex justify="flex-end" minWidth={'200px'} alignItems="center">
-                <Text mr="1">{fees}</Text>
+            header: ({ ...props }) => <Flex justify="flex-end" minWidth={'100px'} {...props} />,
+            value: ({ fees }) => <Flex justify="flex-end" minWidth={'100px'} alignItems="center">
+                <Text mr="1">~{shortenNumber(parseFloat(fees), 5)}</Text>
                 {/* <AnimatedInfoTooltip message={fees} /> */}
             </Flex>,
         },
@@ -132,22 +131,25 @@ export const EligibleRefunds = () => {
         },
     ];
 
-    const handleRefund = (eligibleTxs, checkedTxs, refundTxHash) => {
+    const handleRefund = (eligibleTxs, checkedTxs) => {
         if (!library?.getSigner()) { return }
         const items = eligibleTxs.filter(t => checkedTxs.includes(t.txHash));
-        return submitRefunds(items, refundTxHash, library?.getSigner(), ({ refunds, signedBy, signedAt }) => {
-            const refundsTxHashes = refunds.map(r => r.txHash);
-            const updatedItems = [...eligibleTxs];
-            eligibleTxs.forEach((et, i) => {
-                if (refundsTxHashes.includes(et.txHash)) {
-                    const isRefunded = !!refundTxHash;
-                    updatedItems[i] = { ...et, refundTxHash: refundTxHash, refunded: isRefunded, signedBy, signedAt }
-                }
-            })
-            setEligibleTxs(updatedItems)
-            setCheckedTxs([]);
-            setRefundTxHash('');
+        setTxsToRefund(items);
+        onOpen();
+    }
+
+    const handleSuccess = ({ refunds, signedBy, signedAt, refundTxHash }) => {
+        const refundsTxHashes = refunds.map(r => r.txHash);
+        const updatedItems = [...eligibleTxs];
+        eligibleTxs.forEach((et, i) => {
+            if (refundsTxHashes.includes(et.txHash)) {
+                const isRefunded = !!refundTxHash;
+                updatedItems[i] = { ...et, refundTxHash: refundTxHash, refunded: isRefunded, signedBy, signedAt }
+            }
         })
+        setEligibleTxs(updatedItems)
+        setCheckedTxs([]);
+        onClose();
     }
 
     return (
@@ -170,36 +172,28 @@ export const EligibleRefunds = () => {
                     :
                     filteredTxs.length > 0 ?
                         <VStack spacing="4" w='full' alignItems="space-between">
+                            <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} />
                             <Stack
-                                direction={{ base: 'column-reverse', xl: 'row' }}
+                                direction="row"
                                 justifyContent="space-between"
                                 alignItems={{ base: 'flex-end', xl: 'center' }}>
-                                <HStack>
-                                    <Input
-                                        textAlign="left"
-                                        h="40px"
-                                        py="0"
-                                        fontSize="12px"
-                                        w="370px"
-                                        placeholder="Input a Tx hash Refund to Mark or Leave Blank to Unmark"
-                                        value={refundTxHash}
-                                        onChange={(e) => setRefundTxHash(e.target.value)}
-                                    />
-                                    <SubmitButton
-                                        disabled={!checkedTxs.length || !account}
-                                        w="240px"
-                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
-                                        {
-                                            refundTxHash ?
-                                                `Mark ${checkedTxs.length} Tx As Refunded`
-                                                :
-                                                `Unmark ${checkedTxs.length} Tx As Refunded`
-                                        }
-                                    </SubmitButton>
-                                </HStack>
                                 <HStack alignItems="center">
                                     <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
                                     <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
+                                </HStack>
+                                <HStack>
+                                    {/* <SubmitButton
+                                        disabled={!checkedTxs.length || !account}
+                                        w="240px"
+                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
+                                        UNMARK AS REFUNDED
+                                    </SubmitButton> */}
+                                    <SubmitButton
+                                        disabled={!checkedTxs.length || !account}
+                                        w="240px"
+                                        onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
+                                        Refund {checkedTxs.length} Txs
+                                    </SubmitButton>
                                 </HStack>
                             </Stack>
                             <Divider />
@@ -209,7 +203,7 @@ export const EligibleRefunds = () => {
                                 keyName={'txHash'}
                                 defaultSort="timestamp"
                                 defaultSortDir="desc"
-                                maxH="calc(100vh - 300px)"
+                                maxH="calc(100vh - 400px)"
                             />
                         </VStack>
                         :
