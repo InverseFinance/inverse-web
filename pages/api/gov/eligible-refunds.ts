@@ -12,7 +12,7 @@ const client = getRedisClient();
 const refundWhitelist = [
   ...DRAFT_WHITELIST,
   ...Object.keys(CUSTOM_NAMED_ADDRESSES),
-]
+].map(a => a.toLowerCase())
 
 const toCallSig = (name, params) => {
   return `${name}(${params?.map(p => p.value).join(', ')})`
