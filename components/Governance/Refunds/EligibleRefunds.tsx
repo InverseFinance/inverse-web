@@ -178,32 +178,23 @@ export const EligibleRefunds = () => {
                                 direction={{ base: 'column-reverse', xl: 'row' }}
                                 justifyContent="space-between"
                                 alignItems={{ base: 'flex-end', xl: 'center' }}>
-                                <HStack>
-                                    <Input
-                                        textAlign="left"
-                                        h="40px"
-                                        py="0"
-                                        fontSize="12px"
-                                        w="370px"
-                                        placeholder="Input a Tx hash Refund to Mark or Leave Blank to Unmark"
-                                        value={refundTxHash}
-                                        onChange={(e) => setRefundTxHash(e.target.value)}
-                                    />
-                                    <SubmitButton
-                                        disabled={!checkedTxs.length || !account}
-                                        w="240px"
-                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
-                                        {
-                                            refundTxHash ?
-                                                `Mark ${checkedTxs.length} Tx As Refunded`
-                                                :
-                                                `Unmark ${checkedTxs.length} Tx As Refunded`
-                                        }
-                                    </SubmitButton>
-                                </HStack>
                                 <HStack alignItems="center">
                                     <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
                                     <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
+                                </HStack>
+                                <HStack>
+                                    {/* <SubmitButton
+                                        disabled={!checkedTxs.length || !account}
+                                        w="240px"
+                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
+                                        UNMARK AS REFUNDED
+                                    </SubmitButton> */}
+                                    <SubmitButton
+                                        disabled={!checkedTxs.length || !account}
+                                        w="240px"
+                                        onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
+                                        Refund {checkedTxs.length} Txs
+                                    </SubmitButton>
                                 </HStack>
                             </Stack>
                             <Divider />
