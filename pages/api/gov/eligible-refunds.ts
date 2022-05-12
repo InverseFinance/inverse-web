@@ -14,10 +14,6 @@ const refundWhitelist = [
   ...Object.keys(CUSTOM_NAMED_ADDRESSES),
 ].map(a => a.toLowerCase())
 
-const toCallSig = (name, params) => {
-  return `${name}(${params?.map(p => p.value).join(', ')})`
-}
-
 const formatResults = (data, type): RefundableTransaction[] => {
   const { items, chain_id } = data;
   return items
@@ -32,7 +28,6 @@ const formatResults = (data, type): RefundableTransaction[] => {
         successful: item.successful,
         fees: formatEther(item.fees_paid),
         name: hasDecoded ? decoded[0]?.name : 'Unknown',
-        call: hasDecoded ? toCallSig(decoded[0].name, decoded[0].params) : '',
         chainId: chain_id,
         type,
         refunded: false,
