@@ -281,8 +281,8 @@ export const SWAP_ROUTER_ABI = [
 
 export const DISPERSE_APP_ABI = [
   "function disperseEther(address[] recipients, uint256[] values) external payable",
-  "function disperseToken(IERC20 token, address[] recipients, uint256[] values) external",
-  "function disperseTokenSimple(IERC20 token, address[] recipients, uint256[] values) external",
+  "function disperseToken(address token, address[] recipients, uint256[] values) external",
+  "function disperseTokenSimple(address token, address[] recipients, uint256[] values) external",
 ]
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
