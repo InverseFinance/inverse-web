@@ -12,7 +12,7 @@ const INVERSE_NAV = [
   },
   {
     label: 'Analytics',
-    href: '/transparency/analytics',
+    href: '/analytics',
   },
   {
     label: 'Blog',
