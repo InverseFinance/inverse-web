@@ -4,7 +4,7 @@ const baseUrl = 'https://api.etherscan.io/api'
 
 const ABI_PROXYS: { [key:string]: string} = {
     // comptroller
-    '0x4dCf7407AE5C07f8681e1659f626E114A7667339' : '0x731b65a993c7A4fF10D304D5204AfC51033cda4c'
+    '0x4dCf7407AE5C07f8681e1659f626E114A7667339' : '0x48c5e896d241Afd1Aee73ae19259A2e234256A85'
 }
 
 export const getRemoteAbi = async (address: string) => {
