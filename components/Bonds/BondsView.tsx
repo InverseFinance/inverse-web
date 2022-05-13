@@ -78,7 +78,7 @@ export const BondsView = () => {
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
                 {
-                    bondsPaused ?
+                    bondsPaused && !!account ?
                         <InfoMessage description="Bonds are paused at the moment" />
                         :
                         <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
