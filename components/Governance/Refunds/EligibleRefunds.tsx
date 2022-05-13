@@ -205,8 +205,15 @@ export const EligibleRefunds = () => {
                                 keyName={'txHash'}
                                 defaultSort="timestamp"
                                 defaultSortDir="desc"
-                                maxH="calc(100vh - 400px)"
                             />
+                            <HStack w='full' justifyContent="flex-end">
+                                <SubmitButton
+                                    disabled={!checkedTxs.length || !account}
+                                    w="240px"
+                                    onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
+                                    Refund {checkedTxs.length} Txs
+                                </SubmitButton>
+                            </HStack>
                         </VStack>
                         :
                         <Text>No Result</Text>

@@ -12,7 +12,11 @@ const client = getRedisClient();
 const refundWhitelist = [
   ...DRAFT_WHITELIST,
   ...Object.keys(CUSTOM_NAMED_ADDRESSES),
-].map(a => a.toLowerCase())
+].map(a => a.toLowerCase());
+
+function uniqueBy(a, cond) {
+  return a.filter((e, i) => a.findIndex(e2 => cond(e, e2)) === i);
+}
 
 const formatResults = (data, type): RefundableTransaction[] => {
   const { items, chain_id } = data;
@@ -45,8 +49,8 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
   const txs = [...transactions];
   refunded.forEach(r => {
     const found = transactions.findIndex(t => t.txHash === r.txHash);
-    if(found !== -1) {
-      txs[found] = { ...txs[found], refunded: true, ...r }
+    if (found !== -1) {
+      txs[found] = { ...txs[found], refunded: true, ...r, call: undefined }
     }
   })
   return txs;
@@ -62,25 +66,33 @@ export default async function handler(req, res) {
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 60);
+    const validCache = await getCacheFromRedis(cacheKey, true, 10);
     if (validCache) {
       res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
       return
     }
 
-    const [gov, multidelegator, gno, multisigs] = await Promise.all([
+    const [gov, multidelegator, gno, ...multisigsRes] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
       getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
       ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 1000, 0))
     ])
 
-    const totalItems = formatResults(gov.data, 'governance')
+
+    let totalItems = formatResults(gov.data, 'governance')
       .concat(formatResults(multidelegator.data, 'multidelegator'))
-      .concat(formatResults(multisigs.data, 'multisig'))
-      .concat(formatResults(gno.data, 'gnosis'))
-      .filter(t => t.timestamp >= Date.UTC(2022, 4, 10) && t.successful)
-      .sort((a, b) => a.timestamp - b.timestamp);
+      .concat(formatResults(gno.data, 'gnosis'));
+
+    multisigsRes.forEach(r => {
+      totalItems = totalItems.concat(formatResults(r.data, 'multisig'))
+    })
+
+    totalItems = totalItems
+      .filter(t => t.timestamp >= Date.UTC(2022, 4, 10) && t.successful);
+
+    totalItems = uniqueBy(totalItems, (o1, o2) => o1.txHash === o2.txHash);
+    totalItems.sort((a, b) => a.timestamp - b.timestamp);
 
     const resultData = {
       transactions: addRefundedData(totalItems, refunded),

@@ -522,7 +522,6 @@ export type RefundableTransaction = {
   successful: boolean,
   fees: number,
   name: string,
-  call: string,
   chainId: NetworkIds,
   type: string,
   refunded: boolean,
