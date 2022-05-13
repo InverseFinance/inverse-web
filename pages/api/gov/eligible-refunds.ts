@@ -9,6 +9,7 @@ import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
 import { ORACLE_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
+import { uniqueBy } from '@app/util/misc';
 
 const client = getRedisClient();
 
@@ -16,10 +17,6 @@ const refundWhitelist = [
   ...DRAFT_WHITELIST,
   ...Object.keys(CUSTOM_NAMED_ADDRESSES),
 ].map(a => a.toLowerCase());
-
-function uniqueBy(a, cond) {
-  return a.filter((e, i) => a.findIndex(e2 => cond(e, e2)) === i);
-}
 
 const topics = {
   "0xdcc16fd18a808d877bcd9a09b544844b36ae8f0a4b222e317d7b777b2c18b032": "Expansion",

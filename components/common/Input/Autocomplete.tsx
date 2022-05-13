@@ -62,6 +62,7 @@ export const Autocomplete = ({
     highlightBeforeChar = '',
     itemRenderer,
     hideClear = false,
+    showChevron = true,
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
@@ -193,10 +194,12 @@ export const Autocomplete = ({
                     onClick={() => setIsOpen(!isOpen)}
                     {...inputProps}
                 />
-                <InputRightElement
-                    height="100%"
-                    children={<ChevronDownIcon />}
-                />
+                {
+                    showChevron && <InputRightElement
+                        height="100%"
+                        children={<ChevronDownIcon />}
+                    />
+                }
             </InputGroup>
             {
                 isOpen ?
@@ -205,6 +208,7 @@ export const Autocomplete = ({
                         position="absolute"
                         className="blurred-container info-bg"
                         w="full"
+                        minW="200px"
                         zIndex="100"
                         borderRadius="5"
                         maxH="200px"

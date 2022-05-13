@@ -284,6 +284,7 @@ export type AutocompleteProps = {
   hideClear?: boolean,
   highlightBeforeChar?: string,
   limit?: number,
+  showChevron?: boolean,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,
   itemRenderer?: (value: string, label: string, filteredIndex: number, search: string, filteredList: AutocompleteItem[]) => JSX.Element;
 } & Partial<BoxProps>
