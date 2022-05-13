@@ -76,9 +76,11 @@ export const EligibleRefunds = () => {
             field: 'name',
             label: 'Action',
             header: ({ ...props }) => <Flex justify="flex-end" minWidth={'180px'} {...props} />,
-            value: ({ name, call }) => <Flex justify="flex-end" minWidth={'180px'} alignItems="center">
+            value: ({ name }) => <Flex justify="flex-end" minWidth={'180px'} alignItems="center">
                 {name}
             </Flex>,
+            filterWidth: '180px',
+            showFilter: true,
         },
         {
             field: 'from',
@@ -87,6 +89,18 @@ export const EligibleRefunds = () => {
             value: ({ from, chainId }) => <Flex justify="center" minWidth={'120px'}>
                 <ScannerLink value={from} chainId={chainId} />
             </Flex>,
+            filterWidth: '120px',
+            showFilter: true,
+        },
+        {
+            field: 'type',
+            label: 'Type',
+            header: ({ ...props }) => <Flex justify="center" minWidth={'120px'} {...props} />,
+            value: ({ type }) => <Flex justify="center" minWidth={'120px'}>
+                <Text>{`${type[0].toUpperCase()}${type.substring(1, type.length)}`}</Text>
+            </Flex>,
+            filterWidth: '120px',
+            showFilter: true,
         },
         {
             field: 'to',
@@ -95,6 +109,8 @@ export const EligibleRefunds = () => {
             value: ({ to, chainId }) => <Flex justify="center" minWidth={'200px'}>
                 <ScannerLink value={to} chainId={chainId} />
             </Flex>,
+            filterWidth: '200px',
+            showFilter: true,
         },
         // {
         //     field: 'successful',
