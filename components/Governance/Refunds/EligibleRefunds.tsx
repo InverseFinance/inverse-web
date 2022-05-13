@@ -124,9 +124,11 @@ export const EligibleRefunds = () => {
             field: 'checked',
             label: '#',
             header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-            value: ({ txHash, checked }) => <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => handleCheckTx(txHash)}>
+            value: ({ txHash, checked, refunded }) => <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => handleCheckTx(txHash)}>
                 <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
-                <Checkbox value="true" isChecked={checked} />
+                {
+                    !refunded && <Checkbox value="true" isChecked={checked} />
+                }
             </Flex>
         },
     ];
@@ -203,8 +205,15 @@ export const EligibleRefunds = () => {
                                 keyName={'txHash'}
                                 defaultSort="timestamp"
                                 defaultSortDir="desc"
-                                maxH="calc(100vh - 400px)"
                             />
+                            <HStack w='full' justifyContent="flex-end">
+                                <SubmitButton
+                                    disabled={!checkedTxs.length || !account}
+                                    w="240px"
+                                    onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
+                                    Refund {checkedTxs.length} Txs
+                                </SubmitButton>
+                            </HStack>
                         </VStack>
                         :
                         <Text>No Result</Text>

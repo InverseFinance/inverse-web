@@ -8,8 +8,6 @@ import { GovernanceFlowChart } from '@app/components/Transparency/GovernanceFlow
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { commify, parseEther } from '@ethersproject/units'
-import { formatEther } from 'ethers/lib/utils';
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
@@ -20,6 +18,7 @@ import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { shortenNumber } from '@app/util/markets'
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -79,14 +78,6 @@ export const Overview = () => {
   const fetchedValues = { xinvAdmin, xinvEscrow, comptroller, xinvUnderlying, escrowGov, compAdmin, compGuard, treasuryAdmin, govGuard, govToken, govStakedToken, govTreasury, dolaOperator }
   const govFlowChartData = { ...defaultValues, ...fetchedValues };
 
-  const { data: otherData } = useEtherSWR([
-    [GOVERNANCE, 'quorumVotes'],
-    [GOVERNANCE, 'proposalThreshold'],
-  ])
-
-  const [quorumVotes, proposalThreshold] =
-    otherData || [parseEther('4000'), parseEther('1000')];
-
   return (
     <Layout>
       <Head>
@@ -104,22 +95,7 @@ export const Overview = () => {
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <ShrinkableInfoMessage
-            title="🏛️ Governance Rules"
-            description={
-              <>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text>- Min. Quorum required for a vote to pass:</Text>
-                  <Text>{commify(parseFloat(formatEther(quorumVotes)))}</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text>- Min. Voting Power required to create proposals:</Text>
-                  <Text>{commify(parseFloat(formatEther(proposalThreshold)))}</Text>
-                </Flex>
-              </>
-            }
-          />
-
+          <GovernanceRules />
           {
             !!treasury &&
             <ShrinkableInfoMessage
