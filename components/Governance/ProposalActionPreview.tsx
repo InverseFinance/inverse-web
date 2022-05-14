@@ -2,7 +2,7 @@ import { ProposalFunction } from '@app/types'
 import { AbiCoder, commify, FunctionFragment, isAddress } from 'ethers/lib/utils';
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
-import { namedAddress } from '@app/util';
+import { namedAddress, shortenAddress } from '@app/util';
 import { REWARD_TOKEN, TOKENS, UNDERLYING } from '@app/variables/tokens';
 import { capitalize, removeScientificFormat } from '@app/util/misc';
 import { formatUnits } from 'ethers/lib/utils';
@@ -10,6 +10,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import ScannerLink from '@app/components/common/ScannerLink';
 import moment from 'moment';
 import { shortenNumber } from '@app/util/markets';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 
 const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE } = getNetworkConfigConstants();
 
@@ -68,7 +69,7 @@ const ComptrollerHumanReadableActionLabel = ({
         const contractKnownToken = UNDERLYING[callDatas[0]];
         const amount = <Amount value={callDatas[1]} decimals={18} isPerc={true} />;
         text = <Flex display="inline-block">
-            Set <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Anchor Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
+            Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Anchor Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
         </Flex>
     }
 
@@ -253,7 +254,9 @@ export const ProposalActionPreview = (({
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
                     isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE].includes(target))
-                    && <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+                    && <ErrorBoundary description={null}>
+                        <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+                    </ErrorBoundary>
                 }
                 <Flex fontSize="15px">
                     <Link isExternal href={`https://etherscan.io/address/${target}`} color="secondaryTextColor" fontWeight="semibold">

@@ -28,6 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
     public render() {
         if (this.state.hasError) {
+            if(this.props.description === null) { return null }
             return <Flex alignItems="center" justifyContent="center" p="2" w="full" h="full">
                 <AlertMessage title={this.props.title} description={this.props.description || 'An error occured, please try reloading the page'} />
             </Flex>

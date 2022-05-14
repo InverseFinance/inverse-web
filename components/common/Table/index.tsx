@@ -33,8 +33,8 @@ type TableProps = {
 export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir = 'asc', defaultSort, alternateBg = true, onClick, ...props }: TableProps) => {
   const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
-  const [filters, setFilters] = useState({});
-  const [filteredItems, setFilteredItems] = useState([]);
+  // const [filters, setFilters] = useState({});
+  // const [filteredItems, setFilteredItems] = useState([]);
 
   const hasOneColWithFilter = columns.filter(c => c.showFilter).length > 0;
 
@@ -42,14 +42,14 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
     return ({ ...item, symbol: item?.underlying?.symbol })
   }));
 
-  useEffect(() => {
-    let filteredItems = [...sortedItems];
-    Object.entries(filters).forEach(([key, val]) => {
-      if (val === null) { return }
-      filteredItems = filteredItems.filter(item => item[key] === val);
-    });
-    setFilteredItems(filteredItems)
-  }, [sortedItems, filters])
+  // useEffect(() => {
+  //   let filteredItems = [...sortedItems];
+  //   Object.entries(filters).forEach(([key, val]) => {
+  //     if (val === null) { return }
+  //     filteredItems = filteredItems.filter(item => item[key] === val);
+  //   });
+  //   setFilteredItems(filteredItems)
+  // }, [sortedItems, filters])
 
   useEffect(() => {
     const itemsToSort = items?.map((item) => ({
@@ -132,7 +132,7 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
                         : null
                     }
                   </Box>
-                  {
+                  {/* {
                     col.showFilter && <Autocomplete
                       color="secondaryTextColor"
                       list={filterItems}
@@ -149,14 +149,14 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
                   }
                   {
                     hasOneColWithFilter && !col.showFilter && <Box w='full' cursor="default" h="40px">&nbsp;</Box>
-                  }
+                  } */}
                 </VStack>
               </Box>
             </ColHeader>
           )
         })}
       </Flex>
-      {filteredItems?.map((item, i) => (
+      {sortedItems?.map((item, i) => (
         <Flex
           key={item[keyName] || i}
           bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
@@ -178,7 +178,7 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
         </Flex>
       ))}
       {
-        !filteredItems.length > 0 && !!noDataMessage &&
+        !sortedItems.length > 0 && !!noDataMessage &&
         <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
       }
     </Stack>
