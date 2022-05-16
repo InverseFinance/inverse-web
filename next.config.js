@@ -57,6 +57,11 @@ const redirects = async () => {
       destination: '/blog/en-US',
       permanent: true,
     },
+    {
+      source: '/dola',
+      destination: '/blog/posts/en-US/dola-trustworthy-capital-efficient-stablecoin',
+      permanent: true,
+    },
   ]
 }
 
