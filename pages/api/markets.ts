@@ -185,11 +185,13 @@ export default async function handler(req, res) {
         exchangeRate,
         totalSupply,
         collateralFactor,
+        // collateralGuardianPaused,
       ] = await Promise.all([
         xINV.rewardPerBlock(),
         xINV.exchangeRateStored(),
         xINV.totalSupply(),
-        comptroller.markets(xINV.address),
+        comptroller.markets(xinvAddress),
+        // comptroller.collateralGuardianPaused(xinvAddress),
       ]);
 
       const ratePerBlock = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA)) /
@@ -200,6 +202,7 @@ export default async function handler(req, res) {
       markets.push({
         token: xINV.address,
         mintable: mintable,
+        // collateralGuardianPaused,
         underlying: TOKENS[INV],
         // no real autocompounding for inv as share decreases with supply
         supplyApy: toApr(ratePerBlock) || 0,
