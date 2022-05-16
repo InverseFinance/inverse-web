@@ -35,10 +35,10 @@ type Supporter = { address: string, inv: number, xinv: number, delegatedPower: n
 type DelegateVote = Proposal & { hasVoted: boolean, hasVotedFor: boolean, hasVotedWith: number }
 type DelegateEventItem = { blockNumber: number, txHash: string, delegator: string, fromDelegate: string, toDelegate: string, isNewSupport: boolean }
 
-const DelegateName = ({ delegate, delegator }: { delegate: string, delegator: string }) => {
+const DelegateName = ({ delegate, delegator, asLink = true }: { delegate: string, asLink?: boolean, delegator?: string }) => {
   const { addressName } = useNamedAddress(delegate);
   const label = delegate === BURN_ADDRESS ? 'Nobody' : delegate === delegator ? 'Self' : addressName
-  return delegate === BURN_ADDRESS ?
+  return delegate === BURN_ADDRESS || !asLink ?
     <Text>{label}</Text>
     :
     <Link textDecoration="underline" href={`/governance/delegates/${delegate}`}>
@@ -391,8 +391,7 @@ const DelegatesTable = () => {
       field: 'rank',
       label: 'Rank',
       header: ({ ...props }) => <Flex minWidth={64} {...props} />,
-      value: ({ address, ensName, rank }: Delegate, i: number) => {
-        const { addressName } = useNamedAddress(address, chainId, ensName);
+      value: ({ address, rank }: Delegate, i: number) => {
         return (
           (
             <Stack direction="row" align="center" spacing={4} minWidth={64}>
@@ -401,7 +400,7 @@ const DelegatesTable = () => {
               </Flex>
               <Stack direction="row" align="center">
                 <Avatar address={address} sizePx={24} />
-                <Flex>{addressName}</Flex>
+                <DelegateName delegate={address} asLink={false} />
               </Stack>
             </Stack>
           )
