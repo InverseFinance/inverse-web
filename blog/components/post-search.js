@@ -30,11 +30,12 @@ export default function PostSearch({ ...props }) {
             right="0"
             m="0"
             pr={{ base: '0', lg: '2' }}
+            justifyContent="center"
             {...props}
         >
             <InputGroup
                 left="0"
-                w='full'
+                w='95%'
                 bgColor="transparent"
             >
                 <InputLeftElement
@@ -44,7 +45,7 @@ export default function PostSearch({ ...props }) {
                 <Input
                     color="mainTextColor"
                     borderRadius="20px"
-                    w={isFocused ? { base: "100%", sm: '500px' } : { base: '100%', sm: '200px' }}
+                    w={isFocused ? { base: "100%", sm: '400px' } : { base: '100%', sm: '200px' }}
                     onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                     onClick={() => setIsFocused(!isFocused)}
                     type="search"
@@ -89,7 +90,7 @@ export default function PostSearch({ ...props }) {
                                     <BlogText fontWeight="bold" color="mainTextColor">
                                         {item.title}
                                     </BlogText>
-                                    <Excerpt excerpt={item.excerpt} content={item.content} url={url} charLimit={100} color={theme.colors.secondaryTextColor} />
+                                    <Excerpt asLink={false} excerpt={item.excerpt} content={item.content} url={url} charLimit={100} color={theme.colors.secondaryTextColor} />
                                     <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" color={theme.colors.secondaryTextColor} />
                                 </VStack>
                             </Link>
