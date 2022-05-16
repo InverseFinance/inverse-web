@@ -7,23 +7,18 @@ import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
-import { ORACLE_ABI } from '@app/config/abis';
+import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
 import { uniqueBy } from '@app/util/misc';
 
 const client = getRedisClient();
-
-const refundWhitelist = [
-  ...DRAFT_WHITELIST,
-  ...Object.keys(CUSTOM_NAMED_ADDRESSES),
-].map(a => a.toLowerCase());
 
 const topics = {
   "0xdcc16fd18a808d877bcd9a09b544844b36ae8f0a4b222e317d7b777b2c18b032": "Expansion",
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
-const formatResults = (data, type): RefundableTransaction[] => {
+const formatResults = (data, type, refundWhitelist): RefundableTransaction[] => {
   const { items, chain_id } = data;
   return items
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
@@ -68,6 +63,10 @@ export default async function handler(req, res) {
   const cacheKey = `refunds-v1.0.0`;
 
   try {
+    let refundWhitelist = [
+      ...DRAFT_WHITELIST,
+      ...Object.keys(CUSTOM_NAMED_ADDRESSES),
+    ];
 
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
@@ -83,6 +82,18 @@ export default async function handler(req, res) {
 
     const invOracle = await oracleContract.feeds(XINV);
 
+    const multisigOwners = await Promise.all([
+      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
+        const contract = new Contract(m.address, MULTISIG_ABI, provider);
+        return contract.getOwners()
+      })
+    ]);
+
+    multisigOwners.forEach(multisigOwners => {
+      refundWhitelist = refundWhitelist.concat(multisigOwners);
+    });
+    refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
+
     const [gov, multidelegator, gno, oracle, ...multisigsRes] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
@@ -95,16 +106,16 @@ export default async function handler(req, res) {
       ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, 100))
     ])
 
-    let totalItems = formatResults(gov.data, 'governance')
-      .concat(formatResults(multidelegator.data, 'multidelegator'))
-      .concat(formatResults(gno.data, 'gnosis'))
-      .concat(formatResults(oracle.data, 'oracle'))
+    let totalItems = formatResults(gov.data, 'governance', refundWhitelist)
+      .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
+      .concat(formatResults(gno.data, 'gnosisproxy', refundWhitelist))
+      .concat(formatResults(oracle.data, 'oracle', refundWhitelist))
 
     multisigsRes.forEach(r => {
-      totalItems = totalItems.concat(formatResults(r.data, 'multisig'))
+      totalItems = totalItems.concat(formatResults(r.data, 'multisig', refundWhitelist))
     })
     feds.forEach(r => {
-      totalItems = totalItems.concat(formatResults(r.data, 'fed'))
+      totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
     })
 
     totalItems = totalItems
