@@ -61,6 +61,7 @@ export default async function handler(req, res) {
       exchangeRates,
       borrowPaused,
       mintPaused,
+      // collateralGuardianPaused,
       oraclePrices,
       oracleFeeds,
       interestRateModels,
@@ -88,6 +89,11 @@ export default async function handler(req, res) {
           comptroller.mintGuardianPaused(contract.address)
         )
       ),
+      // Promise.all(
+      //   contracts.map((contract) =>
+      //     comptroller.collateralGuardianPaused(contract.address)
+      //   )
+      // ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
       Promise.all(addresses.map(address => oracle.feeds(address))),
       Promise.all(contracts.map(contract => contract.interestRateModel())),
@@ -153,6 +159,7 @@ export default async function handler(req, res) {
         rewardsPerMonth: rewardsPerMonth[i] || 0,
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
+        // collateralGuardianPaused: collateralGuardianPaused[i],
         priceUsd: prices[address],
         oraclePrice: prices[address],
         // if it's a fixedPrice case then the feed source is the Oracle contract itself
