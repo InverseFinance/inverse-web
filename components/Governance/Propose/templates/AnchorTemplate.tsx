@@ -3,7 +3,7 @@ import { FormControl, FormLabel, VStack } from '@chakra-ui/react'
 import { AddressAutocomplete } from '@app/components/common/Input/AddressAutocomplete'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { isAddress } from 'ethers/lib/utils'
-import { AutocompleteItem, NetworkIds  } from '@app/types'
+import { AutocompleteItem, NetworkIds } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { namedAddress } from '@app/util'
 
@@ -11,7 +11,7 @@ const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(NetworkIds.ma
 
 const anchorContractsList = Object.values(ANCHOR_TOKENS)
     .map(address => ({ value: address, label: namedAddress(address) }))
-    .concat([{ value: XINV, label: 'xINV' }, { value: XINV_V1, label: 'xINV-v1'  }])
+    .concat([{ value: XINV, label: 'xINV' }, { value: XINV_V1, label: 'xINV-v1' }])
 
 export const AnchorTemplate = ({
     defaultAddress = '',
@@ -31,14 +31,14 @@ export const AnchorTemplate = ({
         <VStack spacing="4">
             <FormControl>
                 <FormLabel>
-                    Anchor Market :
+                    Frontier Market :
                     {
                         defaultAddress && isAddress(defaultAddress) ?
                             <ScannerLink value={defaultAddress} shorten={true} /> : null
                     }
                 </FormLabel>
                 <AddressAutocomplete
-                    title="Available Anchor Markets : "
+                    title="Available Frontier Markets : "
                     list={anchorContractsList}
                     defaultValue={defaultAddress}
                     onItemSelect={handleAddressChange}

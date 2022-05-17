@@ -43,7 +43,7 @@ export const AnchorSupportMarketTemplate = ({
 
     return (
         <AnchorTemplate onMarketChange={onMarketChange}>
-            <InfoMessage description={`This will add the market in Anchor`} />
+            <InfoMessage description={`This will add the market in Frontier`} />
         </AnchorTemplate>
     )
 }

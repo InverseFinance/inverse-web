@@ -35,11 +35,11 @@ const templates = [
     { label: 'Payroll: Remove', value: ProposalTemplates.payrollRemove },
     { label: 'Vestor: Add', value: ProposalTemplates.vestorAdd },
     // anchor
-    { label: 'Anchor: Toggle Supply', value: ProposalTemplates.anchorLending },
-    { label: 'Anchor: Toggle Borrow', value: ProposalTemplates.anchorBorrowing },
-    { label: 'Anchor: Set Collateral Factor %', value: ProposalTemplates.anchorCollateralFactor },
-    { label: 'Anchor: Add support to a market', value: ProposalTemplates.anchorSupportMarket },
-    { label: 'Anchor: Set Oracle Feed', value: ProposalTemplates.anchorOracleFeed },
+    { label: 'Frontier: Toggle Supply', value: ProposalTemplates.anchorLending },
+    { label: 'Frontier: Toggle Borrow', value: ProposalTemplates.anchorBorrowing },
+    { label: 'Frontier: Set Collateral Factor %', value: ProposalTemplates.anchorCollateralFactor },
+    { label: 'Frontier: Add support to a market', value: ProposalTemplates.anchorSupportMarket },
+    { label: 'Frontier: Set Oracle Feed', value: ProposalTemplates.anchorOracleFeed },
 ]
 
 export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) => {

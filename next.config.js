@@ -39,12 +39,17 @@ const redirects = async () => {
     },
     {
       source: '/banking',
-      destination: '/anchor',
+      destination: '/frontier',
       permanent: true,
     },
     {
       source: '/stake',
-      destination: '/anchor',
+      destination: '/frontier',
+      permanent: true,
+    },
+    {
+      source: '/anchor',
+      destination: '/frontier',
       permanent: true,
     },
     {

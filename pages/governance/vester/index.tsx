@@ -201,8 +201,8 @@ export const VesterPage = () => {
                                   <Text>
                                     - <b>Current Vested Amount</b>:
                                   </Text>
-                                  <Link href={`/anchor?viewAddress=${vesterAddress}`} isExternal>
-                                    <AnimatedInfoTooltip message="View the Vester on Anchor">
+                                  <Link href={`/frontier?viewAddress=${vesterAddress}`} isExternal>
+                                    <AnimatedInfoTooltip message="View the Vester on Frontier">
                                       <Text fontWeight="extrabold" textDecoration="underline">
                                         {currentVestedAmount ? commify((currentVestedAmount).toFixed(2)) : ''} INV
                                         ({shortenNumber(currentVestedAmount * invPrice, 2, true)})
@@ -257,7 +257,7 @@ export const VesterPage = () => {
                                   </Text>
                                 </Flex>
                                 <Text textDecoration="underline" textAlign="center" fontSize="12px">
-                                  Reminder: Vested Tokens are already staked on Anchor and generating yield
+                                  Reminder: Vested Tokens are already staked on Frontier and generating yield
                                 </Text>
                               </VStack>
                             }

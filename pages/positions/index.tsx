@@ -19,7 +19,7 @@ export const PositionsPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Anchor</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Positions</title>
       </Head>
       <AppNav active="Positions" />
       <ErrorBoundary>

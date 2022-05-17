@@ -69,7 +69,7 @@ const ComptrollerHumanReadableActionLabel = ({
         const contractKnownToken = UNDERLYING[callDatas[0]];
         const amount = <Amount value={callDatas[1]} decimals={18} isPerc={true} />;
         text = <Flex display="inline-block">
-            Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Anchor Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
+            Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Frontier Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
         </Flex>
     }
 
@@ -97,12 +97,12 @@ const AnchorHumanReadableActionLabel = ({
     if (['_reduceReserves', '_addReserves'].includes(funName)) {
         const amount = <Amount value={callDatas[0]} decimals={contractKnownToken.decimals} />;
         text = <Flex display="inline-block">
-            <b>{funName === '_addReserves' ? 'Add' : 'Reduce'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Anchor Market</>} value={target} /> <b>Reserves</b> by {amount}
+            <b>{funName === '_addReserves' ? 'Add' : 'Reduce'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Frontier Market</>} value={target} /> <b>Reserves</b> by {amount}
         </Flex>
     } else if (funName === '_setReserveFactor') {
         const amount = <Amount value={callDatas[0]} decimals={18} isPerc={true} />;
         text = <Flex display="inline-block">
-            Set <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Anchor Market</>} value={target} /> <b>Reserve Factor</b> to {amount}
+            Set <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Frontier Market</>} value={target} /> <b>Reserve Factor</b> to {amount}
         </Flex>
     }
 

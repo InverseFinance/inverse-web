@@ -80,8 +80,8 @@ export const AnchorClaimModal = ({
                     {
                         notEnoughAllowance && <InfoMessage
                             alertProps={{ fontSize: '12px', w: 'full' }}
-                            title="Anchor's INV available Rewards too low"
-                            description="Claiming is temporarily unavailable at the moment as we need to replenish Anchor with INV tokens, please check the Governance page for more infos on the on-going process"
+                            title="Frontier's INV available Rewards too low"
+                            description="Claiming is temporarily unavailable at the moment as we need to replenish Frontier with INV tokens, please check the Governance page for more infos on the on-going process"
                         />
                     }
                 </VStack>

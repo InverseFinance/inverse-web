@@ -203,7 +203,7 @@ export const AnchorModal = ({
             description={
               <>
                 <Text>Hey <b>Viking</b>!</Text>
-                <b>The Floki token migrated</b>, some work needs to be done before Floki holders can use Anchor again.
+                <b>The Floki token migrated</b>, some work needs to be done before Floki holders can use Frontier again.
               </>
             } />
         }
