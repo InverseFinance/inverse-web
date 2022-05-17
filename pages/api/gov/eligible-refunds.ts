@@ -60,7 +60,9 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
 export default async function handler(req, res) {
 
   const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `refunds-v1.0.0`;
+  // UTC
+  const { startDate, endDate } = req.query;
+  const cacheKey = `refunds-v1.0.0-${startDate}-${endDate}`;
 
   try {
     let refundWhitelist = [
@@ -125,8 +127,18 @@ export default async function handler(req, res) {
       totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
     })
 
+    const [startYear, startMonth, startDay] = (startDate || '').split('-');
+    const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
+
+    const [endYear, endMonth, endDay] = (endDate || '').split('-');
+    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
+
     totalItems = totalItems
-      .filter(t => t.timestamp >= Date.UTC(2022, 4, 10) && t.successful);
+      .filter(t =>
+        t.successful
+        && t.timestamp >= startTimestamp
+        && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
+      );
 
     totalItems = uniqueBy(totalItems, (o1, o2) => o1.txHash === o2.txHash);
     totalItems.sort((a, b) => a.timestamp - b.timestamp);
