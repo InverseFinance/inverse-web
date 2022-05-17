@@ -250,6 +250,7 @@ copyAsYearnVault.forEach(s => {
     ...token,
     address: chainTokenAddresses["1"][`YV${s}`],
     symbol: `yv${token.symbol}`,
+    protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image
   }
 })
 
