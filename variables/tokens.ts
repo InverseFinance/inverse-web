@@ -41,6 +41,11 @@ const chainTokenAddresses = {
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
     MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+    // yearn vaults
+    YVDOLA3POOLCRV: '0xE0B1bf558fe5452A078B5D04fF0526801C56dE68',
+    YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
+    YVUSDC: '0xa354f35829ae975e850e23e9615b11da1b3dc4de',
+    YVDAI: '0xda816459f1ab5631232fe5e97a05bbbb94970c95',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -238,6 +243,16 @@ const chainTokens = {
 }
 chainTokens["31337"] = chainTokens["1"];
 
+const copyAsYearnVault = ['DOLA3POOLCRV', 'USDC', 'USDT', 'DAI'];
+copyAsYearnVault.forEach(s => {
+  const token = chainTokens["1"][chainTokenAddresses["1"][s]];
+  chainTokens["1"][chainTokenAddresses["1"][`YV${s}`]] = {
+    ...token,
+    address: chainTokenAddresses["1"][`YV${s}`],
+    symbol: `yv${token.symbol}`,
+  }
+})
+
 export const TOKENS: TokenList = {
   ...chainTokens[process.env.NEXT_PUBLIC_CHAIN_ID!],
   [process.env.NEXT_PUBLIC_REWARD_TOKEN!]: {
@@ -284,6 +299,11 @@ const chainUnderlying = {
     '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760': getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV),
     '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB': getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP),
     '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B': getToken(TOKENS, chainTokenAddresses["1"].FLOKI),
+    // yearn vaults
+    '0x3cFd8f5539550cAa56dC901f09C69AC9438E0722': getToken(TOKENS, chainTokenAddresses["1"].YVDOLA3POOLCRV),
+    '0xE0B1bf558fe5452A078B5D04fF0526801C56dE68': getToken(TOKENS, chainTokenAddresses["1"].YVUSDT),
+    '0x39445DEc9Ba7Fb3776E8E5f9922864ddb9089304': getToken(TOKENS, chainTokenAddresses["1"].YVUSDC),
+    '0xD79bCf0AD38E06BC0be56768939F57278C7c42f7': getToken(TOKENS, chainTokenAddresses["1"].YVDAI),
   }
 }
 chainUnderlying["31337"] = chainUnderlying["1"];
