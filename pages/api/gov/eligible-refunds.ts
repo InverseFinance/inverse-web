@@ -18,7 +18,7 @@ const topics = {
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
-const formatResults = (data, type, refundWhitelist): RefundableTransaction[] => {
+const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   const { items, chain_id } = data;
   return items
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
@@ -39,8 +39,8 @@ const formatResults = (data, type, refundWhitelist): RefundableTransaction[] => 
         block: item.block_height,
       }
     })
-    .filter(item => type === 'governance' ?
-      refundWhitelist.includes(item.from.toLowerCase()) || item.name !== 'VoteCast'
+    .filter(item => item.name === 'VoteCast' ?
+      voteCastWhitelist.includes(item.from.toLowerCase())
       :
       refundWhitelist.includes(item.from.toLowerCase())
     )
@@ -94,6 +94,13 @@ export default async function handler(req, res) {
     });
     refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
 
+    const delegates = JSON.parse(await client.get(`1-delegates`)).data;
+    const eligibleVoteCasters = Object.values(delegates)
+      .map(val => val)
+      .filter(del => {
+        return del.votingPower >= 500 && del.delegators.length > 2;
+      }).map(del => del.address.toLowerCase());
+
     const [gov, multidelegator, gno, oracle, ...multisigsRes] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
@@ -106,7 +113,7 @@ export default async function handler(req, res) {
       ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, 100))
     ])
 
-    let totalItems = formatResults(gov.data, 'governance', refundWhitelist)
+    let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
       .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
       .concat(formatResults(gno.data, 'gnosisproxy', refundWhitelist))
       .concat(formatResults(oracle.data, 'oracle', refundWhitelist))
