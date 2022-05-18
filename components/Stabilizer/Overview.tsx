@@ -37,7 +37,7 @@ export const StabilizerOverview = () => {
       description={
         <Stack spacing={4}>
           <Stack>
-            <Text fontWeight="bold">What is the Stabilizer?</Text>
+            <Text fontSize="14px" fontWeight="bold">What is the Stabilizer?</Text>
             <Text>
               The Stabilizer can be used by market participants as a source of liquidity for the <b>DAI-DOLA pair</b> to arbitrage away price
               differentials if DOLA moves away from a 1:1 peg against USD.
@@ -47,11 +47,11 @@ export const StabilizerOverview = () => {
             </Text>
           </Stack>
           <Stack>
-            <StabilizerOverviewField label="Swap Fee">
-              { buyFee === sellFee ? `${buyFee * 100}%` : `${buyFee * 100}% for buying and ${sellFee * 100}% for selling` }
+            <StabilizerOverviewField label="DOLA Buy Fee">
+              {buyFee * 100}% (1 DAI => {1-buyFee} DOLA)
             </StabilizerOverviewField>
-            <StabilizerOverviewField label="Rate">
-              { buyFee === sellFee ? `Fixed rate of ${1-buyFee}`: `Fixed rate of ${1-buyFee} for buying, ${1-sellFee} for selling` }
+            <StabilizerOverviewField label="DOLA Sell Fee">
+              {sellFee * 100}% (1 DOLA => {1-sellFee} DAI)
             </StabilizerOverviewField>
             <StabilizerOverviewField label="Dai Liquidity">
               {dollarify(balance || 0, 2)}

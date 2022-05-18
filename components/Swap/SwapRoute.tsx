@@ -37,10 +37,10 @@ export const SwapRoute = ({
                 <Badge
                     bgColor="secondary"
                     textTransform="none"
-                    fontSize="10px"
+                    fontSize="12px"
                     color="primary"
                     position="absolute"
-                    top="-1"
+                    top="-2"
                     right="-3"
                 >
                     Best{includeCostInBestRate ? ' Total ': ' '}Rate

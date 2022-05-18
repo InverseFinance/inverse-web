@@ -1,9 +1,10 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Stack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
 import { SwapView } from '@app/components/Swap'
 import Head from 'next/head';
+import { InfoMessage } from '@app/components/common/Messages';
 
 const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];
 type Params = { slug: string[] }
@@ -48,11 +49,26 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DAI, USDT, USDC, best rate" />
       </Head>
       <AppNav active="Swap" />
-      <Flex justify="center" direction="column">
-        <Flex w={{ base: 'full', xl: '2xl' }}>
-          <SwapView from={from} to={to} />
-        </Flex>
-        <Flex w={{ base: 'full', lg: '2xl' }} p={6}>
+      <Flex
+        maxW={{ base: 'full', lg: '650px', xl: 'none' }}
+        justify="center"
+        direction={{ base: 'column', xl: 'row' }}
+        mt='6'
+        alignItems="flex-start">
+        <SwapView from={from} to={to} />
+        <Flex minW={{ base: 'auto', xl: '354px' }} minH={{ base: 'auto', xl: '544px' }} direction="column" w={{ base: 'full', xl: '500px' }} p={{ base: '6', xl: '0' }} justifyContent="space-between">
+          <InfoMessage
+            alertProps={{ fontSize: '12px', mb: '8' }}
+            description={
+              <Stack>
+                <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
+                <Text mt="">
+                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum and Fantom,
+                  every single DOLA in circulation is backed by collateral worth a higher value making it what is called an over-collateralized stablecoin.
+                </Text>
+              </Stack>
+            }
+          />
           <StabilizerOverview />
         </Flex>
       </Flex>
