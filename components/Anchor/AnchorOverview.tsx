@@ -190,11 +190,11 @@ export const AnchorOverview = () => {
                 title="Your borrowing ability is currently paused"
                 description={
                   <>
-                    Paused Collaterals that you're using: <b>{accountMarkets.map(m => m.underlying.symbol).join(', ')}</b>
+                    Paused Collaterals that you're using: <b>{pausedCollaterals.map(m => m.underlying.symbol).join(', ')}</b>
                     <Text>To be able to borrow again, you need to deactivate the collateral option for those assets, be careful on the borrowing limit change if doing so.</Text>
                     {
                       (!!pausedCollaterals.find(m => m.underlying.symbol === RTOKEN_SYMBOL)) &&
-                      <Text>Regarding using <b>{RTOKEN_SYMBOL}</b> as collateral, you can just wait as the fix is coming soon.</Text>
+                      <Text>Regarding using <b>{RTOKEN_SYMBOL}</b> as collateral, you can just wait as the oracle fix is coming soon.</Text>
                     }
                   </>
                 }
