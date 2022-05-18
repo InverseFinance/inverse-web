@@ -6,7 +6,7 @@ import { CheckIcon, MinusIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Timestamp } from '../../common/BlockTimestamp/Timestamp';
 import { SubmitButton } from '../../common/Button';
 import Container from '../../common/Container';
@@ -183,6 +183,10 @@ export const EligibleRefunds = () => {
         setChosenEndDate(endDate);
     }
 
+    const isValidDateFormat = (date: string) => {
+        return /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date);
+    }
+
     return (
         <Container
             label="Potentially Eligible Transactions for Gas Refunds"
@@ -206,21 +210,21 @@ export const EligibleRefunds = () => {
                         <Stack
                             direction="row"
                             justifyContent="space-between"
-                            alignItems={{ base: 'flex-end', xl: 'center' }}>
+                            alignItems="center">
                             <HStack alignItems="center">
                                 <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
                                 <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
                             </HStack>
                             <HStack>
                                 <InputGroup>
-                                    <InputLeftElement children={<Text color="secondaryTextColor" pl="4">From:</Text>} />
-                                    <Input isInvalid={!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate)} p="0" value={startDate} placeholder="Start date UTC" onChange={(e) => setStartDate(e.target.value)} />
+                                    <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">From:</Text>} />
+                                    <Input fontSize="12px" isInvalid={!isValidDateFormat(startDate)} p="0" value={startDate} placeholder="Start date UTC" onChange={(e) => setStartDate(e.target.value)} />
                                 </InputGroup>
                                 <InputGroup>
-                                    <InputLeftElement children={<Text color="secondaryTextColor" pl="4">To:</Text>} />
-                                    <Input isInvalid={!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) && !!endDate} pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" p="0" value={endDate} placeholder="End date UTC" onChange={(e) => setEndDate(e.target.value)} />
+                                    <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">To:</Text>} />
+                                    <Input fontSize="12px" isInvalid={!isValidDateFormat(endDate) && !!endDate} pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" p="0" value={endDate} placeholder="End date UTC" onChange={(e) => setEndDate(e.target.value)} />
                                 </InputGroup>
-                                <SubmitButton maxW="30px" onClick={reloadData}>
+                                <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate)} maxW="30px" onClick={reloadData}>
                                     <RepeatClockIcon />
                                 </SubmitButton>
                             </HStack>
