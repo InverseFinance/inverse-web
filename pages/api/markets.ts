@@ -61,7 +61,7 @@ export default async function handler(req, res) {
       exchangeRates,
       borrowPaused,
       mintPaused,
-      // collateralGuardianPaused,
+      collateralGuardianPaused,
       oraclePrices,
       oracleFeeds,
       interestRateModels,
@@ -89,11 +89,11 @@ export default async function handler(req, res) {
           comptroller.mintGuardianPaused(contract.address)
         )
       ),
-      // Promise.all(
-      //   contracts.map((contract) =>
-      //     comptroller.collateralGuardianPaused(contract.address)
-      //   )
-      // ),
+      Promise.all(
+        contracts.map((contract) =>
+          comptroller.collateralGuardianPaused(contract.address)
+        )
+      ),
       Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
       Promise.all(addresses.map(address => oracle.feeds(address))),
       Promise.all(contracts.map(contract => contract.interestRateModel())),
@@ -159,7 +159,7 @@ export default async function handler(req, res) {
         rewardsPerMonth: rewardsPerMonth[i] || 0,
         borrowable: !borrowPaused[i],
         mintable: !mintPaused[i],
-        // collateralGuardianPaused: collateralGuardianPaused[i],
+        collateralGuardianPaused: collateralGuardianPaused[i],
         priceUsd: prices[address],
         oraclePrice: prices[address],
         // if it's a fixedPrice case then the feed source is the Oracle contract itself
@@ -185,13 +185,13 @@ export default async function handler(req, res) {
         exchangeRate,
         totalSupply,
         collateralFactor,
-        // collateralGuardianPaused,
+        collateralGuardianPaused,
       ] = await Promise.all([
         xINV.rewardPerBlock(),
         xINV.exchangeRateStored(),
         xINV.totalSupply(),
         comptroller.markets(xinvAddress),
-        // comptroller.collateralGuardianPaused(xinvAddress),
+        comptroller.collateralGuardianPaused(xinvAddress),
       ]);
 
       const ratePerBlock = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA)) /
@@ -202,7 +202,7 @@ export default async function handler(req, res) {
       markets.push({
         token: xINV.address,
         mintable: mintable,
-        // collateralGuardianPaused,
+        collateralGuardianPaused,
         underlying: TOKENS[INV],
         // no real autocompounding for inv as share decreases with supply
         supplyApy: toApr(ratePerBlock) || 0,
