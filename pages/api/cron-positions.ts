@@ -3,12 +3,14 @@ import { BigNumber, Contract } from "ethers";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { redisSetWithTimestamp, getRedisClient, getCacheFromRedis } from '@app/util/redis';
 import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
 import { StringNumMap } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
+
+const client = getRedisClient();
 
 const fillPositionsWithRetry = async (
     positions: [number, BigNumber, BigNumber, string, number][],
@@ -42,6 +44,9 @@ export default async function handler(req, res) {
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
     const cacheKey = `${networkConfig.chainId}-positions-v1.0.1`;
 
+    if (req.method !== 'POST') res.status(405).json({ success: false });
+    else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });  
+
     try {
         const {
             UNDERLYING,
@@ -52,12 +57,7 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 300);
-
-        if (validCache && !accounts) {
-            res.status(200).json(validCache);
-            return
-        }
+        const _resultData = pageOffset === '0' ? { positions: [] } : JSON.parse(await client.get('positions') || '{ "positions": [] }');
 
         const provider = getProvider(networkConfig.chainId, process.env.POSITIONS_ALCHEMY_API, true);
         const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
@@ -91,6 +91,8 @@ export default async function handler(req, res) {
 
         const usersSet = new Set();
         const balances = {};
+
+        // return res.status(200).json(holders)
 
         holders.forEach((res, i) => {
             res.data.items.forEach(anTokenHolder => {
@@ -207,7 +209,9 @@ export default async function handler(req, res) {
             }
         })
 
-        positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
+        const _positionDetails = _resultData.positions.concat(positionDetails);
+
+        _positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
 
         const resultData = {
             lastUpdate: Date.now(),
@@ -215,12 +219,12 @@ export default async function handler(req, res) {
             collateralFactors,
             markets: allMarkets,
             marketDecimals,
-            nbPositions: positionDetails.length,
-            positions: positionDetails,
+            nbPositions: _positionDetails.length,
+            positions: _positionDetails,
         };
 
         if (!accounts?.length) {
-            await redisSetWithTimestamp(cacheKey, resultData);
+            await client.set('positions', JSON.stringify(resultData));
         }
 
         res.status(200).json(resultData);
@@ -228,15 +232,15 @@ export default async function handler(req, res) {
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
-        try {
-            const cache = await getCacheFromRedis(cacheKey, false);
-            if (cache) {
-                console.log('Api call failed, returning last cache found');
-                res.status(200).json(cache);
-            }
-        } catch (e) {
-            console.error(e);
+        // try {
+        //     const cache = await getCacheFromRedis(cacheKey, false);
+        //     if (cache) {
+        //         console.log('Api call failed, returning last cache found');
+        //         res.status(200).json(cache);
+        //     }
+        // } catch (e) {
+        //     console.error(e);
             res.status(500).json({ error: true });
-        }
+        // }
     }
 };
