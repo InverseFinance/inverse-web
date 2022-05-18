@@ -69,7 +69,7 @@ export const GovernanceFlowChart = ({
 
   const links: FlowChartData[] = [
     {
-      label: '⚓ Frontier (Comptroller)',
+      label: 'Frontier (Comptroller)',
       id: comptroller,
       style: primaryStyle,
       targets: [
@@ -126,7 +126,7 @@ export const GovernanceFlowChart = ({
       deltaX: 700,
       style: blueStyle,
       targets: [
-        { label: "⚓ Frontier (Comptroller)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
+        { label: "Frontier (Comptroller)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
         { label: `⚖️ ${namedAddress(xinvAdmin)}`, id: xinvAdmin, linkLabel: 'xINV Admin', y: 0, x: 1200, style: primaryStyle },
         { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400, y: 800 },
         { label: 'xINV Escrow', id: xinvEscrow, linkLabel: 'xINV Escrow' },
