@@ -6,7 +6,7 @@ import { CheckIcon, MinusIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Timestamp } from '../../common/BlockTimestamp/Timestamp';
 import { SubmitButton } from '../../common/Button';
 import Container from '../../common/Container';
@@ -15,6 +15,15 @@ import ScannerLink from '../../common/ScannerLink';
 import { SkeletonBlob } from '../../common/Skeleton';
 import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
+
+const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
+    return <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => handleCheckTx(txHash)}>
+        <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
+        {
+            !refunded && <Checkbox value="true" isChecked={checked} />
+        }
+    </Flex>
+}
 
 export const EligibleRefunds = () => {
     const { account, library } = useWeb3React<Web3Provider>();
@@ -38,7 +47,7 @@ export const EligibleRefunds = () => {
     }, [hideAlreadyRefunded, eligibleTxs])
 
     useEffect(() => {
-        setEligibleTxs(items)
+        setEligibleTxs(items.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
     }, [items]);
 
     useEffect(() => {
@@ -46,13 +55,12 @@ export const EligibleRefunds = () => {
     }, [checkedTxs])
 
     const handleCheckTx = (txHash: string) => {
-        console.log('yo')
         if (checkedTxs.includes(txHash)) {
             setCheckedTxs(checkedTxs.filter(h => txHash !== h));
         } else {
             setCheckedTxs([...checkedTxs, txHash])
         }
-    }
+    }    
 
     const columns = [
         {
@@ -120,14 +128,6 @@ export const EligibleRefunds = () => {
             filterWidth: '200px',
             showFilter: true,
         },
-        // {
-        //     field: 'successful',
-        //     label: 'Tx Success?',
-        //     header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-        //     value: ({ successful }) => <Flex justify="center" minWidth={'80px'}>
-        //         {successful ? 'yes' : 'no'}
-        //     </Flex>,
-        // },
         {
             field: 'refunded',
             label: 'Refunded?',
@@ -148,12 +148,7 @@ export const EligibleRefunds = () => {
             field: 'checked',
             label: '#',
             header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-            value: ({ txHash, checked, refunded }) => <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => handleCheckTx(txHash)}>
-                <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
-                {
-                    !refunded && <Checkbox value="true" isChecked={checked} />
-                }
-            </Flex>
+            value: ({ txHash, checked, refunded }) => <TxCheckbox txHash={txHash} checked={checked} refunded={refunded} handleCheckTx={handleCheckTx} />
         },
     ];
 
