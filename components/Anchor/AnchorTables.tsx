@@ -29,10 +29,10 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
-  return amount &&
-    parseFloat(formatUnits(amount, decimals)) *
-    parseFloat(formatUnits(exRate)) >=
-    minWorthAccepted;
+  const bal = amount &&
+  parseFloat(formatUnits(amount, decimals)) *
+  parseFloat(formatUnits(exRate));
+  return bal >= minWorthAccepted;
 }
 
 const isHighlightCase = (highlightInv: boolean, highlightDola: boolean, marketAd: string, underlying: Token) => {
@@ -256,7 +256,7 @@ export const AnchorSupplied = () => {
     },
   ].filter(c => !!c);
 
-  if (!active || !usdSupplyCoingecko) {
+  if (!active || (!usdSupplyCoingecko && !accountMarkets.find(m => m.collateralGuardianPaused))) {
     return <></>
   }
 
@@ -278,17 +278,17 @@ export const AnchorSupplied = () => {
         defaultSortDir="desc"
         columns={columns}
         items={marketsWithBalance?.filter(
-          ({ token, underlying, mintable }: Market) =>
-            hasMinAmount(balances[token], underlying.decimals, exchangeRates[token])
+          ({ token, underlying, mintable, collateralGuardianPaused, isCollateral }: Market) =>
+            hasMinAmount(balances[token], underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral ? 0 : undefined)
             ||
             (
               token === XINV && !mintable &&
-              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token])
+              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral? 0 : undefined)
             )
             ||
             (
               token === XINV_V1 && !mintable &&
-              hasMinAmount(withdrawalAmount_v1, underlying.decimals, exchangeRates[token])
+              hasMinAmount(withdrawalAmount_v1, underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral ? 0 : undefined)
             )
         )}
         onClick={handleSupply}
