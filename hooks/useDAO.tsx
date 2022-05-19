@@ -144,8 +144,8 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
   }
 }
 
-export const useEligibleRefunds = (): SWR & { transactions: any[] } => {
-  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds`, fetcher)
+export const useEligibleRefunds = (startDate: string, endDate: string): SWR & { transactions: any[] } => {
+  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?startDate=${startDate}&endDate=${endDate}`, (r) => fetcher(r, undefined, 15000))
 
   return {
     transactions: data?.transactions || [],

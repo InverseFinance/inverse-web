@@ -7,7 +7,7 @@ import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
-import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
+import { MULTISIG_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
 import { uniqueBy } from '@app/util/misc';
 
@@ -18,7 +18,9 @@ const topics = {
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
-const formatResults = (data, type, refundWhitelist): RefundableTransaction[] => {
+const invOracleKeeper = '0xd14439b3a7245d8ea92e37b77347014ea7e4f809';
+
+const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   const { items, chain_id } = data;
   return items
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
@@ -32,15 +34,15 @@ const formatResults = (data, type, refundWhitelist): RefundableTransaction[] => 
         timestamp: Date.parse(item.block_signed_at),
         successful: item.successful,
         fees: formatEther(item.fees_paid),
-        name: !!decoded ? decoded.name : 'Unknown',
+        name: !!decoded ? decoded.name : item.to_address === invOracleKeeper ? 'Keep3rAction' : 'Unknown',
         chainId: chain_id,
         type,
         refunded: false,
         block: item.block_height,
       }
     })
-    .filter(item => type === 'governance' ?
-      refundWhitelist.includes(item.from.toLowerCase()) || item.name !== 'VoteCast'
+    .filter(item => item.name === 'VoteCast' ?
+      voteCastWhitelist.includes(item.from.toLowerCase())
       :
       refundWhitelist.includes(item.from.toLowerCase())
     )
@@ -59,8 +61,10 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
 
 export default async function handler(req, res) {
 
-  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `refunds-v1.0.0`;
+  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  // UTC
+  const { startDate, endDate } = req.query;
+  const cacheKey = `refunds-v1.0.2-${startDate}-${endDate}`;
 
   try {
     let refundWhitelist = [
@@ -70,17 +74,15 @@ export default async function handler(req, res) {
 
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
-
-    const validCache = await getCacheFromRedis(cacheKey, true, 10);
+    const now = new Date();
+    const todayUtc = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`;
+    const validCache = await getCacheFromRedis(cacheKey, true, todayUtc === endDate ? 2 : 60);
     if (validCache) {
       res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
       return
     }
 
     const provider = getProvider(NetworkIds.mainnet);
-    const oracleContract = new Contract(ORACLE, ORACLE_ABI, provider);
-
-    const invOracle = await oracleContract.feeds(XINV);
 
     const multisigOwners = await Promise.all([
       ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
@@ -94,11 +96,20 @@ export default async function handler(req, res) {
     });
     refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
 
+    const delegates = JSON.parse(await client.get(`1-delegates`)).data;
+    const eligibleVoteCasters = Object.values(delegates)
+      .map(val => val)
+      .filter(del => {
+        return del.votingPower >= 500 && del.delegators.length > 2;
+      }).map(del => del.address.toLowerCase());
+
     const [gov, multidelegator, gno, oracle, ...multisigsRes] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
+      // gnosis proxy, for creation
       getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
-      getTxsOf(invOracle),
+      // price feed update
+      getTxsOf(invOracleKeeper),
       ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 100))
     ])
 
@@ -106,7 +117,7 @@ export default async function handler(req, res) {
       ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, 100))
     ])
 
-    let totalItems = formatResults(gov.data, 'governance', refundWhitelist)
+    let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
       .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
       .concat(formatResults(gno.data, 'gnosisproxy', refundWhitelist))
       .concat(formatResults(oracle.data, 'oracle', refundWhitelist))
@@ -118,8 +129,18 @@ export default async function handler(req, res) {
       totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
     })
 
+    const [startYear, startMonth, startDay] = (startDate || '').split('-');
+    const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
+
+    const [endYear, endMonth, endDay] = (endDate || '').split('-');
+    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
+
     totalItems = totalItems
-      .filter(t => t.timestamp >= Date.UTC(2022, 4, 10) && t.successful);
+      .filter(t =>
+        t.successful
+        && t.timestamp >= startTimestamp
+        && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
+      );
 
     totalItems = uniqueBy(totalItems, (o1, o2) => o1.txHash === o2.txHash);
     totalItems.sort((a, b) => a.timestamp - b.timestamp);

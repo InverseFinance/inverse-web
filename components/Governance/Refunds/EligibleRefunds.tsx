@@ -1,8 +1,9 @@
+import { Input } from '@app/components/common/Input';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
-import { CheckIcon, MinusIcon } from '@chakra-ui/icons';
-import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack } from '@chakra-ui/react';
+import { CheckIcon, MinusIcon, RepeatClockIcon } from '@chakra-ui/icons';
+import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
@@ -15,9 +16,22 @@ import { SkeletonBlob } from '../../common/Skeleton';
 import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
 
+const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
+    // visually better, as table refresh can take XXXms
+    const [localCheck, setLocalCheck] = useState(checked);
+    return <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => {
+        setLocalCheck(!localCheck);
+        setTimeout(() => handleCheckTx(txHash), 200);
+    }}>
+        <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
+        {
+            !refunded && <Checkbox value="true" isChecked={localCheck}  />
+        }
+    </Flex>
+}
+
 export const EligibleRefunds = () => {
     const { account, library } = useWeb3React<Web3Provider>();
-    const { transactions: items, isLoading } = useEligibleRefunds();
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
     const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
@@ -25,14 +39,21 @@ export const EligibleRefunds = () => {
     const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
     const { isOpen, onClose, onOpen } = useDisclosure();
 
+    const now = new Date();
+    const [startDate, setStartDate] = useState('2022-05-10');
+    const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
+    const [chosenStartDate, setChosenStartDate] = useState(startDate);
+    const [chosenEndDate, setChosenEndDate] = useState(endDate);
+
+    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate);
+
     useEffect(() => {
         setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
     }, [hideAlreadyRefunded, eligibleTxs])
 
     useEffect(() => {
-        if (checkedTxs.length > 0 || eligibleTxs.length > 0) { return }
-        setEligibleTxs(items)
-    }, [items, checkedTxs, eligibleTxs]);
+        setEligibleTxs(items.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
+    }, [items]);
 
     useEffect(() => {
         setEligibleTxs(eligibleTxs.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
@@ -44,7 +65,7 @@ export const EligibleRefunds = () => {
         } else {
             setCheckedTxs([...checkedTxs, txHash])
         }
-    }
+    }    
 
     const columns = [
         {
@@ -112,14 +133,6 @@ export const EligibleRefunds = () => {
             filterWidth: '200px',
             showFilter: true,
         },
-        // {
-        //     field: 'successful',
-        //     label: 'Tx Success?',
-        //     header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-        //     value: ({ successful }) => <Flex justify="center" minWidth={'80px'}>
-        //         {successful ? 'yes' : 'no'}
-        //     </Flex>,
-        // },
         {
             field: 'refunded',
             label: 'Refunded?',
@@ -140,12 +153,7 @@ export const EligibleRefunds = () => {
             field: 'checked',
             label: '#',
             header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-            value: ({ txHash, checked, refunded }) => <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => handleCheckTx(txHash)}>
-                <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
-                {
-                    !refunded && <Checkbox value="true" isChecked={checked} />
-                }
-            </Flex>
+            value: ({ txHash, checked, refunded }) => <TxCheckbox txHash={txHash} checked={checked} refunded={refunded} handleCheckTx={handleCheckTx} />
         },
     ];
 
@@ -170,6 +178,15 @@ export const EligibleRefunds = () => {
         onClose();
     }
 
+    const reloadData = () => {
+        setChosenStartDate(startDate);
+        setChosenEndDate(endDate);
+    }
+
+    const isValidDateFormat = (date: string) => {
+        return /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date);
+    }
+
     return (
         <Container
             label="Potentially Eligible Transactions for Gas Refunds"
@@ -188,41 +205,36 @@ export const EligibleRefunds = () => {
                 isLoading ?
                     <SkeletonBlob />
                     :
-                    filteredTxs.length > 0 ?
-                        <VStack spacing="4" w='full' alignItems="space-between">
-                            <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} />
-                            <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems={{ base: 'flex-end', xl: 'center' }}>
-                                <HStack alignItems="center">
-                                    <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
-                                    <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
-                                </HStack>
-                                <HStack>
-                                    {/* <SubmitButton
+                    <VStack spacing="4" w='full' alignItems="space-between">
+                        <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} />
+                        <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center">
+                            <HStack alignItems="center">
+                                <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
+                                <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
+                            </HStack>
+                            <HStack>
+                                <InputGroup>
+                                    <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">From:</Text>} />
+                                    <Input fontSize="12px" isInvalid={!isValidDateFormat(startDate)} p="0" value={startDate} placeholder="Start date UTC" onChange={(e) => setStartDate(e.target.value)} />
+                                </InputGroup>
+                                <InputGroup>
+                                    <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">To:</Text>} />
+                                    <Input fontSize="12px" isInvalid={!isValidDateFormat(endDate) && !!endDate} pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" p="0" value={endDate} placeholder="End date UTC" onChange={(e) => setEndDate(e.target.value)} />
+                                </InputGroup>
+                                <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate)} maxW="30px" onClick={reloadData}>
+                                    <RepeatClockIcon />
+                                </SubmitButton>
+                            </HStack>
+                            <HStack>
+                                {/* <SubmitButton
                                         disabled={!checkedTxs.length || !account}
                                         w="240px"
                                         onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
                                         UNMARK AS REFUNDED
                                     </SubmitButton> */}
-                                    <SubmitButton
-                                        disabled={!checkedTxs.length || !account}
-                                        w="240px"
-                                        onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
-                                        Refund {checkedTxs.length} Txs
-                                    </SubmitButton>
-                                </HStack>
-                            </Stack>
-                            <Divider />
-                            <Table
-                                columns={columns}
-                                items={filteredTxs}
-                                keyName={'txHash'}
-                                defaultSort="timestamp"
-                                defaultSortDir="desc"
-                            />
-                            <HStack w='full' justifyContent="flex-end">
                                 <SubmitButton
                                     disabled={!checkedTxs.length || !account}
                                     w="240px"
@@ -230,9 +242,24 @@ export const EligibleRefunds = () => {
                                     Refund {checkedTxs.length} Txs
                                 </SubmitButton>
                             </HStack>
-                        </VStack>
-                        :
-                        <Text>No Result</Text>
+                        </Stack>
+                        <Divider />
+                        <Table
+                            columns={columns}
+                            items={filteredTxs}
+                            keyName={'txHash'}
+                            defaultSort="timestamp"
+                            defaultSortDir="desc"
+                        />
+                        <HStack w='full' justifyContent="flex-end">
+                            <SubmitButton
+                                disabled={!checkedTxs.length || !account}
+                                w="240px"
+                                onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
+                                Refund {checkedTxs.length} Txs
+                            </SubmitButton>
+                        </HStack>
+                    </VStack>
             }
         </Container>
     )
