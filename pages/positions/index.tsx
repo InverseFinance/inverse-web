@@ -32,7 +32,7 @@ export const PositionsPage = () => {
             </Stack>
           </Container>
           <Container
-            label={`${accounts ? shortenAddress(accounts)+"'s Positions" : 'Shortfalling Positions'} - ${!lastUpdate ? 'Updating...' : 'Last update '+moment(lastUpdate).fromNow()}`}
+            label={`${accounts ? shortenAddress(accounts)+"'s Positions" : 'Shortfalling Positions'} - ${!lastUpdate ? 'Loading...' : 'Last update '+moment(lastUpdate).fromNow()}`}
           >
             <PositionsTable collateralFactors={collateralFactors} markets={markets} prices={prices} positions={positions} />
           </Container>
