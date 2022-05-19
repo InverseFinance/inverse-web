@@ -41,7 +41,7 @@ export const getPositionsDetails = async ({
     pageOffset,
 }: {
     marketsData?: {
-        exRates: number[], marketDecimals: number[], collateralFactors: number[], prices: number[], balances: string[], uniqueUsers: string[], borrowPaused: boolean[]
+        lastUpdate: number, exRates: number[], marketDecimals: number[], collateralFactors: number[], prices: number[], balances: string[], uniqueUsers: string[], borrowPaused: boolean[]
     }
     isFirstBatch: boolean
     accounts: string[]
@@ -65,7 +65,7 @@ export const getPositionsDetails = async ({
     const contracts = allMarkets
         .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
-    let exRates, marketDecimals, collateralFactors, prices, balances, uniqueUsers, borrowPaused;
+    let exRates, marketDecimals, collateralFactors, prices, balances, uniqueUsers, borrowPaused, lastUpdate;
 
     if (isFirstBatch || !marketsData) {
         const [
@@ -118,7 +118,9 @@ export const getPositionsDetails = async ({
         });
 
         uniqueUsers = Array.from(usersSet);
+        lastUpdate = Date.now();
     } else {
+        lastUpdate = marketsData.lastUpdate;
         exRates = marketsData.exRates;
         marketDecimals = marketsData.marketDecimals;
         collateralFactors = marketsData.collateralFactors;
@@ -224,6 +226,16 @@ export const getPositionsDetails = async ({
 
     return {
         positionDetails: positionDetails,
-        meta: { exRates, marketDecimals, collateralFactors, prices, balances, uniqueUsers, borrowPaused },
+        meta: {
+            exRates,
+            lastUpdate,
+            marketDecimals,
+            collateralFactors,
+            prices,
+            balances,
+            uniqueUsers,
+            borrowPaused,
+            markets: allMarkets,
+        },
     }
 }

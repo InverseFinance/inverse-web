@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     const { accounts = '' } = req.query;
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-    const cacheKey = `${networkConfig.chainId}-positions-v1.0.1`;
+    const cacheKey = `${networkConfig.chainId}-positions-v1.1.0`;
 
     try {
         const validCache = await getCacheFromRedis(cacheKey, true, 60);
