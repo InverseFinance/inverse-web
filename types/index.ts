@@ -46,6 +46,7 @@ export type Market = {
   totalReserves: number
   supplied: number
   borrowable: boolean
+  collateralGuardianPaused: boolean
   mintable: boolean
   priceUsd: number
   oraclePrice: number

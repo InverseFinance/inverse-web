@@ -18,6 +18,7 @@ export const COMPTROLLER_ABI = [
   "function markets(address) external view returns (bool, uint256, bool)",
   "function borrowGuardianPaused(address) external view returns (bool)",
   "function mintGuardianPaused(address) external view returns (bool)",
+  "function collateralGuardianPaused(address) external view returns (bool)",
   "function pauseGuardian() public view returns (address)",
   "function admin() public view returns (address)",
   "function liquidationIncentiveMantissa() public view returns (uint256)",

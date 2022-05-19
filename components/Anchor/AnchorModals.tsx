@@ -369,7 +369,7 @@ export const AnchorCollateralModal = ({
                 }
               />
               :
-              <SubmitButton onClick={handleConfirm} refreshOnSuccess={true} onSuccess={() => onClose()}>
+              <SubmitButton disabled={asset.collateralGuardianPaused && !asset.isCollateral} onClick={handleConfirm} refreshOnSuccess={true} onSuccess={() => onClose()}>
                 {actionName} {asset.underlying.symbol} as Collateral
               </SubmitButton>
           }
@@ -378,18 +378,25 @@ export const AnchorCollateralModal = ({
     >
       <Stack p={4} w="full" spacing={4}>
         {
-          !preventDisabling && <StatusMessage
-            alertProps={{ fontSize: '12px', w: 'full' }}
-            status={status}
-            title={`${actionName} your supplied ${asset.underlying.symbol} as Collaterals ?`}
-            description={<>
-              {
-                usdBorrow > 0 || asset.isCollateral ? `This will ${consequence} your borrowing capacity`
-                  : 'This will allow you to borrow assets against your collaterals'
-              }
-              <Text>See changes in Borrow Limit Stats below</Text>
-            </>}
-          />
+          !preventDisabling ?
+            !asset.isCollateral && asset.collateralGuardianPaused ?
+              <WarningMessage alertProps={{ fontSize: '12px', w: 'full' }}
+                description={`${asset.underlying.symbol} cannot be used as a collateral at the moment`}
+              />
+              :
+              <StatusMessage
+                alertProps={{ fontSize: '12px', w: 'full' }}
+                status={status}
+                title={`${actionName} your supplied ${asset.underlying.symbol} as Collaterals ?`}
+                description={<>
+                  {
+                    usdBorrow > 0 || asset.isCollateral ? `This will ${consequence} your borrowing capacity`
+                      : 'This will allow you to borrow assets against your collaterals'
+                  }
+                  <Text>See changes in Borrow Limit Stats below</Text>
+                </>}
+              />
+            : null
         }
 
         <AnchorStats

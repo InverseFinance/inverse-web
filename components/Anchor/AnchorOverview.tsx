@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Badge, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, Text, Badge, useDisclosure, VStack, Box } from '@chakra-ui/react'
 import { StyledButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
@@ -16,10 +16,11 @@ import { usePrices } from '@app/hooks/usePrices'
 import { AnchorClaimModal } from './AnchorClaimModal'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { PositionSlideWrapper } from '@app/components/Positions/PositionSlideWrapper'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { useState } from 'react'
+import { InfoMessage, WarningMessage } from '../common/Messages'
 
 export const AnchorOverview = () => {
   const { account } = useWeb3React<Web3Provider>()
@@ -47,6 +48,8 @@ export const AnchorOverview = () => {
   let health
 
   const hasCollaterals = accountMarkets.length > 0;
+  const pausedCollaterals = accountMarkets.filter(m => m.collateralGuardianPaused);
+
 
   if (!hasCollaterals) {
     badgeColorScheme = 'gray'
@@ -76,7 +79,7 @@ export const AnchorOverview = () => {
   }, [isDetailsOpen], !isDetailsOpen, 500, 0)
 
   return (
-    <>
+    <VStack w='full'>
       {
         (isDetailsOpen || (!isDetailsOpen && !isDetailsSlidedDown)) && <PositionSlideWrapper isOpen={isDetailsOpen} onClose={() => onDetailsClose()} />
       }
@@ -167,6 +170,38 @@ export const AnchorOverview = () => {
         </Flex>
         <AnchorClaimModal rewardAmount={rewardAmount} isOpen={isOpen} onClose={onClose} />
       </Container>
-    </>
+      {
+        pausedCollaterals?.length > 0 &&
+        <Box px="6" w='full'>
+          {
+            pausedCollaterals.length === 1 && pausedCollaterals[0].underlying.symbol === RTOKEN_SYMBOL ?
+              <InfoMessage
+                alertProps={{ w: 'full' }}
+                title="Your borrowing ability is paused at the moment"
+                description={
+                  <>
+                    <Text>Borrowing by using <b>{RTOKEN_SYMBOL}</b> as a collateral is paused for now but will be soon available again.</Text>
+                  </>
+                }
+              />
+              :
+              <WarningMessage
+                alertProps={{ w: 'full' }}
+                title="Your borrowing ability is currently paused"
+                description={
+                  <>
+                    Paused Collaterals that you're using: <b>{pausedCollaterals.map(m => m.underlying.symbol).join(', ')}</b>
+                    <Text>To be able to borrow again, you need to deactivate the collateral option for those assets, be careful on the borrowing limit change if doing so.</Text>
+                    {
+                      (!!pausedCollaterals.find(m => m.underlying.symbol === RTOKEN_SYMBOL)) &&
+                      <Text>Regarding using <b>{RTOKEN_SYMBOL}</b> as collateral, you can just wait as the oracle fix is coming soon.</Text>
+                    }
+                  </>
+                }
+              />
+          }
+        </Box>
+      }
+    </VStack>
   )
 }
