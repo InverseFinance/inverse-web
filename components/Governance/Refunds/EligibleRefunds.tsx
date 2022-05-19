@@ -17,10 +17,15 @@ import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
 
 const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
-    return <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => handleCheckTx(txHash)}>
+    // visually better, as table refresh can take XXXms
+    const [localCheck, setLocalCheck] = useState(checked);
+    return <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => {
+        setLocalCheck(!localCheck);
+        setTimeout(() => handleCheckTx(txHash), 200);
+    }}>
         <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
         {
-            !refunded && <Checkbox value="true" isChecked={checked} />
+            !refunded && <Checkbox value="true" isChecked={localCheck}  />
         }
     </Flex>
 }
