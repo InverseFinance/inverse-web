@@ -3,11 +3,10 @@ import { BigNumber, Contract } from "ethers";
 import "source-map-support";
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
-import { redisSetWithTimestamp, getRedisClient, getCacheFromRedis } from '@app/util/redis';
+import { getRedisClient } from '@app/util/redis';
 import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
-import { StringNumMap } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
 
 const client = getRedisClient();
@@ -42,10 +41,9 @@ export default async function handler(req, res) {
     const { accounts = '', pageSize = 2000, pageOffset = 0 } = req.query;
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-    const cacheKey = `${networkConfig.chainId}-positions-v1.0.1`;
 
     if (req.method !== 'POST') res.status(405).json({ success: false });
-    else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });  
+    else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
 
     try {
         const {
@@ -57,77 +55,94 @@ export default async function handler(req, res) {
             ANCHOR_CHAIN_COIN,
         } = getNetworkConfigConstants(networkConfig);
 
-        const _resultData = pageOffset === '0' ? { positions: [] } : JSON.parse(await client.get('positions') || '{ "positions": [] }');
+        const isFirstBatch = pageOffset === '0';
+        const _resultData = isFirstBatch ? { positions: [] } : JSON.parse(await client.get('positions') || '{ "positions": [] }');
+        const _resultMeta = isFirstBatch ? undefined : JSON.parse(await client.get('positions-meta') || '{}');
 
         const provider = getProvider(networkConfig.chainId, process.env.POSITIONS_ALCHEMY_API, true);
         const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
         const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
-        const allMarkets: string[] = [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
+        const allMarkets: string[] = _resultMeta?.allMarkets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
 
         const contracts = allMarkets
             .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
-        const [
-            underlyings,
-            exRates,
-            oraclePrices,
-            borrowPaused,
-            marketsDetails,
-        ] = await Promise.all([
-            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
-            Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
-            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
-            Promise.all(
-                contracts.map((contract) =>
-                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
-                )
-            ),
-            Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
-        ])
+        let exRates, marketDecimals, collateralFactors, prices, balances, uniqueUsers, borrowPaused;
 
-        const holders = await Promise.all(
-            contracts.map(contract => getTokenHolders(contract.address))
-        )
+        if (isFirstBatch) {
+            const [
+                underlyings,
+                bnExRates,
+                oraclePrices,
+                borrowPausedData,
+                marketsDetails,
+            ] = await Promise.all([
+                Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
+                Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
+                Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
+                Promise.all(
+                    contracts.map((contract) =>
+                        [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
+                    )
+                ),
+                Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
+            ])
+            borrowPaused= borrowPausedData;
 
-        const usersSet = new Set();
-        const balances = {};
+            exRates = bnExRates.map(v => getBnToNumber(v));
 
-        // return res.status(200).json(holders)
+            marketDecimals = await Promise.all(
+                underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
+            )
 
-        holders.forEach((res, i) => {
-            res.data.items.forEach(anTokenHolder => {
-                usersSet.add(anTokenHolder.address);
-                if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
-                balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
+            marketDecimals = marketDecimals.map(v => parseInt(v));
+
+            collateralFactors = marketsDetails.map(m => parseFloat(formatUnits(m[1])));
+
+            prices = oraclePrices
+                .map((v, i) => {
+                    return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
+                })
+
+            const holders = await Promise.all(
+                contracts.map(contract => getTokenHolders(contract.address))
+            )
+
+            const usersSet = new Set();
+            balances = {};
+
+            holders.forEach((res, i) => {
+                res.data.items.forEach(anTokenHolder => {
+                    usersSet.add(anTokenHolder.address);
+                    if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
+                    balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
+                });
             });
-        });
 
-        let uniqueUsers = Array.from(usersSet);
+            uniqueUsers = Array.from(usersSet);
+        } else {
+            exRates = _resultMeta.exRates;
+            marketDecimals = _resultMeta.marketDecimals;
+            collateralFactors = _resultMeta.collateralFactors;
+            prices = _resultMeta.prices;
+            balances = _resultMeta.balances;
+            uniqueUsers = _resultMeta.uniqueUsers;
+            borrowPaused = _resultMeta.borrowPaused;
+        }
+
+        let batchUsers;
 
         if (accounts?.length) {
             const filterAccounts = accounts ? accounts.replace(/\s+/g, '').split(',') : [];
-            uniqueUsers = uniqueUsers.filter(ad => filterAccounts.map(a => a.toLowerCase()).includes(ad.toLowerCase()));
+            batchUsers = uniqueUsers.filter(ad => filterAccounts.map(a => a.toLowerCase()).includes(ad.toLowerCase()));
         } else {
-            uniqueUsers = uniqueUsers.slice(pageOffset, pageOffset + pageSize - 1);
+            batchUsers = uniqueUsers.slice(pageOffset, pageOffset + pageSize - 1);
         }
 
-        const positions = uniqueUsers.map((account, i) => [1, BigNumber.from('0'), BigNumber.from('0'), account, i]);
+        const positions = batchUsers.map((account, i) => [1, BigNumber.from('0'), BigNumber.from('0'), account, i]);
         await fillPositionsWithRetry(positions, comptroller, 4, 0);
 
-        let marketDecimals: number[] = await Promise.all(
-            underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
-        )
-
-        marketDecimals = marketDecimals.map(v => parseInt(v));
-
-        const collateralFactors = marketsDetails.map(m => parseFloat(formatUnits(m[1])));
-
-        const prices: StringNumMap = oraclePrices
-            .map((v, i) => {
-                return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
-            })
-
-        let shortfallAccounts = uniqueUsers.map((account, i) => {
+        let shortfallAccounts = batchUsers.map((account, i) => {
             const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i];
             return {
                 account,
@@ -189,7 +204,7 @@ export default async function handler(req, res) {
             const supplied = assetsInMarketIndexes.map((marketIndex, j) => {
                 const marketAd = allMarkets[marketIndex].toLowerCase();
                 const anBalance = parseFloat(formatUnits(balances[account][marketAd] || 0, marketDecimals[marketIndex]));
-                const exRate = getBnToNumber(exRates[marketIndex]);
+                const exRate = exRates[marketIndex];
                 const tokenBalance = anBalance * exRate;
 
                 return {
@@ -213,21 +228,23 @@ export default async function handler(req, res) {
 
         _positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
 
-        const resultData = {
-            lastUpdate: Date.now(),
-            prices,
-            collateralFactors,
-            markets: allMarkets,
-            marketDecimals,
-            nbPositions: _positionDetails.length,
-            positions: _positionDetails,
-        };
-
         if (!accounts?.length) {
-            await client.set('positions', JSON.stringify(resultData));
+            await client.set('positions-meta', JSON.stringify({
+                lastUpdate: Date.now(),
+                prices,
+                collateralFactors,
+                markets: allMarkets,
+                marketDecimals,
+                uniqueUsers,
+                exRates,
+                balances,
+                borrowPaused,
+                nbPositions: _positionDetails.length,
+            }));
+            await client.set('positions', JSON.stringify({ positions: _positionDetails }));
         }
 
-        res.status(200).json(resultData);
+        res.status(200).json({ success: true });
 
     } catch (err) {
         console.error(err);
@@ -240,7 +257,7 @@ export default async function handler(req, res) {
         //     }
         // } catch (e) {
         //     console.error(e);
-            res.status(500).json({ error: true });
+        res.status(500).json({ error: true });
         // }
     }
 };
