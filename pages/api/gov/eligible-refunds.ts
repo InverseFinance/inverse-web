@@ -74,8 +74,9 @@ export default async function handler(req, res) {
 
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
-
-    const validCache = await getCacheFromRedis(cacheKey, true, 10);
+    const now = new Date();
+    const todayUtc = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`;
+    const validCache = await getCacheFromRedis(cacheKey, true, todayUtc === endDate ? 2 : 60);
     if (validCache) {
       res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
       return
