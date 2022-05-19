@@ -1,7 +1,7 @@
-name: 10-minute-cron
+name: 12-h-cron
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '* */12 * * *'
 jobs:
   cron:
     runs-on: ubuntu-latest
