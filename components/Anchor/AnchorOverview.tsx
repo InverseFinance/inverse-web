@@ -50,7 +50,6 @@ export const AnchorOverview = () => {
   const hasCollaterals = accountMarkets.length > 0;
   const pausedCollaterals = accountMarkets.filter(m => m.collateralGuardianPaused);
 
-
   if (!hasCollaterals) {
     badgeColorScheme = 'gray'
     health = 'NO COLLATERAL'

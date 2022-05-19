@@ -135,6 +135,8 @@ export const AnchorModal = ({
 
   const isSupply = [AnchorOperations.supply, AnchorOperations.withdraw].includes(operation);
   const flokiSupplyDisabled = operation === AnchorOperations.supply && asset.underlying.symbol === 'FLOKI';
+  const pausedCollaterals = accountMarkets.filter(m => m.collateralGuardianPaused);
+  const isUserBorrowAbilityPaused = pausedCollaterals?.length > 0 && operation === AnchorOperations.borrow;
 
   return (
     <Modal
@@ -173,6 +175,9 @@ export const AnchorModal = ({
             />
           }
           {
+            isUserBorrowAbilityPaused && <WarningMessage alertProps={{ fontSize: '12px' }} description={`Borrowing ability paused because you are using paused collaterals: ${pausedCollaterals?.map(m => m.underlying.symbol).join(', ')}`} />
+          }
+          {
             (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && operation === AnchorOperations.withdraw ?
               <InfoMessage
                 alertProps={{ w: 'full', fontSize: '12px' }}
@@ -184,7 +189,7 @@ export const AnchorModal = ({
                 asset={asset}
                 amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
                 needWithdrawWarning={needWithdrawWarning}
-                isDisabled={flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
+                isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
               />
           }
         </Box>
