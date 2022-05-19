@@ -17,7 +17,7 @@ import { getBnToNumber, toApr, toApy } from '@app/util/markets';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.9`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.91`;
 
   try {
     const {
