@@ -7,7 +7,7 @@ import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
-import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
+import { MULTISIG_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
 import { uniqueBy } from '@app/util/misc';
 
@@ -17,6 +17,8 @@ const topics = {
   "0xdcc16fd18a808d877bcd9a09b544844b36ae8f0a4b222e317d7b777b2c18b032": "Expansion",
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
+
+const invOracleKeeper = '0xd14439b3a7245d8ea92e37b77347014ea7e4f809';
 
 const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   const { items, chain_id } = data;
@@ -32,7 +34,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
         timestamp: Date.parse(item.block_signed_at),
         successful: item.successful,
         fees: formatEther(item.fees_paid),
-        name: !!decoded ? decoded.name : 'Unknown',
+        name: !!decoded ? decoded.name : item.to_address === invOracleKeeper ? 'Keep3rAction' : 'Unknown',
         chainId: chain_id,
         type,
         refunded: false,
@@ -59,10 +61,10 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
 
 export default async function handler(req, res) {
 
-  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
   const { startDate, endDate } = req.query;
-  const cacheKey = `refunds-v1.0.0-${startDate}-${endDate}`;
+  const cacheKey = `refunds-v1.0.2-${startDate}-${endDate}`;
 
   try {
     let refundWhitelist = [
@@ -80,9 +82,6 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(NetworkIds.mainnet);
-    const oracleContract = new Contract(ORACLE, ORACLE_ABI, provider);
-
-    const invOracle = await oracleContract.feeds(XINV);
 
     const multisigOwners = await Promise.all([
       ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
@@ -106,8 +105,10 @@ export default async function handler(req, res) {
     const [gov, multidelegator, gno, oracle, ...multisigsRes] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
+      // gnosis proxy, for creation
       getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
-      getTxsOf(invOracle),
+      // price feed update
+      getTxsOf(invOracleKeeper),
       ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 100))
     ])
 
