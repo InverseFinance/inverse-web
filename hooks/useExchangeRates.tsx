@@ -38,7 +38,7 @@ export const useExchangeRatesV2 = (): SWR & ExchangeRates => {
   const isLoading = !storedRates || !simData;
   const freshRates: { [key:string]: BigNumber } = {};
 
-  if(!isLoading) {
+  if(!isLoading && !!simData?.exRates) {
     const { exRates: simExRates } = simData;
     Object.keys(storedRates).map(ctoken => {
       const stored = getBnToNumber(storedRates[ctoken]);

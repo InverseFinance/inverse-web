@@ -21,7 +21,7 @@ import { useGovernanceNotifs } from '@app/hooks/useProposals'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
-  [ProposalStatus.canceled]: 'black',
+  [ProposalStatus.canceled]: 'orange',
   [ProposalStatus.defeated]: 'red',
   [ProposalStatus.succeeded]: 'green',
   [ProposalStatus.pending]: 'gray',
