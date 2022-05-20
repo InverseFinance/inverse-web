@@ -1,8 +1,9 @@
 import { Input } from '@app/components/common/Input';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
+import { addTxToRefund } from '@app/util/governance';
 import { shortenNumber } from '@app/util/markets';
-import { CheckIcon, MinusIcon, RepeatClockIcon } from '@chakra-ui/icons';
+import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
@@ -44,8 +45,9 @@ export const EligibleRefunds = () => {
     const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
+    const [reloadIndex, setReloadIndex] = useState(0);
 
-    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate);
+    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
 
     useEffect(() => {
         setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
@@ -53,11 +55,7 @@ export const EligibleRefunds = () => {
 
     useEffect(() => {
         setEligibleTxs(items.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
-    }, [items]);
-
-    useEffect(() => {
-        setEligibleTxs(eligibleTxs.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
-    }, [checkedTxs])
+    }, [items, checkedTxs]);
 
     const handleCheckTx = (txHash: string) => {
         if (checkedTxs.includes(txHash)) {
@@ -181,16 +179,23 @@ export const EligibleRefunds = () => {
     const reloadData = () => {
         setChosenStartDate(startDate);
         setChosenEndDate(endDate);
+        setReloadIndex(reloadIndex + 1);
     }
 
     const isValidDateFormat = (date: string) => {
         return /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date);
     }
 
+    const addTx = () => {
+        const txHash = window.prompt('Tx hash to add');
+        if(!txHash) { return }
+        return addTxToRefund(txHash, () => reloadData());
+    }
+
     return (
         <Container
             label="Potentially Eligible Transactions for Gas Refunds"
-            description="Taken into consideration: GovMills txs (VoteCasting: only for delegates) and Multisig txs"
+            description="Taken into consideration: GovMills txs, Multisig txs, Delegations, Fed actions, Inv oracle txs"
             noPadding
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             collapsable={true}
@@ -226,6 +231,9 @@ export const EligibleRefunds = () => {
                                 </InputGroup>
                                 <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate)} maxW="30px" onClick={reloadData}>
                                     <RepeatClockIcon />
+                                </SubmitButton>
+                                <SubmitButton maxW="30px" onClick={addTx}>
+                                    <PlusSquareIcon />
                                 </SubmitButton>
                             </HStack>
                             <HStack>
