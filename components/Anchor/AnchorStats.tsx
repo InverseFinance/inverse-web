@@ -233,6 +233,13 @@ const BorrowLimit = ({ asset, amount }: AnchorStatBlockProps) => {
   const before = (borrowable !== 0 ? (usdBorrow / borrowable) * 100 : 0).toFixed(2)
 
   const stats = [
+    {
+      label: "Can be used as Collateral?",
+      value: asset.collateralGuardianPaused ? 'No' : 'Yes',
+      tooltipMsg: asset.collateralGuardianPaused ?
+        'At the moment tokens supplied in this market cannot be used as collaterals to borrow'
+        : "Some markets don't allow their tokens to be used as collaterals for borrowing",
+    },
     getCollateralFactor(asset),
     {
       label: 'Borrow Limit',
