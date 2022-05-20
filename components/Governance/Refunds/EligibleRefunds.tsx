@@ -40,7 +40,7 @@ export const EligibleRefunds = () => {
     const { isOpen, onClose, onOpen } = useDisclosure();
 
     const now = new Date();
-    const [startDate, setStartDate] = useState('2022-05-10');
+    const [startDate, setStartDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`);
     const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
