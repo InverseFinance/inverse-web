@@ -153,7 +153,7 @@ export const PositionsTable = ({
     })
 
     return <>
-        <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} needFresh={false} />
+        <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} needFresh={true} />
         <Table
             keyName="account"
             defaultSort={defaultSort}
