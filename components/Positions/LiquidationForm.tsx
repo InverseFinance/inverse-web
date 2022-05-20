@@ -126,7 +126,7 @@ export const LiquidationForm = ({
                     {...borrowAssetInputProps}
                 />
                 <Text fontSize="12px">
-                    Your balance: {formattedInfo(liquidatorRepayTokenBal, borrowedDetails.usdPrice)}, the borrowed amount: {formattedInfo(borrowedDetails.balance, borrowedDetails.usdPrice)}
+                    Your balance: {formattedInfo(liquidatorRepayTokenBal, borrowedDetails.usdPrice)}, the borrowed amount: {formattedInfo(borrowedDetails.balance, borrowedDetails.usdPrice)}, you repay {formattedInfo(repayAmount, borrowedDetails.usdPrice)}
                 </Text>
 
             </Stack>
