@@ -27,10 +27,12 @@ jobs:
           --url 'https://www.inverse.finance/api/cron-positions?pageSize=200&pageOffset=600' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
             - name: Positions
+      - name: Positions
         run: |
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-positions?pageSize=200&pageOffset=800' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+            - name: Positions
       - name: Positions
         run: |
           curl -v --request POST \
