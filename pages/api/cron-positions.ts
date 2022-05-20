@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         }
         await client.set('positions', JSON.stringify({ positions: _positionDetails }));
 
-        return res.status(200).json({ success: true, positionsAdded: positionDetails.length });
+        res.status(200).json({ success: true, positionsAdded: positionDetails.length });
 
     } catch (err) {
         console.error(err);
