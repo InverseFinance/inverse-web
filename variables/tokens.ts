@@ -249,7 +249,7 @@ copyAsYearnVault.forEach(s => {
   chainTokens["1"][chainTokenAddresses["1"][`YV${s}`]] = {
     ...token,
     address: chainTokenAddresses["1"][`YV${s}`],
-    symbol: `yv${token.symbol}`,
+    symbol: `Yv${token.symbol}`,
     protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image
   }
 })
@@ -302,8 +302,8 @@ const chainUnderlying = {
     '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B': getToken(TOKENS, chainTokenAddresses["1"].FLOKI),
     // yearn vaults
     '0x3cFd8f5539550cAa56dC901f09C69AC9438E0722': getToken(TOKENS, chainTokenAddresses["1"].YVDOLA3POOLCRV),
-    '0xE0B1bf558fe5452A078B5D04fF0526801C56dE68': getToken(TOKENS, chainTokenAddresses["1"].YVUSDT),
-    '0x39445DEc9Ba7Fb3776E8E5f9922864ddb9089304': getToken(TOKENS, chainTokenAddresses["1"].YVUSDC),
+    '0x4597a4cf0501b853b029cE5688f6995f753efc04': getToken(TOKENS, chainTokenAddresses["1"].YVUSDT),
+    '0x7e18AB8d87F3430968f0755A623FB35017cB3EcA': getToken(TOKENS, chainTokenAddresses["1"].YVUSDC),
     '0xD79bCf0AD38E06BC0be56768939F57278C7c42f7': getToken(TOKENS, chainTokenAddresses["1"].YVDAI),
   }
 }
