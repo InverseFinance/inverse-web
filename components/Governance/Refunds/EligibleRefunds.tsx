@@ -191,18 +191,10 @@ export const EligibleRefunds = () => {
         onOpen();
     }
 
-    const handleSuccess = ({ refunds, signedBy, signedAt, refundTxHash }) => {
-        const refundsTxHashes = refunds.map(r => r.txHash);
-        const updatedItems = [...eligibleTxs];
-        eligibleTxs.forEach((et, i) => {
-            if (refundsTxHashes.includes(et.txHash)) {
-                const isRefunded = !!refundTxHash;
-                updatedItems[i] = { ...et, refundTxHash: refundTxHash, refunded: isRefunded, signedBy, signedAt }
-            }
-        })
-        setEligibleTxs(updatedItems)
+    const handleSuccess = () => {
         setTxsToRefund([]);
         onClose();
+        reloadData();
     }
 
     const reloadData = () => {
