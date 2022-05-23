@@ -1,8 +1,9 @@
 import { Input } from '@app/components/common/Input';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
+import { addTxToRefund } from '@app/util/governance';
 import { shortenNumber } from '@app/util/markets';
-import { CheckIcon, MinusIcon, RepeatClockIcon } from '@chakra-ui/icons';
+import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
@@ -19,6 +20,11 @@ import { RefundsModal } from './RefundModal';
 const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
     // visually better, as table refresh can take XXXms
     const [localCheck, setLocalCheck] = useState(checked);
+
+    useEffect(() => {
+        setLocalCheck(checked);
+    }, [checked]);
+
     return <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => {
         setLocalCheck(!localCheck);
         setTimeout(() => handleCheckTx(txHash), 200);
@@ -35,37 +41,56 @@ export const EligibleRefunds = () => {
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
     const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
-    const [checkedTxs, setCheckedTxs] = useState<string[]>([]);
     const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
     const { isOpen, onClose, onOpen } = useDisclosure();
 
     const now = new Date();
-    const [startDate, setStartDate] = useState('2022-05-10');
+    const [startDate, setStartDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`);
     const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
+    const [reloadIndex, setReloadIndex] = useState(0);
 
-    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate);
+    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
 
     useEffect(() => {
         setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
     }, [hideAlreadyRefunded, eligibleTxs])
 
     useEffect(() => {
+        const checkedTxs = txsToRefund.map(t => t.txHash);
         setEligibleTxs(items.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
-    }, [items]);
+    }, [items, txsToRefund]);
 
-    useEffect(() => {
-        setEligibleTxs(eligibleTxs.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
-    }, [checkedTxs])
-
-    const handleCheckTx = (txHash: string) => {
-        if (checkedTxs.includes(txHash)) {
-            setCheckedTxs(checkedTxs.filter(h => txHash !== h));
+    const handleCheckTx = (tx: RefundableTransaction) => {
+        const { txHash } = tx;
+        const checkedTxs = txsToRefund.map(t => t.txHash);
+        const _toRefund = [...txsToRefund];
+        const txIndex = checkedTxs.indexOf(txHash);
+        if (txIndex !== -1) {
+            _toRefund.splice(txIndex, 1);
         } else {
-            setCheckedTxs([...checkedTxs, txHash])
+            _toRefund.push(tx);
         }
-    }    
+        setTxsToRefund(_toRefund);
+    }
+
+    const toggleAll = (isSelect: boolean) => {
+        const checkedTxHashes = txsToRefund.map(t => t.txHash);
+        const removed: string[] = [];
+        const _toRefund = [...txsToRefund];
+        filteredTxs.forEach((tx) => {
+            const { txHash } = tx;
+            const txIndex = checkedTxHashes.indexOf(txHash);
+            if (txIndex !== -1 && !isSelect) {
+                removed.push(txHash);
+            } 
+            else if(txIndex === -1 && isSelect) {
+                _toRefund.push(tx);
+            }
+        });
+        setTxsToRefund(isSelect ? _toRefund : _toRefund.filter(t => !removed.includes(t.txHash)));
+    }
 
     const columns = [
         {
@@ -153,44 +178,46 @@ export const EligibleRefunds = () => {
             field: 'checked',
             label: '#',
             header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-            value: ({ txHash, checked, refunded }) => <TxCheckbox txHash={txHash} checked={checked} refunded={refunded} handleCheckTx={handleCheckTx} />
+            value: (tx: RefundableTransaction) => {
+                const { txHash, checked, refunded } = tx;
+                return <TxCheckbox txHash={txHash} checked={checked} refunded={refunded} handleCheckTx={() => handleCheckTx(tx)} />;
+            }
         },
     ];
 
-    const handleRefund = (eligibleTxs, checkedTxs) => {
+    const handleRefund = (toRefund: RefundableTransaction[]) => {
         if (!library?.getSigner()) { return }
-        const items = eligibleTxs.filter(t => checkedTxs.includes(t.txHash));
-        setTxsToRefund(items);
+        setTxsToRefund(toRefund);
         onOpen();
     }
 
-    const handleSuccess = ({ refunds, signedBy, signedAt, refundTxHash }) => {
-        const refundsTxHashes = refunds.map(r => r.txHash);
-        const updatedItems = [...eligibleTxs];
-        eligibleTxs.forEach((et, i) => {
-            if (refundsTxHashes.includes(et.txHash)) {
-                const isRefunded = !!refundTxHash;
-                updatedItems[i] = { ...et, refundTxHash: refundTxHash, refunded: isRefunded, signedBy, signedAt }
-            }
-        })
-        setEligibleTxs(updatedItems)
-        setCheckedTxs([]);
+    const handleSuccess = () => {
+        setTxsToRefund([]);
         onClose();
+        reloadData();
     }
 
     const reloadData = () => {
         setChosenStartDate(startDate);
         setChosenEndDate(endDate);
+        setReloadIndex(reloadIndex + 1);
     }
 
     const isValidDateFormat = (date: string) => {
         return /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date);
     }
 
+    const addTx = () => {
+        if(!library?.getSigner()) { return }
+        const txHash = window.prompt('Tx hash to add');
+        if(!txHash) { return }
+        return addTxToRefund(txHash, library?.getSigner(), () => reloadData());
+    }
+
     return (
         <Container
             label="Potentially Eligible Transactions for Gas Refunds"
-            description="Taken into consideration: GovMills txs (VoteCasting: only for delegates) and Multisig txs"
+            description="Taken into consideration: GovMills txs, Multisig txs, Delegations, Fed actions, Inv oracle txs"
             noPadding
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             collapsable={true}
@@ -198,7 +225,10 @@ export const EligibleRefunds = () => {
                 !account ?
                     <InfoMessage alertProps={{ fontSize: '12px' }} description="Please Connect Wallet" />
                     :
-                    <InfoMessage alertProps={{ fontSize: '12px', w: '500px' }} description="Check at least one Transaction" />
+                    <HStack>
+                        <SubmitButton onClick={() => toggleAll(true)}>Select all visible</SubmitButton>
+                        <SubmitButton onClick={() => toggleAll(false)}>Unselect all visible</SubmitButton>
+                    </HStack>
             }
         >
             {
@@ -227,6 +257,9 @@ export const EligibleRefunds = () => {
                                 <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate)} maxW="30px" onClick={reloadData}>
                                     <RepeatClockIcon />
                                 </SubmitButton>
+                                <SubmitButton maxW="30px" onClick={addTx}>
+                                    <PlusSquareIcon />
+                                </SubmitButton>
                             </HStack>
                             <HStack>
                                 {/* <SubmitButton
@@ -236,10 +269,10 @@ export const EligibleRefunds = () => {
                                         UNMARK AS REFUNDED
                                     </SubmitButton> */}
                                 <SubmitButton
-                                    disabled={!checkedTxs.length || !account}
+                                    disabled={!txsToRefund.length || !account}
                                     w="240px"
-                                    onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
-                                    Refund {checkedTxs.length} Txs
+                                    onClick={() => handleRefund(txsToRefund)}>
+                                    Refund {txsToRefund.length} Txs
                                 </SubmitButton>
                             </HStack>
                         </Stack>
@@ -253,10 +286,10 @@ export const EligibleRefunds = () => {
                         />
                         <HStack w='full' justifyContent="flex-end">
                             <SubmitButton
-                                disabled={!checkedTxs.length || !account}
+                                disabled={!txsToRefund.length || !account}
                                 w="240px"
-                                onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
-                                Refund {checkedTxs.length} Txs
+                                onClick={() => handleRefund(txsToRefund)}>
+                                Refund {txsToRefund.length} Txs
                             </SubmitButton>
                         </HStack>
                     </VStack>

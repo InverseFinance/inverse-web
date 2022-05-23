@@ -427,3 +427,27 @@ export const submitRefunds = async (
         return { status: 'warning', message: e.message || 'An error occured' }
     }
 }
+
+export const addTxToRefund = async (
+    txHash: string,
+    signer: JsonRpcSigner,
+    onSuccess?: (updated: RefundableTransaction[]) => void,
+): Promise<any> => {
+    try {
+        const sig = await signer.signMessage(SIGN_MSG);
+
+        const rawResponse = await fetch(`/api/gov/add-tx`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ txHash, sig })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess && result.status === 'success') { onSuccess(result) }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}

@@ -21,3 +21,11 @@ export const getTxsOf = async (ad: string, pageSize = 1000, pageNumber = 0, chai
 
     return res.json();
 }
+
+export const getTx = async (txHash: string, chainId = process.env.NEXT_PUBLIC_CHAIN_ID) => {
+    const _chainId = chainId === '31337' ? '1' : chainId
+    const path = `/${_chainId}/transaction_v2/${txHash}/?quote-currency=USD&format=JSON&key=${process.env.COVALENT_API_KEY}`
+    const res = await fetch(`${baseUrl}${path}`);
+
+    return res.json();
+}

@@ -9,7 +9,7 @@ import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
 import { MULTISIG_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
-import { uniqueBy } from '@app/util/misc';
+import { capitalize, uniqueBy } from '@app/util/misc';
 
 const client = getRedisClient();
 
@@ -34,7 +34,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
         timestamp: Date.parse(item.block_signed_at),
         successful: item.successful,
         fees: formatEther(item.fees_paid),
-        name: !!decoded ? decoded.name : item.to_address === invOracleKeeper ? 'Keep3rAction' : 'Unknown',
+        name: !!decoded ? decoded.name||`${capitalize(type)}Other` : item.to_address === invOracleKeeper ? 'Keep3rAction' : `${capitalize(type)}Other`,
         chainId: chain_id,
         type,
         refunded: false,
@@ -44,7 +44,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
     .filter(item => item.name === 'VoteCast' ?
       voteCastWhitelist.includes(item.from.toLowerCase())
       :
-      refundWhitelist.includes(item.from.toLowerCase())
+      type === 'custom' || refundWhitelist.includes(item.from.toLowerCase())
     )
 }
 
@@ -117,10 +117,13 @@ export default async function handler(req, res) {
       ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, 100))
     ])
 
+    const customTxs = JSON.parse((await client.get('custom-txs-to-refund') || '[]'));
+
     let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
       .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
       .concat(formatResults(gno.data, 'gnosisproxy', refundWhitelist))
       .concat(formatResults(oracle.data, 'oracle', refundWhitelist))
+      .concat(formatResults({ items: customTxs, chainId: '1' }, 'custom', refundWhitelist))
 
     multisigsRes.forEach(r => {
       totalItems = totalItems.concat(formatResults(r.data, 'multisig', refundWhitelist))

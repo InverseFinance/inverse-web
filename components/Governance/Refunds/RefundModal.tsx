@@ -10,12 +10,13 @@ import { useWeb3React } from '@web3-react/core';
 import { TransactionResponse, Web3Provider } from '@ethersproject/providers';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { submitRefunds } from '@app/util/governance';
+import { showToast } from '@app/util/notify';
 
 type Props = {
     txs: RefundableTransaction[]
     isOpen: boolean
     onClose: () => void
-    onSuccess: (p: any) => any
+    onSuccess: () => any
 }
 
 export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
@@ -44,8 +45,13 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
         return disperseEther(inputs, library?.getSigner());
     }
 
-    const handleSuccess = (tx: TransactionResponse) => {
-        return submitRefunds(txs, tx.hash, onSuccess)
+    const handleSuccess = async(tx: TransactionResponse) => {
+        onSuccess();   
+        const res = await submitRefunds(txs, tx.hash);
+        if(res?.status && res?.message) {
+            const statusType = ["success", "warning", "info", "error"].includes(res?.status) ? res?.status : 'info';
+            showToast({ status: statusType, description: res?.message });
+        }
     }
 
     return (
@@ -75,11 +81,11 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
                 {
                     Object.entries(breakdown).map(([ad, txs]) =>
                         <VStack alignItems="flex-start" key={ad}>
-                            <ScannerLink value={ad} fontWeight="bold" />
+                            <ScannerLink type="address" value={ad} fontWeight="bold" />
                             <VStack pl="5" alignItems="flex-start">
                                 {
                                     txs.map(tx => <HStack key={tx.txHash}>
-                                        <ScannerLink value={tx.txHash} label={tx.name} />
+                                        <ScannerLink type="tx" value={tx.txHash} label={tx.name} />
                                         <Text>{tx.fees}</Text>
                                     </HStack>)
                                 }
