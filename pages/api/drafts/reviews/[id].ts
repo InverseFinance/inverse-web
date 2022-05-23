@@ -35,15 +35,21 @@ export default async function handler(req, res) {
 
                 const sigReviewIndex = reviews.findIndex(review => review.reviewer === sigAddress);
 
+                const review = {
+                    reviewer: sigAddress,
+                    timestamp: Date.now() - 30000,
+                    status,
+                    comment,
+                };
+
                 if (sigReviewIndex === -1) {
-                    reviews.unshift({
-                        reviewer: sigAddress,
-                        timestamp: Date.now() - 30000,
-                        status,
-                        comment,
-                    });
-                } else if (sigReviewIndex !== -1 && status === 'remove') {
-                    reviews.splice(sigReviewIndex, 1);
+                    reviews.unshift(review);
+                } else if (sigReviewIndex !== -1) {
+                    if(status === 'remove') {
+                        reviews.splice(sigReviewIndex, 1);
+                    } else {
+                        reviews.splice(sigReviewIndex, 1, review);
+                    }
                 }
 
                 await client.set(`${redisKey}-${id}`, JSON.stringify(reviews));
