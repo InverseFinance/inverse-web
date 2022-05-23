@@ -208,9 +208,10 @@ export const EligibleRefunds = () => {
     }
 
     const addTx = () => {
+        if(!library?.getSigner()) { return }
         const txHash = window.prompt('Tx hash to add');
         if(!txHash) { return }
-        return addTxToRefund(txHash, () => reloadData());
+        return addTxToRefund(txHash, library?.getSigner(), () => reloadData());
     }
 
     return (
