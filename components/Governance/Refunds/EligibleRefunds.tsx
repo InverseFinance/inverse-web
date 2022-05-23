@@ -20,6 +20,11 @@ import { RefundsModal } from './RefundModal';
 const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
     // visually better, as table refresh can take XXXms
     const [localCheck, setLocalCheck] = useState(checked);
+
+    useEffect(() => {
+        setLocalCheck(checked);
+    }, [checked]);
+
     return <Flex justify="center" minWidth={'80px'} position="relative" onClick={() => {
         setLocalCheck(!localCheck);
         setTimeout(() => handleCheckTx(txHash), 200);
@@ -36,7 +41,6 @@ export const EligibleRefunds = () => {
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
     const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
-    const [checkedTxs, setCheckedTxs] = useState<string[]>([]);
     const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
     const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -54,16 +58,39 @@ export const EligibleRefunds = () => {
     }, [hideAlreadyRefunded, eligibleTxs])
 
     useEffect(() => {
+        const checkedTxs = txsToRefund.map(t => t.txHash);
         setEligibleTxs(items.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
-    }, [items, checkedTxs]);
+    }, [items, txsToRefund]);
 
-    const handleCheckTx = (txHash: string) => {
-        if (checkedTxs.includes(txHash)) {
-            setCheckedTxs(checkedTxs.filter(h => txHash !== h));
+    const handleCheckTx = (tx: RefundableTransaction) => {
+        const { txHash } = tx;
+        const checkedTxs = txsToRefund.map(t => t.txHash);
+        const _toRefund = [...txsToRefund];
+        const txIndex = checkedTxs.indexOf(txHash);
+        if (txIndex !== -1) {
+            _toRefund.splice(txIndex, 1);
         } else {
-            setCheckedTxs([...checkedTxs, txHash])
+            _toRefund.push(tx);
         }
-    }    
+        setTxsToRefund(_toRefund);
+    }
+
+    const toggleAll = (isSelect: boolean) => {
+        const checkedTxHashes = txsToRefund.map(t => t.txHash);
+        const removed: string[] = [];
+        const _toRefund = [...txsToRefund];
+        filteredTxs.forEach((tx) => {
+            const { txHash } = tx;
+            const txIndex = checkedTxHashes.indexOf(txHash);
+            if (txIndex !== -1 && !isSelect) {
+                removed.push(txHash);
+            } 
+            else if(txIndex === -1 && isSelect) {
+                _toRefund.push(tx);
+            }
+        });
+        setTxsToRefund(isSelect ? _toRefund : _toRefund.filter(t => !removed.includes(t.txHash)));
+    }
 
     const columns = [
         {
@@ -151,14 +178,16 @@ export const EligibleRefunds = () => {
             field: 'checked',
             label: '#',
             header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
-            value: ({ txHash, checked, refunded }) => <TxCheckbox txHash={txHash} checked={checked} refunded={refunded} handleCheckTx={handleCheckTx} />
+            value: (tx: RefundableTransaction) => {
+                const { txHash, checked, refunded } = tx;
+                return <TxCheckbox txHash={txHash} checked={checked} refunded={refunded} handleCheckTx={() => handleCheckTx(tx)} />;
+            }
         },
     ];
 
-    const handleRefund = (eligibleTxs, checkedTxs) => {
+    const handleRefund = (toRefund: RefundableTransaction[]) => {
         if (!library?.getSigner()) { return }
-        const items = eligibleTxs.filter(t => checkedTxs.includes(t.txHash));
-        setTxsToRefund(items);
+        setTxsToRefund(toRefund);
         onOpen();
     }
 
@@ -172,7 +201,7 @@ export const EligibleRefunds = () => {
             }
         })
         setEligibleTxs(updatedItems)
-        setCheckedTxs([]);
+        setTxsToRefund([]);
         onClose();
     }
 
@@ -203,7 +232,10 @@ export const EligibleRefunds = () => {
                 !account ?
                     <InfoMessage alertProps={{ fontSize: '12px' }} description="Please Connect Wallet" />
                     :
-                    <InfoMessage alertProps={{ fontSize: '12px', w: '500px' }} description="Check at least one Transaction" />
+                    <HStack>
+                        <SubmitButton onClick={() => toggleAll(true)}>Select all visible</SubmitButton>
+                        <SubmitButton onClick={() => toggleAll(false)}>Unselect all visible</SubmitButton>
+                    </HStack>
             }
         >
             {
@@ -244,10 +276,10 @@ export const EligibleRefunds = () => {
                                         UNMARK AS REFUNDED
                                     </SubmitButton> */}
                                 <SubmitButton
-                                    disabled={!checkedTxs.length || !account}
+                                    disabled={!txsToRefund.length || !account}
                                     w="240px"
-                                    onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
-                                    Refund {checkedTxs.length} Txs
+                                    onClick={() => handleRefund(txsToRefund)}>
+                                    Refund {txsToRefund.length} Txs
                                 </SubmitButton>
                             </HStack>
                         </Stack>
@@ -261,10 +293,10 @@ export const EligibleRefunds = () => {
                         />
                         <HStack w='full' justifyContent="flex-end">
                             <SubmitButton
-                                disabled={!checkedTxs.length || !account}
+                                disabled={!txsToRefund.length || !account}
                                 w="240px"
-                                onClick={() => handleRefund(eligibleTxs, checkedTxs)}>
-                                Refund {checkedTxs.length} Txs
+                                onClick={() => handleRefund(txsToRefund)}>
+                                Refund {txsToRefund.length} Txs
                             </SubmitButton>
                         </HStack>
                     </VStack>

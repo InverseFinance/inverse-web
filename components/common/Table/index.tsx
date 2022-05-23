@@ -17,6 +17,7 @@ export type Column = {
   tooltip?: ReactNode
   showFilter?: boolean
   filterWidth?: any
+  customSubheader?: React.ReactChild
 }
 
 type TableProps = {
@@ -36,7 +37,7 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
   const [filters, setFilters] = useState({});
   const [filteredItems, setFilteredItems] = useState([]);
 
-  const hasOneColWithFilter = columns.filter(c => c.showFilter).length > 0;
+  const hasSubheader = columns.filter(c => c.showFilter || !!c.customSubheader).length > 0;
 
   const [sortedItems, setSortedItems] = useState(items?.map((item) => {
     return ({ ...item, symbol: item?.underlying?.symbol })
@@ -148,7 +149,10 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
                     />
                   }
                   {
-                    hasOneColWithFilter && !col.showFilter && <Box w='full' cursor="default" h="40px">&nbsp;</Box>
+                    hasSubheader && !col.showFilter && !col.customSubheader && <Box w='full' cursor="default" h="40px">&nbsp;</Box>
+                  }
+                  {
+                    !!col.customSubheader && col.customSubheader
                   }
                 </VStack>
               </Box>
