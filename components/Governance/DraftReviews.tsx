@@ -19,6 +19,12 @@ const DraftReviewItem = ({
     review: DraftReview,
 }) => {
     const { addressName } = useNamedAddress(review.reviewer);
+
+    const commentPreview = <Text cursor={ !!review.comment ? 'pointer' : '' } noOfLines={1} w='full' maxW="500px" textAlign="left" fontStyle="italic" color="secondaryTextColor">
+        <ChatIcon mr="2" color={!!review.comment ? 'info' : 'gray'} />
+        {review.comment || 'No Comment'}
+    </Text>;
+
     return (
         <HStack w='full' justify="space-between">
             <VStack spacing="0" alignItems="flex-start">
@@ -28,24 +34,23 @@ const DraftReviewItem = ({
                         {addressName}
                     </Link>
                 </HStack>
-                <Popover trigger="hover">
-                    <PopoverTrigger>
-                        <Text cursor="pointer" noOfLines={1} w='full' maxW="500px" textAlign="left" fontStyle="italic" color="secondaryTextColor">
-                            <ChatIcon mr="2" color={!!review.comment ? 'info' : 'gray'} />
-                            {review.comment || 'No Comment'}
-                        </Text>
-                    </PopoverTrigger>
-                    <PopoverContent bgColor="navBarBorderColor" _focus={{ outline: 'none' }}>
-                        <PopoverArrow />
-                        <PopoverCloseButton />
-                        <PopoverHeader border="0">
-                            <Text fontWeight="bold" color="mainTextColor">Comment:</Text>
-                        </PopoverHeader>
-                        <PopoverBody>
-                            <Text fontSize="12px" fontStyle="italic" color="mainTextColor">{review.comment || 'No Comment'}</Text>
-                        </PopoverBody>
-                    </PopoverContent>
-                </Popover>
+                {
+                    !!review.comment ? <Popover trigger="hover" isLazy={true}>
+                        <PopoverTrigger>
+                            {commentPreview}
+                        </PopoverTrigger>
+                        <PopoverContent bgColor="navBarBorderColor" _focus={{ outline: 'none' }}>
+                            <PopoverArrow />
+                            <PopoverHeader border="0">
+                                <Text fontWeight="bold" color="mainTextColor">Comment:</Text>
+                            </PopoverHeader>
+                            <PopoverBody>
+                                <Text fontSize="12px" fontStyle="italic" color="mainTextColor">{review.comment || 'No Comment'}</Text>
+                            </PopoverBody>
+                        </PopoverContent>
+                    </Popover>
+                    : commentPreview
+                }
             </VStack>
             <Timestamp text2Props={{ color: 'secondaryTextColor' }} textAlign="right" timestamp={review.timestamp} format="MMM Do YYYY, hh:mm A" />
         </HStack>
