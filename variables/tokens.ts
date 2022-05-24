@@ -42,7 +42,7 @@ const chainTokenAddresses = {
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
     MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
     // yearn vaults
-    YVDOLA3POOLCRV: '0xE0B1bf558fe5452A078B5D04fF0526801C56dE68',
+    YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
     YVUSDC: '0xa354f35829ae975e850e23e9615b11da1b3dc4de',
     YVDAI: '0xda816459f1ab5631232fe5e97a05bbbb94970c95',
@@ -252,6 +252,7 @@ copyAsYearnVault.forEach(s => {
     symbol: `Yv${token.symbol}`,
     protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image,
     name: `YV-${token.name}`,
+    coingeckoId: undefined,
   }
 })
 
