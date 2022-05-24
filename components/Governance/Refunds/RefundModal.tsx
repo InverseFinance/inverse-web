@@ -72,6 +72,10 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
         exportToCsv(data, 'refunds-totals');
     }
 
+    const handleRemove = async () => {
+        return submitRefunds(txs, '', undefined, library?.getSigner());
+    }
+
     return (
         <Modal
             onClose={handleClose}
@@ -91,14 +95,17 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
                         </>}
                     />
                     <HStack spacing="2">
-                        <SubmitButton themeColor="blue.500" onClick={() => handleExportCsv()} onSuccess={handleSuccess}>
+                        <SubmitButton themeColor="blue.500" onClick={() => handleExportCsv()}>
                             EXPORT TXS
                         </SubmitButton>
-                        <SubmitButton themeColor="blue.500" onClick={() => handleTotalsExportCsv()} onSuccess={handleSuccess}>
+                        <SubmitButton themeColor="blue.500" onClick={() => handleTotalsExportCsv()}>
                             EXPORT SUBTOTALS
                         </SubmitButton>
                     </HStack>
                     <HStack spacing="2">
+                        <SubmitButton themeColor="orange.500" onClick={() => handleRemove()} onSuccess={handleSuccess}>
+                            Remove TXS
+                        </SubmitButton>
                         <SubmitButton themeColor="green.500" onClick={() => handleSubmit(totals)} onSuccess={handleSuccess}>
                             SEND ETH
                         </SubmitButton>
