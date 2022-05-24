@@ -28,10 +28,22 @@ type TableProps = {
   defaultSortDir?: string
   alternateBg?: boolean
   onClick?: (e: any) => void
+  onFilter?: (items: any[]) => void
   noDataMessage?: string
 }
 
-export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir = 'asc', defaultSort, alternateBg = true, onClick, ...props }: TableProps) => {
+export const Table = ({
+  columns,
+  noDataMessage,
+  items,
+  keyName,
+  defaultSortDir = 'asc',
+  defaultSort,
+  alternateBg = true,
+  onClick,
+  onFilter,
+  ...props
+}: TableProps) => {
   const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState({});
@@ -49,7 +61,10 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
       if (val === null) { return }
       filteredItems = filteredItems.filter(item => item[key] === val);
     });
-    setFilteredItems(filteredItems)
+    setFilteredItems(filteredItems);
+    if(onFilter){
+      onFilter(filteredItems);
+    }
   }, [sortedItems, filters])
 
   useEffect(() => {

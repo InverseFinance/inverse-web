@@ -39,7 +39,10 @@ const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
 export const EligibleRefunds = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
-    const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
+    // given to table
+    const [tableItems, setTableItems] = useState<RefundableTransaction[]>([]);
+    // filtered inside table with subfilters
+    const [visibleItems, setVisibleItems] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
     const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
     const { isOpen, onClose, onOpen } = useDisclosure();
@@ -54,7 +57,7 @@ export const EligibleRefunds = () => {
     const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
 
     useEffect(() => {
-        setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
+        setTableItems(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
     }, [hideAlreadyRefunded, eligibleTxs])
 
     useEffect(() => {
@@ -79,7 +82,7 @@ export const EligibleRefunds = () => {
         const checkedTxHashes = txsToRefund.map(t => t.txHash);
         const removed: string[] = [];
         const _toRefund = [...txsToRefund];
-        filteredTxs.forEach((tx) => {
+        visibleItems.forEach((tx) => {
             const { txHash } = tx;
             const txIndex = checkedTxHashes.indexOf(txHash);
             if (txIndex !== -1 && !isSelect) {
@@ -279,10 +282,11 @@ export const EligibleRefunds = () => {
                         <Divider />
                         <Table
                             columns={columns}
-                            items={filteredTxs}
+                            items={tableItems}
                             keyName={'txHash'}
                             defaultSort="timestamp"
                             defaultSortDir="desc"
+                            onFilter={(visibleItems) => setVisibleItems(visibleItems)}
                         />
                         <HStack w='full' justifyContent="flex-end">
                             <SubmitButton
