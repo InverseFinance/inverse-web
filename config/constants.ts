@@ -13,7 +13,8 @@ export const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
 export const BLOCK_SCAN = 'https://blockscan.com';
 
 // Governance
-export const QUORUM_VOTES = 4000;
+export const QUORUM_VOTES = 7000;
+export const OLD_QUORUM_VOTES = 4000;
 
 // Migration
 export const OLD_XINV = process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD

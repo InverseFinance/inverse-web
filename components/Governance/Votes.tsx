@@ -3,7 +3,7 @@ import { Avatar } from '@app/components/common/Avatar'
 import Container from '@app/components/common/Container'
 import { AgainstVotesModal, ForVotesModal } from '@app/components/Governance/GovernanceModals'
 import { SkeletonList } from '@app/components/common/Skeleton'
-import { QUORUM_VOTES } from '@app/config/constants'
+import { OLD_QUORUM_VOTES, QUORUM_VOTES } from '@app/config/constants'
 import { ProposalStatus, ProposalVote, Proposal } from '@app/types'
 import { namedAddress } from '@app/util'
 import NextLink from 'next/link'
@@ -17,9 +17,10 @@ type VotesProps = {
   status: ProposalStatus
   voters: ProposalVote[]
   onViewAll: () => void
+  quorum: number
 }
 
-const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => {
+const Votes = ({ votes, status, voters, onViewAll, quorum }: VotesProps) => {
   const { chainId } = useWeb3React<Web3Provider>()
 
   return (
@@ -28,7 +29,7 @@ const Votes = ({ votes, status, voters, onViewAll }: VotesProps) => {
         <Text fontSize="sm" fontWeight="medium">{`${voters.length} voters`}</Text>
         <Text fontSize="sm" fontWeight="medium">
           {status === ProposalStatus.active
-            ? `${votes.toFixed(0)} / ${QUORUM_VOTES.toFixed(0)} votes`
+            ? `${votes.toFixed(0)} / ${quorum.toFixed(0)} votes`
             : `${votes >= 1000 ? `${(votes / 1000).toFixed(2)}k` : votes.toFixed(0)} votes`}
         </Text>
       </Flex>
@@ -79,7 +80,9 @@ export const ForVotes = ({ proposal }: { proposal: Proposal }) => {
     )
   }
 
-  const { forVotes, status, voters } = proposal
+  const { forVotes, status, voters, startBlock } = proposal
+
+  const quorum = startBlock > 14834695 ? QUORUM_VOTES : OLD_QUORUM_VOTES;
 
   const forVoters = voters
     .filter(({ support }: ProposalVote) => support)
@@ -87,7 +90,7 @@ export const ForVotes = ({ proposal }: { proposal: Proposal }) => {
 
   return (
     <Container label="For Votes">
-      <Votes votes={forVotes} voters={forVoters} status={status} onViewAll={onOpen} />
+      <Votes votes={forVotes} voters={forVoters} status={status} onViewAll={onOpen} quorum={quorum} />
       <ForVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
     </Container>
   )
@@ -104,7 +107,8 @@ export const AgainstVotes = ({ proposal }: { proposal: Proposal }) => {
     )
   }
 
-  const { againstVotes, status, voters } = proposal
+  const { againstVotes, status, voters, startBlock } = proposal;
+  const quorum = startBlock > 14834695 ? QUORUM_VOTES : OLD_QUORUM_VOTES;
 
   const againstVoters = voters
     .filter(({ support }: ProposalVote) => !support)
@@ -112,8 +116,8 @@ export const AgainstVotes = ({ proposal }: { proposal: Proposal }) => {
 
   return (
     <Container label="Against Votes">
-      <Votes votes={againstVotes} voters={againstVoters} status={status} onViewAll={onOpen} />
-      <AgainstVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
+      <Votes votes={againstVotes} voters={againstVoters} status={status} onViewAll={onOpen} quorum={quorum} />
+      <AgainstVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} quorum={quorum} />
     </Container>
   )
 }
