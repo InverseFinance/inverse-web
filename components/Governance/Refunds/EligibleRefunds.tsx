@@ -55,6 +55,7 @@ export const EligibleRefunds = () => {
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
+    const [subfilters, setSubfilters] = useState({});
 
     const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
 
@@ -84,16 +85,18 @@ export const EligibleRefunds = () => {
         const checkedTxHashes = txsToRefund.map(t => t.txHash);
         const removed: string[] = [];
         const _toRefund = [...txsToRefund];
-        visibleItems.forEach((tx) => {
-            const { txHash } = tx;
-            const txIndex = checkedTxHashes.indexOf(txHash);
-            if (txIndex !== -1 && !isSelect) {
-                removed.push(txHash);
-            }
-            else if (txIndex === -1 && isSelect) {
-                _toRefund.push(tx);
-            }
-        });
+        visibleItems
+            .filter(t => !t.refunded)
+            .forEach((tx) => {
+                const { txHash } = tx;
+                const txIndex = checkedTxHashes.indexOf(txHash);
+                if (txIndex !== -1 && !isSelect) {
+                    removed.push(txHash);
+                }
+                else if (txIndex === -1 && isSelect) {
+                    _toRefund.push(tx);
+                }
+            });
         setTxsToRefund(isSelect ? _toRefund : _toRefund.filter(t => !removed.includes(t.txHash)));
     }
 
@@ -232,8 +235,8 @@ export const EligibleRefunds = () => {
                 To: to,
                 ToName: namedAddress(to),
                 Fees: fees,
-                Refunded: refunded,
-                RefundTxHash: refundTxHash||'',
+                // Refunded: refunded,
+                // RefundTxHash: refundTxHash || '',
             };
         });
         data.sort((a, b) => b.Timestamp - a.Timestamp);
@@ -241,16 +244,12 @@ export const EligibleRefunds = () => {
     }
 
     const CTAs = <HStack justifyContent="flex-end">
-        {/* <SubmitButton
-            disabled={!txsToRefund.length || !account}
-            w="180px"
-            onClick={() => handleExportCsv()}>
-            Export {txsToRefund.length} Txs
-        </SubmitButton> */}
         <SubmitButton
             disabled={!txsToRefund.length || !account}
             w="180px"
-            onClick={() => handleRefund(txsToRefund)}>
+            onClick={() => handleRefund(txsToRefund)}
+            themeColor="green.500"
+        >
             Inspect {txsToRefund.length} Txs
         </SubmitButton>
     </HStack>
@@ -266,9 +265,12 @@ export const EligibleRefunds = () => {
                 !account ?
                     <InfoMessage alertProps={{ fontSize: '12px' }} description="Please Connect Wallet" />
                     :
-                    <HStack>
-                        <SubmitButton onClick={() => toggleAll(true)}>Select all visible</SubmitButton>
-                        <SubmitButton onClick={() => toggleAll(false)}>Unselect all visible</SubmitButton>
+                    <HStack spacing="8">
+                        <HStack>
+                            <SubmitButton themeColor="blue.500" onClick={() => toggleAll(true)}>Select all visible</SubmitButton>
+                            <SubmitButton themeColor="orange.500" onClick={() => toggleAll(false)}>Unselect all visible</SubmitButton>
+                        </HStack>
+                        <SubmitButton themeColor="pink.500" onClick={() => setTxsToRefund([])}>Unselect all</SubmitButton>
                     </HStack>
             }
         >
@@ -311,7 +313,11 @@ export const EligibleRefunds = () => {
                             keyName={'txHash'}
                             defaultSort="timestamp"
                             defaultSortDir="desc"
-                            onFilter={(visibleItems) => setVisibleItems(visibleItems)}
+                            defaultFilters={subfilters}
+                            onFilter={(visibleItems, filters) => {
+                                setVisibleItems(visibleItems)
+                                setSubfilters(filters);
+                            }}
                         />
                         {CTAs}
                     </VStack>

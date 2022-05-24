@@ -70,12 +70,12 @@ export default async function handler(req, res) {
                 if(!refundTxHash) {
                     // remove previously added custom txs if ignored now
                     const customTxs = JSON.parse(await client.get('custom-txs-to-refund') || '[]');
-                    await client.set('custom-txs-to-refund', customTxs.filter(t => !ignoredTxHashes.includes(t.tx_hash))); 
+                    await client.set('custom-txs-to-refund', JSON.stringify(customTxs.filter(t => !ignoredTxHashes.includes(t.tx_hash)))); 
                 }
 
                 res.status(200).json({
                     status: 'success',
-                    message: 'Refunds Updated',
+                    message: refundTxHash ? 'Refunds Updated' : 'Tx removed',
                     refunds,
                     signedAt,
                     signedBy: TWG.address,

@@ -50,12 +50,12 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
     }
 
     const handleSuccess = async (tx: TransactionResponse) => {
-        onSuccess();
         const res = await submitRefunds(txs, tx.hash);
         if (res?.status && res?.message) {
             const statusType = ["success", "warning", "info", "error"].includes(res?.status) ? res?.status : 'info';
             showToast({ status: statusType, description: res?.message });
         }
+        onSuccess();
     }
 
     const handleTotalsExportCsv = () => {
@@ -73,7 +73,7 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
     }
 
     const handleRemove = async () => {
-        return submitRefunds(txs, '', undefined, library?.getSigner());
+        return submitRefunds(txs, '', () => onSuccess(), library?.getSigner());
     }
 
     return (

@@ -28,9 +28,12 @@ type TableProps = {
   defaultSortDir?: string
   alternateBg?: boolean
   onClick?: (e: any) => void
-  onFilter?: (items: any[]) => void
+  onFilter?: (items: any[], filters: any) => void
   noDataMessage?: string
+  defaultFilters?: { [key: string]: any }
 }
+
+const emptyObj = {};
 
 export const Table = ({
   columns,
@@ -40,13 +43,14 @@ export const Table = ({
   defaultSortDir = 'asc',
   defaultSort,
   alternateBg = true,
+  defaultFilters = emptyObj,
   onClick,
   onFilter,
   ...props
 }: TableProps) => {
   const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState(defaultFilters);
   const [filteredItems, setFilteredItems] = useState([]);
 
   const hasSubheader = columns.filter(c => c.showFilter || !!c.customSubheader).length > 0;
@@ -63,7 +67,7 @@ export const Table = ({
     });
     setFilteredItems(filteredItems);
     if(onFilter){
-      onFilter(filteredItems);
+      onFilter(filteredItems, filters);
     }
   }, [sortedItems, filters])
 
