@@ -11,10 +11,18 @@ import { UNDERLYING } from '@app/variables/tokens'
 import { PositionSlide } from './PositionSlide'
 
 const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] }) => {
-    const uniques = [...new Set(list?.map((s, i) => s?.underlying?.image))].filter(v => !!v);
+    const uniques = [...new Set(list?.map((s, i) => `${s?.underlying?.image}||${s?.underlying?.protocolImage || ''}`))].filter(v => !!v);
     return <HStack minW="100px" position="relative">
         {
-            uniques?.map((imgSrc, i) => <Image key={imgSrc} width={'15px'} src={imgSrc} ignoreFallback={true} />)
+            uniques?.map((images, i) => {
+                const [icon, protocolImage] = images.split('||');
+                return <Flex key={images} position="relative" alignItems="center">
+                    <Image  width={'15px'} src={icon} ignoreFallback={true} />
+                    {
+                        !!protocolImage && <Image width={'8px'} position="absolute" bottom="0" right="-4px" src={protocolImage} ignoreFallback={true} />
+                    }
+                </Flex>
+            })
         }
     </HStack>
 }
