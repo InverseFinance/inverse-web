@@ -1,8 +1,11 @@
 import { Input } from '@app/components/common/Input';
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
+import { namedAddress } from '@app/util';
 import { addTxToRefund } from '@app/util/governance';
 import { shortenNumber } from '@app/util/markets';
+import { exportToCsv, timestampToUTC } from '@app/util/misc';
 import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
@@ -31,7 +34,7 @@ const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
     }}>
         <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
         {
-            !refunded && <Checkbox value="true" isChecked={localCheck}  />
+            !refunded && <Checkbox value="true" isChecked={localCheck} />
         }
     </Flex>
 }
@@ -39,9 +42,12 @@ const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
 export const EligibleRefunds = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
-    const [filteredTxs, setFilteredTxs] = useState<RefundableTransaction[]>([]);
+    // given to table
+    const [tableItems, setTableItems] = useState<RefundableTransaction[]>([]);
+    // filtered inside table with subfilters
+    const [visibleItems, setVisibleItems] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
-    const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
+    const [refundFilter, setRefundFilter] = useState<'all' | 'refunded' | 'non-refunded'>('non-refunded');
     const { isOpen, onClose, onOpen } = useDisclosure();
 
     const now = new Date();
@@ -50,12 +56,13 @@ export const EligibleRefunds = () => {
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
+    const [subfilters, setSubfilters] = useState({});
 
     const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
 
     useEffect(() => {
-        setFilteredTxs(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
-    }, [hideAlreadyRefunded, eligibleTxs])
+        setTableItems(refundFilter === 'all' ? eligibleTxs : eligibleTxs.filter(t => t.refunded === (refundFilter === 'refunded')));
+    }, [refundFilter, eligibleTxs])
 
     useEffect(() => {
         const checkedTxs = txsToRefund.map(t => t.txHash);
@@ -79,16 +86,18 @@ export const EligibleRefunds = () => {
         const checkedTxHashes = txsToRefund.map(t => t.txHash);
         const removed: string[] = [];
         const _toRefund = [...txsToRefund];
-        filteredTxs.forEach((tx) => {
-            const { txHash } = tx;
-            const txIndex = checkedTxHashes.indexOf(txHash);
-            if (txIndex !== -1 && !isSelect) {
-                removed.push(txHash);
-            } 
-            else if(txIndex === -1 && isSelect) {
-                _toRefund.push(tx);
-            }
-        });
+        visibleItems
+            .filter(t => !t.refunded)
+            .forEach((tx) => {
+                const { txHash } = tx;
+                const txIndex = checkedTxHashes.indexOf(txHash);
+                if (txIndex !== -1 && !isSelect) {
+                    removed.push(txHash);
+                }
+                else if (txIndex === -1 && isSelect) {
+                    _toRefund.push(tx);
+                }
+            });
         setTxsToRefund(isSelect ? _toRefund : _toRefund.filter(t => !removed.includes(t.txHash)));
     }
 
@@ -208,11 +217,43 @@ export const EligibleRefunds = () => {
     }
 
     const addTx = () => {
-        if(!library?.getSigner()) { return }
+        if (!library?.getSigner()) { return }
         const txHash = window.prompt('Tx hash to add');
-        if(!txHash) { return }
+        if (!txHash) { return }
         return addTxToRefund(txHash, library?.getSigner(), () => reloadData());
     }
+
+    const handleExportCsv = () => {
+        const data = txsToRefund.map(({ txHash, timestamp, fees, name, from, type, to, refunded, refundTxHash }) => {
+            return {
+                TxHash: txHash,
+                Timestamp: timestamp,
+                DateUTC: timestampToUTC(timestamp),
+                From: from,
+                FromName: namedAddress(from),
+                EventName: name,
+                TxType: type,
+                To: to,
+                ToName: namedAddress(to),
+                Fees: fees,
+                // Refunded: refunded,
+                // RefundTxHash: refundTxHash || '',
+            };
+        });
+        data.sort((a, b) => b.Timestamp - a.Timestamp);
+        exportToCsv(data, 'refunds');
+    }
+
+    const CTAs = <HStack justifyContent="flex-end">
+        <SubmitButton
+            disabled={!txsToRefund.length || !account}
+            w="180px"
+            onClick={() => handleRefund(txsToRefund)}
+            themeColor="green.500"
+        >
+            Inspect {txsToRefund.length} Txs
+        </SubmitButton>
+    </HStack>
 
     return (
         <Container
@@ -225,9 +266,12 @@ export const EligibleRefunds = () => {
                 !account ?
                     <InfoMessage alertProps={{ fontSize: '12px' }} description="Please Connect Wallet" />
                     :
-                    <HStack>
-                        <SubmitButton onClick={() => toggleAll(true)}>Select all visible</SubmitButton>
-                        <SubmitButton onClick={() => toggleAll(false)}>Unselect all visible</SubmitButton>
+                    <HStack spacing="8">
+                        <HStack>
+                            <SubmitButton themeColor="blue.500" onClick={() => toggleAll(true)}>Select all visible</SubmitButton>
+                            <SubmitButton themeColor="orange.500" onClick={() => toggleAll(false)}>Unselect all visible</SubmitButton>
+                        </HStack>
+                        <SubmitButton themeColor="pink.500" onClick={() => setTxsToRefund([])}>Unselect all</SubmitButton>
                     </HStack>
             }
         >
@@ -236,14 +280,26 @@ export const EligibleRefunds = () => {
                     <SkeletonBlob />
                     :
                     <VStack spacing="4" w='full' alignItems="space-between">
-                        <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} />
+                        <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} handleExportCsv={handleExportCsv} />
                         <Stack
                             direction="row"
                             justifyContent="space-between"
                             alignItems="center">
-                            <HStack alignItems="center">
-                                <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
-                                <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
+                            <HStack alignItems="center" justifyItems="center">
+                                <RadioCardGroup
+                                    wrapperProps={{ w: 'full', justify: 'center' }}
+                                    group={{
+                                        name: 'bool',
+                                        defaultValue: refundFilter,
+                                        onChange: (value) => setRefundFilter(value),
+                                    }}
+                                    radioCardProps={{ w: 'fit-content', textAlign: 'center', px: '3', py: '1' }}
+                                    options={[
+                                        { label: 'All', value: 'all' },
+                                        { label: 'Refunded', value: 'refunded' },
+                                        { label: 'Non-Refunded', value: 'non-refunded' }
+                                    ]}
+                                />
                             </HStack>
                             <HStack>
                                 <InputGroup>
@@ -261,37 +317,22 @@ export const EligibleRefunds = () => {
                                     <PlusSquareIcon />
                                 </SubmitButton>
                             </HStack>
-                            <HStack>
-                                {/* <SubmitButton
-                                        disabled={!checkedTxs.length || !account}
-                                        w="240px"
-                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
-                                        UNMARK AS REFUNDED
-                                    </SubmitButton> */}
-                                <SubmitButton
-                                    disabled={!txsToRefund.length || !account}
-                                    w="240px"
-                                    onClick={() => handleRefund(txsToRefund)}>
-                                    Refund {txsToRefund.length} Txs
-                                </SubmitButton>
-                            </HStack>
+                            {CTAs}
                         </Stack>
                         <Divider />
                         <Table
                             columns={columns}
-                            items={filteredTxs}
+                            items={tableItems}
                             keyName={'txHash'}
                             defaultSort="timestamp"
                             defaultSortDir="desc"
+                            defaultFilters={subfilters}
+                            onFilter={(visibleItems, filters) => {
+                                setVisibleItems(visibleItems)
+                                setSubfilters(filters);
+                            }}
                         />
-                        <HStack w='full' justifyContent="flex-end">
-                            <SubmitButton
-                                disabled={!txsToRefund.length || !account}
-                                w="240px"
-                                onClick={() => handleRefund(txsToRefund)}>
-                                Refund {txsToRefund.length} Txs
-                            </SubmitButton>
-                        </HStack>
+                        {CTAs}
                     </VStack>
             }
         </Container>

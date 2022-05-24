@@ -46,6 +46,10 @@ export default async function handler(req, res) {
 
                 await client.set('custom-txs-to-refund', JSON.stringify(customTxs));
 
+                // remove from ignored hashes if now adding tx
+                const ignoredTxHashes = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
+                await client.set('refunds-ignore-tx-hashes', JSON.stringify(ignoredTxHashes.filter(hash => hash !== txHash))); 
+                
                 res.status(200).json({
                     status: 'success',
                     message: 'Tx Added',

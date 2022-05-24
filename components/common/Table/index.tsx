@@ -28,13 +28,29 @@ type TableProps = {
   defaultSortDir?: string
   alternateBg?: boolean
   onClick?: (e: any) => void
+  onFilter?: (items: any[], filters: any) => void
   noDataMessage?: string
+  defaultFilters?: { [key: string]: any }
 }
 
-export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir = 'asc', defaultSort, alternateBg = true, onClick, ...props }: TableProps) => {
+const emptyObj = {};
+
+export const Table = ({
+  columns,
+  noDataMessage,
+  items,
+  keyName,
+  defaultSortDir = 'asc',
+  defaultSort,
+  alternateBg = true,
+  defaultFilters = emptyObj,
+  onClick,
+  onFilter,
+  ...props
+}: TableProps) => {
   const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState(defaultFilters);
   const [filteredItems, setFilteredItems] = useState([]);
 
   const hasSubheader = columns.filter(c => c.showFilter || !!c.customSubheader).length > 0;
@@ -49,7 +65,10 @@ export const Table = ({ columns, noDataMessage, items, keyName, defaultSortDir =
       if (val === null) { return }
       filteredItems = filteredItems.filter(item => item[key] === val);
     });
-    setFilteredItems(filteredItems)
+    setFilteredItems(filteredItems);
+    if(onFilter){
+      onFilter(filteredItems, filters);
+    }
   }, [sortedItems, filters])
 
   useEffect(() => {

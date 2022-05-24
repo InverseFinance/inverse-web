@@ -99,3 +99,50 @@ export const throttledPromises = (
 export function uniqueBy(a, cond) {
     return a.filter((e, i) => a.findIndex(e2 => cond(e, e2)) === i);
 }
+
+export const exportToCsv = (data, filename = 'export.csv') => {
+    try {
+        const content = arrayToCsv(data);
+        downloadBlob(content, filename, 'text/csv;charset=utf-8;');
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export function arrayToCsv(data) {
+    let rows: any[] = [];
+    if (data.length > 0) {
+        if (typeof data[0] === 'object' && !Array.isArray(data[0])) {
+            rows.push(Object.keys(data[0]));
+            rows = rows.concat(
+                data.map(d => {
+                    return Object.values(d);
+                })
+            )
+        }
+    }
+    return rows.map(row =>
+        row
+            .map(String)  // convert every value to String
+            .map(v => v.replaceAll('"', '""'))  // escape double colons
+            .map(v => `"${v}"`)  // quote it
+            .join(',')  // comma-separated
+    ).join('\r\n');  // rows starting on new lines
+}
+
+export function downloadBlob(content, filename, contentType) {
+    // Create a blob
+    var blob = new Blob([content], { type: contentType });
+    var url = URL.createObjectURL(blob);
+
+    // Create a link to download it
+    var pom = document.createElement('a');
+    pom.href = url;
+    pom.setAttribute('download', filename);
+    pom.click();
+}
+
+export const timestampToUTC = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${(date.getUTCDate()).toString().padStart(2, '0')}`
+}

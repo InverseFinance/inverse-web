@@ -11,18 +11,21 @@ import { TransactionResponse, Web3Provider } from '@ethersproject/providers';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { submitRefunds } from '@app/util/governance';
 import { showToast } from '@app/util/notify';
+import { exportToCsv, roundFloorString } from '@app/util/misc';
+import { namedAddress } from '@app/util';
 
 type Props = {
     txs: RefundableTransaction[]
     isOpen: boolean
     onClose: () => void
     onSuccess: () => any
+    handleExportCsv: () => any
 }
 
-export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
+export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv }: Props) => {
     const { library } = useWeb3React<Web3Provider>();
 
-    const totals = {};
+    const totals: { [key: string]: BigNumber } = {};
     let overallTotal = BigNumber.from('0');
     txs.forEach(t => {
         if (!totals[t.from]) { totals[t.from] = BigNumber.from('0') }
@@ -30,11 +33,12 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
         overallTotal = overallTotal.add(parseEther(t.fees))
     })
 
-    const breakdown = {}
+    const breakdown = {};
+
     txs.forEach(t => {
         if (!breakdown[t.from]) { breakdown[t.from] = [] }
         breakdown[t.from].push(t);
-    })
+    });
 
     const handleClose = () => {
         onClose();
@@ -45,13 +49,31 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
         return disperseEther(inputs, library?.getSigner());
     }
 
-    const handleSuccess = async(tx: TransactionResponse) => {
-        onSuccess();   
+    const handleSuccess = async (tx: TransactionResponse) => {
         const res = await submitRefunds(txs, tx.hash);
-        if(res?.status && res?.message) {
+        if (res?.status && res?.message) {
             const statusType = ["success", "warning", "info", "error"].includes(res?.status) ? res?.status : 'info';
             showToast({ status: statusType, description: res?.message });
         }
+        onSuccess();
+    }
+
+    const handleTotalsExportCsv = () => {
+        const data = Object.entries(breakdown)
+            .map(([ad, txs]) => {
+                return {
+                    From: ad,
+                    FromName: namedAddress(ad),
+                    NbTxs: txs.length,
+                    TotalFees: formatEther(totals[ad]),
+                };
+            });
+        data.sort((a, b) => parseFloat(roundFloorString(b.TotalFees)) - parseFloat(roundFloorString(a.TotalFees)))
+        exportToCsv(data, 'refunds-totals');
+    }
+
+    const handleRemove = async () => {
+        return submitRefunds(txs, '', () => onSuccess(), library?.getSigner());
     }
 
     return (
@@ -61,19 +83,33 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
             scrollBehavior={'inside'}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
-                    <Text>Execute {txs.length} Refund{txs.length > 0 ? 's' : ''}</Text>
+                    <Text>Inspecting {txs.length} Tx{txs.length > 0 ? 's' : ''}</Text>
                 </Stack>
             }
             footer={
-                <VStack w='full'>
+                <VStack w='full' spacing="4">
                     <InfoMessage
                         alertProps={{ fontSize: ' 12px', w: 'full' }}
                         description={<>
                             OVERALL TOTAL: <b>{formatEther(overallTotal)}</b>
-                        </>} />
-                    <SubmitButton onClick={() => handleSubmit(totals)} onSuccess={handleSuccess}>
-                        SEND ETH
-                    </SubmitButton>
+                        </>}
+                    />
+                    <HStack spacing="2">
+                        <SubmitButton themeColor="blue.500" onClick={() => handleExportCsv()}>
+                            EXPORT TXS
+                        </SubmitButton>
+                        <SubmitButton themeColor="blue.500" onClick={() => handleTotalsExportCsv()}>
+                            EXPORT SUBTOTALS
+                        </SubmitButton>
+                    </HStack>
+                    <HStack spacing="2">
+                        <SubmitButton themeColor="orange.500" onClick={() => handleRemove()} onSuccess={handleSuccess}>
+                            Remove TXS
+                        </SubmitButton>
+                        <SubmitButton themeColor="green.500" onClick={() => handleSubmit(totals)} onSuccess={handleSuccess}>
+                            SEND ETH
+                        </SubmitButton>
+                    </HStack>
                 </VStack>
             }
         >
@@ -91,7 +127,7 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen }: Props) => {
                                 }
                                 {
                                     txs.length > 1
-                                    && <Text>Subtotal: {formatEther(txs.reduce((prev, curr) => prev.add(parseEther(curr.fees)), BigNumber.from('0')))}</Text>
+                                    && <Text>Subtotal: {formatEther(totals[ad])}</Text>
                                 }
                             </VStack>
                         </VStack>

@@ -138,11 +138,14 @@ export default async function handler(req, res) {
     const [endYear, endMonth, endDay] = (endDate || '').split('-');
     const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
 
+    const ignoredTxs = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
+
     totalItems = totalItems
       .filter(t =>
         t.successful
         && t.timestamp >= startTimestamp
         && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
+        && !ignoredTxs.includes(t.txHash)
       );
 
     totalItems = uniqueBy(totalItems, (o1, o2) => o1.txHash === o2.txHash);
