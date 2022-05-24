@@ -40,9 +40,16 @@ const FundLine = ({
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
                 <Text>-</Text>
-                {
-                    token?.image && <Image display="inline-block" src={token?.image} ignoreFallback={true} w='15px' h='15px' mr="1" ml="1" />
-                }
+                <Flex alignItems="center" position="relative">
+                    {
+                        token?.image
+                        && <Image display="inline-block" src={token?.image} ignoreFallback={true} w='15px' h='15px' mr="1" ml="1" />
+                    }
+                    {
+                        token?.image && !!token?.protocolImage
+                        && <Image display="inline-block" position="absolute" src={token?.protocolImage} ignoreFallback={true} w='8px' h='8px' bottom="0" right="0" />
+                    }
+                </Flex>
                 <Text ml="1" lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
             {

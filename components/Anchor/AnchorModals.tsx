@@ -125,8 +125,9 @@ export const AnchorModal = ({
   }
 
   const inputRightSideContent = <Stack direction="row" align="center" pl={2} pr={4}>
-    <Flex w={5}>
+    <Flex w={5} position="relative">
       <Image w={5} h={5} src={asset.underlying.image} />
+      {!!asset.underlying.protocolImage && <Image position="absolute" bottom="0" right="-5px" w={3} h={3} src={asset.underlying.protocolImage} /> }
     </Flex>
     <Text fontSize="sm" fontWeight="semibold" color="primary.100" align="center">
       {asset.underlying.symbol.replace('-SLP', '')}
@@ -145,7 +146,7 @@ export const AnchorModal = ({
       scrollBehavior={scrollBehavior || 'outside'}
       header={
         <Stack textTransform="uppercase" fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
-          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
+          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} protocolImage={asset.underlying.protocolImage}  protocolImageSize={4} />
           <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
       }
@@ -350,7 +351,7 @@ export const AnchorCollateralModal = ({
       scrollBehavior="inside"
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center">
-          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} />
+          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} protocolImage={asset.underlying.protocolImage} protocolImageSize={4} />
           <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
       }
