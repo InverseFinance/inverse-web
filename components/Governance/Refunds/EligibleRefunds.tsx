@@ -1,8 +1,10 @@
 import { Input } from '@app/components/common/Input';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
+import { namedAddress } from '@app/util';
 import { addTxToRefund } from '@app/util/governance';
 import { shortenNumber } from '@app/util/markets';
+import { exportToCsv, timestampToUTC } from '@app/util/misc';
 import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
@@ -31,7 +33,7 @@ const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
     }}>
         <Box position="absolute" top="0" bottom="0" left="0" right="0" maring="auto" zIndex="1"></Box>
         {
-            !refunded && <Checkbox value="true" isChecked={localCheck}  />
+            !refunded && <Checkbox value="true" isChecked={localCheck} />
         }
     </Flex>
 }
@@ -87,8 +89,8 @@ export const EligibleRefunds = () => {
             const txIndex = checkedTxHashes.indexOf(txHash);
             if (txIndex !== -1 && !isSelect) {
                 removed.push(txHash);
-            } 
-            else if(txIndex === -1 && isSelect) {
+            }
+            else if (txIndex === -1 && isSelect) {
                 _toRefund.push(tx);
             }
         });
@@ -211,11 +213,47 @@ export const EligibleRefunds = () => {
     }
 
     const addTx = () => {
-        if(!library?.getSigner()) { return }
+        if (!library?.getSigner()) { return }
         const txHash = window.prompt('Tx hash to add');
-        if(!txHash) { return }
+        if (!txHash) { return }
         return addTxToRefund(txHash, library?.getSigner(), () => reloadData());
     }
+
+    const handleExportCsv = () => {
+        const data = txsToRefund.map(({ txHash, timestamp, fees, name, from, type, to, refunded, refundTxHash }) => {
+            return {
+                TxHash: txHash,
+                Timestamp: timestamp,
+                DateUTC: timestampToUTC(timestamp),
+                From: from,
+                FromName: namedAddress(from),
+                EventName: name,
+                TxType: type,
+                To: to,
+                ToName: namedAddress(to),
+                Fees: fees,
+                Refunded: refunded,
+                RefundTxHash: refundTxHash||'',
+            };
+        });
+        data.sort((a, b) => b.Timestamp - a.Timestamp);
+        exportToCsv(data, 'refunds');
+    }
+
+    const CTAs = <HStack justifyContent="flex-end">
+        {/* <SubmitButton
+            disabled={!txsToRefund.length || !account}
+            w="180px"
+            onClick={() => handleExportCsv()}>
+            Export {txsToRefund.length} Txs
+        </SubmitButton> */}
+        <SubmitButton
+            disabled={!txsToRefund.length || !account}
+            w="180px"
+            onClick={() => handleRefund(txsToRefund)}>
+            Inspect {txsToRefund.length} Txs
+        </SubmitButton>
+    </HStack>
 
     return (
         <Container
@@ -239,7 +277,7 @@ export const EligibleRefunds = () => {
                     <SkeletonBlob />
                     :
                     <VStack spacing="4" w='full' alignItems="space-between">
-                        <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} />
+                        <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} handleExportCsv={handleExportCsv} />
                         <Stack
                             direction="row"
                             justifyContent="space-between"
@@ -264,20 +302,7 @@ export const EligibleRefunds = () => {
                                     <PlusSquareIcon />
                                 </SubmitButton>
                             </HStack>
-                            <HStack>
-                                {/* <SubmitButton
-                                        disabled={!checkedTxs.length || !account}
-                                        w="240px"
-                                        onClick={() => handleRefund(eligibleTxs, checkedTxs, refundTxHash)}>
-                                        UNMARK AS REFUNDED
-                                    </SubmitButton> */}
-                                <SubmitButton
-                                    disabled={!txsToRefund.length || !account}
-                                    w="240px"
-                                    onClick={() => handleRefund(txsToRefund)}>
-                                    Refund {txsToRefund.length} Txs
-                                </SubmitButton>
-                            </HStack>
+                            {CTAs}
                         </Stack>
                         <Divider />
                         <Table
@@ -288,14 +313,7 @@ export const EligibleRefunds = () => {
                             defaultSortDir="desc"
                             onFilter={(visibleItems) => setVisibleItems(visibleItems)}
                         />
-                        <HStack w='full' justifyContent="flex-end">
-                            <SubmitButton
-                                disabled={!txsToRefund.length || !account}
-                                w="240px"
-                                onClick={() => handleRefund(txsToRefund)}>
-                                Refund {txsToRefund.length} Txs
-                            </SubmitButton>
-                        </HStack>
+                        {CTAs}
                     </VStack>
             }
         </Container>
