@@ -1,4 +1,5 @@
 import { Input } from '@app/components/common/Input';
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
 import { RefundableTransaction } from '@app/types';
 import { namedAddress } from '@app/util';
@@ -46,7 +47,7 @@ export const EligibleRefunds = () => {
     // filtered inside table with subfilters
     const [visibleItems, setVisibleItems] = useState<RefundableTransaction[]>([]);
     const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
-    const [hideAlreadyRefunded, setHideAlreadyRefunded] = useState(true);
+    const [refundFilter, setRefundFilter] = useState<'all' | 'refunded' | 'non-refunded'>('non-refunded');
     const { isOpen, onClose, onOpen } = useDisclosure();
 
     const now = new Date();
@@ -60,8 +61,8 @@ export const EligibleRefunds = () => {
     const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
 
     useEffect(() => {
-        setTableItems(hideAlreadyRefunded ? eligibleTxs.filter(t => !t.refunded) : eligibleTxs);
-    }, [hideAlreadyRefunded, eligibleTxs])
+        setTableItems(refundFilter === 'all' ? eligibleTxs : eligibleTxs.filter(t => t.refunded === (refundFilter === 'refunded')));
+    }, [refundFilter, eligibleTxs])
 
     useEffect(() => {
         const checkedTxs = txsToRefund.map(t => t.txHash);
@@ -284,9 +285,21 @@ export const EligibleRefunds = () => {
                             direction="row"
                             justifyContent="space-between"
                             alignItems="center">
-                            <HStack alignItems="center">
-                                <Text cursor="pointer" color={'secondaryTextColor'} onClick={() => setHideAlreadyRefunded(!hideAlreadyRefunded)}>Hide Already Refunded Txs?</Text>
-                                <Switch isChecked={hideAlreadyRefunded} onChange={() => setHideAlreadyRefunded(!hideAlreadyRefunded)} />
+                            <HStack alignItems="center" justifyItems="center">
+                                <RadioCardGroup
+                                    wrapperProps={{ w: 'full', justify: 'center' }}
+                                    group={{
+                                        name: 'bool',
+                                        defaultValue: refundFilter,
+                                        onChange: (value) => setRefundFilter(value),
+                                    }}
+                                    radioCardProps={{ w: 'fit-content', textAlign: 'center', px: '3', py: '1' }}
+                                    options={[
+                                        { label: 'All', value: 'all' },
+                                        { label: 'Refunded', value: 'refunded' },
+                                        { label: 'Non-Refunded', value: 'non-refunded' }
+                                    ]}
+                                />
                             </HStack>
                             <HStack>
                                 <InputGroup>
