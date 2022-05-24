@@ -21,6 +21,7 @@ export interface Token {
     color: BackgroundProps["bgColor"]
   }
   isInPausedSection?: boolean,
+  protocolImage?: string,
 }
 
 export interface TokenWithBalance extends Token {

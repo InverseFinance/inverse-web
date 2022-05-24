@@ -42,7 +42,8 @@ export const useExchangeRatesV2 = (): SWR & ExchangeRates => {
     const { exRates: simExRates } = simData;
     Object.keys(storedRates).map(ctoken => {
       const stored = getBnToNumber(storedRates[ctoken]);
-      freshRates[ctoken] = parseEther(Math.max(stored, simExRates[ctoken]?.realTime).toString());
+      const simed = simExRates[ctoken] ? simExRates[ctoken]?.realTime : 0;
+      freshRates[ctoken] = parseEther(Math.max(stored, simed).toString());
     });
   }
 

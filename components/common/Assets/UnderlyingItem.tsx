@@ -1,4 +1,4 @@
-import { Image, ImageProps, Text, TextProps } from '@chakra-ui/react'
+import { Box, Image, ImageProps, Text, TextProps } from '@chakra-ui/react'
 import { OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
 import React from 'react'
@@ -16,6 +16,8 @@ export const UnderlyingItem = ({
     badge,
     Container = DEFAULT_CONTAINER,
     containerProps,
+    protocolImage,
+    protocolImageSize = 3,
 }: {
     label: string,
     image: string,
@@ -26,9 +28,16 @@ export const UnderlyingItem = ({
     badge?: Token["badge"],
     Container?: React.ComponentType<any>,
     containerProps?: any,
+    protocolImage?: string,
+    protocolImageSize?: ImageProps["w"],
 }) => {
     return <Container {...containerProps}>
-        <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
+        <Box position="relative">
+            <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
+            {
+                !!protocolImage && <Image ignoreFallback={true} src={protocolImage} w={protocolImageSize} h={protocolImageSize} position="absolute" bottom="0" right="-5px" />
+            }
+        </Box>
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
         {
             !!badge &&

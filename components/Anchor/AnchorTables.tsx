@@ -71,6 +71,7 @@ const getColumn = (
               textProps={{ color }}
               label={underlying.symbol}
               image={underlying.image}
+              protocolImage={underlying.protocolImage}
               address={token}
             />
             {

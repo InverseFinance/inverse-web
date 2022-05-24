@@ -1,5 +1,5 @@
 import "source-map-support";
-import { getCacheFromRedis, getRedisClient } from '@app/util/redis';
+import { getCacheFromRedis } from '@app/util/redis';
 
 export default async function handler(req, res) {
   try {

@@ -146,7 +146,7 @@ export const Overview = () => {
           }
           {!!tvlData && <ShrinkableInfoMessage
             title={<Flex alignItems="center">
-              ⚓ Frontier Total Value Locked (
+              Frontier Total Value Locked (
               <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
                 Analytics <ExternalLinkIcon mb="1px" fontSize="10px" />
               </Link>
