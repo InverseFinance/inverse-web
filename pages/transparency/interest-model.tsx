@@ -55,7 +55,7 @@ export const InterestModelPage = () => {
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}
                         contentBgColor="transparent"
-                        label="Anchor Borrow Markets"
+                        label="Frontier Borrow Markets"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
                                 {

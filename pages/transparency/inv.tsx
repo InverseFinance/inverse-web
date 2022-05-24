@@ -91,7 +91,7 @@ export const InvPage = () => {
           ]}
           />
           <ShrinkableInfoMessage
-            title={`🔒 ${RTOKEN_SYMBOL} Staked on Anchor`}
+            title={`🔒 ${RTOKEN_SYMBOL} Staked on Frontier`}
             description={
               <>
                 <Funds showTotal={true} showPerc={true} funds={
@@ -114,7 +114,7 @@ export const InvPage = () => {
             }
           />
           <ShrinkableInfoMessage
-            title="✨ Monthly INV rewards for each Anchor Market"
+            title="✨ Monthly INV rewards for each Frontier Market"
             description={
               <Funds funds={markets.map(market => {
                 return { token: market.underlying, balance: market.rewardsPerMonth, usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd! }

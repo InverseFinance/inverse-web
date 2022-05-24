@@ -47,7 +47,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         <Head>
           <title>{process.env.NEXT_PUBLIC_TITLE}</title>
           <meta name="description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Earn interest by supplying WBTC, ETH, stETH, YFI and other assets, borrow ETH, WBTC, YFI or DOLA our over-collaterized stablecoin. Buy INV and join our DAO to vote for the future of Inverse Finance." />
-          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, WBTC, YFI, INV, DOLA, FLOKI, xSushi, borrow, lend, bonds, positive-sum, rewards, transparency, anchor" />
+          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, WBTC, YFI, INV, DOLA, FLOKI, xSushi, borrow, lend, bonds, positive-sum, rewards, transparency, anchor, frontier" />
           
           <meta name="og:title" content="Inverse Finance" />
           <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Earn interest by supplying WBTC, ETH, stETH, YFI and other assets, borrow ETH, WBTC, YFI or DOLA our over-collaterized stablecoin. Buy INV and join our DAO to vote for the future of Inverse Finance." />

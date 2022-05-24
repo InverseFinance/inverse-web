@@ -24,9 +24,9 @@ export const Anchor = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Anchor</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Frontier</title>
       </Head>
-      <AppNav active="Anchor" activeSubmenu="Overview" />
+      <AppNav active="Frontier" activeSubmenu="Overview" />
       <ErrorBoundary>
         <Flex w={{ base: 'full', xl: '84rem' }} justify="flex-start">
           <ErrorBoundary description="Failed to load header"><AnchorHeader /></ErrorBoundary>

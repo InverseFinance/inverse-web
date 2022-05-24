@@ -122,7 +122,7 @@ export const Overview = () => {
                     funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)}
                     boldTotal={false}
                   />
-                  <Text mt="2" fontWeight="bold">In Anchor Reserves:</Text>
+                  <Text mt="2" fontWeight="bold">In Frontier Reserves:</Text>
                   <Funds
                     prices={prices}
                     funds={anchorReserves}
@@ -146,7 +146,7 @@ export const Overview = () => {
           }
           {!!tvlData && <ShrinkableInfoMessage
             title={<Flex alignItems="center">
-              ⚓ Anchor Total Value Locked (
+              ⚓ Frontier Total Value Locked (
               <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
                 Analytics <ExternalLinkIcon mb="1px" fontSize="10px" />
               </Link>
@@ -182,8 +182,8 @@ export const Overview = () => {
                   <Text>Pause (but not unpause) a Market</Text>
                 </Flex>
                 <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Anchor Admin:</Text>
-                  <Text>All rights on Anchor</Text>
+                  <Text fontWeight="bold">- Frontier Admin:</Text>
+                  <Text>All rights on Frontier</Text>
                 </Flex>
                 <Flex direction="row" w='full' justify="space-between">
                   <Text fontWeight="bold">- x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Admin:</Text>

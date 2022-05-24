@@ -68,9 +68,9 @@ export const InvPlus = () => {
           <Flex direction="column" justifyContent="space-around" w={{ base: 'full', md: '40%' }} px="5">
             <VStack pt="10" alignItems="flex-start">
               <VStack spacing="2" alignItems="left">
-                <Step label="Earn Continuous Staking Rewards" href="/anchor?market=inv&marketType=supply" />
+                <Step label="Earn Continuous Staking Rewards" href="/frontier?market=inv&marketType=supply" />
                 <Step label="Earn Revenue Sharing Rewards" href="https://docs.inverse.finance/inverse-finance/basics/inv-token#revenue-sharing-rewards-rsr" />
-                <Step label="Borrow DOLA using INV as Collateral" href="/anchor?market=dola&marketType=borrow" />
+                <Step label="Borrow DOLA using INV as Collateral" href="/frontier?market=dola&marketType=borrow" />
                 <Step label="Vote in the Inverse Finance DAO" href="/governance" />
               </VStack>
             </VStack>
@@ -96,7 +96,7 @@ export const InvPlus = () => {
 
               <Text fontSize="16px" fontWeight="bold" color="secondary">How do continuous Rewards work?</Text>
               <Text>
-                Staking INV on Anchor delivers additional INV rewards with each new mined Ethereum block, approximately 6,400 times per day with a <b>current APY of {apy}% and max of 500%</b>.
+                Staking INV on Frontier delivers additional INV rewards with each new mined Ethereum block, approximately 6,400 times per day with a <b>current APY of {apy}% and max of 500%</b>.
               </Text>
 
               <Text fontSize="16px" fontWeight="bold" color="secondary">How do Revenue Sharing Rewards work?</Text>

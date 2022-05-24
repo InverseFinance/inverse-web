@@ -86,7 +86,7 @@ export const Overview = () => {
 
   const totalHoldings = [
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices), usdPrice: 1, drill: treasury },
-    { label: 'Anchor Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
+    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
     { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
     { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGFtmfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGFtmfunds) },
   ];
@@ -124,7 +124,7 @@ export const Overview = () => {
               <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
               <FundsDetails title="Multisigs's Holdings & Allowances from Treasury" funds={totalMultisigs} prices={prices} />
               <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} />
-              <FundsDetails title="In Anchor Reserves" funds={anchorReserves} prices={prices} />
+              <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} />
               <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} />

@@ -29,14 +29,14 @@ const cards = [
     description: 'Scale your earnings with Positive Sum Rewards & revenue sharing',
     label: 'Buy and Stake INV',
     image: '/assets/products/vaults.png',
-    href: '/anchor',
+    href: '/frontier',
   },
   {
-    title: 'Anchor',
+    title: 'Frontier',
     description: 'Earn more with decentralized, capital-efficient lending, borrowing',
     label: 'Lend & Borrow',
     image: '/assets/products/anchor.png',
-    href: '/anchor',
+    href: '/frontier',
   },
   {
     title: 'DOLA',
@@ -131,7 +131,7 @@ export const Landing = () => {
           </Flex>
           <Flex pt="4">
             <Flex w={32} m={2}>
-              <LinkButton flexProps={{ bgColor: 'primaryPlus' }} data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/anchor">
+              <LinkButton flexProps={{ bgColor: 'primaryPlus' }} data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/frontier">
                 Enter App
               </LinkButton>
             </Flex>

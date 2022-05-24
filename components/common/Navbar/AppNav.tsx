@@ -128,11 +128,11 @@ const INVBalance = () => {
   }, [data, userAddress, exRate], !userAddress, 1000)
 
   const goToSupply = () => {
-    if (router.pathname === '/anchor') {
+    if (router.pathname === '/frontier') {
       const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
       document.dispatchEvent(customEvent);
     } else {
-      router.push({ pathname: '/anchor', query: { market: 'inv', marketType: 'supply' } });
+      router.push({ pathname: '/frontier', query: { market: 'inv', marketType: 'supply' } });
     }
   }
 
@@ -168,7 +168,7 @@ const INVBalance = () => {
                 You have {invBalOnFantom.toFixed(2)} <b>{RTOKEN_SYMBOL}</b> on Fantom
               </Text>}
               <Text mt="2">
-                We recommend {onFantomCase && "bridging and"} staking all your {RTOKEN_SYMBOL} on Anchor to <b>earn rewards and avoid dilution</b>
+                We recommend {onFantomCase && "bridging and"} staking all your {RTOKEN_SYMBOL} on Frontier to <b>earn rewards and avoid dilution</b>
               </Text>
             </>
           }>

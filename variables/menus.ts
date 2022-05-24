@@ -1,20 +1,20 @@
 export const MENUS = {
   "nav": [
     {
-      label: 'Anchor',
-      href: '/anchor',
+      label: 'Frontier',
+      href: '/frontier',
       submenus: [
         {
           label: 'Overview',
-          href: '/anchor',
+          href: '/frontier',
         },
         {
           label: 'Stake INV',
-          href: '/anchor?marketType=supply&market=inv#',
+          href: '/frontier?marketType=supply&market=inv#',
         },
         {
           label: 'Borrow DOLA',
-          href: '/anchor?marketType=borrow&market=dola#',
+          href: '/frontier?marketType=borrow&market=dola#',
         },
       ],
     },
@@ -126,8 +126,8 @@ export const MENUS = {
           href: '/inv',
         },
         {
-          label: 'Anchor',
-          href: '/anchor',
+          label: 'Frontier',
+          href: '/frontier',
         },
         {
           label: 'DOLA',
