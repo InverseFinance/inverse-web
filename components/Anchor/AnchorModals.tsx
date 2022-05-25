@@ -159,7 +159,7 @@ export const AnchorModal = ({
           }
           {
             operation === AnchorOperations.supply &&
-            ['WBTC', 'YFI', 'ETH'].includes(asset.underlying.symbol)
+            ['WBTC-v1', 'YFI-v1', 'ETH-v1'].includes(asset.underlying.symbol)
             && <WarningMessage
               alertProps={{
                 fontSize: '12px'

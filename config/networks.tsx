@@ -19,7 +19,6 @@ const envConfig: NetworkConfig = {
     comptroller: process.env.NEXT_PUBLIC_ANCHOR_COMPTROLLER,
     oracle: process.env.NEXT_PUBLIC_ANCHOR_ORACLE,
     treasury: process.env.NEXT_PUBLIC_ANCHOR_TREASURY,
-    anChainCoinRepayAll: process.env.NEXT_PUBLIC_ANCHOR_COIN_REPAY_ALL,
   },
   escrow_old: process.env.NEXT_PUBLIC_ANCHOR_ESCROW_OLD || '',
   escrow: process.env.NEXT_PUBLIC_ANCHOR_ESCROW,

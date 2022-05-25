@@ -1,6 +1,8 @@
 import { HAS_REWARD_TOKEN } from '@app/config/constants';
-import { TokenList } from '@app/types';
+import { Token, TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
+
+// TODO: refacto in cleaner way with markets and tokens
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
   return Object.entries(tokens)
@@ -72,8 +74,6 @@ const chainTokens = {
       coingeckoId: 'ethereum',
       image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
       decimals: 18,
-      isInPausedSection: true,
-      badge: pausedBadge,
     },
     // Tokens
     [chainTokenAddresses["1"].DAI]: {
@@ -134,8 +134,6 @@ const chainTokens = {
       coingeckoId: 'wrapped-bitcoin',
       image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
       decimals: 8,
-      isInPausedSection: true,
-      badge: pausedBadge,
     },
     [chainTokenAddresses["1"].STETH]: {
       address: chainTokenAddresses["1"].STETH,
@@ -299,6 +297,16 @@ copyToFtm.forEach(sym => {
 
 export const CHAIN_TOKENS: { [key: string]: TokenList } = { ...chainTokens, [process.env.NEXT_PUBLIC_CHAIN_ID!]: TOKENS };
 
+const toV1 = (token: Token) => {
+  return {
+    ...token,
+    symbol: `${token.symbol}-v1`,
+    name: `${token.name}-v1`,
+    isInPausedSection: true,
+    badge: pausedBadge,
+  }
+}
+
 /* 
  * Anchor Markets Underlyings
  * Markets listed here will appear in UI
@@ -306,11 +314,16 @@ export const CHAIN_TOKENS: { [key: string]: TokenList } = { ...chainTokens, [pro
  */
 const chainUnderlying = {
   "1": {
-    '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8': TOKENS.CHAIN_COIN,
+    '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8': toV1(TOKENS.CHAIN_COIN),
+    '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b': toV1(getToken(TOKENS, chainTokenAddresses["1"].WBTC)!),
+    '0xde2af899040536884e062D3a334F2dD36F34b4a4': toV1(getToken(TOKENS, chainTokenAddresses["1"].YFI)!),
+    // v2 markets
+    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': TOKENS.CHAIN_COIN,
+    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC)!,
+    // '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI)!,
+    // others
     '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA),
-    '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b': getToken(TOKENS, chainTokenAddresses["1"].WBTC),
     '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326': getToken(TOKENS, chainTokenAddresses["1"].XSUSHI),
-    '0xde2af899040536884e062D3a334F2dD36F34b4a4': getToken(TOKENS, chainTokenAddresses["1"].YFI),
     '0xA978D807614c3BFB0f90bC282019B2898c617880': getToken(TOKENS, chainTokenAddresses["1"].STETH),
     '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760': getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV),
     '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB': getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP),
@@ -322,12 +335,9 @@ const chainUnderlying = {
     '0xD79bCf0AD38E06BC0be56768939F57278C7c42f7': getToken(TOKENS, chainTokenAddresses["1"].YVDAI),
     // bacth 2
     '0xE809aD1577B7fF3D912B9f90Bf69F8BeCa5DCE32': getToken(TOKENS, chainTokenAddresses["1"].YVYFI),
-    '0xa258c4606ca8206d8aa700ce2143d7db854d168c': getToken(TOKENS, chainTokenAddresses["1"].YVWETH),
+    '0xD924Fc65B448c7110650685464c8855dd62c30c0': getToken(TOKENS, chainTokenAddresses["1"].YVWETH),
     '0xa6F1a358f0C2e771a744AF5988618bc2E198d0A0': getToken(TOKENS, chainTokenAddresses["1"].YVCRVCVXETH),
-    // v2 markets
-    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': TOKENS.CHAIN_COIN,
-    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC),
-    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI),
+
   }
 }
 chainUnderlying["31337"] = chainUnderlying["1"];
@@ -376,3 +386,8 @@ export const BONDS = [
     howToGetLink: 'https://curve.fi/factory/27/deposit',
   },
 ]
+
+export const REPAY_ALL_CONTRACTS = {
+  '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8': '0xbE0C9650cf8Ce5279b990e7A6634c63323adfEAE',
+  '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': '0xbE0C9650cf8Ce5279b990e7A6634c63323adfEAE',
+}

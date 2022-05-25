@@ -60,9 +60,11 @@ const namedAddresses: { [key: string]: string } = {
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {
+    // ctoken
     namedAddresses[key] = `an${value.symbol}`
+    // underlying
     if(value.address) {
-        namedAddresses[value.address] = value.symbol
+        namedAddresses[value.address] = value.symbol.replace('-v1', '');
     }
 })
 

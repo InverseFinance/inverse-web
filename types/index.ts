@@ -66,6 +66,7 @@ export type Market = {
   claimableTime?: number
   rewardsPerMonth: number
   interestRateModel?: string
+  repayAllAddress? : string
 }
 
 export enum GovEra {
@@ -191,7 +192,6 @@ export type NetworkConfig = {
     comptroller: string,
     oracle: string,
     treasury: string,
-    anChainCoinRepayAll: string,
   }
   [key: string]: string | any;
 }

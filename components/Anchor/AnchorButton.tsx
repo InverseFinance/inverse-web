@@ -101,8 +101,8 @@ export const ApproveButton = ({
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
   const { library, chainId, account } = useWeb3React<Web3Provider>()
-  const { ANCHOR_CHAIN_COIN, XINV, XINV_V1, ESCROW, ESCROW_OLD, AN_CHAIN_COIN_REPAY_ALL } = getNetworkConfigConstants(chainId);
-  const isEthMarket = asset.token === ANCHOR_CHAIN_COIN;
+  const { XINV, XINV_V1, ESCROW, ESCROW_OLD } = getNetworkConfigConstants(chainId);
+  const isEthMarket = !asset.underlying.address;
   const { approvals } = useApprovals()
   const [isApproved, setIsApproved] = useState(isEthMarket || hasAllowance(approvals, asset?.token));
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
@@ -122,7 +122,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   }
 
   const handleEthRepayAll = () => {
-    const repayAllContract = getEthRepayAllContract(AN_CHAIN_COIN_REPAY_ALL, library?.getSigner())
+    const repayAllContract = getEthRepayAllContract(asset.repayAllAddress!, library?.getSigner())
 
     const parsedBal = getParsedBalance(borrowBalances, asset.token, asset.underlying.decimals)
     const dailyInterests = removeScientificFormat(getMonthlyRate(parsedBal, asset.borrowApy) / 30);
@@ -230,7 +230,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
           </SubmitButton>
 
           <SubmitButton
-            isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token])) || (isEthMarket && !AN_CHAIN_COIN_REPAY_ALL)}
+            isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token])) || (isEthMarket && !asset.repayAllAddress)}
             onClick={handleRepayAll}
             refreshOnSuccess={true}
             rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt for this market and avoid "debt dust" being left behind.' />}
