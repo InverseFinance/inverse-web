@@ -16,7 +16,10 @@ export const GovRefunds = () => {
       </Head>
       <AppNav active="Governance" />
 
-      <InfoMessage alertProps={{ mt: '2' }} title="TWG only" description="Only refunds made from the TWG multisig will be saved" />
+      <InfoMessage
+        alertProps={{ mt: '2' }}
+        title="TWG or TWG members only"
+        description="Send refunds with TWG multisig and add/remove/resolve txs with a TWG member wallet" />
 
       <EligibleRefunds />
     </Layout>
