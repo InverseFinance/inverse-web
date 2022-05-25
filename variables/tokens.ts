@@ -46,6 +46,10 @@ const chainTokenAddresses = {
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
     YVUSDC: '0xa354f35829ae975e850e23e9615b11da1b3dc4de',
     YVDAI: '0xda816459f1ab5631232fe5e97a05bbbb94970c95',
+    // bacth2
+    YVYFI: '0xdb25ca703181e7484a155dd612b06f57e12be5f0',
+    YVWETH: '0xa258c4606ca8206d8aa700ce2143d7db854d168c',
+    YVCRVCVXETH: '0x1635b506a88fbf428465ad65d00e8d6b6e5846c3',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -207,6 +211,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/16786/small/mimlogopng.png?1624979612',
       decimals: 18,
     },
+    [chainTokenAddresses["1"].YVCRVCVXETH]: {
+      address: chainTokenAddresses["1"].YVCRVCVXETH,
+      name: 'YV-CrvCvxEth',
+      symbol: 'yvCrvCvxEth',
+      image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+    },
   },
   "250": {
     CHAIN_COIN: {
@@ -243,7 +255,7 @@ const chainTokens = {
 }
 chainTokens["31337"] = chainTokens["1"];
 
-const copyAsYearnVault = ['DOLA3POOLCRV', 'USDC', 'USDT', 'DAI'];
+const copyAsYearnVault = ['DOLA3POOLCRV', 'USDC', 'USDT', 'DAI', 'YFI', 'WETH'];
 copyAsYearnVault.forEach(s => {
   const token = chainTokens["1"][chainTokenAddresses["1"][s]];
   chainTokens["1"][chainTokenAddresses["1"][`YV${s}`]] = {
@@ -308,6 +320,14 @@ const chainUnderlying = {
     '0x4597a4cf0501b853b029cE5688f6995f753efc04': getToken(TOKENS, chainTokenAddresses["1"].YVUSDT),
     '0x7e18AB8d87F3430968f0755A623FB35017cB3EcA': getToken(TOKENS, chainTokenAddresses["1"].YVUSDC),
     '0xD79bCf0AD38E06BC0be56768939F57278C7c42f7': getToken(TOKENS, chainTokenAddresses["1"].YVDAI),
+    // bacth 2
+    '0xE809aD1577B7fF3D912B9f90Bf69F8BeCa5DCE32': getToken(TOKENS, chainTokenAddresses["1"].YVYFI),
+    '0xa258c4606ca8206d8aa700ce2143d7db854d168c': getToken(TOKENS, chainTokenAddresses["1"].YVWETH),
+    '0xa6F1a358f0C2e771a744AF5988618bc2E198d0A0': getToken(TOKENS, chainTokenAddresses["1"].YVCRVCVXETH),
+    // v2 markets
+    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': TOKENS.CHAIN_COIN,
+    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC),
+    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI),
   }
 }
 chainUnderlying["31337"] = chainUnderlying["1"];
