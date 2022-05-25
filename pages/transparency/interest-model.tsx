@@ -11,7 +11,7 @@ import { shortenNumber } from '@app/util/markets'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import { Market } from '@app/types'
-import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { shortenAddress } from '@app/util'
 import { Container } from '@app/components/common/Container';
@@ -57,12 +57,20 @@ export const InterestModelPage = () => {
                         contentBgColor="transparent"
                         label="Frontier Borrow Markets"
                         description={
-                            <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
+                            <Box w={{ base: '90vw', sm: '100%' }} maxW="850px">
                                 {
                                     !!chosenMarket &&
                                     <>
-                                        <RadioCardGroup
-                                            wrapperProps={{ overflow: 'auto', position: 'relative', justify: 'left', mt: '2', mb: '2', maxW: { base: '90vw', sm: '100%' } }}
+                                        <RadioGridCardGroup
+                                            wrapperProps={{
+                                                minChildWidth: '120px',
+                                                spacing: '2',
+                                                overflow: 'auto',
+                                                position: 'relative',
+                                                mt: '2',
+                                                mb: '2',
+                                                maxW: { base: '90vw', sm: 'auto-fit' },
+                                            }}
                                             group={{
                                                 name: 'market',
                                                 value: chosenMarket?.token || undefined,

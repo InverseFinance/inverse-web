@@ -18,9 +18,10 @@ export const UnderlyingItemBlock = ({
     props?: FlexProps
 }) => {
     const token = Object.values(TOKENS).find(t => t.symbol === symbol);
+    const backup = Object.values(TOKENS).find(t => t.symbol === symbol.replace('-v1', ''));
     return <Flex alignItems="center" {...props}>
         {
-            !!token && <UnderlyingItem label={token[nameAttribute]} image={token.image} address={token.address} imgSize={imgSize} imgProps={{ mr: '1', ...imgProps }} />
+            (!!token || !!backup) && <UnderlyingItem label={token ? token[nameAttribute] : symbol} image={token?.image || backup?.image} address={token?.address || backup?.address} imgSize={imgSize} imgProps={{ mr: '1', ...imgProps }} />
         }
     </Flex>
 }

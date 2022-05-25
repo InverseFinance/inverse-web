@@ -77,7 +77,7 @@ export const AnchorPoolInfo = ({
             {label}
             {
                 !!protocolImage
-                && <AnimatedInfoTooltip message="Yield Bearing Asset Apy">
+                && <AnimatedInfoTooltip message="Yield Bearing Asset APY">
                     <Image position="absolute" bottom="0" right="-12px" src={protocolImage} width="10px" />
                 </AnimatedInfoTooltip>
             }
