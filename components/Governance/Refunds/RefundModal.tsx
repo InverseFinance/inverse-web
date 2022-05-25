@@ -49,14 +49,14 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
         return disperseEther(inputs, library?.getSigner());
     }
 
-    const handleSuccess = async (tx: TransactionResponse) => {
-        const res = await submitRefunds(txs, tx.hash);
-        if (res?.status && res?.message) {
-            const statusType = ["success", "warning", "info", "error"].includes(res?.status) ? res?.status : 'info';
-            showToast({ status: statusType, description: res?.message });
-        }
-        onSuccess();
-    }
+    // const handleSuccess = async (tx: TransactionResponse) => {
+    //     const res = await submitRefunds(txs, tx.hash);
+    //     if (res?.status && res?.message) {
+    //         const statusType = ["success", "warning", "info", "error"].includes(res?.status) ? res?.status : 'info';
+    //         showToast({ status: statusType, description: res?.message });
+    //     }
+    //     onSuccess();
+    // }
 
     const handleTotalsExportCsv = () => {
         const data = Object.entries(breakdown)
@@ -74,6 +74,14 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
 
     const handleRemove = async () => {
         return submitRefunds(txs, '', () => onSuccess(), library?.getSigner());
+    }
+
+    const handleResolve = async () => {
+        const txHash = window.prompt('Transaction hash of the Refund TX');
+        if(!txHash) {
+            return new Promise((resolve) => resolve(false));
+        }
+        return submitRefunds(txs, txHash, () => onSuccess(), library?.getSigner());
     }
 
     return (
@@ -103,11 +111,14 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
                         </SubmitButton>
                     </HStack>
                     <HStack spacing="2">
-                        <SubmitButton themeColor="orange.500" onClick={() => handleRemove()} onSuccess={handleSuccess}>
+                        <SubmitButton themeColor="orange.500" onClick={() => handleRemove()}>
                             Remove TXS
                         </SubmitButton>
-                        <SubmitButton themeColor="green.500" onClick={() => handleSubmit(totals)} onSuccess={handleSuccess}>
+                        <SubmitButton onClick={() => handleSubmit(totals)}>
                             SEND ETH
+                        </SubmitButton>
+                        <SubmitButton themeColor="green.500" onClick={() => handleResolve()}>
+                            Resolve TXS
                         </SubmitButton>
                     </HStack>
                 </VStack>

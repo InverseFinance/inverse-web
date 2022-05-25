@@ -3,6 +3,9 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { getTx } from '@app/util/covalent';
 import { verifyMessage } from 'ethers/lib/utils';
 import { SIGN_MSG } from '@app/config/constants';
+import { Contract } from 'ethers';
+import { MULTISIG_ABI } from '@app/config/abis';
+import { getProvider } from '@app/util/providers';
 
 const client = getRedisClient();
 
@@ -21,8 +24,14 @@ export default async function handler(req, res) {
 
                 const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
 
-                if (sigAddress.toLowerCase() !== TWG.address.toLowerCase()) {
-                    res.status(401).json({ status: 'warning', message: 'Unauthorized: Only TWG' })
+                const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!);
+
+                const contract = new Contract(TWG.address, MULTISIG_ABI, provider);
+                const owners = await contract.getOwners();
+                const authorizedAddresses = [...owners, TWG.address, '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB'];
+
+                if (!authorizedAddresses.map(a => a.toLowerCase()).includes(sigAddress.toLowerCase())) {
+                    res.status(401).json({ status: 'warning', message: 'Unauthorized: Only TWG members or TWG' })
                     return
                 };
 

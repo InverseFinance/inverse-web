@@ -414,7 +414,7 @@ export const submitRefunds = async (
 ): Promise<any> => {
     try {
         let sig;
-        if(!refundTxHash && signer) {
+        if(signer) {
             sig = await signer.signMessage(SIGN_MSG);
         }
         const rawResponse = await fetch(`/api/gov/submit-refunds`, {

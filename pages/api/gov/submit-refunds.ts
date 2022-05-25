@@ -4,6 +4,8 @@ import { getProvider } from '@app/util/providers';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { verifyMessage } from 'ethers/lib/utils';
 import { SIGN_MSG } from '@app/config/constants';
+import { Contract } from 'ethers';
+import { MULTISIG_ABI } from '@app/config/abis';
 
 const client = getRedisClient();
 
@@ -23,6 +25,17 @@ export default async function handler(req, res) {
 
                 const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!);
 
+                const contract = new Contract(TWG.address, MULTISIG_ABI, provider);
+                const owners = await contract.getOwners();
+                const authorizedAddresses = [...owners, TWG.address, '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB'];
+
+                const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
+
+                if (!authorizedAddresses.map(a => a.toLowerCase()).includes(sigAddress.toLowerCase())) {
+                    res.status(401).json({ status: 'warning', message: 'Unauthorized: Only TWG members or TWG' })
+                    return
+                };
+
                 if(refundTxHash) {
                     const tx = await provider.getTransaction(refundTxHash);
 
@@ -30,20 +43,6 @@ export default async function handler(req, res) {
                         res.status(401).json({ status: 'warning', message: 'Refund TX not found' })
                         return
                     }
-
-                    const { from } = tx;
-
-                    if (from.toLowerCase() !== TWG.address.toLowerCase()) {
-                        res.status(401).json({ status: 'warning', message: 'Unauthorized: TWG only' })
-                        return
-                    };
-                } else {
-                    const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
-
-                    if (sigAddress.toLowerCase() !== TWG.address.toLowerCase()) {
-                        res.status(401).json({ status: 'warning', message: 'Unauthorized: Only TWG' })
-                        return
-                    };
                 }
 
                 const signedAt = Date.now();
@@ -52,7 +51,7 @@ export default async function handler(req, res) {
                 const ignoredTxHashes = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
                 refunds.forEach(r => {
                     const existingIndex = refunded.findIndex(past => past.txHash === r.txHash);
-                    const refund = { ...r, refunded: !!refundTxHash, signedAt, signedBy: TWG.address, refundTxHash };
+                    const refund = { ...r, refunded: !!refundTxHash, signedAt, signedBy: sigAddress, refundTxHash };
                     if (!refundTxHash) {
                         ignoredTxHashes.push(r.txHash);
                     } else if (existingIndex !== -1) {
@@ -78,7 +77,7 @@ export default async function handler(req, res) {
                     message: refundTxHash ? 'Refunds Updated' : 'Tx removed',
                     refunds,
                     signedAt,
-                    signedBy: TWG.address,
+                    signedBy: sigAddress,
                     refundTxHash,
                 })
             } catch (e) {
