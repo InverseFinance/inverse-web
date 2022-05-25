@@ -1,6 +1,6 @@
-import { InfoTooltip } from '@app/components/common/Tooltip';
-import { Text, TextProps } from '@chakra-ui/react';
-import { dollarify, shortenNumber } from '@app/util/markets';
+import { AnimatedInfoTooltip, InfoTooltip } from '@app/components/common/Tooltip';
+import { Image, Text, TextProps } from '@chakra-ui/react';
+import { shortenNumber } from '@app/util/markets';
 import { capitalize } from '@app/util/misc';
 import { usePrices } from '@app/hooks/usePrices';
 import { RTOKEN_CG_ID } from '@app/variables/tokens';
@@ -46,6 +46,7 @@ export const AnchorPoolInfo = ({
     isBalance = false,
     underlyingSymbol = '',
     textProps,
+    protocolImage,
 }: {
     type: 'supply' | 'borrow',
     symbol: string,
@@ -56,6 +57,7 @@ export const AnchorPoolInfo = ({
     isBalance?: boolean,
     underlyingSymbol?: string,
     textProps?: TextProps,
+    protocolImage?: string,
 }) => {
     const { prices } = usePrices()
     const invPriceUsd = prices[RTOKEN_CG_ID]?.usd || 0;
@@ -68,11 +70,17 @@ export const AnchorPoolInfo = ({
     const bestPriceRef = invPriceUsd && (isReward || symbol === rtokenSymbol || underlyingSymbol === rtokenSymbol) ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
-    const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00')+suffix
+    const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00') + suffix
 
     return (
-        <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5}>
+        <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5} position="relative">
             {label}
+            {
+                !!protocolImage
+                && <AnimatedInfoTooltip message="Yield Bearing Asset Apy">
+                    <Image position="absolute" bottom="0" right="-12px" src={protocolImage} width="10px" />
+                </AnimatedInfoTooltip>
+            }
             {
                 needTooltip && bestPriceRef ?
                     <InfoTooltip

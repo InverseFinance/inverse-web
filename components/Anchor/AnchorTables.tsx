@@ -100,7 +100,7 @@ const getColumn = (
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
         const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor'
         return (
-          <AnchorPoolInfo value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
+          <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={priceUsd} monthlyValue={monthlyAssetRewards} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end", color, minWidth: minWidth }} />
         )
       },
     },

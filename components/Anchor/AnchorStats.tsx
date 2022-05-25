@@ -93,6 +93,7 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
         {
           label: `${wordingAPY} APY`,
           value: `${asset.supplyApy.toFixed(2)}%`,
+          tooltipMsg: asset.underlying.protocolImage ? 'Yield Bearing Asset Apy': undefined,
         },
         {
           label: `${wordingBal} Balance`,
