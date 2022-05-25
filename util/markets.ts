@@ -86,7 +86,7 @@ export const getValueOrMinPrecisionValue = (value: number, precision = 2) => {
 }
 
 export const shortenNumber = (value: number, precision = 2, isDollar = false, showMinPrecision = false) => {
-    if (typeof value !== 'number' || isNaN(value)) { return `${isDollar?'$':''}`+(0).toFixed(precision) }
+    if (typeof value !== 'number' || isNaN(value)) { return `${isDollar ? '$' : ''}` + (0).toFixed(precision) }
     let suffix = ''
     const dividers: { [key: string]: number } = { 'k': 1000, 'M': 1000000, 'B': 1000000000, 'T': 1000000000000 };
     const absValue = Math.abs(value);
@@ -158,5 +158,13 @@ export const toApr = (rate: number) => rate / ETH_MANTISSA * BLOCKS_PER_YEAR * 1
 
 // Compounded
 export const toApy = (rate: number) =>
-  (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
-  100;
+    (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
+    100;
+
+export const getYearnVaults = async () => {
+    try {
+        const results = await fetch('https://d28fcsszptni1s.cloudfront.net/v1/chains/1/vaults/all');
+        return results.json();
+    } catch(e) { console.log(e) }
+    return [];
+}
