@@ -249,10 +249,11 @@ copyAsYearnVault.forEach(s => {
   chainTokens["1"][chainTokenAddresses["1"][`YV${s}`]] = {
     ...token,
     address: chainTokenAddresses["1"][`YV${s}`],
-    symbol: `Yv${token.symbol}`,
+    symbol: `yv${token.symbol}`.replace('yvDOLA-3POOL', 'yvCrvDola'),
     protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image,
-    name: `YV-${token.name}`,
+    name: `YV-${token.name}`.replace('Dola-3pool CRV LP', 'YV-CRVDOLA'),
     coingeckoId: undefined,
+    badge: { text: 'NEW', color: 'white' },
   }
 })
 

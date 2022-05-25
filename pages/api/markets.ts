@@ -12,7 +12,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { getBnToNumber, toApr, toApy } from '@app/util/markets';
+import { getBnToNumber, getYearnVaults, toApr, toApy } from '@app/util/markets';
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     } = getNetworkConfigConstants(networkConfig);
 
     const validCache = await getCacheFromRedis(cacheKey, true, 600);
-    if(validCache) {
+    if (validCache) {
       res.status(200).json(validCache);
       return
     }
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
 
     const rewardAprs = speeds.map((speed, i) => {
       const underlying = UNDERLYING[contracts[i].address];
- 
+
       return toApr(
         (speed * prices[XINV]) /
         (parseFloat(
@@ -139,6 +139,9 @@ export default async function handler(req, res) {
       return getBnToNumber(speed) * BLOCKS_PER_DAY * 30 * getBnToNumber(xinvExRate);
     });
 
+    // yearn apys
+    const yearnVaults = await getYearnVaults();
+
     const markets = contracts.map(({ address }, i) => {
       const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
       const oracleFeedIdx = addresses.indexOf(address);
@@ -148,10 +151,14 @@ export default async function handler(req, res) {
 
       const utilisationRate = borrows === 0 ? 0 : borrows / (liquidity + borrows - reserves)
 
+      const yearnVaultApy = underlying.name.startsWith('YV-') ?
+        yearnVaults?.find(v => v.address.toLowerCase() === underlying.address.toLowerCase())?.apy?.net_apy
+        : 0;
+
       return {
         token: address,
         underlying,
-        supplyApy: supplyApys[i] || 0,
+        supplyApy: supplyApys[i] || ((yearnVaultApy||0) * 100) || 0,
         borrowApy: borrowApys[i] || 0,
         supplyApr: supplyAprs[i] || 0,
         borrowApr: borrowAprs[i] || 0,
@@ -178,7 +185,7 @@ export default async function handler(req, res) {
 
     const addXINV = async (xinvAddress: string, escrowAddress: string, mintable: boolean) => {
       const xINV = new Contract(xinvAddress, XINV_ABI, provider);
-      const escrowContract = new Contract(escrowAddress, ESCROW_ABI ,provider);
+      const escrowContract = new Contract(escrowAddress, ESCROW_ABI, provider);
 
       const [
         rewardPerBlock,
@@ -195,7 +202,7 @@ export default async function handler(req, res) {
       ]);
 
       const ratePerBlock = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA)) /
-      ((totalSupply / ETH_MANTISSA ) * (exchangeRate / ETH_MANTISSA))) * ETH_MANTISSA;
+        ((totalSupply / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA))) * ETH_MANTISSA;
 
       const parsedExRate = parseFloat(formatUnits(exchangeRate))
 
@@ -208,7 +215,7 @@ export default async function handler(req, res) {
         supplyApy: toApr(ratePerBlock) || 0,
         supplyApr: toApr(ratePerBlock) || 0,
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
-        supplied:  parsedExRate * parseFloat(formatUnits(totalSupply)),
+        supplied: parsedExRate * parseFloat(formatUnits(totalSupply)),
         rewardApr: 0,
         rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * 30,
         priceUsd: prices[xinvAddress] / parsedExRate,
@@ -231,17 +238,17 @@ export default async function handler(req, res) {
 
     await redisSetWithTimestamp(cacheKey, resultData);
     res.status(200).json(resultData);
-    
+
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
       const cache = await getCacheFromRedis(cacheKey, false);
-      if(cache) {
+      if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
       }
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   }
