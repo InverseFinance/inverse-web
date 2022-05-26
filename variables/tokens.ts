@@ -264,6 +264,8 @@ copyAsYearnVault.forEach(s => {
     name: `yv${token.symbol}`.replace('yvDOLA-3POOL', 'yvcrvDOLA'),
     coingeckoId: undefined,
     badge: { text: 'NEW', color: 'white' },
+    isLP: false,
+    pairs: undefined,
   }
 })
 
