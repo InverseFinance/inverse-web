@@ -151,7 +151,7 @@ export default async function handler(req, res) {
 
       const utilisationRate = borrows === 0 ? 0 : borrows / (liquidity + borrows - reserves)
 
-      const yearnVaultApy = underlying.name.startsWith('YV-') ?
+      const yearnVaultApy = underlying.symbol.startsWith('yv') ?
         yearnVaults?.find(v => v.address.toLowerCase() === underlying.address.toLowerCase())?.apy?.net_apy
         : 0;
 
