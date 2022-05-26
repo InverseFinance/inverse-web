@@ -13,11 +13,12 @@ import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber, getYearnVaults, toApr, toApy } from '@app/util/markets';
+import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.3.93`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.0`;
 
   try {
     const {
@@ -27,7 +28,6 @@ export default async function handler(req, res) {
       XINV_V1,
       XINV,
       ORACLE,
-      ANCHOR_CHAIN_COIN,
       COMPTROLLER,
       ESCROW,
       ESCROW_OLD,
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
     const yearnVaults = await getYearnVaults();
 
     const markets = contracts.map(({ address }, i) => {
-      const underlying = address !== ANCHOR_CHAIN_COIN ? UNDERLYING[address] : TOKENS.CHAIN_COIN
+      const underlying = UNDERLYING[address] || TOKENS.CHAIN_COIN
       const oracleFeedIdx = addresses.indexOf(address);
       const liquidity = getBnToNumber(cashes[i], underlying.decimals);
       const reserves = getBnToNumber(totalReserves[i], underlying.decimals);
@@ -154,6 +154,8 @@ export default async function handler(req, res) {
       const yearnVaultApy = underlying.symbol.startsWith('yv') ?
         yearnVaults?.find(v => v.address.toLowerCase() === underlying.address.toLowerCase())?.apy?.net_apy
         : 0;
+
+      const isEthMarket = !underlying.address;
 
       return {
         token: address,
@@ -180,6 +182,7 @@ export default async function handler(req, res) {
         reserveFactor: parseFloat(formatUnits(reserveFactors[i])),
         supplied: parseFloat(formatUnits(exchangeRates[i])) * parseFloat(formatUnits(totalSupplies[i], underlying.decimals)),
         interestRateModel: interestRateModels[i],
+        repayAllAddress: isEthMarket ? REPAY_ALL_CONTRACTS[address] : undefined
       }
     });
 

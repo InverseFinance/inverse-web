@@ -13,7 +13,7 @@ import { HAS_REWARD_TOKEN } from '@app/config/constants';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.1.0`;
+  const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.1.1`;
 
   try {
     const {
@@ -25,8 +25,6 @@ export default async function handler(req, res) {
       STABILIZER,
       TOKENS,
       ANCHOR_TOKENS,
-      ANCHOR_CHAIN_COIN,
-      WCOIN,
       XINV_V1,
       XINV,
       ANCHOR_DOLA,
@@ -77,7 +75,7 @@ export default async function handler(req, res) {
       anchorBalances,
       stabilizerBalances,
     ] = await Promise.all([
-      anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_CHAIN_COIN, WCOIN, ANCHOR_TOKENS, TOKENS, UNDERLYING),
+      anchorTVL(prices, provider, XINV_V1, XINV, ANCHOR_TOKENS, UNDERLYING),
       stabilizerTVL(prices, provider, DAI, STABILIZER, TOKENS),
     ]);
 
@@ -119,10 +117,7 @@ const anchorTVL = async (
   provider: Provider,
   xInvV1Address: string,
   xInvAddress: string,
-  anchorEthAddress: string,
-  wcoinAddress: string,
   anchorTokenAddresses: string[],
-  tokens: TokenList,
   underlying: TokenList,
 ): Promise<TokenWithBalance[]> => {
   const anchorContracts = anchorTokenAddresses.map((address: string) => new Contract(address, CTOKEN_ABI, provider));
@@ -142,10 +137,7 @@ const anchorTVL = async (
   const balances: StringNumMap = {};
 
   allCash.forEach((cash, i) => {
-    const token =
-      anchorContracts[i].address !== anchorEthAddress
-        ? underlying[anchorContracts[i].address]
-        : tokens[wcoinAddress];
+    const token = underlying[anchorContracts[i].address];
 
     balances[anchorContracts[i].address] =
       (balances[anchorContracts[i].address] || 0) +
@@ -153,10 +145,7 @@ const anchorTVL = async (
   });
 
   return Object.entries(balances).map(([anchorAddress, amount]: any) => {
-    const token =
-    anchorAddress !== anchorEthAddress
-        ? underlying[anchorAddress]
-        : tokens[wcoinAddress];
+    const token = underlying[anchorAddress];
     return {
       ...token,
       address: anchorAddress,

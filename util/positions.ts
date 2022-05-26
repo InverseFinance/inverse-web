@@ -54,7 +54,7 @@ export const getPositionsDetails = async ({
         XINV,
         COMPTROLLER,
         ORACLE,
-        ANCHOR_CHAIN_COIN,
+        ANCHOR_CHAIN_COINS,
     } = getNetworkConfigConstants(process.env.NEXT_PUBLIC_CHAIN_ID!);
 
     const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.POSITIONS_ALCHEMY_API, true);
@@ -75,7 +75,12 @@ export const getPositionsDetails = async ({
             borrowPausedData,
             marketsDetails,
         ] = await Promise.all([
-            Promise.all(contracts.map(contract => contract.address !== ANCHOR_CHAIN_COIN ? contract.underlying() : new Promise(r => r('')))),
+            Promise.all(
+                contracts.map(contract => !ANCHOR_CHAIN_COINS
+                    .map(a => a.toLowerCase()).includes(contract.address.toLowerCase()) ?
+                    contract.underlying()
+                    : new Promise(r => r('')))
+            ),
             Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
             Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
             Promise.all(

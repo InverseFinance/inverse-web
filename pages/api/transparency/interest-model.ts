@@ -8,7 +8,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 
 export default async function handler(req, res) {
 
-  const cacheKey = `interest-model-v1.0.3`;
+  const cacheKey = `interest-model-v1.0.4`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 900);

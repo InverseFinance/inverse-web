@@ -324,7 +324,7 @@ export const AnchorBorrowed = () => {
   })
 
   const columns = [
-    getColumn('asset', 16, false, true),
+    getColumn('asset', '150px', false, true),
     getColumn('borrowApy', 20),
     getColumn('borrowBalance', 24),
   ]
@@ -487,7 +487,7 @@ export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
   });
 
   const columns = [
-    getColumn('asset', 16, false, true),
+    getColumn('asset', '150px', false, true),
     getColumn('borrowApy', 20, false, true),
     {
       field: 'liquidityUsd',

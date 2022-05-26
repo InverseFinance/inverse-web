@@ -53,7 +53,6 @@ export const getNetworkConfigConstants = (
     const ORACLE = config.anchor.oracle;
     const STABILIZER = config.stabilizer;
     const TREASURY = config.anchor.treasury;
-    const AN_CHAIN_COIN_REPAY_ALL = config.anchor.anChainCoinRepayAll;
 
     const GOVERNANCE = config.governance;
     const GOVERNANCE_ALPHA = config.governanceAlpha;
@@ -84,7 +83,8 @@ export const getNetworkConfigConstants = (
     const DEPLOYER = config.DEPLOYER;
 
     const ANCHOR_TOKENS = Object.keys(UNDERLYING).filter(ad => ![XINV, XINV_V1].includes(ad));
-    const ANCHOR_CHAIN_COIN = Object.entries(UNDERLYING).find(([key, token]) => !token.address)![0];
+    const ANCHOR_CHAIN_COIN = '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86'//Object.entries(UNDERLYING).find(([key, token]) => !token.address)![0];
+    const ANCHOR_CHAIN_COINS = ['0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86', '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8'];
     const ANCHOR_DOLA = Object.entries(UNDERLYING).find(([key, token]) => token.address === process.env.NEXT_PUBLIC_DOLA)![0];
 
     const ALL_UNDERLYING: TokenList = {
@@ -113,12 +113,12 @@ export const getNetworkConfigConstants = (
 
     return {
         LENS,
-        AN_CHAIN_COIN_REPAY_ALL,
         COMPTROLLER,
         ORACLE,
         STABILIZER,
         TREASURY,
         ANCHOR_CHAIN_COIN,
+        ANCHOR_CHAIN_COINS,
         ANCHOR_DOLA,
         ANCHOR_TOKENS,
         GOVERNANCE,
