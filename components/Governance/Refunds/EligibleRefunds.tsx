@@ -131,9 +131,10 @@ export const EligibleRefunds = () => {
             field: 'name',
             label: 'Event',
             header: ({ ...props }) => <Flex justify="flex-end" minWidth={'180px'} {...props} />,
-            value: ({ name }) => <Flex justify="flex-end" minWidth={'180px'} alignItems="center">
-                {name}
-            </Flex>,
+            value: ({ name, contractTicker }) => <VStack justify="flex-end" minWidth={'180px'} alignItems="center">
+                <Text>{name}</Text>
+                { !!contractTicker && <Text>{contractTicker}</Text> }
+            </VStack>,
             filterWidth: '180px',
             showFilter: true,
         },
