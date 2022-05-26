@@ -27,14 +27,21 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
     .map(item => {
       const decodedArr = item.log_events?.map(e => e.decoded).filter(d => !!d);
       const decoded = type === "fed" ? { name: topics[item?.log_events[0]?.raw_log_topics[0]] } : decodedArr[0];
+      const isContractCreation = !item.to_address;
+      const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
+      const to = item.to_address || log0.sender_address;
+      const name = (isContractCreation ? 'ContractCreation' : !!decoded ? decoded.name||`${capitalize(type)}Other` : item.to_address === invOracleKeeper ? 'Keep3rAction' : `${capitalize(type)}Other`) || 'Unknown';
+
       return {
         from: item.from_address,
-        to: item.to_address,
+        to: to,
         txHash: item.tx_hash,
         timestamp: Date.parse(item.block_signed_at),
         successful: item.successful,
         fees: formatEther(item.fees_paid),
-        name: !!decoded ? decoded.name||`${capitalize(type)}Other` : item.to_address === invOracleKeeper ? 'Keep3rAction' : `${capitalize(type)}Other`,
+        name,
+        contractTicker: isContractCreation ? log0.sender_contract_ticker_symbol : undefined,
+        contractName: isContractCreation ? log0.sender_name : undefined,
         chainId: chain_id,
         type,
         refunded: false,
