@@ -117,7 +117,7 @@ export const Table = ({
               const label = isAddress(v) ? namedAddress(v) : v;
               return {
                 value: v,
-                label: label,
+                label: label||'',
               }
             }),
             (a, b) => a.value === b.value,
