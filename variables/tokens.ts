@@ -268,6 +268,7 @@ copyAsYearnVault.forEach(s => {
     badge: newBadge,
     isInPausedSection: false,
     isLP: false,
+    isCrvLP: false,
     pairs: undefined,
   }
 })

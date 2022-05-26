@@ -1,15 +1,19 @@
 import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { Prices, Token } from '@app/types'
+import { NetworkIds, Prices, Token } from '@app/types'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
 import { getProvider } from '@app/util/providers'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { COMPTROLLER_ABI, ORACLE_ABI } from '@app/config/abis'
+import { BigNumber, Contract } from 'ethers'
+import { formatUnits } from '@ethersproject/units'
 
 export default async function handler(req, res) {
   const cacheKey = `prices-v1.0.0`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(cacheKey, true, 60);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -17,6 +21,36 @@ export default async function handler(req, res) {
 
     const prices = {};
     let coingeckoIds: string[] = [];
+
+    const {
+      UNDERLYING,
+      ORACLE,
+      COMPTROLLER,
+    } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+    const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!);
+
+    const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
+    const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
+    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const marketsWithOnlyOraclePrice = allMarkets
+      .filter(address => !!UNDERLYING[address]
+        && !UNDERLYING[address].coingeckoId
+        && !UNDERLYING[address].isLP
+        && !UNDERLYING[address].isCrvLP
+        && !UNDERLYING[address]?.pairs?.length
+      );
+
+    const oraclePrices = await Promise.all([
+      ...marketsWithOnlyOraclePrice.map(address => oracle.getUnderlyingPrice(address))
+    ]);
+
+    oraclePrices
+      .forEach((v, i) => {
+        const underlying = UNDERLYING[marketsWithOnlyOraclePrice[i]];
+        const price = parseFloat(formatUnits(v, BigNumber.from(36).sub(underlying.decimals)));
+        prices[underlying.symbol] = price;
+      });
 
     Object.values(CHAIN_TOKENS)
       .forEach(tokenList => {
