@@ -24,6 +24,8 @@ const pausedBadge = {
   color: "gray",
 }
 
+const newBadge = { text: 'NEW', color: 'white' };
+
 const chainTokenAddresses = {
   "1": {
     INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
@@ -212,7 +214,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].YVCRVCVXETH]: {
       address: chainTokenAddresses["1"].YVCRVCVXETH,
       name: 'YV-CrvCvxEth',
-      symbol: 'yvCrvCvxEth',
+      symbol: 'yvcrvCVXETH',
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
@@ -263,7 +265,8 @@ copyAsYearnVault.forEach(s => {
     protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image,
     name: `yv${token.symbol}`.replace('yvDOLA-3POOL', 'yvcrvDOLA'),
     coingeckoId: undefined,
-    badge: { text: 'NEW', color: 'white' },
+    badge: newBadge,
+    isInPausedSection: false,
     isLP: false,
     pairs: undefined,
   }
@@ -320,8 +323,8 @@ const chainUnderlying = {
     '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b': toV1(getToken(TOKENS, chainTokenAddresses["1"].WBTC)!),
     '0xde2af899040536884e062D3a334F2dD36F34b4a4': toV1(getToken(TOKENS, chainTokenAddresses["1"].YFI)!),
     // v2 markets
-    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': TOKENS.CHAIN_COIN,
-    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC)!,
+    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, badge: newBadge },
+    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': { ...getToken(TOKENS, chainTokenAddresses["1"].WBTC)!, badge: newBadge },
     // '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI)!,
     // others
     '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA),
@@ -391,5 +394,5 @@ export const BONDS = [
 
 export const REPAY_ALL_CONTRACTS = {
   '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8': '0xbE0C9650cf8Ce5279b990e7A6634c63323adfEAE',
-  '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': '0xbE0C9650cf8Ce5279b990e7A6634c63323adfEAE',
+  '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': undefined,// waiting deployment
 }
