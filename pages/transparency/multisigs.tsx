@@ -12,7 +12,7 @@ import { Funds } from '@app/components/Transparency/Funds'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Multisig, NetworkIds } from '@app/types';
-import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
+import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react'
 import { getNetworkConfigConstants, getNetworkImage } from '@app/util/networks';
 
@@ -57,23 +57,25 @@ export const MultisigsDiagram = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="Multisig Wallets" />
       <TransparencyTabs active="multisigs" />
-      <RadioCardGroup
-        wrapperProps={{ w: 'full', justify: 'center', mt: '4', color: 'mainTextColor' }}
-        group={{
-          name: 'multisig',
-          defaultValue: MULTISIGS[0].address,
-          onChange: (t) => setMultisigAd(t),
-        }}
-        radioCardProps={{ minW: '80px', w: 'fit-content', textAlign: 'center', p: '2', fontSize: '12px' }}
-        options={
-          multisigs.map(m => ({
-            label: <MultisigTabLabel multisig={m} />,
-            value: m.address,
-          }))
-        }
-      />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-        <Flex direction="column" py="2">
+        <Flex direction="column">
+          <Flex maxW="800px" p="4">
+            <RadioGridCardGroup
+              wrapperProps={{ w: 'full', minChildWidth: '120px', spacing: '4', mt: '4', color: 'mainTextColor' }}
+              group={{
+                name: 'multisig',
+                defaultValue: MULTISIGS[0].address,
+                onChange: (t) => setMultisigAd(t),
+              }}
+              radioCardProps={{ minW: '120px', textAlign: 'center', p: '2', fontSize: '12px' }}
+              options={
+                multisigs.map(m => ({
+                  label: <MultisigTabLabel multisig={m} />,
+                  value: m.address,
+                }))
+              }
+            />
+          </Flex>
           {!!multisig && <MultisigsFlowChart chainId={multisig.chainId} multisigs={[multisig]} />}
         </Flex>
 
@@ -106,9 +108,11 @@ export const MultisigsDiagram = () => {
                       View on Gnosis Safe <ExternalLinkIcon mb="2px" />
                     </Link>
                   </Flex>
-                  <Link href={multisig.governanceLink}>
-                    - 🏛️ Related Governance Proposal
-                  </Link>
+                  {
+                    !!multisig.governanceLink && <Link href={multisig.governanceLink}>
+                      - 🏛️ Related Governance Proposal
+                    </Link>
+                  }
                   <Text fontWeight="bold">- 🎯 Objective:</Text>
                   <Text as="i">{multisig.purpose}</Text>
                   <VStack spacing="0" w="full">
