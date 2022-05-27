@@ -110,6 +110,7 @@ export const ProposalPreview = ({
         _hover={{ bgColor: 'primary.850' }}
         cursor="pointer"
         borderRadius={8}
+        borderTop={`1px solid #393562`}
       >
         <Flex
           w="full"

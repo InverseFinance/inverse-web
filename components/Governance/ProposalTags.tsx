@@ -28,7 +28,7 @@ export const ProposalTags = ({ functions, ...props }: { functions: any[] }) => {
 
     const uniqueNames = uniqueAddresses
         .map(a => ({
-            name: namedAddress(a, "1", "n/a").replace(' Working Group', 'WG').replace(' ', ''),
+            name: namedAddress(a, "1", "n/a").replace(' Working Group', 'WG').replace(/\s/g, ''),
             address: a,
         }))
         .filter(v => v.name !== "n/a");
