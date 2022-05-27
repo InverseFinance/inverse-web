@@ -16,6 +16,7 @@ import { ProposalShareLink } from './ProposalShareLink'
 import { InfoMessage } from '@app/components/common/Messages'
 import { useGovernanceNotifs } from '@app/hooks/useProposals'
 import { Proposer } from './Proposer'
+import { ProposalTags } from './ProposalTags'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -134,6 +135,7 @@ export const ProposalPreview = ({
               <Proposer proposer={proposer} />
             </HStack>
           }
+          <ProposalTags mt="2" functions={proposal.functions} />
         </Flex>
         {(forVotes > 0 || againstVotes > 0) && (
           <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
