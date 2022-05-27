@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text } from '@chakra-ui/react'
+import { Badge, Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
 import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@app/types'
@@ -16,6 +16,7 @@ import { ProposalShareLink } from './ProposalShareLink'
 import { InfoMessage } from '@app/components/common/Messages'
 import { useGovernanceNotifs } from '@app/hooks/useProposals'
 import { Proposer } from './Proposer'
+import { ProposalTags } from './ProposalTags'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -105,59 +106,65 @@ export const ProposalPreview = ({
 
   return (
     <NextLink href={href}>
-      <Flex
-        w="full"
-        justify="space-between"
-        align="center"
-        cursor="pointer"
-        p={2.5}
-        pl={2}
-        pr={2}
-        borderRadius={8}
+      <VStack
         _hover={{ bgColor: 'primary.850' }}
+        cursor="pointer"
+        borderRadius={8}
+        borderTop={`1px solid #393562`}
       >
-        <Flex direction="column" overflowX="auto">
-          <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'mainTextColor'}>
-            {title}
-          </Text>
-          <Stack direction={{ base: 'column', sm: 'row' }} align="left">
-            <Stack direction="row" align="center">
-              <StatusBadge status={status} />
-              {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
-            </Stack>
-            <Text textAlign="left" fontSize="13px" color="primary.100" fontWeight="semibold">
-              {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock)}
+        <Flex
+          w="full"
+          justify="space-between"
+          align="center"
+          p={2.5}
+          px={2}
+        >
+          <Flex direction="column" overflowX="auto">
+            <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'mainTextColor'}>
+              {title}
             </Text>
-          </Stack>
-          {
-            !!proposer && <HStack mt="2">
-              <Proposer proposer={proposer} />
-            </HStack>
-          }
-        </Flex>
-        {(forVotes > 0 || againstVotes > 0) && (
-          <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
-            <Stack direction="row" w={56} align="center" justify="flex-end">
-              <Text w={16} fontSize="xs" fontWeight="bold" color="primary.300" textAlign="end">
-                {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
-              </Text>
-              <Flex w="full">
-                <Flex
-                  w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`}
-                  h={1}
-                  bgColor="primary.300"
-                />
-                <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
-              </Flex>
-              <Text w={16} fontSize="xs" fontWeight="bold" color="success">
-                {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
+            <Stack direction={{ base: 'column', sm: 'row' }} align="left">
+              <Stack direction="row" align="center">
+                <StatusBadge status={status} />
+                {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
+              </Stack>
+              <Text textAlign="left" fontSize="13px" color="primary.100" fontWeight="semibold">
+                {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock)}
               </Text>
             </Stack>
-            <Text fontSize="13px" color="primary.100" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
-              } votes`}</Text>
+            {
+              !!proposer && <HStack mt="2">
+                <Proposer proposer={proposer} />
+              </HStack>
+            }
           </Flex>
-        )}
-      </Flex>
+          {(forVotes > 0 || againstVotes > 0) && (
+            <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
+              <Stack direction="row" w={56} align="center" justify="flex-end">
+                <Text w={16} fontSize="xs" fontWeight="bold" color="primary.300" textAlign="end">
+                  {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
+                </Text>
+                <Flex w="full">
+                  <Flex
+                    w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`}
+                    h={1}
+                    bgColor="primary.300"
+                  />
+                  <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
+                </Flex>
+                <Text w={16} fontSize="xs" fontWeight="bold" color="success">
+                  {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
+                </Text>
+              </Stack>
+              <Text fontSize="13px" color="primary.100" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
+                } votes`}</Text>
+            </Flex>
+          )}
+        </Flex>
+        <Flex w='full' px="2" alignItems="center" overflow="auto">
+          <ProposalTags functions={proposal.functions} />
+        </Flex>
+      </VStack>
     </NextLink>
   )
 }
