@@ -18,7 +18,7 @@ import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.0`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.1`;
 
   try {
     const {
