@@ -217,6 +217,7 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+      badge: newBadge,
     },
   },
   "250": {
