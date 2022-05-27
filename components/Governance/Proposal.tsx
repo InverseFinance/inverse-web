@@ -129,9 +129,11 @@ export const ProposalPreview = ({
               {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock)}
             </Text>
           </Stack>
-          <HStack mt="2">
-            <Proposer proposer={proposer} />
-          </HStack>
+          {
+            !!proposer && <HStack mt="2">
+              <Proposer proposer={proposer} />
+            </HStack>
+          }
         </Flex>
         {(forVotes > 0 || againstVotes > 0) && (
           <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
