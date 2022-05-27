@@ -127,7 +127,7 @@ export const AnchorModal = ({
   const inputRightSideContent = <Stack direction="row" align="center" pl={2} pr={4}>
     <Flex w={5} position="relative">
       <Image w={5} h={5} src={asset.underlying.image} />
-      {!!asset.underlying.protocolImage && <Image position="absolute" bottom="0" right="-5px" w={3} h={3} src={asset.underlying.protocolImage} /> }
+      {!!asset.underlying.protocolImage && <Image position="absolute" bottom="0" right="-5px" w={3} h={3} src={asset.underlying.protocolImage} />}
     </Flex>
     <Text fontSize="sm" fontWeight="semibold" color="primary.100" align="center">
       {asset.underlying.symbol.replace('-SLP', '')}
@@ -145,8 +145,8 @@ export const AnchorModal = ({
       isOpen={isOpen}
       scrollBehavior={scrollBehavior || 'outside'}
       header={
-        <Stack textTransform="uppercase" fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
-          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} protocolImage={asset.underlying.protocolImage}  protocolImageSize={4} />
+        <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
+          <UnderlyingItem label={`${asset.underlying.symbol} MARKET`} address={asset.token} image={asset.underlying.image} imgSize={8} protocolImage={asset.underlying.protocolImage} protocolImageSize={4} />
           <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
       }
@@ -212,6 +212,16 @@ export const AnchorModal = ({
           operations.length > 1 ?
             <NavButtons isStaking={asset.underlying.symbol == RTOKEN_SYMBOL} options={operations} active={operation} onClick={setOperation} />
             : null
+        }
+        {
+          asset.underlying.symbol.startsWith('yv') && operation === AnchorOperations.supply &&
+          <InfoMessage
+            alertProps={{ w: 'full' }}
+            title="Yearn Vault Asset"
+            description={<Link isExternal href={`https://yearn.finance/#/vault/${asset.underlying.address}`}>
+            Get {asset.underlying.symbol}
+          </Link>}
+          />
         }
         {
           ['INV-DOLA-SLP', 'DOLA-3POOL'].includes(asset.underlying.symbol)
