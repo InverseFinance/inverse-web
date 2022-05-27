@@ -1,10 +1,7 @@
-import { Badge, Flex, Stack, Text } from '@chakra-ui/react'
-import { Avatar } from '@app/components/common/Avatar'
+import { Badge, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import Link from '@app/components/common/Link'
 import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
 import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@app/types'
-import { namedAddress } from '@app/util'
 import moment from 'moment'
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -18,6 +15,7 @@ import { GRACE_PERIOD_MS } from '@app/config/constants'
 import { ProposalShareLink } from './ProposalShareLink'
 import { InfoMessage } from '@app/components/common/Messages'
 import { useGovernanceNotifs } from '@app/hooks/useProposals'
+import { Proposer } from './Proposer'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -89,7 +87,7 @@ export const ProposalPreview = ({
 }) => {
   const { query } = useRouter()
   const { unreadKeys } = useGovernanceNotifs()
-  const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions } = proposal
+  const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions, proposer } = proposal
 
   const totalVotes = forVotes + againstVotes
 
@@ -131,6 +129,9 @@ export const ProposalPreview = ({
               {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock)}
             </Text>
           </Stack>
+          <HStack mt="2">
+            <Proposer proposer={proposer} />
+          </HStack>
         </Flex>
         {(forVotes > 0 || againstVotes > 0) && (
           <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
@@ -206,12 +207,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
             Details
           </Text>
           {
-            !!proposer && <Stack direction="row" align="center">
-              <Avatar address={proposer} sizePx={20} />
-              <Link fontSize="sm" href={`https://etherscan.io/address/${proposer}`}>
-                {namedAddress(proposer, chainId)}
-              </Link>
-            </Stack>
+            !!proposer && <Proposer proposer={proposer} />
           }
         </Flex>
         <Flex w="full" overflow="auto">
