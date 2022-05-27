@@ -1,6 +1,6 @@
 import { namedAddress } from '@app/util';
 import { getProposalActionFromFunction } from '@app/util/governance'
-import { HStack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import ScannerLink from '@app/components/common/ScannerLink';
 
 const Tag = ({
@@ -10,7 +10,7 @@ const Tag = ({
     name: string,
     address: string,
 }) => {
-    return <ScannerLink color="secondaryTextColor" chainId="1" value={address} label={`#${name}`} style={{ textDecoration: 'none' }} />
+    return <ScannerLink mr="2" whiteSpace="nowrap" color="secondaryTextColor" chainId="1" value={address} label={`#${name}`} style={{ textDecoration: 'none' }} />
 }
 
 export const ProposalTags = ({ functions, ...props }: { functions: any[] }) => {
@@ -35,7 +35,11 @@ export const ProposalTags = ({ functions, ...props }: { functions: any[] }) => {
 
     uniqueNames.sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1);
 
-    return <HStack {...props}>
+    if(!uniqueNames.length) {
+        return <></>
+    }
+
+    return <Box overflow="auto" {...props}>
         {uniqueNames.map(v => <Tag name={v.name} address={v.address} />)}
-    </HStack>
+    </Box>
 }
