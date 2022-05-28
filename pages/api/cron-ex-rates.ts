@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const options = {
       namespace: { option: "fork" },
       fork: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API}`,
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_CRON2}`,
       },
     };
 
