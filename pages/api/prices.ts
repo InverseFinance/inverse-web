@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const cacheKey = `prices-v1.0.1`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 60);
+    const validCache = await getCacheFromRedis(cacheKey, true, 600);
     if (validCache) {
       res.status(200).json(validCache);
       return
