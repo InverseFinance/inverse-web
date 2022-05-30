@@ -143,6 +143,7 @@ const chainTokens = {
       coingeckoId: 'staked-ether',
       image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
       decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png?1609873644',
     },
     [chainTokenAddresses["1"].INVDOLASLP]: {
       address: chainTokenAddresses["1"].INVDOLASLP,

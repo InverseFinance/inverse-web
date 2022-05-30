@@ -35,7 +35,7 @@ export const UnderlyingItem = ({
         <Box position="relative">
             <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
             {
-                !!protocolImage && <Image ignoreFallback={true} src={protocolImage} w={protocolImageSize} h={protocolImageSize} position="absolute" bottom="0" right="-5px" />
+                !!protocolImage && <Image borderRadius="20px" ignoreFallback={true} src={protocolImage} w={protocolImageSize} h={protocolImageSize} position="absolute" bottom="0" right="-5px" />
             }
         </Box>
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>

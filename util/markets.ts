@@ -168,3 +168,11 @@ export const getYearnVaults = async () => {
     } catch(e) { console.log(e) }
     return [];
 }
+
+export const getStethData = async () => {
+    try {
+        const results = await fetch('https://1rwmj4tky9.execute-api.eu-central-1.amazonaws.com/poolsEnriched?pool=lido-stETH');
+        return results.json();
+    } catch(e) { console.log(e) }
+    return [];
+}
