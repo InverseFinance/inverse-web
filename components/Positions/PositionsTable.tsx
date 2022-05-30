@@ -19,7 +19,7 @@ const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] })
                 return <Flex key={images} position="relative" alignItems="center">
                     <Image  width={'15px'} src={icon} ignoreFallback={true} />
                     {
-                        !!protocolImage && <Image width={'8px'} position="absolute" bottom="0" right="-4px" src={protocolImage} ignoreFallback={true} />
+                        !!protocolImage && <Image borderRadius="20px" width={'8px'} position="absolute" bottom="0" right="-4px" src={protocolImage} ignoreFallback={true} />
                     }
                 </Flex>
             })

@@ -47,7 +47,7 @@ const FundLine = ({
                     }
                     {
                         token?.image && !!token?.protocolImage
-                        && <Image display="inline-block" position="absolute" src={token?.protocolImage} ignoreFallback={true} w='8px' h='8px' bottom="0" right="0" />
+                        && <Image borderRadius="20px" display="inline-block" position="absolute" src={token?.protocolImage} ignoreFallback={true} w='8px' h='8px' bottom="0" right="0" />
                     }
                 </Flex>
                 <Text ml="1" lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>

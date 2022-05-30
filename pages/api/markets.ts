@@ -12,7 +12,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { getBnToNumber, getYearnVaults, toApr, toApy } from '@app/util/markets';
+import { getBnToNumber, getStethData, getYearnVaults, toApr, toApy } from '@app/util/markets';
 import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 export default async function handler(req, res) {
@@ -139,8 +139,11 @@ export default async function handler(req, res) {
       return getBnToNumber(speed) * BLOCKS_PER_DAY * 30 * getBnToNumber(xinvExRate);
     });
 
-    // yearn apys
-    const yearnVaults = await getYearnVaults();
+    // external yield bearing apys
+    const [yearnVaults, stethData] = await Promise.all([
+      getYearnVaults(),
+      getStethData(),
+    ]);
 
     const markets = contracts.map(({ address }, i) => {
       const underlying = UNDERLYING[address] || TOKENS.CHAIN_COIN
@@ -155,12 +158,14 @@ export default async function handler(req, res) {
         yearnVaults?.find(v => v.address.toLowerCase() === underlying.address.toLowerCase())?.apy?.net_apy
         : 0;
 
+      const stethApy = underlying.symbol === 'stETH' ? stethData?.data?.[0]?.apy : 0;
+
       const isEthMarket = !underlying.address;
 
       return {
         token: address,
         underlying,
-        supplyApy: supplyApys[i] || ((yearnVaultApy||0) * 100) || 0,
+        supplyApy: supplyApys[i] || ((yearnVaultApy||0) * 100) || stethApy || 0,
         borrowApy: borrowApys[i] || 0,
         supplyApr: supplyAprs[i] || 0,
         borrowApr: borrowAprs[i] || 0,
