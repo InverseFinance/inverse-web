@@ -146,3 +146,8 @@ export const timestampToUTC = (timestamp: number) => {
     const date = new Date(timestamp);
     return `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${(date.getUTCDate()).toString().padStart(2, '0')}`
 }
+
+export const getRandomFromStringList = (commaSeparatedList: string) => {
+    const keys = commaSeparatedList.replace(/\s+/g, '').split(',');
+    return keys[Math.floor(Math.random() * keys.length)];
+}

@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import ganache from 'ganache'
+import { getRandomFromStringList } from '@app/util/misc';
 
 const { TREASURY } = getNetworkConfigConstants();
 
@@ -13,7 +14,7 @@ export default async function handler(req, res) {
     const options = {
       namespace: { option: "fork" },
       fork: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API}`,
+        url: `https://eth-mainnet.alchemyapi.io/v2/${getRandomFromStringList(process.env.ALCHEMY_KEYS!)}`,
       },
       wallet: {
         // unlock TREASURY account to use as "from"

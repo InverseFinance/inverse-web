@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       // await client.del(`${chainId}-proposals-archived`)
       const { GOVERNANCE, GOVERNANCE_ALPHA: GOV_ALPHA } = getNetworkConfigConstants()!;
       // use specific AlchemyApiKey for the cron
-      const provider = getProvider(chainId, process.env.CRON_ALCHEMY_API, true);
+      const provider = getProvider(chainId, process.env.ALCHEMY_CRON, true);
       const governance = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
       const governanceAlpha = new Contract(GOV_ALPHA, GOVERNANCE_ABI, provider);
       const blockNumber = await provider.getBlockNumber();
