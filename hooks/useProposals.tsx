@@ -1,4 +1,4 @@
-import { DraftProposal, DraftReview, NetworkIds, Proposal, PublicDraftProposal, SWR } from '@app/types'
+import { DraftProposal, DraftReview, GovEra, NetworkIds, Proposal, PublicDraftProposal, SWR } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import useSWR from 'swr'
 import { useWeb3React } from '@web3-react/core';
@@ -42,6 +42,16 @@ export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[]
 
 export const usePublicDraftReviews = (id: number): SWR & { reviews: DraftReview[] } => {
   const { data, error } = useCustomSWR(`/api/drafts/reviews/${id}`, id ? fetcher : () => new Promise(r => r(undefined)))
+
+  return {
+    reviews: data?.reviews || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useProposalReviews = (proposalId: number, era: GovEra): SWR & { reviews: DraftReview[] } => {
+  const { data, error } = useCustomSWR(`/api/drafts/reviews/${proposalId}?isProposal=true&era=${era}`, proposalId ? fetcher : () => new Promise(r => r(undefined)))
 
   return {
     reviews: data?.reviews || [],

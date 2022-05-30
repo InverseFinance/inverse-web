@@ -2,7 +2,7 @@ import { SIGN_MSG, DRAFT_WHITELIST } from '@app/config/constants';
 import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@app/util/governance';
 import { getRedisClient } from '@app/util/redis';
 import { verifyMessage } from 'ethers/lib/utils';
-import { ProposalFormActionFields } from '@app/types';
+import { GovEra, ProposalFormActionFields } from '@app/types';
 
 const client = getRedisClient();
 
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
                     // submitted the proposal
                     if (proposalId) {
                         const draftReviews = JSON.parse(await client.get(`reviews-${id}`) || '[]');
-                        await client.set(`proposal-reviews-${proposalId}`, JSON.stringify(draftReviews));
+                        await client.set(`proposal-reviews-${GovEra.mills}-${proposalId}`, JSON.stringify(draftReviews));
                     } else {
                         const updatedDraft = {
                             ...updatedData,
