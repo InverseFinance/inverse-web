@@ -58,6 +58,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': '0xMT',
     '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'yellowtail',
     '0xC253Af7B80F3DD3d469bf4b94AA9e3df59e71e43': 'yellowtail2',
+    '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'CryptoHarry2',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {
