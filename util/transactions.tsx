@@ -34,7 +34,7 @@ export const showTxToast = (txHash: string, txStatus: string, toastStatus: Custo
 }
 
 export type HandleTxOptions = {
-    onSuccess?: (tx: TransactionResponse) => void,
+    onSuccess?: (tx: TransactionResponse, receipt?: any) => void,
     onFail?: (tx: TransactionResponse) => void,
     onPending?: (tx: TransactionResponse) => void,
 }
@@ -58,7 +58,7 @@ export const handleTx = async (
         showTxToast(tx.hash, msgObj.txStatus, msgObj.toastStatus);
 
         if (options?.onFail && (receipt?.status === 0 || hasOpaqueFailure)) { options.onFail(tx) }
-        else if (options?.onSuccess && receipt?.status === 1) { options.onSuccess(tx) }
+        else if (options?.onSuccess && receipt?.status === 1) { options.onSuccess(tx, receipt) }
     } catch (e: any) {
         if (options?.onFail) { options.onFail(tx) }
         showFailNotif(e, true);
