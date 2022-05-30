@@ -240,8 +240,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["1"].YVCRVSTEHWETH]: {
       address: chainTokenAddresses["1"].YVCRVSTEHWETH,
-      name: 'YV-CrvStethWeth',
-      symbol: 'yvcrvStethWeth',
+      name: 'yvcrvstETH-WETH',
+      symbol: 'yvcrvstETH-WETH',
       image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
