@@ -117,8 +117,6 @@ const chainTokens = {
       coingeckoId: 'yearn-finance',
       image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
       decimals: 18,
-      isInPausedSection: true,
-      badge: pausedBadge,
     },
     [chainTokenAddresses["1"].XSUSHI]: {
       address: chainTokenAddresses["1"].XSUSHI,
@@ -326,7 +324,7 @@ const chainUnderlying = {
     // v2 markets
     '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, badge: newBadge },
     '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': { ...getToken(TOKENS, chainTokenAddresses["1"].WBTC)!, badge: newBadge },
-    // '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI)!,
+    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': { ...getToken(TOKENS, chainTokenAddresses["1"].YFI)!, badge: newBadge },
     // others
     '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA),
     '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326': getToken(TOKENS, chainTokenAddresses["1"].XSUSHI),
