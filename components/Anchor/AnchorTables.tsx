@@ -26,12 +26,13 @@ import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
 import moment from 'moment'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
   const bal = amount &&
-  parseFloat(formatUnits(amount, decimals)) *
-  parseFloat(formatUnits(exRate));
+    parseFloat(formatUnits(amount, decimals)) *
+    parseFloat(formatUnits(exRate));
   return bal >= minWorthAccepted;
 }
 
@@ -62,11 +63,11 @@ const getColumn = (
               containerProps={{ position: 'relative', w: 'full' }}
               badge={
                 !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN ?
-                {
-                  text: `STAKE ${RTOKEN_SYMBOL}`,
-                  color: 'secondary',
-                }
-                : underlying.badge
+                  {
+                    text: `STAKE ${RTOKEN_SYMBOL}`,
+                    color: 'secondary',
+                  }
+                  : underlying.badge
               }
               textProps={{ color }}
               label={underlying.symbol}
@@ -284,7 +285,7 @@ export const AnchorSupplied = () => {
             ||
             (
               token === XINV && !mintable &&
-              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral? 0 : undefined)
+              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral ? 0 : undefined)
             )
             ||
             (
@@ -374,7 +375,7 @@ const AnchorSupplyContainer = ({ paused = false, ...props }) => {
   return (
     <Container
       label={title}
-      description={ paused ? undefined : 'Earn interest on your deposits' }
+      description={paused ? undefined : 'Earn interest on your deposits'}
       href={paused ? undefined : process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
       {...props}
     />
@@ -389,6 +390,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
+  const [category, setCategory] = useState('all');
 
   const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
@@ -440,16 +442,42 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
 
   if (isLoading || !marketsData) {
     return (
-      <AnchorSupplyContainer paused={paused}>
+      <AnchorSupplyContainer
+        paused={paused}
+      >
         <SkeletonList />
       </AnchorSupplyContainer>
     )
   }
 
-  const mintableMarkets = marketsWithBalance.filter(m => m.mintable);
+  const mintableMarkets = marketsWithBalance
+    .filter(m => m.mintable)
+    .filter(m => {
+      if (category === 'yearn') {
+        return m.underlying.symbol.startsWith('yv') || m.underlying.symbol === 'YFI';
+      } else if (category === 'others') {
+        return !m.underlying.symbol.startsWith('yv') && m.underlying.symbol !== 'YFI';
+      }
+      return true;
+    });
 
   return (
-    <AnchorSupplyContainer paused={paused}>
+    <AnchorSupplyContainer
+      paused={paused}
+      right={<RadioCardGroup
+        group={{
+          name: 'bool',
+          defaultValue: category,
+          onChange: (v) => { setCategory(v) },
+        }}
+        radioCardProps={{ w: 'fit-content', textAlign: 'center', px: '2', py: '1', fontSize: '12px' }}
+        options={[
+          { label: 'All', value: 'all' },
+          { label: 'Yearn', value: 'yearn' },
+          { label: 'Others', value: 'others' },
+        ]}
+      />}
+    >
       <Table columns={columns} items={mintableMarkets} keyName="token" defaultSortDir="desc" defaultSort="supplyApy" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </AnchorSupplyContainer>
