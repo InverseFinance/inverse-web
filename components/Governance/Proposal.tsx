@@ -119,7 +119,7 @@ export const ProposalPreview = ({
           p={2.5}
           px={2}
         >
-          <Flex direction="column" overflowX="auto">
+          <Flex direction="column">
             <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'mainTextColor'}>
               {title}
             </Text>
