@@ -377,6 +377,10 @@ const AnchorSupplyContainer = ({ paused = false, ...props }) => {
       label={title}
       description={paused ? undefined : 'Earn interest on your deposits'}
       href={paused ? undefined : process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
+      headerProps={{
+        direction: { base: 'column', md: 'row' },
+        align: { base: 'flex-start', md: 'flex-end' },
+      }}
       {...props}
     />
   )
@@ -457,6 +461,10 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
         return m.underlying.symbol.startsWith('yv') || m.underlying.symbol === 'YFI';
       } else if (category === 'others') {
         return !m.underlying.symbol.startsWith('yv') && m.underlying.symbol !== 'YFI';
+      } else if (category === 'new') {
+        return m.underlying?.badge?.text === 'NEW';
+      } else if (category === 'inv') {
+        return /inv|dola/i.test(m.underlying?.symbol);
       }
       return true;
     });
@@ -465,16 +473,25 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
     <AnchorSupplyContainer
       paused={paused}
       right={<RadioCardGroup
+        wrapperProps={{ mt: { base: '2' } }}
         group={{
           name: 'bool',
           defaultValue: category,
           onChange: (v) => { setCategory(v) },
         }}
-        radioCardProps={{ w: 'fit-content', textAlign: 'center', px: '2', py: '1', fontSize: '12px' }}
+        radioCardProps={{
+          w: 'fit-content',
+          textAlign: 'center',
+          px: { base: '2', md: '3' },
+          py: '1',
+          fontSize: '12px',
+        }}
         options={[
           { label: 'All', value: 'all' },
+          { label: 'INV/DOLA', value: 'inv' },
+          { label: 'New', value: 'new' },
           { label: 'Yearn', value: 'yearn' },
-          { label: 'Others', value: 'others' },
+          { label: 'Non-Yearn', value: 'others' },
         ]}
       />}
     >
