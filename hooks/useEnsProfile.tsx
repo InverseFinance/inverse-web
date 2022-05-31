@@ -10,7 +10,7 @@ type Output = {
   hasEnsProfile?: boolean
 }
 
-export const useEnsProfile = (address: string): SWR & Output => {
+export const useEnsProfile = (address: string, avatarOnly?: boolean): SWR & Output => {
   const ensProvider = new AlchemyProvider(Number(NetworkIds.mainnet), process?.env?.NEXT_PUBLIC_ENS_ALCHEMY_API)
   const { data, error } = useSWR(`ens-${address}`, async () => {
     if (!address || !isAddress(address)) {
@@ -26,10 +26,10 @@ export const useEnsProfile = (address: string): SWR & Output => {
       const ensResolver = await ensProvider.getResolver(ensName);
       const settled = await Promise.allSettled([
         ensResolver.getText('avatar'),
-        ensResolver.getText('description'),
-        ensResolver.getText('com.twitter'),
-        ensResolver.getText('com.github'),
-        ensResolver.getText('org.telegram'),
+        avatarOnly ? new Promise((r) => r('')) : ensResolver.getText('description'),
+        avatarOnly ? new Promise((r) => r('')) : ensResolver.getText('com.twitter'),
+        avatarOnly ? new Promise((r) => r('')) : ensResolver.getText('com.github'),
+        avatarOnly ? new Promise((r) => r('')) : ensResolver.getText('org.telegram'),
       ]);
       const [avatar, description, twitter, github, telegram] =  settled
       const profileData = { avatar, description, twitter, github, telegram };
