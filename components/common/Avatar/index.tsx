@@ -60,13 +60,12 @@ const ensProvider = new AlchemyProvider(Number(NetworkIds.mainnet), process?.env
 
 export const Avatar = ({
   address,
-  defaultAvatar = 'jazzicon',
   sizePx = 20,
   ...boxProps
 }: {
   address: string,
   sizePx?: number,
-  defaultAvatar?: 'blockies' | 'jazzicon',
+
 } & Partial<BoxProps>) => {
   const avatarAddress = !address || !isAddress(address) ? '0x0000000000000000000000000000000000000000' : address
   const { ensProfile } = useEnsProfile(avatarAddress, true);
@@ -74,7 +73,7 @@ export const Avatar = ({
   const { data: finalUrl } = useCustomSWR(`avatar-uri-${ensProfile?.avatar}`, async (req) => {
     const uri = req?.replace('avatar-uri-', '');
     if (!uri || uri === 'undefined') { return '' }
-    
+
     const cache = await localforage.getItem(req);
     if(cache) { return cache }
 
