@@ -1,7 +1,6 @@
-import { SIGN_MSG, DRAFT_WHITELIST } from '@app/config/constants';
-import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@app/util/governance';
+import { CURRENT_ERA } from '@app/config/constants';
+import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction, checkDraftRights } from '@app/util/governance';
 import { getRedisClient } from '@app/util/redis';
-import { verifyMessage } from 'ethers/lib/utils';
 import { ProposalFormActionFields } from '@app/types';
 
 const client = getRedisClient();
@@ -22,6 +21,9 @@ export default async function handler(req, res) {
 
     let drafts
     let draft
+    let sigAddress;
+
+    const { sig, proposalId, ...updatedData } = req.body
 
     switch (method) {
         case 'GET':
@@ -36,14 +38,11 @@ export default async function handler(req, res) {
             break
         case 'PUT':
         case 'DELETE':
-            const { sig, ...updatedData } = req.body
-            const whitelisted = DRAFT_WHITELIST;
-            const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
-
-            if (!whitelisted.includes(sigAddress)) {
+            sigAddress = checkDraftRights(sig);
+            if (!sigAddress) {
                 res.status(401).json({ status: 'warning', message: 'Unauthorized' })
                 return
-            };
+            }
 
             try {
                 draft = await getDraft(id);
@@ -57,26 +56,35 @@ export default async function handler(req, res) {
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
 
                 if (method === 'PUT') {
-                    const updatedDraft = {
-                        ...updatedData,
-                        publicDraftId: id,
-                        createdAt: draft.createdAt,
-                        updatedAt: Date.now(),
-                        updatedBy: sigAddress,
-                        createdBy: draft.createdBy,
-                    };
+                    // submitted the proposal
+                    if (proposalId) {
+                        const draftReviews = JSON.parse(await client.get(`reviews-${id}`) || '[]');
+                        await client.set(`proposal-reviews-${CURRENT_ERA}-${proposalId}`, JSON.stringify(draftReviews));
+                        drafts.splice(index, 1);
+                        client.del(`reviews-${id}`);
+                    } else {
+                        const updatedDraft = {
+                            ...updatedData,
+                            publicDraftId: id,
+                            createdAt: draft.createdAt,
+                            updatedAt: Date.now(),
+                            updatedBy: sigAddress,
+                            createdBy: draft.createdBy,
+                        };
 
-                    const actions = updatedDraft.functions
-                        .map((f, i) => getProposalActionFromFunction(i + 1, f))
-                        .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
+                        const actions = updatedDraft.functions
+                            .map((f, i) => getProposalActionFromFunction(i + 1, f))
+                            .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));
 
-                    if (isProposalFormInvalid({ title: updatedDraft.title, description: updatedDraft.description, actions })) {
-                        res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
-                        return
+                        if (isProposalFormInvalid({ title: updatedDraft.title, description: updatedDraft.description, actions })) {
+                            res.status(400).json({ status: 'error', message: "Invalid Draft Proposal" })
+                            return
+                        }
+                        drafts.splice(index, 1, updatedDraft);
                     }
-                    drafts.splice(index, 1, updatedDraft);
                 } else {
                     drafts.splice(index, 1);
+                    client.del(`reviews-${id}`);
                 }
 
                 await client.set('drafts', JSON.stringify(drafts));

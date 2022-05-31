@@ -12,7 +12,7 @@ import { Proposal, GovEra, ProposalStatus } from '@app/types';
 import Head from 'next/head'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
 import { useEffect } from 'react';
-import { DraftReviews } from '@app/components/Governance/DraftReviews'
+import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
 import { getRedisClient } from '@app/util/redis'
 
 export const Drafts = ({ proposal }) => {
@@ -65,7 +65,7 @@ export const Drafts = ({ proposal }) => {
                   <ProposalActions proposal={proposal} />
                 </Flex>
                 <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-                  {!!id && <DraftReviews publicDraftId={id} />}
+                  {!!id && <ProofOfReviews id={id} isDraft={true} />}
                 </Flex>
               </Flex>
               <Flex direction="column">
@@ -97,7 +97,7 @@ export async function getStaticProps(context) {
       description: d.description,
       functions: d.functions,
       createdAt: d.createdAt,
-      updatedAt: d.updatedAt,
+      updatedAt: d.updatedAt||'',
       proposer: d.createdBy || '',
       era: GovEra.mills,
       startTimestamp: Date.now(),

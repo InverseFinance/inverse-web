@@ -1,10 +1,11 @@
 import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
 import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
-import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface } from 'ethers/lib/utils'
+import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface, verifyMessage } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview, RefundableTransaction } from '@app/types';
-import { CURRENT_ERA, SIGN_MSG, GRACE_PERIOD_MS } from '@app/config/constants';
+import { CURRENT_ERA, SIGN_MSG, GRACE_PERIOD_MS, DRAFT_WHITELIST } from '@app/config/constants';
+import { showToast } from './notify';
 
 export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
     return new Promise(async (resolve, reject) => {
@@ -297,6 +298,50 @@ export const deleteDraft = async (publicDraftId: number, signer: JsonRpcSigner, 
     }
 }
 
+export const linkDraft = async (publicDraftId: number, proposalId: string, signer: JsonRpcSigner, onSuccess?: () => void) => {
+    showToast({ status: 'loading', id: 'linkDraft', title: 'Link Proof of Reviews to Proposal', description: 'Sign to proceed' , duration: null });
+    return new Promise(async (resolve) => {
+        try {
+            const sig = await signer.signMessage(SIGN_MSG);
+            showToast({ status: 'loading', id: 'linkDraft', title: 'Link Proof of Reviews to Proposal', description: 'Linking...' , duration: null });
+            const triggerProposalsResult = await triggerProposalUpdate(signer, sig);
+
+            const rawResponse = await fetch(`/api/drafts/${publicDraftId}`, {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sig, proposalId })
+            });
+            const result = await rawResponse.json();
+
+            const isSuccess = result.status === 'success';
+            if (onSuccess && isSuccess) { onSuccess() }
+            showToast({
+                status: isSuccess ? 'success' : 'warning',
+                id: 'linkDraft',
+                title: 'Link Proof of Reviews to Proposal',
+                duration: 6000,
+            });
+
+            if(triggerProposalsResult.success){
+                window.location.href = `/governance/proposals/${CURRENT_ERA}/${proposalId}`;
+            }
+            resolve(result);
+        } catch (e: any) {
+            showToast({
+                status: 'warning',
+                id: 'linkDraft',
+                title: 'Link Proof of Reviews to Proposal',
+                description: 'Linking failed',
+                duration: 6000,
+            });
+            resolve({ status: 'warning', message: e.message || 'An error occured' })
+        }
+    })
+}
+
 export const isProposalActionInvalid = (action: ProposalFormActionFields) => {
     if (action.contractAddress.length === 0) return true;
     if (action.func.length === 0) return true;
@@ -387,9 +432,9 @@ export const simulateOnChainActions = async (
         const actions = functions.map(f => {
             const iface = new Interface([`function ${f.signature}`]);
             const data = `${iface.getSighash(f.signature)}${f.callData.replace('0x', '')}`;
-            return { to: f.target, data  }
+            return { to: f.target, data }
         })
-        
+
         const rawResponse = await fetch(`/api/drafts/sim`, {
             method: 'POST',
             headers: {
@@ -414,7 +459,7 @@ export const submitRefunds = async (
 ): Promise<any> => {
     try {
         let sig;
-        if(signer) {
+        if (signer) {
             sig = await signer.signMessage(SIGN_MSG);
         }
         const rawResponse = await fetch(`/api/gov/submit-refunds`, {
@@ -451,6 +496,42 @@ export const addTxToRefund = async (
         });
         const result = await rawResponse.json();
         if (onSuccess && result.status === 'success') { onSuccess(result) }
+        return result;
+    } catch (e: any) {
+        return { status: 'warning', message: e.message || 'An error occured' }
+    }
+}
+
+export const checkDraftRights = (sig: string) => {
+    if (!sig) { return null }
+
+    const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
+
+    if (!DRAFT_WHITELIST.includes(sigAddress)) {
+        return null
+    };
+
+    return sigAddress;
+}
+
+export const triggerProposalUpdate = async (
+    signer: JsonRpcSigner,
+    sig?: string,
+    onSuccess?: (result: any) => void,
+): Promise<any> => {
+    try {
+        let _sig = sig || await signer.signMessage(SIGN_MSG)
+
+        const rawResponse = await fetch(`/api/cron-proposals`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sig: _sig })
+        });
+        const result = await rawResponse.json();
+        if (onSuccess && result.success) { onSuccess(result) }
         return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }

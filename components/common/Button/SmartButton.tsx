@@ -8,6 +8,7 @@ import { Web3Provider, TransactionResponse } from '@ethersproject/providers';
 import { forceQuickAccountRefresh } from '@app/util/web3';
 import { useRouter } from 'next/dist/client/router';
 import { gaEvent } from '@app/util/analytics';
+import { handleApiResponse } from '@app/util/misc';
 
 /**
  * "Smart" Button :
@@ -62,10 +63,7 @@ export const SmartButton = (props: SmartButtonProps) => {
                     }
                     await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
                 } else {
-                    if(promiseResult?.status && promiseResult?.message) {
-                        const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
-                        showToast({ status: statusType, description: promiseResult?.message });
-                    }
+                    handleApiResponse(promiseResult);
                 }
             } catch (e) {
                 showFailNotif(e)

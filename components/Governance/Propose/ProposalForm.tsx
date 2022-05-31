@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
 import { Textarea } from '@app/components/common/Input';
-import { FunctionFragment } from 'ethers/lib/utils';
+import { formatUnits, FunctionFragment } from 'ethers/lib/utils';
 import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@app/types';
 import { ProposalInput } from './ProposalInput';
 import { ProposalFormAction } from './ProposalFormAction';
-import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, publishDraft, simulateOnChainActions, submitProposal } from '@app/util/governance';
+import { deleteDraft, getFunctionsFromProposalActions, getProposalActionFromFunction, isProposalActionInvalid, isProposalFormInvalid, linkDraft, publishDraft, simulateOnChainActions, submitProposal } from '@app/util/governance';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { handleTx } from '@app/util/transactions';
@@ -20,6 +20,8 @@ import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 import { useRouter } from 'next/dist/client/router';
 import { Link } from '@app/components/common/Link';
 import { namedAddress } from '@app/util';
+import { DRAFT_WHITELIST } from '@app/config/constants';
+import { handleApiResponse } from '@app/util/misc';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -156,7 +158,18 @@ export const ProposalForm = ({
     const handleSubmitProposal = async () => {
         if (!library?.getSigner()) { return }
         const tx = await submitProposal(library?.getSigner(), form);
-        return handleTx(tx, { onSuccess: () => setHasSuccess(true) });
+        return handleTx(tx, { 
+            onSuccess: (tx, receipt) => {
+                setHasSuccess(true);
+                const canDraft = DRAFT_WHITELIST.includes((account || '')?.toLowerCase());
+                if(draftId && isPublicDraft && canDraft) {
+                    const proposalId = formatUnits(receipt?.events[2]?.args?.id, 0);
+                    linkDraft(draftId!, proposalId, library.getSigner(), (result) => {
+                        handleApiResponse(result);
+                    });
+                }
+            }
+         });
     }
 
     const handlePublishDraft = async () => {
