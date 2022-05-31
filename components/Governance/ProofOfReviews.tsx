@@ -1,4 +1,4 @@
-import { usePublicDraftReviews } from '@app/hooks/useProposals'
+import { useProofOfReviews } from '@app/hooks/useProposals'
 import { HStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Stack, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
@@ -9,11 +9,11 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import Link from '@app/components/common/Link';
 import { ChatIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
-import { DraftReview } from '@app/types';
+import { DraftReview, GovEra } from '@app/types';
 import { useEffect, useState } from 'react';
 import PromptModal from '@app/components/common/Modal/PromptModal';
 
-const DraftReviewItem = ({
+const ReviewItem = ({
     review
 }: {
     review: DraftReview,
@@ -57,13 +57,17 @@ const DraftReviewItem = ({
     )
 }
 
-export const DraftReviews = ({
-    publicDraftId
+export const ProofOfReviews = ({
+    id,
+    isDraft = true,
+    era,
 }: {
-    publicDraftId: any,
+    id: any,
+    isDraft: boolean,
+    era?: GovEra,
 }) => {
     const { account, library } = useWeb3React<Web3Provider>();
-    const { reviews: reviewsData, isLoading } = usePublicDraftReviews(publicDraftId);
+    const { reviews: reviewsData, isLoading } = useProofOfReviews(id, isDraft, era);
     const { isOpen, onClose, onOpen } = useDisclosure();
 
     const [reviews, setReviews] = useState(reviewsData);
@@ -82,11 +86,11 @@ export const DraftReviews = ({
     }
 
     const sendProofOfReview = (comment: string) => {
-        return sendDraftReview(library?.getSigner(), publicDraftId, 'ok', comment, onSuccess);
+        return sendDraftReview(library?.getSigner(), id, 'ok', comment, onSuccess);
     }
 
     const removeReview = async () => {
-        return sendDraftReview(library?.getSigner(), publicDraftId, 'remove', '', onSuccess);
+        return sendDraftReview(library?.getSigner(), id, 'remove', '', onSuccess);
     }
 
     const myReview = reviews?.find(r => r.reviewer.toLowerCase() === account?.toLowerCase());
@@ -115,13 +119,13 @@ export const DraftReviews = ({
                         :
                         reviews.length > 0 ?
                             reviews.map(review => {
-                                return <DraftReviewItem key={review.reviewer} review={review} />
+                                return <ReviewItem key={review.reviewer} review={review} />
                             })
                             :
                             <Text>No Proof Of Review yet</Text>
                 }
                 {
-                    !account ? null
+                    !account || !isDraft ? null
                         :
                         !accountHasReviewedDraft ?
                             <SubmitButton themeColor="green.500" w="fit-content" onClick={addReview}>

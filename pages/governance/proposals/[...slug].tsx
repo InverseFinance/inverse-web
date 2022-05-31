@@ -17,6 +17,7 @@ import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
 import { getRedisClient } from '@app/util/redis'
+import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
 
@@ -66,6 +67,9 @@ export const Governance = ({ proposal }: { proposal: Proposal }) => {
                 </Flex>
                 <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
                   <ProposalActions proposal={proposal} />
+                </Flex>
+                <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                  <ProofOfReviews id={proposal.id} era={proposal.era} isDraft={false} />
                 </Flex>
               </Flex>
               <Flex direction="column">

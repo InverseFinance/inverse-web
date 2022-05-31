@@ -40,18 +40,8 @@ export const usePublicDraftProposals = (): SWR & { drafts: PublicDraftProposal[]
   }
 }
 
-export const usePublicDraftReviews = (id: number): SWR & { reviews: DraftReview[] } => {
-  const { data, error } = useCustomSWR(`/api/drafts/reviews/${id}`, id ? fetcher : () => new Promise(r => r(undefined)))
-
-  return {
-    reviews: data?.reviews || [],
-    isLoading: !error && !data,
-    isError: error,
-  }
-}
-
-export const useProposalReviews = (proposalId: number, era: GovEra): SWR & { reviews: DraftReview[] } => {
-  const { data, error } = useCustomSWR(`/api/drafts/reviews/${proposalId}?isProposal=true&era=${era}`, proposalId ? fetcher : () => new Promise(r => r(undefined)))
+export const useProofOfReviews = (id: number, isDraft: boolean, era?: GovEra): SWR & { reviews: DraftReview[] } => {
+  const { data, error } = useCustomSWR(`/api/drafts/reviews/${id}?isProposal=${!isDraft}&era=${era||''}`, id ? fetcher : () => new Promise(r => r(undefined)))
 
   return {
     reviews: data?.reviews || [],
