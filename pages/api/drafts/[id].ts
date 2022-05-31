@@ -1,7 +1,6 @@
-import { SIGN_MSG, DRAFT_WHITELIST, CURRENT_ERA } from '@app/config/constants';
-import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction } from '@app/util/governance';
+import { CURRENT_ERA } from '@app/config/constants';
+import { isProposalFormInvalid, isProposalActionInvalid, getProposalActionFromFunction, checkDraftRights } from '@app/util/governance';
 import { getRedisClient } from '@app/util/redis';
-import { verifyMessage } from 'ethers/lib/utils';
 import { ProposalFormActionFields } from '@app/types';
 
 const client = getRedisClient();
@@ -10,16 +9,6 @@ const getDraft = async (id) => {
     const drafts = JSON.parse(await client.get('drafts') || '[]');
     const draft = drafts.find((d) => d.publicDraftId.toString() === id);
     return draft
-}
-
-const checkRights = (sig: string) => {
-    const sigAddress = verifyMessage(SIGN_MSG, sig).toLowerCase();
-
-    if (!DRAFT_WHITELIST.includes(sigAddress)) {
-        return null
-    };
-
-    return sigAddress;
 }
 
 export default async function handler(req, res) {
@@ -49,7 +38,7 @@ export default async function handler(req, res) {
             break
         case 'PUT':
         case 'DELETE':
-            sigAddress = checkRights(sig);
+            sigAddress = checkDraftRights(sig);
             if (!sigAddress) {
                 res.status(401).json({ status: 'warning', message: 'Unauthorized' })
                 return

@@ -20,6 +20,8 @@ import { ProposalFloatingPreviewBtn } from './ProposalFloatingPreviewBtn';
 import { useRouter } from 'next/dist/client/router';
 import { Link } from '@app/components/common/Link';
 import { namedAddress } from '@app/util';
+import { DRAFT_WHITELIST } from '@app/config/constants';
+import { handleApiResponse } from '@app/util/misc';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -159,9 +161,12 @@ export const ProposalForm = ({
         return handleTx(tx, { 
             onSuccess: (tx, receipt) => {
                 setHasSuccess(true);
-                if(draftId && isPublicDraft) {
+                const canDraft = DRAFT_WHITELIST.includes((account || '')?.toLowerCase());
+                if(draftId && isPublicDraft && canDraft) {
                     const proposalId = formatUnits(receipt?.events[2]?.args?.id, 0);
-                    linkDraft(draftId!, proposalId, library.getSigner(), () => {});
+                    linkDraft(draftId!, proposalId, library.getSigner(), (result) => {
+                        handleApiResponse(result);
+                    });
                 }
             }
          });

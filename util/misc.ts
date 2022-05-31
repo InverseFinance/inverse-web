@@ -1,3 +1,5 @@
+import { showToast } from './notify';
+
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length);
 
 export const removeScientificFormat = (x: number) => {
@@ -150,4 +152,11 @@ export const timestampToUTC = (timestamp: number) => {
 export const getRandomFromStringList = (commaSeparatedList: string) => {
     const keys = commaSeparatedList.replace(/\s+/g, '').split(',');
     return keys[Math.floor(Math.random() * keys.length)];
+}
+
+export const handleApiResponse = (promiseResult: any) => {
+    if(promiseResult?.status && promiseResult?.message) {
+        const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
+        showToast({ status: statusType, description: promiseResult?.message });
+    }
 }

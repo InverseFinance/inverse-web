@@ -8,7 +8,7 @@ import { getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
 import { GovEra } from '@app/types';
 import { SECONDS_PER_BLOCK } from '@app/config/constants';
-import { getProposalStatus } from '@app/util/governance';
+import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { ProposalStatus } from '@app/types';
 import { Proposal } from '@app/types';
 
@@ -16,8 +16,12 @@ const client = getRedisClient();
 
 export default async function handler(req, res) {
   // authenticate cron job
+  const { sig } = req.body;
   if (req.method !== 'POST') res.status(405).json({ success: false });
-  else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) res.status(401).json({ success: false });
+  else if (
+    req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`
+    && !checkDraftRights(sig)
+  ) res.status(401).json({ success: false });
   else {
     // run delegates cron job
     try {
