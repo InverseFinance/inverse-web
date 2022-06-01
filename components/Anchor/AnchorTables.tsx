@@ -398,7 +398,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
 
   const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
-  const handleSupply = (asset: Market) => {
+  const handleSupply = (asset: Market, e: any) => {
     setModalAsset(asset)
     onOpen()
   }
@@ -428,19 +428,38 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   }, [query, markets, deepLinkUsed])
 
   const marketsWithBalance = markets?.map((market) => {
-    const { underlying } = market;
+    const { underlying, supplied, oraclePrice } = market;
     const balance = balances
       ? parseFloat(
         formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.CHAIN_COIN, underlying.decimals)
       )
       : 0
-    return { ...market, balance }
+      const suppliedUsd = supplied * oraclePrice;
+    return { ...market, balance, suppliedUsd }
   })
 
   const columns = [
     getColumn('asset', '180px', true),
     getColumn('supplyApy', 20, true),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
+    {
+      field: 'suppliedUsd',
+      label: 'Supplied',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
+      tooltip: <Text>USD worth of the assets supplied</Text>,
+      value: ({ suppliedUsd, token, underlying }: Market) => {
+        const color = isHighlightCase(false, true, token, underlying) ? 'secondary' : 'mainTextColor'
+        return (
+          <Text textAlign="end" minWidth={24} color={color}>
+            {
+              suppliedUsd
+                ? shortenNumber(suppliedUsd, 2, true)
+                : '-'
+            }
+          </Text>
+        )
+      },
+    },
     getColumn('wallet', 24, true),
   ].filter(c => !!c);
 
@@ -469,11 +488,13 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
       return true;
     });
 
+  mintableMarkets.sort((a, b) => (a.underlying.order ?? 1000) - (b.underlying.order ?? 1000));
+
   return (
     <AnchorSupplyContainer
       paused={paused}
       right={<RadioCardGroup
-        wrapperProps={{ mt: { base: '2' } }}
+        wrapperProps={{ mt: { base: '2' }, overflow: 'auto', maxW: '90vw' }}
         group={{
           name: 'bool',
           defaultValue: category,
@@ -485,6 +506,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
           px: { base: '2', md: '3' },
           py: '1',
           fontSize: '12px',
+          whiteSpace: 'nowrap'
         }}
         options={[
           { label: 'All', value: 'all' },
@@ -495,7 +517,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
         ]}
       />}
     >
-      <Table columns={columns} items={mintableMarkets} keyName="token" defaultSortDir="desc" defaultSort="supplyApy" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
+      <Table columns={columns} items={mintableMarkets} defaultSort={null} keyName="token" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </AnchorSupplyContainer>
   )

@@ -22,6 +22,7 @@ export interface Token {
   }
   isInPausedSection?: boolean,
   protocolImage?: string,
+  order?: number
 }
 
 export interface TokenWithBalance extends Token {

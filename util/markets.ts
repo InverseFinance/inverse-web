@@ -206,7 +206,6 @@ export const getXSushiData = async (nbDays = 7) => {
             ...days.map(v => {
                 const d = new Date();
                 const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
-                console.log(new Date(utc));
                 return sushiData.exchange.token({ timestamp: utc, token_address: '0x8798249c2e607446efb7ad49ec89dd1865ff4272' });
             }),
         ])).map(d => d.derivedETH);

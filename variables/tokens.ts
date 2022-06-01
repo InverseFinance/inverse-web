@@ -4,10 +4,11 @@ import { isAddress } from 'ethers/lib/utils';
 
 // TODO: refacto in cleaner way with markets and tokens
 
-export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
-  return Object.entries(tokens)
+export const getToken = (tokens: TokenList, symbolOrAddress: string, extend = {}) => {
+  const t =  Object.entries(tokens)
     .map(([address, token]) => token)
     .find(token => isAddress(symbolOrAddress) ? token.address.toLowerCase() === symbolOrAddress.toLowerCase() : token.symbol.toLowerCase() === symbolOrAddress.toLowerCase())
+    return { ...t, ...extend }
 }
 
 export const getRewardToken = () => {
@@ -316,6 +317,7 @@ export const TOKENS: TokenList = {
     coingeckoId: process.env.NEXT_PUBLIC_REWARD_TOKEN_CG_ID,
     image: process.env.NEXT_PUBLIC_REWARD_TOKEN_LOGO,
     decimals: 18,
+    order: 0,
   },
   [process.env.NEXT_PUBLIC_DOLA!]: {
     address: process.env.NEXT_PUBLIC_DOLA,
@@ -344,6 +346,7 @@ const toV1 = (token: Token) => {
     name: `${token.name}-v1`,
     isInPausedSection: true,
     badge: pausedBadge,
+    order: 1000,
   }
 }
 
@@ -358,21 +361,21 @@ const chainUnderlying = {
     '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b': toV1(getToken(TOKENS, chainTokenAddresses["1"].WBTC)!),
     '0xde2af899040536884e062D3a334F2dD36F34b4a4': toV1(getToken(TOKENS, chainTokenAddresses["1"].YFI)!),
     // v2 markets
-    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, badge: newBadge },
-    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': { ...getToken(TOKENS, chainTokenAddresses["1"].WBTC)!, badge: newBadge },
-    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': { ...getToken(TOKENS, chainTokenAddresses["1"].YFI)!, badge: newBadge },
+    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, badge: newBadge, order: 10 },
+    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC!, { badge: newBadge, order: 20 }),
+    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI!, { badge: newBadge, order: 30 }),
     // others
-    '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA),
-    '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326': getToken(TOKENS, chainTokenAddresses["1"].XSUSHI),
-    '0xA978D807614c3BFB0f90bC282019B2898c617880': getToken(TOKENS, chainTokenAddresses["1"].STETH),
-    '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760': getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV),
-    '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB': getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP),
+    '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA, { order: 1 }),
+    '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326': getToken(TOKENS, chainTokenAddresses["1"].XSUSHI, { order: 80 }),
+    '0xA978D807614c3BFB0f90bC282019B2898c617880': getToken(TOKENS, chainTokenAddresses["1"].STETH, { order: 60 }),
+    '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760': getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV, { order: 70 }),
+    '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB': getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP, { order: 50 }),
     '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B': getToken(TOKENS, chainTokenAddresses["1"].FLOKI),
     // yearn vaults
-    '0x3cFd8f5539550cAa56dC901f09C69AC9438E0722': getToken(TOKENS, chainTokenAddresses["1"].YVDOLA3POOLCRV),
-    '0x4597a4cf0501b853b029cE5688f6995f753efc04': getToken(TOKENS, chainTokenAddresses["1"].YVUSDT),
-    '0x7e18AB8d87F3430968f0755A623FB35017cB3EcA': getToken(TOKENS, chainTokenAddresses["1"].YVUSDC),
-    '0xD79bCf0AD38E06BC0be56768939F57278C7c42f7': getToken(TOKENS, chainTokenAddresses["1"].YVDAI),
+    '0x3cFd8f5539550cAa56dC901f09C69AC9438E0722': getToken(TOKENS, chainTokenAddresses["1"].YVDOLA3POOLCRV, { order: 40 }),
+    '0x4597a4cf0501b853b029cE5688f6995f753efc04': getToken(TOKENS, chainTokenAddresses["1"].YVUSDT, { order: 41 }),
+    '0x7e18AB8d87F3430968f0755A623FB35017cB3EcA': getToken(TOKENS, chainTokenAddresses["1"].YVUSDC, { order: 42 }),
+    '0xD79bCf0AD38E06BC0be56768939F57278C7c42f7': getToken(TOKENS, chainTokenAddresses["1"].YVDAI, { order: 43 }),
     // bacth 2
     '0xE809aD1577B7fF3D912B9f90Bf69F8BeCa5DCE32': getToken(TOKENS, chainTokenAddresses["1"].YVYFI),
     '0xD924Fc65B448c7110650685464c8855dd62c30c0': getToken(TOKENS, chainTokenAddresses["1"].YVWETH),
@@ -393,7 +396,7 @@ const underlying: TokenList = {
 if (HAS_REWARD_TOKEN) {
   underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN);
   if (process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
-    underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN);
+    underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN, { order: 1000 });
   }
 }
 
