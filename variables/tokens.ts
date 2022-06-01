@@ -53,6 +53,9 @@ const chainTokenAddresses = {
     YVYFI: '0xdb25cA703181E7484a155DD612b06f57E12Be5F0',
     YVWETH: '0xa258C4606Ca8206D8aA700cE2143D7db854D168c',
     YVCRVCVXETH: '0x1635b506a88fBF428465Ad65d00e8d6B6E5846C3',
+    YVCRVIB: '0x27b7b1ad7288079A66d12350c828D3C00A6F07d7',
+    YVCRV3CRYPTO: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
+    YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -117,8 +120,6 @@ const chainTokens = {
       coingeckoId: 'yearn-finance',
       image: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
       decimals: 18,
-      isInPausedSection: true,
-      badge: pausedBadge,
     },
     [chainTokenAddresses["1"].XSUSHI]: {
       address: chainTokenAddresses["1"].XSUSHI,
@@ -216,6 +217,33 @@ const chainTokens = {
       name: 'YV-CrvCvxEth',
       symbol: 'yvcrvCVXETH',
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+      badge: newBadge,
+    },
+    [chainTokenAddresses["1"].YVCRVIB]: {
+      address: chainTokenAddresses["1"].YVCRVIB,
+      name: 'YV-CrvIB',
+      symbol: 'yvcrvIB',
+      image: 'https://assets.coingecko.com/coins/images/22902/small/ironbank.png?1642872464',
+      decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+      badge: newBadge,
+    },
+    [chainTokenAddresses["1"].YVCRV3CRYPTO]: {
+      address: chainTokenAddresses["1"].YVCRV3CRYPTO,
+      name: 'YV-Crv3crypto',
+      symbol: 'yvcrv3Crypto',
+      image: 'https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xc4AD29ba4B3c580e6D59105FFf484999997675Ff/logo-128.png',
+      decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+      badge: newBadge,
+    },
+    [chainTokenAddresses["1"].YVCRVSTEHWETH]: {
+      address: chainTokenAddresses["1"].YVCRVSTEHWETH,
+      name: 'yvcrvstETH-WETH',
+      symbol: 'yvcrvstETH-WETH',
+      image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
       badge: newBadge,
@@ -327,7 +355,7 @@ const chainUnderlying = {
     // v2 markets
     '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, badge: newBadge },
     '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': { ...getToken(TOKENS, chainTokenAddresses["1"].WBTC)!, badge: newBadge },
-    // '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI)!,
+    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': { ...getToken(TOKENS, chainTokenAddresses["1"].YFI)!, badge: newBadge },
     // others
     '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA),
     '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326': getToken(TOKENS, chainTokenAddresses["1"].XSUSHI),
@@ -344,6 +372,10 @@ const chainUnderlying = {
     '0xE809aD1577B7fF3D912B9f90Bf69F8BeCa5DCE32': getToken(TOKENS, chainTokenAddresses["1"].YVYFI),
     '0xD924Fc65B448c7110650685464c8855dd62c30c0': getToken(TOKENS, chainTokenAddresses["1"].YVWETH),
     '0xa6F1a358f0C2e771a744AF5988618bc2E198d0A0': getToken(TOKENS, chainTokenAddresses["1"].YVCRVCVXETH),
+    // batch 3
+    '0xb7159DfbAB6C99d3d38CFb4E419eb3F6455bB547': getToken(TOKENS, chainTokenAddresses["1"].YVCRVIB),
+    '0x1429a930ec3bcf5Aa32EF298ccc5aB09836EF587': getToken(TOKENS, chainTokenAddresses["1"].YVCRV3CRYPTO),
+    '0xD904235Dc0CD28f42AEECc0CD6A7126d871edaa4': getToken(TOKENS, chainTokenAddresses["1"].YVCRVSTEHWETH),
 
   }
 }

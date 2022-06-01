@@ -17,7 +17,7 @@ type VotesProps = {
   status: ProposalStatus
   voters: ProposalVote[]
   onViewAll: () => void
-  quorum: number
+  quorum?: number
 }
 
 const Votes = ({ votes, status, voters, onViewAll, quorum }: VotesProps) => {
@@ -29,7 +29,7 @@ const Votes = ({ votes, status, voters, onViewAll, quorum }: VotesProps) => {
         <Text fontSize="sm" fontWeight="medium">{`${voters.length} voters`}</Text>
         <Text fontSize="sm" fontWeight="medium">
           {status === ProposalStatus.active
-            ? `${votes.toFixed(0)} / ${quorum.toFixed(0)} votes`
+            ? `${votes.toFixed(0)}${quorum ? ` / ${quorum}` : ''} votes`
             : `${votes >= 1000 ? `${(votes / 1000).toFixed(2)}k` : votes.toFixed(0)} votes`}
         </Text>
       </Flex>
@@ -116,8 +116,8 @@ export const AgainstVotes = ({ proposal }: { proposal: Proposal }) => {
 
   return (
     <Container label="Against Votes">
-      <Votes votes={againstVotes} voters={againstVoters} status={status} onViewAll={onOpen} quorum={quorum} />
-      <AgainstVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} quorum={quorum} />
+      <Votes votes={againstVotes} voters={againstVoters} status={status} onViewAll={onOpen} />
+      <AgainstVotesModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
     </Container>
   )
 }
