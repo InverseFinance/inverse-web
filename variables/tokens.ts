@@ -128,6 +128,7 @@ const chainTokens = {
       coingeckoId: 'xsushi',
       image: 'https://assets.coingecko.com/coins/images/13725/small/xsushi.png',
       decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688',
     },
     [chainTokenAddresses["1"].WBTC]: {
       address: chainTokenAddresses["1"].WBTC,
@@ -150,12 +151,13 @@ const chainTokens = {
       address: chainTokenAddresses["1"].INVDOLASLP,
       name: 'INV-DOLA SLP',
       symbol: 'INV-DOLA-SLP',
-      image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
+      image: '/assets/inv-square-dark.jpeg',
       decimals: 18,
       isLP: true,
       pairs: [
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688',
     },
     [chainTokenAddresses["1"].INVETHSLP]: {
       address: chainTokenAddresses["1"].INVETHSLP,
@@ -173,10 +175,11 @@ const chainTokens = {
       name: 'Dola-3pool CRV LP',
       symbol: 'DOLA-3POOL',
       coingeckoId: 'dai',
-      image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      protocolImage: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
       isLP: true,
       isCrvLP: true,
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
@@ -287,18 +290,20 @@ chainTokens["31337"] = chainTokens["1"];
 const copyAsYearnVault = ['DOLA3POOLCRV', 'USDC', 'USDT', 'DAI', 'YFI', 'WETH'];
 copyAsYearnVault.forEach(s => {
   const token = chainTokens["1"][chainTokenAddresses["1"][s]];
+  const symbol = `yv${token.symbol}`.replace('yvDOLA-3POOL', 'yvcrvDOLA');
   chainTokens["1"][chainTokenAddresses["1"][`YV${s}`]] = {
     ...token,
     address: chainTokenAddresses["1"][`YV${s}`],
-    symbol: `yv${token.symbol}`.replace('yvDOLA-3POOL', 'yvcrvDOLA'),
+    symbol,
     protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image,
-    name: `yv${token.symbol}`.replace('yvDOLA-3POOL', 'yvcrvDOLA'),
+    name: symbol,
     coingeckoId: undefined,
     badge: newBadge,
     isInPausedSection: false,
     isLP: false,
     isCrvLP: false,
     pairs: undefined,
+    image: symbol.startsWith('yvcrv') ? 'https://assets.coingecko.com/markets/images/538/small/Curve.png?1591605481' : token.image,
   }
 })
 
