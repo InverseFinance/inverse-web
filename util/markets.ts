@@ -3,6 +3,7 @@ import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber } from 'ethers';
 import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
+import sushiData from '@sushiswap/sushi-data'
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -165,7 +166,7 @@ export const getYearnVaults = async () => {
     try {
         const results = await fetch('https://d28fcsszptni1s.cloudfront.net/v1/chains/1/vaults/all');
         return results.json();
-    } catch(e) { console.log(e) }
+    } catch (e) { console.log(e) }
     return [];
 }
 
@@ -173,6 +174,27 @@ export const getStethData = async () => {
     try {
         const results = await fetch('https://1rwmj4tky9.execute-api.eu-central-1.amazonaws.com/poolsEnriched?pool=lido-stETH');
         return results.json();
-    } catch(e) { console.log(e) }
+    } catch (e) { console.log(e) }
     return [];
+}
+
+export const getXSushiData = async () => {
+    let apy = 0;
+    let apr = 0;
+    try {
+        const [xsushi, sushiPriceUSD, daysData] = await Promise.all([
+            sushiData.bar.info(),
+            sushiData.sushi.priceUSD(),
+            sushiData.exchange.dayData(),
+        ]);
+
+        const daysBeforeToday = daysData.slice(1, 3);
+        const avgVolume = daysBeforeToday.reduce((prev, curr) => prev + curr.volumeUSD, 0) / daysBeforeToday.length;
+
+        const period = 365;
+        // 0.05 * 0.01 = swap fees
+        apr = (((avgVolume * 0.05 * 0.01) / xsushi.totalSupply) * period) / (xsushi.ratio * sushiPriceUSD)
+        apy = (Math.pow((1 + (apr / period)), period)) - 1;
+    } catch (e) { console.log(e) }
+    return { apy: apy * 100, apr: apr * 100 };
 }
