@@ -457,10 +457,10 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   const mintableMarkets = marketsWithBalance
     .filter(m => m.mintable)
     .filter(m => {
-      if (category === 'yearn') {
-        return m.underlying.symbol.startsWith('yv') || m.underlying.symbol === 'YFI';
-      } else if (category === 'others') {
-        return !m.underlying.symbol.startsWith('yv') && m.underlying.symbol !== 'YFI';
+      if (category === 'yield') {
+        return !!m.underlying.protocolImage;
+      } else if (category === 'popular') {
+        return ['WBTC', 'ETH', 'stETH', 'xSUSHI', 'INV', 'DOLA', 'YFI'].includes(m.underlying.symbol);
       } else if (category === 'new') {
         return m.underlying?.badge?.text === 'NEW';
       } else if (category === 'inv') {
@@ -490,8 +490,8 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
           { label: 'All', value: 'all' },
           { label: 'INV/DOLA', value: 'inv' },
           { label: 'New', value: 'new' },
-          { label: 'Yearn', value: 'yearn' },
-          { label: 'Non-Yearn', value: 'others' },
+          { label: 'Yield-Bearing', value: 'yield' },
+          { label: 'Popular', value: 'popular' },
         ]}
       />}
     >
