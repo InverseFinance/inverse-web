@@ -96,6 +96,7 @@ export type Proposal = {
   era: GovEra
   createdAt?: number
   updatedAt?: number
+  executionTimestamp? :number
 }
 
 export enum ProposalStatus {

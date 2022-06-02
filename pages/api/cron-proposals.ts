@@ -6,11 +6,12 @@ import { formatUnits } from "ethers/lib/utils";
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
-import { GovEra } from '@app/types';
+import { GovEra, NetworkIds } from '@app/types';
 import { SECONDS_PER_BLOCK } from '@app/config/constants';
 import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { ProposalStatus } from '@app/types';
 import { Proposal } from '@app/types';
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
 const client = getRedisClient();
 
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
     // run delegates cron job
     try {
       const chainId = process.env.NEXT_PUBLIC_CHAIN_ID!;
-      // await client.del(`${chainId}-proposals-archived`)
+      // await client.del(`${chainId}-proposals-archived-v1.0.0`)
       const { GOVERNANCE, GOVERNANCE_ALPHA: GOV_ALPHA } = getNetworkConfigConstants()!;
       // use specific AlchemyApiKey for the cron
       const provider = getProvider(chainId, process.env.ALCHEMY_CRON, true);
@@ -89,6 +90,10 @@ export default async function handler(req, res) {
           proposalData.map(({ endBlock }) => provider.getBlock(endBlock.toNumber()))
         );
 
+        const govExecutions = await govContract.queryFilter(govContract.filters.ProposalExecuted());
+        await addBlockTimestamps(govExecutions.map(e => e.blockNumber), NetworkIds.mainnet);
+        const timestamps = await getCachedBlockTimestamps();
+
         return proposalData.map(
           (
             {
@@ -111,6 +116,8 @@ export default async function handler(req, res) {
 
             let status = getProposalStatus(canceled, executed, eta, startBlock, endBlock, blockNumber, againstVotes, forVotes, quorumVotes)
 
+            const execEvent = executed ? govExecutions.find(e => e.args.id.toString() === id.toString()) : undefined;
+
             return {
               id: id.toNumber(),
               proposalNum: id.toNumber() + (era === GovEra.alpha ? 0 : proposalCountAlpha.toNumber()),
@@ -128,6 +135,7 @@ export default async function handler(req, res) {
               againstVotes: parseFloat(formatUnits(againstVotes)),
               canceled: canceled,
               executed: executed,
+              executionTimestamp: executed && !!execEvent ? timestamps[NetworkIds.mainnet][execEvent.blockNumber] * 1000 : undefined,
               title: args.description.split("\n")[0].split("# ")[1],
               description: args.description.split("\n").slice(1).join("\n"),
               status,
@@ -147,7 +155,7 @@ export default async function handler(req, res) {
         );
       }
 
-      const previouslyArchivedProposals = JSON.parse(await client.get(`${chainId}-proposals-archived`) || '{"proposals": []}').proposals;
+      const previouslyArchivedProposals = JSON.parse(await client.get(`${chainId}-proposals-archived-v1.0.0`) || '{"proposals": []}').proposals;
 
       const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mills, previouslyArchivedProposals);
       const proposalsAlpha = await getProposals(proposalCountAlpha, governanceAlpha, proposalsCreatedAlpha, votesCastAlpha, quorumVotesAlpha, GovEra.alpha, previouslyArchivedProposals);
@@ -164,7 +172,7 @@ export default async function handler(req, res) {
         return [ProposalStatus.canceled, ProposalStatus.executed, ProposalStatus.defeated, ProposalStatus.expired].includes(p.status)
       });
 
-      await client.set(`${chainId}-proposals-archived`, JSON.stringify({
+      await client.set(`${chainId}-proposals-archived-v1.0.0`, JSON.stringify({
         blockNumber,
         timestamp: Date.now(),
         proposals: currentArchivedProposals,
