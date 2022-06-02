@@ -434,7 +434,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
         formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.CHAIN_COIN, underlying.decimals)
       )
       : 0
-      const suppliedUsd = supplied * oraclePrice;
+    const suppliedUsd = supplied * oraclePrice;
     return { ...market, balance, suppliedUsd }
   })
 
@@ -479,7 +479,8 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
       if (category === 'yield') {
         return !!m.underlying.protocolImage;
       } else if (category === 'popular') {
-        return ['WBTC', 'ETH', 'stETH', 'xSUSHI', 'INV', 'DOLA', 'YFI'].includes(m.underlying.symbol);
+        return m.suppliedUsd > 1000000
+          || ['WBTC', 'ETH', 'stETH', 'xSUSHI', 'INV', 'DOLA', 'YFI'].includes(m.underlying.symbol);
       } else if (category === 'new') {
         return m.underlying?.badge?.text === 'NEW';
       } else if (category === 'inv') {
