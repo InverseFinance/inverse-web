@@ -231,6 +231,7 @@ export enum AnchorOperations {
   withdraw = 'Withdraw',
   borrow = 'Borrow',
   repay = 'Repay',
+  migrate = 'Migrate',
 }
 
 export type ProposalFormActionFields = {
