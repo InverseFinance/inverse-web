@@ -3,6 +3,7 @@ import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber } from 'ethers';
 import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
+import sushiData from '@sushiswap/sushi-data'
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -165,7 +166,7 @@ export const getYearnVaults = async () => {
     try {
         const results = await fetch('https://d28fcsszptni1s.cloudfront.net/v1/chains/1/vaults/all');
         return results.json();
-    } catch(e) { console.log(e) }
+    } catch (e) { console.log(e) }
     return [];
 }
 
@@ -173,6 +174,49 @@ export const getStethData = async () => {
     try {
         const results = await fetch('https://1rwmj4tky9.execute-api.eu-central-1.amazonaws.com/poolsEnriched?pool=lido-stETH');
         return results.json();
-    } catch(e) { console.log(e) }
+    } catch (e) { console.log(e) }
     return [];
+}
+
+export const getXSushiData = async (nbDays = 7) => {
+    let apy = 0;
+    const period = 365;
+    try {
+        const days = [...Array(nbDays).keys()];
+
+        const [daysData] = await Promise.all([
+            sushiData.exchange.dayData(),
+        ]);
+        const infos = await Promise.all([
+            ...days.map(v => {
+                const d = new Date();
+                const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
+                return sushiData.bar.info({ timestamp: utc });
+            }),
+        ]);
+        // const prices = await Promise.all([
+        //     ...days.map(v => {
+        //         const d = new Date();
+        //         const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
+        //         console.log(new Date(utc));
+        //         return sushiData.sushi.priceUSD({ timestamp: utc });
+        //     }),
+        // ]);
+        const prices = (await Promise.all([
+            ...days.map(v => {
+                const d = new Date();
+                const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
+                return sushiData.exchange.token({ timestamp: utc, token_address: '0x8798249c2e607446efb7ad49ec89dd1865ff4272' });
+            }),
+        ])).map(d => d.derivedETH);
+
+        const apys = days.map((d, i) => {
+            const apr = (((daysData[i].volumeETH * 0.05 * 0.01) / infos[i].totalSupply) * period) / (infos[i].ratio * prices[i])
+            const apy = (Math.pow((1 + (apr / period)), period)) - 1;
+            return apy;
+        });
+
+        apy = apys.reduce((prev, curr) => prev + curr, 0)/apys.length;
+    } catch (e) { console.log(e) }
+    return { apy: apy * 100 };
 }

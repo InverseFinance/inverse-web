@@ -36,25 +36,25 @@ export const Anchor = () => {
             <AnchorOverview />
           </ErrorBoundary>
         </Flex>
-        <Flex w="full" direction="column" justify="center">
+        <Flex w="full" direction="column" justify="center" alignItems="center">
           <Flex w="full" justify="center" display={{ base: 'flex', lg: 'none' }}>
             <Container noPadding>
               <NavButtons options={['Supply', 'Borrow']} active={active} onClick={setActive} />
             </Container>
           </Flex>
-          <Flex w="full" justify="center">
-            <Flex w={{ base: 'full', xl: '2xl', lg: '65%' }} justify="flex-end" display={supplyDisplay}>
+          <Flex w="full" maxW="84rem" justify="center">
+            <Flex w={{ base: 'full', xl: '55%', lg: '60%' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load supplied assets"><AnchorSupplied /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '2xl', lg: '35%' }} display={borrowDisplay}>
+            <Flex w={{ base: 'full', xl: '45%', lg: '40%' }} display={borrowDisplay}>
               <ErrorBoundary description="Failed to load borrowed assets"><AnchorBorrowed /></ErrorBoundary>
             </Flex>
           </Flex>
-          <Flex w="full" justify="center">
-            <Flex w={{ base: 'full', xl: '2xl', lg: '65%' }} justify="flex-end" display={supplyDisplay}>
+          <Flex w="full" maxW="84rem" justify="center">
+            <Flex w={{ base: 'full', xl: '55%', lg: '60%' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load suppliable assets"><AnchorSupply paused={false}  /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '2xl', lg: '35%' }} display={borrowDisplay}>
+            <Flex w={{ base: 'full', xl: '45%', lg: '40%' }} display={borrowDisplay}>
               <ErrorBoundary description="failed to load borrowable assets"><AnchorBorrow paused={false}  /></ErrorBoundary>
             </Flex>
           </Flex>

@@ -41,7 +41,7 @@ export const UnderlyingItem = ({
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
         {
             !!badge &&
-            <NotifBadge position="absolute" right="0" fontSize="12px" w="fit-content" top="auto" bgColor={badge.color}>
+            <NotifBadge position="absolute" right="-20px" fontSize="12px" w="fit-content" top="auto" bgColor={badge.color}>
                 {badge.text}
             </NotifBadge>
         }

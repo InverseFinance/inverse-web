@@ -48,7 +48,7 @@ export const Table = ({
   onFilter,
   ...props
 }: TableProps) => {
-  const [sortBy, setSortBy] = useState(defaultSort || columns[0].field);
+  const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState(defaultFilters);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -66,12 +66,16 @@ export const Table = ({
       filteredItems = filteredItems.filter(item => item[key] === val);
     });
     setFilteredItems(filteredItems);
-    if(onFilter){
+    if (onFilter) {
       onFilter(filteredItems, filters);
     }
   }, [sortedItems, filters])
 
   useEffect(() => {
+    if (sortBy === null) {
+      setSortedItems(items);
+      return;
+    }
     const itemsToSort = items?.map((item) => ({
       ...item,
       symbol: item?.underlying?.symbol,
@@ -117,7 +121,7 @@ export const Table = ({
               const label = isAddress(v) ? namedAddress(v) : v;
               return {
                 value: v,
-                label: label||'',
+                label: label || '',
               }
             }),
             (a, b) => a.value === b.value,
@@ -131,16 +135,20 @@ export const Table = ({
                 alignItems="center"
                 color="primary.300"
               >
-
                 {
                   col.tooltip ?
-                    <AnimatedInfoTooltip message={col.tooltip} size="small" />
+                    <AnimatedInfoTooltip iconProps={{ fontSize:'12px' }} zIndex="2" message={col.tooltip} size="small" />
                     : null
                 }
-                <VStack alignItems="center" justifyContent="flex-start" cursor="pointer">
+                <VStack ml="1" alignItems="center" justifyContent="flex-start" cursor="pointer">
                   <Box
                     data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
-                    onClick={() => toggleSort(col)}
+                    onClick={(e) => {
+                      if(!!e && e.target.id.startsWith('popover-')) {
+                        return;
+                      }
+                      return toggleSort(col)
+                    }}
                     userSelect="none"
                     position="relative">
                     {col.label}
@@ -192,7 +200,12 @@ export const Table = ({
           pl={4}
           pr={4}
           borderRadius={8}
-          onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => onClick(item) : undefined}
+          onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
+            if(!!e && e?.target?.id.startsWith('popover-')) {
+              return;
+            }
+            return onClick(item, e);
+          } : undefined}
           _hover={{ bgColor: 'primary.850' }}
         >
           {columns.map(({ value }, j) => (

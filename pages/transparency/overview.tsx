@@ -20,11 +20,13 @@ import { shortenNumber } from '@app/util/markets'
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
+
+const RWG = MULTISIGS.find(m => m.shortName === 'RWG')?.address;
 
 const defaultValues = {
   comptroller: COMPTROLLER,
-  compGuard: DEPLOYER,
+  compGuard: RWG,
   compAdmin: TREASURY,
   escrow: ESCROW,
   escrowGov: TREASURY,
@@ -73,7 +75,7 @@ export const Overview = () => {
   ])
 
   const [escrowGov, compAdmin, compGuard, treasuryAdmin, govGuard, govToken, govStakedToken, govTreasury, dolaOperator] = daoData
-    || [TREASURY, TREASURY, DEPLOYER, GOVERNANCE, DEPLOYER, INV, XINV, TREASURY, TREASURY];
+    || [TREASURY, TREASURY, RWG, GOVERNANCE, DEPLOYER, INV, XINV, TREASURY, TREASURY];
 
   const fetchedValues = { xinvAdmin, xinvEscrow, comptroller, xinvUnderlying, escrowGov, compAdmin, compGuard, treasuryAdmin, govGuard, govToken, govStakedToken, govTreasury, dolaOperator }
   const govFlowChartData = { ...defaultValues, ...fetchedValues };

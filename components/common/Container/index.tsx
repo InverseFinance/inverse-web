@@ -16,6 +16,7 @@ export const Container = ({
   contentBgColor,
   contentProps,
   collapsable = false,
+  headerProps,
   ...props
 }: Partial<Omit<FlexProps, "right">> & {
   label?: React.ReactNode
@@ -29,6 +30,7 @@ export const Container = ({
   contentProps?: FlexProps
   children?: React.ReactNode
   collapsable?: boolean,
+  headerProps?: FlexProps
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const title = (
@@ -68,7 +70,7 @@ export const Container = ({
 
   return (
     <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
-      <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end">
+      <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
         <Stack direction="row" align="center">
           {image}
           <Flex direction="column" justify="flex-end">

@@ -12,13 +12,13 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { getBnToNumber, getStethData, getYearnVaults, toApr, toApy } from '@app/util/markets';
+import { getBnToNumber, getStethData, getXSushiData, getYearnVaults, toApr, toApy } from '@app/util/markets';
 import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.1`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.2`;
 
   try {
     const {
@@ -140,10 +140,16 @@ export default async function handler(req, res) {
     });
 
     // external yield bearing apys
-    const [yearnVaults, stethData] = await Promise.all([
+    const [yearnVaults, stethData, xSushiData] = await Promise.all([
       getYearnVaults(),
       getStethData(),
+      getXSushiData(),
     ]);
+
+    const externalApys = {
+      'stETH': stethData?.data?.[0]?.apy||0,
+      'xSUSHI': xSushiData?.apy||0,
+    }
 
     const markets = contracts.map(({ address }, i) => {
       const underlying = UNDERLYING[address] || TOKENS.CHAIN_COIN
@@ -158,14 +164,14 @@ export default async function handler(req, res) {
         yearnVaults?.find(v => v.address.toLowerCase() === underlying.address.toLowerCase())?.apy?.net_apy
         : 0;
 
-      const stethApy = underlying.symbol === 'stETH' ? stethData?.data?.[0]?.apy : 0;
+      const externalApy = externalApys[underlying.symbol] || 0;
 
       const isEthMarket = !underlying.address;
 
       return {
         token: address,
         underlying,
-        supplyApy: supplyApys[i] || ((yearnVaultApy||0) * 100) || stethApy || 0,
+        supplyApy: supplyApys[i] + (((yearnVaultApy||0) * 100) || externalApy || 0),
         borrowApy: borrowApys[i] || 0,
         supplyApr: supplyAprs[i] || 0,
         borrowApr: borrowAprs[i] || 0,

@@ -1,4 +1,4 @@
-import { AnimatedInfoTooltip, InfoTooltip } from '@app/components/common/Tooltip';
+import { AnimatedInfoTooltip, InfoPopover, InfoTooltip } from '@app/components/common/Tooltip';
 import { Image, Text, TextProps } from '@chakra-ui/react';
 import { shortenNumber } from '@app/util/markets';
 import { capitalize } from '@app/util/misc';
@@ -71,19 +71,23 @@ export const AnchorPoolInfo = ({
 
     const suffix = isBalance ? '' : '%'
     const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00') + suffix
+    const isYieldBearingApyKnown = (value || 0 > 0) || symbol.startsWith('yv')
 
     return (
-        <Text {...textProps} opacity={value && value > 0 ? 1 : 0.5} position="relative">
+        <Text {...textProps} opacity={(value && value > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
             {label}
             {
                 !!protocolImage
-                && <AnimatedInfoTooltip message="Yield Bearing Asset APY">
-                    <Image borderRadius="20px" position="absolute" bottom="0" right="-12px" src={protocolImage} width="10px" />
+                && <AnimatedInfoTooltip message={
+                    isYieldBearingApyKnown ?
+                        'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
+                >
+                    <Image borderRadius="20px" zIndex="2" position="absolute" bottom="0" right="-15px" src={protocolImage} width="12px" />
                 </AnimatedInfoTooltip>
             }
             {
                 needTooltip && bestPriceRef ?
-                    <InfoTooltip
+                    <InfoPopover
                         iconProps={{ ml: '1', fontSize: '10px' }}
                         tooltipProps={{
                             className: `blurred-container ${isSupplied ? 'success-bg' : 'warning-bg'}`,

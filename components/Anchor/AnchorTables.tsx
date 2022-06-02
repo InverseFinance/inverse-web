@@ -26,12 +26,13 @@ import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
 import moment from 'moment'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
   const bal = amount &&
-  parseFloat(formatUnits(amount, decimals)) *
-  parseFloat(formatUnits(exRate));
+    parseFloat(formatUnits(amount, decimals)) *
+    parseFloat(formatUnits(exRate));
   return bal >= minWorthAccepted;
 }
 
@@ -62,11 +63,11 @@ const getColumn = (
               containerProps={{ position: 'relative', w: 'full' }}
               badge={
                 !claimableAmount && token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN ?
-                {
-                  text: `STAKE ${RTOKEN_SYMBOL}`,
-                  color: 'secondary',
-                }
-                : underlying.badge
+                  {
+                    text: `STAKE ${RTOKEN_SYMBOL}`,
+                    color: 'secondary',
+                  }
+                  : underlying.badge
               }
               textProps={{ color }}
               label={underlying.symbol}
@@ -95,7 +96,7 @@ const getColumn = (
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
+      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Directly Increases the staked balance.</Text><Text>For Yield-Bearing assets, the increase is not visible on Inverse.</Text><Text>APY May vary over time</Text></>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
         const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor'
@@ -284,7 +285,7 @@ export const AnchorSupplied = () => {
             ||
             (
               token === XINV && !mintable &&
-              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral? 0 : undefined)
+              hasMinAmount(withdrawalAmount, underlying.decimals, exchangeRates[token], collateralGuardianPaused && isCollateral ? 0 : undefined)
             )
             ||
             (
@@ -374,8 +375,12 @@ const AnchorSupplyContainer = ({ paused = false, ...props }) => {
   return (
     <Container
       label={title}
-      description={ paused ? undefined : 'Earn interest on your deposits' }
+      description={paused ? undefined : 'Earn interest on your deposits'}
       href={paused ? undefined : process.env.NEXT_PUBLIC_SUPPLY_DOC_URL}
+      headerProps={{
+        direction: { base: 'column', md: 'row' },
+        align: { base: 'flex-start', md: 'flex-end' },
+      }}
       {...props}
     />
   )
@@ -389,10 +394,11 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [deepLinkUsed, setDeepLinkUsed] = useState(false)
   const [modalAsset, setModalAsset] = useState<Market>()
+  const [category, setCategory] = useState('all');
 
   const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
 
-  const handleSupply = (asset: Market) => {
+  const handleSupply = (asset: Market, e: any) => {
     setModalAsset(asset)
     onOpen()
   }
@@ -422,35 +428,97 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   }, [query, markets, deepLinkUsed])
 
   const marketsWithBalance = markets?.map((market) => {
-    const { underlying } = market;
+    const { underlying, supplied, oraclePrice } = market;
     const balance = balances
       ? parseFloat(
         formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.CHAIN_COIN, underlying.decimals)
       )
       : 0
-    return { ...market, balance }
+    const suppliedUsd = supplied * oraclePrice;
+    return { ...market, balance, suppliedUsd }
   })
 
   const columns = [
     getColumn('asset', '180px', true),
     getColumn('supplyApy', 20, true),
     HAS_REWARD_TOKEN ? getColumn('rewardApr', 24) : null,
+    {
+      field: 'suppliedUsd',
+      label: 'Supplied',
+      header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
+      tooltip: <Text>USD worth of the assets supplied</Text>,
+      value: ({ suppliedUsd, token, underlying }: Market) => {
+        const color = isHighlightCase(false, true, token, underlying) ? 'secondary' : 'mainTextColor'
+        return (
+          <Text textAlign="end" minWidth={24} color={color}>
+            {
+              suppliedUsd
+                ? shortenNumber(suppliedUsd, 2, true)
+                : '-'
+            }
+          </Text>
+        )
+      },
+    },
     getColumn('wallet', 24, true),
   ].filter(c => !!c);
 
   if (isLoading || !marketsData) {
     return (
-      <AnchorSupplyContainer paused={paused}>
+      <AnchorSupplyContainer
+        paused={paused}
+      >
         <SkeletonList />
       </AnchorSupplyContainer>
     )
   }
 
-  const mintableMarkets = marketsWithBalance.filter(m => m.mintable);
+  const mintableMarkets = marketsWithBalance
+    .filter(m => m.mintable)
+    .filter(m => {
+      if (category === 'yield') {
+        return !!m.underlying.protocolImage;
+      } else if (category === 'popular') {
+        return m.suppliedUsd > 1000000
+          || ['WBTC', 'ETH', 'stETH', 'xSUSHI', 'INV', 'DOLA', 'YFI'].includes(m.underlying.symbol);
+      } else if (category === 'new') {
+        return m.underlying?.badge?.text === 'NEW';
+      } else if (category === 'inv') {
+        return /inv|dola/i.test(m.underlying?.symbol);
+      }
+      return true;
+    });
+
+  mintableMarkets.sort((a, b) => (a.underlying.order ?? 1000) - (b.underlying.order ?? 1000));
 
   return (
-    <AnchorSupplyContainer paused={paused}>
-      <Table columns={columns} items={mintableMarkets} keyName="token" defaultSortDir="desc" defaultSort="supplyApy" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
+    <AnchorSupplyContainer
+      paused={paused}
+      right={<RadioCardGroup
+        wrapperProps={{ mt: { base: '2' }, overflow: 'auto', maxW: '90vw' }}
+        group={{
+          name: 'bool',
+          defaultValue: category,
+          onChange: (v) => { setCategory(v) },
+        }}
+        radioCardProps={{
+          w: 'fit-content',
+          textAlign: 'center',
+          px: { base: '2', md: '3' },
+          py: '1',
+          fontSize: '12px',
+          whiteSpace: 'nowrap'
+        }}
+        options={[
+          { label: 'All', value: 'all' },
+          { label: 'INV/DOLA', value: 'inv' },
+          { label: 'New', value: 'new' },
+          { label: 'Yield-Bearing', value: 'yield' },
+          { label: 'Popular', value: 'popular' },
+        ]}
+      />}
+    >
+      <Table columns={columns} items={mintableMarkets} defaultSort={null} keyName="token" onClick={handleSupply} data-testid={TEST_IDS.anchor.supplyTable} />
       {modalAsset && <AnchorSupplyModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </AnchorSupplyContainer>
   )
