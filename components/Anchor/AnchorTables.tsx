@@ -448,7 +448,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={24} {...props} />,
       tooltip: <Text>USD worth of the assets supplied</Text>,
       value: ({ suppliedUsd, token, underlying }: Market) => {
-        const color = isHighlightCase(false, true, token, underlying) ? 'secondary' : 'mainTextColor'
+        const color = isHighlightCase(true, false, token, underlying) ? 'secondary' : 'mainTextColor'
         return (
           <Text textAlign="end" minWidth={24} color={color}>
             {
