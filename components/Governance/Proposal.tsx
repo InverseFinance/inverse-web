@@ -36,7 +36,7 @@ const getDate = (timestamp: moment.MomentInput, addHours = false, isEstimation =
   )
 }
 
-const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number, endBlock?: number) => {
+const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number, endBlock?: number, executionTs?: number) => {
   switch (status) {
     case ProposalStatus.pending:
       return `Will be opened to votes on ${getDate(start, isDetails)}`
@@ -51,7 +51,7 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
         : `Locked until ${getDate(eta, isDetails)} (${moment(eta).fromNow()})`
       return text;
     case ProposalStatus.executed:
-      return getDate(eta)
+      return `Executed ${getDate(executionTs || eta)}`
     case ProposalStatus.draft:
       return !createdAt ? '' : `Created ${getDate(createdAt)}${updatedAt ? ` - Last Update ${getDate(updatedAt)}` : ''}`
     default:
@@ -88,7 +88,7 @@ export const ProposalPreview = ({
 }) => {
   const { query } = useRouter()
   const { unreadKeys } = useGovernanceNotifs()
-  const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions, proposer } = proposal
+  const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions, proposer, executionTimestamp } = proposal
 
   const totalVotes = forVotes + againstVotes
 
@@ -129,7 +129,7 @@ export const ProposalPreview = ({
                 {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
               </Stack>
               <Text textAlign="left" fontSize="13px" color="primary.100" fontWeight="semibold">
-                {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock)}
+                {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock, executionTimestamp)}
               </Text>
             </Stack>
             {
@@ -181,7 +181,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
     )
   }
 
-  const { title, description, proposer, status, createdAt, updatedAt, startTimestamp, etaTimestamp, endTimestamp, id, era, functions } = proposal
+  const { title, description, proposer, status, createdAt, updatedAt, startTimestamp, etaTimestamp, endTimestamp, id, era, functions, executionTimestamp } = proposal
 
   return (
     <Container
@@ -205,7 +205,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
             }
           </Stack>
           <Text textAlign="left" fontSize="sm">
-            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true, createdAt, updatedAt, proposal.endBlock)}
+            {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, true, createdAt, updatedAt, proposal.endBlock, executionTimestamp)}
           </Text>
         </Stack>
       }
