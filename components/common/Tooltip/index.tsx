@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Tooltip, IconProps, TooltipProps, Flex, Box, FlexProps } from '@chakra-ui/react'
+import { Tooltip, IconProps, TooltipProps, Flex, Box, FlexProps, Popover, PopoverTrigger, PopoverBody, PopoverContent } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { InfoAnimIcon } from '@app/components/common/Animation';
 
@@ -21,6 +21,38 @@ export const InfoTooltip = ({ message, iconProps, tooltipProps, children }: Info
     >
       {children ? children : <InfoOutlineIcon {...iconProps} />}
     </Tooltip>
+  )
+}
+
+export const InfoPopover = ({ message, iconProps, tooltipProps, children }: InfoTooltipProps) => {
+  return (
+    <Popover
+      isLazy
+      trigger="hover"
+      strategy="fixed"
+    >
+      <PopoverTrigger>
+        {children ? children : <InfoOutlineIcon {...iconProps} />}
+      </PopoverTrigger>
+      <PopoverContent
+        fontWeight="medium"
+        fontSize="15px"
+        p={1}
+        borderRadius={8}
+        bgColor="primary.800"
+        borderColor="primary.850"
+        textAlign="center"
+        borderWidth={1}
+        textTransform="none"
+        w='fit-content'
+        maxW='300px'
+        color="mainTextColor"
+        {...tooltipProps}>
+        <PopoverBody>
+          {message}
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -48,7 +80,7 @@ export const AnimatedInfoTooltip = ({
 
   const tooltipIconProps = iconProps || iconSizes[size];
 
-  return <InfoTooltip message={content}
+  return <InfoPopover message={content}
     tooltipProps={{
       className: `blurred-container info-bg`,
       borderColor: 'info'

@@ -137,13 +137,18 @@ export const Table = ({
               >
                 {
                   col.tooltip ?
-                    <AnimatedInfoTooltip message={col.tooltip} size="small" />
+                    <AnimatedInfoTooltip iconProps={{ fontSize:'12px' }} zIndex="2" message={col.tooltip} size="small" />
                     : null
                 }
-                <VStack alignItems="center" justifyContent="flex-start" cursor="pointer">
+                <VStack ml="1" alignItems="center" justifyContent="flex-start" cursor="pointer">
                   <Box
                     data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
-                    onClick={() => toggleSort(col)}
+                    onClick={(e) => {
+                      if(!!e && e.target.id.startsWith('popover-')) {
+                        return;
+                      }
+                      return toggleSort(col)
+                    }}
                     userSelect="none"
                     position="relative">
                     {col.label}
@@ -195,7 +200,12 @@ export const Table = ({
           pl={4}
           pr={4}
           borderRadius={8}
-          onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => onClick(item) : undefined}
+          onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
+            if(!!e && e?.target?.id.startsWith('popover-')) {
+              return;
+            }
+            return onClick(item, e);
+          } : undefined}
           _hover={{ bgColor: 'primary.850' }}
         >
           {columns.map(({ value }, j) => (

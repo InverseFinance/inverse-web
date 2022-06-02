@@ -96,7 +96,7 @@ const getColumn = (
     supplyApy: {
       field: 'supplyApy',
       label: 'APY',
-      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Increases the staked balance</Text>APY May vary over time</>,
+      tooltip: <><Text fontWeight="bold">Annual Percentage Yield</Text><Text>Directly Increases the staked balance.</Text><Text>For Yield-Bearing assets, the increase is not visible on Inverse.</Text><Text>APY May vary over time</Text></>,
       header: ({ ...props }) => <Flex justify="end" minWidth={minWidth} {...props} />,
       value: ({ supplyApy, underlying, monthlyAssetRewards, priceUsd, token }: Market) => {
         const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor'

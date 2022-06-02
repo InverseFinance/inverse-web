@@ -1,4 +1,4 @@
-import { AnimatedInfoTooltip, InfoTooltip } from '@app/components/common/Tooltip';
+import { AnimatedInfoTooltip, InfoPopover, InfoTooltip } from '@app/components/common/Tooltip';
 import { Image, Text, TextProps } from '@chakra-ui/react';
 import { shortenNumber } from '@app/util/markets';
 import { capitalize } from '@app/util/misc';
@@ -80,14 +80,14 @@ export const AnchorPoolInfo = ({
                 !!protocolImage
                 && <AnimatedInfoTooltip message={
                     isYieldBearingApyKnown ?
-                        'Yield Bearing Asset APY' : 'Yield Bearing Asset, APY unknown'}
+                        'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
                 >
-                    <Image borderRadius="20px" position="absolute" bottom="0" right="-15px" src={protocolImage} width="12px" />
+                    <Image borderRadius="20px" zIndex="2" position="absolute" bottom="0" right="-15px" src={protocolImage} width="12px" />
                 </AnimatedInfoTooltip>
             }
             {
                 needTooltip && bestPriceRef ?
-                    <InfoTooltip
+                    <InfoPopover
                         iconProps={{ ml: '1', fontSize: '10px' }}
                         tooltipProps={{
                             className: `blurred-container ${isSupplied ? 'success-bg' : 'warning-bg'}`,
