@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Tooltip, IconProps, TooltipProps, Flex, Box, FlexProps, Popover, PopoverTrigger, PopoverBody, PopoverContent } from '@chakra-ui/react'
+import { Tooltip, IconProps, TooltipProps, Flex, Box, FlexProps, Popover, PopoverTrigger, PopoverBody, PopoverContent, PopoverCloseButton } from '@chakra-ui/react'
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { InfoAnimIcon } from '@app/components/common/Animation';
 
@@ -48,6 +48,7 @@ export const InfoPopover = ({ message, iconProps, tooltipProps, children }: Info
         maxW='300px'
         color="mainTextColor"
         {...tooltipProps}>
+        <PopoverCloseButton display={{ lg: 'none' }} />
         <PopoverBody>
           {message}
         </PopoverBody>
