@@ -68,11 +68,13 @@ export const AnimatedInfoTooltip = ({
   size = 'normal',
   iconProps,
   children,
+  type = 'popover',
   ...props
 }: {
   message: ReactNode,
   size?: 'normal' | 'small' | 'intermediary',
   iconProps?: IconProps,
+  type?: 'popover' | 'tooltip'
 } & Partial<FlexProps>) => {
   const content = <Flex alignItems="center" {...props}>
     <InfoAnimIcon />
@@ -80,8 +82,9 @@ export const AnimatedInfoTooltip = ({
   </Flex>
 
   const tooltipIconProps = iconProps || iconSizes[size];
+  const Comp = type === 'popover' ? InfoPopover : InfoTooltip;
 
-  return <InfoPopover message={content}
+  return <Comp message={content}
     tooltipProps={{
       className: `blurred-container info-bg`,
       borderColor: 'info'
