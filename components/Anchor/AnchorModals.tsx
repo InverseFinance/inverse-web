@@ -45,7 +45,7 @@ export const AnchorModal = ({
   scrollBehavior,
 }: AnchorModalProps & { operations: AnchorOperations[] }) => {
   const isV1market = ['WBTC-v1', 'YFI-v1', 'ETH-v1'].includes(asset.underlying.symbol)
-  const _operations = isV1market ? [...operations, AnchorOperations.migrate] : operations;
+  const _operations = operations//isV1market ? [...operations, AnchorOperations.migrate] : operations;
   const [operation, setOperation] = useState(_operations[0])
   const [amount, setAmount] = useState<string>('')
   const { active } = useWeb3React()
