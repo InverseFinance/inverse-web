@@ -22,6 +22,7 @@ export const AssetInput = ({
     maxValue,
     inputProps,
     showMax = true,
+    orderByBalance = false,
 }: {
     amount: string,
     balances: BigNumberList,
@@ -34,6 +35,7 @@ export const AssetInput = ({
     maxValue?: string | number,
     inputProps?: InputProps,
     showMax?: boolean,
+    orderByBalance?: boolean
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -68,6 +70,7 @@ export const AssetInput = ({
                     <FromAssetDropdown
                         tokens={tokens}
                         balances={balances}
+                        orderByBalance={orderByBalance}
                         isOpen={isOpen}
                         onClose={onClose}
                         onOpen={() => {
