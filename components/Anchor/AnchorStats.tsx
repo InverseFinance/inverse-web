@@ -93,7 +93,7 @@ const SupplyDetails = ({ asset }: AnchorStatBlockProps) => {
         {
           label: `${wordingAPY} APY`,
           value: `${asset.supplyApy.toFixed(2)}%`,
-          tooltipMsg: asset.underlying.protocolImage ? 'Yield Bearing Asset APY': undefined,
+          tooltipMsg: asset.underlying.protocolImage ? 'Yield Bearing Asset APY' : undefined,
         },
         {
           label: `${wordingBal} Balance`,
@@ -321,6 +321,12 @@ export const AnchorStats = ({ operation, asset, amount, isCollateralModal = fals
           <SupplyDetails asset={asset} isCollateralModal={isCollateralModal} />
           <BorrowLimit asset={asset} amount={-1 * parsedAmount} isCollateralModal={isCollateralModal} />
           <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />
+        </>
+      )
+    case AnchorOperations.migrate:
+      return (
+        <>
+          {asset.underlying.symbol !== 'INV' && !isCollateralModal && <WithdrawDetails asset={asset} />}
         </>
       )
     case AnchorOperations.borrow:

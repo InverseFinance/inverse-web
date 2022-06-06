@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@app/components/common/Button'
 import { useApprovals } from '@app/hooks/useApprovals'
@@ -201,7 +201,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               }}
               refreshOnSuccess={true}
               isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
-              rightIcon={<AnimatedInfoTooltip ml="1" message='Withdraw all and avoid "dust" being left behind. May fail if you have the asset enabled as collateral and have outstanding debt.' />}
+              rightIcon={<AnimatedInfoTooltip type='tooltip' ml="1" message={<VStack><Text>Withdraw all and avoid "dust" being left behind.</Text><Text>May fail if you have the asset enabled as collateral and have outstanding debt.</Text></VStack>} />}
             >
               { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw' } ALL
             </SubmitButton>

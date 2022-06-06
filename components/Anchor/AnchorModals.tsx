@@ -44,7 +44,9 @@ export const AnchorModal = ({
   operations,
   scrollBehavior,
 }: AnchorModalProps & { operations: AnchorOperations[] }) => {
-  const [operation, setOperation] = useState(operations[0])
+  const isV1market = ['WBTC-v1', 'YFI-v1', 'ETH-v1'].includes(asset.underlying.symbol)
+  const _operations = operations//isV1market ? [...operations, AnchorOperations.migrate] : operations;
+  const [operation, setOperation] = useState(_operations[0])
   const [amount, setAmount] = useState<string>('')
   const { active } = useWeb3React()
   const { balances } = useAccountBalances()
@@ -55,8 +57,8 @@ export const AnchorModal = ({
   const { exchangeRates } = useExchangeRates()
   const { markets: accountMarkets } = useAccountMarkets()
 
-  if (!operations.includes(operation)) {
-    setOperation(operations[0])
+  if (!_operations.includes(operation)) {
+    setOperation(_operations[0])
   }
 
   const isCollateral = !!accountMarkets.find((market: Market) => market.token === asset.token)
@@ -110,6 +112,7 @@ export const AnchorModal = ({
     switch (operation) {
       case AnchorOperations.supply:
         return 'Wallet'
+      case AnchorOperations.migrate:
       case AnchorOperations.withdraw:
         return 'Max. Withdrawable is at least'
       case AnchorOperations.borrow:
@@ -134,7 +137,8 @@ export const AnchorModal = ({
     </Text>
   </Stack>
 
-  const isSupply = [AnchorOperations.supply, AnchorOperations.withdraw].includes(operation);
+  const isSupplySide = [AnchorOperations.supply, AnchorOperations.withdraw, AnchorOperations.migrate].includes(operation);
+  const isWithdrawOrMigrate = [AnchorOperations.withdraw, AnchorOperations.migrate].includes(operation);
   const flokiSupplyDisabled = operation === AnchorOperations.supply && asset.underlying.symbol === 'FLOKI';
   const pausedCollaterals = accountMarkets.filter(m => m.collateralGuardianPaused);
   const isUserBorrowAbilityPaused = pausedCollaterals?.length > 0 && operation === AnchorOperations.borrow;
@@ -159,7 +163,7 @@ export const AnchorModal = ({
           }
           {
             operation === AnchorOperations.supply &&
-            ['WBTC-v1', 'YFI-v1', 'ETH-v1'].includes(asset.underlying.symbol)
+            isV1market
             && <WarningMessage
               alertProps={{
                 fontSize: '12px'
@@ -179,7 +183,7 @@ export const AnchorModal = ({
             isUserBorrowAbilityPaused && <WarningMessage alertProps={{ fontSize: '12px' }} description={`Borrowing ability paused because you are using paused collaterals: ${pausedCollaterals?.map(m => m.underlying.symbol).join(', ')}`} />
           }
           {
-            (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && operation === AnchorOperations.withdraw ?
+            (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && isWithdrawOrMigrate ?
               <InfoMessage
                 alertProps={{ w: 'full', fontSize: '12px' }}
                 description="Not enough Liquidity at the moment"
@@ -209,8 +213,8 @@ export const AnchorModal = ({
             } />
         }
         {
-          operations.length > 1 ?
-            <NavButtons isStaking={asset.underlying.symbol == RTOKEN_SYMBOL} options={operations} active={operation} onClick={setOperation} />
+          _operations.length > 1 ?
+            <NavButtons isStaking={asset.underlying.symbol == RTOKEN_SYMBOL} options={_operations} active={operation} onClick={setOperation} />
             : null
         }
         {
@@ -284,14 +288,14 @@ export const AnchorModal = ({
         <AnchorStats operation={operation} asset={asset} amount={amount} />
         {/* Show Interest chart just for the borrowing case for now */}
         {
-          !!asset?.utilizationRate && !isSupply &&
+          !!asset?.utilizationRate && !isSupplySide &&
           <>
             <AnchorMarketInterestChart
               maxWidth={380}
               market={asset}
-              title={`${(isSupply ? 'Supply' : 'Borrow')} Interest Rate`}
+              title={`${(isSupplySide ? 'Supply' : 'Borrow')} Interest Rate`}
               autocompounds={true}
-              type={isSupply ? 'supply' : 'borrow'} />
+              type={isSupplySide ? 'supply' : 'borrow'} />
             <Link isExternal={true} textAlign="center" fontSize="12px" href="/transparency/interest-model">
               Learn more about the Interest Model
             </Link>
