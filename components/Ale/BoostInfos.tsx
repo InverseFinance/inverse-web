@@ -1,4 +1,4 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Divider } from '@chakra-ui/react'
 
 import { useState } from 'react'
 import { Market, Token } from '@app/types'
@@ -68,7 +68,7 @@ export const BoostInfos = ({
     const collateralAmount = oraclePrices && oraclePrices[collateralMarket.token] ? desiredWorth / getBnToNumber(oraclePrices[collateralMarket.token], collateralMarket.underlying.decimals) : 0;
     const LTV = borrowRequired / desiredWorth;
 
-    const leverageSteps = getSteps(collateralMarket.collateralFactor||0);
+    const leverageSteps = getSteps(collateralMarket.collateralFactor || 0);
 
     const minLeverage = leverageSteps[0];
     const maxLeverage = leverageSteps[leverageSteps.length - 1];
@@ -79,10 +79,13 @@ export const BoostInfos = ({
                 riskLevels.mid : leverageRelativeToMax < 0.90 ?
                     riskLevels.midHigh : riskLevels.high;
 
+
+    const boostedApy = (leverageLevel * collateralMarket.supplyApy / 100 - (leverageLevel - 1) * (borrowedMarket.borrowApy) / 100) * 100;
+
     return <VStack w='full'>
         <HStack w='full' justify="space-between" alignItems="center">
             <RiskBadge {...riskLevels.safer} />
-            <Text fontSize="20px" fontWeight="bold" color={risk.color}>
+            <Text fontSize="20px" fontWeight="extrabold" color={risk.color}>
                 Boost x{leverageLevel.toFixed(2)}
             </Text>
             <RiskBadge {...riskLevels.riskier} />
@@ -144,6 +147,17 @@ export const BoostInfos = ({
             </Text>
             <Text>
                 {shortenNumber(LTV * 100, 2, false)}%
+            </Text>
+        </HStack>
+        <HStack w='full' justify="space-between" alignItems="center">
+            <Text fontWeight="bold" color={riskLevels.safer.color}>
+                {collateralMarket.underlying.symbol}'s Supply APY: {shortenNumber(collateralMarket.supplyApy, 2)}%
+            </Text>
+            <Text fontWeight="extrabold" fontSize="20px" color={ boostedApy > 0 ? 'success' : 'warning' } onClick={() => setLeverageLevel(maxLeverage)}>
+                Boosted APY: {shortenNumber(boostedApy, 2)}%
+            </Text>
+            <Text fontWeight="bold" color={riskLevels.riskier.color}>
+                {borrowedMarket.underlying.symbol}'s Borrowing APY: -{shortenNumber(borrowedMarket.borrowApy, 2)}%
             </Text>
         </HStack>
     </VStack>
