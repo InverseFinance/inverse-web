@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@app/components/common/Button'
 import { useApprovals } from '@app/hooks/useApprovals'
-import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
 import { useEscrow } from '@app/hooks/useEscrow'
 import { Market, AnchorOperations } from '@app/types'
 import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
@@ -16,7 +16,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { handleTx } from '@app/util/transactions';
 import { hasAllowance } from '@app/util/web3';
-import { getMonthlyRate, getParsedBalance } from '@app/util/markets';
+import { getBnToNumber, getMonthlyRate, getParsedBalance } from '@app/util/markets';
 import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 
@@ -108,6 +108,17 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
+  const { balances } = useAccountBalances();
+
+  const balance = balances && balances[asset.underlying.address || 'CHAIN_COIN']
+    ? getBnToNumber(balances[asset.underlying.address || 'CHAIN_COIN'], asset.underlying.decimals)
+    : 0;
+
+  const borrowBalance = borrowBalances && borrowBalances[asset.token]
+    ? getBnToNumber(borrowBalances[asset.token], asset.underlying.decimals)
+    : 0;
+  // needs to be higher because debt accrues in tx
+  const canRepayAll = balance > borrowBalance;
 
   useEffect(() => {
     setIsApproved(isEthMarket || freshApprovals[asset?.token] || hasAllowance(approvals, asset?.token))
@@ -160,7 +171,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               refreshOnSuccess={true}
               isDisabled={isDisabled}
             >
-              { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Stake' : 'Supply' }
+              {asset.underlying.symbol === RTOKEN_SYMBOL ? 'Stake' : 'Supply'}
             </SubmitButton>
           )}
         </Stack>
@@ -192,7 +203,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               refreshOnSuccess={true}
               isDisabled={isDisabled || !supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
             >
-              { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw' }
+              {asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw'}
             </SubmitButton>
             <SubmitButton
               onClick={async () => {
@@ -203,7 +214,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
               isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
               rightIcon={<AnimatedInfoTooltip type='tooltip' ml="1" message={<VStack><Text>Withdraw all and avoid "dust" being left behind.</Text><Text>May fail if you have the asset enabled as collateral and have outstanding debt.</Text></VStack>} />}
             >
-              { asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw' } ALL
+              {asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw'} ALL
             </SubmitButton>
           </SimpleGrid>
         </Stack>
@@ -222,7 +233,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
       ) : (
         <SimpleGrid columns={2} spacingX="3" spacingY="1">
           <SubmitButton
-            isDisabled={isDisabled || !borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token]))}
+            isDisabled={isDisabled || !borrowBalance}
             onClick={() => contract.repayBorrow(isEthMarket ? { value: amount } : amount)}
             refreshOnSuccess={true}
           >
@@ -230,10 +241,10 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
           </SubmitButton>
 
           <SubmitButton
-            isDisabled={!borrowBalances || !parseFloat(formatUnits(borrowBalances[asset.token])) || (isEthMarket && !asset.repayAllAddress)}
+            isDisabled={!canRepayAll || !borrowBalance || (isEthMarket && !asset.repayAllAddress)}
             onClick={handleRepayAll}
             refreshOnSuccess={true}
-            rightIcon={<AnimatedInfoTooltip ml="1" message='Repay all the debt for this market and avoid "debt dust" being left behind.' />}
+            rightIcon={<AnimatedInfoTooltip type="tooltip" ml="1" message='Repay all the debt for this market and avoid "debt dust" being left behind.' />}
           >
             Repay ALL
           </SubmitButton>

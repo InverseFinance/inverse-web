@@ -30,6 +30,7 @@ type AnchorStatBlockProps = {
   asset: Market
   amount?: number
   isCollateralModal?: boolean
+  isRepay?: boolean
 }
 
 type AnchorStatsProps = {
@@ -196,7 +197,7 @@ const MarketDetails = ({ asset, isCollateralModal }: AnchorStatBlockProps) => {
   )
 }
 
-const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
+const BorrowDetails = ({ asset, isRepay = false }: AnchorStatBlockProps) => {
   const { balances: borrowBalances } = useBorrowBalances()
 
   const borrowBalance =
@@ -204,23 +205,28 @@ const BorrowDetails = ({ asset }: AnchorStatBlockProps) => {
       ? parseFloat(formatUnits(borrowBalances[asset.token], asset.underlying.decimals))
       : 0
 
+  const details = [
+    {
+      label: 'Borrow APY',
+      value: `${asset.borrowApy.toFixed(2)}%`,
+    },
+    {
+      label: 'Available Liquidity',
+      value: `${shortenNumber(asset.liquidity, 2)} ${asset.underlying.symbol}`,
+    },
+  ];
+
+  if (isRepay) {
+    details.unshift({
+      label: <Text fontWeight="bold">Current Debt</Text>,
+      value: <Text fontWeight="bold">{shortenNumber(borrowBalance, 2, false, true)} {asset.underlying.symbol}</Text>,
+    })
+  }
+
   return (
     <StatBlock
       label="Borrow Stats"
-      stats={[
-        {
-          label: 'Borrow APY',
-          value: `${asset.borrowApy.toFixed(2)}%`,
-        },
-        {
-          label: 'Borrow Balance',
-          value: `${borrowBalance.toFixed(2)} ${asset.underlying.symbol}`,
-        },
-        {
-          label: 'Available Liquidity',
-          value: `${shortenNumber(asset.liquidity, 2)} ${asset.underlying.symbol}`,
-        },
-      ]}
+      stats={details}
     />
   )
 }
@@ -340,7 +346,7 @@ export const AnchorStats = ({ operation, asset, amount, isCollateralModal = fals
     case AnchorOperations.repay:
       return (
         <>
-          <BorrowDetails asset={asset} />
+          <BorrowDetails asset={asset} isRepay={true} />
           <BorrowLimitRemaining asset={asset} amount={parsedAmount} />
           <MarketDetails asset={asset} isCollateralModal={isCollateralModal} />
         </>
