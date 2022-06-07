@@ -383,7 +383,7 @@ export const AnchorCollateralModal = ({
                     </>
                     :
                     <>
-                      Your <b>{shortenNumber(usdBorrow, 2, true)} debt</b> needs to be covered by enough collaterals.
+                      Your <b>{shortenNumber(usdBorrow, 2, true, true)} debt</b> needs to be covered by enough collaterals.
                       <Text fontWeight="bold" mt="2">You first need to repay enough debt or add another collateral to cover more than your debt.</Text>
                     </>
                 }
