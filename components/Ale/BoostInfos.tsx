@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Market, Token } from '@app/types'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useAnchorPrices, usePricesV2 } from '@app/hooks/usePrices'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const powerBasis = 100;
 
@@ -50,14 +51,15 @@ export const BoostInfos = ({
 }) => {
     const { prices } = usePricesV2();
     const { prices: oraclePrices } = useAnchorPrices();
-    const [leverageLevel, setLeverageLevel] = useState(1);
+    const minLeverage = 1.1;
+    const [leverageLevel, setLeverageLevel] = useState(minLeverage);
 
     const handleLeverageChange = (v: number) => {
         setLeverageLevel(v);
         onLeverageChange(v);
     }
 
-    if (!collateralMarket || !inputToken) {
+    if (!collateralMarket?.underlying || !inputToken) {
         return <></>
     }
 
@@ -65,24 +67,26 @@ export const BoostInfos = ({
     const desiredWorth = inputWorth * leverageLevel;
     const collateralWorth = inputWorth * collateralMarket.collateralFactor;
     const borrowRequired = desiredWorth - inputWorth;
-    const collateralAmount = oraclePrices && oraclePrices[collateralMarket.token] ? desiredWorth / getBnToNumber(oraclePrices[collateralMarket.token], collateralMarket.underlying.decimals) : 0;
+    const collateralPrice = oraclePrices && oraclePrices[collateralMarket.token] ? getBnToNumber(oraclePrices[collateralMarket.token], collateralMarket.underlying.decimals) : 0;
+    const collateralAmount = collateralPrice ? desiredWorth / collateralPrice : 0;
     const LTV = borrowRequired / desiredWorth;
 
     const leverageSteps = getSteps(collateralMarket.collateralFactor || 0);
 
-    const minLeverage = leverageSteps[0];
     const maxLeverage = leverageSteps[leverageSteps.length - 1];
     const leverageRelativeToMax = leverageLevel / maxLeverage;
-    const risk = leverageRelativeToMax < 0.6 ?
-        riskLevels.low : leverageRelativeToMax < 0.70 ?
-            riskLevels.lowMid : leverageRelativeToMax < 0.80 ?
-                riskLevels.mid : leverageRelativeToMax < 0.90 ?
+    const risk = leverageRelativeToMax <= 0.5 ?
+        riskLevels.low : leverageRelativeToMax <= 0.60 ?
+            riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
+                riskLevels.mid : leverageRelativeToMax <= 0.80 ?
                     riskLevels.midHigh : riskLevels.high;
 
 
     const boostedApy = (leverageLevel * collateralMarket.supplyApy / 100 - (leverageLevel - 1) * (borrowedMarket.borrowApy) / 100) * 100;
 
-    return <VStack w='full'>
+    const liquidationPrice = (LTV) * collateralPrice;
+
+    return <VStack w='full' spacing="5">
         <HStack w='full' justify="space-between" alignItems="center">
             <RiskBadge {...riskLevels.safer} />
             <Text fontSize="20px" fontWeight="extrabold" color={risk.color}>
@@ -98,10 +102,10 @@ export const BoostInfos = ({
             step={0.01}
             aria-label='slider-ex-4'
             defaultValue={leverageLevel}>
-            <SliderTrack bg='red.100'>
+            <SliderTrack h="15px" bg='red.100'>
                 <SliderFilledTrack bg={risk.color} />
             </SliderTrack>
-            <SliderThumb />
+            <SliderThumb h="30px" />
         </Slider>
         <HStack w='full' justify="space-between" alignItems="center">
             <Text fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => setLeverageLevel(minLeverage)}>
@@ -111,49 +115,58 @@ export const BoostInfos = ({
                 Max: x{shortenNumber(maxLeverage, 2)}
             </Text>
         </HStack>
-        <HStack>
-            <Text>Deposit:</Text>
-            <Text>
-                {shortenNumber(parseFloat(inputAmount), 4)} {inputToken?.symbol} ({shortenNumber(inputWorth, 2, true, true)})
-            </Text>
-        </HStack>
-        <HStack>
-            <Text>Desired Boost:</Text>
-            <Text>
-                x{leverageLevel.toFixed(2)} on {collateralMarket?.underlying?.symbol}
-            </Text>
-        </HStack>
-        <HStack>
-            <Text>{collateralMarket?.underlying?.symbol}'s Borrowing Power:</Text>
-            <Text>
-                {collateralMarket.collateralFactor * 100}% of {shortenNumber(inputWorth, 2, true)} = {shortenNumber(collateralWorth, 2, true)}
-            </Text>
-        </HStack>
-        <HStack>
-            <Text>Desired Boosted Collateral:</Text>
-            <Text>
-                {shortenNumber(collateralAmount, 2, false, true)} {collateralMarket?.underlying?.symbol} ({shortenNumber(desiredWorth, 2, true)})
-            </Text>
-        </HStack>
-        <HStack>
-            <Text>DOLA debt required to achieve the boost:</Text>
-            <Text>
-                {shortenNumber(desiredWorth, 2, true)} - {shortenNumber(inputWorth, 2, true)} = {shortenNumber(borrowRequired, 2)}
-            </Text>
-        </HStack>
-        <HStack>
-            <Text>
-                Loan-To-Value Ratio:
-            </Text>
-            <Text>
-                {shortenNumber(LTV * 100, 2, false)}%
-            </Text>
-        </HStack>
+        <InfoMessage
+            alertProps={{ w: 'full' }}
+            description={
+                <VStack w='full' alignItems="flex-start">
+                    <HStack>
+                        <Text>Deposit:</Text>
+                        <Text fontWeight="bold">
+                            {shortenNumber(parseFloat(inputAmount), 4)} {inputToken?.symbol} ({shortenNumber(inputWorth, 2, true, true)})
+                        </Text>
+                    </HStack>
+                    <HStack>
+                        <Text>Desired Boost:</Text>
+                        <Text fontWeight="bold">
+                            x{leverageLevel.toFixed(2)} on {collateralMarket?.underlying?.symbol}
+                        </Text>
+                    </HStack>
+                    <HStack>
+                        <Text>Boost Result:</Text>
+                        <Text fontWeight="bold">
+                            {shortenNumber(collateralAmount, 2, false, true)} {collateralMarket?.underlying?.symbol} ({shortenNumber(desiredWorth, 2, true)})
+                        </Text>
+                    </HStack>
+                    <HStack>
+                        <Text>DOLA debt:</Text>
+                        <Text fontWeight="bold">
+                            {shortenNumber(borrowRequired, 2, true)}
+                        </Text>
+                    </HStack>
+                    <HStack>
+                        <Text>
+                            Loan-To-Value Ratio:
+                        </Text>
+                        <Text fontWeight="bold">
+                            {shortenNumber(LTV * 100, 2, false)}%
+                        </Text>
+                    </HStack>
+                    <HStack>
+                        <Text>
+                            Liquidation Price:
+                        </Text>
+                        <Text fontWeight="bold">
+                            {shortenNumber(liquidationPrice, 2, true)}
+                        </Text>
+                    </HStack>
+                </VStack>
+            }
+        />
         <HStack w='full' justify="space-between" alignItems="center">
             <Text fontWeight="bold" color={riskLevels.safer.color}>
                 {collateralMarket.underlying.symbol}'s Supply APY: {shortenNumber(collateralMarket.supplyApy, 2)}%
             </Text>
-            <Text fontWeight="extrabold" fontSize="20px" color={ boostedApy > 0 ? 'success' : 'warning' } onClick={() => setLeverageLevel(maxLeverage)}>
+            <Text fontWeight="extrabold" fontSize="20px" color={boostedApy > 0 ? 'success' : 'warning'} onClick={() => setLeverageLevel(maxLeverage)}>
                 Boosted APY: {shortenNumber(boostedApy, 2)}%
             </Text>
             <Text fontWeight="bold" color={riskLevels.riskier.color}>

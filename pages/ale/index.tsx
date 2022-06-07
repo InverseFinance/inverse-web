@@ -35,7 +35,7 @@ export const Ale = () => {
 
     const { balances } = useBalances(swapOptions);
 
-    const [inputAmount, setInputAmount] = useState('')
+    const [inputAmount, setInputAmount] = useState('100')
     const [collateralAmount, setCollateralAmount] = useState('')
     const [borrowAmount, setBorrowAmount] = useState('')
 
@@ -51,7 +51,7 @@ export const Ale = () => {
 
     useEffect(() => {
         const marketFound = markets?.find(m => m.underlying.symbol === inputToken.symbol);
-        const yieldBearingMarkets = markets?.filter(m => m.underlying.symbol.replace(/^(yvcrv|yv|st)/ig, '').toLowerCase() === inputToken.symbol.toLowerCase());
+        const yieldBearingMarkets = markets?.filter(m => m.underlying.symbol.replace(/^(yvcrv|yv|st)/ig, '').toLowerCase() === inputToken.symbol.replace('-3POOL', '').toLowerCase());
         yieldBearingMarkets.sort((a, b) => b.supplyApy - a.supplyApy);
         if (yieldBearingMarkets.length === 0 && !marketFound) { return };
         setCollateralMarket((yieldBearingMarkets.length > 0 && yieldBearingMarkets[0]) || marketFound);
@@ -92,7 +92,7 @@ export const Ale = () => {
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
                                     <Text>
-                                        <AnimatedInfoTooltip mr="2" message="The deposited asset can be zapped into another one that is already yield-bearing for example DAI can be zapped to yvDAI which will then be boosted" />
+                                        <AnimatedInfoTooltip mr="4" message="The deposited asset can be zapped into another one that is already yield-bearing for example DAI can be zapped to yvDAI which will then be boosted" />
                                         Deposit Asset
                                     </Text>
                                     <AssetInput
@@ -115,7 +115,7 @@ export const Ale = () => {
                                     {
                                         isBoostDifferent && <>
                                             <Text>
-                                                <AnimatedInfoTooltip mr="2" message="The asset that will be boosted thanks to borrowing DOLA and making a supply / borrow loop" />
+                                                <AnimatedInfoTooltip mr="4" message="The asset that will be boosted thanks to borrowing DOLA and making a supply / borrow loop" />
                                                 Asset to Boost
                                             </Text>
                                             <AssetInput
