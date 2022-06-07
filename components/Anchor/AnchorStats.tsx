@@ -113,7 +113,7 @@ const WithdrawDetails = ({ asset }: AnchorStatBlockProps) => {
       stats={[
         {
           label: 'Available Liquidity',
-          value: `${shortenNumber(asset.liquidity, 2)} ${asset.underlying.symbol}`,
+          value: `${shortenNumber(asset.liquidity, 2, false, true)} ${asset.underlying.symbol}`,
         },
       ]}
     />
@@ -212,7 +212,7 @@ const BorrowDetails = ({ asset, isRepay = false }: AnchorStatBlockProps) => {
     },
     {
       label: 'Available Liquidity',
-      value: `${shortenNumber(asset.liquidity, 2)} ${asset.underlying.symbol}`,
+      value: `${shortenNumber(asset.liquidity, 2, false, true)} ${asset.underlying.symbol}`,
     },
   ];
 
