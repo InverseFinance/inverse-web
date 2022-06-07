@@ -7,7 +7,7 @@ import { DRAFT_WHITELIST } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
-import { MULTISIG_ABI } from '@app/config/abis';
+import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
 import { capitalize, uniqueBy } from '@app/util/misc';
 
@@ -17,8 +17,6 @@ const topics = {
   "0xdcc16fd18a808d877bcd9a09b544844b36ae8f0a4b222e317d7b777b2c18b032": "Expansion",
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
-
-const invOracleKeeper = '0xd14439b3a7245d8ea92e37b77347014ea7e4f809';
 
 const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   const { items, chain_id } = data;
@@ -30,7 +28,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
       const isContractCreation = !item.to_address;
       const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
       const to = item.to_address || log0.sender_address;
-      const name = (isContractCreation ? 'ContractCreation' : !!decoded ? decoded.name||`${capitalize(type)}Other` : item.to_address === invOracleKeeper ? 'Keep3rAction' : `${capitalize(type)}Other`) || 'Unknown';
+      const name = (isContractCreation ? 'ContractCreation' : !!decoded ? decoded.name || `${capitalize(type)}Other` : type === 'oracle' ? 'Keep3rAction' : `${capitalize(type)}Other`) || 'Unknown';
 
       return {
         from: item.from_address,
@@ -68,7 +66,7 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
 
 export default async function handler(req, res) {
 
-  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
   const { startDate, endDate } = req.query;
   const cacheKey = `refunds-v1.0.2-${startDate}-${endDate}`;
@@ -110,13 +108,19 @@ export default async function handler(req, res) {
         return del.votingPower >= 500 && del.delegators.length > 2;
       }).map(del => del.address.toLowerCase());
 
-    const [gov, multidelegator, gno, oracle, ...multisigsRes] = await Promise.all([
+    const xinvFeed = await new Contract(ORACLE, ORACLE_ABI, provider).feeds(XINV);
+    const xinvKeeperAddress = await new Contract(xinvFeed, ['function oracle() public view returns (address)'], provider).oracle();
+    // old one, then we add the current one
+    const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
+
+    const [gov, multidelegator, gno, oracleOld, oracleCurrent, ...multisigsRes] = await Promise.all([
       getTxsOf(GOVERNANCE),
       getTxsOf(MULTI_DELEGATOR),
       // gnosis proxy, for creation
       getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
       // price feed update
-      getTxsOf(invOracleKeeper),
+      getTxsOf(invOracleKeepers[0]),
+      getTxsOf(invOracleKeepers[1]),
       ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 100))
     ])
 
@@ -129,7 +133,8 @@ export default async function handler(req, res) {
     let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
       .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
       .concat(formatResults(gno.data, 'gnosisproxy', refundWhitelist))
-      .concat(formatResults(oracle.data, 'oracle', refundWhitelist))
+      .concat(formatResults(oracleOld.data, 'oracle', refundWhitelist))
+      .concat(formatResults(oracleCurrent.data, 'oracle', refundWhitelist))
       .concat(formatResults({ items: customTxs, chainId: '1' }, 'custom', refundWhitelist))
 
     multisigsRes.forEach(r => {
