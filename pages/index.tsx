@@ -227,7 +227,7 @@ export const Landing = () => {
               an empowered {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} community.
             </Text>
             <Flex w={32}>
-              <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="https://discord.com/invite/InverseFinance">Join the DAO</LinkButton>
+              <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
             </Flex>
           </Stack>
         </Flex>
