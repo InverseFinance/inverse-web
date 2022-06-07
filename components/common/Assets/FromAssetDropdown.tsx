@@ -50,7 +50,7 @@ export const FromAssetDropdown = ({
                     <Flex w={5} position="relative">
                         <Image ignoreFallback={true} alt="" w={5} h={5} src={asset.image} />
                         {
-                            !!asset.protocolImage && <Image position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="" w={3} h={3} src={asset.protocolImage} />
+                            !!asset.protocolImage && <Image borderRadius="20px" position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="" w={3} h={3} src={asset.protocolImage} />
                         }
                     </Flex>
                     <Flex minW="80px" fontSize="lg" fontWeight="semibold" color="primary.100" justify="space-between">
@@ -76,7 +76,7 @@ export const FromAssetDropdown = ({
                             <Flex w={5} position="relative">
                                 <Image w={5} h={5} src={token.image} />
                                 {
-                                    !!token.protocolImage && <Image position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="" w={3} h={3} src={token.protocolImage} />
+                                    !!token.protocolImage && <Image borderRadius="20px" position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="" w={3} h={3} src={token.protocolImage} />
                                 }
                             </Flex>
                             <Flex fontWeight="semibold" align="center" color="primary.100">
