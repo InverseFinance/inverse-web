@@ -183,6 +183,13 @@ export const AnchorModal = ({
             isUserBorrowAbilityPaused && <WarningMessage alertProps={{ fontSize: '12px' }} description={`Borrowing ability paused because you are using paused collaterals: ${pausedCollaterals?.map(m => m.underlying.symbol).join(', ')}`} />
           }
           {
+            operation === AnchorOperations.supply && asset.underlying.symbol === RTOKEN_SYMBOL && asset.mintable &&
+            <InfoMessage
+              title="Autocompounding Asset!"
+              description="Your supplied INV balance will automatically increase, no need to claim and re-stake!"
+            />
+          }
+          {
             (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && isWithdrawOrMigrate ?
               <InfoMessage
                 alertProps={{ w: 'full', fontSize: '12px' }}
@@ -223,8 +230,8 @@ export const AnchorModal = ({
             alertProps={{ w: 'full' }}
             title="Yearn Vault Asset"
             description={<Link isExternal href={`https://yearn.finance/#/vault/${asset.underlying.address}`}>
-            Get {asset.underlying.symbol}
-          </Link>}
+              Get {asset.underlying.symbol}
+            </Link>}
           />
         }
         {
