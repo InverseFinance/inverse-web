@@ -112,11 +112,13 @@ export const FlowChart = ({
   options,
   boxProps,
   chainId = NetworkIds.mainnet,
+  noInteraction = false,
 }: {
   flowData: FlowChartData[],
   options?: FlowChartOptions,
   boxProps?: BoxProps
   chainId?: NetworkIds,
+  noInteraction?: boolean,
 }) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams | undefined>(undefined)
 
@@ -142,14 +144,19 @@ export const FlowChart = ({
 
   const elements = toElements(flowData, options?.elementsOptions, chainId);
 
+  const { autofit } = options || {};
+
   return (
-    <Box {...boxProps}>
+    <Box position="relative" {...boxProps}>
+      {
+        noInteraction && <Box zIndex="5" position="absolute" left="0" right="0" top="0" bottom="0" background="transparent">&nbsp;</Box>
+      }
       {
         !!elements?.length
         && <ReactFlow
           elements={elements}
-          defaultZoom={options?.defaultZoom}
-          onLoad={options?.autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
+          onLoad={autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
+          {...options}
         >
           {options?.showControls && <Controls />}
           {options?.showBackground && <Background />}

@@ -22,17 +22,17 @@ const ItemLabel = ({ underlying, amount, worth, apy }) => {
       imgContainerProps={{ mr: '2' }}
       imgSize={'40px'}
       protocolImageSize='20px'
-      label={`${shortenNumber(amount, 2)} ${underlying.symbol}${!!worth? ` (${shortenNumber(worth, 2, true)})`: ``}`}
+      label={`${shortenNumber(amount, 2)} ${underlying.symbol}${!!worth ? ` (${shortenNumber(worth, 2, true)})` : ``}`}
       image={underlying.image}
       protocolImage={underlying.protocolImage}
       textProps={{ fontSize: '26px' }}
     />
-    { !!apy && <Text>{shortenNumber(apy, 2, false)}% APY</Text> }
+    {!!apy && <Text>{shortenNumber(apy, 2, false)}% APY</Text>}
   </VStack>
 }
 
 const customEdgeOptions = {
-  labelBgPadding: [15, 8],
+  labelBgPadding: [10, 8],
   labelStyle: { fontSize: '18px' }
 }
 
@@ -90,16 +90,13 @@ export const AleFlowChart = ({
     linkLabel: `Borrow ${shortenNumber(borrowedAmount, 2)}`,
     type: ConnectionLineType.Straight,
     ...customEdgeOptions,
-  }];
-
-  if (collateral.symbol !== inputToken.symbol) {
-    engineTargets.unshift({
-      id: 'collateral',
-      linkLabel: `Zap into ${shortenNumber(zapAmount, 2)}`,
-      type: ConnectionLineType.Straight,
-      ...customEdgeOptions,
-    })
+  }, {
+    id: 'collateral',
+    linkLabel: `Zap into ${shortenNumber(zapAmount, 2)}`,
+    type: ConnectionLineType.Straight,
+    ...customEdgeOptions,
   }
+  ];
 
   const links: FlowChartData[] = [
     {
@@ -111,7 +108,7 @@ export const AleFlowChart = ({
       sourcePosition: 'bottom',
       targets: [{
         id: 'engine',
-        linkLabel: `Deposit`,
+        linkLabel: `Deposit ${shortenNumber(inputAmount, 2)}`,
         style: primaryStyle,
         ...customEdgeOptions,
       }],
@@ -151,7 +148,7 @@ export const AleFlowChart = ({
     },
   ]
 
-  const boxProps = { w: { base: baseWidth, lg: '600px' }, h: { base: baseheight, lg: '350px' } }
+  const boxProps = { w: { base: baseWidth, lg: '600px' }, h: { base: baseheight, lg: '400px' } }
 
   if (!baseWidth) {
     return <Box {...boxProps}>&nbsp;</Box>
@@ -164,7 +161,14 @@ export const AleFlowChart = ({
         showBackground: !isLargerThan,
         autofit: true,
         elementsOptions,
+        zoomOnScroll: false,
+        zoomOnPinch: false,
+        paneMoveable: false,
+        elementsSelectable: false,
+        panOnScroll: false,
+        zoomOnDoubleClick: false,
       }}
+      noInteraction={true}
       flowData={links}
       boxProps={boxProps}
     />

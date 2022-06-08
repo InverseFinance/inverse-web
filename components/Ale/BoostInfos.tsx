@@ -1,12 +1,15 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Market, Token } from '@app/types'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useAnchorPrices, usePricesV2 } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 import { AleFlowChart } from './AleFlowChart'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { Input } from '../common/Input'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { showToast } from '@app/util/notify'
 
 const powerBasis = 100;
 
@@ -32,8 +35,8 @@ const riskLevels = {
     'riskier': { color: 'red.500', text: 'Riskier' },
 }
 
-const RiskBadge = ({ color, text }: { color: BadgeProps["bgColor"], text: string }) => {
-    return <Badge opacity="0.7" fontSize="14px" py="2" px="4" borderRadius="20px" bgColor={color} color="white">
+const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], text: string }) => {
+    return <Badge userSelect="none" cursor="pointer" onClick={onClick} fontSize="14px" py="2" px="4" borderRadius="20px" bgColor={color} color="white">
         {text}
     </Badge>
 }
@@ -55,11 +58,35 @@ export const BoostInfos = ({
     const { prices: oraclePrices } = useAnchorPrices();
     const minLeverage = 1.1;
     const [leverageLevel, setLeverageLevel] = useState(2);
+    const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
 
     const handleLeverageChange = (v: number) => {
         setLeverageLevel(v);
         onLeverageChange(v);
     }
+
+    const handleEditLeverage = (e: any) => {
+        setEditLeverageLevel(e.target.value);
+    }
+
+    const handleKeyPress = (e: any) => {
+        if (e.key === 'Enter') {
+            validateEditLeverage();
+        }
+    }
+
+    const validateEditLeverage = () => {
+        const input = parseFloat(editLeverageLevel);
+        if (!input || isNaN(input) || input < minLeverage || input > maxLeverage) {
+            showToast({ status: 'info', title: 'Invalid value for Boost', description: 'The value should be between min and max' });
+            return
+        }
+        handleLeverageChange(input);
+    }
+
+    useEffect(() => {
+        setEditLeverageLevel(leverageLevel);
+    }, [leverageLevel])
 
     if (!collateralMarket?.underlying || !inputToken) {
         return <></>
@@ -76,7 +103,7 @@ export const BoostInfos = ({
 
     const leverageSteps = getSteps(collateralMarket.collateralFactor || 0);
 
-    const maxLeverage = leverageSteps[leverageSteps.length - 1];
+    const maxLeverage = Math.floor(leverageSteps[leverageSteps.length - 1] * 100) / 100;
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
     const risk = leverageRelativeToMax <= 0.5 ?
@@ -93,11 +120,41 @@ export const BoostInfos = ({
 
     return <VStack w='full' spacing="5">
         <HStack w='full' justify="space-between" alignItems="center">
-            <RiskBadge {...riskLevels.safer} />
-            <Text fontSize="20px" fontWeight="extrabold" color={risk.color}>
-                Boost x{leverageLevel.toFixed(2)}
-            </Text>
-            <RiskBadge {...riskLevels.riskier} />
+            <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? leverageLevel - 1 : minLeverage)} />
+            <InputGroup
+                w='fit-content'
+                alignItems="center"
+            >
+                <InputLeftElement
+                    children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(30px)" fontSize="20px" fontWeight="extrabold">
+                        Boost:
+                    </Text>}
+                />
+                <Input onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="150px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                {
+                    editLeverageLevel !== leverageLevel &&
+                    <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validateEditLeverage()}
+                        children={<CheckCircleIcon transition="ease-in-out" transitionDuration="300ms" transitionProperty="color" _hover={{ color: 'success' }} />}
+                    />
+                }
+            </InputGroup>
+            {/* {
+                !boostEdit ?
+                    <Text fontSize="20px" fontWeight="extrabold" color={risk.color} cursor="pointer" onClick={() => setBoostEdit(!boostEdit)}>
+                        Boost x{leverageLevel.toFixed(2)}
+                    </Text> :
+                    <InputGroup
+                        w='120px'
+                        bgColor="transparent"
+                        alignItems="center"
+                    >
+                        <Input py="0" onChange={(e) => handleEditLeverage(e)} width="80px" value={leverageLevel} min={minLeverage} max={maxLeverage} />
+                        <InputRightElement
+                            children={<CheckCircleIcon />}
+                        />
+                    </InputGroup>
+            } */}
+            <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? leverageLevel + 1 : maxLeverage)} />
         </HStack>
         <Slider
             value={leverageLevel}
@@ -184,6 +241,28 @@ export const BoostInfos = ({
                         </HStack>
                         <HStack w='full' justify="space-between">
                             <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="To achieve the Boost, Borrowing a certain amount is required, the higher the Boost the higher the Debt" />
+                                <Text>
+                                    {borrowedMarket.underlying.symbol} DEBT created:
+                                </Text>
+                            </HStack>
+                            <Text fontWeight="bold">
+                                {shortenNumber(borrowRequired, 2, false)}
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="Borrowing Interests will be added to your debt over time according to this APY" />
+                                <Text>
+                                    {borrowedMarket.underlying.symbol} Borrow APY:
+                                </Text>
+                            </HStack>
+                            <Text fontWeight="bold">
+                                {shortenNumber(borrowedMarket.borrowApy, 2, false)}%
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <HStack>
                                 <AnimatedInfoTooltip type="tooltip" message="The current Collateral Price according to the Oracle" />
                                 <Text>
                                     Collateral Price:
@@ -195,7 +274,7 @@ export const BoostInfos = ({
                         </HStack>
                         <HStack w='full' justify="space-between">
                             <HStack>
-                                <AnimatedInfoTooltip type="tooltip" message="If the collateral price is equal or under the liquidation price then the position will be liquidated" />
+                                <AnimatedInfoTooltip type="tooltip" message="The higher the boost the higher the liquidation price, if the collateral price is equal or under the liquidation price then the position will be liquidated" />
                                 <Text>
                                     Liquidation Price:
                                 </Text>

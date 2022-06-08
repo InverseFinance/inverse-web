@@ -106,7 +106,7 @@ export const Ale = () => {
                 <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1200px">
                     {
                         markets?.length > 0 ?
-                            <Container                                
+                            <Container
                                 label="Boost"
                                 contentProps={{ p: '8' }}
                             >
@@ -129,7 +129,7 @@ export const Ale = () => {
                                     <InfoMessage
                                         alertProps={{ w: 'full' }}
                                         description={
-                                            <Text>{isNotDefaultCollateral || !isInputDifferentThanCollateral ? 'Asset' : `Highest Yield-Bearing asset alternative to ${inputToken.symbol} found`} to Boost: <b>{collateralMarket?.underlying?.symbol}</b> ({shortenNumber(collateralMarket.supplyApy)}% APY)</Text>
+                                            <Text>{isNotDefaultCollateral || !isInputDifferentThanCollateral ? 'Asset' : `Highest similar Yield-Bearing asset found`} to Boost: <b>{collateralMarket?.underlying?.symbol}</b> ({shortenNumber(collateralMarket.supplyApy)}% APY)</Text>
                                         } />
                                     <Checkbox value="true" isChecked={isBoostDifferent} onChange={() => setIsBoostDifferent(!isBoostDifferent)}>
                                         I want to boost something different
@@ -159,9 +159,13 @@ export const Ale = () => {
                                     />
                                     <HStack w='full' justify="center">
                                         <SubmitButton fontSize="20px" themeColor="green.500" maxW="fit-content" h="60px" onClick={handleCreate}>
-                                            <PlusSquareIcon mr="2" /> Create New Position
+                                            <PlusSquareIcon mr="2" /> Create a new Boosted Position
                                         </SubmitButton>
                                     </HStack>
+                                    <InfoMessage
+                                        alertProps={{ w: 'full' }}
+                                        description="No Tokens will be sent to your wallet, all tokens will be held in Contracts. All APYs can vary over time."
+                                    />
                                 </VStack>
                             </Container>
                             : <SkeletonBlob />
