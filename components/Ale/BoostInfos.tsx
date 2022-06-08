@@ -1,4 +1,4 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack } from '@chakra-ui/react'
 
 import { useState } from 'react'
 import { Market, Token } from '@app/types'
@@ -53,7 +53,7 @@ export const BoostInfos = ({
     const { prices } = usePricesV2();
     const { prices: oraclePrices } = useAnchorPrices();
     const minLeverage = 1.1;
-    const [leverageLevel, setLeverageLevel] = useState(minLeverage);
+    const [leverageLevel, setLeverageLevel] = useState(2);
 
     const handleLeverageChange = (v: number) => {
         setLeverageLevel(v);
@@ -119,66 +119,85 @@ export const BoostInfos = ({
                 Max: x{shortenNumber(maxLeverage, 2)}
             </Text>
         </HStack>
-        <InfoMessage
-            alertProps={{ w: 'full' }}
-            description={
-                <VStack w='full' alignItems="flex-start">
-                    <HStack>
-                        <Text>Deposit:</Text>
-                        <Text fontWeight="bold">
-                            {shortenNumber(parseFloat(inputAmount), 4)} {inputToken?.symbol} ({shortenNumber(inputWorth, 2, true, true)})
-                        </Text>
-                    </HStack>
-                    <HStack>
-                        <Text>Desired Boost:</Text>
-                        <Text fontWeight="bold">
-                            x{leverageLevel.toFixed(2)} on {collateralMarket?.underlying?.symbol}
-                        </Text>
-                    </HStack>
-                    <HStack>
-                        <Text>Boost Result:</Text>
-                        <Text fontWeight="bold">
-                            {shortenNumber(collateralAmount, 2, false, true)} {collateralMarket?.underlying?.symbol} ({shortenNumber(desiredWorth, 2, true)})
-                        </Text>
-                    </HStack>
-                    <HStack>
-                        <Text>DOLA debt:</Text>
-                        <Text fontWeight="bold">
-                            {shortenNumber(borrowRequired, 2, true)}
-                        </Text>
-                    </HStack>
-                    <HStack>
-                        <Text>
-                            Loan-To-Value Ratio:
-                        </Text>
-                        <Text fontWeight="bold">
-                            {shortenNumber(LTV * 100, 2, false)}%
-                        </Text>
-                    </HStack>
-                    <HStack>
-                        <Text>
-                            Liquidation Price:
-                        </Text>
-                        <Text fontWeight="bold">
-                            {shortenNumber(liquidationPrice, 2, true)} ({shortenNumber(liquidationDistance * 100, 2)}% distance from current price {shortenNumber(collateralPrice, 2, true)})
-                        </Text>
-                    </HStack>
-                </VStack>
-            }
-        />
-        <AleFlowChart
-            inputToken={inputToken}
-            collateralMarket={collateralMarket}
-            borrowMarket={borrowedMarket}
-            inputAmount={parseFloat(inputAmount)}
-            collateralAmount={collateralAmount}
-            borrowedAmount={borrowRequired}
-            supplyApy={collateralMarket.supplyApy}
-            borrowApy={borrowedMarket.borrowApy}
-            boostedApy={boostedApy}
-            ltv={LTV}
-            zapAmount={zapAmount}
-        />
+        <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
+            <InfoMessage
+                alertProps={{ w: '400px' }}
+                description={
+                    <VStack w='full' alignItems="flex-start">
+                        <HStack w='full' justify="space-between">
+                            <Text>Desired Boost:</Text>
+                            <Text fontWeight="bold">
+                                x{leverageLevel.toFixed(2)} on {collateralMarket?.underlying?.symbol}
+                            </Text>
+                        </HStack>
+                        {/* <HStack>
+                            <Text>Boost Result:</Text>
+                            <Text fontWeight="bold">
+                                {shortenNumber(collateralAmount, 2, false, true)} {collateralMarket?.underlying?.symbol} ({shortenNumber(desiredWorth, 2, true)})
+                            </Text>
+                        </HStack> */}
+                        {/* <HStack>
+                            <Text>DOLA debt:</Text>
+                            <Text fontWeight="bold">
+                                {shortenNumber(borrowRequired, 2, true)}
+                            </Text>
+                        </HStack> */}
+                        <HStack w='full' justify="space-between">
+                            <Text>
+                                Loan-To-Value Ratio:
+                            </Text>
+                            <Text fontWeight="bold">
+                                {shortenNumber(LTV * 100, 2, false)}%
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <Text>
+                                Collateral Price:
+                            </Text>
+                            <Text fontWeight="bold">
+                                {shortenNumber(collateralPrice, 2, true)}
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <Text>
+                                Liquidation Price:
+                            </Text>
+                            <Text fontWeight="bold">
+                                {shortenNumber(liquidationPrice, 2, true)}
+                            </Text>
+                        </HStack>
+                        {/* <HStack w='full' justify="space-between">
+                            <Text>
+                                Liquidation Distance:
+                            </Text>
+                            <Text fontWeight="bold">
+                                {shortenNumber(liquidationDistance * 100, 2)}%
+                            </Text>
+                        </HStack> */}
+                    </VStack>
+                }
+            />
+            <AleFlowChart
+                inputToken={inputToken}
+                collateralMarket={collateralMarket}
+                borrowMarket={borrowedMarket}
+                inputAmount={parseFloat(inputAmount)}
+                collateralAmount={collateralAmount}
+                borrowedAmount={borrowRequired}
+                supplyApy={collateralMarket.supplyApy}
+                borrowApy={borrowedMarket.borrowApy}
+                boostedApy={boostedApy}
+                ltv={LTV}
+                zapAmount={zapAmount}
+                inputWorth={inputWorth}
+                collateralWorth={collateralWorth}
+                borrowWorth={borrowRequired}
+                leverageLevel={leverageLevel}
+                collateralPrice={collateralPrice}
+                liquidationPrice={liquidationPrice}
+            />
+        </Stack>
+
         <HStack w='full' justify="space-between" alignItems="center">
             <Text fontWeight="bold" color={riskLevels.safer.color}>
                 {collateralMarket.underlying.symbol}'s Supply APY: {shortenNumber(collateralMarket.supplyApy, 2)}%

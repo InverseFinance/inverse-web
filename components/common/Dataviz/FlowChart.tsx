@@ -10,6 +10,7 @@ import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@app/util';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { useEffect, useState } from 'react';
+import { isAddress } from 'ethers/lib/utils';
 
 const defaultNodeSyle = {
   background: '#bbb7e0cc',
@@ -26,7 +27,9 @@ const ElementLabel = ({ label, address, chainId }: { label: React.ReactNode, add
   return (
     <VStack>
       <Flex fontWeight="bold" fontSize="18px" alignItems="center">{label}</Flex>
-      <ScannerLink chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
+      {
+        isAddress(address) && !!address && <ScannerLink chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
+      }
     </VStack>
   )
 }
@@ -82,7 +85,7 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, 
       if (!elements.find((el) => el.id === bridgeId)) {
         elements.push({
           arrowHeadType: ArrowHeadType.ArrowClosed,
-          // type: 'step',
+          type: target.type,
           id: bridgeId,
           source: srcId,
           target: targetId,

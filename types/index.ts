@@ -3,6 +3,7 @@ import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } f
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { HandleTxOptions } from '@app/util/transactions';
+import { ConnectionLineType } from 'react-flow-renderer';
 
 export interface Token {
   address: string
@@ -346,6 +347,7 @@ export type FlowChartData = {
     style?: Object
     sourcePosition?: 'left' | 'right' | 'bottom' | 'top'
     targetPosition?: 'left' | 'right' | 'bottom' | 'top'
+    type: ConnectionLineType,
   }[]
   x?: number
   y?: number

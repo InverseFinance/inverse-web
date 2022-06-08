@@ -1,25 +1,32 @@
 import { FlowChartData, Market, Token } from '@app/types';
 
-import { Box, useMediaQuery } from '@chakra-ui/react';
+import { Box, Text, useMediaQuery, VStack } from '@chakra-ui/react';
 import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 import { UnderlyingItem } from '../common/Assets/UnderlyingItem';
 import { shortenNumber } from '@app/util/markets';
+import { ConnectionLineType } from 'react-flow-renderer';
 
-const blueStyle = { backgroundColor: '#4299e1cc', color: 'white' }
-const primaryStyle = { backgroundColor: '#5E17EBcc', color: 'white' }
-const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white' }
+const blueStyle = { backgroundColor: '#4299e1cc', color: 'white', width: '300px' }
+const primaryStyle = { backgroundColor: '#5E17EBcc', color: 'white', width: '300px' }
+const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white', width: '300px' }
+const orangeStyle = { backgroundColor: 'orange', color: 'white', width: '300px' }
 
 const elementsOptions = {
   yGap: 150,
 };
 
-const ItemLabel = ({ underlying, amount }) => {
-  return <UnderlyingItem
-    imgContainerProps={{ mr: '2' }}
-    label={`${shortenNumber(amount, 2)} ${underlying.symbol}`}
-    image={underlying.image}
-    protocolImage={underlying.protocolImage} />
+const ItemLabel = ({ underlying, amount, worth, apy }) => {
+  return <VStack>
+    <UnderlyingItem
+      imgContainerProps={{ mr: '2' }}
+      label={`${shortenNumber(amount, 2)} ${underlying.symbol}${!!worth? ` (${shortenNumber(worth, 2, true)})`: `sd`}`}
+      image={underlying.image}
+      protocolImage={underlying.protocolImage}
+      textProps={{ fontSize: '22px' }}
+    />
+    { !!apy && <Text>{shortenNumber(apy, 2, false)}% APY</Text> }
+  </VStack>
 }
 
 export const AleFlowChart = ({
@@ -37,6 +44,9 @@ export const AleFlowChart = ({
   liquidationPrice,
   ltv,
   zapAmount,
+  inputWorth,
+  collateralWorth,
+  borrowWorth,
 }: {
   borrowMarket: Market,
   inputToken: Token,
@@ -52,6 +62,9 @@ export const AleFlowChart = ({
   liquidationPrice: number,
   ltv: number,
   zapAmount: number,
+  inputWorth: number,
+  collateralWorth: number,
+  borrowWorth: number,
 }) => {
   const [baseWidth, setBaseWidth] = useState('');
   const [baseheight, setBaseHeight] = useState('');
@@ -66,52 +79,69 @@ export const AleFlowChart = ({
   const borrowedToken = borrowMarket.underlying;
 
   const engineTargets = [{
-    id: borrowedToken.address,
-    linkLabel: `Borrow ${shortenNumber(borrowedAmount, 2)}`
+    id: 'borrowed',
+    linkLabel: `Borrow ${shortenNumber(borrowedAmount, 2)}`,
+    type: ConnectionLineType.Straight,
   }];
 
   if (collateral.symbol !== inputToken.symbol) {
     engineTargets.unshift({
-      id: collateral.address,
+      id: 'collateral',
       linkLabel: `Zap into ${shortenNumber(zapAmount, 2)}`,
+      type: ConnectionLineType.Straight,
     })
   }
 
   const links: FlowChartData[] = [
     {
-      label: <ItemLabel underlying={inputToken} amount={inputAmount} />,
+      label: <ItemLabel underlying={inputToken} amount={inputAmount} worth={inputWorth} />,
       id: 'inputToken',
       style: blueStyle,
+      x: 0,
+      y: 0,
+      sourcePosition: 'bottom',
       targets: [{
-        label: 'Engine',
+        label: 'Accelerated Leverage Engine',
         id: 'engine',
         linkLabel: `Deposit`,
         style: primaryStyle,
-      }]
+      }],
     },
     {
-      label: <ItemLabel underlying={collateral} amount={collateralAmount} />,
-      id: collateral.address,
+      label: <ItemLabel underlying={collateral} amount={collateralAmount} worth={collateralWorth} apy={supplyApy} />,
+      id: 'collateral',
       style: greenStyle,
+      x: 500,
+      y: 0,
+      targetPosition: 'bottom',
     },
     {
-      label: "Engine",
+      label: <Text fontSize="22px">Accelerated Leverage Engine</Text>,
       id: 'engine',
       style: primaryStyle,
       targets: engineTargets,
+      x: 0,
+      y: 250,
+      sourcePosition: 'right',
+      targetPosition: 'top',
+      connectionLineType: 'step',
     },
     {
-      label: <ItemLabel underlying={borrowedToken} amount={borrowedAmount} />,
-      id: borrowedToken.address,
-      style: blueStyle,
+      label: <ItemLabel underlying={borrowedToken} amount={borrowedAmount} worth={borrowWorth} apy={-borrowApy} />,
+      id: 'borrowed',
+      style: orangeStyle,
+      x: 500,
+      y: 300,
+      sourcePosition: 'top',
+      targetPosition: 'left',
       targets: [{
-        id: collateral.address,
+        id: 'collateral',
         linkLabel: `Zap into ${shortenNumber(collateralAmount - zapAmount, 2)}`,
       }]
     },
   ]
 
-  const boxProps = { w: { base: baseWidth, lg: '900px' }, h: { base: baseheight, lg: '600px' } }
+  const boxProps = { w: { base: baseWidth, lg: '600px' }, h: { base: baseheight, lg: '300px' } }
 
   if (!baseWidth) {
     return <Box {...boxProps}>&nbsp;</Box>
