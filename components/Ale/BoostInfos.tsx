@@ -92,6 +92,8 @@ export const BoostInfos = ({
         return <></>
     }
 
+    const round = (v: number) => Math.floor(v * 100) / 100;
+
     const inputWorth = prices[inputToken.coingeckoId || inputToken.symbol] ? parseFloat(inputAmount) * prices[inputToken.coingeckoId || inputToken.symbol].usd : 0;
     const desiredWorth = inputWorth * leverageLevel;
     const collateralWorth = inputWorth * collateralMarket.collateralFactor;
@@ -103,7 +105,7 @@ export const BoostInfos = ({
 
     const leverageSteps = getSteps(collateralMarket.collateralFactor || 0);
 
-    const maxLeverage = Math.floor(leverageSteps[leverageSteps.length - 1] * 100) / 100;
+    const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
     const risk = leverageRelativeToMax <= 0.5 ?
@@ -120,7 +122,7 @@ export const BoostInfos = ({
 
     return <VStack w='full' spacing="5">
         <HStack w='full' justify="space-between" alignItems="center">
-            <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? leverageLevel - 1 : minLeverage)} />
+            <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1 ): minLeverage)} />
             <InputGroup
                 w='fit-content'
                 alignItems="center"
@@ -138,23 +140,7 @@ export const BoostInfos = ({
                     />
                 }
             </InputGroup>
-            {/* {
-                !boostEdit ?
-                    <Text fontSize="20px" fontWeight="extrabold" color={risk.color} cursor="pointer" onClick={() => setBoostEdit(!boostEdit)}>
-                        Boost x{leverageLevel.toFixed(2)}
-                    </Text> :
-                    <InputGroup
-                        w='120px'
-                        bgColor="transparent"
-                        alignItems="center"
-                    >
-                        <Input py="0" onChange={(e) => handleEditLeverage(e)} width="80px" value={leverageLevel} min={minLeverage} max={maxLeverage} />
-                        <InputRightElement
-                            children={<CheckCircleIcon />}
-                        />
-                    </InputGroup>
-            } */}
-            <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? leverageLevel + 1 : maxLeverage)} />
+            <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1 ) : maxLeverage)} />
         </HStack>
         <Slider
             value={leverageLevel}
