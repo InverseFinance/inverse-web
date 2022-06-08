@@ -1,4 +1,4 @@
-import { Checkbox, Flex, Text, VStack } from '@chakra-ui/react'
+import { Checkbox, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 
 import { SubmitButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
@@ -71,7 +71,10 @@ export const Ale = () => {
         return createAlePosition({
             borrowMarket: 'dola',
             collateralMarket: 'b',
-            signer: library?.getSigner()
+            inputToken,
+            inputAmount,
+            collateralAmount,
+            signer: library?.getSigner(),
         });
     }
 
@@ -91,10 +94,12 @@ export const Ale = () => {
                                 label="Boost"
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
-                                    <Text>
-                                        <AnimatedInfoTooltip mr="4" message="The deposited asset can be zapped into another one that is already yield-bearing for example DAI can be zapped to yvDAI which will then be boosted" />
-                                        Deposit Asset
-                                    </Text>
+                                    <HStack spacing="2">
+                                        <AnimatedInfoTooltip message="The deposited asset can be zapped into another one that is already yield-bearing for example DAI can be zapped to yvDAI which will then be boosted" />
+                                        <Text>
+                                            Deposit Asset
+                                        </Text>
+                                    </HStack>
                                     <AssetInput
                                         amount={inputAmount}
                                         token={inputToken}
@@ -114,10 +119,10 @@ export const Ale = () => {
                                     </Checkbox>
                                     {
                                         isBoostDifferent && <>
-                                            <Text>
-                                                <AnimatedInfoTooltip mr="4" message="The asset that will be boosted thanks to borrowing DOLA and making a supply / borrow loop" />
-                                                Asset to Boost
-                                            </Text>
+                                            <HStack spacing="2">
+                                                <AnimatedInfoTooltip message="The asset that will be boosted thanks to borrowing DOLA and making a supply / borrow loop" />
+                                                <Text>Asset to Boost</Text>
+                                            </HStack>
                                             <AssetInput
                                                 amount={inputAmount}
                                                 token={collateralMarket?.underlying}

@@ -1,10 +1,11 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Divider } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps } from '@chakra-ui/react'
 
 import { useState } from 'react'
 import { Market, Token } from '@app/types'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useAnchorPrices, usePricesV2 } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
+import { AleFlowChart } from './AleFlowChart'
 
 const powerBasis = 100;
 
@@ -31,7 +32,7 @@ const riskLevels = {
 }
 
 const RiskBadge = ({ color, text }: { color: BadgeProps["bgColor"], text: string }) => {
-    return <Badge fontSize="14px" py="2" px="4" borderRadius="20px" bgColor={color} color="white">
+    return <Badge opacity="0.7" fontSize="14px" py="2" px="4" borderRadius="20px" bgColor={color} color="white">
         {text}
     </Badge>
 }
@@ -69,12 +70,14 @@ export const BoostInfos = ({
     const borrowRequired = desiredWorth - inputWorth;
     const collateralPrice = oraclePrices && oraclePrices[collateralMarket.token] ? getBnToNumber(oraclePrices[collateralMarket.token], collateralMarket.underlying.decimals) : 0;
     const collateralAmount = collateralPrice ? desiredWorth / collateralPrice : 0;
+    const zapAmount = collateralPrice ? inputWorth / collateralPrice : 0;
     const LTV = borrowRequired / desiredWorth;
 
     const leverageSteps = getSteps(collateralMarket.collateralFactor || 0);
 
     const maxLeverage = leverageSteps[leverageSteps.length - 1];
     const leverageRelativeToMax = leverageLevel / maxLeverage;
+
     const risk = leverageRelativeToMax <= 0.5 ?
         riskLevels.low : leverageRelativeToMax <= 0.60 ?
             riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
@@ -84,7 +87,8 @@ export const BoostInfos = ({
 
     const boostedApy = (leverageLevel * collateralMarket.supplyApy / 100 - (leverageLevel - 1) * (borrowedMarket.borrowApy) / 100) * 100;
 
-    const liquidationPrice = (LTV) * collateralPrice;
+    const liquidationPrice = LTV * collateralPrice;
+    const liquidationDistance = collateralPrice ? (collateralPrice - liquidationPrice) / collateralPrice : 0;
 
     return <VStack w='full' spacing="5">
         <HStack w='full' justify="space-between" alignItems="center">
@@ -156,11 +160,24 @@ export const BoostInfos = ({
                             Liquidation Price:
                         </Text>
                         <Text fontWeight="bold">
-                            {shortenNumber(liquidationPrice, 2, true)}
+                            {shortenNumber(liquidationPrice, 2, true)} ({shortenNumber(liquidationDistance * 100, 2)}% distance from current price {shortenNumber(collateralPrice, 2, true)})
                         </Text>
                     </HStack>
                 </VStack>
             }
+        />
+        <AleFlowChart
+            inputToken={inputToken}
+            collateralMarket={collateralMarket}
+            borrowMarket={borrowedMarket}
+            inputAmount={parseFloat(inputAmount)}
+            collateralAmount={collateralAmount}
+            borrowedAmount={borrowRequired}
+            supplyApy={collateralMarket.supplyApy}
+            borrowApy={borrowedMarket.borrowApy}
+            boostedApy={boostedApy}
+            ltv={LTV}
+            zapAmount={zapAmount}
         />
         <HStack w='full' justify="space-between" alignItems="center">
             <Text fontWeight="bold" color={riskLevels.safer.color}>
