@@ -20,6 +20,8 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { shortenNumber } from '@app/util/markets'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { BoostInfos } from '@app/components/Ale/BoostInfos'
+import { PlusSquareIcon } from '@chakra-ui/icons'
+import { roundFloorString } from '@app/util/misc'
 
 const { TOKENS, DOLA } = getNetworkConfigConstants();
 
@@ -59,12 +61,26 @@ export const Ale = () => {
 
     const changeCollateral = (newToken: Token) => {
         setIsNotDefaultCollateral(true);
-        setCollateralMarket(markets?.find(m => m.underlying.symbol === newToken.symbol))
+        setCollateralMarket(markets?.find(m => m.underlying.symbol === newToken.symbol));
+        changeCollateralAmount(collateralAmount);
     }
 
     const changeInputToken = (newToken: Token) => {
         setIsNotDefaultCollateral(false);
         setInputToken(newToken);
+        changeInputAmount(inputAmount);
+    }
+
+    const changeCollateralAmount = (newAmount: string) => {
+        setCollateralAmount(newAmount);
+        const marketFound = markets?.find(m => m.underlying.symbol === inputToken.symbol)!;
+        setInputAmount(roundFloorString(parseFloat(newAmount) * collateralMarket.oraclePrice / marketFound?.oraclePrice));
+    }
+
+    const changeInputAmount = (newAmount: string) => {
+        setInputAmount(newAmount);
+        const marketFound = markets?.find(m => m.underlying.symbol === inputToken.symbol)!;
+        setCollateralAmount(roundFloorString(parseFloat(newAmount) * marketFound.oraclePrice / collateralMarket?.oraclePrice));
     }
 
     const handleCreate = () => {
@@ -87,16 +103,17 @@ export const Ale = () => {
             </Head>
             <AppNav active="Frontier" activeSubmenu="Ale" />
             <ErrorBoundary>
-                <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
+                <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1200px">
                     {
                         markets?.length > 0 ?
-                            <Container
+                            <Container                                
                                 label="Boost"
+                                contentProps={{ p: '8' }}
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
                                     <HStack spacing="2">
-                                        <AnimatedInfoTooltip message="The deposited asset can be zapped into another one that is already yield-bearing for example DAI can be zapped to yvDAI which will then be boosted" />
-                                        <Text>
+                                        <AnimatedInfoTooltip message="The asset to deposit, it can be different than the one you want to boost, by default we'll transform the asset to Yield-Bearing one when possible (Eth to stEth for example)" />
+                                        <Text fontSize="20px" fontWeight="extrabold">
                                             Deposit Asset
                                         </Text>
                                     </HStack>
@@ -105,7 +122,7 @@ export const Ale = () => {
                                         token={inputToken}
                                         assetOptions={swapOptions}
                                         onAssetChange={(newToken) => changeInputToken(newToken)}
-                                        onAmountChange={(newAmount) => setInputAmount(newAmount)}
+                                        onAmountChange={(newAmount) => changeInputAmount(newAmount)}
                                         orderByBalance={true}
                                         {...commonAssetInputProps}
                                     />
@@ -120,15 +137,15 @@ export const Ale = () => {
                                     {
                                         isBoostDifferent && <>
                                             <HStack spacing="2">
-                                                <AnimatedInfoTooltip message="The asset that will be boosted thanks to borrowing DOLA and making a supply / borrow loop" />
-                                                <Text>Asset to Boost</Text>
+                                                <AnimatedInfoTooltip message="The asset you wish to Boost, usually a Yield-Bearing asset" />
+                                                <Text fontSize="20px" fontWeight="extrabold">Asset to Boost</Text>
                                             </HStack>
                                             <AssetInput
-                                                amount={inputAmount}
+                                                amount={collateralAmount}
                                                 token={collateralMarket?.underlying}
                                                 assetOptions={swapOptions}
                                                 onAssetChange={(newToken) => changeCollateral(newToken)}
-                                                onAmountChange={(newAmount) => setInputAmount(newAmount)}
+                                                onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
                                                 {...commonAssetInputProps}
                                             />
                                         </>
@@ -140,7 +157,11 @@ export const Ale = () => {
                                         inputAmount={inputAmount}
                                         onLeverageChange={(v) => setLeverageLevel(v)}
                                     />
-                                    <SubmitButton onClick={handleCreate}>Create Position</SubmitButton>
+                                    <HStack w='full' justify="center">
+                                        <SubmitButton fontSize="20px" themeColor="green.500" maxW="fit-content" h="60px" onClick={handleCreate}>
+                                            <PlusSquareIcon mr="2" /> Create New Position
+                                        </SubmitButton>
+                                    </HStack>
                                 </VStack>
                             </Container>
                             : <SkeletonBlob />

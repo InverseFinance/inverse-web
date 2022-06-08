@@ -110,7 +110,6 @@ export const AleFlowChart = ({
       y: 0,
       sourcePosition: 'bottom',
       targets: [{
-        label: 'Accelerated Leverage Engine',
         id: 'engine',
         linkLabel: `Deposit`,
         style: primaryStyle,
@@ -126,7 +125,7 @@ export const AleFlowChart = ({
       targetPosition: 'bottom',
     },
     {
-      label: <Text fontSize="22px">Accelerated Leverage Engine</Text>,
+      label: <Text fontSize="28px">Accelerated Leverage Engine</Text>,
       id: 'engine',
       style: primaryStyle,
       targets: engineTargets,
