@@ -106,8 +106,7 @@ export const Ale = () => {
                 <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1200px">
                     {
                         markets?.length > 0 ?
-                            <Container
-                                label="Boost"
+                            <Container                              
                                 contentProps={{ p: '8' }}
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
