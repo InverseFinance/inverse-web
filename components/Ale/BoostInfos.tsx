@@ -6,6 +6,7 @@ import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useAnchorPrices, usePricesV2 } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 import { AleFlowChart } from './AleFlowChart'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 const powerBasis = 100;
 
@@ -121,13 +122,41 @@ export const BoostInfos = ({
         </HStack>
         <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
             <InfoMessage
-                alertProps={{ w: '400px' }}
+                alertProps={{ w: '500px', p: '8' }}
+                showIcon={false}
                 description={
-                    <VStack w='full' alignItems="flex-start">
+                    <VStack spacing="4" w='full' alignItems="flex-start" fontSize="18px">
                         <HStack w='full' justify="space-between">
-                            <Text>Desired Boost:</Text>
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message={`Resulting APY when taking into account the supply APY, the Boost and the Borrowing Interests`} />
+                                <Text fontWeight="extrabold" color={boostedApy > 0 ? 'success' : 'warning'}>
+                                    Boosted APY:
+                                </Text>
+                            </HStack>
+                            <Text fontWeight="extrabold" color={boostedApy > 0 ? 'success' : 'warning'} >
+                                {shortenNumber(boostedApy, 2)}%
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="The final position you'll get in exchange for your deposit, this is held as collateral on Frontier, not in your wallet" />
+                                <Text>
+                                    Boosted Position:
+                                </Text>
+                            </HStack>
                             <Text fontWeight="bold">
-                                x{leverageLevel.toFixed(2)} on {collateralMarket?.underlying?.symbol}
+                                {shortenNumber(collateralAmount,)} {collateralMarket?.underlying?.symbol}
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="Boost achieved thanks to the Accelerated Leverage Engine" />
+                                <Text>
+                                    Boost:
+                                </Text>
+                            </HStack>
+                            <Text fontWeight="bold">
+                                x{leverageLevel.toFixed(2)}
                             </Text>
                         </HStack>
                         {/* <HStack>
@@ -143,25 +172,34 @@ export const BoostInfos = ({
                             </Text>
                         </HStack> */}
                         <HStack w='full' justify="space-between">
-                            <Text>
-                                Loan-To-Value Ratio:
-                            </Text>
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="The Loan-To-Value Ratio is the ratio between the total worth of the position and the loan (DOLA debt), the higher the ratio the higher the risk" />
+                                <Text>
+                                    LTV Ratio:
+                                </Text>
+                            </HStack>
                             <Text fontWeight="bold">
                                 {shortenNumber(LTV * 100, 2, false)}%
                             </Text>
                         </HStack>
                         <HStack w='full' justify="space-between">
-                            <Text>
-                                Collateral Price:
-                            </Text>
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="The current Collateral Price according to the Oracle" />
+                                <Text>
+                                    Collateral Price:
+                                </Text>
+                            </HStack>
                             <Text fontWeight="bold">
                                 {shortenNumber(collateralPrice, 2, true)}
                             </Text>
                         </HStack>
                         <HStack w='full' justify="space-between">
-                            <Text>
-                                Liquidation Price:
-                            </Text>
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="If the collateral price is equal or under the liquidation price then the position will be liquidated" />
+                                <Text>
+                                    Liquidation Price:
+                                </Text>
+                            </HStack>
                             <Text fontWeight="bold">
                                 {shortenNumber(liquidationPrice, 2, true)}
                             </Text>
@@ -198,7 +236,7 @@ export const BoostInfos = ({
             />
         </Stack>
 
-        <HStack w='full' justify="space-between" alignItems="center">
+        {/* <HStack w='full' justify="space-between" alignItems="center">
             <Text fontWeight="bold" color={riskLevels.safer.color}>
                 {collateralMarket.underlying.symbol}'s Supply APY: {shortenNumber(collateralMarket.supplyApy, 2)}%
             </Text>
@@ -208,6 +246,6 @@ export const BoostInfos = ({
             <Text fontWeight="bold" color={riskLevels.riskier.color}>
                 {borrowedMarket.underlying.symbol}'s Borrowing APY: -{shortenNumber(borrowedMarket.borrowApy, 2)}%
             </Text>
-        </HStack>
+        </HStack> */}
     </VStack>
 }

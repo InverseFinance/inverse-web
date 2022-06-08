@@ -20,13 +20,20 @@ const ItemLabel = ({ underlying, amount, worth, apy }) => {
   return <VStack>
     <UnderlyingItem
       imgContainerProps={{ mr: '2' }}
-      label={`${shortenNumber(amount, 2)} ${underlying.symbol}${!!worth? ` (${shortenNumber(worth, 2, true)})`: `sd`}`}
+      imgSize={'40px'}
+      protocolImageSize='20px'
+      label={`${shortenNumber(amount, 2)} ${underlying.symbol}${!!worth? ` (${shortenNumber(worth, 2, true)})`: ``}`}
       image={underlying.image}
       protocolImage={underlying.protocolImage}
-      textProps={{ fontSize: '22px' }}
+      textProps={{ fontSize: '26px' }}
     />
     { !!apy && <Text>{shortenNumber(apy, 2, false)}% APY</Text> }
   </VStack>
+}
+
+const customEdgeOptions = {
+  labelBgPadding: [15, 8],
+  labelStyle: { fontSize: '18px' }
 }
 
 export const AleFlowChart = ({
@@ -82,6 +89,7 @@ export const AleFlowChart = ({
     id: 'borrowed',
     linkLabel: `Borrow ${shortenNumber(borrowedAmount, 2)}`,
     type: ConnectionLineType.Straight,
+    ...customEdgeOptions,
   }];
 
   if (collateral.symbol !== inputToken.symbol) {
@@ -89,6 +97,7 @@ export const AleFlowChart = ({
       id: 'collateral',
       linkLabel: `Zap into ${shortenNumber(zapAmount, 2)}`,
       type: ConnectionLineType.Straight,
+      ...customEdgeOptions,
     })
   }
 
@@ -105,6 +114,7 @@ export const AleFlowChart = ({
         id: 'engine',
         linkLabel: `Deposit`,
         style: primaryStyle,
+        ...customEdgeOptions,
       }],
     },
     {
@@ -121,7 +131,7 @@ export const AleFlowChart = ({
       style: primaryStyle,
       targets: engineTargets,
       x: 0,
-      y: 250,
+      y: 325,
       sourcePosition: 'right',
       targetPosition: 'top',
       connectionLineType: 'step',
@@ -131,17 +141,18 @@ export const AleFlowChart = ({
       id: 'borrowed',
       style: orangeStyle,
       x: 500,
-      y: 300,
+      y: 400,
       sourcePosition: 'top',
       targetPosition: 'left',
       targets: [{
         id: 'collateral',
         linkLabel: `Zap into ${shortenNumber(collateralAmount - zapAmount, 2)}`,
+        ...customEdgeOptions,
       }]
     },
   ]
 
-  const boxProps = { w: { base: baseWidth, lg: '600px' }, h: { base: baseheight, lg: '300px' } }
+  const boxProps = { w: { base: baseWidth, lg: '600px' }, h: { base: baseheight, lg: '350px' } }
 
   if (!baseWidth) {
     return <Box {...boxProps}>&nbsp;</Box>
