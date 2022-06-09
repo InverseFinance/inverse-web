@@ -46,7 +46,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
         block: item.block_height,
       }
     })
-    .filter(item => item.name === 'VoteCast' ?
+    .filter(item => item.name === 'VoteCast' && voteCastWhitelist ?
       voteCastWhitelist.includes(item.from.toLowerCase())
       :
       type === 'custom' || refundWhitelist.includes(item.from.toLowerCase())
