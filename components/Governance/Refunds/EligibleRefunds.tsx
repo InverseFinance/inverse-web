@@ -235,7 +235,7 @@ export const EligibleRefunds = () => {
                 FromName: namedAddress(from),
                 EventName: name,
                 TxType: type,
-                To: to,
+                To: to||'',
                 ToName: to && isAddress(to) ? namedAddress(to) : '',
                 Fees: fees,
                 // Refunded: refunded,
