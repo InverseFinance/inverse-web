@@ -1,8 +1,8 @@
 import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
 
 import { useEffect, useState } from 'react'
-import { Market, Token } from '@app/types'
-import { getBnToNumber, shortenNumber } from '@app/util/markets'
+import { Interests, Market, Token } from '@app/types'
+import { getBnToNumber, getTotalInterests, shortenNumber } from '@app/util/markets'
 import { useAnchorPrices, usePricesV2 } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 import { AleFlowChart } from './AleFlowChart'
@@ -10,6 +10,9 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { Input } from '../common/Input'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { showToast } from '@app/util/notify'
+import { parseUnits } from '@ethersproject/units'
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
+import { AnchorInterests } from '../Anchor/AnchorInterests'
 
 const powerBasis = 100;
 
@@ -96,10 +99,10 @@ export const BoostInfos = ({
 
     const inputWorth = prices[inputToken.coingeckoId || inputToken.symbol] ? parseFloat(inputAmount) * prices[inputToken.coingeckoId || inputToken.symbol].usd : 0;
     const desiredWorth = inputWorth * leverageLevel;
-    const collateralWorth = inputWorth * collateralMarket.collateralFactor;
     const borrowRequired = desiredWorth - inputWorth;
     const collateralPrice = oraclePrices && oraclePrices[collateralMarket.token] ? getBnToNumber(oraclePrices[collateralMarket.token], collateralMarket.underlying.decimals) : 0;
     const collateralAmount = collateralPrice ? desiredWorth / collateralPrice : 0;
+    const collateralWorth = collateralAmount * collateralPrice;
     const zapAmount = collateralPrice ? inputWorth / collateralPrice : 0;
     const LTV = borrowRequired / desiredWorth;
 
@@ -120,9 +123,18 @@ export const BoostInfos = ({
     const liquidationPrice = LTV * collateralPrice;
     const liquidationDistance = collateralPrice ? (collateralPrice - liquidationPrice) / collateralPrice : 0;
 
+    // const totalInterestsUsd: Interests = getTotalInterests(
+    //     [collateralMarket, borrowedMarket],
+    //     { [collateralMarket.token]: parseUnits(collateralAmount.toString(), collateralMarket.underlying.decimals) },
+    //     { [borrowedMarket.token]: parseUnits(borrowRequired.toString(), borrowedMarket.underlying.decimals) },
+    //     { [collateralMarket.token]: parseUnits('1', 18), [borrowedMarket.token]: parseUnits('1', 18) },
+    //     0,
+    // );
+
     return <VStack w='full' spacing="5">
+        {/* <AnchorInterests {...totalInterestsUsd} /> */}
         <HStack w='full' justify="space-between" alignItems="center">
-            <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1 ): minLeverage)} />
+            <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} />
             <InputGroup
                 w='fit-content'
                 alignItems="center"
@@ -140,7 +152,7 @@ export const BoostInfos = ({
                     />
                 }
             </InputGroup>
-            <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1 ) : maxLeverage)} />
+            <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1) : maxLeverage)} />
         </HStack>
         <Slider
             value={leverageLevel}
