@@ -31,6 +31,10 @@ export const useDAO = (): SWR & DAO => {
       dolaTotalSupply: data?.fantom?.dolaTotalSupply || 0,
       invTotalSupply: data?.fantom?.invTotalSupply || 0,
     },
+    optimism: {
+      dolaTotalSupply: data?.optimism?.dolaTotalSupply || 0,
+      invTotalSupply: data?.optimism?.invTotalSupply || 0,
+    },
     feds: data?.feds || defaultFedsData,
     multisigs: data?.multisigs || [],
     pols: data?.pols || [],

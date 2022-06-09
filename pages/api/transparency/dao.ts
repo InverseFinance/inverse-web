@@ -1,12 +1,12 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
-import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
+import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 
 const formatBn = (bn: BigNumber, token: Token) => {
@@ -16,7 +16,6 @@ const formatBn = (bn: BigNumber, token: Token) => {
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
   const cacheKey = `dao-cache-v1.2.0`;
 
   try {
@@ -33,13 +32,16 @@ export default async function handler(req, res) {
 
     let invFtmTotalSupply = BigNumber.from('0');
     let dolaFtmTotalSupply = BigNumber.from('0');
+    let dolaOptimismTotalSupply = BigNumber.from('0');
 
     // public rpc for fantom, less reliable
     try {
-      const ftmProvider = getProvider(NetworkIds.ftm);
-      const dolaFtmContract = new Contract(ftmConfig?.DOLA, ERC20_ABI, ftmProvider);
-      const invFtmContract = new Contract(ftmConfig?.INV, ERC20_ABI, ftmProvider);
+      const dolaFtmContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.ftm]['DOLA'], ERC20_ABI, getProvider(NetworkIds.ftm));
+      const dolaOptimismContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.optimism]['DOLA'], ERC20_ABI, getProvider(NetworkIds.optimism));
+
+      const invFtmContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.ftm]['INV'], ERC20_ABI, getProvider(NetworkIds.ftm));
       dolaFtmTotalSupply = await dolaFtmContract.totalSupply();
+      dolaOptimismTotalSupply = await dolaOptimismContract.totalSupply();
       invFtmTotalSupply = await invFtmContract.totalSupply();
     } catch (e) {
 
@@ -98,9 +100,6 @@ export default async function handler(req, res) {
       })
     ])
 
-
-
-    const ftmTokens = CHAIN_TOKENS[NetworkIds.ftm];
     const multisigsFundsToCheck = {
       [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet]).filter(key => isAddress(key)),
       [NetworkIds.ftm]: Object.keys(CHAIN_TOKENS[NetworkIds.ftm]).filter(key => isAddress(key)),
@@ -206,6 +205,10 @@ export default async function handler(req, res) {
       fantom: {
         dolaTotalSupply: getBnToNumber(dolaFtmTotalSupply),
         invTotalSupply: getBnToNumber(invFtmTotalSupply),
+      },
+      optimism: {
+        dolaTotalSupply: getBnToNumber(dolaOptimismTotalSupply),
+        invTotalSupply: 0,
       },
       multisigs: multisigsToShow.map((m, i) => ({
         ...m, owners: multisigsOwners[i], funds: multisigsFunds[i], threshold: parseInt(multisigsThresholds[i].toString()),
