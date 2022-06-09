@@ -9,7 +9,7 @@ import { chakra } from '@chakra-ui/system'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useMediaQuery } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
-import { dollarify } from '@app/util/markets'
+import { dollarify, shortenNumber } from '@app/util/markets'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
@@ -48,7 +48,7 @@ export const AnchorHeader = () => {
       <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
-            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={dollarify(prices[RTOKEN_CG_ID]?.usd || 0, 2)} />
+            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={shortenNumber(prices[RTOKEN_CG_ID]?.usd || 0, 2, true)} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
               {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>
