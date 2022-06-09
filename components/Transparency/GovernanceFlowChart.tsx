@@ -139,7 +139,7 @@ export const GovernanceFlowChart = ({
       y: 800,
       sourcePosition: 'top',
       targets: [
-        { label: `🔐 ${namedAddress(govGuard)}`, id: govGuard, linkLabel: "Gov Guardian" },
+        { label: `🔐 ${namedAddress(govGuard)}`, id: govGuard, linkLabel: "Gov Guardian", y: 600, x: 200 },
         { label: namedAddress(govToken), id: govToken, linkLabel: 'GOV Token' },
         { label: namedAddress(govStakedToken), id: govStakedToken, linkLabel: 'Staked Token' },
       ]
