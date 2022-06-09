@@ -10,6 +10,7 @@ import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-u
 import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
+import { isAddress } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import { Timestamp } from '../../common/BlockTimestamp/Timestamp';
 import { SubmitButton } from '../../common/Button';
@@ -235,7 +236,7 @@ export const EligibleRefunds = () => {
                 EventName: name,
                 TxType: type,
                 To: to,
-                ToName: namedAddress(to),
+                ToName: to && isAddress(to) ? namedAddress(to) : '',
                 Fees: fees,
                 // Refunded: refunded,
                 // RefundTxHash: refundTxHash || '',
