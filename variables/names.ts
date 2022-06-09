@@ -13,7 +13,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'DAI',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
-    '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Anchor',
+    '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Frontier',
     '0x7765996dae0cf3ecb0e74c016fcdff3f055a5ad8': 'Fed Badger',
     '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
