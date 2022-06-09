@@ -173,6 +173,8 @@ const networks: Network[] = [
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.optimism}.svg`,
+    scan: 'https://optimistic.etherscan.io',
   },
   {
     id: '42161',

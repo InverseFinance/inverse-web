@@ -154,8 +154,10 @@ export enum NetworkIds {
   mainnet = '1',
   rinkeby = '4',
   ftm = '250',
+  optimism = '10',
   // xchain
   ethftm = '1-250',
+  ethop = '1-10',
 }
 
 export type KeyString = { [key: string]: string };
@@ -507,6 +509,10 @@ export type DAO = {
   invTotalSupply: number
   dolaOperator: string
   fantom: {
+    dolaTotalSupply: number
+    invTotalSupply: number
+  },
+  optimism: {
     dolaTotalSupply: number
     invTotalSupply: number
   }
