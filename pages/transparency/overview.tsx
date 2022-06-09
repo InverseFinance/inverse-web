@@ -51,7 +51,7 @@ const defaultValues = {
 export const Overview = () => {
   const { prices } = usePricesV2(true)
   const { data: tvlData } = useTVL()
-  const { dolaTotalSupply, invTotalSupply, fantom, treasury, anchorReserves, bonds } = useDAO();
+  const { dolaTotalSupply, invTotalSupply, fantom, optimism, treasury, anchorReserves, bonds } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -165,14 +165,16 @@ export const Overview = () => {
             }
           />}
           <SuppplyInfos token={TOKENS[INV]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
+            { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply - optimism?.invTotalSupply },
             { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
+            { chainId: NetworkIds.optimism, supply: optimism?.invTotalSupply },
           ]}
           />
 
           <SuppplyInfos token={TOKENS[DOLA]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
             { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
           ]}
           />
           <ShrinkableInfoMessage

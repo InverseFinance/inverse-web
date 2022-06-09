@@ -9,6 +9,9 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     else if(chainId === NetworkIds.ftm) {
         return new JsonRpcProvider('https://rpc.ftm.tools/');
     }
+    else if(chainId === NetworkIds.optimism) {
+        return new JsonRpcProvider('https://mainnet.optimism.io');
+    }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
 
