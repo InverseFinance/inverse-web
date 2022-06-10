@@ -32,6 +32,7 @@ export const Ale = () => {
     const { markets } = useMarkets();
 
     const dolaMarket = markets?.find(m => m.underlying.symbol === 'DOLA');
+    const invMarket = markets?.find(m => m.underlying.symbol === 'INV' && m.mintable);
 
     const swapOptions = markets?.filter(m => m.mintable && !m.underlying.isInPausedSection && !m.collateralGuardianPaused)?.map(m => m.underlying.address);
 
@@ -85,9 +86,9 @@ export const Ale = () => {
 
     const handleCreate = () => {
         return createAlePosition({
-            borrowMarket: 'dola',
-            collateralMarket: 'b',
-            inputToken,
+            borrowMarket: dolaMarket!.token,
+            collateralMarket: collateralMarket.token,
+            inputToken: inputToken.address,
             inputAmount,
             collateralAmount,
             signer: library?.getSigner(),
@@ -154,6 +155,7 @@ export const Ale = () => {
                                         collateralMarket={collateralMarket}
                                         borrowedMarket={dolaMarket!}
                                         inputAmount={inputAmount}
+                                        invMarket={invMarket!}
                                         onLeverageChange={(v) => setLeverageLevel(v)}
                                     />
                                     <HStack w='full' justify="center">

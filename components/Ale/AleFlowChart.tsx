@@ -16,7 +16,17 @@ const elementsOptions = {
   yGap: 150,
 };
 
-const ItemLabel = ({ underlying, amount, worth, apy }) => {
+const ItemLabel = ({
+  underlying,
+  amount,
+  worth,
+  apy,
+}: {
+  underlying: Token,
+  amount: number,
+  worth?: number,
+  apy?: number,
+}) => {
   return <VStack>
     <UnderlyingItem
       imgContainerProps={{ mr: '2' }}

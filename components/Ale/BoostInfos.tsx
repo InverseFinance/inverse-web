@@ -11,7 +11,6 @@ import { Input } from '../common/Input'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { showToast } from '@app/util/notify'
 import { parseUnits } from '@ethersproject/units'
-import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { AnchorInterests } from '../Anchor/AnchorInterests'
 
 const powerBasis = 100;
@@ -38,7 +37,7 @@ const riskLevels = {
     'riskier': { color: 'red.500', text: 'Riskier' },
 }
 
-const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], text: string }) => {
+const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], text: string, onClick: () => void }) => {
     return <Badge userSelect="none" cursor="pointer" onClick={onClick} fontSize="14px" py="2" px="4" borderRadius="20px" bgColor={color} color="white">
         {text}
     </Badge>
@@ -48,12 +47,14 @@ export const BoostInfos = ({
     inputToken,
     collateralMarket,
     borrowedMarket,
+    invMarket,
     inputAmount,
     onLeverageChange,
 }: {
     inputToken: Token,
     collateralMarket: Market,
     borrowedMarket: Market,
+    invMarket: Market,
     inputAmount: string,
     onLeverageChange: (v: number) => void
 }) => {
@@ -62,6 +63,14 @@ export const BoostInfos = ({
     const minLeverage = 1.1;
     const [leverageLevel, setLeverageLevel] = useState(2);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
+
+    useEffect(() => {
+        setEditLeverageLevel(leverageLevel.toFixed(2));
+    }, [leverageLevel])
+
+    if (!collateralMarket?.underlying || !inputToken) {
+        return <></>
+    }
 
     const handleLeverageChange = (v: number) => {
         setLeverageLevel(v);
@@ -85,14 +94,6 @@ export const BoostInfos = ({
             return
         }
         handleLeverageChange(input);
-    }
-
-    useEffect(() => {
-        setEditLeverageLevel(leverageLevel);
-    }, [leverageLevel])
-
-    if (!collateralMarket?.underlying || !inputToken) {
-        return <></>
     }
 
     const round = (v: number) => Math.floor(v * 100) / 100;
@@ -123,16 +124,15 @@ export const BoostInfos = ({
     const liquidationPrice = LTV * collateralPrice;
     const liquidationDistance = collateralPrice ? (collateralPrice - liquidationPrice) / collateralPrice : 0;
 
-    // const totalInterestsUsd: Interests = getTotalInterests(
-    //     [collateralMarket, borrowedMarket],
-    //     { [collateralMarket.token]: parseUnits(collateralAmount.toString(), collateralMarket.underlying.decimals) },
-    //     { [borrowedMarket.token]: parseUnits(borrowRequired.toString(), borrowedMarket.underlying.decimals) },
-    //     { [collateralMarket.token]: parseUnits('1', 18), [borrowedMarket.token]: parseUnits('1', 18) },
-    //     0,
-    // );
+    const totalInterestsUsd: Interests = getTotalInterests(
+        [collateralMarket, borrowedMarket],
+        { [collateralMarket.token]: parseUnits(collateralAmount.toString(), collateralMarket.underlying.decimals) },
+        { [borrowedMarket.token]: parseUnits(borrowRequired.toString(), borrowedMarket.underlying.decimals) },
+        { [collateralMarket.token]: parseUnits('1', 18), [borrowedMarket.token]: parseUnits('1', 18) },
+        invMarket.oraclePrice,
+    );
 
     return <VStack w='full' spacing="5">
-        {/* <AnchorInterests {...totalInterestsUsd} /> */}
         <HStack w='full' justify="space-between" alignItems="center">
             <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} />
             <InputGroup
@@ -146,7 +146,7 @@ export const BoostInfos = ({
                 />
                 <Input onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="150px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                 {
-                    editLeverageLevel !== leverageLevel &&
+                    parseFloat(editLeverageLevel) !== leverageLevel &&
                     <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validateEditLeverage()}
                         children={<CheckCircleIcon transition="ease-in-out" transitionDuration="300ms" transitionProperty="color" _hover={{ color: 'success' }} />}
                     />
@@ -175,6 +175,7 @@ export const BoostInfos = ({
                 Max: x{shortenNumber(maxLeverage, 2)}
             </Text>
         </HStack>
+        <AnchorInterests interests={totalInterestsUsd} />
         <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
             <InfoMessage
                 alertProps={{ w: '500px', p: '8' }}

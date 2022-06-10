@@ -29,7 +29,7 @@ const InterestText = ({ value, ...props }: { value: number } & Partial<TextProps
     )
 }
 
-export const AnchorInterests = (interests: Interests) => {
+export const AnchorInterests = ({ interests }: { interests: Interests }) => {
     return (
         <Flex alignItems="center">
             <InterestText fontSize="14" value={interests.total} mr="2" color={interests?.total > 0 ? 'secondary' : 'warning'} />
