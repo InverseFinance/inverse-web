@@ -175,7 +175,14 @@ export const BoostInfos = ({
                 Max: x{shortenNumber(maxLeverage, 2)}
             </Text>
         </HStack>
-        <AnchorInterests interests={totalInterestsUsd} />
+        <HStack w='full'>
+            <Text fontWeight="bold">Estimated Earnings:</Text>
+            <AnchorInterests
+                interests={totalInterestsUsd}
+                interestTextProps={{ fontSize: '20px', fontWeight: 'extrabold' }}
+                iconProps={{ boxSize: 5 }}
+            />
+        </HStack>
         <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
             <InfoMessage
                 alertProps={{ w: '500px', p: '8' }}
