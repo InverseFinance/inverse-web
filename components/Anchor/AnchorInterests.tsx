@@ -1,5 +1,5 @@
 import { Interests } from '@app/types'
-import { Text, Box, Flex, TextProps, Divider } from '@chakra-ui/react';
+import { Text, Box, Flex, TextProps, Divider, IconProps } from '@chakra-ui/react';
 import { InfoTooltip } from '@app/components/common/Tooltip';
 import { dollarify } from '@app/util/markets';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
@@ -13,7 +13,7 @@ const InterestDetails = (interests: Interests) => {
     return (
         <Box p="1" textAlign="left" minW="300">
             <Flex justify="space-between">Supply interest: <InterestText value={interests.supplyUsdInterests} /></Flex>
-            { HAS_REWARD_TOKEN && <Flex justify="space-between">{RTOKEN_SYMBOL} rewards: <InterestText value={interests.invUsdInterests} /></Flex> }
+            {HAS_REWARD_TOKEN && <Flex justify="space-between">{RTOKEN_SYMBOL} rewards: <InterestText value={interests.invUsdInterests} /></Flex>}
             <Flex justify="space-between">Borrowing interest: <InterestText value={interests.borrowInterests} /></Flex>
             <Divider mt="1" mb="1" borderColor="#cccccc22" />
             <Flex justify="space-between">Total: <InterestText value={fixed2Total} /></Flex>
@@ -23,18 +23,26 @@ const InterestDetails = (interests: Interests) => {
 
 const InterestText = ({ value, ...props }: { value: number } & Partial<TextProps>) => {
     return (
-        <Text display="inline-block" fontWeight="bold" color={value === 0 ? undefined : value > 0 ? 'success' : 'orange.400'} {...props}>
+        <Text display="inline-block" fontWeight="bold" color={value === 0 ? undefined : value > 0 ? 'secondary' : 'orange.400'} {...props}>
             {dollarify(value, 2, true)} a month
         </Text>
     )
 }
 
-export const AnchorInterests = ({ interests }: { interests: Interests }) => {
+export const AnchorInterests = ({
+    interests,
+    interestTextProps,
+    iconProps,
+}: { 
+    interests: Interests,
+    interestTextProps?: TextProps,
+    iconProps?: IconProps,
+ }) => {
     return (
         <Flex alignItems="center">
-            <InterestText fontSize="14" value={interests.total} mr="2" color={interests?.total > 0 ? 'secondary' : 'warning'} />
+            <InterestText fontSize="14" value={interests.total} mr="2" color={interests?.total > 0 ? 'secondary' : 'warning'} {...interestTextProps} />
             <InfoTooltip
-                iconProps={{ boxSize: 3, mt: '2px' }}
+                iconProps={{ boxSize: 3, mt: '2px', ...iconProps }}
                 tooltipProps={{
                     className: 'blurred-container info-bg',
                     borderColor: 'info'
