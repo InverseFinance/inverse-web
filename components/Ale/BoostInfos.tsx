@@ -183,7 +183,7 @@ export const BoostInfos = ({
                 iconProps={{ boxSize: 5 }}
             />
         </HStack>
-        <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
+        <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="flex-start">
             <InfoMessage
                 alertProps={{ w: '500px', p: '8' }}
                 showIcon={false}
@@ -300,7 +300,41 @@ export const BoostInfos = ({
                     </VStack>
                 }
             />
-            <AleFlowChart
+
+            <InfoMessage
+                alertProps={{ w: '500px', p: '8' }}
+                showIcon={false}
+                description={
+                    <VStack spacing="4" w='full' alignItems="flex-start" fontSize="18px">
+                        <Text fontWeight="bold">
+                            User Action:
+                        </Text>
+                        <Text>
+                            - Deposit <b>{shortenNumber(parseFloat(inputAmount), 2)} {inputToken.symbol}</b>
+                        </Text>
+                        <Text fontWeight="bold">
+                            Automated Actions:
+                        </Text>
+                        <Text>
+                            - Optional Transformation to Flashloan token
+                        </Text>
+                        <Text>
+                            - Flashloan to have <b>{shortenNumber(collateralAmount, 2)} {collateralMarket.underlying.symbol}</b> in Total
+                        </Text>
+                        <Text>
+                            - Deposit <b>{shortenNumber(collateralAmount, 2)} {collateralMarket.underlying.symbol}</b> into Frontier
+                        </Text>
+                        <Text>
+                            - Borrow <b>{shortenNumber(borrowRequired, 2)} {borrowedMarket.underlying.symbol}</b> from Frontier
+                        </Text>
+                        <Text>
+                            - Repay the Flashloan thanks to borrowed {borrowedMarket.underlying.symbol}
+                        </Text>
+                    </VStack>
+                }
+            />
+
+            {/* <AleFlowChart
                 inputToken={inputToken}
                 collateralMarket={collateralMarket}
                 borrowMarket={borrowedMarket}
@@ -318,7 +352,7 @@ export const BoostInfos = ({
                 leverageLevel={leverageLevel}
                 collateralPrice={collateralPrice}
                 liquidationPrice={liquidationPrice}
-            />
+            /> */}
         </Stack>
 
         {/* <HStack w='full' justify="space-between" alignItems="center">
