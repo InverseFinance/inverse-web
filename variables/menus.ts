@@ -152,7 +152,7 @@ export const MENUS = {
         },
         {
           label: 'Analytics',
-          href: '/transparency/analytics',
+          href: '/analytics',
         },
         {
           label: 'Forum',
