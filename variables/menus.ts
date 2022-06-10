@@ -188,6 +188,10 @@ export const MENUS = {
           label: 'Blog',
           href: '/blog',
         },
+        {
+          label: 'Newsletter',
+          href: '/newsletter',
+        },
       ],
     },
     {
