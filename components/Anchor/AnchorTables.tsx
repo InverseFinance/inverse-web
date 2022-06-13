@@ -321,7 +321,7 @@ export const AnchorBorrowed = () => {
     const balance = getParsedBalance(balances, token, underlying.decimals);
     const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
     const usdWorth = balance * (prices && prices[underlying.coingeckoId!]?.usd || 0);
-    return { ...market, balance, monthlyBorrowFee, usdWorth }
+    return { ...market, balance, monthlyBorrowFee, usdWorth, underlying: { ...underlying, symbol: underlying.symbol.replace('-v1', '') } }
   })
 
   const columns = [
@@ -551,7 +551,7 @@ export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
   const marketsWithUsdLiquidity = markets?.map((market) => {
     const { underlying, liquidity } = market;
     const liquidityUsd = liquidity && prices ? liquidity * (prices[underlying?.coingeckoId]?.usd || 1) : 0;
-    return { ...market, liquidityUsd };
+    return { ...market, liquidityUsd, underlying: { ...underlying, symbol: underlying.symbol.replace('-v1', '') } };
   });
 
   const columns = [
