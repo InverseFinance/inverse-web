@@ -39,9 +39,9 @@ export const LiquidationForm = ({
     const borrowedUnderlyingsAd = position.borrowed.map(b => b.underlying.address);
 
     const seizeList = {};
-    position.supplied.forEach(b => seizeList[b.underlying.address || 'CHAIN_COIN'] = b.underlying);
+    position.supplied.forEach(b => seizeList[b.ctoken || 'CHAIN_COIN'] = b.underlying);
     const collateralUnderlyings = position.supplied.map(b => b.underlying);
-    const collateralUnderlyingsAd = position.supplied.map(b => b.underlying.address);
+    const collateralUnderlyingsAd = position.supplied.map(b => b.ctoken);
 
     const [repayToken, setRepayToken] = useState<Token>(borrowedUnderlyings[0]);
     const [seizeAmount, setSeizeAmount] = useState('0');
@@ -104,7 +104,7 @@ export const LiquidationForm = ({
     
     const collateralBalances = position.supplied.reduce((prev, curr) => ({
         ...prev,
-        [curr.underlying.address || 'CHAIN_COIN']: parseUnits(roundFloorString(curr.balance, curr.underlying.decimals), curr.underlying.decimals)
+        [curr.ctoken || 'CHAIN_COIN']: parseUnits(roundFloorString(curr.balance, curr.underlying.decimals), curr.underlying.decimals)
     }), {})
 
     const borrowAssetInputProps = { tokens: borrowedList, balances, showBalance: false }
@@ -123,6 +123,7 @@ export const LiquidationForm = ({
                     onAmountChange={(newAmount) => setRepayAmount(newAmount)}
                     maxValue={maxRepayAmount}
                     inputProps={inputProps}
+                    orderByBalance={true}
                     {...borrowAssetInputProps}
                 />
                 <Text fontSize="12px">
@@ -140,6 +141,7 @@ export const LiquidationForm = ({
                     onAmountChange={(newAmount) => setSeizeAmount(newAmount)}
                     inputProps={{ fontSize: '14px', disabled: true }}
                     showMax={false}
+                    orderByBalance={true}
                     {...collateralAssetInputProps}
                 />
                 <Text fontSize="12px" fontWeight="bold">
