@@ -1,6 +1,5 @@
 import { Checkbox, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 
-import { SubmitButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
@@ -13,14 +12,15 @@ import { Web3Provider } from '@ethersproject/providers'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { useBalances } from '@app/hooks/useBalances'
+import { useSuppliedBalances, useSupplyBalances } from '@app/hooks/useBalances'
 import { Market, Token } from '@app/types'
 
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 
-import { PlusSquareIcon } from '@chakra-ui/icons'
-
 import { getToken } from '@app/variables/tokens'
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
+import { parseUnits } from '@ethersproject/units'
+import { roundFloorString } from '@app/util/misc'
 
 const { TOKENS, DOLA } = getNetworkConfigConstants();
 
@@ -31,11 +31,19 @@ export const DebtRepayerPage = () => {
     const { markets } = useMarkets();
     const weth = getToken(TOKENS, 'WETH')!;
 
-    const v1markets = markets?.filter(m => m.underlying.symbol.toLowerCase().endsWith('-v1'));
+    const v1markets = markets
+        ?.filter(m => m.underlying.symbol.toLowerCase().endsWith('-v1'))
 
-    const swapOptions = v1markets?.map(m => (m.underlying.address || weth.address));
+    const swapOptions = v1markets?.map(m => (m.token));
+    const tokens = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.token]: curr.underlying }), {});
 
-    const { balances } = useBalances(swapOptions);
+    const { balances } = useSupplyBalances();
+    const supplied = useSuppliedBalances();
+    const { exchangeRates } = useExchangeRatesV2();
+
+    const balancesAsUnderlying = supplied?.reduce((prev, curr) => {
+        return { ...prev, [curr.token]: parseUnits(roundFloorString(curr.balance, curr.underlying.decimals), curr.underlying.decimals) }
+    }, {})
 
     const [outputAmount, setOutputAmount] = useState('')
     const [collateralAmount, setCollateralAmount] = useState('')
@@ -43,15 +51,19 @@ export const DebtRepayerPage = () => {
     const [outputToken, setOutputToken] = useState<Token>(dolaToken)
     const [collateralMarket, setCollateralMarket] = useState<Market>({})
 
-    const commonAssetInputProps = { tokens: TOKENS, balances, showBalance: true }
+    const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, showBalance: true }
 
     useEffect(() => {
-        if(!collateralMarket?.underlying) { return };
+        if (!v1markets.length || collateralMarket.underlying) { return };
+        setCollateralMarket(v1markets[0]);
+    }, [v1markets, collateralMarket])
+
+    useEffect(() => {
+        if (!collateralMarket?.underlying) { return };
         setOutputToken(collateralMarket.underlying.address ? collateralMarket.underlying : weth);
     }, [collateralMarket])
 
     const changeCollateral = (v: Market) => {
-        setCollateralMarket(v);
         changeCollateralAmount(collateralAmount);
     }
 
@@ -69,7 +81,7 @@ export const DebtRepayerPage = () => {
             <ErrorBoundary>
                 <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1200px">
                     {
-                        markets?.length > 0 ?
+                        v1markets?.length > 0 && !!collateralMarket?.underlying ?
                             <Container
                                 contentProps={{ p: '8' }}
                             >
@@ -92,12 +104,6 @@ export const DebtRepayerPage = () => {
                                         orderByBalance={true}
                                         {...commonAssetInputProps}
                                     /> */}
-
-                                    <HStack w='full' justify="center">
-                                        <SubmitButton fontSize="20px" themeColor="green.500" maxW="fit-content" h="60px" onClick={handleCreate}>
-                                            <PlusSquareIcon mr="2" /> Create a new Boosted Position
-                                        </SubmitButton>
-                                    </HStack>
 
                                 </VStack>
                             </Container>
