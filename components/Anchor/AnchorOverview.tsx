@@ -96,7 +96,7 @@ export const AnchorOverview = () => {
             <Text mr="2">Banking</Text>
             {
               totalInterestsUsd?.total !== 0 && totalInterestsUsd?.total !== undefined ?
-                <AnchorInterests {...totalInterestsUsd} />
+                <AnchorInterests interests={totalInterestsUsd} />
                 : null
             }
           </Flex>

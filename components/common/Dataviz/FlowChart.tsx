@@ -10,6 +10,7 @@ import { Box, VStack, Flex, BoxProps } from '@chakra-ui/react';
 import { shortenAddress } from '@app/util';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { useEffect, useState } from 'react';
+import { isAddress } from 'ethers/lib/utils';
 
 const defaultNodeSyle = {
   background: '#bbb7e0cc',
@@ -26,7 +27,9 @@ const ElementLabel = ({ label, address, chainId }: { label: React.ReactNode, add
   return (
     <VStack>
       <Flex fontWeight="bold" fontSize="18px" alignItems="center">{label}</Flex>
-      <ScannerLink chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
+      {
+        isAddress(address) && !!address && <ScannerLink chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
+      }
     </VStack>
   )
 }
@@ -82,16 +85,16 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, 
       if (!elements.find((el) => el.id === bridgeId)) {
         elements.push({
           arrowHeadType: ArrowHeadType.ArrowClosed,
-          // type: 'step',
+          type: target.type,
           id: bridgeId,
           source: srcId,
           target: targetId,
           animated: true,
           label: target.linkLabel,
           className: 'info-bg',
-          labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)' },
+          labelStyle: { color: 'white', fontSize: '12px', textAlign: 'center', transform: 'translateX(-2px)', ...target.labelStyle },
           // labelShowBg: false,
-          labelBgPadding: [18, 4],
+          labelBgPadding: target.labelBgPadding || [18, 4],
           labelBgBorderRadius: 4,
           arrowHeadColor: '#F00',
           labelBgStyle: { fill: '#FFCC00', color: '#fff' },
@@ -109,11 +112,13 @@ export const FlowChart = ({
   options,
   boxProps,
   chainId = NetworkIds.mainnet,
+  noInteraction = false,
 }: {
   flowData: FlowChartData[],
   options?: FlowChartOptions,
   boxProps?: BoxProps
   chainId?: NetworkIds,
+  noInteraction?: boolean,
 }) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams | undefined>(undefined)
 
@@ -139,14 +144,19 @@ export const FlowChart = ({
 
   const elements = toElements(flowData, options?.elementsOptions, chainId);
 
+  const { autofit } = options || {};
+
   return (
-    <Box {...boxProps}>
+    <Box position="relative" {...boxProps}>
+      {
+        noInteraction && <Box zIndex="5" position="absolute" left="0" right="0" top="0" bottom="0" background="transparent">&nbsp;</Box>
+      }
       {
         !!elements?.length
         && <ReactFlow
           elements={elements}
-          defaultZoom={options?.defaultZoom}
-          onLoad={options?.autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
+          onLoad={autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
+          {...options}
         >
           {options?.showControls && <Controls />}
           {options?.showBackground && <Background />}

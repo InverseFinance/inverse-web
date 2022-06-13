@@ -35,6 +35,8 @@ export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPad
                     borderRadius={8}
                     boxShadow="rgba(0, 0, 0, 0.75) 0px 5px 15px"
                     _focus={{ outline: 'none' }}
+                    maxH="300px"
+                    overflow="auto"
                 >
                     {children}
                 </PopoverBody>
