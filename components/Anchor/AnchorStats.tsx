@@ -275,16 +275,18 @@ const BorrowLimitRemaining = ({ asset, amount }: AnchorStatBlockProps) => {
     prices && amount
       ? amount * parseFloat(formatUnits(prices[asset.token], BigNumber.from(36).sub(asset.underlying.decimals)))
       : 0
+   
   const borrow = usdBorrow
-  const newBorrow = borrow - (change > 0 ? change : 0)
+  const newBorrow = borrow - change
   const borrowable = usdBorrow + usdBorrowable
   const newBorrowable = borrowable + (change < 0 ? change : 0)
 
-  const newBorrowLimit = (newBorrowable !== 0
-    ? (newBorrow / newBorrowable) * 100
+  const newBorrowLimit = (borrowable !== 0
+    ? (newBorrow / borrowable) * 100
     : 0
   )
   const newBorrowLimitLabel = getBorrowLimitLabel(newBorrowLimit, (amount || 0) > 0)
+
   const cleanPerc = Number(newBorrowLimitLabel.replace(/'+'/, ''))
   const before = (borrowable !== 0 ? (borrow / borrowable) * 100 : 0).toFixed(2)
 
