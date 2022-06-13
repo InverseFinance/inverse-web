@@ -48,7 +48,7 @@ export const AnchorHeader = () => {
       <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
-            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={shortenNumber(prices[RTOKEN_CG_ID]?.usd || 0, 2, true)} />
+            <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={`$${(prices[RTOKEN_CG_ID]?.usd || 0).toFixed(2)}`} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
               {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>
