@@ -1,9 +1,8 @@
 import { Stack, Text, Flex, Image } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { TokenList, Token, BigNumberList } from '@app/types';
-import { formatUnits } from 'ethers/lib/utils';
 import { AssetsDropdown } from './AssetsDropdown';
-import { getBnToNumber } from '@app/util/markets';
+import { getBnToNumber, shortenNumber } from '@app/util/markets';
 
 type FromAssetDropDownProps = {
     tokens: TokenList,
@@ -28,11 +27,11 @@ export const FromAssetDropdown = ({
     handleChange,
     orderByBalance = false,
 }: FromAssetDropDownProps) => {
-
     const list = options.map(ad => {
-        const t = tokens[ad||'CHAIN_COIN'];
-        const bal = balances && t && balances[t.address||'CHAIN_COIN'];
-        return { ...t, balance: !!bal ? getBnToNumber(balances[t.address||'CHAIN_COIN'], t.decimals) : 0 }
+        const optKey = ad||'CHAIN_COIN';
+        const t = { ...tokens[optKey], optKey };
+        const bal = balances && t && (balances[t.address||'CHAIN_COIN'] || balances[optKey]);
+        return { ...t, balance: !!bal ? getBnToNumber(bal, t.decimals) : 0 }
     }).filter(t => !!t.symbol)
 
     if(orderByBalance) {
@@ -59,17 +58,15 @@ export const FromAssetDropdown = ({
                 </>
             }
         >
-            {list.map((token: Token) => {
-                const adKey = token.address || 'CHAIN_COIN'
-                const { symbol } = token
+            {list.map((token: Token & { optKey: string, balance: number }) => {
                 return (
                     <Flex
-                        key={symbol}
+                        key={token.optKey}
                         p={2}
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'primary.850' }}
-                        onClick={() => handleChange(adKey, 'CHAIN_COIN')}
+                        onClick={() => handleChange(token.optKey, 'CHAIN_COIN')}
                         cursor="pointer"
                     >
                         <Stack direction="row" align="center">
@@ -84,7 +81,7 @@ export const FromAssetDropdown = ({
                             </Flex>
                         </Stack>
                         <Text fontWeight="semibold" color="primary.100">
-                            {balances && balances[adKey] ? parseFloat(formatUnits(balances[adKey], token.decimals)).toFixed(2) : '0.00'}
+                            {shortenNumber((token.balance||0), 2, false, true)}
                         </Text>
                     </Flex>
                 )
