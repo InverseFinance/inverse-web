@@ -321,7 +321,7 @@ export const AnchorBorrowed = () => {
     const balance = getParsedBalance(balances, token, underlying.decimals);
     const monthlyBorrowFee = getMonthlyRate(balance, borrowApy);
     const usdWorth = balance * (prices && prices[underlying.coingeckoId!]?.usd || 0);
-    return { ...market, balance, monthlyBorrowFee, usdWorth }
+    return { ...market, balance, monthlyBorrowFee, usdWorth, underlying: { ...underlying, symbol: underlying.symbol.replace('-v1', '') } }
   })
 
   const columns = [
