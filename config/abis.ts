@@ -32,6 +32,7 @@ export const ORACLE_ABI = [
 
 export const CTOKEN_ABI = [
   "function balanceOf(address) external view returns (uint256)",
+  "function allowance(address, address) external view returns (uint256)",
   "function borrow(uint256) returns (uint256)",
   "function borrowBalanceStored(address) external view returns (uint256)",
   "function borrowIndex() public view returns (uint256)",

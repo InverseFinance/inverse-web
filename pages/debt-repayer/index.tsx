@@ -24,6 +24,10 @@ import { roundFloorString } from '@app/util/misc'
 import { useDebtRepayer, useDebtRepayerOutput, useMarketDebtRepayer } from '@app/hooks/useDebtRepayer'
 import { InfoMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
+import { SubmitButton } from '@app/components/common/Button'
+import { useAllowances } from '@app/hooks/useApprovals'
+import { hasAllowance } from '@app/util/web3'
+import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -55,8 +59,11 @@ export const DebtRepayerPage = () => {
     const [outputToken, setOutputToken] = useState<Token>({})
     const [collateralMarket, setCollateralMarket] = useState<Market>({})
 
+    const { approvals } = useAllowances([collateralMarket?.token], DEBT_REPAYER);
+
     const { discount, remainingDebt } = useMarketDebtRepayer(collateralMarket);
     const { output } = useDebtRepayerOutput(collateralMarket, antokenAmount, weth);
+    const minOutput = output * 0.99;
 
     const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: false }
 
@@ -142,8 +149,32 @@ export const DebtRepayerPage = () => {
                                                     - Receive Amount:
                                                 </Text>
                                                 <Text>
-                                                    {shortenNumber(output, 2)} {outputToken.symbol}
+                                                    ~{shortenNumber(output, 4)} {outputToken.symbol}
                                                 </Text>
+                                            </HStack>
+                                            <HStack w='full' justify="space-between">
+                                                <Text>
+                                                    - Min Receive Amount:
+                                                </Text>
+                                                <Text>
+                                                    ~{shortenNumber(minOutput, 4)} {outputToken.symbol}
+                                                </Text>
+                                            </HStack>
+                                            <HStack>
+                                                {
+                                                    !hasAllowance(approvals, collateralMarket?.token) ?
+                                                        <ApproveButton
+                                                            tooltipMsg=""
+                                                            isDisabled={false}
+                                                            address={collateralMarket?.token}
+                                                            toAddress={DEBT_REPAYER}
+                                                            signer={library?.getSigner()}
+                                                        />
+                                                        :
+                                                        <SubmitButton>
+                                                            sell
+                                                        </SubmitButton>
+                                                }
                                             </HStack>
                                         </VStack>}
                                     />
