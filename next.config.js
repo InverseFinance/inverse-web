@@ -75,6 +75,10 @@ const common = {
     domains: ['images.ctfassets.net'],
   },
   redirects,
+  i18n: {
+    locales: ["en"],
+    defaultLocale: "en",
+  },
 }
 
 module.exports = (phase) => {

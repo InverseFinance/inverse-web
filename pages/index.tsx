@@ -108,6 +108,7 @@ export const Landing = () => {
               fontWeight="bold"
               lineHeight="shorter"
               textAlign="center"
+              as="h1"
             >
               <Text>Master the Game</Text>
               <Stack direction="row">
@@ -139,7 +140,7 @@ export const Landing = () => {
               <LinkOutlineButton data-testid={TEST_IDS.landing.learnMore} target="_self" href="https://docs.inverse.finance/">Learn More</LinkOutlineButton>
             </Flex>
           </Flex>
-          <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
+          <Text as="h2" pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
             Inverse Finance is proudly partnered with leading cryptocurrency & DeFi protocols
           </Text>
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
@@ -152,7 +153,7 @@ export const Landing = () => {
         </Stack>
       </Flex>
       <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 24 }} p={8}>
-        <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
+        <Text as="h3" pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
           Start Earning With Inverse Finance Now:
         </Text>
         <Stack
@@ -177,7 +178,7 @@ export const Landing = () => {
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
-              <Text w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
+              <Text as="h5" w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
                 {description}
               </Text>
               <Spacer />
@@ -199,7 +200,7 @@ export const Landing = () => {
       >
         <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} pt="0" textAlign={{ base: 'center', lg: 'start' }}>
           <Stack w="3xl" spacing={6} align={{ base: 'center', lg: 'flex-start' }}>
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text as="h4" fontSize="2xl" fontWeight="bold">
               New Bonding Opportunities with Olympus Pro!
             </Text>
             <Box fontSize="lg" color="mainTextColor">
@@ -214,7 +215,7 @@ export const Landing = () => {
                 Learn more
               </Link>.
             </Box>
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text as="h4" fontSize="2xl" fontWeight="bold">
               Join the Inverse Finance DAO - Governance By The People
             </Text>
             <Text fontSize="lg">
