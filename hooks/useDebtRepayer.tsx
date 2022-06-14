@@ -1,7 +1,9 @@
-import { Market, SWR } from '@app/types'
+import { Market, SWR, Token } from '@app/types'
 import useEtherSWR from './useEtherSWR'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
+import { parseUnits } from '@ethersproject/units';
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates';
 
 const { DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -20,6 +22,40 @@ export const useDebtRepayer = (markets: Market[]): SWR & {
         discounts: discounts ? discounts.map(b => getBnToNumber(b)) : [],
         remainingDebts: remainingDebts ? remainingDebts.map((b, i) => getBnToNumber(b, markets[i].underlying.decimals)) : [],
         isLoading: !discounts && !remainingDebts && !error,
+        isError: !!error,
+    }
+}
+
+export const useMarketDebtRepayer = (market: Market): SWR & {
+    remainingDebt: number,
+    discount: number,
+} => {
+    const { data: discount, error } = useEtherSWR([
+        DEBT_REPAYER, 'currentDiscount', market.token
+    ])
+    const { data: remainingDebt } = useEtherSWR([
+        DEBT_REPAYER, 'remainingDebt', market.token
+    ])
+
+    return {
+        discount: discount ? getBnToNumber(discount) : 1,
+        remainingDebt: remainingDebt ? getBnToNumber(remainingDebt, market.underlying.decimals) : 0,
+        isLoading: !discount && !remainingDebt && !error,
+        isError: !!error,
+    }
+}
+
+export const useDebtRepayerOutput = (market: Market, amountIn: string, weth: Token): SWR & {
+    output: number
+} => {
+    
+    const { data, error } = useEtherSWR([
+        DEBT_REPAYER, 'amountOut', market?.token, market?.underlying?.address||weth.address, amountIn||'0'
+    ]);
+
+    return {
+        output: data ? getBnToNumber(data, market.underlying.decimals) : 0,
+        isLoading: !data && !error,
         isError: !!error,
     }
 }
