@@ -1,8 +1,7 @@
-import { Stack, Text } from '@chakra-ui/react'
+import { Image, Stack, Text } from '@chakra-ui/react'
 import { MENUS } from '@app/variables/menus'
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
-import Image from 'next/image';
 
 const SOCIALS = MENUS.socials;
 
@@ -20,8 +19,8 @@ export const Footer = () => (
       </Text>
       <Stack direction="row" spacing={5} align="center">
         {SOCIALS.map(({ href, image }, i) => (
-          <Link key={i} href={href}>
-            <Image width="24px" height="20px" src={image} />
+          <Link key={i} href={href} as="a">
+            <Image width="24px" height="20px" src={image} alt="Social" />
           </Link>
         ))}
       </Stack>
@@ -38,7 +37,7 @@ export const Footer = () => (
         <Stack key={groupLabel} w={24} mb={4}>
           <Text fontSize="14px" fontWeight="bold">{groupLabel}</Text>
           {items.map(({ label, href }, i) => (
-            <Link key={i} href={href} fontSize="13px">
+            <Link key={i} href={href} fontSize="13px" as="a">
               {label}
             </Link>
           ))}

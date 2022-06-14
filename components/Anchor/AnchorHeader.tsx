@@ -93,7 +93,7 @@ export const AnchorHeader = () => {
       </Stack>
       <Stack spacing={4} p={4}>
         <Stack direction="row" align="center">
-          <Text color="mainTextColor" fontSize="2xl" fontWeight="semibold">
+          <Text as="h2" color="mainTextColor" fontSize="2xl" fontWeight="semibold">
             Stake INV on Frontier and Earn
             <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
               {apy}% APY

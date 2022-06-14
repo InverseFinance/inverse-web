@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Box, Flex, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -10,7 +10,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
-import Image from 'next/image'
+import theme from '@app/variables/theme'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -109,11 +109,9 @@ export const Landing = () => {
               lineHeight="shorter"
               textAlign="center"
             >
-              <Text>Master the Game</Text>
-              <Stack direction="row">
-                <Text>Of</Text>
-                <Text pl="2" color="secondaryPlus">Positive Sum DeFi</Text>
-              </Stack>
+              <Text as="h1" maxW="710px">
+                Master the Game Of <b style={{ color: theme.colors.secondaryPlus }}>Positive Sum DeFi</b>
+              </Text>
             </Flex>
           </Flex>
           <Flex
@@ -139,20 +137,20 @@ export const Landing = () => {
               <LinkOutlineButton data-testid={TEST_IDS.landing.learnMore} target="_self" href="https://docs.inverse.finance/">Learn More</LinkOutlineButton>
             </Flex>
           </Flex>
-          <Text pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
+          <Text as="h2" pt={16} fontSize={{ base: 'md', md: 'lg' }} textAlign="center" fontWeight="medium">
             Inverse Finance is proudly partnered with leading cryptocurrency & DeFi protocols
           </Text>
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
               <Flex key={project} w={16} h={16} m={6}>
-                <Image width={'64px'} height={'64px'} src={project} />
+                <Image width={'64px'} height={'64px'} src={project} alt={project.replace('/assets/projects/', '').replace(/\.[a-z]+$/, '')} />
               </Flex>
             ))}
           </Stack>
         </Stack>
       </Flex>
       <Stack w={{ base: 'full', xl: 'container.xl' }} mt={{ base: 8, lg: 24 }} p={8}>
-        <Text pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
+        <Text as="h3" pb={8} fontSize="2xl" fontWeight="bold" textAlign={{ base: 'center', lg: 'start' }}>
           Start Earning With Inverse Finance Now:
         </Text>
         <Stack
@@ -177,7 +175,7 @@ export const Landing = () => {
               <Text fontSize="2xl" fontWeight="bold">
                 {title}
               </Text>
-              <Text w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
+              <Text as="h5" w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
                 {description}
               </Text>
               <Spacer />
@@ -199,7 +197,7 @@ export const Landing = () => {
       >
         <Flex w={{ base: 'full', xl: 'container.xl' }} p={8} pt="0" textAlign={{ base: 'center', lg: 'start' }}>
           <Stack w="3xl" spacing={6} align={{ base: 'center', lg: 'flex-start' }}>
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text as="h4" fontSize="2xl" fontWeight="bold">
               New Bonding Opportunities with Olympus Pro!
             </Text>
             <Box fontSize="lg" color="mainTextColor">
@@ -214,7 +212,7 @@ export const Landing = () => {
                 Learn more
               </Link>.
             </Box>
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text as="h4" fontSize="2xl" fontWeight="bold">
               Join the Inverse Finance DAO - Governance By The People
             </Text>
             <Text fontSize="lg">

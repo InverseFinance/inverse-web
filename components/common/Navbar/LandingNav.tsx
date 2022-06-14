@@ -48,9 +48,9 @@ export const LandingNav = () => {
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
-            <Image w={4} h={4} src="/assets/cancel.svg" />
+            <Image w={4} h={4} src="/assets/cancel.svg" alt="cancel" />
           ) : (
-            <Image w={6} h={6} src="/assets/hamburger.svg" />
+            <Image w={6} h={6} src="/assets/hamburger.svg" alt="menu" />
           )}
         </Flex>
       </Flex>
