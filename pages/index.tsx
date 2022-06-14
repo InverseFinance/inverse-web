@@ -11,6 +11,7 @@ import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
 import Image from 'next/image'
+import theme from '@app/variables/theme'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -108,13 +109,10 @@ export const Landing = () => {
               fontWeight="bold"
               lineHeight="shorter"
               textAlign="center"
-              as="h1"
             >
-              <Text>Master the Game</Text>
-              <Stack direction="row">
-                <Text>Of</Text>
-                <Text pl="2" color="secondaryPlus">Positive Sum DeFi</Text>
-              </Stack>
+              <Text as="h1" maxW="710px">
+                Master the Game Of <b style={{ color: theme.colors.secondaryPlus }}>Positive Sum DeFi</b>
+              </Text>
             </Flex>
           </Flex>
           <Flex
