@@ -25,9 +25,7 @@ import { useDebtRepayer, useDebtRepayerOutput, useMarketDebtRepayer } from '@app
 import { InfoMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 
-const { TOKENS, DOLA, DEBT_REPAYER } = getNetworkConfigConstants();
-
-const dolaToken = TOKENS[DOLA];
+const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
 type anToken = Token & { ctoken: string };
 
@@ -54,13 +52,13 @@ export const DebtRepayerPage = () => {
     const [antokenAmount, setAntokenAmount] = useState('');
     const [collateralAmount, setCollateralAmount] = useState('');
 
-    const [outputToken, setOutputToken] = useState<Token>(dolaToken)
+    const [outputToken, setOutputToken] = useState<Token>({})
     const [collateralMarket, setCollateralMarket] = useState<Market>({})
 
     const { discount, remainingDebt } = useMarketDebtRepayer(collateralMarket);
     const { output } = useDebtRepayerOutput(collateralMarket, antokenAmount, weth);
 
-    const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: true }
+    const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: false }
 
     const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
     const outputLiquidity = liquidities && liquidities[outputToken.address] ? getBnToNumber(liquidities[outputToken.address], outputToken.decimals) : 0;
@@ -72,7 +70,11 @@ export const DebtRepayerPage = () => {
 
     useEffect(() => {
         if (!collateralMarket?.underlying) { return };
-        setOutputToken(collateralMarket.underlying.address ? collateralMarket.underlying : weth);
+        setOutputToken(collateralMarket.underlying.address ?
+            { ...collateralMarket.underlying, symbol: collateralMarket.underlying.symbol.replace('-v1', '') }
+            :
+            weth
+        );
     }, [collateralMarket])
 
     const changeCollateral = (v: anToken) => {
@@ -109,6 +111,8 @@ export const DebtRepayerPage = () => {
                                         assetOptions={swapOptions}
                                         onAssetChange={(newToken) => changeCollateral(newToken)}
                                         onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
+                                        orderByBalance={true}
+                                        dropdownSelectedProps={{ fontSize: '12px' }}
                                         {...commonAssetInputProps}
                                     />
 

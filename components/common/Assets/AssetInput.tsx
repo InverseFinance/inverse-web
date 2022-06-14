@@ -1,4 +1,4 @@
-import { Stack, Flex, useDisclosure, InputProps } from '@chakra-ui/react'
+import { Stack, Flex, useDisclosure, InputProps, FlexProps } from '@chakra-ui/react'
 import { BalanceInput } from '@app/components/common/Input'
 import { useState, useEffect } from 'react'
 import { FromAssetDropdown } from '@app/components/common/Assets/FromAssetDropdown'
@@ -24,6 +24,7 @@ export const AssetInput = ({
     showMax = true,
     orderByBalance = false,
     balanceKey = 'address',
+    dropdownSelectedProps,
 }: {
     amount: string,
     balances: BigNumberList,
@@ -38,6 +39,7 @@ export const AssetInput = ({
     showMax?: boolean,
     orderByBalance?: boolean
     balanceKey?: string
+    dropdownSelectedProps?: FlexProps
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -80,6 +82,7 @@ export const AssetInput = ({
                         }}
                         asset={token}
                         options={assetOptions}
+                        dropdownSelectedProps={dropdownSelectedProps}
                         handleChange={(selected: string) => {
                             onClose()
                             onAssetChange(tokens[selected])

@@ -1,4 +1,4 @@
-import { Stack, Text, Flex, Image } from '@chakra-ui/react';
+import { Stack, Text, Flex, Image, FlexProps } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { TokenList, Token, BigNumberList } from '@app/types';
 import { AssetsDropdown } from './AssetsDropdown';
@@ -14,6 +14,7 @@ type FromAssetDropDownProps = {
     options: string[],
     handleChange: (from: string, to: string) => void,
     orderByBalance?: boolean,
+    dropdownSelectedProps?: FlexProps,
 }
 
 export const FromAssetDropdown = ({
@@ -26,6 +27,7 @@ export const FromAssetDropdown = ({
     options,
     handleChange,
     orderByBalance = false,
+    dropdownSelectedProps,
 }: FromAssetDropDownProps) => {
     const list = options.map(ad => {
         const optKey = ad||'CHAIN_COIN';
@@ -52,7 +54,7 @@ export const FromAssetDropdown = ({
                             !!asset.protocolImage && <Image borderRadius="20px" position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="protocol" w={3} h={3} src={asset.protocolImage} />
                         }
                     </Flex>
-                    <Flex minW="80px" fontSize="lg" fontWeight="semibold" color="primary.100" justify="space-between">
+                    <Flex minW="80px" fontSize="lg" alignItems="center" fontWeight="semibold" color="primary.100" justify="space-between" {...dropdownSelectedProps}>
                         {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </>
