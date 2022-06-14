@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Box, Flex, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -10,7 +10,6 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
-import Image from 'next/image'
 import theme from '@app/variables/theme'
 
 const projects = [
