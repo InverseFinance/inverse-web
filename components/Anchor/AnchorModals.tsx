@@ -129,8 +129,8 @@ export const AnchorModal = ({
 
   const inputRightSideContent = <Stack direction="row" align="center" pl={2} pr={4}>
     <Flex w={5} position="relative">
-      <Image w={5} h={5} src={asset.underlying.image} />
-      {!!asset.underlying.protocolImage && <Image borderRadius="20px" position="absolute" bottom="0" right="-5px" w={3} h={3} src={asset.underlying.protocolImage} />}
+      <Image w={5} h={5} src={asset.underlying.image} alt={asset.underlying.symbol} />
+      {!!asset.underlying.protocolImage && <Image borderRadius="20px" position="absolute" bottom="0" right="-5px" w={3} h={3} src={asset.underlying.protocolImage} alt="protocol" />}
     </Flex>
     <Text fontSize="sm" fontWeight="semibold" color="primary.100" align="center">
       {asset.underlying.symbol.replace('-SLP', '')}

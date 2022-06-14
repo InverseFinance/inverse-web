@@ -20,7 +20,7 @@ const { MULTISIGS } = getNetworkConfigConstants()
 
 const MultisigTabLabel = ({ multisig }: { multisig: Multisig }) => {
   return <Flex alignItems="center">
-    <Image src={getNetworkImage(multisig.chainId)} ignoreFallback={true} alt="" w={5} h={5} mr="2" />
+    <Image src={getNetworkImage(multisig.chainId)} ignoreFallback={true} alt="Network" w={5} h={5} mr="2" />
     <Text>{multisig.shortName}</Text>
   </Flex>
 }

@@ -570,9 +570,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         }
         <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
-            <Image w={4} h={4} src="/assets/cancel.svg" />
+            <Image w={4} h={4} src="/assets/cancel.svg" alt="Cancel" />
           ) : (
-            <Image w={6} h={6} src="/assets/hamburger.svg" />
+            <Image w={6} h={6} src="/assets/hamburger.svg" alt="Menu" />
           )}
           {
             active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>

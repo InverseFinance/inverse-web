@@ -35,9 +35,9 @@ export const UnderlyingItem = ({
 }) => {
     return <Container {...containerProps}>
         <Box position="relative" {...imgContainerProps}>
-            <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} {...imgProps} />
+            <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} alt={label} {...imgProps} />
             {
-                !!protocolImage && <Image borderRadius="20px" ignoreFallback={true} src={protocolImage} w={protocolImageSize} h={protocolImageSize} position="absolute" bottom="0" right="-5px" />
+                !!protocolImage && <Image borderRadius="20px" ignoreFallback={true} src={protocolImage} w={protocolImageSize} h={protocolImageSize} position="absolute" bottom="0" right="-5px" alt="protocol" />
             }
         </Box>
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>

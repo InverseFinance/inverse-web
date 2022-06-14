@@ -21,7 +21,7 @@ export const Footer = () => (
       <Stack direction="row" spacing={5} align="center">
         {SOCIALS.map(({ href, image }, i) => (
           <Link key={i} href={href}>
-            <Image width="24px" height="20px" src={image} />
+            <Image width="24px" height="20px" src={image} alt="Social" />
           </Link>
         ))}
       </Stack>

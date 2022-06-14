@@ -21,7 +21,7 @@ export const NetworkItem = ({
         <>
             {
                 image && (isSupported || ignoreUnsupportedWarning) ?
-                    <Image src={getNetworkImage(network?.id)} ignoreFallback={true} alt="" w={5} h={5} mr="2" />
+                    <Image src={getNetworkImage(network?.id)} ignoreFallback={true} alt={network?.codename} w={5} h={5} mr="2" />
                     :
                     <Tooltip label="Unsupported Network">
                         <WarningIcon color="orange.100" w={5} h={5} mr="2" />
