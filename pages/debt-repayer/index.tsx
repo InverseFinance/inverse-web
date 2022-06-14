@@ -28,6 +28,7 @@ import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
 import { hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
+import { sellV1AnToken } from '@app/util/contracts'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -96,6 +97,12 @@ export const DebtRepayerPage = () => {
         const anAmount = exRate ? parseFloat(amount) / exRate : parseFloat(amount);
         const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);
         setAntokenAmount(formattedAmount);
+    }
+
+    const handleSell = () => {
+        if(!library?.getSigner()) { return }
+        const min = roundFloorString(minOutput * (10 ** outputToken.decimals), outputToken.decimals); 
+        return sellV1AnToken(library?.getSigner(), collateralMarket?.token, antokenAmount, min);
     }
 
     return (
@@ -171,7 +178,7 @@ export const DebtRepayerPage = () => {
                                                             signer={library?.getSigner()}
                                                         />
                                                         :
-                                                        <SubmitButton>
+                                                        <SubmitButton onClick={handleSell} refreshOnSuccess={true}>
                                                             sell
                                                         </SubmitButton>
                                                 }
