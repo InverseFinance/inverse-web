@@ -146,7 +146,7 @@ export const Landing = () => {
           <Stack pt={4} direction="row" spacing={0} justify="center" wrap="wrap" shouldWrapChildren>
             {projects.map((project) => (
               <Flex key={project} w={16} h={16} m={6}>
-                <Image width={'64px'} height={'64px'} src={project} />
+                <Image width={'64px'} height={'64px'} src={project} alt={project.replace('/assets/projects/', '').replace(/\.[a-z]+$/, '')} />
               </Flex>
             ))}
           </Stack>
