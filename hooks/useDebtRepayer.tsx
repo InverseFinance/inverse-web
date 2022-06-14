@@ -2,8 +2,7 @@ import { Market, SWR, Token } from '@app/types'
 import useEtherSWR from './useEtherSWR'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
-import { parseUnits } from '@ethersproject/units';
-import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates';
+import { BigNumber } from 'ethers';
 
 const { DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -53,8 +52,10 @@ export const useDebtRepayerOutput = (market: Market, amountIn: string, weth: Tok
         DEBT_REPAYER, 'amountOut', market?.token, market?.underlying?.address||weth.address, amountIn||'0'
     ]);
 
+    const [receiveAmount, amount] = data || [BigNumber.from('0'), BigNumber.from('0')];
+
     return {
-        output: data ? getBnToNumber(data, market.underlying.decimals) : 0,
+        output: data ? getBnToNumber(receiveAmount, market.underlying.decimals) : 0,
         isLoading: !data && !error,
         isError: !!error,
     }
