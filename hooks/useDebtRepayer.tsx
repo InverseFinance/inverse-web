@@ -44,7 +44,7 @@ export const useMarketDebtRepayer = (market: Market): SWR & {
     }
 }
 
-export const useDebtRepayerOutput = (market: Market, amountIn: string, weth: Token): SWR & {
+export const useDebtRepayerOutput = (market: Market, amountIn: string | BigNumber, weth: Token): SWR & {
     output: number
 } => {
     
@@ -56,6 +56,21 @@ export const useDebtRepayerOutput = (market: Market, amountIn: string, weth: Tok
 
     return {
         output: data ? getBnToNumber(receiveAmount, market.underlying.decimals) : 0,
+        isLoading: !data && !error,
+        isError: !!error,
+    }
+}
+
+export const useConvertToUnderlying = (anToken: string, amount: string | BigNumber): SWR & {
+    underlyingBalance: number
+} => {
+    
+    const { data, error } = useEtherSWR([
+        DEBT_REPAYER, 'convertToUnderlying', anToken, amount
+    ]);
+
+    return {
+        underlyingBalance: data || BigNumber.from('0'),
         isLoading: !data && !error,
         isError: !!error,
     }

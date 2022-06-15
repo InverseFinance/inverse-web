@@ -304,7 +304,7 @@ export const disperseToken = (token: Token, params: { address: string, value: st
   return contract.disperseToken(token.address, params.map(p => p.address), params.map(p => parseUnits(p.value, token.decimals)));
 }
 
-export const sellV1AnToken = (signer: JsonRpcSigner, anToken: string, amount: string, minUnderlyingReceived: string) => {
+export const sellV1AnToken = (signer: JsonRpcSigner, anToken: string, amount: string | BigNumber, minUnderlyingReceived: string | BigNumber) => {
   const { DEBT_REPAYER } = getNetworkConfigConstants();
   const contract = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, signer);
   return contract.sellDebt(anToken, amount, minUnderlyingReceived);

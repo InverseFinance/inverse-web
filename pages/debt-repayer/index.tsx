@@ -1,4 +1,4 @@
-import { Checkbox, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -12,16 +12,15 @@ import { Web3Provider } from '@ethersproject/providers'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { useBalances, useSuppliedBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useBalances } from '@app/hooks/useBalances'
 import { Market, Token } from '@app/types'
 
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 
 import { getToken } from '@app/variables/tokens'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
-import { formatUnits, parseUnits } from '@ethersproject/units'
 import { roundFloorString } from '@app/util/misc'
-import { useDebtRepayer, useDebtRepayerOutput, useMarketDebtRepayer } from '@app/hooks/useDebtRepayer'
+import { useConvertToUnderlying, useDebtRepayerOutput, useMarketDebtRepayer } from '@app/hooks/useDebtRepayer'
 import { InfoMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
@@ -35,7 +34,7 @@ const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 type anToken = Token & { ctoken: string };
 
 export const DebtRepayerPage = () => {
-    const { library } = useWeb3React<Web3Provider>()
+    const { library, account } = useWeb3React<Web3Provider>()
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
 
@@ -47,12 +46,6 @@ export const DebtRepayerPage = () => {
     const swapOptions = v1markets?.map(m => (m.token));
     const tokens: { [key: string]: anToken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.token]: { ...curr.underlying, ctoken: curr.token } }), {});
 
-    const supplied = useSuppliedBalances();
-
-    const balancesAsUnderlying = supplied?.reduce((prev, curr) => {
-        return { ...prev, [curr.token]: parseUnits(roundFloorString(curr.balance, curr.underlying.decimals), curr.underlying.decimals) }
-    }, {})
-
     const [outputAmount, setOutputAmount] = useState('');
     const [antokenAmount, setAntokenAmount] = useState('');
     const [collateralAmount, setCollateralAmount] = useState('');
@@ -62,13 +55,20 @@ export const DebtRepayerPage = () => {
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_REPAYER);
 
+    const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
+    const { balances: anBalances } = useBalances([collateralMarket.token]);
+
+    const { underlyingBalance } = useConvertToUnderlying(collateralMarket.token, anBalances ? anBalances[collateralMarket.token] : '0');
+    const balancesAsUnderlying = { [collateralMarket.token]: underlyingBalance };
+
     const { discount, remainingDebt } = useMarketDebtRepayer(collateralMarket);
     const { output } = useDebtRepayerOutput(collateralMarket, antokenAmount, weth);
+    const maxAnBalance = (anBalances||{})[collateralMarket.token];
+    const { output: maxOutput } = useDebtRepayerOutput(collateralMarket, maxAnBalance, weth);
     const minOutput = output * 0.99;
 
     const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: false }
 
-    const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
     const outputLiquidity = liquidities && liquidities[outputToken.address] ? getBnToNumber(liquidities[outputToken.address], outputToken.decimals) : 0;
 
     useEffect(() => {
@@ -100,9 +100,16 @@ export const DebtRepayerPage = () => {
     }
 
     const handleSell = () => {
-        if(!library?.getSigner()) { return }
-        const min = roundFloorString(minOutput * (10 ** outputToken.decimals), outputToken.decimals); 
+        if (!library?.getSigner()) { return }
+        const min = roundFloorString(minOutput * (10 ** outputToken.decimals), outputToken.decimals);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, antokenAmount, min);
+    }
+
+    const handleSellAll = () => {
+        if (!library?.getSigner()) { return }
+        const maxAntokenAmount = anBalances[collateralMarket.token];
+        const min = roundFloorString(maxOutput * 0.99 * (10 ** outputToken.decimals), outputToken.decimals);
+        return sellV1AnToken(library?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
     }
 
     return (
@@ -178,9 +185,14 @@ export const DebtRepayerPage = () => {
                                                             signer={library?.getSigner()}
                                                         />
                                                         :
-                                                        <SubmitButton onClick={handleSell} refreshOnSuccess={true}>
-                                                            sell
-                                                        </SubmitButton>
+                                                        <>
+                                                            <SubmitButton onClick={handleSell} refreshOnSuccess={true}>
+                                                                sell
+                                                            </SubmitButton>
+                                                            <SubmitButton onClick={handleSellAll} refreshOnSuccess={true}>
+                                                                sell all
+                                                            </SubmitButton>
+                                                        </>
                                                 }
                                             </HStack>
                                         </VStack>}
