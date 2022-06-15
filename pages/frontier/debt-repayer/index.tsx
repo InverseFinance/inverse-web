@@ -1,4 +1,4 @@
-import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -25,7 +25,7 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
-import { hasAllowance } from '@app/util/web3'
+import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { sellV1AnToken } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -33,6 +33,10 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
 type anToken = Token & { ctoken: string };
+
+const anEth = '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8';
+const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
+const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
 
 export const DebtRepayerPage = () => {
     const { library, account } = useWeb3React<Web3Provider>()
@@ -58,10 +62,12 @@ export const DebtRepayerPage = () => {
 
     const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
     const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
-    const { balances: anBalances } = useBalances([collateralMarket.token]);
+    const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
 
-    const { underlyingBalance } = useConvertToUnderlying(collateralMarket.token, anBalances ? anBalances[collateralMarket.token] : '0');
-    const balancesAsUnderlying = { [collateralMarket.token]: underlyingBalance };
+    const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
+    const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
+    const { underlyingBalance: anYfiBal } = useConvertToUnderlying(anYfi, anBalances ? anBalances[anYfi] : '0');
+    const balancesAsUnderlying = { [anEth]: anEthBal, [anWbtc]: anWbtcBal, [anYfi]: anYfiBal };
 
     const { discount, remainingDebt } = useMarketDebtRepayer(collateralMarket);
     const { output } = useDebtRepayerOutput(collateralMarket, antokenAmount, weth);
@@ -69,7 +75,7 @@ export const DebtRepayerPage = () => {
     const { output: maxOutput } = useDebtRepayerOutput(collateralMarket, maxAnBalance, weth);
     const minOutput = output * 0.99;
 
-    const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: false }
+    const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: true }
 
     const outputLiquidity = liquidities && liquidities[outputToken.address] ? getBnToNumber(liquidities[outputToken.address], outputToken.decimals) : 0;
     const outputBalance = outputTokenBalances && outputTokenBalances[outputToken.address] ? getBnToNumber(outputTokenBalances[outputToken.address], outputToken.decimals) : 0;
@@ -104,14 +110,14 @@ export const DebtRepayerPage = () => {
 
     const handleSell = () => {
         if (!library?.getSigner()) { return }
-        const min = roundFloorString(minOutput * (10 ** outputToken.decimals), outputToken.decimals);
+        const min = roundFloorString(minOutput * (10 ** outputToken.decimals), 0);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, antokenAmount, min);
     }
 
     const handleSellAll = () => {
         if (!library?.getSigner()) { return }
         const maxAntokenAmount = anBalances[collateralMarket.token];
-        const min = roundFloorString(maxOutput * 0.99 * (10 ** outputToken.decimals), outputToken.decimals);
+        const min = roundFloorString(maxOutput * 0.99 * (10 ** outputToken.decimals), 0);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
     }
 
@@ -127,6 +133,8 @@ export const DebtRepayerPage = () => {
                         v1markets?.length > 0 && !!collateralMarket?.underlying ?
                             <Container
                                 label="Debt Repayer"
+                                description="Contract"
+                                href={`${getScanner("1")}/address/${DEBT_REPAYER}`}
                                 contentProps={{ p: '8' }}
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
@@ -151,21 +159,20 @@ export const DebtRepayerPage = () => {
                                         onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
                                         orderByBalance={true}
                                         dropdownSelectedProps={{ fontSize: '12px' }}
-                                        inputProps={{ placeholder: 'Amount to Sell' }}
                                         {...commonAssetInputProps}
                                     />
 
                                     <VStack w='full' spacing="4">
-                                        <HStack w='full' justify="space-between">
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
                                                 <AnimatedInfoTooltip message="There can be a premium when Exchanging" />
                                                 <Text>
-                                                    Sell Rate:
+                                                    Exchange Rate:
                                                 </Text>
                                             </HStack>
                                             <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 2)} {outputToken.symbol}</Text>
-                                        </HStack>
-                                        <HStack w='full' justify="space-between">
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
                                                 <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
                                                 <Text>
@@ -173,8 +180,8 @@ export const DebtRepayerPage = () => {
                                                 </Text>
                                             </HStack>
                                             <Text>{shortenNumber(remainingDebt, 2)} {collateralMarket.underlying.symbol}</Text>
-                                        </HStack>
-                                        <HStack w='full' justify="space-between">
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
                                                 <AnimatedInfoTooltip message="DebtRepayer's Liquidity in the chosen market" />
                                                 <Text>
@@ -182,8 +189,8 @@ export const DebtRepayerPage = () => {
                                                 </Text>
                                             </HStack>
                                             <Text>{shortenNumber(outputLiquidity, 2)} {outputToken.symbol}</Text>
-                                        </HStack>
-                                        <HStack w='full' justify="space-between">
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
                                                 <AnimatedInfoTooltip message="Your current balance in the token you will receive when Exchanging" />
                                                 <Text>
@@ -191,8 +198,8 @@ export const DebtRepayerPage = () => {
                                                 </Text>
                                             </HStack>
                                             <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
-                                        </HStack>
-                                        <HStack w='full' justify="space-between">
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
                                                 <AnimatedInfoTooltip message="The amount you will receive if there is no slippage" />
                                                 <Text>
@@ -202,10 +209,10 @@ export const DebtRepayerPage = () => {
                                             <Text>
                                                 ~{shortenNumber(output, 4)} {outputToken.symbol}
                                             </Text>
-                                        </HStack>
-                                        <HStack w='full' justify="space-between">
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
-                                                <AnimatedInfoTooltip message="The minimum amount you accept to receive, if it's below the transaction will revert" />
+                                                <AnimatedInfoTooltip message="The minimum amount you accept to receive after possible slippage, if it's below, the transaction will revert" />
                                                 <Text>
                                                     Min. Receive Amount:
                                                 </Text>
@@ -213,8 +220,8 @@ export const DebtRepayerPage = () => {
                                             <Text fontWeight="bold">
                                                 ~{shortenNumber(minOutput, 4)} {outputToken.symbol}
                                             </Text>
-                                        </HStack>
-                                        <HStack>
+                                        </Stack>
+                                        <HStack w='full' pt="4">
                                             {
                                                 !hasAllowance(approvals, collateralMarket?.token) ?
                                                     <ApproveButton
@@ -225,16 +232,19 @@ export const DebtRepayerPage = () => {
                                                         signer={library?.getSigner()}
                                                     />
                                                     :
-                                                    <>
-                                                        <SubmitButton onClick={handleSell} refreshOnSuccess={true}>
-                                                            sell
+                                                    <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
+                                                        <SubmitButton disabled={!collateralAmount || (parseFloat(collateralAmount) * discount > outputLiquidity) || !maxOutput || !outputLiquidity} onClick={handleSell} refreshOnSuccess={true}>
+                                                            exchange
                                                         </SubmitButton>
-                                                        <SubmitButton onClick={handleSellAll} refreshOnSuccess={true}>
-                                                            sell all
+                                                        <SubmitButton disabled={!maxOutput || !outputLiquidity} onClick={handleSellAll} refreshOnSuccess={true}>
+                                                            exchange all available
                                                         </SubmitButton>
-                                                    </>
+                                                    </Stack>
                                             }
                                         </HStack>
+                                        {
+                                            !outputLiquidity && <InfoMessage alertProps={{ w: 'full' }} description="No Liquidity at the moment" />
+                                        }
                                     </VStack>
                                 </VStack>
                             </Container>
