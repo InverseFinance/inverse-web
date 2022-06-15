@@ -28,6 +28,7 @@ import { useAllowances } from '@app/hooks/useApprovals'
 import { hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { sellV1AnToken } from '@app/util/contracts'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -56,6 +57,7 @@ export const DebtRepayerPage = () => {
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_REPAYER);
 
     const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
+    const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
     const { balances: anBalances } = useBalances([collateralMarket.token]);
 
     const { underlyingBalance } = useConvertToUnderlying(collateralMarket.token, anBalances ? anBalances[collateralMarket.token] : '0');
@@ -63,13 +65,14 @@ export const DebtRepayerPage = () => {
 
     const { discount, remainingDebt } = useMarketDebtRepayer(collateralMarket);
     const { output } = useDebtRepayerOutput(collateralMarket, antokenAmount, weth);
-    const maxAnBalance = (anBalances||{})[collateralMarket.token];
+    const maxAnBalance = (anBalances || {})[collateralMarket.token];
     const { output: maxOutput } = useDebtRepayerOutput(collateralMarket, maxAnBalance, weth);
     const minOutput = output * 0.99;
 
     const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: false }
 
     const outputLiquidity = liquidities && liquidities[outputToken.address] ? getBnToNumber(liquidities[outputToken.address], outputToken.decimals) : 0;
+    const outputBalance = outputTokenBalances && outputTokenBalances[outputToken.address] ? getBnToNumber(outputTokenBalances[outputToken.address], outputToken.decimals) : 0;
 
     useEffect(() => {
         if (!v1markets.length || collateralMarket.underlying) { return };
@@ -119,13 +122,27 @@ export const DebtRepayerPage = () => {
             </Head>
             <AppNav active="Frontier" activeSubmenu="Debt Repayer" />
             <ErrorBoundary>
-                <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="600px">
+                <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="700px">
                     {
                         v1markets?.length > 0 && !!collateralMarket?.underlying ?
                             <Container
+                                label="Debt Repayer"
                                 contentProps={{ p: '8' }}
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
+                                    <InfoMessage
+                                        description={
+                                            <VStack>
+                                                <Text>
+                                                    <b>Exchange</b> your v1 Frontier <b>receipt tokens</b> (anEth, anWBTC, anYFI) against their <b>underlying tokens</b> (WETH, WBTC, YFI).
+                                                </Text>
+                                                <Text>
+                                                    The main purpose of the <b>DebtRepayer</b> is to give <b>priority to users</b> regarding available liquidity, avoiding liquidators taking it all.
+                                                </Text>
+                                                <Text>The DebtRepayer liquidity is distinct from the v1 markets liquidity.</Text>
+                                            </VStack>
+                                        }
+                                    />
                                     <AssetInput
                                         amount={collateralAmount}
                                         token={{ ...collateralMarket?.underlying, ctoken: collateralMarket.token }}
@@ -134,69 +151,91 @@ export const DebtRepayerPage = () => {
                                         onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
                                         orderByBalance={true}
                                         dropdownSelectedProps={{ fontSize: '12px' }}
+                                        inputProps={{ placeholder: 'Amount to Sell' }}
                                         {...commonAssetInputProps}
                                     />
 
-                                    <InfoMessage
-                                        alertProps={{ w: 'full' }}
-                                        description={<VStack w='full'>
-                                            <HStack w='full' justify="space-between">
-                                                <Text>
-                                                    - Sell Rate:
-                                                </Text>
-                                                <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 2)} {outputToken.symbol}</Text>
-                                            </HStack>
-                                            <HStack w='full' justify="space-between">
-                                                <Text>
-                                                    - Remaining Debt:
-                                                </Text>
-                                                <Text>{shortenNumber(remainingDebt, 2)} {collateralMarket.underlying.symbol}</Text>
-                                            </HStack>
-                                            <HStack w='full' justify="space-between">
-                                                <Text>
-                                                    - Liquidity in DebtRepayer:
-                                                </Text>
-                                                <Text>{shortenNumber(outputLiquidity, 2)} {outputToken.symbol}</Text>
-                                            </HStack>
-                                            <HStack w='full' justify="space-between">
-                                                <Text>
-                                                    - Receive Amount:
-                                                </Text>
-                                                <Text>
-                                                    ~{shortenNumber(output, 4)} {outputToken.symbol}
-                                                </Text>
-                                            </HStack>
-                                            <HStack w='full' justify="space-between">
-                                                <Text>
-                                                    - Min Receive Amount:
-                                                </Text>
-                                                <Text>
-                                                    ~{shortenNumber(minOutput, 4)} {outputToken.symbol}
-                                                </Text>
-                                            </HStack>
+                                    <VStack w='full' spacing="4">
+                                        <HStack w='full' justify="space-between">
                                             <HStack>
-                                                {
-                                                    !hasAllowance(approvals, collateralMarket?.token) ?
-                                                        <ApproveButton
-                                                            tooltipMsg=""
-                                                            isDisabled={false}
-                                                            address={collateralMarket?.token}
-                                                            toAddress={DEBT_REPAYER}
-                                                            signer={library?.getSigner()}
-                                                        />
-                                                        :
-                                                        <>
-                                                            <SubmitButton onClick={handleSell} refreshOnSuccess={true}>
-                                                                sell
-                                                            </SubmitButton>
-                                                            <SubmitButton onClick={handleSellAll} refreshOnSuccess={true}>
-                                                                sell all
-                                                            </SubmitButton>
-                                                        </>
-                                                }
+                                                <AnimatedInfoTooltip message="There can be a premium when Exchanging" />
+                                                <Text>
+                                                    Sell Rate:
+                                                </Text>
                                             </HStack>
-                                        </VStack>}
-                                    />
+                                            <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 2)} {outputToken.symbol}</Text>
+                                        </HStack>
+                                        <HStack w='full' justify="space-between">
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
+                                                <Text>
+                                                    Remaining Debt:
+                                                </Text>
+                                            </HStack>
+                                            <Text>{shortenNumber(remainingDebt, 2)} {collateralMarket.underlying.symbol}</Text>
+                                        </HStack>
+                                        <HStack w='full' justify="space-between">
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="DebtRepayer's Liquidity in the chosen market" />
+                                                <Text>
+                                                    Available Liquidity:
+                                                </Text>
+                                            </HStack>
+                                            <Text>{shortenNumber(outputLiquidity, 2)} {outputToken.symbol}</Text>
+                                        </HStack>
+                                        <HStack w='full' justify="space-between">
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="Your current balance in the token you will receive when Exchanging" />
+                                                <Text>
+                                                    Your {outputToken.symbol} balance:
+                                                </Text>
+                                            </HStack>
+                                            <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
+                                        </HStack>
+                                        <HStack w='full' justify="space-between">
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="The amount you will receive if there is no slippage" />
+                                                <Text>
+                                                    Receive Amount:
+                                                </Text>
+                                            </HStack>
+                                            <Text>
+                                                ~{shortenNumber(output, 4)} {outputToken.symbol}
+                                            </Text>
+                                        </HStack>
+                                        <HStack w='full' justify="space-between">
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="The minimum amount you accept to receive, if it's below the transaction will revert" />
+                                                <Text>
+                                                    Min. Receive Amount:
+                                                </Text>
+                                            </HStack>
+                                            <Text fontWeight="bold">
+                                                ~{shortenNumber(minOutput, 4)} {outputToken.symbol}
+                                            </Text>
+                                        </HStack>
+                                        <HStack>
+                                            {
+                                                !hasAllowance(approvals, collateralMarket?.token) ?
+                                                    <ApproveButton
+                                                        tooltipMsg=""
+                                                        isDisabled={false}
+                                                        address={collateralMarket?.token}
+                                                        toAddress={DEBT_REPAYER}
+                                                        signer={library?.getSigner()}
+                                                    />
+                                                    :
+                                                    <>
+                                                        <SubmitButton onClick={handleSell} refreshOnSuccess={true}>
+                                                            sell
+                                                        </SubmitButton>
+                                                        <SubmitButton onClick={handleSellAll} refreshOnSuccess={true}>
+                                                            sell all
+                                                        </SubmitButton>
+                                                    </>
+                                            }
+                                        </HStack>
+                                    </VStack>
                                 </VStack>
                             </Container>
                             : <SkeletonBlob />
