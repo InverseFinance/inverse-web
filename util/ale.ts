@@ -1,4 +1,5 @@
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { BigNumber } from 'ethers';
 import localforage from 'localforage';
 
 const mockTx = async (signer: JsonRpcSigner, msg: string) => {
@@ -7,7 +8,7 @@ const mockTx = async (signer: JsonRpcSigner, msg: string) => {
 }
 
 export const createAlePosition = async ({
-    inputMarket,
+    inputToken,
     collateralMarket,
     borrowMarket,
     inputAmount,
@@ -15,6 +16,12 @@ export const createAlePosition = async ({
     maxBorrowedAmount,
     signer,
 }: {
+    inputToken: string,
+    collateralMarket: string,
+    borrowMarket: string,
+    inputAmount: string | BigNumber,
+    collateralAmount: string | BigNumber,
+    maxBorrowedAmount: string | BigNumber,
     signer: JsonRpcSigner
 }) => {
     const positions = (await localforage.getItem('ale-positions')) || [];
@@ -24,8 +31,12 @@ export const createAlePosition = async ({
     
     if (mockResult) {
         positions.push({
+            inputToken,
+            inputAmount: inputAmount.toString(),
             collateralMarket: collateralMarket,
             borrowMarket: borrowMarket,
+            collateralAmount: collateralAmount.toString(),
+            maxBorrowedAmount: maxBorrowedAmount.toString(),
             owner,
         });
 

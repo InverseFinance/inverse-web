@@ -8,10 +8,15 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { AleFlowChart } from './AleFlowChart'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { Input } from '../common/Input'
-import { CheckCircleIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, PlusSquareIcon } from '@chakra-ui/icons'
 import { showToast } from '@app/util/notify'
 import { parseUnits } from '@ethersproject/units'
 import { AnchorInterests } from '../Anchor/AnchorInterests'
+import { SubmitButton } from '../common/Button'
+import { createAlePosition } from '@app/util/ale'
+import { useWeb3React } from '@web3-react/core'
+import { Web3Provider } from '@ethersproject/providers'
+import { roundFloorString } from '@app/util/misc'
 
 const powerBasis = 100;
 
@@ -56,8 +61,9 @@ export const BoostInfos = ({
     borrowedMarket: Market,
     invMarket: Market,
     inputAmount: string,
-    onLeverageChange: (v: number) => void
+    onLeverageChange: (v: number, borrowRequired: number) => void
 }) => {
+    const { library } = useWeb3React<Web3Provider>();
     const { prices } = usePricesV2();
     const { prices: oraclePrices } = useAnchorPrices();
     const minLeverage = 1.1;
@@ -67,6 +73,7 @@ export const BoostInfos = ({
     useEffect(() => {
         setEditLeverageLevel(leverageLevel.toFixed(2));
     }, [leverageLevel])
+
 
     if (!collateralMarket?.underlying || !inputToken) {
         return <></>
@@ -131,6 +138,23 @@ export const BoostInfos = ({
         { [collateralMarket.token]: parseUnits('1', 18), [borrowedMarket.token]: parseUnits('1', 18) },
         invMarket.oraclePrice,
     );
+
+    const handleCreate = () => {
+        const bnInputAmount = parseUnits(inputAmount, inputToken.decimals);
+        const bnCollateralAmount = parseUnits(collateralAmount.toString(), collateralMarket.underlying.decimals);
+        const borrowMaxSlippage = 0.01;
+        const bnMaxBorrowedAmount = parseUnits(roundFloorString(borrowRequired * (1+borrowMaxSlippage)), borrowedMarket.underlying.decimals);
+
+        return createAlePosition({
+            borrowMarket: borrowedMarket.token,
+            collateralMarket: collateralMarket.token,
+            inputToken: inputToken.address,
+            inputAmount: bnInputAmount,
+            collateralAmount: bnCollateralAmount,
+            maxBorrowedAmount: bnMaxBorrowedAmount,
+            signer: library?.getSigner(),
+        });
+    }
 
     return <VStack w='full' spacing="5">
         <HStack w='full' justify="space-between" alignItems="center">
@@ -354,6 +378,12 @@ export const BoostInfos = ({
                 liquidationPrice={liquidationPrice}
             /> */}
         </Stack>
+
+        <HStack w='full' justify="center">
+            <SubmitButton fontSize="20px" themeColor="green.500" maxW="fit-content" h="60px" onClick={handleCreate}>
+                <PlusSquareIcon mr="2" /> Create a new Boosted Position
+            </SubmitButton>
+        </HStack>
 
         {/* <HStack w='full' justify="space-between" alignItems="center">
             <Text fontWeight="bold" color={riskLevels.safer.color}>
