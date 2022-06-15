@@ -1,13 +1,11 @@
 import { Checkbox, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 
-import { SubmitButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import { createAlePosition } from '@app/util/ale'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
@@ -20,7 +18,6 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { shortenNumber } from '@app/util/markets'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { BoostInfos } from '@app/components/Ale/BoostInfos'
-import { PlusSquareIcon } from '@chakra-ui/icons'
 import { roundFloorString } from '@app/util/misc'
 
 const { TOKENS, DOLA } = getNetworkConfigConstants();
@@ -82,17 +79,6 @@ export const Ale = () => {
         setInputAmount(newAmount);
         const marketFound = markets?.find(m => m.underlying.symbol === inputToken.symbol)!;
         setCollateralAmount(roundFloorString(parseFloat(newAmount) * marketFound.oraclePrice / collateralMarket?.oraclePrice));
-    }
-
-    const handleCreate = () => {
-        return createAlePosition({
-            borrowMarket: dolaMarket!.token,
-            collateralMarket: collateralMarket.token,
-            inputToken: inputToken.address,
-            inputAmount,
-            collateralAmount,
-            signer: library?.getSigner(),
-        });
     }
 
     const isInputDifferentThanCollateral = inputToken?.symbol !== collateralMarket?.underlying?.symbol;
@@ -158,11 +144,6 @@ export const Ale = () => {
                                         invMarket={invMarket!}
                                         onLeverageChange={(v) => setLeverageLevel(v)}
                                     />
-                                    <HStack w='full' justify="center">
-                                        <SubmitButton fontSize="20px" themeColor="green.500" maxW="fit-content" h="60px" onClick={handleCreate}>
-                                            <PlusSquareIcon mr="2" /> Create a new Boosted Position
-                                        </SubmitButton>
-                                    </HStack>
                                     <InfoMessage
                                         alertProps={{ w: 'full' }}
                                         description="No Tokens will be sent to your wallet, all tokens will be held in Contracts. All APYs can vary over time."
