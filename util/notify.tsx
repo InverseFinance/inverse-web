@@ -3,6 +3,7 @@ import { ToastId } from '@chakra-ui/react';
 import { Notification } from '@app/components/common/Notification';
 import theme from '@app/variables/theme';
 import { CustomToastOptions } from '@app/types';
+import { capitalize } from './misc';
 
 const toast = createStandaloneToast({ theme })
 let toastCounter = 0;
@@ -41,11 +42,14 @@ export const showFailNotif = (e: any, isFromTx?: boolean) => {
     console.log(e);
     const msg = (e?.error?.message || e?.data?.message || e.reason || e.message || '').substring(0, 200);
     // error codes relatable to transaction cancellation by user
+
     if ([-32603, 4001].includes(e?.code)) {
+        const revertMsg = "reverted with reason string ";
+        const reasonStringIdx = msg.indexOf(revertMsg);
         showToast({
             title: 'Transaction canceled',
             status: 'warning',
-            description: 'User canceled transaction in wallet',
+            description: reasonStringIdx === -1 ? 'User canceled transaction in wallet' : capitalize(msg.substring(reasonStringIdx)),
         })
     } else {
         showToast({
