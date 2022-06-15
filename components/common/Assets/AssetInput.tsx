@@ -1,4 +1,4 @@
-import { Stack, Flex, useDisclosure, InputProps } from '@chakra-ui/react'
+import { Stack, Flex, useDisclosure, InputProps, FlexProps } from '@chakra-ui/react'
 import { BalanceInput } from '@app/components/common/Input'
 import { useState, useEffect } from 'react'
 import { FromAssetDropdown } from '@app/components/common/Assets/FromAssetDropdown'
@@ -6,8 +6,8 @@ import { BigNumberList, Token, TokenList } from '@app/types';
 import { getParsedBalance } from '@app/util/markets';
 import { commify } from 'ethers/lib/utils';
 
-const getMaxBalance = (balances: BigNumberList, token: Token) => {
-    return getParsedBalance(balances, token.address||'CHAIN_COIN', token.decimals);
+const getMaxBalance = (balances: BigNumberList, token: Token, balanceKey: string) => {
+    return getParsedBalance(balances, token[balanceKey]||'CHAIN_COIN', token.decimals);
 }
 
 export const AssetInput = ({
@@ -23,6 +23,8 @@ export const AssetInput = ({
     inputProps,
     showMax = true,
     orderByBalance = false,
+    balanceKey = 'address',
+    dropdownSelectedProps,
 }: {
     amount: string,
     balances: BigNumberList,
@@ -36,6 +38,8 @@ export const AssetInput = ({
     inputProps?: InputProps,
     showMax?: boolean,
     orderByBalance?: boolean
+    balanceKey?: string
+    dropdownSelectedProps?: FlexProps
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -46,7 +50,7 @@ export const AssetInput = ({
     }, [isOpen])
 
     const setAmountToMax = () => {
-        onAmountChange(maxValue?.toString()||(Math.floor(getMaxBalance(balances, token) * 1e8) / 1e8).toString())
+        onAmountChange(maxValue?.toString()||(Math.floor(getMaxBalance(balances, token, balanceKey) * 1e8) / 1e8).toString())
     }
 
     return (
@@ -61,7 +65,7 @@ export const AssetInput = ({
             }}
             showBalance={showBalance}
             showMax={showMax}
-            balance={commify(getMaxBalance(balances, token).toFixed(2))}
+            balance={commify(getMaxBalance(balances, token, balanceKey).toFixed(2))}
             label={
                 <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
                     <Flex w={0.5} h={8}>
@@ -78,6 +82,7 @@ export const AssetInput = ({
                         }}
                         asset={token}
                         options={assetOptions}
+                        dropdownSelectedProps={dropdownSelectedProps}
                         handleChange={(selected: string) => {
                             onClose()
                             onAssetChange(tokens[selected])

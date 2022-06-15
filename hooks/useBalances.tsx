@@ -86,7 +86,7 @@ export const useBorrowedAssets = (account?: string) => {
   return marketsWithBalance;
 }
 
-export const useSuppliedCollaterals = (address?: string) => {
+export const useSuppliedBalances = (address?: string) => {
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { balances, isLoading: balancesLoading } = useSupplyBalances(address)
   const { markets: accountMarkets } = useAccountMarkets(address)
@@ -108,6 +108,12 @@ export const useSuppliedCollaterals = (address?: string) => {
 
     return { ...market, balance: tokenBalance, isCollateral, usdWorth, ctoken: market.token, usdPrice: price, collateralFactor }
   })
+
+  return marketsWithBalance;
+}
+
+export const useSuppliedCollaterals = (address?: string) => {
+  const marketsWithBalance = useSuppliedBalances(address);
 
   return marketsWithBalance.filter(m => m.isCollateral && m.usdWorth > 0.1);
 }

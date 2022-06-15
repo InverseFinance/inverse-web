@@ -16,6 +16,7 @@ import {
   BOND_ABI,
   SWAP_ROUTER_ABI,
   DISPERSE_APP_ABI,
+  DEBT_REPAYER_ABI,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
@@ -301,4 +302,10 @@ export const disperseToken = (token: Token, params: { address: string, value: st
   const { DISPERSE_APP } = getNetworkConfigConstants();
   const contract = new Contract(DISPERSE_APP, DISPERSE_APP_ABI, signer);
   return contract.disperseToken(token.address, params.map(p => p.address), params.map(p => parseUnits(p.value, token.decimals)));
+}
+
+export const sellV1AnToken = (signer: JsonRpcSigner, anToken: string, amount: string | BigNumber, minUnderlyingReceived: string | BigNumber) => {
+  const { DEBT_REPAYER } = getNetworkConfigConstants();
+  const contract = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, signer);
+  return contract.sellDebt(anToken, amount, minUnderlyingReceived);
 }

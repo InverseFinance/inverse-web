@@ -32,6 +32,7 @@ export const ORACLE_ABI = [
 
 export const CTOKEN_ABI = [
   "function balanceOf(address) external view returns (uint256)",
+  "function allowance(address, address) external view returns (uint256)",
   "function borrow(uint256) returns (uint256)",
   "function borrowBalanceStored(address) external view returns (uint256)",
   "function borrowIndex() public view returns (uint256)",
@@ -287,6 +288,14 @@ export const DISPERSE_APP_ABI = [
   "function disperseTokenSimple(address token, address[] recipients, uint256[] values) external",
 ]
 
+export const DEBT_REPAYER_ABI = [
+  "function sellDebt(address anToken, uint amount, uint minOut) public",
+  "function amountOut(address anToken, address underlying, uint amount) public view returns(uint, uint)",
+  "function currentDiscount(address anToken) public view returns(uint)",
+  "function remainingDebt(address anToken) public view returns(uint)",
+  "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -312,6 +321,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     XINV_VESTOR_FACTORY,
     SWAP_ROUTER,
     STABILIZER,
+    DEBT_REPAYER,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -334,6 +344,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI],
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
         [STABILIZER, STABILIZER_ABI],
+        [DEBT_REPAYER, DEBT_REPAYER_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
