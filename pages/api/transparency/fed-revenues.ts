@@ -1,9 +1,9 @@
 import 'source-map-support'
-import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
+import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { getTransfers } from '@app/util/covalent';
+import { getTxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 
 // Crosschain Fee is 0.1 %, Minimum Crosschain Fee is 83 DOLA, Maximum Crosschain Fee is 1,040 DOLA
@@ -32,8 +32,7 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 
 export default async function handler(req, res) {
 
-    const { DOLA, FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const ftmConfig = getNetworkConfig(NetworkIds.ftm, false);
+    const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
     const cacheKey = `revenues-v1.0.6`;
 
     try {
@@ -45,24 +44,27 @@ export default async function handler(req, res) {
         }
 
         const transfers = await Promise.all(
-            FEDS.map(fed => getTransfers(fed.isXchain ? ftmConfig?.DOLA! :  DOLA, fed.address, 1000, 0, fed.chainId))
+            FEDS.map(fed => getTxsOf(fed.address, 1000, 0, fed.chainId))
         )
 
         const filteredTransfers = transfers.map((r, i) => {
             const fed = FEDS[i];
-            const toAddress = fed.isXchain ? '0x0000000000000000000000000000000000000000' : TREASURY.toLowerCase();  
+            const toAddress = TREASURY.toLowerCase();
+            const eventName = fed.isXchain ? 'LogSwapout' : 'Transfer';
 
             const items = r.data.items
                 .filter(item => item.successful)
-                .filter(item => !!item.transfers.find(t => t.to_address?.toLowerCase() === toAddress))
+                .filter(item => item.to_address?.toLowerCase() === fed.address.toLowerCase())
+                .filter(item => !!item.log_events.find(e => !!e.decoded && e.decoded.name === eventName && e.decoded.params[1].value.toLowerCase()== toAddress))
                 .sort((a, b) => a.block_height - b.block_height);
 
                 return items.map(item => {
-                    const filtered = item.transfers.find(t => t.to_address?.toLowerCase() === toAddress)
+                    const filteredEvent = item.log_events.find(e => e.decoded.name === eventName && e.decoded.params[1].value.toLowerCase()== toAddress)
+                    const amount = filteredEvent.decoded.params[2].value;
                     return {
                         blockNumber: item.block_height,
                         timestamp: +(new Date(item.block_signed_at)),
-                        profit: deduceBridgeFees(getBnToNumber(parseUnits(filtered.delta, 0)), fed.chainId),
+                        profit: deduceBridgeFees(getBnToNumber(parseUnits(amount, 0)), fed.chainId),
                         transactionHash: item.tx_hash,
                     }
                 });
