@@ -29,7 +29,7 @@ const columns = [
             </Flex>,
     },
     {
-        field: 'timestamp',
+        field: '_key',
         label: 'Time',
         header: ({ ...props }) => <Flex minW="100px" {...props} />,
         value: ({ timestamp, isContraction }) => {
@@ -91,12 +91,13 @@ export const FedPolicyTable = ({ fedHistoricalEvents, isLoading, showTotalCol = 
     return (
         fedHistoricalEvents?.length > 0 ?
             <Table
-                keyName="transactionHash"
-                defaultSort="timestamp"
+                keyName="_key"
+                defaultSort="_key"
                 defaultSortDir="desc"
                 alternateBg={false}
                 columns={showTotalCol ? columnsWithTotal : columns}
-                items={fedHistoricalEvents} />
+                items={fedHistoricalEvents}
+            />
             : isLoading ? <SkeletonBlob /> : <Text>
                 No Contraction or Expansion has been executed yet
             </Text>

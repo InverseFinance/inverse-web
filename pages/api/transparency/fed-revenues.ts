@@ -72,6 +72,7 @@ export default async function handler(req, res) {
 
         const accProfits: { [key: string]: number } = {};
         let total = 0;
+        let _key = 0;
 
         const fedRevenues = filteredTransfers.map((fedTransfers, fedIndex) => {
             if (!accProfits[fedIndex]) { accProfits[fedIndex] = 0 }
@@ -88,7 +89,7 @@ export default async function handler(req, res) {
             .sort((a, b) => a.timestamp - b.timestamp)
             .map(event => {
                 total += event.profit
-                return { ...event, totalAccProfit: total }
+                return { ...event, totalAccProfit: total, _key: _key++ }
             });
 
         const resultData = {

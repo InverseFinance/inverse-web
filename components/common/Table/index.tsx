@@ -189,7 +189,7 @@ export const Table = ({
       </Flex>
       {filteredItems?.map((item, i) => (
         <Flex
-          key={item[keyName] || i}
+          key={item[keyName] ?? i}
           bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
           justify="space-between"
           align="center"
