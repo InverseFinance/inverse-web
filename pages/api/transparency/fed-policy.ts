@@ -92,6 +92,8 @@ export default async function handler(req, res) {
 
     let totalAccumulatedSupply = 0;
 
+    let _key = 0;
+
     const totalEvents = FEDS
       .map((fed, fedIndex) => {
         let accumulatedSupply = 0;
@@ -112,7 +114,7 @@ export default async function handler(req, res) {
       .sort((a, b) => a.timestamp - b.timestamp)
       .map(event => {
         totalAccumulatedSupply += event.value
-        return { ...event, newTotalSupply: totalAccumulatedSupply }
+        return { ...event, newTotalSupply: totalAccumulatedSupply, _key: _key++ }
       })
 
     const fedPolicyMsg = JSON.parse(await client.get('fed-policy-msg') || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
