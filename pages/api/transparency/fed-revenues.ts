@@ -17,11 +17,11 @@ const bridgeFees: { [key: string]: { fee: number, min: number, max: number } } =
 
 const deduceBridgeFees = (value: number, chainId: string) => {
     const fees = bridgeFees[chainId];
-    if(fees) {
+    if (fees) {
         const hypotheticalFee = value * fees.fee;
-        if(hypotheticalFee < fees.min) {
+        if (hypotheticalFee < fees.min) {
             return value - fees.min;
-        } else if(hypotheticalFee > fees.max) {
+        } else if (hypotheticalFee > fees.max) {
             return value - fees.max;
         } else {
             return value - hypotheticalFee;
@@ -54,20 +54,23 @@ export default async function handler(req, res) {
 
             const items = r.data.items
                 .filter(item => item.successful)
-                .filter(item => item.to_address?.toLowerCase() === fed.address.toLowerCase())
-                .filter(item => !!item.log_events.find(e => !!e.decoded && e.decoded.name === eventName && e.decoded.params[1].value.toLowerCase()== toAddress))
+                .filter(item => !!item.log_events
+                    .find(e => !!e.decoded && e.decoded.name === eventName
+                        && e.decoded.params[0].value.toLowerCase() == fed.address.toLowerCase()
+                        && e.decoded.params[1].value.toLowerCase() == toAddress
+                    ))
                 .sort((a, b) => a.block_height - b.block_height);
 
-                return items.map(item => {
-                    const filteredEvent = item.log_events.find(e => e.decoded.name === eventName && e.decoded.params[1].value.toLowerCase()== toAddress)
-                    const amount = filteredEvent.decoded.params[2].value;
-                    return {
-                        blockNumber: item.block_height,
-                        timestamp: +(new Date(item.block_signed_at)),
-                        profit: deduceBridgeFees(getBnToNumber(parseUnits(amount, 0)), fed.chainId),
-                        transactionHash: item.tx_hash,
-                    }
-                });
+            return items.map(item => {
+                const filteredEvent = item.log_events.find(e => e.decoded.name === eventName && e.decoded.params[1].value.toLowerCase() == toAddress)
+                const amount = filteredEvent.decoded.params[2].value;
+                return {
+                    blockNumber: item.block_height,
+                    timestamp: +(new Date(item.block_signed_at)),
+                    profit: deduceBridgeFees(getBnToNumber(parseUnits(amount, 0)), fed.chainId),
+                    transactionHash: item.tx_hash,
+                }
+            });
         });
 
         const accProfits: { [key: string]: number } = {};
