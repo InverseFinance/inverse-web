@@ -196,13 +196,22 @@ export const AnchorModal = ({
                 description="Not enough Liquidity at the moment"
               />
               :
-              <AnchorButton
-                operation={operation}
-                asset={asset}
-                amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
-                needWithdrawWarning={needWithdrawWarning}
-                isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
-              />
+              <>
+                {
+                  isWithdrawOrMigrate && (asset.liquidity * asset.oraclePrice) < 100 &&
+                  <InfoMessage
+                    alertProps={{ w: 'full', fontSize: '12px' }}
+                    description="Very low market liquidity at the moment"
+                  />
+                }
+                <AnchorButton
+                  operation={operation}
+                  asset={asset}
+                  amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
+                  needWithdrawWarning={needWithdrawWarning}
+                  isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
+                />
+              </>
           }
         </Box>
       }
