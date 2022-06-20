@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { SubmitButton } from '@app/components/common/Button'
 import { useApprovals } from '@app/hooks/useApprovals'
-import { useAccountBalances, useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances'
+import { useAccountBalances, useBorrowBalances, useMarketCash, useSupplyBalances } from '@app/hooks/useBalances'
 import { useEscrow } from '@app/hooks/useEscrow'
 import { Market, AnchorOperations } from '@app/types'
 import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
@@ -19,6 +19,7 @@ import { hasAllowance } from '@app/util/web3';
 import { getBnToNumber, getMonthlyRate, getParsedBalance } from '@app/util/markets';
 import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
+import { useExchangeRates } from '@app/hooks/useExchangeRates';
 
 type AnchorButtonProps = {
   operation: AnchorOperations
@@ -109,6 +110,8 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { balances } = useAccountBalances();
+  const { exchangeRates } = useExchangeRates();
+  const { cash } = useMarketCash(asset);
 
   const balance = balances && balances[asset.underlying.address || 'CHAIN_COIN']
     ? getBnToNumber(balances[asset.underlying.address || 'CHAIN_COIN'], asset.underlying.decimals)
@@ -157,6 +160,14 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
     isEthMarket
       ? getCEtherContract(asset.token, library?.getSigner())
       : getAnchorContract(asset.token, library?.getSigner())
+
+  const supply =
+    supplyBalances && exchangeRates
+      ? parseFloat(formatUnits(supplyBalances[asset.token], asset.underlying.decimals)) *
+      parseFloat(formatUnits(exchangeRates[asset.token]))
+      : 0;
+
+  const hasEnoughMarketLiqToWithdrawAll = cash > supply;
 
   switch (operation) {
     case AnchorOperations.supply:
@@ -211,7 +222,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
                 return contract.redeem(bn);
               }}
               refreshOnSuccess={true}
-              isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token]))}
+              isDisabled={!supplyBalances || !parseFloat(formatUnits(supplyBalances[asset.token])) || !hasEnoughMarketLiqToWithdrawAll}
               rightIcon={<AnimatedInfoTooltip type='tooltip' ml="1" message={<VStack><Text>Withdraw all and avoid "dust" being left behind.</Text><Text>May fail if you have the asset enabled as collateral and have outstanding debt.</Text></VStack>} />}
             >
               {asset.underlying.symbol === RTOKEN_SYMBOL ? 'Unstake' : 'Withdraw'} ALL
