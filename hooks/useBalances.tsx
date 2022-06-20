@@ -10,7 +10,7 @@ import useSWR from 'swr'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { useAnchorPricesUsd } from '@app/hooks/usePrices';
 import { useAccountMarkets, useMarkets } from './useMarkets'
-import { getMonthlyRate, getParsedBalance } from '@app/util/markets'
+import { getBnToNumber, getMonthlyRate, getParsedBalance } from '@app/util/markets'
 import { useExchangeRates } from './useExchangeRates'
 import { formatUnits } from '@ethersproject/units'
 
@@ -116,4 +116,16 @@ export const useSuppliedCollaterals = (address?: string) => {
   const marketsWithBalance = useSuppliedBalances(address);
 
   return marketsWithBalance.filter(m => m.isCollateral && m.usdWorth > 0.1);
+}
+
+export const useMarketCash = (market: Market): SWR & { cash: number } => {
+  const { data, error } = useEtherSWR(
+    [market.token, 'getCash'],
+  )
+
+  return {
+    cash: data ? getBnToNumber(data, market.underlying.decimals) : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
 }
