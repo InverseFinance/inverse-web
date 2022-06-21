@@ -33,21 +33,22 @@ export default async function handler(req, res) {
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const allMarkets: string[] = [...await comptroller.getAllMarkets()];
-    const marketsWithOnlyOraclePrice = allMarkets
+    
+    const markets = allMarkets
       .filter(address => !!UNDERLYING[address]
-        && !UNDERLYING[address].coingeckoId
-        && !UNDERLYING[address].isLP
-        && !UNDERLYING[address].isCrvLP
-        && !UNDERLYING[address]?.pairs?.length
+        // && !UNDERLYING[address].coingeckoId
+        // && !UNDERLYING[address].isLP
+        // && !UNDERLYING[address].isCrvLP
+        // && !UNDERLYING[address]?.pairs?.length
       );
 
     const oraclePrices = await Promise.all([
-      ...marketsWithOnlyOraclePrice.map(address => oracle.getUnderlyingPrice(address))
+      ...markets.map(address => oracle.getUnderlyingPrice(address))
     ]);
 
     oraclePrices
       .forEach((v, i) => {
-        const underlying = UNDERLYING[marketsWithOnlyOraclePrice[i]];
+        const underlying = UNDERLYING[markets[i]];
         const price = parseFloat(formatUnits(v, BigNumber.from(36).sub(underlying.decimals)));
         prices[underlying.symbol] = price;
       });
@@ -92,7 +93,9 @@ export default async function handler(req, res) {
     ]);
 
     lps.forEach((lpToken, i) => {
-      prices[lpToken.token.symbol] = lpData[i];
+      if(lpData[i]) {
+        prices[lpToken.token.symbol] = lpData[i];
+      }
     })
 
     await redisSetWithTimestamp(cacheKey, prices);

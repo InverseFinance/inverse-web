@@ -46,6 +46,7 @@ const chainTokenAddresses = {
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
     MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
+    DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -173,6 +174,18 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].WETH
       ],
+    },
+    [chainTokenAddresses["1"].DOLAWETHLP]: {
+      address: chainTokenAddresses["1"].DOLAWETHLP,
+      name: 'DOLA-WETH',
+      symbol: 'DOLA-WETH',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].WETH
+      ],
+      protocolImage: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5728.png',
     },
     [chainTokenAddresses["1"].DOLA3POOLCRV]: {
       address: chainTokenAddresses["1"].DOLA3POOLCRV,
