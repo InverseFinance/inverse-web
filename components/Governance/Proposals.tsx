@@ -14,6 +14,7 @@ import theme from '@app/variables/theme'
 import useStorage from '@app/hooks/useStorage'
 import { AnimatedInfoTooltip } from '../common/Tooltip'
 import { DRAFT_WHITELIST } from '@app/config/constants'
+import { SearchProposals } from './SearchProposals'
 
 export const Proposals = () => {
   const { proposals, isLoading } = useProposals()
@@ -194,6 +195,22 @@ export const ActiveProposals = () => {
 
 export const RecentProposals = () => {
   const { proposals, isLoading } = useProposals()
+  const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    setFilteredProposals(
+      proposals
+        .filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
+        .filter(p => {
+          return !query
+            || p.title.toLowerCase().includes(query)
+            || p.descriptionAsText.toLowerCase().includes(query)
+        })
+        .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
+        .slice(0, 10)
+    )
+  }, [query, proposals]);
 
   if (isLoading) {
     return (
@@ -203,15 +220,19 @@ export const RecentProposals = () => {
     )
   }
 
-  const recent = proposals
-    ?.filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
-    .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
-    .slice(0, 10)
+  const handleSearch = (query: string) => {
+    const term = query.trim().toLowerCase();
+    setQuery(term);
+  }
 
   return (
-    <Container label="Recent Proposals" contentBgColor="gradient3">
+    <Container
+      label="Recent Proposals"
+      right={<SearchProposals onSearch={handleSearch} />}
+      contentBgColor="gradient3"
+    >
       <Stack w="full" spacing={1}>
-        {recent.map((proposal: Proposal) => (
+        {filteredProposals.map((proposal: Proposal) => (
           <ProposalPreview key={proposal.proposalNum} proposal={proposal} />
         ))}
         <NextLink href="/governance/proposals">
