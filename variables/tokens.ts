@@ -5,10 +5,10 @@ import { isAddress } from 'ethers/lib/utils';
 // TODO: refacto in cleaner way with markets and tokens
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string, extend = {}) => {
-  const t =  Object.entries(tokens)
+  const t = Object.entries(tokens)
     .map(([address, token]) => token)
     .find(token => isAddress(symbolOrAddress) ? token.address.toLowerCase() === symbolOrAddress.toLowerCase() : token.symbol.toLowerCase() === symbolOrAddress.toLowerCase())
-    return { ...t, ...extend }
+  return { ...t, ...extend }
 }
 
 export const getRewardToken = () => {
@@ -40,6 +40,7 @@ const chainTokenAddresses = {
     WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
     STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
+    INVDOLAULP: '0xb268c1c44a349d06a42cf24988162dadc48d839e',
     INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
@@ -163,6 +164,18 @@ const chainTokens = {
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688',
+    },
+    [chainTokenAddresses["1"].INVDOLAULP]: {
+      address: chainTokenAddresses["1"].INVDOLAULP,
+      name: 'INV-DOLA LP',
+      symbol: 'INV-DOLA-LP',
+      image: '/assets/inv-square-dark.jpeg',
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
+      ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604',
     },
     [chainTokenAddresses["1"].INVETHSLP]: {
       address: chainTokenAddresses["1"].INVETHSLP,
