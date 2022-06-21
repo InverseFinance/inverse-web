@@ -15,6 +15,8 @@ import useStorage from '@app/hooks/useStorage'
 import { AnimatedInfoTooltip } from '../common/Tooltip'
 import { DRAFT_WHITELIST } from '@app/config/constants'
 import { SearchProposals } from './SearchProposals'
+import { getProposalTags } from './ProposalTags'
+import { namedAddress } from '@app/util'
 
 export const Proposals = () => {
   const { proposals, isLoading } = useProposals()
@@ -197,6 +199,7 @@ export const RecentProposals = () => {
   const { proposals, isLoading } = useProposals()
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
   const [query, setQuery] = useState('');
+  const [defaultQuery, setDefaultQuery] = useState('');
 
   useEffect(() => {
     setFilteredProposals(
@@ -205,6 +208,8 @@ export const RecentProposals = () => {
         .filter(p => {
           return !query
             || p.title.toLowerCase().includes(query)
+            || namedAddress(p.proposer).toLowerCase().includes(query)
+            || getProposalTags(p.functions).map(tag => tag.name.toLowerCase()).join(',').includes(query)
             || p.descriptionAsText.toLowerCase().includes(query)
         })
         .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
@@ -225,15 +230,24 @@ export const RecentProposals = () => {
     setQuery(term);
   }
 
+  const handleTag = (tag: { name: string, address: string }) => {
+    handleSearch(tag.name);
+    setDefaultQuery(tag.name);
+  }
+
   return (
     <Container
       label="Recent Proposals"
-      right={<SearchProposals onSearch={handleSearch} />}
+      right={<SearchProposals onSearch={handleSearch} defaultValue={defaultQuery} />}
       contentBgColor="gradient3"
+      headerProps={{
+        direction: { base: 'column', md: 'row' },
+        align: { base: 'flex-start', md: 'flex-end' },
+      }}
     >
       <Stack w="full" spacing={1}>
         {filteredProposals.map((proposal: Proposal) => (
-          <ProposalPreview key={proposal.proposalNum} proposal={proposal} />
+          <ProposalPreview key={proposal.proposalNum} proposal={proposal} onTagSelect={(tag) => handleTag(tag)} />
         ))}
         <NextLink href="/governance/proposals">
           <Flex

@@ -1,13 +1,25 @@
 import { Flex, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
 
-export const SearchProposals = ({ onSearch }: { onSearch: (v: string) => void }) => {
-    const [query, setQuery] = useState('');
+export const SearchProposals = ({ 
+    onSearch,
+    defaultValue = '',
+ }: { 
+    onSearch: (v: string) => void,
+    defaultValue: string,
+ }) => {
+    const [query, setQuery] = useState(defaultValue);
+
+    useEffect(() => {
+        setQuery(defaultValue);
+    }, [defaultValue]);
 
     return (
         <Flex           
             justifyContent="center"
+            w={{ base: 'full', sm: 'auto' }}
+            pt={{ base: '2' }}
         >
             <InputGroup
                 left="0"
@@ -24,7 +36,7 @@ export const SearchProposals = ({ onSearch }: { onSearch: (v: string) => void })
                     borderRadius="20px"
                     type="search"
                     value={query}            
-                    placeholder="Search text"
+                    placeholder="Search text / tag"
                     onChange={(e) => {
                         setQuery(e.target.value);
                         onSearch(e.target.value);
