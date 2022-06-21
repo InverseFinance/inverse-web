@@ -4,8 +4,8 @@ import {
   Breakdown,
   DelegatesPreview,
   LocalDraftProposals,
+  Proposals,
   PublicDraftProposals,
-  RecentProposals,
   VotingWallet,
 } from '@app/components/Governance'
 import Layout from '@app/components/common/Layout'
@@ -49,7 +49,10 @@ export const Governance = () => {
             </Link>
           </Flex>
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-            <RecentProposals />
+            <Proposals
+              recentOnly={true}
+              label="Recent Proposals"
+            />
           </Flex>
         </Flex>
         <Flex direction="column">

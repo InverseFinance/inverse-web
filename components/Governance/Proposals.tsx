@@ -14,40 +14,11 @@ import theme from '@app/variables/theme'
 import useStorage from '@app/hooks/useStorage'
 import { AnimatedInfoTooltip } from '../common/Tooltip'
 import { DRAFT_WHITELIST } from '@app/config/constants'
+import { SearchProposals } from './SearchProposals'
+import { getProposalTags } from './ProposalTags'
+import { namedAddress } from '@app/util'
 
-export const Proposals = () => {
-  const { proposals, isLoading } = useProposals()
 
-  if (isLoading) {
-    return (
-      <Container
-        label="Governance Proposals"
-        contentBgColor="gradient3"
-        description="Participate in governance of the DAO"
-        href="https://docs.inverse.finance/inverse-finance/governance"
-      >
-        <SkeletonBlob skeletonHeight={16} noOfLines={4} />
-      </Container>
-    )
-  }
-
-  return (
-    <Container
-      contentBgColor="gradient3"
-      label="Governance Proposals"
-      description="Participate in governance of the DAO"
-      href="https://docs.inverse.finance/inverse-finance/governance"
-    >
-      <Stack w="full" spacing={1}>
-        {proposals
-          .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
-          .map((proposal: Proposal) => (
-            <ProposalPreview key={proposal.proposalNum} proposal={proposal} />
-          ))}
-      </Stack>
-    </Container>
-  )
-}
 
 export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { account } = useWeb3React<Web3Provider>()
@@ -192,44 +163,82 @@ export const ActiveProposals = () => {
   )
 }
 
-export const RecentProposals = () => {
+export const Proposals = ({
+  recentOnly = false,
+  ...containerProps
+}) => {
   const { proposals, isLoading } = useProposals()
+  const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
+  const [query, setQuery] = useState('');
+  const [defaultQuery, setDefaultQuery] = useState('');
+
+  useEffect(() => {
+    setFilteredProposals(
+      proposals
+        .filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
+        .filter(p => {
+          return !query
+            || p.title.toLowerCase().includes(query)
+            || namedAddress(p.proposer).toLowerCase().includes(query)
+            || getProposalTags(p.functions).map(tag => tag.name.toLowerCase()).join(',').includes(query)
+            || p.descriptionAsText?.toLowerCase().includes(query)
+        })
+        .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
+        .slice(0, recentOnly ? 10 : proposals.length)
+    )
+  }, [query, proposals, recentOnly]);
 
   if (isLoading) {
     return (
-      <Container label="Recent Proposals" contentBgColor="gradient3">
+      <Container contentBgColor="gradient3" {...containerProps}>
         <SkeletonBlob skeletonHeight={16} noOfLines={4} />
       </Container>
     )
   }
 
-  const recent = proposals
-    ?.filter((proposal: Proposal) => proposal.status !== ProposalStatus.active)
-    .sort((a: Proposal, b: Proposal) => b.proposalNum - a.proposalNum)
-    .slice(0, 10)
+  const handleSearch = (query: string) => {
+    const term = query.trim().toLowerCase();
+    setQuery(term);
+  }
+
+  const handleTag = (tag: { name: string, address: string }) => {
+    handleSearch(tag.name);
+    setDefaultQuery(tag.name);
+  }
 
   return (
-    <Container label="Recent Proposals" contentBgColor="gradient3">
+    <Container
+      right={<SearchProposals onSearch={handleSearch} defaultValue={defaultQuery} />}
+      contentBgColor="gradient3"
+      headerProps={{
+        direction: { base: 'column', md: 'row' },
+        align: { base: 'flex-start', md: 'flex-end' },
+      }}
+      {...containerProps}
+    >
       <Stack w="full" spacing={1}>
-        {recent.map((proposal: Proposal) => (
-          <ProposalPreview key={proposal.proposalNum} proposal={proposal} />
+        { !filteredProposals.length && <Text color="secondaryTextColor">No Result</Text> }
+        {filteredProposals.map((proposal: Proposal) => (
+          <ProposalPreview key={proposal.proposalNum} proposal={proposal} onTagSelect={(tag) => handleTag(tag)} />
         ))}
-        <NextLink href="/governance/proposals">
-          <Flex
-            cursor="pointer"
-            w="full"
-            p={2}
-            justify="center"
-            fontSize="xs"
-            fontWeight="semibold"
-            borderRadius={8}
-            textTransform="uppercase"
-            color="primary.100"
-            _hover={{ bgColor: 'primary.850' }}
-          >
-            View All
-          </Flex>
-        </NextLink>
+        {
+          recentOnly && <NextLink href="/governance/proposals">
+            <Flex
+              cursor="pointer"
+              w="full"
+              p={2}
+              justify="center"
+              fontSize="xs"
+              fontWeight="semibold"
+              borderRadius={8}
+              textTransform="uppercase"
+              color="primary.100"
+              _hover={{ bgColor: 'primary.850' }}
+            >
+              View All
+            </Flex>
+          </NextLink>
+        }
       </Stack>
     </Container>
   )

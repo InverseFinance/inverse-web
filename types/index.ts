@@ -81,6 +81,7 @@ export type Proposal = {
   proposalNum: number // num regardless of era
   title: string
   description: string
+  descriptionAsText: string
   proposer: string
   etaTimestamp: number
   startTimestamp: number

@@ -80,11 +80,13 @@ export const ProposalPreview = ({
   isLocalDraft = false,
   isPublicDraft = false,
   prefersEditLinks = false,
+  onTagSelect,
 }: {
   proposal: Proposal,
   isLocalDraft?: boolean,
   isPublicDraft?: boolean,
   prefersEditLinks?: boolean,
+  onTagSelect?: (tag: { name: string, address: string }) => void,
 }) => {
   const { query } = useRouter()
   const { unreadKeys } = useGovernanceNotifs()
@@ -162,7 +164,7 @@ export const ProposalPreview = ({
           )}
         </Flex>
         <Flex w='full' px="2" alignItems="center" overflow="auto">
-          <ProposalTags functions={proposal.functions} />
+          <ProposalTags functions={proposal.functions} onTagSelect={onTagSelect} />
         </Flex>
       </VStack>
     </NextLink>

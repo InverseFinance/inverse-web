@@ -12,6 +12,7 @@ import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { ProposalStatus } from '@app/types';
 import { Proposal } from '@app/types';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import removeMd from 'remove-markdown';
 
 const client = getRedisClient();
 
@@ -118,6 +119,8 @@ export default async function handler(req, res) {
 
             const execEvent = executed ? govExecutions.find(e => e.args.id.toString() === id.toString()) : undefined;
 
+            const description = args.description.split("\n").slice(1).join("\n");
+
             return {
               id: id.toNumber(),
               proposalNum: id.toNumber() + (era === GovEra.alpha ? 0 : proposalCountAlpha.toNumber()),
@@ -137,7 +140,8 @@ export default async function handler(req, res) {
               executed: executed,
               executionTimestamp: executed && !!execEvent ? timestamps[NetworkIds.mainnet][execEvent.blockNumber] * 1000 : undefined,
               title: args.description.split("\n")[0].split("# ")[1],
-              description: args.description.split("\n").slice(1).join("\n"),
+              description: description,
+              descriptionAsText: removeMd(description),
               status,
               functions: args.targets.map((target: any, i: number) => ({
                 target,
@@ -155,7 +159,7 @@ export default async function handler(req, res) {
         );
       }
 
-      const previouslyArchivedProposals = JSON.parse(await client.get(`${chainId}-proposals-archived-v1.0.0`) || '{"proposals": []}').proposals;
+      const previouslyArchivedProposals = JSON.parse(await client.get(`${chainId}-proposals-archived-v1.0.1`) || '{"proposals": []}').proposals;
 
       const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mills, previouslyArchivedProposals);
       const proposalsAlpha = await getProposals(proposalCountAlpha, governanceAlpha, proposalsCreatedAlpha, votesCastAlpha, quorumVotesAlpha, GovEra.alpha, previouslyArchivedProposals);
@@ -172,7 +176,7 @@ export default async function handler(req, res) {
         return [ProposalStatus.canceled, ProposalStatus.executed, ProposalStatus.defeated, ProposalStatus.expired].includes(p.status)
       });
 
-      await client.set(`${chainId}-proposals-archived-v1.0.0`, JSON.stringify({
+      await client.set(`${chainId}-proposals-archived-v1.0.1`, JSON.stringify({
         blockNumber,
         timestamp: Date.now(),
         proposals: currentArchivedProposals,

@@ -26,7 +26,11 @@ export const Governance = () => (
     <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
       <Flex direction="column">
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-          <Proposals />
+          <Proposals
+            label="Governance Proposals"
+            description="Participate in governance of the DAO"
+            href="https://docs.inverse.finance/inverse-finance/governance"
+          />
         </Flex>
       </Flex>
       <Flex direction="column">
