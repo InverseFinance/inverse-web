@@ -1,6 +1,7 @@
 import { Flex, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 
 export const SearchProposals = ({ 
     onSearch,
@@ -15,6 +16,10 @@ export const SearchProposals = ({
         setQuery(defaultValue);
     }, [defaultValue]);
 
+    useDebouncedEffect(() => {
+        onSearch(query);
+    }, [query], 200);
+
     return (
         <Flex           
             justifyContent="center"
@@ -23,8 +28,7 @@ export const SearchProposals = ({
         >
             <InputGroup
                 left="0"
-                w='95%'
-          
+                w='full'          
                 bgColor="transparent"
             >
                 <InputLeftElement
@@ -39,7 +43,6 @@ export const SearchProposals = ({
                     placeholder="Search text / tag"
                     onChange={(e) => {
                         setQuery(e.target.value);
-                        onSearch(e.target.value);
                     }}
                 />
             </InputGroup>            
