@@ -111,6 +111,16 @@ export const MENUS = {
     {
       href: '/analytics',
       label: 'Analytics',
+      submenus: [
+        {
+          href: '/analytics',
+          label: 'Dashboard',
+        },
+        {
+          href: 'https://analytics.inverse.finance',
+          label: 'Docs',
+        }
+      ],
     },
     {
       label: 'Blog',
