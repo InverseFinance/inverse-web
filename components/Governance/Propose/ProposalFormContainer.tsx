@@ -14,7 +14,7 @@ import ScannerLink from '@app/components/common/ScannerLink';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { useRouter } from 'next/dist/client/router';
 
-const DEFAULT_REQUIRED_VOTING_POWER = 1000;
+const DEFAULT_REQUIRED_VOTING_POWER = 1400;
 const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 export const ProposalFormContainer = ({
@@ -65,7 +65,7 @@ export const ProposalFormContainer = ({
                             alertProps={{ textAlign: "center", p: '6' }}
                             description={
                                 <>
-                                    At least <b>1000 voting power</b> is required to make a new proposal.
+                                    At least <b>{DEFAULT_REQUIRED_VOTING_POWER} voting power</b> is required to make a new proposal.
                                 </>
                             } />
                         <Box color="mainTextColor" mt="3">
@@ -84,7 +84,7 @@ export const ProposalFormContainer = ({
                                     color="secondary"
                                     href={{
                                         pathname: `/governance/propose`,
-                                        query: { proposalLinkData: JSON.stringify({ title: 'Draft', description: 'Draft content', actions: [] }) }
+                                        query: { proposalLinkData: JSON.stringify({ title: 'Draft', description: 'Forum link, Draft content', actions: [] }) }
                                     }}>
                                     Create a Draft
                                 </Link>
