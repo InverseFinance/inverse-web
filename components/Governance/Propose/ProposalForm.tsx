@@ -22,6 +22,7 @@ import { Link } from '@app/components/common/Link';
 import { namedAddress } from '@app/util';
 import { DRAFT_WHITELIST } from '@app/config/constants';
 import { handleApiResponse } from '@app/util/misc';
+import { InfoMessage } from '@app/components/common/Messages';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -158,18 +159,18 @@ export const ProposalForm = ({
     const handleSubmitProposal = async () => {
         if (!library?.getSigner()) { return }
         const tx = await submitProposal(library?.getSigner(), form);
-        return handleTx(tx, { 
+        return handleTx(tx, {
             onSuccess: (tx, receipt) => {
                 setHasSuccess(true);
                 const canDraft = DRAFT_WHITELIST.includes((account || '')?.toLowerCase());
-                if(draftId && isPublicDraft && canDraft) {
+                if (draftId && isPublicDraft && canDraft) {
                     const proposalId = formatUnits(receipt?.events[2]?.args?.id, 0);
                     linkDraft(draftId!, proposalId, library.getSigner(), (result) => {
                         handleApiResponse(result);
                     });
                 }
             }
-         });
+        });
     }
 
     const handlePublishDraft = async () => {
@@ -242,6 +243,8 @@ export const ProposalForm = ({
         });
     }
 
+    const forumLink = (form.description.match(/https:\/\/forum\.inverse\.finance[^\s)]+/i) || [''])[0];
+
     return (
         <Stack color="mainTextColor" spacing="4" direction="column" w="full" data-testid={TEST_IDS.governance.newProposalFormContainer}>
             <ProposalFloatingPreviewBtn onChange={() => setPreviewMode(!previewMode)} isEnabled={previewMode} />
@@ -264,10 +267,10 @@ export const ProposalForm = ({
             {
                 previewMode ?
                     <Flex direction="column" textAlign="left">
-                        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                        <Flex w={{ base: 'full', xl: 'full' }} justify="center">
                             <ProposalDetails proposal={preview} />
                         </Flex>
-                        <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
+                        <Flex w={{ base: 'full', xl: 'full' }} justify="center">
                             <ProposalActions proposal={preview} />
                         </Flex>
                     </Flex>
@@ -293,6 +296,18 @@ export const ProposalForm = ({
                             form.title && form.description ? actionSubForms : null
                         }
                     </>
+            }
+            {
+                !forumLink
+                && <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    title="Forum Reminder"
+                    description={
+                        <Box justify="center">
+                            Please create and add the link to the corresponding <Link isExternal target="_blank" display="inline-block" href="https://forum.inverse.finance">Forum</Link> post in the proposal content.
+                        </Box>
+                    }
+                />
             }
             <ProposalFormBtns
                 hasTitleAndDescrption={!!form.title && !!form.description}
