@@ -58,7 +58,7 @@ export const MENUS = {
         },
         {
           label: 'Create a Draft',
-          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Draft+content"%2C"actions"%3A%5B%5D%7D#',
+          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
         },
         {
           label: 'Delegates',
