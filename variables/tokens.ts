@@ -195,11 +195,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
       decimals: 18,
       isLP: true,
-      balancerPoolId: '0xb204bf10bc3a5435017d3db247f56da601dfe08a000200000000000000000230',
+      balancerInfos: {
+        poolId: '0xb204bf10bc3a5435017d3db247f56da601dfe08a000200000000000000000230',
+        vault: '0xba12222222228d8ba445958a75a0704d566bf2c8',
+      },
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].WETH
       ],
-      protocolImage: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5728.png',
+      protocolImage: '/assets/projects/balancer.png',
     },
     [chainTokenAddresses["1"].DOLA3POOLCRV]: {
       address: chainTokenAddresses["1"].DOLA3POOLCRV,
