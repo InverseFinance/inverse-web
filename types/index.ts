@@ -16,6 +16,10 @@ export interface Token {
   isLP?: boolean
   isCrvLP?: boolean
   lpPrice?: number
+  balancerInfos?: {
+    poolId: string
+    vault: string
+  }
   pairs?: string[]
   badge?: {
     text: string

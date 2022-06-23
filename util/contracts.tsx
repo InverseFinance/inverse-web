@@ -17,6 +17,7 @@ import {
   SWAP_ROUTER_ABI,
   DISPERSE_APP_ABI,
   DEBT_REPAYER_ABI,
+  BALANCER_VAULT_ABI,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
@@ -247,6 +248,12 @@ export const bondRedeem = (bond: Bond, signer: JsonRpcSigner, depositor: string)
   return contract.redeem(depositor);
 }
 
+const getBalancerPoolBalances = async (token: Token, providerOrSigner: Provider | JsonRpcSigner) => {
+  const contract = new Contract(token.balancerInfos?.vault!, BALANCER_VAULT_ABI, providerOrSigner);
+  const [addresses, balances, lastChangeBlock] = await contract.getPoolTokens(token.balancerInfos?.poolId!);
+  return balances;
+}
+
 export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<number> => {
   if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
@@ -264,12 +271,14 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
     const coingeckoIds = tokens
       .map(({ coingeckoId }) => coingeckoId)
 
-    const [balancesInLp, cgPrices] = await Promise.all([
-      await Promise.all(
-        LPToken.pairs.map(address => {
-          return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
-        }),
-      ),
+    let [balancesInLp, cgPrices] = await Promise.all([
+      LPToken.balancerInfos ?
+        await getBalancerPoolBalances(LPToken, providerOrSigner) :
+        await Promise.all(
+          LPToken.pairs.map(address => {
+            return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
+          }),
+        ),
       fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)
     ]);
 
@@ -283,7 +292,7 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
       return prev + (balances[idx] * (prices[curr.coingeckoId].usd || 0) / getBnToNumber(lpTokenTotalSupply));
     }, 0);
   } catch (e) {
-    
+
   }
 
   return lpPrice;
