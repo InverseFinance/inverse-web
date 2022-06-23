@@ -195,6 +195,7 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
       decimals: 18,
       isLP: true,
+      balancerPoolId: '0xb204bf10bc3a5435017d3db247f56da601dfe08a000200000000000000000230',
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].WETH
       ],
