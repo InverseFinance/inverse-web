@@ -297,7 +297,7 @@ export const DEBT_REPAYER_ABI = [
 ]
 
 export const BALANCER_VAULT_ABI = [
-  "function getPoolTokens() public view returns (address[], uint256[], uint256)"
+  "function getPoolTokens(bytes32 poolId) public view returns (address[], uint256[], uint256)"
 ]
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
