@@ -480,7 +480,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
   return (
     <>
       <WrongNetworkModal
-        isOpen={isWrongNetOpen}
+        isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
       <Flex        
