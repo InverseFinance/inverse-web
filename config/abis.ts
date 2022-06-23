@@ -296,6 +296,10 @@ export const DEBT_REPAYER_ABI = [
   "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
 ]
 
+export const BALANCER_VAULT_ABI = [
+  "function getPoolTokens() public view returns (address[], uint256[], uint256)"
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
