@@ -19,18 +19,25 @@ export const theGraphFetch = (apiEndpoint: string, query: string) => {
     ).then((response) => response.json())
 }
 
-export const getFrontierLiquidations = () => {
+export const getFrontierLiquidations = ({
+    offset = 0, 
+    size = 100,
+    borrower = '',
+}) => {
     return getFromFrontierGraph(`
     query {
-        liquidationEvents {
+        liquidationEvents (
+            orderBy: blockTime
+            orderDirection: desc
+            first: ${size}
+            skip: ${offset}
+            where: { ${ !!borrower && `borrower: ${borrower}`} }
+        ) {
+            blocktime: blockTime
             borrower
-            blockTime
-            borrowerRemainingBorrowBalance
-            borrowerRemainingUnderlyingCollateral
-            cToken
             liquidator
-            seizeAmount
-            seizeCToken
+            repaidCtoken: cToken
+            seizedCtoken: seizeCToken
             underlyingRepayAmount
             underlyingSeizeAmount
         }
