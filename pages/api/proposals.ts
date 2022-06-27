@@ -1,31 +1,102 @@
 import "source-map-support";
-import { getNetworkConfig } from '@app/util/networks';
-import { getRedisClient } from '@app/util/redis';
-import { NetworkIds } from '@app/types';
-
-const client = getRedisClient();
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { NetworkIds, GovEra } from '@app/types';
+import { getGovProposals } from '@app/util/the-graph';
+import { getProvider } from '@app/util/providers';
+import { SECONDS_PER_BLOCK } from '@app/config/constants';
+import removeMd from 'remove-markdown';
+import { getProposalStatus } from '@app/util/governance';
+import { Contract } from 'ethers';
+import { GOVERNANCE_ABI } from '@app/config/abis';
+import { getBnToNumber } from '@app/util/markets';
 
 export default async function handler(req, res) {
+  const cacheKey = '1-proposals-v1.0.0';
   try {
-    // defaults to mainnet data if unsupported network
-    const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
-    if(!networkConfig?.governance) {
-      res.status(403).json({ success: false, message: `No Governance support on ${networkConfig.chainId} network` });
-    }
-    let data: any = await client.get(`${networkConfig.chainId}-proposals`);
+    const { GOVERNANCE } = getNetworkConfigConstants();
 
-    if (!data) {
-      res.status(404).json({success:false});
-      return;
-    } else {
-      data = JSON.parse(data)
+    const validCache = await getCacheFromRedis(cacheKey, true, 10);
+    if (validCache) {
+      res.status(200).json(validCache);
+      return
     }
 
-    res.status(200).json( {
-      blockNumber: data.blockNumber,
-      timestamp: data.timestamp,
-      proposals: data.proposals,
+    const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
+    const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
+
+    const [blockNumber, quorumVotes, graphResult] = await Promise.all([
+      provider.getBlockNumber(),
+      govContract.quorumVotes(),
+      getGovProposals({}),
+    ]);
+
+    const eras = {
+      "0x35d9f4953748b318f18c30634ba299b237eedfff": GovEra.alpha,
+      "0xbeccb6bb0aa4ab551966a7e4b97cec74bb359bf6": GovEra.mills,
+    }
+
+    const proposals = graphResult.data.proposals.map(p => {
+      const era = eras[p.id.substring(0, 42)];
+      const proposalId = parseInt(p.proposalId);
+
+      const description = p.description.split("\n").slice(1).join("\n");
+
+      const forVotes = p.receipts.filter(r => r.support.support === 1).reduce((prev, curr) => prev + parseInt(curr.weight)/1e18, 0);
+      const againstVotes = p.receipts.filter(r => r.support.support === 0).reduce((prev, curr) => prev + parseInt(curr.weight)/1e18, 0);
+
+      const [startBlock, endBlock] = [parseInt(p.startBlock), parseInt(p.endBlock)];
+
+      let status = getProposalStatus(p.canceled, p.executed, parseInt(p.eta), startBlock, endBlock, blockNumber, againstVotes, forVotes, getBnToNumber(quorumVotes))
+
+      return {
+        id: proposalId,
+        proposalNum: proposalId + (era === GovEra.alpha ? 0 : 29),
+        era,
+        proposer: p.proposer.id,
+        etaTimestamp: parseInt(p.eta) * 1000,
+        startTimestamp: parseInt(p.proposalCreated[0].timestamp) * 1000,
+        endTimestamp:
+          (endBlock - Math.max(parseInt(p.startBlock), blockNumber)) * SECONDS_PER_BLOCK * 1000 + Date.now(),
+        startBlock,
+        endBlock,
+        forVotes,
+        againstVotes,
+        canceled: p.canceled,
+        executed: p.executed,
+        executionTimestamp: p.executed ? parseInt(p.proposalExecuted[0].timestamp) * 1000 : undefined,
+        title: p.description.split("\n")[0].split("# ")[1],
+        description: description,
+        descriptionAsText: removeMd(description),
+        status,
+        functions: p.calls.map(c => {
+          return {
+            target: c.target.id,
+            signature: c.signature,
+            callData: c.calldata,
+            value: c.value,
+          }
+        }),
+        voters: p.receipts.map((vote: any, i) => ({
+          id: i+1,
+          voter: vote.voter.id,
+          support: !!vote.support.support,
+          votes: parseInt(vote.weight)/1e18,
+        })),
+      }
     });
+
+    proposals.sort((a, b) => b.proposalNum - a.proposalNum);
+
+    const result = {
+      blockNumber: blockNumber,
+      timestamp: Date.now(),
+      proposals,
+    }
+
+    await redisSetWithTimestamp(cacheKey, result);
+
+    res.status(200).json(result);
   } catch (err) {
     console.error(err);
   }

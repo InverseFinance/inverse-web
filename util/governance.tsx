@@ -190,27 +190,27 @@ export const executeProposal = (signer: JsonRpcSigner, era: GovEra, id: number) 
 export const getProposalStatus = (
     canceled: boolean,
     executed: boolean,
-    eta: BigNumber,
-    startBlock: BigNumber,
-    endBlock: BigNumber,
+    eta: number,
+    startBlock: number,
+    endBlock: number,
     blockNumber: number,
-    againstVotes: BigNumber,
-    forVotes: BigNumber,
-    quorumVotes: BigNumber,
+    againstVotes: number,
+    forVotes: number,
+    quorumVotes: number,
 ) => {
     if (canceled) {
         return ProposalStatus.canceled;
     } else if (executed) {
         return ProposalStatus.executed;
-    } else if (blockNumber <= startBlock.toNumber()) {
+    } else if (blockNumber <= startBlock) {
         return ProposalStatus.pending;
-    } else if (blockNumber <= endBlock.toNumber()) {
+    } else if (blockNumber <= endBlock) {
         return ProposalStatus.active;
-    } else if (forVotes.lte(againstVotes) || forVotes.lte(quorumVotes)) {
+    } else if (forVotes <= againstVotes || forVotes < quorumVotes) {
         return ProposalStatus.defeated;
-    } else if (eta.isZero()) {
+    } else if (!eta) {
         return ProposalStatus.succeeded;
-    } else if (Date.now() >= (eta.toNumber() * 1000) + GRACE_PERIOD_MS) {
+    } else if (Date.now() >= (eta * 1000) + GRACE_PERIOD_MS) {
         return ProposalStatus.expired;
     }
     return ProposalStatus.queued

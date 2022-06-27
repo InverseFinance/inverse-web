@@ -16,7 +16,7 @@ import { Proposal, GovEra, ProposalStatus } from '@app/types';
 import Head from 'next/head'
 import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
-import { getRedisClient } from '@app/util/redis'
+import { getCacheFromRedis, getRedisClient } from '@app/util/redis'
 import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
@@ -100,11 +100,12 @@ export const Governance = ({ proposal }: { proposal: Proposal }) => {
 
 export default Governance
 
+const cacheKey = `1-proposals-v1.0.0`;
+
 // static with revalidate as on-chain proposal content cannot change but the status/votes can
 export async function getStaticProps(context) {
   const { slug } = context.params;
-  const client = getRedisClient();
-  const { proposals } = JSON.parse(await client.get(`${process.env.NEXT_PUBLIC_CHAIN_ID}-proposals`) || '{"proposals": []}');
+  const { proposals } = await getCacheFromRedis(cacheKey, false)
 
   const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
     .find((p: Proposal) => {
@@ -120,8 +121,7 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
-  const client = getRedisClient();
-  const { proposals } = JSON.parse(await client.get(`${process.env.NEXT_PUBLIC_CHAIN_ID}-proposals`) || '{"proposals": []}');
+  const { proposals } = await getCacheFromRedis(cacheKey, false)
   
   const possiblePaths = proposals.map(p => {
     return `/governance/proposals/${p.era}/${p.id}`;
