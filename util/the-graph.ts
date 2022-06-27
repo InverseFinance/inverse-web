@@ -89,6 +89,12 @@ export const getGovProposals = ({
                 }
                 weight
             }
+            proposalCreated {
+                timestamp
+            }
+            proposalExecuted {
+                timestamp
+            }
         }
         
     }
