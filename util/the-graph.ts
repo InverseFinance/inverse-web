@@ -6,6 +6,13 @@ export const getFromFrontierGraph = (query) => {
     )
 }
 
+export const getFromGovernanceGraph = (query) => {
+    return theGraphFetch(
+        `https://gateway.thegraph.com/api/${process.env.GRAPH_KEY}/subgraphs/id/EDN34txo8wRceZvye8PkGANsSuf3XUQseG1eWrQiirma`,
+        query,
+    )
+}
+
 export const theGraphFetch = (apiEndpoint: string, query: string) => {
     return fetch(
         apiEndpoint,
@@ -41,6 +48,49 @@ export const getFrontierLiquidations = ({
             underlyingRepayAmount
             underlyingSeizeAmount
         }
+    }
+    `
+    )
+}
+
+export const getGovProposals = ({
+    offset = 0,
+    size = 200,
+}) => {
+    return getFromGovernanceGraph(`
+    query {        
+        proposals {
+            id
+            proposalId
+            description
+            executed
+            proposer {
+                id
+            }
+            startBlock
+            endBlock
+            eta
+            canceled
+            queued
+            calls {
+                target {
+                    id
+                }
+                value
+                signature
+                calldata
+            }
+            receipts {
+                voter {
+                    id
+                }
+                support {
+                    support
+                }
+                weight
+            }
+        }
+        
     }
     `
     )
