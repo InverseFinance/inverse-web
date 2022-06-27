@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
+import { CTOKEN_ABI, DOLA_ABI, DOLA_PAYROLL_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -15,7 +15,7 @@ const formatBn = (bn: BigNumber, token: Token) => {
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `dao-cache-v1.2.0`;
 
   try {
@@ -192,6 +192,22 @@ export default async function handler(req, res) {
       ...lps.map(lp => getPol(lp))
     ])
 
+    // payrolls
+    const payrollContract = new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, provider);
+    const [newPayrolls, removedPayrolls] = await Promise.all([
+      payrollContract.queryFilter(payrollContract.filters.NewRecipient()),
+      payrollContract.queryFilter(payrollContract.filters.RecipientRemoved()),
+    ]);
+
+    const payrollEvents = newPayrolls.concat(removedPayrolls).sort((a, b) => a.blockNumber - b.blockNumber);
+    const currentPayrolls = Object.values(payrollEvents.reduce((prev, curr) => {
+      return {
+        ...prev,
+        [curr.args[0]]: curr.event === 'NewRecipient' ?
+          { address: curr.args[0], amount: getBnToNumber(curr.args[1]) } : undefined
+      }
+    }, {}));
+
     const resultData = {
       pols,
       dolaTotalSupply: getBnToNumber(dolaTotalSupply),
@@ -219,7 +235,8 @@ export default async function handler(req, res) {
         supply: getBnToNumber(fedData[i][0]),
         gov: fedData[i][1],
         chair: fedData[i][2],
-      }))
+      })),
+      currentPayrolls,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
