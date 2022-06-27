@@ -1,16 +1,16 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { SkeletonList } from '@app/components/common/Skeleton'
 import { useProposals } from '@app/hooks/useProposals'
 import { Proposal, ProposalStatus } from '@app/types'
 import { VictoryPie } from 'victory'
 
-export const Breakdown = () => {
+export const Breakdown = (containerProps: Partial<FlexProps>) => {
   const { proposals, isLoading } = useProposals()
 
   if (isLoading) {
     return (
-      <Container contentBgColor="gradient3">
+      <Container contentBgColor="gradient3" {...containerProps}>
         <SkeletonList />
       </Container>
     )
@@ -33,7 +33,7 @@ export const Breakdown = () => {
   )
 
   return proposals ? (
-    <Container label="Voting Results" contentBgColor="gradient3">
+    <Container label="Proposals Results" contentBgColor="gradient3"  {...containerProps}>
       <Flex direction="row" align="center" justify="space-around">
         <Flex w="full" align="center" justify="center">
           <VictoryPie

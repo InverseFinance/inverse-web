@@ -11,6 +11,7 @@ const tabs = [
     { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
+    { page: 'dao', label: 'DAO' },
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {
