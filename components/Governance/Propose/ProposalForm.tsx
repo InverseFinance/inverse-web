@@ -268,10 +268,10 @@ export const ProposalForm = ({
                 previewMode ?
                     <Flex direction="column" textAlign="left">
                         <Flex w={{ base: 'full', xl: 'full' }} justify="center">
-                            <ProposalDetails proposal={preview} />
+                            <ProposalDetails proposal={preview} isEditing={true} />
                         </Flex>
                         <Flex w={{ base: 'full', xl: 'full' }} justify="center">
-                            <ProposalActions proposal={preview} />
+                            <ProposalActions proposal={preview} isEditing={true} />
                         </Flex>
                     </Flex>
                     :
