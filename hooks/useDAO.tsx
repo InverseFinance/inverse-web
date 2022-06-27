@@ -40,6 +40,8 @@ export const useDAO = (): SWR & DAO => {
     pols: data?.pols || [],
     isLoading: !error && !data,
     isError: error,
+    currentPayrolls: data?.currentPayrolls || [],
+    vesterRecipients: data?.vesterRecipients || [],
   }
 }
 
