@@ -185,7 +185,15 @@ export const ProposalPreview = ({
   )
 }
 
-export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal: Proposal, isPublicDraft?: boolean }) => {
+export const ProposalDetails = ({
+  proposal,
+  isPublicDraft = false,
+  isEditing = false,
+}: {
+  proposal: Proposal,
+  isPublicDraft?: boolean,
+  isEditing?: boolean
+}) => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
 
@@ -203,7 +211,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
     <Container
       label={title}
       contentBgColor="gradient2"
-      px="0"
+      px={isEditing ? '0' : undefined}
       description={
         <Stack direction={{ base: 'column', sm: 'row' }} justify="left" align="left" alignItems={{ base: 'flex-start', sm: 'center' }} spacing={1}>
           <Stack direction="row" align="left" alignItems="center">
@@ -251,7 +259,7 @@ export const ProposalDetails = ({ proposal, isPublicDraft = false }: { proposal:
   )
 }
 
-export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
+export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Proposal, isEditing?: boolean }) => {
   if (!proposal?.id) {
     return <></>
   }
@@ -259,7 +267,7 @@ export const ProposalActions = ({ proposal }: { proposal: Proposal }) => {
   const { functions } = proposal
 
   return (
-    <Container contentBgColor="gradient2" label="Actions" px="0">
+    <Container contentBgColor="gradient2" label="Actions" px={ isEditing ? '0' : '6' }>
       <Stack w="full" spacing={6} p={2}>
         {!functions.length && <InfoMessage description="At least one on-chain action is required to submit the proposal" alertProps={{ w: 'full' }} />}
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {

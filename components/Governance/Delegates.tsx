@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
 import { Avatar } from '@app/components/common/Avatar'
 import Container from '@app/components/common/Container'
 import { SkeletonList } from '@app/components/common/Skeleton'
@@ -19,20 +19,20 @@ const DelegateName = ({address, chainId, ensName}: { address: string, chainId?: 
   )
 }
 
-export const DelegatesPreview = () => {
+export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { delegates, isLoading } = useTopDelegates()
 
   if (isLoading) {
     return (
-      <Container label="Top Delegates" contentBgColor="gradient3">
+      <Container label="Top Delegates" contentBgColor="gradient3" {...containerProps}>
         <SkeletonList />
       </Container>
     )
   }
 
   return (
-    <Container label="Top Delegates" contentBgColor="gradient3">
+    <Container label="Top Delegates" contentBgColor="gradient3" {...containerProps}>
       <Stack w="full">
         {
           delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => {

@@ -529,6 +529,8 @@ export type DAO = {
   feds: FedWithData[],
   multisigs: Multisig[]
   pols: { totalSupply: number, ownedAmount: number }[]
+  currentPayrolls: { address: string, amount: number }[]
+  vesterRecipients: string[]
 }
 
 export type GenericComponent = React.ComponentType<any>;

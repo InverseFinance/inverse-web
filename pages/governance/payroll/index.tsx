@@ -48,11 +48,12 @@ export const DolaPayrollPage = () => {
     [DOLA_PAYROLL, 'balanceOf', userAddress],
     [DOLA_PAYROLL, 'recipients', userAddress],
     [DOLA, 'allowance', TREASURY, DOLA_PAYROLL],
+    [DOLA, 'balanceOf', TREASURY],
   ]);
 
   const { events } = useContractEvents(DOLA_PAYROLL, DOLA_PAYROLL_ABI, 'AmountWithdrawn');
 
-  const [lastClaim, ratePerSecond, startTime] = !!data ? data[1] : [0, 0, 0];
+  const [lastClaim, ratePerSecond, startTime] = !!data ? data[1] : [0, 0, 0, 0];
 
   const widthdrawable = !!data ? parseFloat(formatUnits(data[0], TOKENS[DOLA].decimals)) : 0;
   const startTimestamp = parseInt(startTime.toString()) * 1000;
@@ -60,7 +61,8 @@ export const DolaPayrollPage = () => {
   const yearlyRate = getBnToNumber(ratePerSecond) * 3600 * 24 * 365;
   const monthlyRate = yearlyRate / 12;
 
-  const allowance = data && data[2] ? parseFloat(formatUnits(data[2])) : 0;
+  const allowance = data && data[2] ? getBnToNumber(data[2]) : 0;
+  const dolaTreasury = data && data[3] ? getBnToNumber(data[3]) : 0;
 
   const formatDate = (timestamp: number, isSmaller: boolean) => {
     return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller ? '' : ` (${moment(timestamp).fromNow()})`}`
@@ -133,14 +135,24 @@ export const DolaPayrollPage = () => {
                   <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(library?.getSigner()!)}>
                     Withdraw
                   </SubmitButton>
-                  <HStack fontSize="12px">
-                    <Text color="secondaryTextColor">
-                      DolaPayroll's remaining allowance:
-                    </Text>
-                    <Text color="secondaryTextColor">
-                      {shortenNumber(allowance, 2, false)} DOLA
-                    </Text>
-                  </HStack>
+                  <VStack>
+                    <HStack fontSize="12px">
+                      <Text color="secondaryTextColor">
+                        DolaPayroll's remaining allowance:
+                      </Text>
+                      <Text color="secondaryTextColor">
+                        {shortenNumber(allowance, 2, false)} DOLA
+                      </Text>
+                    </HStack>
+                    <HStack fontSize="12px">
+                      <Text color="secondaryTextColor">
+                        Treasury's balance:
+                      </Text>
+                      <Text color="secondaryTextColor">
+                        {shortenNumber(dolaTreasury, 2, false)} DOLA
+                      </Text>
+                    </HStack>
+                  </VStack>
                 </VStack>
             }
           </Container>

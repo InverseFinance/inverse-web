@@ -1,6 +1,7 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
 import localforage from 'localforage';
 import { getProvider } from '@app/util/providers';
+import { ADDRESS_ROLES } from '../variables/names';
 
 export const getEnsName = async (address: string, isBackendSide = false, specificProvider?: any): Promise<string> => {
   try {
@@ -31,6 +32,17 @@ export const namedAddress = (address: string, chainId?: string | number, ensName
   }
 
   return ensName || shortenAddress(address)
+}
+
+export const namedRoles = (address: string, defaultRole = 'Unknown') => {
+  const name = Object.entries(ADDRESS_ROLES)
+    .find(([key, value]) => key.toLowerCase() === (address||'').toLowerCase());
+
+  if (!!name) {
+    return name[1];
+  }
+
+  return defaultRole;
 }
 
 export const shortenAddress = (address: string) => {
