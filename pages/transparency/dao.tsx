@@ -1,19 +1,17 @@
-import { Flex, Text, VStack } from '@chakra-ui/react'
+import { Flex, SimpleGrid, Stack, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { getNetworkConfigConstants } from '@app/util/networks';
-import { Delegate, NetworkIds } from '@app/types'
+import { Delegate } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO } from '@app/hooks/useDAO'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 import { Breakdown, DelegatesPreview } from '@app/components/Governance'
 import { useTopDelegates } from '@app/hooks/useDelegates'
-import { PieChart } from '@app/components/Transparency/PieChart'
 import { shortenNumber } from '@app/util/markets';
-import theme from '@app/variables/theme';
-import { namedAddress } from '@app/util';
+import { namedAddress, namedRoles } from '@app/util';
+import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 
 const hasPayrollOrVester = (
     payrolls: { address: string, amount: number }[],
@@ -39,7 +37,22 @@ export const GovTransparency = () => {
 
     const teamPerc = teamPower / (teamPower + nonTeamPower) * 100
     const otherPerc = nonTeamPower / (teamPower + nonTeamPower) * 100
-    const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev+curr.amount/12, 0);
+    const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev + curr.amount / 12, 0);
+
+    const payrollsWithRoles = currentPayrolls.map(p => {
+        return { role: namedRoles(p.address), label: namedAddress(p.address), balance: p.amount / 12, usdPrice: 1 }
+    })
+
+    const roleCosts = Object.entries(payrollsWithRoles.reduce((prev, curr) => {
+        return { ...prev, [curr.role]: curr.balance + (prev[curr.role] || 0) }
+    }, {})).map(([key, v]) => {
+        return { label: key, balance: v, perc: v / totalDolaMonthly * 100, usdPrice: 1, drill: payrollsWithRoles.filter(p => p.role === key) }
+    });
+
+    const votingPowerDist = [
+        { label: `Active Contributors: ${shortenNumber(teamPerc)}%`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
+        { label: `Others: ${shortenNumber(otherPerc)}%`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
+    ]
 
     return (
         <Layout>
@@ -52,34 +65,31 @@ export const GovTransparency = () => {
             </Head>
             <AppNav active="Transparency" activeSubmenu="DAO" />
             <TransparencyTabs active="dao" />
-            <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
-                <VStack py="2" pl="200px" minW="900px">
-                    <Text fontWeight="extrabold" color="secondary" fontSize="18px">Voting Power Distribution:</Text>
-                    <PieChart
-                        data={[
-                            { x: `Active Contributors: ${shortenNumber(teamPerc)}%`, y: teamPower, perc: teamPerc },
-                            { x: `Other DAO Members: ${shortenNumber(otherPerc)}%`, y: nonTeamPower, perc: otherPerc },
-                        ]}
-                        colorScale={[theme.colors.containerContentBackground, theme.colors.secondary]}
-                        showTotalUsd={false}
-                        showAsAmountOnly={true}
-                    />
-                    <Text fontWeight="extrabold" color="secondary" fontSize="18px">Monthly DOLA costs:</Text>
-                    <PieChart
-                        data={
-                            currentPayrolls.map(p => {
-                                return { x: namedAddress(p.address), y: (p.amount/12), perc: ((p.amount/12)/totalDolaMonthly) * 100 }
-                            })
-                        }
-                        showTotalUsd={true}
-                    />
-                </VStack>
-                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
+            <Stack spacing="8" w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
+                <Flex direction="column" py="2" px="5" maxWidth="900px" w='full'>
+                    <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
+                        <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
+                            <FundsDetails
+                                title="DOLA Monthly costs"
+                                funds={roleCosts}
+                                type="balance"
+                                prices={{}}
+                            />
+                            <FundsDetails
+                                title="Voting Power Distribution"
+                                funds={votingPowerDist}
+                                type="balance"
+                                prices={{}}
+                            />
+                        </SimpleGrid>
+                    </Stack>
+                </Flex>
+                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
                     <GovernanceRules />
                     <Breakdown p="0" />
                     <DelegatesPreview p="0" />
                 </VStack>
-            </Flex>
+            </Stack>
         </Layout>
     )
 }
