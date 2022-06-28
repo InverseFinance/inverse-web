@@ -62,19 +62,23 @@ const namedAddresses: { [key: string]: string } = {
 }
 
 export const ADDRESS_ROLES = {
-    '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'Treasury Working Group',
-    '0x962228a90eac69238c7d1f216d80037e61ea9255': 'Treasury Working Group',
+    '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'Treasury',
+    '0x962228a90eac69238c7d1f216d80037e61ea9255': 'Treasury',
     '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'Engineering',
     '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': 'Engineering',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'Engineering',
-    '0xE58ED128325A33afD08e90187dB0640619819413': 'Growth Working Group',
-    '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'Growth Working Group',
-    '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Community Working Group',
-    '0x2723723FDd3Db8ba2D6f0e1B333e90A7E60A0411': 'Risk Working Group',
-    '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Risk Working Group',
+    '0xE58ED128325A33afD08e90187dB0640619819413': 'Growth',
+    '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'Growth',
+    '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Community',
+    '0x2723723FDd3Db8ba2D6f0e1B333e90A7E60A0411': 'Risk',
+    '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Risk',
     '0x27b8D1347bE36Ff697b48d1D74323E6a9f28eA6D': 'Design',
     '0x8E199c07E9c8D5CCbCA86fF5665A5b171b20D5E7': 'Marketing',
-    '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE': 'Analytics Working Group',
+    '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE': 'Analytics',
+    '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb': 'Founder',
+    '0xD32066c2E31961aDf2A6fd0D57326dFf1e33FC29': 'Moderation / Other',
+    '0xC8A6fDd2586AF7980776DC610C159A92E9Db11C3': 'Moderation / Other',
+    '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'Operations',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {

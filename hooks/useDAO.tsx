@@ -1,4 +1,4 @@
-import { FedEvent, SWR, StabilizerEvent, DAO } from '@app/types'
+import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
@@ -40,8 +40,20 @@ export const useDAO = (): SWR & DAO => {
     pols: data?.pols || [],
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+export const useCompensations = (): SWR & {
+  currentPayrolls: Payroll[]
+  currentVesters: Vester[]
+} => {
+  const { data, error } = useCustomSWR(`/api/transparency/compensations`, fetcher)
+
+  return {
+    isLoading: !error && !data,
+    isError: error,
     currentPayrolls: data?.currentPayrolls || [],
-    vesterRecipients: data?.vesterRecipients || [],
+    currentVesters: data?.currentVesters || [],
   }
 }
 

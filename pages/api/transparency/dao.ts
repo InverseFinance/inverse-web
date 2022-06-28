@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { CTOKEN_ABI, DOLA_ABI, DOLA_PAYROLL_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI, VESTER_ABI, VESTER_FACTORY_ABI } from '@app/config/abis'
+import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -192,38 +192,6 @@ export default async function handler(req, res) {
       ...lps.map(lp => getPol(lp))
     ])
 
-    // payrolls
-    const payrollContract = new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, provider);
-    const [newPayrolls, removedPayrolls] = await Promise.all([
-      payrollContract.queryFilter(payrollContract.filters.NewRecipient()),
-      payrollContract.queryFilter(payrollContract.filters.RecipientRemoved()),
-    ]);
-
-    const payrollEvents = newPayrolls.concat(removedPayrolls)
-      .sort((a, b) => a.blockNumber - b.blockNumber || a.logIndex - b.logIndex);
-
-    const currentPayrolls = Object.values(payrollEvents.reduce((prev, curr) => {
-      return {
-        ...prev,
-        [curr.args[0]]: curr.event === 'NewRecipient' ?
-          { address: curr.args[0], amount: getBnToNumber(curr.args[1]) } : undefined
-      }
-    }, {})).filter(v => !!v);
-
-    // vesters
-    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 20).keys()];
-
-    const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
-    const vestersResults = await Promise.allSettled([
-      ...vestersToCheck.map((v, i) => vesterFactory.vesters(i))
-    ]);
-
-    const vesters = vestersResults ? vestersResults.filter(r => r.status === 'fulfilled').map(r => r.value) : [];
-    const vesterRecipients = await Promise.all([
-      ...vesters.map(v => (new Contract(v, VESTER_ABI, provider)).recipient())
-    ]);
-    const uniqueVesterRecipients = [...new Set(vesterRecipients)];
-
     const resultData = {
       pols,
       dolaTotalSupply: getBnToNumber(dolaTotalSupply),
@@ -252,8 +220,6 @@ export default async function handler(req, res) {
         gov: fedData[i][1],
         chair: fedData[i][2],
       })),
-      currentPayrolls,
-      vesterRecipients: uniqueVesterRecipients,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
