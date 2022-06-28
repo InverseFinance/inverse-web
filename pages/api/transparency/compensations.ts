@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     ]);
     const currentVesters: Partial<Vester>[] = [];
     vesters.forEach((v, i) => {
-      if(!vestersIsCancelled[i]){
+      if (!vestersIsCancelled[i]) {
         currentVesters.push({ address: v });
       }
     })
@@ -63,8 +63,17 @@ export default async function handler(req, res) {
       Promise.all(currentVesters.map(v => (new Contract(v.address, VESTER_ABI, provider)).recipient())),
       Promise.all(currentVesters.map(v => invContract.queryFilter(invContract.filters.Transfer(TREASURY, v.address)))),
     ]);
+
+    // founder: initial amount was 8k, current vester is just part of it
+    const founderRecipient = '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb';
+
     currentVesters.forEach((v, i) => {
-      currentVesters[i] = { ...v, recipient: vesterRecipients[i], amount: getBnToNumber(vesterInitialInv[i][0].args[2]) }
+      currentVesters[i] = {
+        ...v,
+        recipient: vesterRecipients[i],
+        amount: vesterRecipients[i].toLowerCase() === founderRecipient.toLowerCase() ?
+          8000 : getBnToNumber(vesterInitialInv[i][0].args[2])
+      }
     })
 
     const resultData = {

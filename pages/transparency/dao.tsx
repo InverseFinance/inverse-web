@@ -111,7 +111,7 @@ export const GovTransparency = () => {
                                 prices={{}}
                             />
                             <FundsDetails
-                                title="INV Vesting Granted"
+                                title="INV Granted (2 years linear vesting)"
                                 funds={vestersByRole}
                                 type="balance"
                                 prices={{}}
