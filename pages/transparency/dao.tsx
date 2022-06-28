@@ -13,6 +13,7 @@ import { useTopDelegates } from '@app/hooks/useDelegates'
 import { PieChart } from '@app/components/Transparency/PieChart'
 import { shortenNumber } from '@app/util/markets';
 import theme from '@app/variables/theme';
+import { namedAddress } from '@app/util';
 
 const hasPayrollOrVester = (
     payrolls: { address: string, amount: number }[],
@@ -38,6 +39,7 @@ export const GovTransparency = () => {
 
     const teamPerc = teamPower / (teamPower + nonTeamPower) * 100
     const otherPerc = nonTeamPower / (teamPower + nonTeamPower) * 100
+    const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev+curr.amount/12, 0);
 
     return (
         <Layout>
@@ -61,6 +63,15 @@ export const GovTransparency = () => {
                         colorScale={[theme.colors.containerContentBackground, theme.colors.secondary]}
                         showTotalUsd={false}
                         showAsAmountOnly={true}
+                    />
+                    <Text fontWeight="extrabold" color="secondary" fontSize="18px">Monthly DOLA costs:</Text>
+                    <PieChart
+                        data={
+                            currentPayrolls.map(p => {
+                                return { x: namedAddress(p.address), y: (p.amount/12), perc: ((p.amount/12)/totalDolaMonthly) * 100 }
+                            })
+                        }
+                        showTotalUsd={true}
                     />
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
