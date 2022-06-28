@@ -106,10 +106,10 @@ export const MENUS = {
           href: '/transparency/stabilizer',
           label: 'Stabilizer',
         },
-        {
-          href: '/transparency/dao',
-          label: 'DAO',
-        },
+        // {
+        //   href: '/transparency/dao',
+        //   label: 'DAO',
+        // },
       ]
     },
     {
