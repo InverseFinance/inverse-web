@@ -101,7 +101,6 @@ export const GovTransparency = () => {
         }
     }) as Fund[];
 
-    // const now = new Date()
     const chartData = [...proposals.sort((a, b) => a.startTimestamp - b.startTimestamp)
         .map(p => {
             const date = new Date(p.startTimestamp);
@@ -137,7 +136,7 @@ export const GovTransparency = () => {
                             />
                             <VStack w='full' justify="flex-start" alignItems="flex-start">
                                 <Text textAlign="left" mt="1" color="secondary" fontSize="20px" fontWeight="extrabold">
-                                    Proposals in the Last 12 months:
+                                    Created Proposals Last 12 months:
                                 </Text>
                                 <ProposalBarChart maxChartWidth={450} chartData={chartData} />
                             </VStack>
@@ -161,9 +160,9 @@ export const GovTransparency = () => {
 
                     </Stack>
                 </Flex>
-                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
+                <VStack spacing={4} direction="column" pt="3" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
+                    <Breakdown p="0" mt="0" noPadding />
                     <GovernanceRules />
-                    <Breakdown p="0" />
                     <DelegatesPreview p="0" />
                 </VStack>
             </Stack>

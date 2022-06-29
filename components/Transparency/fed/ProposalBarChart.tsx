@@ -28,7 +28,7 @@ export const ProposalBarChart = ({ chartData, maxChartWidth = 900, ...props }: {
 
                 return {
                     label: `${type}: ${shortenNumber(y, 2, false)}`,
-                    x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM'),
+                    x: moment(date).format('MMM'),
                     y,
                 }
             });
@@ -40,7 +40,7 @@ export const ProposalBarChart = ({ chartData, maxChartWidth = 900, ...props }: {
             height={300}
             title=""
             groupedData={barChartData}
-            colorScale={[theme.colors.mainTextColor, theme.colors.secondary, theme.colors.warning]}
+            colorScale={[theme.colors.mainTextColor, theme.colors.secondary, theme.colors.secondaryTextColor]}
             isDollars={false}
             precision={0}
             {...props}
