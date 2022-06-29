@@ -3,6 +3,7 @@ import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, 
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { shortenNumber } from '@app/util/markets';
+import theme from '@app/variables/theme';
 
 type Props = { x: string, y: number, label?: string }[][]
 
@@ -86,7 +87,7 @@ export const BarChart = ({
                         return (
                             <VictoryBar
                                 alignment="middle"
-                                labelComponent={<VictoryTooltip flyoutPadding={10} cornerRadius={10} style={{ fill: '#fff', fontFamily: 'Inter' }} flyoutStyle={{ fill: '#8881c9ee' }} />}
+                                labelComponent={<VictoryTooltip flyoutPadding={10} cornerRadius={10} style={{ fill: '#fff', fontFamily: 'Inter' }} flyoutStyle={{ fill: theme.colors.darkPrimary, stroke: '#fff' }} />}
                                 key={key}
                                 data={dataGroup}
                                 style={{
