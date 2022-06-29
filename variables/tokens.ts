@@ -440,14 +440,14 @@ export const RTOKEN_CG_ID = REWARD_TOKEN?.coingeckoId!;
 export const RTOKEN_SYMBOL = REWARD_TOKEN?.symbol!;
 
 export const BONDS = [
-  {
-    input: chainTokenAddresses["1"].INVDOLASLP,
-    abiType: 1,
-    ctoken: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
-    underlying: getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP)!,
-    bondContract: '0x34eb308c932fe3bbda8716a1774ef01d302759d9',
-    howToGetLink: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014ccded1e7d814edc9ce4',
-  },
+  // {
+  //   input: chainTokenAddresses["1"].INVDOLASLP,
+  //   abiType: 1,
+  //   ctoken: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
+  //   underlying: getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP)!,
+  //   bondContract: '0x34eb308c932fe3bbda8716a1774ef01d302759d9',
+  //   howToGetLink: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014ccded1e7d814edc9ce4',
+  // },
   {
     input: chainTokenAddresses["1"].DOLA,
     abiType: 0,
@@ -457,13 +457,31 @@ export const BONDS = [
     howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
     inputPrice: 1,
   },
+  // {
+  //   input: chainTokenAddresses["1"].DOLA3POOLCRV,
+  //   abiType: 0,
+  //   ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
+  //   underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
+  //   bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
+  //   howToGetLink: 'https://curve.fi/factory/27/deposit',
+  // },
   {
-    input: chainTokenAddresses["1"].DOLA3POOLCRV,
+    input: chainTokenAddresses["1"].DOLA,
     abiType: 0,
-    ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
-    underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
-    bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
-    howToGetLink: 'https://curve.fi/factory/27/deposit',
+    ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
+    bondContract: '0xBfB90b9CE47F36841c776a1B82EE49157D4c746b',
+    howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+    inputPrice: 1,
+  },
+  {
+    input: chainTokenAddresses["1"].DOLA,
+    abiType: 0,
+    ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
+    bondContract: '0x3Fe012C3a1A747f249a376CC9536f9a94796eE81',
+    howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+    inputPrice: 1,
   },
 ]
 
