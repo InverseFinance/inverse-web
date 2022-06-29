@@ -9,10 +9,10 @@ import { useCompensations } from '@app/hooks/useDAO'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 import { Breakdown, DelegatesPreview } from '@app/components/Governance'
 import { useTopDelegates } from '@app/hooks/useDelegates'
-import { shortenNumber } from '@app/util/markets';
 import { namedAddress, namedRoles } from '@app/util';
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { usePricesV2 } from '@app/hooks/usePrices'
+import { Fund } from '@app/components/Transparency/Funds'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -43,8 +43,8 @@ export const GovTransparency = () => {
     const totalVested = currentVesters.reduce((prev, curr) => prev + curr.amount / 12, 0);
 
     const votingPowerDist = [
-        { label: `Active Contributors: ${shortenNumber(teamPerc)}%`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
-        { label: `Others: ${shortenNumber(otherPerc)}%`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
+        { label: `Active Contributors`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
+        { label: `Others`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
     ];
 
     const payrollsWithRoles = currentPayrolls.map(p => {
@@ -61,7 +61,7 @@ export const GovTransparency = () => {
             usdPrice: prices && prices['dola-usd'] ? prices['dola-usd'].usd : 1,
             drill: payrollsWithRoles.filter(p => p.role === key),
         }
-    });
+    }) as Fund[];
 
     const vestersByRecipients = Object.entries(currentVesters.reduce((prev, curr) => {
         return { ...prev, [curr.recipient]: curr.amount + (prev[curr.recipient] || 0) }
@@ -74,7 +74,7 @@ export const GovTransparency = () => {
             recipient: key,
             role: namedRoles(key),
         }
-    });
+    }) as Fund[];
 
     const vestersByRole = Object.entries(currentVesters.reduce((prev, curr) => {
         const role = namedRoles(curr.recipient);
@@ -87,7 +87,7 @@ export const GovTransparency = () => {
             usdPrice: prices && prices['inverse-finance'] ? prices['inverse-finance'].usd : 1,
             drill: vestersByRecipients.filter(v => v.role === key),
         }
-    });
+    }) as Fund[];
 
     return (
         <Layout>
@@ -109,18 +109,23 @@ export const GovTransparency = () => {
                                 funds={roleCosts}
                                 type="balance"
                                 prices={{}}
+                                labelWithPercInChart={false}
                             />
                             <FundsDetails
                                 title="INV Granted (2 years linear vesting)"
                                 funds={vestersByRole}
                                 type="balance"
                                 prices={{}}
+                                labelWithPercInChart={false}
+                                showAsAmountOnly={true}
+                                totalLabel="- TOTAL:"
                             />
                             <FundsDetails
                                 title="Voting Power Distribution"
                                 funds={votingPowerDist}
                                 type="balance"
                                 prices={{}}
+                                labelWithPercInChart={true}
                             />
 
                         </SimpleGrid>
