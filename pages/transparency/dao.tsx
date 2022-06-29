@@ -1,9 +1,9 @@
-import { Flex, SimpleGrid, Stack, VStack } from '@chakra-ui/react'
+import { Flex, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { Delegate, Payroll, Vester } from '@app/types'
+import { Delegate, Payroll, ProposalStatus, Vester } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useCompensations } from '@app/hooks/useDAO'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
@@ -13,6 +13,8 @@ import { namedAddress, namedRoles } from '@app/util';
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { Fund } from '@app/components/Transparency/Funds'
+import { useProposals } from '@app/hooks/useProposals'
+import { ProposalBarChart } from '@app/components/Transparency/fed/ProposalBarChart'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -24,10 +26,20 @@ const hasPayrollOrVester = (
         || !!vesters.find(v => v.address.toLowerCase() === lcAddress || delegate.delegators.find(_d => _d.toLowerCase() === v.address.toLowerCase()));
 }
 
+const getProposalStatusType = (status: ProposalStatus) => {
+    if ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(status)) {
+        return 'Failed';
+    } else if ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(status)) {
+        return 'Passed';
+    }
+    return 'Active'
+}
+
 export const GovTransparency = () => {
     const { currentPayrolls, currentVesters } = useCompensations();
     const { prices } = usePricesV2();
     const { delegates } = useTopDelegates();
+    const { proposals } = useProposals();
 
     const teamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, currentVesters, d)).reduce((prev, curr) => {
         return prev + curr.votingPower
@@ -89,6 +101,18 @@ export const GovTransparency = () => {
         }
     }) as Fund[];
 
+    // const now = new Date()
+    const chartData = [...proposals.sort((a, b) => a.startTimestamp - b.startTimestamp)
+        .map(p => {
+            const date = new Date(p.startTimestamp);
+            return {
+                x: p.startTimestamp,
+                type: getProposalStatusType(p.status),
+                month: date.getUTCMonth(),
+                year: date.getUTCFullYear(),
+            }
+        })];
+
     return (
         <Layout>
             <Head>
@@ -105,6 +129,19 @@ export const GovTransparency = () => {
                     <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
+                                title="Voting Power Distribution"
+                                funds={votingPowerDist}
+                                type="balance"
+                                prices={{}}
+                                labelWithPercInChart={true}
+                            />
+                            <VStack w='full' justify="flex-start" alignItems="flex-start">
+                                <Text textAlign="left" mt="1" color="secondary" fontSize="20px" fontWeight="extrabold">
+                                    Proposals in the Last 12 months:
+                                </Text>
+                                <ProposalBarChart maxChartWidth={450} chartData={chartData} />
+                            </VStack>
+                            <FundsDetails
                                 title="DOLA Monthly costs"
                                 funds={roleCosts}
                                 type="balance"
@@ -120,15 +157,8 @@ export const GovTransparency = () => {
                                 showAsAmountOnly={true}
                                 totalLabel="- TOTAL:"
                             />
-                            <FundsDetails
-                                title="Voting Power Distribution"
-                                funds={votingPowerDist}
-                                type="balance"
-                                prices={{}}
-                                labelWithPercInChart={true}
-                            />
-
                         </SimpleGrid>
+
                     </Stack>
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
