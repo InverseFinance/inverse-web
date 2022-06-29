@@ -1,58 +1,116 @@
-import { Flex, SimpleGrid, Stack, VStack } from '@chakra-ui/react'
+import { Flex, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { Delegate } from '@app/types'
+import { Delegate, Payroll, ProposalStatus, Vester } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO } from '@app/hooks/useDAO'
+import { useCompensations } from '@app/hooks/useDAO'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 import { Breakdown, DelegatesPreview } from '@app/components/Governance'
 import { useTopDelegates } from '@app/hooks/useDelegates'
-import { shortenNumber } from '@app/util/markets';
 import { namedAddress, namedRoles } from '@app/util';
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
+import { usePricesV2 } from '@app/hooks/usePrices'
+import { Fund } from '@app/components/Transparency/Funds'
+import { useProposals } from '@app/hooks/useProposals'
+import { ProposalBarChart } from '@app/components/Transparency/fed/ProposalBarChart'
 
 const hasPayrollOrVester = (
-    payrolls: { address: string, amount: number }[],
-    vesterRecipients: string[],
+    payrolls: Payroll[],
+    vesters: Vester[],
     delegate: Delegate,
 ) => {
     const lcAddress = delegate.address.toLowerCase();
-    return !!payrolls.find(p => p?.address?.toLowerCase() === lcAddress)
-        || !!vesterRecipients.find(a => a.toLowerCase() === lcAddress || delegate.delegators.find(_d => _d.toLowerCase() === a.toLowerCase()));
+    return !!payrolls.find(p => p.recipient?.toLowerCase() === lcAddress)
+        || !!vesters.find(v => v.address.toLowerCase() === lcAddress || delegate.delegators.find(_d => _d.toLowerCase() === v.address.toLowerCase()));
+}
+
+const getProposalStatusType = (status: ProposalStatus) => {
+    if ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(status)) {
+        return 'Failed';
+    } else if ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(status)) {
+        return 'Passed';
+    }
+    return 'Active'
 }
 
 export const GovTransparency = () => {
-    const { currentPayrolls, vesterRecipients } = useDAO();
+    const { currentPayrolls, currentVesters } = useCompensations();
+    const { prices } = usePricesV2();
     const { delegates } = useTopDelegates();
+    const { proposals } = useProposals();
 
-    const teamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, vesterRecipients, d)).reduce((prev, curr) => {
+    const teamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, currentVesters, d)).reduce((prev, curr) => {
         return prev + curr.votingPower
     }, 0);
 
-    const nonTeamPower = delegates.filter(d => !hasPayrollOrVester(currentPayrolls, vesterRecipients, d)).reduce((prev, curr) => {
+    const nonTeamPower = delegates.filter(d => !hasPayrollOrVester(currentPayrolls, currentVesters, d)).reduce((prev, curr) => {
         return prev + curr.votingPower
     }, 0);
 
     const teamPerc = teamPower / (teamPower + nonTeamPower) * 100
     const otherPerc = nonTeamPower / (teamPower + nonTeamPower) * 100
     const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev + curr.amount / 12, 0);
+    const totalVested = currentVesters.reduce((prev, curr) => prev + curr.amount / 12, 0);
+
+    const votingPowerDist = [
+        { label: `Active Contributors`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
+        { label: `Others`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
+    ];
 
     const payrollsWithRoles = currentPayrolls.map(p => {
-        return { role: namedRoles(p.address), label: namedAddress(p.address), balance: p.amount / 12, usdPrice: 1 }
+        return { role: namedRoles(p.recipient), label: namedAddress(p.recipient), balance: p.amount / 12, usdPrice: 1 }
     })
 
     const roleCosts = Object.entries(payrollsWithRoles.reduce((prev, curr) => {
         return { ...prev, [curr.role]: curr.balance + (prev[curr.role] || 0) }
     }, {})).map(([key, v]) => {
-        return { label: key, balance: v, perc: v / totalDolaMonthly * 100, usdPrice: 1, drill: payrollsWithRoles.filter(p => p.role === key) }
-    });
+        return {
+            label: key,
+            balance: v,
+            perc: v / totalDolaMonthly * 100,
+            usdPrice: prices && prices['dola-usd'] ? prices['dola-usd'].usd : 1,
+            drill: payrollsWithRoles.filter(p => p.role === key),
+        }
+    }) as Fund[];
 
-    const votingPowerDist = [
-        { label: `Active Contributors: ${shortenNumber(teamPerc)}%`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
-        { label: `Others: ${shortenNumber(otherPerc)}%`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
-    ]
+    const vestersByRecipients = Object.entries(currentVesters.reduce((prev, curr) => {
+        return { ...prev, [curr.recipient]: curr.amount + (prev[curr.recipient] || 0) }
+    }, {})).map(([key, v]) => {
+        return {
+            label: namedAddress(key),
+            balance: v,
+            perc: v / totalVested * 100,
+            usdPrice: prices && prices['inverse-finance'] ? prices['inverse-finance'].usd : 1,
+            recipient: key,
+            role: namedRoles(key),
+        }
+    }) as Fund[];
+
+    const vestersByRole = Object.entries(currentVesters.reduce((prev, curr) => {
+        const role = namedRoles(curr.recipient);
+        return { ...prev, [role]: curr.amount + (prev[role] || 0) }
+    }, {})).map(([key, v]) => {
+        return {
+            label: key,
+            balance: v,
+            perc: v / totalVested * 100,
+            usdPrice: prices && prices['inverse-finance'] ? prices['inverse-finance'].usd : 1,
+            drill: vestersByRecipients.filter(v => v.role === key),
+        }
+    }) as Fund[];
+
+    const chartData = [...proposals.sort((a, b) => a.startTimestamp - b.startTimestamp)
+        .map(p => {
+            const date = new Date(p.startTimestamp);
+            return {
+                x: p.startTimestamp,
+                type: getProposalStatusType(p.status),
+                month: date.getUTCMonth(),
+                year: date.getUTCFullYear(),
+            }
+        })];
 
     return (
         <Layout>
@@ -70,25 +128,43 @@ export const GovTransparency = () => {
                     <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
-                                title="DOLA Monthly costs"
-                                funds={roleCosts}
-                                type="balance"
-                                prices={{}}
-                            />
-                            <FundsDetails
                                 title="Voting Power Distribution"
                                 funds={votingPowerDist}
                                 type="balance"
                                 prices={{}}
+                                labelWithPercInChart={true}
+                            />
+                            <VStack w='full' justify="flex-start" alignItems="flex-start">
+                                <Text textAlign="left" mt="1" color="secondary" fontSize="20px" fontWeight="extrabold">
+                                    Created Proposals Last 12 months:
+                                </Text>
+                                <ProposalBarChart maxChartWidth={450} chartData={chartData} />
+                            </VStack>
+                            <FundsDetails
+                                title="DOLA Monthly costs"
+                                funds={roleCosts}
+                                type="balance"
+                                prices={{}}
+                                labelWithPercInChart={false}
+                            />
+                            <FundsDetails
+                                title="INV Granted (2 years linear vesting)"
+                                funds={vestersByRole}
+                                type="balance"
+                                prices={{}}
+                                labelWithPercInChart={false}
+                                showAsAmountOnly={true}
+                                totalLabel="- TOTAL:"
                             />
                         </SimpleGrid>
+
                     </Stack>
                 </Flex>
-                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
+                {/* <VStack spacing={4} direction="column" pt="3" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
+                    <Breakdown p="0" mt="0" noPadding />
                     <GovernanceRules />
-                    <Breakdown p="0" />
                     <DelegatesPreview p="0" />
-                </VStack>
+                </VStack> */}
             </Stack>
         </Layout>
     )

@@ -82,6 +82,10 @@ export const MENUS = {
           href: '/transparency/treasury',
           label: 'Treasury',
         },
+        // {
+        //   href: '/transparency/dao',
+        //   label: 'DAO',
+        // },
         {
           href: '/transparency/inv',
           label: 'INV',
@@ -106,10 +110,6 @@ export const MENUS = {
           href: '/transparency/stabilizer',
           label: 'Stabilizer',
         },
-        // {
-        //   href: '/transparency/dao',
-        //   label: 'DAO',
-        // },
       ]
     },
     {

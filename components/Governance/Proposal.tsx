@@ -53,11 +53,11 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
         : `Locked until ${getDate(eta, isDetails)} (${moment(eta).fromNow()})`
       return text;
     case ProposalStatus.executed:
-      return `Executed ${getDate(executionTs || eta)}`
+      return `Created ${getDate(start)} - Executed ${getDate(executionTs || eta)}`
     case ProposalStatus.draft:
       return !createdAt ? '' : `Created ${getDate(createdAt)}${updatedAt ? ` - Last Update ${getDate(updatedAt)}` : ''}`
     default:
-      return getDate(eta || end || start)
+      return `Created ${getDate(start)}`
   }
 }
 

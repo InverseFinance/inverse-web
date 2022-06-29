@@ -72,9 +72,21 @@ const getPrice = (prices: Prices["prices"] | undefined, token: Token | undefined
     return p1 || p2 || 0;
 }
 
+export type Fund = {
+    token?: Token,
+    balance: number,
+    allowance?: number,
+    usdPrice?: number,
+    chartFillColor?: string,
+    chartLabelFillColor?: string,
+    ctoken?: string,
+    label?: string,
+    drill?: Fund[],
+};
+
 type FundsProps = {
     prices?: Prices["prices"],
-    funds: { token: Token, balance: number, allowance?: number, usdPrice?: number, chartFillColor?: string, chartLabelFillColor?: string }[],
+    funds: Fund[],
     totalLabel?: string
     boldTotal?: boolean,
     showPerc?: boolean,

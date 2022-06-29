@@ -529,8 +529,6 @@ export type DAO = {
   feds: FedWithData[],
   multisigs: Multisig[]
   pols: { totalSupply: number, ownedAmount: number }[]
-  currentPayrolls: { address: string, amount: number }[]
-  vesterRecipients: string[]
 }
 
 export type GenericComponent = React.ComponentType<any>;
@@ -551,3 +549,11 @@ export type RefundableTransaction = {
   signedBy: string,
   refundTxHash?: string
 }
+
+export type Vester = {
+  address: string
+  recipient: string
+  amount: number 
+}
+
+export type Payroll = { recipient: string, amount: number }
