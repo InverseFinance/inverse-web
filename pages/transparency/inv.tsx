@@ -14,7 +14,7 @@ import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
-import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { REWARD_TOKEN, RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { shortenNumber } from '@app/util/markets'
 
 const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, XINV_MANAGER, POLICY_COMMITTEE, GOVERNANCE, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -67,6 +67,8 @@ export const InvPage = () => {
   // (xinv old excluded)
   const invSupplied = markets.find(m => m.token === XINV)?.supplied || 0;
   const percentageInvSupplied = invTotalSupply ? invSupplied / invTotalSupply * 100 : 0;
+  const notStakedOnFrontier = invTotalSupply ?
+    invTotalSupply - markets.filter(market => [XINV, XINV_V1].includes(market.token)).reduce((prev, curr) => prev + curr.supplied, 0) : 0
 
   return (
     <Layout>
@@ -103,7 +105,13 @@ export const InvPage = () => {
                         balance: market.supplied,
                         usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
                       }
-                    })
+                    }).concat([
+                      {
+                        token: { ...REWARD_TOKEN, symbol: 'Not on Frontier' },
+                        balance: notStakedOnFrontier,
+                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                      }
+                    ])
                 }
                 />
                 <Flex direction="row" w='full' justify="space-between">
