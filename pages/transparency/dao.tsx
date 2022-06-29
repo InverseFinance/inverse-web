@@ -160,11 +160,11 @@ export const GovTransparency = () => {
 
                     </Stack>
                 </Flex>
-                <VStack spacing={4} direction="column" pt="3" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
+                {/* <VStack spacing={4} direction="column" pt="3" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
                     <Breakdown p="0" mt="0" noPadding />
                     <GovernanceRules />
                     <DelegatesPreview p="0" />
-                </VStack>
+                </VStack> */}
             </Stack>
         </Layout>
     )
