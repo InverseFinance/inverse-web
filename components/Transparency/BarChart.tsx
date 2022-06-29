@@ -21,6 +21,7 @@ export const BarChart = ({
     height = 300,
     colorScale,
     isDollars = false,
+    precision = 2,
 }: {
     groupedData: Props,
     title?: string,
@@ -28,6 +29,7 @@ export const BarChart = ({
     height?: number,
     isDollars?: boolean,
     colorScale?: string[],
+    precision?: number
 }) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(65);
@@ -74,7 +76,7 @@ export const BarChart = ({
                 <VictoryBar
                     alignment="middle"
                     labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '12px', fill: lightMode ? 'transparent' : '#34E795' }} dy={-10} />}
-                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, 2, true) }))}
+                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, precision, isDollars) }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}
