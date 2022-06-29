@@ -109,7 +109,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
       usdPrice: trueBondPrices[i] ? trueBondPrices[i] : 0,
       inputUsdPrice: inputPrices[i],
       positiveRoi: marketPrice > trueBondPrices[i],
-      vestingDays: parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY,
+      vestingDays: Math.round(parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY),
       maxPayout: bondMaxPayouts ? getBnToNumber(bondMaxPayouts[i], REWARD_TOKEN?.decimals) : 0,
       userInfos: {
         payout: getBnToNumber(bondInfos[i][0], REWARD_TOKEN?.decimals),

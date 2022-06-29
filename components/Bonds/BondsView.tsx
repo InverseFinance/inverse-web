@@ -54,7 +54,7 @@ export const BondsView = () => {
             <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="Get INV at a discount thanks to Bonds!" contentBgColor="gradient3">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text>
-                        Bonds allow users to get <b>INV at a discount</b> in exchange for another asset with a <b>linear unlocking of 7 days</b>. It's a win-win situation as this lets Inverse Finance increase its <b>Protocol Owned Liquidity</b> instead of renting out its liquidity which is very expensive.
+                        Bonds allow users to get <b>INV at a discount</b> in exchange for another asset with a <b>linear unlocking</b>. It's a win-win situation as this lets Inverse Finance increase its <b>Protocol Owned Liquidity</b> instead of renting out its liquidity which is very expensive.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
                         <Flex direction={{ base: 'column', sm: 'row' }} alignItems="flex-start">

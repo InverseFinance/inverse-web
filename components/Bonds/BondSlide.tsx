@@ -83,7 +83,7 @@ export const BondSlide = ({
                     <Flex>
                         <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} />
                         <Text ml="2" textTransform="uppercase">
-                            {bond.underlying.name} BOND
+                            {bond.underlying.name} BOND ({bond.vestingDays} days vesting)
                         </Text>
                     </Flex>
                     {bondIndex !== (bonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
@@ -97,8 +97,8 @@ export const BondSlide = ({
                     <Text>=></Text>
                     <Flex alignItems="center">
                         <TimeIcon fontSize="16px" />
-                        <Text mx="2">Wait 7 days</Text>
-                        <AnimatedInfoTooltip message="After bonding you will need to wait 7 days to claim 100% of your INVs, you can also claim a proportional part before vesting completion" />
+                        <Text mx="2" fontWeight="extrabold">Wait {bond.vestingDays} days</Text>
+                        <AnimatedInfoTooltip message={`After bonding you will need to wait ${bond.vestingDays} days to claim 100% of your INVs, you can also claim a proportional part before vesting completion`} />
                     </Flex>
                     <Text>=></Text>
                     <Stack direction="row" alignItems="center">
