@@ -1,7 +1,7 @@
 
 import { useLiquidations } from '@app/hooks/useLiquidations';
 import { shortenNumber } from '@app/util/markets';
-import { Flex, Text } from '@chakra-ui/react';
+import { Flex, Text, VStack } from '@chakra-ui/react';
 import Table from '@app/components/common//Table';
 import { isAddress } from '@ethersproject/address';
 import ScannerLink from '@app/components/common//ScannerLink';
@@ -29,10 +29,10 @@ const FieldValue = ({
     if (f === 'blocktime') {
         return <Timestamp timestamp={v * 1000} />
     }
-    else if(typeof v === 'object') {
+    else if (typeof v === 'object') {
         return <UnderlyingItemBlock symbol={v.symbol} nameAttribute="symbol" />
     }
-    else if(f === 'txHash') {
+    else if (f === 'txHash') {
         return <ScannerLink value={v} type="tx" />
     }
     return !!v && isAddress(v) ?
@@ -62,13 +62,21 @@ export const LiquidationsTable = () => {
 
     return <Container
         label="Last 100 Liquidations on Frontier"
+        description="More Liquidations data on the Analytics page"
+        href="/analytics"
     >
-        <Table
-            columns={columns}
-            items={liquidations}
-            keyName="id"
-            defaultSort="blocktime"
-            defaultSortDir="desc"
-        />
+        <VStack
+            w="full"
+            overflow="auto"            
+            maxH="50vh"
+        >
+            <Table
+                columns={columns}
+                items={liquidations}
+                keyName="id"
+                defaultSort="blocktime"
+                defaultSortDir="desc"
+            />
+        </VStack>
     </Container>
 }
