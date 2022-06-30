@@ -1,6 +1,6 @@
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
-type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao';
+type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations';
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
@@ -12,6 +12,7 @@ const tabs = [
     { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
+    { page: 'liquidations', label: 'Liquidations' },
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {

@@ -53,8 +53,7 @@ const columns = fields.map(f => {
             return <Flex justify="flex-start" {...fieldCommonProps}>
                 <FieldValue f={f} v={v} />
             </Flex>
-        }
-
+        },
     }
 })
 
