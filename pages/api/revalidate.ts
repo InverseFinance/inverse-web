@@ -96,6 +96,8 @@ export default async function handler(req, res) {
             //         posts?.forEach(({ slug }) => paths.push(`/blog/posts/${l}/${slug}`))
             //     });
             // }
+        } else if(type === 'proposals') {
+            paths = ['/api/proposals'];
         }
 
         // results = await throttledPromises(

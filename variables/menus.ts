@@ -110,6 +110,10 @@ export const MENUS = {
           href: '/transparency/stabilizer',
           label: 'Stabilizer',
         },
+        {
+          href: '/transparency/liquidations',
+          label: 'Liquidations',
+        },
       ]
     },
     {

@@ -6,10 +6,10 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Call our proposals cron API - Mainnet
+      - name: Proposals revalidations
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-proposals?chainId=1' \
+          --url 'https://www.inverse.finance/api/revalidate?type=proposals' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       - name: Update ExRates
         run: |

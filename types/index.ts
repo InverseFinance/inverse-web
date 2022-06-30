@@ -557,3 +557,19 @@ export type Vester = {
 }
 
 export type Payroll = { recipient: string, amount: number }
+
+export type LiquidationEvent = {
+  blocktime: number,
+  borrower: string,
+  liquidator: string,
+  repaidCtoken: string,
+  seizedCtoken: string,
+  underlyingRepayAmount: string,
+  underlyingSeizeAmount: string,
+  repaidUnderlying: Token,
+}
+
+export type LiquidationItem = LiquidationEvent & {
+  repaidUnderlying: Token
+  seizedUnderlying: Token
+}
