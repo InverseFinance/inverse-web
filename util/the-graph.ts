@@ -38,8 +38,9 @@ export const getFrontierLiquidations = ({
             orderDirection: desc
             first: ${size}
             skip: ${offset}
-            where: { ${ !!borrower && `borrower: ${borrower}`} }
+            where: { ${ !!borrower ? `borrower: "${borrower}"` : '' } }
         ) {
+            id
             blocktime: blockTime
             borrower
             liquidator
