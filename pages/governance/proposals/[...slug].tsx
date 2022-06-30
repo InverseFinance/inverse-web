@@ -105,7 +105,7 @@ const cacheKey = `1-proposals-v1.0.0`;
 // static with revalidate as on-chain proposal content cannot change but the status/votes can
 export async function getStaticProps(context) {
   const { slug } = context.params;
-  const { proposals } = await getCacheFromRedis(cacheKey, false)
+  const { proposals } = await getCacheFromRedis(cacheKey, false) || { proposals: [] };
 
   const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
     .find((p: Proposal) => {
@@ -121,7 +121,7 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
-  const { proposals } = await getCacheFromRedis(cacheKey, false)
+  const { proposals } = await getCacheFromRedis(cacheKey, false) || { proposals: [] };
   
   const possiblePaths = proposals.map(p => {
     return `/governance/proposals/${p.era}/${p.id}`;
