@@ -185,7 +185,7 @@ export const AnchorModal = ({
           {
             operation === AnchorOperations.supply && asset.underlying.symbol === RTOKEN_SYMBOL && asset.mintable &&
             <InfoMessage
-              title="Autocompounding Asset!"
+              title="Asset with automatic claim/restake!"
               description="Your supplied INV balance will automatically increase, no need to claim and re-stake!"
             />
           }
