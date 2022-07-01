@@ -13,6 +13,8 @@ import {
   Box,
   VStack,
   useMediaQuery,
+  Badge,
+  BadgeProps,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -54,6 +56,8 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
+import { useLiquidations } from '@app/hooks/useLiquidations'
+import useStorage from '@app/hooks/useStorage'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -215,6 +219,22 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
   />
 }
 
+const LiquidationsBadge = ({
+  account,
+  ...props
+}: {
+  account?: string | null,
+} & Partial<BadgeProps>) => {
+  const { liquidations } = useLiquidations(account);
+  const { value } = useStorage(`${account}-seen-liquidations`);
+  const seenLiquidations = value || [];
+  const newLiquidations = liquidations.reduce((prev, curr) => prev + (!seenLiquidations.includes(curr.id) ? 1 : 0), 0)
+
+  return <Badge bgColor="error" color="mainTextColor" {...props}>
+    {newLiquidations}
+  </Badge>
+}
+
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
@@ -301,9 +321,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           _hover={{ bgColor: 'primary.600' }}
           alignItems="center"
           data-testid={TEST_IDS.connectBtn}
+          position="relative"
         >
           {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
           <Text>{connectBtnLabel}</Text>
+          {
+            !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
+          }
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -483,8 +507,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
-      <Flex        
-        w={ isBlog ? '100vw' : '99vw' }
+      <Flex
+        w={isBlog ? '100vw' : '99vw'}
         backgroundColor="navBarBackground"
         borderColor="navBarBorderColor"
         borderBottomWidth={showMobileNav ? 0 : 1}
