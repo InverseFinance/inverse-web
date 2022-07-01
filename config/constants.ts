@@ -9,7 +9,8 @@ export const BLOCKS_PER_DAY = BLOCKS_PER_SECOND * SECONDS_PER_DAY;
 export const DAYS_PER_YEAR = 365;
 // 2336000
 export const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
-
+export const TEMP_BLOCKS_PER_DAY = 5236.363636363637;
+export const TEMP_BLOCKS_PER_YEAR = 1911272.7272727275;
 export const BLOCK_SCAN = 'https://blockscan.com';
 
 // Governance
