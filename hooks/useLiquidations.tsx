@@ -4,7 +4,7 @@ import { useCustomSWR } from './useCustomSWR'
 
 const underlying = Object.entries(UNDERLYING).map(([key, v]) => ({ ...v, ctoken: key.toLowerCase() }))
 
-export const useLiquidations = (borrower?: string): SWR & { liquidations: LiquidationItem[] } => {
+export const useLiquidations = (borrower?: string | null): SWR & { liquidations: LiquidationItem[] } => {
     const { data, error } = useCustomSWR(`/api/transparency/liquidations?borrower=${borrower || ''}`);
 
     const liquidations = data?.liquidationEvents ?
