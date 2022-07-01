@@ -56,8 +56,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
-import { useLiquidations } from '@app/hooks/useLiquidations'
-import useStorage from '@app/hooks/useStorage'
+import { useNbUnseenLiquidations } from '@app/hooks/useLiquidations'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -223,16 +222,34 @@ const LiquidationsBadge = ({
   account,
   ...props
 }: {
-  account?: string | null,
+  account: string | null,
 } & Partial<BadgeProps>) => {
-  const { liquidations } = useLiquidations(account);
-  const { value } = useStorage(`${account}-seen-liquidations`);
-  const seenLiquidations = value || [];
-  const newLiquidations = liquidations.reduce((prev, curr) => prev + (!seenLiquidations.includes(curr.id) ? 1 : 0), 0)
-
+  const nb = useNbUnseenLiquidations(account);
+  if (!nb) {
+    return <></>;
+  }
   return <Badge bgColor="error" color="mainTextColor" {...props}>
-    {newLiquidations}
+    {nb}
   </Badge>
+}
+
+const LiquidationsMenuItem = ({
+  account,
+  ...props
+}: {
+  account: string | null,
+} & Partial<BadgeProps>) => {
+  const router = useRouter();
+  const nb = useNbUnseenLiquidations(account);
+
+  if (!nb) { return <></> }
+
+  return <ConnectionMenuItem onClick={() => router.push(`/transparency/liquidations?borrower=${account}`)}>
+    <WarningIcon boxSize={3} color="error" />
+    <Text fontWeight="semibold">
+      {nb} Unread liquidations
+    </Text>
+  </ConnectionMenuItem>
 }
 
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
@@ -387,6 +404,9 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <ViewOffIcon color="blue.600" boxSize={3} />
                 <Text fontWeight="semibold">Clear View Address</Text>
               </ConnectionMenuItem>
+            }
+            {
+              !!account && <LiquidationsMenuItem account={userAddress} />
             }
             {/* {
               !!chainId && chainId.toString() === NetworkIds.rinkeby ?
