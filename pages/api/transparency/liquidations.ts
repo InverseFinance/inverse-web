@@ -20,10 +20,15 @@ export default async function handler(req, res) {
     });
 
     if(!borrower) {
-        await redisSetWithTimestamp(cacheKey, result.data);
+        await redisSetWithTimestamp(cacheKey, {
+          ...result.data,
+        });
     }
 
-    res.status(200).send(result.data);
+    res.status(200).send({
+      ...result.data,
+      borrower,
+    });
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
