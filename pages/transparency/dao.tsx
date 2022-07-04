@@ -6,8 +6,6 @@ import Head from 'next/head'
 import { Delegate, Payroll, ProposalStatus, Vester } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useCompensations } from '@app/hooks/useDAO'
-import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
-import { Breakdown, DelegatesPreview } from '@app/components/Governance'
 import { useTopDelegates } from '@app/hooks/useDelegates'
 import { namedAddress, namedRoles } from '@app/util';
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
@@ -15,6 +13,7 @@ import { usePricesV2 } from '@app/hooks/usePrices'
 import { Fund } from '@app/components/Transparency/Funds'
 import { useProposals } from '@app/hooks/useProposals'
 import { ProposalBarChart } from '@app/components/Transparency/fed/ProposalBarChart'
+import { DaoOperationsTable } from '@app/components/Transparency/DaoOperations'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -123,9 +122,9 @@ export const GovTransparency = () => {
             </Head>
             <AppNav active="Transparency" activeSubmenu="DAO" />
             <TransparencyTabs active="dao" />
-            <Stack spacing="8" w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
+            <Stack spacing="8" w="full" alignItems="center" justify="center" justifyContent="center" direction='column'>
                 <Flex direction="column" py="2" px="5" maxWidth="900px" w='full'>
-                    <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
+                    <Stack spacing="5" direction='column' w="full" justify="space-around">
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
                                 title="Voting Power Distribution"
@@ -157,14 +156,9 @@ export const GovTransparency = () => {
                                 totalLabel="- TOTAL:"
                             />
                         </SimpleGrid>
-
                     </Stack>
                 </Flex>
-                {/* <VStack spacing={4} direction="column" pt="3" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
-                    <Breakdown p="0" mt="0" noPadding />
-                    <GovernanceRules />
-                    <DelegatesPreview p="0" />
-                </VStack> */}
+                <DaoOperationsTable />
             </Stack>
         </Layout>
     )
