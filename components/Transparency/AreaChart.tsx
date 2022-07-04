@@ -95,7 +95,7 @@ export const AreaChart = ({
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 1)}` : ''
+                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2)}` : ''
                         }
                     }
                     style={{
