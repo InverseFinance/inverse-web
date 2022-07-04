@@ -293,6 +293,7 @@ const chainTokens = {
       symbol: 'CVX',
       image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
       decimals: 18,
+      coingeckoId: 'convex-finance',
     },
   },
   "250": {
