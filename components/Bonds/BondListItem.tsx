@@ -17,13 +17,16 @@ const formatROI = (roi: number) => {
 export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, bondIndex: number, handleDetails: (i: number) => void }) => {
 
     return (
-        <Stack borderTop={`1px solid #cccccc33`} pt="2" direction="row" key={bond.input} w='full' justify="space-between" fontWeight="bold">
+        <Stack
+            borderTop={{ base: bondIndex > 0 ? `1px solid #cccccc33` : 'none', sm: `1px solid #cccccc33` }}
+            pt={{ base: bondIndex > 0 ? '2' : '0', sm: '2' }}
+            direction="row" key={bond.input} w='full' justify="space-between" fontWeight="bold">
             <Flex w="240px" alignItems="center" position="relative">
                 {/* <Link textTransform="uppercase" textDecoration="none" isExternal href={bond.howToGetLink}> */}
-                    <VStack alignItems="flex-start" textTransform="uppercase">
-                        <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'18px'} imgProps={{ mr: '2' }} />
-                        <Text maxW="80px" fontSize={{ base: '10px', sm: "14px" }} color="secondaryTextColor">{bond.vestingDays} days vesting</Text>
-                    </VStack>
+                <VStack alignItems="flex-start" textTransform="uppercase">
+                    <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'18px'} imgProps={{ mr: '2' }} />
+                    <Text maxW={{ base: "80px", sm: '200px' }} fontSize={{ base: '10px', sm: "14px" }} color="secondaryTextColor">{bond.vestingDays} days vesting</Text>
+                </VStack>
                 {/* </Link> */}
             </Flex>
             <Flex w="80px" alignItems="center">
