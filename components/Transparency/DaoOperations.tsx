@@ -73,9 +73,9 @@ const columns = [
 
 export const DaoOperationsTable = () => {
     const now = new Date();
-    const thirtyDaysAgoDate = new Date(+now - 86000 * 30);
-    const [startDate, setStartDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`);
-    const [endDate, setEndDate] = useState(`${thirtyDaysAgoDate.getUTCFullYear()}-${(thirtyDaysAgoDate.getUTCMonth() + 1).toString().padStart(2, '0')}-${(thirtyDaysAgoDate.getUTCDate()).toString().padStart(2, '0')}`);
+    const thirtyDaysAgoDate = new Date(+now - 86400000 * 10);
+    const [startDate, setStartDate] = useState(`${thirtyDaysAgoDate.getUTCFullYear()}-${(thirtyDaysAgoDate.getUTCMonth() + 1).toString().padStart(2, '0')}-${(thirtyDaysAgoDate.getUTCDate()).toString().padStart(2, '0')}`);
+    const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
