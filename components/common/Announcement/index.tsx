@@ -52,7 +52,6 @@ export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => 
       fontWeight="semibold"
       color={'mainTextColor'}
       cursor="pointer"
-      onClick={() => router.push('/inv')}
       data-testid={TEST_IDS.announcement}
     >
       {
