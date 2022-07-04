@@ -48,6 +48,7 @@ const chainTokenAddresses = {
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
     MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
+    CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -181,7 +182,8 @@ const chainTokens = {
       address: chainTokenAddresses["1"].INVETHSLP,
       name: 'INV-ETH SLP',
       symbol: 'INV-ETH-SLP',
-      image: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
+      image: '/assets/inv-square-dark.jpeg',
+      protocolImage: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
       decimals: 18,
       isLP: true,
       pairs: [
@@ -284,6 +286,13 @@ const chainTokens = {
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
       badge: newBadge,
+    },
+    [chainTokenAddresses["1"].CVX]: {
+      address: chainTokenAddresses["1"].CVX,
+      name: 'CVX',
+      symbol: 'CVX',
+      image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
+      decimals: 18,
     },
   },
   "250": {
