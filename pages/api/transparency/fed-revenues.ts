@@ -62,7 +62,7 @@ export default async function handler(req, res) {
                 .sort((a, b) => a.block_height - b.block_height);
 
             return items.map(item => {
-                const filteredEvent = item.log_events.find(e => e.decoded.name === eventName && e.decoded.params[1].value.toLowerCase() == toAddress)
+                const filteredEvent = item.log_events.find(e => e.decoded.name === eventName && e.decoded.params[0].value.toLowerCase() == fed.address.toLowerCase() && e.decoded.params[1].value.toLowerCase() == toAddress)
                 const amount = filteredEvent.decoded.params[2].value;
                 return {
                     blockNumber: item.block_height,
