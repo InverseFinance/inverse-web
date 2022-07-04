@@ -4,7 +4,6 @@ import {
   BLOCKS_PER_DAY,
   HAS_REWARD_TOKEN,
   BURN_ADDRESS,
-  TEMP_BLOCKS_PER_DAY,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -137,7 +136,7 @@ export default async function handler(req, res) {
     });
 
     const rewardsPerMonth = speeds.map((speed, i) => {
-      return getBnToNumber(speed) * TEMP_BLOCKS_PER_DAY * 30 * getBnToNumber(xinvExRate);
+      return getBnToNumber(speed) * BLOCKS_PER_DAY * 30 * getBnToNumber(xinvExRate);
     });
 
     // external yield bearing apys
