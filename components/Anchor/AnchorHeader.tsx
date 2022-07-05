@@ -1,6 +1,5 @@
 import { Text, Stack, Flex, SkeletonText } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
-import { CheckIcon } from '@chakra-ui/icons'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
@@ -8,9 +7,10 @@ import { useTVL } from '@app/hooks/useTVL'
 import { chakra } from '@chakra-ui/system'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useMediaQuery } from '@chakra-ui/react'
-import { RTOKEN_CG_ID } from '@app/variables/tokens'
-import { dollarify, shortenNumber } from '@app/util/markets'
+import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { dollarify, shortenNumber, triggerBorrow, triggerSupply } from '@app/util/markets'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
+import { AnchorBigButton } from './AnchorBigButton'
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   return <Flex maxH="36px" overflow="hidden">
@@ -41,7 +41,7 @@ export const AnchorHeader = () => {
       p={4}
       pb="0"
       justify="space-between"
-      align={{ base: 'flex-start', md: 'flex-start' }}
+      align={{ base: 'flex-start', md: 'center' }}
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
@@ -53,7 +53,7 @@ export const AnchorHeader = () => {
               {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>
           </Flex>
-          <Flex direction="column" justify="center"  width="184px">
+          <Flex direction="column" justify="center" width="184px">
             <TextOrSkeleton value={totalSupply} text={dollarify(totalSupply || 0, 0)} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
               DOLA Supply
@@ -67,7 +67,7 @@ export const AnchorHeader = () => {
           </Flex>
         </Stack>
         <Stack w='full' spacing={2} direction="row">
-        {
+          {
             HAS_REWARD_TOKEN && !!process.env.NEXT_PUBLIC_BUY_RTOKEN_URL
             && <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL}
               target={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL.startsWith('http') ? '_blank' : '_self'}>
@@ -91,25 +91,22 @@ export const AnchorHeader = () => {
           }
         </Stack>
       </Stack>
-      <Stack spacing={4} p={4}>
-        <Stack direction="row" align="center">
-          <Text as="h2" color="mainTextColor" fontSize="2xl" fontWeight="semibold">
-            Stake INV on Frontier and Earn
-            <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
-              {apy}% APY
-            </chakra.span>
-          </Text>
-        </Stack>
-        <Stack w="full" spacing={1} pl={4}>
-          <Text color="secondary">
-            <CheckIcon /> High-yield Positive Sum Rewards Token
-          </Text>
-          <Text color="secondary">
-            <CheckIcon /> Revenue Sharing Payouts
-          </Text>
-          <Text color="secondary">
-            <CheckIcon /> Usable as Collateral
-          </Text>
+      <Stack spacing={4} p={4} w='full' maxW="600px">
+        <Stack direction={{ base: 'column', lg: 'row' }} spacing="6" w='100%' alignItems="center" justify="space-between">
+          <AnchorBigButton w={{ base: 'full', lg: '50%' }} onClick={() => triggerSupply('inv')}>
+            <chakra.span>
+              <chakra.span fontWeight="extrabold">Stake {RTOKEN_SYMBOL}</chakra.span></chakra.span>
+            <Text fontSize="14px" color="secondaryTextColor">
+              {/* <CheckIcon />  */}
+              High-yield Collateral
+            </Text>
+          </AnchorBigButton>
+          <AnchorBigButton  w={{ base: 'full', lg: '50%' }} onClick={() => triggerBorrow('dola')}>
+            <chakra.span fontWeight="extrabold">Borrow DOLA</chakra.span>
+            <Text fontSize="14px" color="secondaryTextColor">
+              Decentralized Stablecoin
+            </Text>
+          </AnchorBigButton>
         </Stack>
       </Stack>
     </Flex>
