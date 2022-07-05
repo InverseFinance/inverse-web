@@ -220,3 +220,13 @@ export const getXSushiData = async (nbDays = 7) => {
     } catch (e) { console.log(e) }
     return { apy: apy * 100 };
 }
+
+export const triggerSupply = (marketName: string) => {
+    const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: marketName } });
+    document.dispatchEvent(customEvent);
+}
+
+export const triggerBorrow = (marketName: string) => {
+    const customEvent = new CustomEvent('open-anchor-borrow', { detail: { market: marketName } });
+    document.dispatchEvent(customEvent);
+}
