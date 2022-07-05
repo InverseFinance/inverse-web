@@ -27,6 +27,7 @@ import { NotifBadge } from '@app/components/common/NotifBadge'
 import moment from 'moment'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { showToast } from '@app/util/notify'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
@@ -524,7 +525,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
   )
 }
 
-export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
+export const AnchorBorrow = ({ paused, modalOnly }: { paused?: boolean, modalOnly?: boolean }) => {
   const { query } = useRouter()
   const { markets: marketsData, isLoading } = useMarkets()
   const { prices } = usePrices()
@@ -538,6 +539,21 @@ export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
   }
 
   const markets = marketsData.filter(m => !!m.underlying.isInPausedSection === paused);
+
+  useEffect(() => {
+    const triggerAction = ({ detail }) => {
+      const market = marketsData.find(m => m.underlying.symbol.toLowerCase() === detail.market.toLowerCase());
+      if (!market?.borrowable) {
+        showToast({ status: 'info', description: `${market?.underlying.symbol} is not Borrowable at the moment` })
+        return
+      }
+      handleBorrow(market);
+    }
+    document.addEventListener('open-anchor-borrow', triggerAction)
+    return () => {
+      document.removeEventListener('open-anchor-borrow', triggerAction, false);
+    }
+  }, [marketsData])
 
   useEffect(() => {
     if (!deepLinkUsed && markets?.length && query?.market && query?.marketType === 'borrow') {
@@ -588,6 +604,11 @@ export const AnchorBorrow = ({ paused }: { paused?: boolean }) => {
         <SkeletonList />
       </Container>
     )
+  }
+
+  if (modalOnly) {
+    if (!modalAsset) { return <></> }
+    return <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />;
   }
 
   return (
