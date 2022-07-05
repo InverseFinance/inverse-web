@@ -1,14 +1,13 @@
-import { Text, Stack, Flex, SkeletonText } from '@chakra-ui/react'
+import { Text, Stack, Flex, SkeletonText, Box } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
-import { chakra } from '@chakra-ui/system'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useMediaQuery } from '@chakra-ui/react'
-import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
-import { dollarify, shortenNumber, triggerBorrow, triggerSupply } from '@app/util/markets'
+import { RTOKEN_CG_ID } from '@app/variables/tokens'
+import { dollarify, triggerBorrow, triggerSupply } from '@app/util/markets'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { AnchorBigButton } from './AnchorBigButton'
 
@@ -93,20 +92,18 @@ export const AnchorHeader = () => {
       </Stack>
       <Stack spacing={4} p={4} w='full' maxW="600px">
         <Stack direction={{ base: 'column', lg: 'row' }} spacing="6" w='100%' alignItems="center" justify="space-between">
-          <AnchorBigButton w={{ base: 'full', lg: '50%' }} onClick={() => triggerSupply('inv')}>
-            <chakra.span>
-              <chakra.span fontWeight="extrabold">Stake {RTOKEN_SYMBOL}</chakra.span></chakra.span>
-            <Text fontSize="14px" color="secondaryTextColor">
-              {/* <CheckIcon />  */}
-              High-yield Collateral
-            </Text>
-          </AnchorBigButton>
-          <AnchorBigButton  w={{ base: 'full', lg: '50%' }} onClick={() => triggerBorrow('dola')}>
-            <chakra.span fontWeight="extrabold">Borrow DOLA</chakra.span>
-            <Text fontSize="14px" color="secondaryTextColor">
-              Decentralized Stablecoin
-            </Text>
-          </AnchorBigButton>
+          <AnchorBigButton
+            onClick={() => triggerSupply('inv')}
+            bg="url('/assets/stake-inv.png')"
+            title="Stake INV"
+            subtitle={`${apy}% APY`}
+          />
+          <AnchorBigButton
+            onClick={() => triggerBorrow('dola')}
+            bg="url('/assets/dola-bull.jpg')"
+            title="Borrow DOLA"
+            subtitle="Decentralized Stablecoin"
+          />
         </Stack>
       </Stack>
     </Flex>
