@@ -37,6 +37,7 @@ export const AnchorBigButton = ({
         backgroundSize="cover"
         onClick={onClick}       
     >
+        <Box zIndex="1" position="absolute" top="-1px" bottom="-1px" left="-1px" right="-1px" margin="auto" background="verticalGradient" />
         <Box zIndex="2" position="relative" w="full" py="2" px="6">
             <chakra.span zIndex="2" fontWeight="extrabold">
                 {title}
@@ -45,6 +46,5 @@ export const AnchorBigButton = ({
                 {subtitle}
             </Text>
         </Box>
-        <Box zIndex="1" position="absolute" top="-1px" bottom="-1px" left="-1px" right="-1px" maring="auto" background="verticalGradient" />
     </VStack>
 }
