@@ -11,6 +11,8 @@ const theme = extendTheme({
     gradient1: 'linear-gradient(125deg, rgba(42,37,87,1) 0%, rgba(69,60,141,1) 50%, rgba(42,37,87,1) 100%);',
     mainBackground: 'radial-gradient(circle at center, #2a2557, #100e21 50%)',
     verticalGradient: 'linear-gradient(0deg, #100e21ff, #2a255722 60%)',
+    verticalGradientTopBottom: 'linear-gradient(180deg, #100e21ff, #2a255722 60%)',
+    verticalGradientGray: 'linear-gradient(0deg, rgba(51,51,51,0.2) 0%, rgba(51,51,51,0.7) 40%, rgba(51,51,51,0.7) 60%, rgba(51,51,51,0.2) 100%)',
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: "url('/assets/landing/graphic1.webp')",
     mainTextColor: '#fff',
