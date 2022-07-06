@@ -60,3 +60,18 @@ export const getBlogAuthorsProps = async (context) => {
         },
     }
 }
+
+export const getDefaultProps = async (context) => {
+    const { preview = false } = context;
+    const { locale, isPreviewUrl } = getBlogContext(context);
+    const isPreview = preview || isPreviewUrl;
+    const categories = await getCategories(preview, locale) ?? []
+
+    return {
+        props: {
+            preview: isPreview,
+            categories,
+            locale,
+        },
+    }
+}
