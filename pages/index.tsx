@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Box, Flex, Image, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Spacer, Stack, Text, VStack } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -30,6 +30,7 @@ const cards = [
     label: 'Buy and Stake INV',
     image: '/assets/products/vaults.png',
     href: '/frontier',
+    bg: "url('/assets/stake-inv.png')",
   },
   {
     title: 'Frontier',
@@ -37,6 +38,7 @@ const cards = [
     label: 'Lend & Borrow',
     image: '/assets/products/anchor.png',
     href: '/frontier',
+    bg: "url('/assets/frontier3.png')",
   },
   {
     title: 'DOLA',
@@ -44,6 +46,7 @@ const cards = [
     label: 'Swap DOLA',
     image: '/assets/products/dola.png',
     href: '/stabilizer',
+    bg: "url('/assets/dola-bull.jpg')",
   },
 ]
 
@@ -161,27 +164,34 @@ export const Landing = () => {
           wrap="wrap"
           shouldWrapChildren
         >
-          {cards.map(({ title, description, label, image, href }) => (
+          {cards.map(({ title, description, label, image, href, bg }) => (
             <Stack
               key={title}
               p={8}
               m={4}
               textAlign="center"
               borderRadius={16}
-              bgColor="primary.800"
               align="center"
               shadow="dark-lg"
+              bg={bg}
+              backgroundSize="cover"
+              position="relative"
+              h="240px"
             >
-              <Text fontSize="2xl" fontWeight="bold">
-                {title}
-              </Text>
-              <Text as="h5" w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium">
-                {description}
-              </Text>
-              <Spacer />
-              <Flex w={'180px'} pt={6}>
-                <LinkButton flexProps={{ bgColor: "primaryPlus" }} href={href}>{label}</LinkButton>
-              </Flex>
+              <Box h="240px" borderRadius={16} zIndex="1" position="absolute" top="0" bottom="0" left="0" right="0" margin="auto"
+                background="verticalGradientGray" />
+              <VStack position="relative" zIndex="2">
+                <Text fontSize="2xl" fontWeight="bold" textShadow={`2px 2px ${theme.colors.darkPrimary}`}>
+                  {title}
+                </Text>
+                <Text as="h5" w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium" textShadow={`1px 1px ${theme.colors.darkPrimary}`}>
+                  {description}
+                </Text>
+                <Spacer />
+                <Flex w={'180px'} pt={6}>
+                  <LinkButton flexProps={{ bgColor: "primaryPlus" }} href={href}>{label}</LinkButton>
+                </Flex>
+              </VStack>
             </Stack>
           ))}
         </Stack>
@@ -201,8 +211,8 @@ export const Landing = () => {
               New Bonding Opportunities with Olympus Pro!
             </Text>
             <Box fontSize="lg" color="mainTextColor">
-              Purchase INV at a substantial discount by depositing your Sushi or Curve liquidity pool tokens on Olympus Pro.
-              <Link textDecoration="underline" isExternal display="inline-block" mx="1"
+              <Text>Purchase INV at a substantial discount thanks to Olympus Pro.</Text>
+              <Link textDecoration="underline" isExternal mr="1"
                 href={`/bonds`}>
                 Click here
               </Link>
@@ -215,15 +225,23 @@ export const Landing = () => {
             <Text as="h4" fontSize="2xl" fontWeight="bold">
               Join the Inverse Finance DAO - Governance By The People
             </Text>
-            <Text fontSize="lg">
-              Inverse Finance was created by a sole developer in December 2020, and since then has grown to include
-              hundreds of active DAO members voting on the direction of the organization.
-            </Text>
+            <Image
+                borderRadius="5px"
+                maxW="600px"
+                src="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75"
+              />
+            <Stack spacing="6" direction={{ base: 'column', md: 'row' }}>
+              <Text fontSize="lg">
+                Inverse Finance was created by a sole developer in December 2020, and since then has grown to include
+                hundreds of active DAO members voting on the direction of the organization.
+              </Text>
+            </Stack>
             <Text fontSize="lg">
               Our vision is to establish one of DeFi’s major financial ecosystems giving users of all levels inclusive
               access to meaningful opportunities spanning a variety of innovative, DAO-owned protocols, all governed by
               an empowered {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} community.
             </Text>
+
             <Flex w={32}>
               <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="https://discord.gg/YpYJC7R5nv">Join the DAO</LinkButton>
             </Flex>
