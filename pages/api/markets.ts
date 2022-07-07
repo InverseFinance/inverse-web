@@ -224,7 +224,7 @@ export default async function handler(req, res) {
         token: xINV.address,
         mintable: mintable,
         collateralGuardianPaused,
-        underlying: TOKENS[INV],
+        underlying: { ...TOKENS[INV], isInPausedSection: !mintable },
         // no real autocompounding for inv as share decreases with supply
         supplyApy: toApr(ratePerBlock) || 0,
         supplyApr: toApr(ratePerBlock) || 0,
