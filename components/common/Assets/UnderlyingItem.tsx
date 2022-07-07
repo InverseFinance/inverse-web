@@ -1,8 +1,9 @@
-import { Box, BoxProps, Image, ImageProps, Text, TextProps } from '@chakra-ui/react'
+import { BoxProps, ImageProps, Text, TextProps } from '@chakra-ui/react'
 import { OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
 import React from 'react'
 import { Token } from '@app/types';
+import { MarketImage } from './MarketImage';
 
 const DEFAULT_CONTAINER = React.Fragment;
 
@@ -10,7 +11,7 @@ export const UnderlyingItem = ({
     label,
     image,
     address,
-    imgSize = 5,
+    imgSize = 20,
     imgProps,
     imgContainerProps,
     textProps,
@@ -18,12 +19,11 @@ export const UnderlyingItem = ({
     Container = DEFAULT_CONTAINER,
     containerProps,
     protocolImage,
-    protocolImageSize = 3,
 }: {
     label: string,
     image: string,
     address?: string,
-    imgSize?: ImageProps["w"],
+    imgSize?: number,
     imgProps?: Partial<ImageProps>,
     imgContainerProps?: Partial<BoxProps>,
     textProps?: Partial<TextProps>,
@@ -31,15 +31,16 @@ export const UnderlyingItem = ({
     Container?: React.ComponentType<any>,
     containerProps?: any,
     protocolImage?: string,
-    protocolImageSize?: ImageProps["w"],
 }) => {
     return <Container {...containerProps}>
-        <Box position="relative" {...imgContainerProps}>
-            <Image ignoreFallback={true} src={image} w={imgSize} h={imgSize} alt={label} {...imgProps} />
-            {
-                !!protocolImage && <Image borderRadius="20px" ignoreFallback={true} src={protocolImage} w={protocolImageSize} h={protocolImageSize} position="absolute" bottom="0" right="-5px" alt="protocol" />
-            }
-        </Box>
+        <MarketImage
+            size={imgSize}
+            image={image}
+            protocolImage={protocolImage}
+            isInPausedSection={/(-v1|old)/i.test(label)}
+            imgProps={imgProps}
+            {...imgContainerProps}
+        />
         <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
         {
             !!badge &&

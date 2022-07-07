@@ -150,7 +150,7 @@ export const AnchorModal = ({
       scrollBehavior={scrollBehavior || 'outside'}
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center" data-testid={TEST_IDS.anchor.modalHeader}>
-          <UnderlyingItem label={`${asset.underlying.symbol} MARKET`} address={asset.token} image={asset.underlying.image} imgSize={8} protocolImage={asset.underlying.protocolImage} protocolImageSize={4} />
+          <UnderlyingItem label={`${asset.underlying.symbol} MARKET`} address={asset.token} image={asset.underlying.image} imgSize={32} protocolImage={asset.underlying.protocolImage} />
           <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
       }
@@ -381,7 +381,7 @@ export const AnchorCollateralModal = ({
       scrollBehavior="inside"
       header={
         <Stack fontSize={{ base: '16px', sm: '20px' }} minWidth={24} direction="row" align="center">
-          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={8} protocolImage={asset.underlying.protocolImage} protocolImageSize={4} />
+          <UnderlyingItem label={`${asset.underlying.name} Market`} address={asset.token} image={asset.underlying.image} imgSize={32} protocolImage={asset.underlying.protocolImage} />
           <ScannerLink value={asset.token} label={<ExternalLinkIcon />} fontSize="12px" />
         </Stack>
       }

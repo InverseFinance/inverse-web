@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image, HStack, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, Text, HStack, useDisclosure } from '@chakra-ui/react'
 
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
@@ -9,19 +9,21 @@ import Link from '@app/components/common/Link'
 import { useState } from 'react'
 import { UNDERLYING } from '@app/variables/tokens'
 import { PositionSlide } from './PositionSlide'
+import { MarketImage } from '../common/Assets/MarketImage'
 
-const AssetIcons = ({ list }: { list: { market: string, underlying: Token }[] }) => {
-    const uniques = [...new Set(list?.map((s, i) => `${s?.underlying?.image}||${s?.underlying?.protocolImage || ''}`))].filter(v => !!v);
-    return <HStack minW="100px" position="relative">
+const AssetIcons = ({ list, minW = '100px' }: { list: { market: string, underlying: Token }[] }) => {
+    const uniques = [...new Set(list?.map((s, i) => `${s?.underlying?.image}||${s?.underlying?.protocolImage || ''}||${s?.underlying?.isInPausedSection || 'false'}`))].filter(v => !!v);
+    return <HStack minW={minW} position="relative">
         {
-            uniques?.map((images, i) => {
-                const [icon, protocolImage] = images.split('||');
-                return <Flex key={images} position="relative" alignItems="center">
-                    <Image  width={'15px'} src={icon} ignoreFallback={true} />
-                    {
-                        !!protocolImage && <Image borderRadius="20px" width={'8px'} position="absolute" bottom="0" right="-4px" src={protocolImage} ignoreFallback={true} />
-                    }
-                </Flex>
+            uniques?.map((key, i) => {
+                const [image, protocolImage, isInPausedSection] = key.split('||');
+                return <MarketImage
+                    key={key}
+                    size={15}
+                    image={image}
+                    protocolImage={protocolImage}
+                    isInPausedSection={isInPausedSection === 'true'}
+                />
             })
         }
     </HStack>
@@ -54,9 +56,9 @@ const getColumns = () => {
         {
             field: 'supplied',
             label: 'Collaterals',
-            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
+            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="150px" />,
             value: ({ supplied }: AccountPositionDetailed) => {
-                return <AssetIcons list={supplied} />
+                return <AssetIcons list={supplied} minW="150px" />
             },
         },
         {

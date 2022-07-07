@@ -30,8 +30,7 @@ const ItemLabel = ({
   return <VStack>
     <UnderlyingItem
       imgContainerProps={{ mr: '2' }}
-      imgSize={'40px'}
-      protocolImageSize='20px'
+      imgSize={40}
       label={`${shortenNumber(amount, 2)} ${underlying.symbol}${!!worth ? ` (${shortenNumber(worth, 2, true)})` : ``}`}
       image={underlying.image}
       protocolImage={underlying.protocolImage}
