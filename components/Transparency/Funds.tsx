@@ -44,7 +44,7 @@ const FundLine = ({
                 <MarketImage
                     image={token?.image}
                     protocolImage={token?.protocolImage}
-                    isInPausedSection={token?.isInPausedSection}
+                    isInPausedSection={token?.isInPausedSection || /(-v1|-old)/i.test(token?.symbol)}
                     size={15}
                     mx="1"
                 />

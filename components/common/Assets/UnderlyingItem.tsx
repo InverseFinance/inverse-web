@@ -32,16 +32,17 @@ export const UnderlyingItem = ({
     containerProps?: any,
     protocolImage?: string,
 }) => {
+    const paused = /(-v1|old)/i.test(label);
     return <Container {...containerProps}>
         <MarketImage
             size={imgSize}
             image={image}
             protocolImage={protocolImage}
-            isInPausedSection={/(-v1|old)/i.test(label)}
+            isInPausedSection={paused}
             imgProps={imgProps}
             {...imgContainerProps}
         />
-        <Text {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
+        <Text opacity={paused ? 0.5 : undefined} {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
         {
             !!badge &&
             <NotifBadge position="absolute" right="-20px" fontSize="12px" w="fit-content" top="auto" bgColor={badge.color}>
