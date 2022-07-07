@@ -100,7 +100,7 @@ export const AnchorHeader = () => {
           />
           <AnchorBigButton
             onClick={() => triggerBorrow('dola')}
-            bg="url('/assets/dola-bull.jpg')"
+            bg="url('/assets/dola1.png')"
             title="Borrow DOLA"
             subtitle="Decentralized Stablecoin"
           />

@@ -46,7 +46,7 @@ const cards = [
     label: 'Swap DOLA',
     image: '/assets/products/dola.png',
     href: '/stabilizer',
-    bg: "url('/assets/dola-bull.jpg')",
+    bg: "url('/assets/dola1.png')",
   },
 ]
 
@@ -175,6 +175,7 @@ export const Landing = () => {
               shadow="dark-lg"
               bg={bg}
               backgroundSize="cover"
+              backgroundPosition="center"
               position="relative"
               h="240px"
             >
