@@ -11,18 +11,44 @@ import { UNDERLYING } from '@app/variables/tokens'
 import { PositionSlide } from './PositionSlide'
 import { MarketImage } from '../common/Assets/MarketImage'
 
-const AssetIcons = ({ list, minW = '100px' }: { list: { market: string, underlying: Token }[] }) => {
-    const uniques = [...new Set(list?.map((s, i) => `${s?.underlying?.image}||${s?.underlying?.protocolImage || ''}||${s?.underlying?.isInPausedSection || 'false'}`))].filter(v => !!v);
-    return <HStack minW={minW} position="relative">
+const getAssetSize = (usdWorth: number) => {
+    if (usdWorth >= 1e6) {
+        return 26;
+    } else if (usdWorth < 1e6 && usdWorth >= 0.5e6) {
+        return 24
+    } else if (usdWorth < 0.5e6 && usdWorth >= 0.25e6) {
+        return 22
+    } else if (usdWorth < 0.25e6 && usdWorth >= 0.1e6) {
+        return 20
+    } else if (usdWorth < 0.1e6 && usdWorth >= 0.05e6) {
+        return 18
+    } else if (usdWorth < 0.05e6 && usdWorth >= 0.01e6) {
+        return 17
+    } else if (usdWorth < 0.005e6 && usdWorth >= 0.001e6) {
+        return 15
+    } else if (usdWorth < 0.001e6 && usdWorth >= 0.0005e6) {
+        return 13
+    }
+    return 11;
+}
+
+const AssetIcons = ({ list, minW = '100px' }: {
+    list: {
+        market: string,
+        underlying: Token,
+        usdWorth: number,
+    }[]
+}) => {
+    return <HStack minW={minW} position="relative" maxW="150px" overflow="hidden">
         {
-            uniques?.map((key, i) => {
-                const [image, protocolImage, isInPausedSection] = key.split('||');
+            list?.map((item, i) => {
+                const { image, protocolImage, isInPausedSection, symbol } = item.underlying;
                 return <MarketImage
-                    key={key}
-                    size={15}
+                    key={item.market}
+                    size={getAssetSize(item.usdWorth)}
                     image={image}
                     protocolImage={protocolImage}
-                    isInPausedSection={isInPausedSection === 'true'}
+                    isInPausedSection={isInPausedSection || /(-v1|-old)/i.test(symbol)}
                 />
             })
         }
@@ -48,9 +74,9 @@ const getColumns = () => {
         {
             field: 'borrowed',
             label: 'Borrowed',
-            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="100px" />,
+            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="120px" />,
             value: ({ borrowed }: AccountPositionDetailed) => {
-                return <AssetIcons list={borrowed} />
+                return <AssetIcons list={borrowed} minW="120px" />
             },
         },
         {
@@ -64,34 +90,34 @@ const getColumns = () => {
         {
             field: 'usdSupplied',
             label: 'Supplied Worth',
-            header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
+            header: ({ ...props }) => <Flex justify="start" {...props} w="80px" />,
             value: ({ usdSupplied }: AccountPositionDetailed) => {
-                return <Text w="100px">{shortenNumber(usdSupplied, 2, true)}</Text>
+                return <Text w="80px">{shortenNumber(usdSupplied, 2, true)}</Text>
             },
         },
         {
             field: 'usdBorrowingPower',
             label: 'Borrowing Power',
-            header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
+            header: ({ ...props }) => <Flex justify="start" {...props} w="80px" />,
             value: ({ usdBorrowingPower }: AccountPositionDetailed) => {
-                return <Text w="100px">{shortenNumber(usdBorrowingPower, 2, true)}</Text>
+                return <Text w="80px">{shortenNumber(usdBorrowingPower, 2, true)}</Text>
             },
         },
         {
             field: 'usdBorrowed',
             label: 'Borrowed Worth',
-            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="80px" />,
             value: ({ usdBorrowed }: AccountPosition) => {
-                return <Text w="100px">{shortenNumber(usdBorrowed, 2, true)}</Text>
+                return <Text w="80px">{shortenNumber(usdBorrowed, 2, true)}</Text>
             },
         },
         {
             field: 'usdShortfall',
             label: 'Shortfall',
-            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="80px" />,
             value: ({ usdShortfall }: AccountPositionDetailed) => {
                 const color = usdShortfall > 0 ? 'error' : 'mainTextColor'
-                return <Stack minW="100px" position="relative" color={color}>
+                return <Stack minW="80px" position="relative" color={color}>
                     <Text color={color}>{shortenNumber(usdShortfall, 2, true)}</Text>
                 </Stack>
             },
@@ -126,6 +152,9 @@ export const PositionsTable = ({
     const detailedPositions: AccountPositionsDetailed["positions"] = positions.map(p => {
         const borrowTotal = p.usdBorrowable + p.usdBorrowed;
         const borrowLimitPercent = borrowTotal ? Math.floor((p.usdBorrowed / (borrowTotal)) * 100) : 0;
+
+        p.supplied.sort((a, b) => b.usdWorth - a.usdWorth);
+        p.borrowed.sort((a, b) => b.usdWorth - a.usdWorth);
 
         return {
             ...p,
