@@ -1,9 +1,10 @@
-import { Flex, Image, SimpleGrid, Text } from '@chakra-ui/react';
+import { Flex, SimpleGrid, Text } from '@chakra-ui/react';
 import { OLD_XINV } from '@app/config/constants';
 import { Prices, Token } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { PieChart } from './PieChart';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
+import { MarketImage } from '@app/components/common/Assets/MarketImage';
 
 const FundLine = ({
     token,
@@ -40,16 +41,13 @@ const FundLine = ({
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
                 <Text>-</Text>
-                <Flex alignItems="center" position="relative">
-                    {
-                        token?.image
-                        && <Image display="inline-block" src={token?.image} ignoreFallback={true} w='15px' h='15px' mr="1" ml="1" />
-                    }
-                    {
-                        token?.image && !!token?.protocolImage
-                        && <Image borderRadius="20px" display="inline-block" position="absolute" src={token?.protocolImage} ignoreFallback={true} w='8px' h='8px' bottom="0" right="0" />
-                    }
-                </Flex>
+                <MarketImage
+                    image={token?.image}
+                    protocolImage={token?.protocolImage}
+                    isInPausedSection={token?.isInPausedSection || /(-v1|-old)/i.test(token?.symbol)}
+                    size={15}
+                    mx="1"
+                />
                 <Text ml="1" lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
             {

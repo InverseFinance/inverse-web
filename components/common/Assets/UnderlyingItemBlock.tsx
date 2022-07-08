@@ -6,13 +6,13 @@ const { TOKENS } = getNetworkConfigConstants(process.env.NEXT_PUBLIC_CHAIN_ID!);
 
 export const UnderlyingItemBlock = ({
     symbol,
-    imgSize = '15px',
+    imgSize = 15,
     nameAttribute = 'symbol',
     imgProps,
     ...props
 }: {
     symbol: string,
-    imgSize?: ImageProps["w"],
+    imgSize?: number,
     nameAttribute: 'name' | 'symbol'
     imgProps?: ImageProps,
     props?: FlexProps

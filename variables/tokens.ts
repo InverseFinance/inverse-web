@@ -439,7 +439,9 @@ const underlying: TokenList = {
 if (HAS_REWARD_TOKEN) {
   underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN);
   if (process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD) {
-    underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN, { order: 1000 });
+    underlying[process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN_OLD] = {
+      ...getToken(TOKENS, process.env.NEXT_PUBLIC_REWARD_TOKEN, { order: 1000 }), isInPausedSection: true,
+    };
   }
 }
 

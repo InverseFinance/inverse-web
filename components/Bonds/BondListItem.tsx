@@ -24,7 +24,7 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
             <Flex w="240px" alignItems="center" position="relative">
                 {/* <Link textTransform="uppercase" textDecoration="none" isExternal href={bond.howToGetLink}> */}
                 <VStack alignItems="flex-start" textTransform="uppercase">
-                    <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={'18px'} imgProps={{ mr: '2' }} />
+                    <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={18} imgProps={{ mr: '2' }} />
                     <Text maxW={{ base: "80px", sm: '200px' }} fontSize={{ base: '10px', sm: "14px" }} color="secondaryTextColor">{bond.vestingDays} days vesting</Text>
                 </VStack>
                 {/* </Link> */}

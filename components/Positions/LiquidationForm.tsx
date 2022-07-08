@@ -16,6 +16,7 @@ import { useLiquidationIncentive } from '@app/hooks/usePositions'
 import { removeScientificFormat, roundFloorString } from '@app/util/misc';
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { parseUnits } from '@ethersproject/units'
+import { InfoMessage } from '../common/Messages'
 
 const formattedInfo = (bal: number | string, priceUsd: number) => {
     return <b>{shortenNumber(parseFloat(bal), 4, false, true)} ({shortenNumber(parseFloat(bal) * priceUsd, 2, true, true)})</b>
@@ -167,5 +168,6 @@ export const LiquidationForm = ({
                 Liquidate
             </SubmitButton>
         </Stack>
+        <InfoMessage description="Note: seized assets are still on Frontier, withdrawing them is another process and requires enough liquidity." />
     </Stack>
 }
