@@ -1,24 +1,16 @@
 import "source-map-support";
-import { getNetworkConfig } from '@app/util/networks';
-import { getRedisClient } from '@app/util/redis';
-import { NetworkIds, ProposalStatus } from '@app/types';
+import { getCacheFromRedis, getRedisClient } from '@app/util/redis';
+import { ProposalStatus } from '@app/types';
 
 const client = getRedisClient();
 
 export default async function handler(req, res) {
   try {
-    // defaults to mainnet data if unsupported network
-    const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;
-    if (!networkConfig?.governance) {
-      res.status(403).json({ success: false, message: `No Governance support on ${networkConfig.chainId} network` });
-    }
-    let data: any = await client.get(`1-proposals-v1.0.0`);
-
+    const data: any = await getCacheFromRedis(`1-proposals-v1.0.0`, false) || { proposals: [] };
+    
     if (!data) {
       res.status(404).json({ success: false });
       return;
-    } else {
-      data = JSON.parse(data)
     }
 
     const activeProposalsKeys = data.proposals.filter(p => [ProposalStatus.active].includes(p.status))
