@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     if (!networkConfig?.governance) {
       res.status(403).json({ success: false, message: `No Governance support on ${networkConfig.chainId} network` });
     }
-    let data: any = await client.get(`${networkConfig.chainId}-proposals`);
+    let data: any = await client.get(`1-proposals-v1.0.0`);
 
     if (!data) {
       res.status(404).json({ success: false });
