@@ -4,7 +4,7 @@ import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
 import { namedAddress, shortenAddress } from '@app/util';
 import { REWARD_TOKEN, TOKENS, UNDERLYING } from '@app/variables/tokens';
-import { capitalize, removeScientificFormat } from '@app/util/misc';
+import { capitalize, removeScientificFormat, _getProp } from '@app/util/misc';
 import { formatUnits } from 'ethers/lib/utils';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import ScannerLink from '@app/components/common/ScannerLink';
@@ -21,11 +21,9 @@ const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: 
 }
 
 const XinvVestorHumanReadable = ({
-    target,
     signature,
     callDatas,
 }: {
-    target: string,
     signature: string,
     callDatas: string[],
 }) => {
@@ -38,27 +36,25 @@ const XinvVestorHumanReadable = ({
         const amount = <Amount value={amountValue} decimals={contractKnownToken.decimals} />;
         const destinator = <ScannerLink color="info" value={recipient} label={namedAddress(recipient)} />;
         const durationInDays = <b>{shortenNumber(parseInt(durationSec) / (3600 * 24), 0)} days</b>;
-        const startingDate = <b>{moment(parseInt(startTimestampSec)*1000).format('MMM Do YYYY')}</b>;
+        const startingDate = <b>{moment(parseInt(startTimestampSec) * 1000).format('MMM Do YYYY')}</b>;
 
         text = <Flex display="inline-block">
-            <Text>&laquo; Deploy a <b>{ isCancellable === 'false' && 'Non-' }Cancellable</b> XinvVester for {destinator}:</Text>
+            <Text>&laquo; Deploy a <b>{isCancellable === 'false' && 'Non-'}Cancellable</b> XinvVester for {destinator}:</Text>
             <Text>{amount} INV vested for {durationInDays} with a starting date of {startingDate} &raquo;</Text>
         </Flex>
     }
 
     return (
         <Flex display="inline-block" mb="2" fontStyle="italic">
-           {text}
+            {text}
         </Flex>
     )
 }
 
 const ComptrollerHumanReadableActionLabel = ({
-    target,
     signature,
     callDatas,
 }: {
-    target: string,
     signature: string,
     callDatas: string[],
 }) => {
@@ -89,7 +85,7 @@ const AnchorHumanReadableActionLabel = ({
     signature: string,
     callDatas: string[],
 }) => {
-    const contractKnownToken = UNDERLYING[target];
+    const contractKnownToken = _getProp(UNDERLYING, target);
 
     const funName = signature.split('(')[0];
     let text;
@@ -128,7 +124,7 @@ const StabilizerHumanReadableActionLabel = ({
     if (['setBuyFee', 'setSellFee'].includes(funName)) {
         const amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
         text = <Flex display="inline-block">
-            Set the <ScannerLink color="info" label={<><b>Stabilizer</b></>} value={target} /> <b>{ funName === 'setBuyFee' ? 'Buy Fee' : 'Sell Fee' }</b> to {amount}
+            Set the <ScannerLink color="info" label={<><b>Stabilizer</b></>} value={target} /> <b>{funName === 'setBuyFee' ? 'Buy Fee' : 'Sell Fee'}</b> to {amount}
         </Flex>
     }
 
@@ -140,11 +136,9 @@ const StabilizerHumanReadableActionLabel = ({
 }
 
 const GovernanceHumanReadableActionLabel = ({
-    target,
     signature,
     callDatas,
 }: {
-    target: string,
     signature: string,
     callDatas: string[],
 }) => {
@@ -154,7 +148,7 @@ const GovernanceHumanReadableActionLabel = ({
     if (['updateProposalQuorum', 'updateProposalThreshold'].includes(funName)) {
         const amount = <Amount value={callDatas[0]} decimals={18} />;
         text = <Flex display="inline-block">
-            Set <b>{ funName === 'updateProposalQuorum' ? 'Proposal Success Quorum' : 'Proposal Submit Threshold' }</b> to {amount}
+            Set <b>{funName === 'updateProposalQuorum' ? 'Proposal Success Quorum' : 'Proposal Submit Threshold'}</b> to {amount}
         </Flex>
     }
 
@@ -174,19 +168,21 @@ const HumanReadableActionLabel = ({
     signature: string,
     callDatas: string[],
 }) => {
-    if (UNDERLYING[target]) {
+    const lcTarget = target.toLowerCase();
+    if (_getProp(UNDERLYING, target)) {
         return <AnchorHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />;
-    } else if (target === COMPTROLLER) {
-        return <ComptrollerHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />;
-    } else if (target === XINV_VESTOR_FACTORY) {
-        return <XinvVestorHumanReadable target={target} signature={signature} callDatas={callDatas} />
-    } else if (target === STABILIZER) {
+    } else if (lcTarget === COMPTROLLER.toLowerCase()) {
+        return <ComptrollerHumanReadableActionLabel signature={signature} callDatas={callDatas} />;
+    } else if (lcTarget === XINV_VESTOR_FACTORY.toLowerCase()) {
+        return <XinvVestorHumanReadable signature={signature} callDatas={callDatas} />
+    } else if (lcTarget === STABILIZER.toLowerCase()) {
         return <StabilizerHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
-    } else if (target === GOVERNANCE) {
-        return <GovernanceHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
+    } else if (lcTarget === GOVERNANCE.toLowerCase()) {
+        return <GovernanceHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     }
 
-    const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target];
+    const isDolaPayroll = lcTarget === DOLA_PAYROLL.toLowerCase();
+    const contractKnownToken = isDolaPayroll ? _getProp(TOKENS, DOLA) : _getProp(TOKENS, target);
 
     const destinator = <ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />;
     const funName = signature.split('(')[0];
@@ -196,7 +192,7 @@ const HumanReadableActionLabel = ({
 
     let text;
 
-    if (target === DOLA_PAYROLL) {
+    if (isDolaPayroll) {
         text = <Flex display="inline-block">Add {destinator} to the <b>PayRolls</b> with a yearly salary of {amount} {symbol}</Flex>
     } else if (funName === 'approve') {
         text = <Flex display="inline-block">Set {destinator}'s {symbol} <b>Allowance</b> to {amount}</Flex>;
@@ -240,7 +236,9 @@ export const ProposalActionPreview = (({
         'updateProposalThreshold',
     ].includes(funName);
 
-    const contractKnownToken = target === DOLA_PAYROLL ? TOKENS[DOLA] : TOKENS[target] || UNDERLYING[target];
+    const contractKnownToken = target.toLowerCase() === DOLA_PAYROLL.toLowerCase() ?
+        _getProp(TOKENS, DOLA) :
+        _getProp(TOKENS, target) || _getProp(UNDERLYING, target);
 
     return (
         <Stack w="full" spacing={1} {...props} textAlign="left">
@@ -253,7 +251,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE].includes(target))
+                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE].map(v => v.toLowerCase()).includes(target.toLowerCase()))
                     && <ErrorBoundary description={null}>
                         <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                     </ErrorBoundary>

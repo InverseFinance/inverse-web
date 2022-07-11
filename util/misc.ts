@@ -155,8 +155,17 @@ export const getRandomFromStringList = (commaSeparatedList: string) => {
 }
 
 export const handleApiResponse = (promiseResult: any) => {
-    if(promiseResult?.status && promiseResult?.message) {
+    if (promiseResult?.status && promiseResult?.message) {
         const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
         showToast({ status: statusType, description: promiseResult?.message });
     }
+}
+
+export const _getProp = (object: Object, key: string) => {
+    if(!object) { return undefined }
+    const lcKey = key.toLowerCase();
+    const found = Object.entries(object).find(([key, value]) => {
+        return key.toLowerCase() === lcKey
+    });
+    return found?.[1];
 }
