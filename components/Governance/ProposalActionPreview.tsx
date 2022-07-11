@@ -12,7 +12,7 @@ import moment from 'moment';
 import { shortenNumber } from '@app/util/markets';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 
-const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE } = getNetworkConfigConstants();
+const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE } = getNetworkConfigConstants();
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
     return <Text display="inline-block" fontWeight="bold" color="secondary">
@@ -59,34 +59,63 @@ const ComptrollerHumanReadableActionLabel = ({
     callDatas: string[],
 }) => {
     const funName = signature.split('(')[0];
-    let text;
+    let text, amount;
+    const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
 
-    if (['_setCollateralFactor'].includes(funName)) {
-        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
-        const amount = <Amount value={callDatas[1]} decimals={18} isPerc={true} />;
-        text = <Flex display="inline-block">
-            Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Frontier Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
+    switch (funName) {
+        case '_setCollateralFactor':
+            amount = <Amount value={callDatas[1]} decimals={18} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Frontier Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
+            </Flex>
+            break;
+        case '_setCollateralPaused':
+            text = <Flex display="inline-block">
+                <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be used as <b>Collateral</b> on Frontier
+            </Flex>
+            break;
+        case '_setBorrowPaused':
+            text = <Flex display="inline-block">
+                <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be <b>Borrowed</b> on Frontier
+            </Flex>
+            break;
+        case '_setMintPaused':
+            text = <Flex display="inline-block">
+                <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be <b>Supplied</b> on Frontier
+            </Flex>
+            break;
+        case '_supportMarket':
+            text = <Flex display="inline-block">
+                <b>Add</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> as a <b>new Market</b> on Frontier
+            </Flex>
+            break;
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
         </Flex>
-    } else if (['_setCollateralPaused'].includes(funName)) {
-        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
-        text = <Flex display="inline-block">
-            <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be used as <b>Collateral</b> on Frontier
-        </Flex>
-    } else if (['_setBorrowPaused'].includes(funName)) {
-        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
-        text = <Flex display="inline-block">
-            <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be <b>Borrowed</b> on Frontier
-        </Flex>
-    } else if (['_setMintPaused'].includes(funName)) {
-        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
-        text = <Flex display="inline-block">
-            <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be <b>Supplied</b> on Frontier
-        </Flex>
-    } else if (['_supportMarket'].includes(funName)) {
-        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
-        text = <Flex display="inline-block">
-            <b>Add</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> as a <b>new Market</b> on Frontier
-        </Flex>
+    )
+}
+
+const OracleHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text;
+    const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
+
+    switch (funName) {
+        case 'setFeed':
+            const decimals = <Amount value={callDatas[2]} decimals={0} isPerc={false} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Frontier Market</>} value={callDatas[0]} /> <b>Price Feed Source</b> to <ScannerLink color="info" value={callDatas[1]} />  with a {decimals} decimals Underlying
+            </Flex>
+            break;
     }
 
     return (
@@ -108,18 +137,22 @@ const AnchorHumanReadableActionLabel = ({
     const contractKnownToken = _getProp(UNDERLYING, target);
 
     const funName = signature.split('(')[0];
-    let text;
+    let text, amount;
 
-    if (['_reduceReserves', '_addReserves'].includes(funName)) {
-        const amount = <Amount value={callDatas[0]} decimals={contractKnownToken.decimals} />;
-        text = <Flex display="inline-block">
-            <b>{funName === '_addReserves' ? 'Add' : 'Reduce'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Frontier Market</>} value={target} /> <b>Reserves</b> by {amount}
-        </Flex>
-    } else if (funName === '_setReserveFactor') {
-        const amount = <Amount value={callDatas[0]} decimals={18} isPerc={true} />;
-        text = <Flex display="inline-block">
-            Set <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Frontier Market</>} value={target} /> <b>Reserve Factor</b> to {amount}
-        </Flex>
+    switch (funName) {
+        case '_reduceReserves':
+        case '_addReserves':
+            amount = <Amount value={callDatas[0]} decimals={contractKnownToken.decimals} />;
+            text = <Flex display="inline-block">
+                <b>{funName === '_addReserves' ? 'Add' : 'Reduce'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Frontier Market</>} value={target} /> <b>Reserves</b> by {amount}
+            </Flex>
+            break;
+        case '_setReserveFactor':
+            amount = <Amount value={callDatas[0]} decimals={18} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" label={<><b>{contractKnownToken.symbol}</b>'s Frontier Market</>} value={target} /> <b>Reserve Factor</b> to {amount}
+            </Flex>
+            break;
     }
 
     return (
@@ -139,13 +172,16 @@ const StabilizerHumanReadableActionLabel = ({
     callDatas: string[],
 }) => {
     const funName = signature.split('(')[0];
-    let text;
+    let text, amount;
 
-    if (['setBuyFee', 'setSellFee'].includes(funName)) {
-        const amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
-        text = <Flex display="inline-block">
-            Set the <ScannerLink color="info" label={<><b>Stabilizer</b></>} value={target} /> <b>{funName === 'setBuyFee' ? 'Buy Fee' : 'Sell Fee'}</b> to {amount}
-        </Flex>
+    switch (funName) {
+        case 'setBuyFee':
+        case 'setSellFee':
+            amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set the <ScannerLink color="info" label={<><b>Stabilizer</b></>} value={target} /> <b>{funName === 'setBuyFee' ? 'Buy Fee' : 'Sell Fee'}</b> to {amount}
+            </Flex>
+            break;
     }
 
     return (
@@ -163,13 +199,16 @@ const GovernanceHumanReadableActionLabel = ({
     callDatas: string[],
 }) => {
     const funName = signature.split('(')[0];
-    let text;
+    let text, amount;
 
-    if (['updateProposalQuorum', 'updateProposalThreshold'].includes(funName)) {
-        const amount = <Amount value={callDatas[0]} decimals={18} />;
-        text = <Flex display="inline-block">
-            Set <b>{funName === 'updateProposalQuorum' ? 'Proposal Success Quorum' : 'Proposal Submit Threshold'}</b> to {amount}
-        </Flex>
+    switch (funName) {
+        case 'updateProposalQuorum':
+        case 'updateProposalThreshold':
+            amount = <Amount value={callDatas[0]} decimals={18} />;
+            text = <Flex display="inline-block">
+                Set <b>{funName === 'updateProposalQuorum' ? 'Proposal Success Quorum' : 'Proposal Submit Threshold'}</b> to {amount}
+            </Flex>
+            break;
     }
 
     return (
@@ -199,6 +238,8 @@ const HumanReadableActionLabel = ({
         return <StabilizerHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
     } else if (lcTarget === GOVERNANCE.toLowerCase()) {
         return <GovernanceHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (lcTarget === ORACLE.toLowerCase()) {
+        return <OracleHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     }
 
     const isDolaPayroll = lcTarget === DOLA_PAYROLL.toLowerCase();
@@ -253,6 +294,7 @@ export const ProposalActionPreview = (({
         '_setBorrowPaused',
         '_setMintPaused',
         '_supportMarket',
+        'setFeed',
         'deployVester',
         'setSellFee',
         'setBuyFee',
@@ -275,7 +317,7 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE].map(v => v.toLowerCase()).includes(target.toLowerCase()))
+                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE].map(v => v.toLowerCase()).includes(target.toLowerCase()))
                     && <ErrorBoundary description={null}>
                         <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                     </ErrorBoundary>
