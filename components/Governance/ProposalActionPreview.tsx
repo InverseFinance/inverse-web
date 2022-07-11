@@ -62,10 +62,30 @@ const ComptrollerHumanReadableActionLabel = ({
     let text;
 
     if (['_setCollateralFactor'].includes(funName)) {
-        const contractKnownToken = UNDERLYING[callDatas[0]];
+        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
         const amount = <Amount value={callDatas[1]} decimals={18} isPerc={true} />;
         text = <Flex display="inline-block">
             Set <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b>'s Frontier Market</>} value={callDatas[0]} /> <b>Collateral Factor</b> to {amount}
+        </Flex>
+    } else if (['_setCollateralPaused'].includes(funName)) {
+        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
+        text = <Flex display="inline-block">
+            <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be used as <b>Collateral</b> on Frontier
+        </Flex>
+    } else if (['_setBorrowPaused'].includes(funName)) {
+        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
+        text = <Flex display="inline-block">
+            <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be <b>Borrowed</b> on Frontier
+        </Flex>
+    } else if (['_setMintPaused'].includes(funName)) {
+        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
+        text = <Flex display="inline-block">
+            <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be <b>Supplied</b> on Frontier
+        </Flex>
+    } else if (['_supportMarket'].includes(funName)) {
+        const contractKnownToken = _getProp(UNDERLYING, callDatas[0]);
+        text = <Flex display="inline-block">
+            <b>Add</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> as a <b>new Market</b> on Frontier
         </Flex>
     }
 
@@ -229,6 +249,10 @@ export const ProposalActionPreview = (({
         '_addReserves',
         '_setReserveFactor',
         '_setCollateralFactor',
+        '_setCollateralPaused',
+        '_setBorrowPaused',
+        '_setMintPaused',
+        '_supportMarket',
         'deployVester',
         'setSellFee',
         'setBuyFee',
