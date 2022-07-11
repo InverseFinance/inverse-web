@@ -19,6 +19,9 @@ const topics = {
 }
 
 const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
+  if(data === null) {
+    return [];
+  }
   const { items, chain_id } = data;
   return items
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
@@ -113,19 +116,27 @@ export default async function handler(req, res) {
     // old one, then we add the current one
     const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
 
+    const [startYear, startMonth, startDay] = (startDate || '').split('-');
+    const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
+
+    const [endYear, endMonth, endDay] = (endDate || '').split('-');
+    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
+
+    const pageSize = startTimestamp < (Date.now() - 30 * 86400000) ? 1000 : 100;
+
     const [gov, multidelegator, gno, oracleOld, oracleCurrent, ...multisigsRes] = await Promise.all([
-      getTxsOf(GOVERNANCE),
-      getTxsOf(MULTI_DELEGATOR),
+      getTxsOf(GOVERNANCE, pageSize),
+      getTxsOf(MULTI_DELEGATOR, pageSize),
       // gnosis proxy, for creation
-      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
+      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', pageSize),
       // price feed update
-      getTxsOf(invOracleKeepers[0]),
-      getTxsOf(invOracleKeepers[1]),
-      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 100))
+      getTxsOf(invOracleKeepers[0], pageSize),
+      getTxsOf(invOracleKeepers[1], pageSize),
+      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, pageSize))
     ])
 
     const feds = await Promise.all([
-      ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, 100))
+      ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))
     ])
 
     const customTxs = JSON.parse((await client.get('custom-txs-to-refund') || '[]'));
@@ -143,12 +154,6 @@ export default async function handler(req, res) {
     feds.forEach(r => {
       totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
     })
-
-    const [startYear, startMonth, startDay] = (startDate || '').split('-');
-    const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
-
-    const [endYear, endMonth, endDay] = (endDate || '').split('-');
-    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
 
     const ignoredTxs = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
 
