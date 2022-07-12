@@ -82,10 +82,10 @@ export const MENUS = {
           href: '/transparency/treasury',
           label: 'Treasury',
         },
-        // {
-        //   href: '/transparency/dao',
-        //   label: 'DAO',
-        // },
+        {
+          href: '/transparency/dao',
+          label: 'DAO',
+        },
         {
           href: '/transparency/inv',
           label: 'INV',

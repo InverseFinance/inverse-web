@@ -19,6 +19,9 @@ const topics = {
 }
 
 const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
+  if (data === null) {
+    return [];
+  }
   const { items, chain_id } = data;
   return items
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
@@ -89,46 +92,65 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const multisigOwners = await Promise.all([
-      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
-        const contract = new Contract(m.address, MULTISIG_ABI, provider);
-        return contract.getOwners()
-      })
-    ]);
+    const xinvFeed = await new Contract(ORACLE, ORACLE_ABI, provider).feeds(XINV);
+    const xinvKeeperAddress = await new Contract(xinvFeed, ['function oracle() public view returns (address)'], provider).oracle();
+    // old one, then we add the current one
+    const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
 
-    multisigOwners.forEach(multisigOwners => {
-      refundWhitelist = refundWhitelist.concat(multisigOwners);
-    });
-    refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
+    const [startYear, startMonth, startDay] = (startDate || '').split('-');
+    const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
 
-    const delegates = JSON.parse(await client.get(`1-delegates`)).data;
+    const [endYear, endMonth, endDay] = (endDate || '').split('-');
+    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
+
+    const pageSize = startTimestamp < (Date.now() - 30 * 86400000) ? 1000 : 100;
+
+    const [
+      gov,
+      multidelegator,
+      gno,
+      oracleOld,
+      oracleCurrent,
+      multisigsRes,
+      multisigOwners,
+      feds,
+      customTxsRes,
+      delegatesRes,
+      ignoreTxsRes,
+    ] = await Promise.all([
+      getTxsOf(GOVERNANCE, pageSize),
+      getTxsOf(MULTI_DELEGATOR, pageSize),
+      // gnosis proxy, for creation
+      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', pageSize),
+      // price feed update
+      getTxsOf(invOracleKeepers[0], pageSize),
+      getTxsOf(invOracleKeepers[1], pageSize),
+      Promise.all(MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, pageSize))),
+      Promise.all(
+        MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
+          const contract = new Contract(m.address, MULTISIG_ABI, provider);
+          return contract.getOwners()
+        })
+      ),
+      Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
+      client.get('custom-txs-to-refund'),
+      client.get(`1-delegates`),
+      client.get('refunds-ignore-tx-hashes'),
+    ])
+
+    const customTxs = JSON.parse((customTxsRes || '[]'));
+
+    const delegates = JSON.parse(delegatesRes).data;
     const eligibleVoteCasters = Object.values(delegates)
       .map(val => val)
       .filter(del => {
         return del.votingPower >= 500 && del.delegators.length > 2;
       }).map(del => del.address.toLowerCase());
 
-    const xinvFeed = await new Contract(ORACLE, ORACLE_ABI, provider).feeds(XINV);
-    const xinvKeeperAddress = await new Contract(xinvFeed, ['function oracle() public view returns (address)'], provider).oracle();
-    // old one, then we add the current one
-    const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
-
-    const [gov, multidelegator, gno, oracleOld, oracleCurrent, ...multisigsRes] = await Promise.all([
-      getTxsOf(GOVERNANCE),
-      getTxsOf(MULTI_DELEGATOR),
-      // gnosis proxy, for creation
-      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'),
-      // price feed update
-      getTxsOf(invOracleKeepers[0]),
-      getTxsOf(invOracleKeepers[1]),
-      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, 100))
-    ])
-
-    const feds = await Promise.all([
-      ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, 100))
-    ])
-
-    const customTxs = JSON.parse((await client.get('custom-txs-to-refund') || '[]'));
+    multisigOwners.forEach(multisigOwners => {
+      refundWhitelist = refundWhitelist.concat(multisigOwners);
+    });
+    refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
 
     let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
       .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
@@ -144,13 +166,7 @@ export default async function handler(req, res) {
       totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
     })
 
-    const [startYear, startMonth, startDay] = (startDate || '').split('-');
-    const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
-
-    const [endYear, endMonth, endDay] = (endDate || '').split('-');
-    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
-
-    const ignoredTxs = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
+    const ignoredTxs = JSON.parse(ignoreTxsRes || '[]');
 
     totalItems = totalItems
       .filter(t =>
@@ -180,6 +196,7 @@ export default async function handler(req, res) {
       }
     } catch (e) {
       console.error(e);
+      return res.status(500);
     }
   }
 }

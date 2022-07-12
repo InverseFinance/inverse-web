@@ -514,7 +514,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
           { label: 'INV/DOLA', value: 'inv' },
           { label: 'Popular', value: 'popular' },
           { label: 'Yield-Bearing', value: 'yield' },
-          { label: 'New', value: 'new' },
+          // { label: 'New', value: 'new' },
         ]}
       />}
     >
