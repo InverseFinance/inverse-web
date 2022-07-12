@@ -19,7 +19,7 @@ const topics = {
 }
 
 const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
-  if(data === null) {
+  if (data === null) {
     return [];
   }
   const { items, chain_id } = data;
@@ -92,25 +92,6 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const multisigOwners = await Promise.all([
-      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
-        const contract = new Contract(m.address, MULTISIG_ABI, provider);
-        return contract.getOwners()
-      })
-    ]);
-
-    multisigOwners.forEach(multisigOwners => {
-      refundWhitelist = refundWhitelist.concat(multisigOwners);
-    });
-    refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
-
-    const delegates = JSON.parse(await client.get(`1-delegates`)).data;
-    const eligibleVoteCasters = Object.values(delegates)
-      .map(val => val)
-      .filter(del => {
-        return del.votingPower >= 500 && del.delegators.length > 2;
-      }).map(del => del.address.toLowerCase());
-
     const xinvFeed = await new Contract(ORACLE, ORACLE_ABI, provider).feeds(XINV);
     const xinvKeeperAddress = await new Contract(xinvFeed, ['function oracle() public view returns (address)'], provider).oracle();
     // old one, then we add the current one
@@ -124,7 +105,19 @@ export default async function handler(req, res) {
 
     const pageSize = startTimestamp < (Date.now() - 30 * 86400000) ? 1000 : 100;
 
-    const [gov, multidelegator, gno, oracleOld, oracleCurrent, ...multisigsRes] = await Promise.all([
+    const [
+      gov,
+      multidelegator,
+      gno,
+      oracleOld,
+      oracleCurrent,
+      multisigsRes,
+      multisigOwners,
+      feds,
+      customTxsRes,
+      delegatesRes,
+      ignoreTxsRes,
+    ] = await Promise.all([
       getTxsOf(GOVERNANCE, pageSize),
       getTxsOf(MULTI_DELEGATOR, pageSize),
       // gnosis proxy, for creation
@@ -132,14 +125,32 @@ export default async function handler(req, res) {
       // price feed update
       getTxsOf(invOracleKeepers[0], pageSize),
       getTxsOf(invOracleKeepers[1], pageSize),
-      ...MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, pageSize))
+      Promise.all(MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, pageSize))),
+      Promise.all(
+        MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
+          const contract = new Contract(m.address, MULTISIG_ABI, provider);
+          return contract.getOwners()
+        })
+      ),
+      Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
+      client.get('custom-txs-to-refund'),
+      client.get(`1-delegates`),
+      client.get('refunds-ignore-tx-hashes'),
     ])
 
-    const feds = await Promise.all([
-      ...FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))
-    ])
+    const customTxs = JSON.parse((customTxsRes || '[]'));
 
-    const customTxs = JSON.parse((await client.get('custom-txs-to-refund') || '[]'));
+    const delegates = JSON.parse(delegatesRes).data;
+    const eligibleVoteCasters = Object.values(delegates)
+      .map(val => val)
+      .filter(del => {
+        return del.votingPower >= 500 && del.delegators.length > 2;
+      }).map(del => del.address.toLowerCase());
+
+    multisigOwners.forEach(multisigOwners => {
+      refundWhitelist = refundWhitelist.concat(multisigOwners);
+    });
+    refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
 
     let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
       .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
@@ -155,7 +166,7 @@ export default async function handler(req, res) {
       totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
     })
 
-    const ignoredTxs = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
+    const ignoredTxs = JSON.parse(ignoreTxsRes || '[]');
 
     totalItems = totalItems
       .filter(t =>
@@ -185,6 +196,7 @@ export default async function handler(req, res) {
       }
     } catch (e) {
       console.error(e);
+      return res.status(500);
     }
   }
 }
