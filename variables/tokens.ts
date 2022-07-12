@@ -258,7 +258,6 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
-      badge: newBadge,
     },
     [chainTokenAddresses["1"].YVCRVIB]: {
       address: chainTokenAddresses["1"].YVCRVIB,
@@ -267,7 +266,6 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/22902/small/ironbank.png?1642872464',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
-      badge: newBadge,
     },
     [chainTokenAddresses["1"].YVCRV3CRYPTO]: {
       address: chainTokenAddresses["1"].YVCRV3CRYPTO,
@@ -276,7 +274,6 @@ const chainTokens = {
       image: 'https://raw.githubusercontent.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xc4AD29ba4B3c580e6D59105FFf484999997675Ff/logo-128.png',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
-      badge: newBadge,
     },
     [chainTokenAddresses["1"].YVCRVSTEHWETH]: {
       address: chainTokenAddresses["1"].YVCRVSTEHWETH,
@@ -285,7 +282,6 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
-      badge: newBadge,
     },
     [chainTokenAddresses["1"].CVX]: {
       address: chainTokenAddresses["1"].CVX,
@@ -342,7 +338,6 @@ copyAsYearnVault.forEach(s => {
     protocolImage: chainTokens["1"][chainTokenAddresses["1"]['YFI']].image,
     name: symbol,
     coingeckoId: undefined,
-    badge: newBadge,
     isInPausedSection: false,
     isLP: false,
     isCrvLP: false,
@@ -404,9 +399,9 @@ const chainUnderlying = {
     '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b': toV1(getToken(TOKENS, chainTokenAddresses["1"].WBTC)!),
     '0xde2af899040536884e062D3a334F2dD36F34b4a4': toV1(getToken(TOKENS, chainTokenAddresses["1"].YFI)!),
     // v2 markets
-    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, badge: newBadge, order: 10 },
-    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC!, { badge: newBadge, order: 20 }),
-    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI!, { badge: newBadge, order: 30 }),
+    '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86': { ...TOKENS.CHAIN_COIN, order: 10 },
+    '0xE8A2eb30E9AB1b598b6a5fc4aa1B80dfB6F90753': getToken(TOKENS, chainTokenAddresses["1"].WBTC!, { order: 20 }),
+    '0x55e9022e1E28831609B22F773fAdb41318F8a8Cc': getToken(TOKENS, chainTokenAddresses["1"].YFI!, { order: 30 }),
     // others
     '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670': getToken(TOKENS, chainTokenAddresses["1"].DOLA, { order: 1 }),
     '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326': getToken(TOKENS, chainTokenAddresses["1"].XSUSHI, { order: 80 }),
