@@ -114,9 +114,10 @@ export const GovTransparency = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Governance</title>
-                <meta name="og:title" content="Inverse Finance - Transparency DAO" />
+                <title>{process.env.NEXT_PUBLIC_TITLE} - Dao Transparency</title>
+                <meta name="og:title" content="Inverse Finance - DAO Transparency" />
                 <meta name="og:description" content="DAO Transparency" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-dao.png" />
                 <meta name="description" content="DAO Transparency" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, delegates, proposals" />
             </Head>
