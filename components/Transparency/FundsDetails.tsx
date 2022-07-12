@@ -27,13 +27,19 @@ export const FundsDetails = ({
     const [isDrilled, setIsDrilled] = useState(false);
     const [isAfterSlideEffect, setIsAfterSlideEffect] = useState(false);
     const [subtitle, setSubtitle] = useState('');
+    const [drilledDatum, setDrilledDatum] = useState(null);
 
     useEffect(() => {
-        setData(funds);
-    }, [funds])
+        if(isDrilled) {
+            handleDrill(drilledDatum);
+        } else {
+            setData(funds);
+        }
+    }, [funds, isDrilled, drilledDatum]);
 
     const handleDrill = (datum) => {
         if (datum?.fund?.drill) {
+            setDrilledDatum(datum);
             setData(datum?.fund?.drill);
             setIsDrilled(true);
             setSubtitle(datum?.fund?.label || datum?.fund?.token?.symbol);
@@ -42,7 +48,6 @@ export const FundsDetails = ({
 
     const reset = () => {
         setIsDrilled(false);
-        setData(funds);
     }
 
     useDualSpeedEffect(() => {
