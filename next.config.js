@@ -3,6 +3,11 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
+      source: '/positions',
+      destination: '/transparency/shortfalls',
+      permanent: true,
+    },
+    {
       source: '/transparency/fed-history',
       destination: '/transparency/fed-policy',
       permanent: true,

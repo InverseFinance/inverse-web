@@ -34,7 +34,7 @@ const getAssetSize = (usdWorth: number) => {
 
 const AssetIcons = ({ list, minW = '100px' }: {
     list: {
-        market: string,
+        marketIndex: number,
         underlying: Token,
         usdWorth: number,
     }[]
@@ -44,7 +44,7 @@ const AssetIcons = ({ list, minW = '100px' }: {
             list?.map((item, i) => {
                 const { image, protocolImage, isInPausedSection, symbol } = item.underlying;
                 return <MarketImage
-                    key={item.market}
+                    key={item.marketIndex}
                     size={getAssetSize(item.usdWorth)}
                     image={image}
                     protocolImage={protocolImage}

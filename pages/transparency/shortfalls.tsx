@@ -12,20 +12,27 @@ import moment from 'moment'
 import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
 import { shortenAddress } from '@app/util'
 import { InfoMessage } from '@app/components/common/Messages'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 
-export const PositionsPage = () => {
+export const ShortfallsPage = () => {
   const [accounts, setAccounts] = useState('');
   const { positions, markets, prices, collateralFactors, lastUpdate } = usePositions({ accounts });
 
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Positions</title>
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Shortfalls</title>
+        <meta name="og:title" content="Inverse Finance - Shortfalls" />
+        <meta name="og:description" content="Frontier's shortfalls" />        
+        <meta name="description" content="Inverse Finance Shortfalls Details" />
+        <meta name="keywords" content="Inverse Finance, transparency, frontier, shortfalls" />
       </Head>
-      <AppNav active="Positions" />
+      <AppNav active="Transparency" activeSubmenu="shortfalls" />
+      <TransparencyTabs active="shortfalls" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Container
+            noPadding
             label={`Filter by account (Shortfalling or Not)`}
           >
             <Stack minW={{ base: 'full', sm: '450px' }} w='full'>
@@ -45,4 +52,4 @@ export const PositionsPage = () => {
   )
 }
 
-export default PositionsPage
+export default ShortfallsPage
