@@ -12,8 +12,9 @@ import moment from 'moment'
 import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
 import { shortenAddress } from '@app/util'
 import { InfoMessage } from '@app/components/common/Messages'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 
-export const PositionsPage = () => {
+export const ShortfallsPage = () => {
   const [accounts, setAccounts] = useState('');
   const { positions, markets, prices, collateralFactors, lastUpdate } = usePositions({ accounts });
 
@@ -23,6 +24,7 @@ export const PositionsPage = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Positions</title>
       </Head>
       <AppNav active="Positions" />
+      <TransparencyTabs active="shortfalls" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Container
@@ -45,4 +47,4 @@ export const PositionsPage = () => {
   )
 }
 
-export default PositionsPage
+export default ShortfallsPage
