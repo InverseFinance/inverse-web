@@ -111,6 +111,10 @@ export const MENUS = {
           label: 'Stabilizer',
         },
         {
+          href: '/transparency/shortfalls',
+          label: 'Shortfalls',
+        },
+        {
           href: '/transparency/liquidations',
           label: 'Liquidations',
         },
