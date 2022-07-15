@@ -12,11 +12,13 @@ const { COMPTROLLER } = getNetworkConfigConstants(NetworkIds.mainnet)
 const FUNCTIONS = {
     [ProposalTemplates.anchorLending]: '_setMintPaused',
     [ProposalTemplates.anchorBorrowing]: '_setBorrowPaused',
+    [ProposalTemplates.anchorCollateral]: '_setCollateralPaused',
 }
 
 const LABELS = {
     [ProposalTemplates.anchorLending]: 'Pause supplying',
     [ProposalTemplates.anchorBorrowing]: 'Pause borrowing',
+    [ProposalTemplates.anchorCollateral]: 'Pause collateral (borrowing against)',
 }
 
 export const AnchorBoolTemplate = ({
@@ -28,7 +30,7 @@ export const AnchorBoolTemplate = ({
 }: {
     defaultAddress?: string,
     defaultValue?: string,
-    type: ProposalTemplates.anchorLending | ProposalTemplates.anchorBorrowing,
+    type: ProposalTemplates.anchorLending | ProposalTemplates.anchorBorrowing | ProposalTemplates.anchorCollateral,
     onDisabledChange: (v: boolean) => void
     onActionChange: (action: TemplateProposalFormActionFields | undefined) => void
 }) => {
@@ -66,7 +68,7 @@ export const AnchorBoolTemplate = ({
         <AnchorTemplate onMarketChange={onMarketChange}>
             <FormControl>
                 <FormLabel>
-                    {LABELS[type]} for this market ? :
+                    {LABELS[type]} for this market?
                 </FormLabel>
                 <RadioCardGroup
                     wrapperProps={{ w: 'full', justify: 'center', mt: '4' }}

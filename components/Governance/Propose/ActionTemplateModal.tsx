@@ -36,6 +36,7 @@ const templates = [
     { label: 'Vestor: Add', value: ProposalTemplates.vestorAdd },
     // anchor
     { label: 'Frontier: Toggle Supply', value: ProposalTemplates.anchorLending },
+    { label: 'Frontier: Toggle Collateral (borrowing against)', value: ProposalTemplates.anchorCollateral },
     { label: 'Frontier: Toggle Borrow', value: ProposalTemplates.anchorBorrowing },
     { label: 'Frontier: Set Collateral Factor %', value: ProposalTemplates.anchorCollateralFactor },
     { label: 'Frontier: Add support to a market', value: ProposalTemplates.anchorSupportMarket },
@@ -77,6 +78,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         // anchor
         [ProposalTemplates.anchorLending]:  { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorLending } },
         [ProposalTemplates.anchorBorrowing]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorBorrowing } },
+        [ProposalTemplates.anchorCollateral]: { comp: AnchorBoolTemplate, props: { type: ProposalTemplates.anchorCollateral } },
         [ProposalTemplates.anchorCollateralFactor]: { comp: AnchorPercTemplate, props: { type: ProposalTemplates.anchorCollateralFactor } },
         [ProposalTemplates.anchorSupportMarket]: { comp: AnchorSupportMarketTemplate },
         [ProposalTemplates.anchorOracleFeed]: { comp: AnchorOracleTemplate },
@@ -107,7 +109,7 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
             }
         >
             <Stack spacing={'4'} p={'5'} height={'fit-content'} minH='200px' overflowY="visible">
-                <Text>Template : </Text>
+                <Text>Template: </Text>
                 <Autocomplete
                     inputProps={{ autoFocus: true }}
                     isOpenDefault={true}

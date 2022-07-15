@@ -68,7 +68,7 @@ export const AnchorPercTemplate = ({
         <AnchorTemplate onMarketChange={onMarketChange}>
             <FormControl>
                 <FormLabel>
-                    {LABELS[type]} % for this market ? :
+                    {LABELS[type]} % for this market?
                 </FormLabel>
                 <Input placeholder="Example: 60" type="number" min="0" max="100" value={value} onChange={handleValueChange} />
             </FormControl>

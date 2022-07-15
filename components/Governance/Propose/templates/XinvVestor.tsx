@@ -97,7 +97,7 @@ export const XinvVestor = ({
         <VStack spacing="4">
             <FormControl>
                 <FormLabel>
-                    Recipient Address :
+                    Recipient Address:
                     {
                         destination && isAddress(destination) ?
                             <ScannerLink ml="2" value={destination} label={shortenAddress(destination)} /> : null
