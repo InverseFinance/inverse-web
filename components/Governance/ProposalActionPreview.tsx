@@ -71,7 +71,7 @@ const ComptrollerHumanReadableActionLabel = ({
             break;
         case '_setCollateralPaused':
             text = <Flex display="inline-block">
-                <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be used as <b>Collateral</b> on Frontier
+                <b>{callDatas[1] === 'true' ? 'Forbid' : 'Allow'}</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> to be used as <b>Collateral</b> on Frontier {callDatas[1] === 'true' ? <b>(only prevents new borrowings to happen)</b> : null}
             </Flex>
             break;
         case '_setBorrowPaused':
