@@ -38,7 +38,7 @@ export const AnchorTemplate = ({
                     }
                 </FormLabel>
                 <AddressAutocomplete
-                    title="Available Frontier Markets : "
+                    title="Available Frontier Markets:"
                     list={anchorContractsList}
                     defaultValue={defaultAddress}
                     onItemSelect={handleAddressChange}

@@ -79,7 +79,7 @@ export const TokenTemplate = ({
             </FormControl>
             <FormControl>
                 <FormLabel>
-                    Amount in <b>{token.symbol} to {type}</b> :
+                    Amount in <b>{token.symbol} to {type}</b>:
                 </FormLabel>
                 <Input type="number" min="0" defaultValue={defaultAmount} onChange={handleAmountChange} />
             </FormControl>

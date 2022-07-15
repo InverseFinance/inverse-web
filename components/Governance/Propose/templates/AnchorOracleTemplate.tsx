@@ -62,7 +62,7 @@ export const AnchorOracleTemplate = ({
         <AnchorTemplate onMarketChange={onMarketChange}>
             <FormControl>
                 <FormLabel>
-                    Oracle Feed Address :
+                    Oracle Feed Address:
                 </FormLabel>
                 <Input isInvalid={oracleAddress && !isAddress(oracleAddress)}
                     textAlign="left"
@@ -73,7 +73,7 @@ export const AnchorOracleTemplate = ({
             </FormControl>
             <FormControl>
                 <FormLabel>
-                    Underlying Token Decimals (automatic) :
+                    Underlying Token Decimals (automatic):
                 </FormLabel>
                 <Input disabled={true}
                     textAlign="left"
