@@ -314,9 +314,10 @@ export enum ProposalTemplates {
   payrollAdd = 'payrollAdd',
   payrollRemove = 'payrollRemove',
   vestorAdd = 'vestorAdd',
-  // acnhor
+  // anchor
   anchorLending = 'anchorLending',
   anchorBorrowing = 'anchorBorrowing',
+  anchorCollateral = 'anchorCollateral',
   anchorCollateralFactor = 'anchorCollateralFactor',
   anchorSupportMarket = 'anchorSupportMarket',
   anchorsetCompSpeed = 'anchorsetCompSpeed',
