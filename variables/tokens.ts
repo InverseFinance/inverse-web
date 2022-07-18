@@ -42,6 +42,7 @@ const chainTokenAddresses = {
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
     INVDOLAULP: '0xb268c1c44a349d06a42cf24988162dadc48d839e',
     INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
+    INVETHLP: '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
@@ -184,6 +185,18 @@ const chainTokens = {
       symbol: 'INV-ETH-SLP',
       image: '/assets/inv-square-dark.jpeg',
       protocolImage: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].WETH
+      ],
+    },
+    [chainTokenAddresses["1"].INVETHLP]: {
+      address: chainTokenAddresses["1"].INVETHLP,
+      name: 'INV-WETH LP',
+      symbol: 'INV-WETH-LP',
+      image: '/assets/inv-square-dark.jpeg',
+      protocolImage: 'https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604',
       decimals: 18,
       isLP: true,
       pairs: [
