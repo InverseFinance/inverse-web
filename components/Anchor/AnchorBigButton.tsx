@@ -6,19 +6,22 @@ export const AnchorBigButton = ({
     title,
     subtitle,
     bg,
-    onClick
+    onClick,
+    isActive = true,
 }: {
     title: string
     subtitle: string
     bg: StackProps["bg"]
     onClick: () => void
+    isActive?: boolean
 }) => {
     return <VStack
         fontWeight="bold"
-        cursor="pointer"
+        cursor={ isActive ? 'pointer' : 'not-allowed' }
         transitionProperty="transform"
         transitionDuration="500ms"
-        _hover={{ transform: 'scale(1.05)' }}
+        filter={ isActive ? undefined : 'grayscale(1)' }
+        _hover={{ transform: isActive ? 'scale(1.05)' : undefined }}
         borderRadius="5px"
         alignItems="flex-start"
         justify="center"
