@@ -28,6 +28,7 @@ export const AnchorHeader = () => {
   const [isSmallerThan728] = useMediaQuery('(max-width: 728px)')
   const { markets } = useMarkets()
   const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
+  const dolaMarket = markets?.find((v) => v.underlying.symbol === 'DOLA')
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { data: tvlData } = useTVL()
@@ -97,12 +98,14 @@ export const AnchorHeader = () => {
             bg="url('/assets/stake-inv.png')"
             title="Stake INV"
             subtitle={`${apy}% APY`}
+            isActive={rewardTokenMarket?.mintable}
           />
           <AnchorBigButton
             onClick={() => triggerBorrow('dola')}
             bg="url('/assets/dola1.png')"
             title="Borrow DOLA"
             subtitle="Decentralized Stablecoin"
+            isActive={dolaMarket?.borrowable}
           />
         </Stack>
       </Stack>
