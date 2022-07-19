@@ -77,6 +77,10 @@ export const AnchorOverview = () => {
     setIsDetailsSlidedDown(!isDetailsOpen);
   }, [isDetailsOpen], !isDetailsOpen, 500, 0)
 
+  if(!account || borrowLimitPercent === 0) {
+    return <></>
+  }
+
   return (
     <VStack w='full'>
       {

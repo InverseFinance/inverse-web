@@ -51,12 +51,13 @@ export const Anchor = () => {
             </Flex>
           </Flex>
           <Flex w="full" maxW="84rem" justify="center">
-            <Flex w={{ base: 'full', xl: '55%', lg: '60%' }} justify="flex-end" display={supplyDisplay}>
+            <Flex w={{ base: 'full' }} justify="flex-end" display={supplyDisplay}>
               <ErrorBoundary description="Failed to load suppliable assets"><AnchorSupply paused={false}  /></ErrorBoundary>
+              <ErrorBoundary description="Failed to load borrow component"><AnchorBorrow modalOnly={true} /></ErrorBoundary>
             </Flex>
-            <Flex w={{ base: 'full', xl: '45%', lg: '40%' }} display={borrowDisplay}>
+            {/* <Flex w={{ base: 'full', xl: '45%', lg: '40%' }} display={borrowDisplay}>
               <ErrorBoundary description="failed to load borrowable assets"><AnchorBorrow paused={false}  /></ErrorBoundary>
-            </Flex>
+            </Flex> */}
           </Flex>
         </Flex>
       </ErrorBoundary>
