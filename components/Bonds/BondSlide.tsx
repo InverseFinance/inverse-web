@@ -2,7 +2,6 @@ import { Bond } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { Divider, Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
-import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import { useBalances } from '@app/hooks/useBalances'
 import { formatUnits } from '@ethersproject/units'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -22,9 +21,9 @@ import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { BondRedeem } from './BondRedeem'
 import { ArrowLeftIcon, ArrowRightIcon, TimeIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
-import { LPImg } from '@app/components/common/Assets/LPImg'
 import { useBondPayoutFor } from '@app/hooks/useBonds'
 import Link from '@app/components/common/Link'
+import { MarketImage } from '@app/components/common/Assets/MarketImage'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -81,7 +80,8 @@ export const BondSlide = ({
                 <HStack fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">
                     {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
                     <Flex>
-                        <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} />
+                        {/* <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} /> */}
+                        <MarketImage size={30} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
                         <Text ml="2" textTransform="uppercase">
                             {bond.underlying.name} BOND ({bond.vestingDays} days vesting)
                         </Text>
@@ -90,8 +90,8 @@ export const BondSlide = ({
                 </HStack>
                 <Divider />
                 <HStack w='full' justify="space-between" fontWeight="bold">
-                    <HStack>
-                        <UnderlyingItemBlock ml="0" textTransform="uppercase" imgSize={18} symbol={bond.underlying.symbol} nameAttribute='name' />
+                    <HStack>                        
+                        <MarketImage size={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
                         <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
                     </HStack>
                     <Text>=></Text>

@@ -460,14 +460,14 @@ export const RTOKEN_CG_ID = REWARD_TOKEN?.coingeckoId!;
 export const RTOKEN_SYMBOL = REWARD_TOKEN?.symbol!;
 
 export const BONDS = [
-  // {
-  //   input: chainTokenAddresses["1"].INVDOLASLP,
-  //   abiType: 1,
-  //   ctoken: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
-  //   underlying: getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP)!,
-  //   bondContract: '0x34eb308c932fe3bbda8716a1774ef01d302759d9',
-  //   howToGetLink: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014ccded1e7d814edc9ce4',
-  // },
+  {
+    input: chainTokenAddresses["1"].INVDOLASLP,
+    abiType: 1,
+    ctoken: '0x4B228D99B9E5BeD831b8D7D2BCc88882279A16BB',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].INVDOLASLP)!,
+    bondContract: '0x34eb308c932fe3bbda8716a1774ef01d302759d9',
+    howToGetLink: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014ccded1e7d814edc9ce4',
+  },
   {
     input: chainTokenAddresses["1"].DOLA,
     abiType: 0,
