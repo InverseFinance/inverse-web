@@ -1,10 +1,10 @@
 import { Bond } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
-import { Stack, Flex, Text, VStack } from '@chakra-ui/react';
-import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
+import { Stack, Flex, Text, VStack, HStack } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { NotifBadge } from '@app/components/common/NotifBadge';
 import { TimeIcon } from '@chakra-ui/icons';
+import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem';
 
 const formatBondPrice = (bondPrice: number) => {
     return shortenNumber(bondPrice, 2, true);
@@ -24,7 +24,9 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: Bond, b
             <Flex w="240px" alignItems="center" position="relative">
                 {/* <Link textTransform="uppercase" textDecoration="none" isExternal href={bond.howToGetLink}> */}
                 <VStack alignItems="flex-start" textTransform="uppercase">
-                    <UnderlyingItemBlock symbol={bond.underlying.symbol!} nameAttribute="name" imgSize={18} imgProps={{ mr: '2' }} />
+                    <UnderlyingItem Container={HStack} label={bond.underlying.symbol} imgSize={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage}
+                        imgContainerProps={{ mr: '1' }}
+                    />
                     <Text maxW={{ base: "80px", sm: '200px' }} fontSize={{ base: '10px', sm: "14px" }} color="secondaryTextColor">{bond.vestingDays} days vesting</Text>
                 </VStack>
                 {/* </Link> */}
