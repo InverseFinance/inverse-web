@@ -8,7 +8,7 @@ export default function BlogMerchSSG(props) {
 
 // revalidation vya webhook
 export async function getStaticProps(context) {
-  return { ... await getDefaultProps(context), revalidate: 60 }
+  return { ... await getDefaultProps(context), revalidate: false }
 }
 
 export async function getStaticPaths() {
