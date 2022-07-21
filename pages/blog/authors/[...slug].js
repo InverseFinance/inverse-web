@@ -8,7 +8,7 @@ export default function BlogAuthorsSSG(props) {
 
 // revalidation vya webhook
 export async function getStaticProps(context) {
-  return { ... await getBlogAuthorsProps(context), revalidate: 60 }
+  return { ... await getBlogAuthorsProps(context), revalidate: false }
 }
 
 export async function getStaticPaths() {

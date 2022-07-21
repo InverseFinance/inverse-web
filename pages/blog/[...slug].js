@@ -9,7 +9,7 @@ export default function BlogHomeSSG(props) {
 
 // revalidation via webhook
 export async function getStaticProps(context) {
-  return { ...await getBlogHomeProps(context), revalidate: 60 }
+  return { ...await getBlogHomeProps(context), revalidate: 1500 }
 }
 
 export async function getStaticPaths() {
