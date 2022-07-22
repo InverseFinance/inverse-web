@@ -12,6 +12,8 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { useCustomSWR } from './useCustomSWR';
+import { fetcher } from '@app/util/web3';
 
 // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout uint256, maxDebt uint256
 const termsDefaults = [
@@ -141,5 +143,15 @@ export const useBondPayoutFor = (bondContract: string, inputDecimals: number, am
 
   return {
     payout: result ? formatUnits(result, outputDecimals) : '0',
+  }
+}
+
+export const useBondsDeposits = () => {
+  const { data, error, isLoading } = useCustomSWR(`/api/transparency/bonds-deposits`, fetcher);
+
+  return {
+    deposits: data,
+    isLoading,
+    isError: !!error,
   }
 }
