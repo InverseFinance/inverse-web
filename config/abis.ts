@@ -254,7 +254,7 @@ export const BOND_ABI_VARIANT = BASE_BOND_ABI.concat([
   "function payoutFor(uint256 value) public view returns (uint256)",
 ]);
 
-const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
+export const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
 
 export const VESTER_FACTORY_ABI = [
   "function vesters(uint256) public view returns (address)",
