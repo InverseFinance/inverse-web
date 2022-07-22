@@ -53,10 +53,26 @@ export default async function handler(req, res) {
                     txHash: e.transactionHash,
                 }
             })
-        })
+        }).flat();
+        formattedDeposits.sort((a, b) => a.timestamp - b.timestamp);
+
+        const acc = { 'output': 0 };
 
         const resultData = {
-            deposits: formattedDeposits,
+            deposits: formattedDeposits.map(d => {
+                if (!acc[d.input]) { acc[d.input] = 0 }
+                if (!acc[d.type]) { acc[d.type] = 0 }
+                acc[d.type] += d.inputAmount;
+                acc[d.input] += d.inputAmount;
+                acc['output'] += d.outputAmount;
+                return {
+                    ...d,
+                    accInputAmount: acc[d.input],
+                    accTypeAmount: acc[d.type],
+                    accOutputAmount: acc['output'],
+                };
+            }),
+            acc,
         }
 
         await redisSetWithTimestamp(cacheKey, resultData);
