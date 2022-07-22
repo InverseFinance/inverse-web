@@ -477,14 +477,15 @@ export const BONDS = [
     howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
     inputPrice: 1,
   },
-  // {
-  //   input: chainTokenAddresses["1"].DOLA3POOLCRV,
-  //   abiType: 0,
-  //   ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
-  //   underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
-  //   bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
-  //   howToGetLink: 'https://curve.fi/factory/27/deposit',
-  // },
+  {
+    input: chainTokenAddresses["1"].DOLA3POOLCRV,
+    abiType: 0,
+    ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
+    underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
+    bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
+    howToGetLink: 'https://curve.fi/factory/27/deposit',
+    disabled: true,
+  },
   {
     input: chainTokenAddresses["1"].DOLA,
     abiType: 0,
