@@ -44,7 +44,7 @@ export default async function handler(req, res) {
                 const expires = getBnToNumber(e.args[2], 0);
                 const duration = Math.round((expires - e.blockNumber) / BLOCKS_PER_DAY);
                 return {
-                    timestamp: timestamps[NetworkIds.mainnet][e.blockNumber],
+                    timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                     input: bond.underlying.symbol,
                     duration,
                     type: `${bond.underlying.symbol}-${duration}`,
