@@ -1,10 +1,9 @@
 import { Flex, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
 import { RTOKEN_CG_ID } from '@app/variables/tokens';
-import { useAnchorPricesUsd, usePrices } from '@app/hooks/usePrices';
-import { getNetworkConfigConstants } from '@app/util/networks';
+import { usePrices } from '@app/hooks/usePrices';
 import { shortenNumber } from '@app/util/markets';
 import Container from '@app/components/common/Container';
-import { useBonds } from '@app/hooks/useBonds';
+import { useBonds, useBondsDeposits } from '@app/hooks/useBonds';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BondSlide } from './BondSlide';
@@ -14,8 +13,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import Link from '@app/components/common/Link';
-
-const { XINV } = getNetworkConfigConstants();
+import { BondsAreaChart } from './BondsAreaChart';
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
     iconProps={{ ml: '2', fontSize: '12px', display: { base: 'none', sm: 'inline-block' } }}
@@ -29,6 +27,7 @@ export const BondsView = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
     const [isNotConnected, setIsNotConnected] = useState(false);
+    const { deposits, acc } = useBondsDeposits();
 
     const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
@@ -42,6 +41,44 @@ export const BondsView = () => {
     }, [account], !account, 1000, 0);
 
     const bondsPaused = bonds?.length > 0 && bonds?.reduce((prev, curr) => prev + curr.maxPayout, 0) === 0;
+
+    const invExchanged = deposits?.map(d => {
+        return {
+            x: d.timestamp,
+            y: d.accOutputAmount,
+        }
+    });
+
+    const minTimestamp = invExchanged[0]?.x - 3600 * 24 * 1000;
+    const maxTimestamp = new Date().getTime();
+
+    const inputs = ['DOLA', 'INV-DOLA-SLP', 'DOLA-3POOL'];
+
+    const inputReceived = inputs.map(input => {
+        return {
+            name: input,
+            data: deposits?.filter(d => d.input === input)
+                .map(d => {
+                    return {
+                        x: d.timestamp,
+                        y: d.accInputAmount,
+                    }
+                })
+        }
+    });
+
+    inputs.forEach((input, i) => {
+        if (inputReceived[i].data[0]) {
+            inputReceived[i].data.unshift({
+                x: minTimestamp,
+                y: 0,
+            });
+            inputReceived[i].data.push({
+                x: maxTimestamp,
+                y: inputReceived[i].data[inputReceived[i].data.length - 1].y,
+            });
+        }
+    })
 
     return (
         <Stack w='full' color="mainTextColor">
@@ -141,6 +178,21 @@ export const BondsView = () => {
                     </>
                 } />
             </Container>
+
+            <BondsAreaChart
+                title={`Total INV sold over time (${shortenNumber(acc?.output)})`}
+                chartData={invExchanged}
+                showMaxY={false}
+            />
+            {
+                inputReceived.map(d => {
+                    return <BondsAreaChart
+                        title={`Total ${d.name} received over time (${shortenNumber(acc[d.name])})`}
+                        chartData={d.data}
+                        showMaxY={false}
+                    />
+                })
+            }
         </Stack>
     )
 }

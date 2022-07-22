@@ -153,6 +153,7 @@ export const useBondsDeposits = () => {
 
   return {
     deposits: data ? data.deposits : [],
+    acc: data ? data.acc : {},
     isLoading,
     isError: !!error,
   }
