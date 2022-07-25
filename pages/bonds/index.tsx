@@ -3,6 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { BondsView } from '@app/components/Bonds/BondsView';
+import { BondsTabs } from '@app/components/Bonds/BondsTabs';
 
 export const BondsPage = () => {
     return (
@@ -14,8 +15,9 @@ export const BondsPage = () => {
                 <meta name="description" content="Buy INV at a discount thanks to bonds" />
                 <meta name="keywords" content="Inverse Finance, inv, token, DeFi, bonds, discount, olympus, ohm" />
             </Head>
-            <AppNav active="Bonds" />
+            <AppNav active="Bonds" activeSubmenu="Bonds" />
             <Flex direction="column" w={{ base: 'full' }} pt={{ sm: '4' }} maxWidth="900px">
+                <BondsTabs />
                 <BondsView />
             </Flex>
         </Layout>

@@ -58,7 +58,7 @@ export const BondsStatsView = () => {
     });
 
     return (
-        <Stack spacing="10" w='full' color="mainTextColor" direction={{ base: 'column', lg: 'row' }}>
+        <Stack pt="8" spacing="10" w='full' color="mainTextColor" direction={{ base: 'column', lg: 'row' }}>
             <VStack w={{ base: 'full', lg: '50%' }} spacing="10">
                 <BondsAreaChart
                     title={`Total INV exchanged for bonds over time (${shortenNumber(acc?.output)})`}
