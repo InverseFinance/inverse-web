@@ -23,7 +23,7 @@ export type BarChartProps = {
     isDollars?: boolean,
     colorScale?: string[],
     precision?: number
-    labelColor?: string,
+    labelProps?: VictoryLabelProps | any,
     titleProps?: VictoryLabelProps,
 }
 
@@ -35,7 +35,7 @@ export const BarChart = ({
     colorScale,
     isDollars = false,
     precision = 2,
-    labelColor = theme.colors.secondary,
+    labelProps,
     titleProps,
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -82,7 +82,7 @@ export const BarChart = ({
                 />
                 <VictoryBar
                     alignment="middle"
-                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '12px', fill: lightMode ? 'transparent' : labelColor }} dy={-10} />}
+                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '12px', fill: lightMode ? 'transparent' : theme.colors.secondary }} dy={-10} {...labelProps} />}
                     data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, precision, isDollars) }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }

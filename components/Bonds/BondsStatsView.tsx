@@ -34,6 +34,7 @@ export const BondsStatsView = () => {
                     return {
                         x: d.timestamp,
                         y: d.accInputAmount,
+                        duration: d.duration,
                         type: d.type,
                         month: date.getUTCMonth(),
                         year: date.getUTCFullYear(),
@@ -80,8 +81,7 @@ export const BondsStatsView = () => {
                 <BondsBarChart
                     title={`Monthly INV exchanged for bonds`}
                     chartData={invExchanged}
-                    colorScale={[theme.colors.info]}
-                    labelColor={theme.colors.info}                    
+                    colorScale={[theme.colors.info]}               
                 />
                 {
                     inputReceived.map(d => {

@@ -7,6 +7,8 @@ import { shortenNumber } from '@app/util/markets';
 
 const months = [...Array(12).keys()];
 
+const defaultColorScale = [theme.colors.secondary, theme.colors.teal[200], theme.colors.teal[300]];
+
 export const BondsBarChart = ({
     chartData,
     maxChartWidth = 650,
@@ -27,8 +29,6 @@ export const BondsBarChart = ({
 
     const types = [...new Set(chartData.map(d => d.type).filter(type => !!type))];
 
-    console.log(types)
-
     const barChartData = types.map(type => {
         return months.map(month => {
             const date = Date.UTC(currentYear, currentMonth - 11 + month);
@@ -37,7 +37,7 @@ export const BondsBarChart = ({
             const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.amount, 0);
 
             return {
-                label: `${type}: ${shortenNumber(y, 2, true)}`,
+                label: `${type.replace(/(-)([0-9]+$)/, ' ($2 days vesting)')}: ${shortenNumber(y, 2, true)}`,
                 x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
                 y,
             }
@@ -49,12 +49,15 @@ export const BondsBarChart = ({
             width={chartWidth}
             height={300}
             groupedData={barChartData}
-            colorScale={[theme.colors.secondary, theme.colors.teal[200], theme.colors.teal[300]]}
+            colorScale={defaultColorScale}
             isDollars={false}
             titleProps={{
                 style:{ fill: 'white', fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
                 y: 10,
-            }}    
+            }}
+            labelProps={{
+                style:{ fill: (props?.colorScale||defaultColorScale)[0], fontFamily: 'Inter', fontWeight: 'bold', fontSize: 12 }
+            }}
             {...props}
         />
     )

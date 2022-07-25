@@ -148,7 +148,21 @@ export const useBondPayoutFor = (bondContract: string, inputDecimals: number, am
   }
 }
 
-export const useBondsDeposits = () => {
+export const useBondsDeposits = (): SWR & {
+  deposits: {
+    type: string,
+    duration: number,
+    inputAmount: number,
+    outputAmount: number,
+    accOutputAmount: number,
+    accInputAmount: number,
+    accTypeAmount: number,
+    txHash: string,
+    timestamp: number,
+    input: string,
+  }[],
+  acc: { [key: string]: number },
+} => {
   const { data, error, isLoading } = useCustomSWR(`/api/transparency/bonds-deposits`, fetcher);
 
   return {
