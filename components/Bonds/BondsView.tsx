@@ -1,7 +1,6 @@
-import { Flex, Stack, Text, VStack, useDisclosure } from '@chakra-ui/react';
+import { Flex, Stack, Text, VStack, useDisclosure, Box } from '@chakra-ui/react';
 import { RTOKEN_CG_ID } from '@app/variables/tokens';
-import { useAnchorPricesUsd, usePrices } from '@app/hooks/usePrices';
-import { getNetworkConfigConstants } from '@app/util/networks';
+import { usePrices } from '@app/hooks/usePrices';
 import { shortenNumber } from '@app/util/markets';
 import Container from '@app/components/common/Container';
 import { useBonds } from '@app/hooks/useBonds';
@@ -14,8 +13,6 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import Link from '@app/components/common/Link';
-
-const { XINV } = getNetworkConfigConstants();
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
     iconProps={{ ml: '2', fontSize: '12px', display: { base: 'none', sm: 'inline-block' } }}
@@ -98,13 +95,16 @@ export const BondsView = () => {
                                     </LocalTooltip>
                                 </Flex>
                                 <Flex w="80px" justify="flex-end" alignItems="center">
-                                    ROI
+                                    ROI*
                                     <LocalTooltip>
                                         A <b>positive Return On Investment</b> means you get INV at a
                                         <Text display="inline-block" mx="1" fontWeight="bold" color="secondary">discount</Text>
-                                        compared to INV market price !
+                                        compared to the <b>current</b> INV market price !
                                         <Text mt="2">
                                             ROI can turn negative when bond demand is too high
+                                        </Text>
+                                        <Text mt="2">
+                                            <b>The ROI is not guaranteed</b>, it's an estimation with the current market prices, the end result will depend on how the market moves until the vesting period is over
                                         </Text>
                                     </LocalTooltip>
                                 </Flex>
@@ -141,6 +141,16 @@ export const BondsView = () => {
                     </>
                 } />
             </Container>
+
+            <Box px="6" w='full' pt="6">
+                <InfoMessage
+                    title="ROI*:"
+                    alertProps={{ w: 'full' }}
+                    description={<Text>
+                        <b>The ROI is not guaranteed</b>, it's an estimation with the current market prices, the end result will depend on how the market moves until the vesting period is over
+                    </Text>}
+                />
+            </Box>
         </Stack>
     )
 }

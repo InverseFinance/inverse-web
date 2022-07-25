@@ -12,6 +12,8 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { useCustomSWR } from './useCustomSWR';
+import { fetcher } from '@app/util/web3';
 
 // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout uint256, maxDebt uint256
 const termsDefaults = [
@@ -29,8 +31,10 @@ const bondInfoDefaults = [
   BigNumber.from('0'),
 ]
 
+const activeBonds = BONDS.filter(b => !b.disabled);
+
 export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
-  const lpInputs = BONDS.filter(b => !b.inputPrice).map(b => b.underlying)
+  const lpInputs = activeBonds.filter(b => !b.inputPrice).map(b => b.underlying)
   const { data: lpInputPrices } = useLpPrices(lpInputs, ["1", "1"]);
   const { prices: cgPrices } = usePrices();
   const { account } = useWeb3React<Web3Provider>();
@@ -39,61 +43,61 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   const userAddress = depositor || (query?.viewAddress as string) || account;
 
   const { data: bondPrices, error: bondPricesError } = useEtherSWR([
-    ...BONDS.map(bond => {
+    ...activeBonds.map(bond => {
       return [bond.bondContract, 'trueBondPrice']
     }),
   ]);
 
   const { data: bondTerms, error: bondTermsError } = useEtherSWR([
-    ...BONDS.map(bond => {
+    ...activeBonds.map(bond => {
       return [bond.bondContract, 'terms']
     }),
   ]);
 
 
   const { data: bondMaxPayouts, error: bondMaxPayoutsErr } = useEtherSWR([
-    ...BONDS.map(bond => {
+    ...activeBonds.map(bond => {
       return [bond.bondContract, 'maxPayout']
     }),
   ]);
 
   const { data: userBondInfo, error: userBondError } = useEtherSWR([
-    ...BONDS.map(bond => {
+    ...activeBonds.map(bond => {
       return [bond.bondContract, 'bondInfo', userAddress]
     }),
   ]);
 
   const { data: dataPercentVestedFor } = useEtherSWR([
-    ...BONDS.map(bond => {
+    ...activeBonds.map(bond => {
       return [bond.bondContract, 'percentVestedFor', userAddress]
     }),
   ]);
 
   const { data: dataPendingPayoutFor } = useEtherSWR([
-    ...BONDS.map(bond => {
+    ...activeBonds.map(bond => {
       return [bond.bondContract, 'pendingPayoutFor', userAddress]
     }),
   ]);
 
   const error = bondPricesError || bondTermsError;
 
-  const prices = (bondPrices || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 7));
-  const percentVestedFor = (dataPercentVestedFor || BONDS.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 0) / 100);
-  const pendingPayoutFor = (dataPendingPayoutFor || BONDS.map(b => BigNumber.from('0')))?.map((bn, i) => getBnToNumber(bn, BONDS[i].underlying.decimals));
+  const prices = (bondPrices || activeBonds.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 7));
+  const percentVestedFor = (dataPercentVestedFor || activeBonds.map(b => BigNumber.from('0')))?.map(bn => getBnToNumber(bn, 0) / 100);
+  const pendingPayoutFor = (dataPendingPayoutFor || activeBonds.map(b => BigNumber.from('0')))?.map((bn, i) => getBnToNumber(bn, activeBonds[i].underlying.decimals));
 
-  const inputPrices = BONDS.map((bond, i) => {
+  const inputPrices = activeBonds.map((bond, i) => {
     return bond.inputPrice || (lpInputPrices && lpInputPrices[lpInputs.map(lp => lp.symbol).indexOf(bond.underlying.symbol)]) || 0;
   })
 
-  const trueBondPrices = BONDS.map((bond, i) => {
+  const trueBondPrices = activeBonds.map((bond, i) => {
     return prices[i] * inputPrices[i];
   })
 
   // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout % uint256, maxDebt uint256
-  const terms = (bondTerms || [...BONDS.map(b => termsDefaults)]);
+  const terms = (bondTerms || [...activeBonds.map(b => termsDefaults)]);
 
   // payout,
-  const bondInfos = (userBondInfo || [...BONDS.map(b => bondInfoDefaults)]);
+  const bondInfos = (userBondInfo || [...activeBonds.map(b => bondInfoDefaults)]);
 
   // const invOraclePrice = oraclePrices && oraclePrices[XINV];
   const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
@@ -101,7 +105,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   // the ROI calculation makes more sense with cg price
   const marketPrice = invCgPrice;
 
-  const bonds = BONDS.map((bond, i) => {
+  const bonds = activeBonds.map((bond, i) => {
     return {
       ...bond,
       marketPrice,
@@ -141,5 +145,30 @@ export const useBondPayoutFor = (bondContract: string, inputDecimals: number, am
 
   return {
     payout: result ? formatUnits(result, outputDecimals) : '0',
+  }
+}
+
+export const useBondsDeposits = (): SWR & {
+  deposits: {
+    type: string,
+    duration: number,
+    inputAmount: number,
+    outputAmount: number,
+    accOutputAmount: number,
+    accInputAmount: number,
+    accTypeAmount: number,
+    txHash: string,
+    timestamp: number,
+    input: string,
+  }[],
+  acc: { [key: string]: number },
+} => {
+  const { data, error, isLoading } = useCustomSWR(`/api/transparency/bonds-deposits`, fetcher);
+
+  return {
+    deposits: data ? data.deposits : [],
+    acc: data ? data.acc : {},
+    isLoading,
+    isError: !!error,
   }
 }

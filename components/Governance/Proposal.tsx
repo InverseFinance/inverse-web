@@ -19,6 +19,7 @@ import { Proposer } from './Proposer'
 import { ProposalTags } from './ProposalTags'
 import { SubmitButton } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -177,7 +178,9 @@ export const ProposalPreview = ({
       {
         !!forumLink && <Flex w='full'>
           <Link w='full' href={forumLink} isExternal target="_blank">
-            <SubmitButton color="mainTextColor" w='full'>See the forum post</SubmitButton>
+            <SubmitButton alignItems="center" color="mainTextColor" w='full'>
+              See the forum post <ExternalLinkIcon ml="1" />
+            </SubmitButton>
           </Link>
         </Flex>
       }
@@ -267,7 +270,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
   const { functions } = proposal
 
   return (
-    <Container contentBgColor="gradient2" label="Actions" px={ isEditing ? '0' : '6' }>
+    <Container contentBgColor="gradient2" label="Actions" px={isEditing ? '0' : '6'}>
       <Stack w="full" spacing={6} p={2}>
         {!functions.length && <InfoMessage description="At least one on-chain action is required to submit the proposal" alertProps={{ w: 'full' }} />}
         {functions.map(({ target, signature, callData }: ProposalFunction, i: number) => {

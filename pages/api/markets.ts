@@ -12,7 +12,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { getBnToNumber, getStethData, getXSushiData, getYearnVaults, toApr, toApy } from '@app/util/markets';
+import { getBnToNumber, getPoolYield, getStethData, getXSushiData, getYearnVaults, toApr, toApy } from '@app/util/markets';
 import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 export default async function handler(req, res) {
@@ -140,15 +140,21 @@ export default async function handler(req, res) {
     });
 
     // external yield bearing apys
-    const [yearnVaults, stethData, xSushiData] = await Promise.all([
+    const externalYieldResults = await Promise.allSettled([
       getYearnVaults(),
       getStethData(),
       getXSushiData(),
+      getPoolYield('0xAA5A67c256e27A5d80712c51971408db3370927D-ethereum'),
     ]);
+
+    const [yearnVaults, stethData, xSushiData, dola3poolYield] = externalYieldResults.map(r => {
+      return r.status === 'fulfilled' ? r.value : {};
+    });
 
     const externalApys = {
       'stETH': stethData?.data?.[0]?.apy||0,
       'xSUSHI': xSushiData?.apy||0,
+      'DOLA-3POOL': dola3poolYield?.apy||0,
     }
 
     const markets = contracts.map(({ address }, i) => {

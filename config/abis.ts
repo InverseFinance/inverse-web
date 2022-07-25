@@ -242,6 +242,8 @@ const BASE_BOND_ABI = [
   "function deposit(uint256 amount, uint256 maxPrice, address depositor) external returns (uint256)",
   "function redeem(address depositor) external returns (uint256)",
   "function maxPayout() public view returns (uint256)",
+  "event BondCreated(uint256 deposit, uint256 payout, uint256 expires)",
+  "event BondRedeemed(address recipient, uint256 payout, uint256 remaining)",
 ]
 
 export const BOND_ABI = BASE_BOND_ABI.concat([
@@ -252,7 +254,7 @@ export const BOND_ABI_VARIANT = BASE_BOND_ABI.concat([
   "function payoutFor(uint256 value) public view returns (uint256)",
 ]);
 
-const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
+export const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
 
 export const VESTER_FACTORY_ABI = [
   "function vesters(uint256) public view returns (address)",

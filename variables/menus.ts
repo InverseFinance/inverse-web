@@ -43,6 +43,16 @@ export const MENUS = {
     {
       label: 'Bonds',
       href: '/bonds',
+      submenus: [
+        {
+          label: 'Bonds',
+          href: '/bonds',
+        },
+        {
+          label: 'Bonds Stats',
+          href: '/bonds/stats',
+        },
+      ],
     },
     {
       label: 'Governance',

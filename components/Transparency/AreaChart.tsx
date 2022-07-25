@@ -1,5 +1,5 @@
 import { shortenNumber } from '@app/util/markets';
-import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps } from 'victory';
+import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps } from 'victory';
 import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,28 @@ const defaultAxisStyle: VictoryAxisProps["style"] = {
     }
 }
 
+const strokeColors = {
+    primary: '#8881c9',
+    secondary: '#00FF8A',
+    info: '#43a0e2',
+}
+
+export type AreaChartProps = {
+    data: Props,
+    title?: string,
+    width?: number,
+    height?: number,
+    showLabels?: boolean,
+    showTooltips?: boolean,
+    showMaxY?: boolean,
+    interpolation?: VictoryAreaProps["interpolation"],
+    axisStyle?: VictoryAxisProps["style"],
+    domainYpadding?: number,
+    isDollars?: boolean,
+    mainColor?: 'primary' | 'secondary' | 'info',
+    titleProps?: VictoryLabelProps,
+};
+
 export const AreaChart = ({
     data,
     title,
@@ -28,20 +50,8 @@ export const AreaChart = ({
     domainYpadding = 0,
     mainColor = 'primary',
     isDollars = false,
-}: {
-    data: Props,
-    title?: string,
-    width?: number,
-    height?: number,
-    showLabels?: boolean,
-    showTooltips?: boolean,
-    showMaxY?: boolean,
-    interpolation?: VictoryAreaProps["interpolation"],
-    axisStyle?: VictoryAxisProps["style"],
-    domainYpadding?: number,
-    isDollars?: boolean,
-    mainColor?: 'primary' | 'secondary' 
-}) => {
+    titleProps,
+}: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
@@ -77,7 +87,7 @@ export const AreaChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" />
+                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" {...titleProps} />
                 }
                 <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
                 <VictoryAxis style={axisStyle} />
@@ -99,7 +109,7 @@ export const AreaChart = ({
                         }
                     }
                     style={{
-                        data: { fillOpacity: 0.9, fill: `url(#${mainColor}-gradient)`, stroke: mainColor === 'primary' ? '#8881c9' : '#00FF8A', strokeWidth: 1 },
+                        data: { fillOpacity: 0.9, fill: `url(#${mainColor}-gradient)`, stroke: strokeColors[mainColor], strokeWidth: 1 },
                         labels: { fill: 'white', fontSize: '12px', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}
