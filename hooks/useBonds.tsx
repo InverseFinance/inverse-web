@@ -162,12 +162,14 @@ export const useBondsDeposits = (): SWR & {
     input: string,
   }[],
   acc: { [key: string]: number },
+  lastUpdate: number,
 } => {
   const { data, error, isLoading } = useCustomSWR(`/api/transparency/bonds-deposits`, fetcher);
 
   return {
     deposits: data ? data.deposits : [],
     acc: data ? data.acc : {},
+    lastUpdate: data ? data.lastUpdate : null,
     isLoading,
     isError: !!error,
   }
