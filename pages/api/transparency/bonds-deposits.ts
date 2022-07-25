@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     try {
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 300);
+        const validCache = await getCacheFromRedis(cacheKey, true, 600);
         if (validCache) {
           res.status(200).json(validCache);
           return
@@ -59,6 +59,7 @@ export default async function handler(req, res) {
         const acc = { 'output': 0 };
 
         const resultData = {
+            lastUpdate: (+new Date()),
             deposits: formattedDeposits.map(d => {
                 if (!acc[d.input]) { acc[d.input] = 0 }
                 if (!acc[d.type]) { acc[d.type] = 0 }
