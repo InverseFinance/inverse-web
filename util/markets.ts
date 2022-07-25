@@ -220,3 +220,13 @@ export const getXSushiData = async (nbDays = 7) => {
     } catch (e) { console.log(e) }
     return { apy: apy * 100 };
 }
+
+export const getPoolYield = async (defiLlamaPoolId: string) => {
+    const url = `https://yields.llama.fi/chart/${defiLlamaPoolId}`;
+    try {
+        const results = await fetch(url);
+        const data = await results.json();
+        return data.status === 'success' ? data.data[data.data.length - 1] : { apy: 0, tvlUsd: 0 };
+    } catch (e) { console.log(e) }
+    return {};
+}
