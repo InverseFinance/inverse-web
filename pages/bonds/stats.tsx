@@ -2,7 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { BondsStatsView } from '@app/components/Bonds/BondsStatsVIew';
+import { BondsStatsView } from '@app/components/Bonds/BondsStatsView';
 import { BondsTabs } from '@app/components/Bonds/BondsTabs';
 
 export const BondsPage = () => {
