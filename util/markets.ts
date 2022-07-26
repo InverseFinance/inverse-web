@@ -230,3 +230,14 @@ export const getPoolYield = async (defiLlamaPoolId: string) => {
     } catch (e) { console.log(e) }
     return {};
 }
+
+export const getYieldOppys = async () => {
+    const url = `https://yields.llama.fi/pools`;
+    try {
+        const results = await fetch(url);
+        const data = await results.json();
+        const pools =  data.status === 'success' ? data.data : [];
+        return pools.filter(p => /^(inv-|dola-)/i.test(p.symbol) || /(-inv|-dola)$/i.test(p.symbol));
+    } catch (e) { console.log(e) }
+    return {};
+}
