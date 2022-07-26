@@ -18,9 +18,11 @@ export default async function handler(req, res) {
       pools: pools.map(p => {
         return {
           ...p,
-          symbol: pools.symbol
-          .replace('-3CRV', '-3POOL')
-          .replace('DOLA-DAI+USDC', 'DOLA-2POOL')
+          // clean pool names & make them more homogen
+          symbol: p.symbol
+            .replace(/-3CRV$/i, '-3POOL')
+            .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
+            .replace(/ \([0-9.]+%\)$/i, '')
           ,
         }
       })
