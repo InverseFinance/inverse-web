@@ -1,6 +1,6 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { Market, SWR } from '@app/types'
+import { Market, SWR, YieldOppy } from '@app/types'
 import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers';
@@ -35,6 +35,18 @@ export const useAccountMarkets = (address?: string): SWR & Markets => {
   return {
     markets:
       data && markets?.length ? data.map((address: string) => markets.find(({ token }) => token === address)).filter(v => !!v) : [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useOppys = (): SWR & {
+  oppys: YieldOppy[]
+} => {
+  const { data, error } = useCustomSWR(`/api/oppys`, fetcher)
+
+  return {
+    oppys: data?.pools.sort((a,b) => b.tvlUsd - a.tvlUsd) || [],
     isLoading: !error && !data,
     isError: error,
   }
