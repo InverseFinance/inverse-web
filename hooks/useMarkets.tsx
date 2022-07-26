@@ -46,7 +46,7 @@ export const useOppys = (): SWR & {
   const { data, error } = useCustomSWR(`/api/oppys`, fetcher)
 
   return {
-    oppys: data?.pools.sort((a,b) => b.tvlUsd - a.tvlUsd) || [],
+    oppys: data?.pools || [],
     isLoading: !error && !data,
     isError: error,
   }
