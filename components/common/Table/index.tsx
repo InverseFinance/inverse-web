@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box, VStack } from '@chakra-ui/react'
+import { Flex, Stack, Box, VStack, IconProps, BoxProps } from '@chakra-ui/react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
@@ -31,6 +31,8 @@ type TableProps = {
   onFilter?: (items: any[], filters: any) => void
   noDataMessage?: string
   defaultFilters?: { [key: string]: any }
+  sortChevronProps?: IconProps
+  colBoxProps?: BoxProps
 }
 
 const emptyObj = {};
@@ -46,6 +48,8 @@ export const Table = ({
   defaultFilters = emptyObj,
   onClick,
   onFilter,
+  sortChevronProps,
+  colBoxProps,
   ...props
 }: TableProps) => {
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
@@ -56,7 +60,7 @@ export const Table = ({
   const hasSubheader = columns.filter(c => c.showFilter || !!c.customSubheader).length > 0;
 
   const [sortedItems, setSortedItems] = useState(items?.map((item) => {
-    return ({ ...item, symbol: item?.underlying?.symbol })
+    return ({ ...item, symbol: item?.symbol || item?.underlying?.symbol })
   }));
 
   useEffect(() => {
@@ -78,7 +82,7 @@ export const Table = ({
     }
     const itemsToSort = items?.map((item) => ({
       ...item,
-      symbol: item?.underlying?.symbol,
+      symbol: item?.symbol || item?.underlying?.symbol,
     })) || [];
 
     setSortedItems([...itemsToSort].sort((a, b) => {
@@ -99,7 +103,7 @@ export const Table = ({
     }
   }
 
-  const chevronProps = { color: 'primary.300', w: 4, h: 4 };
+  const chevronProps = { color: 'primary.300', w: 4, h: 4, ...sortChevronProps };
 
   return (
     <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
@@ -134,6 +138,7 @@ export const Table = ({
                 fontWeight={sortBy === col.field ? 'bold' : 'normal'}
                 alignItems="center"
                 color="primary.300"
+                {...colBoxProps}
               >
                 {
                   col.tooltip ?
