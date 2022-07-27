@@ -24,6 +24,7 @@ export default async function handler(req, res) {
             .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
             .replace(/ \([0-9.]+%\)$/i, '')
             .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
+            .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
             .toUpperCase()
           ,
         }

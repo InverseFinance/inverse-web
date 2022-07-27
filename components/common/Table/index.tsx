@@ -148,7 +148,7 @@ export const Table = ({
                     <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1" }} zIndex="2" message={col.tooltip} size="small" />
                     : null
                 }
-                <VStack alignItems="center" justifyContent="flex-start" cursor="pointer">
+                <VStack alignItems={ i === 0  ? 'flex-start' : i === (columns.length -1) ? 'flex-end' : 'center' } justifyContent="flex-start" cursor="pointer">
                   <Box
                     data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
                     onClick={(e) => {

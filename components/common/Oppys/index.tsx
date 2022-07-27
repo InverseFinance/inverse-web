@@ -79,7 +79,7 @@ const ChainItem = ({ chain }: { chain: string }) => {
 const columns = [
     {
         field: 'symbol',
-        label: 'Pool',
+        label: 'Pool Type',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: ({ symbol, pool, project }) => {
             const link = getPoolLink(project, pool);
