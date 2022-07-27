@@ -21,6 +21,16 @@ export const MENUS = {
     {
       label: 'INV',
       href: '/inv',
+      submenus: [
+        {
+          label: 'INV',
+          href: '/inv',
+        },
+        {
+          label: 'Yield Opportunities',
+          href: '/yield-opportunities',
+        },
+      ]
     },
     {
       label: 'Swap',
