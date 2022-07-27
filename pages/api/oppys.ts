@@ -23,6 +23,8 @@ export default async function handler(req, res) {
             .replace(/-3CRV$/i, '-3POOL')
             .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
             .replace(/ \([0-9.]+%\)$/i, '')
+            .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
+            .toUpperCase()
           ,
         }
       })
