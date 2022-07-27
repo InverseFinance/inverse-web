@@ -51,6 +51,9 @@ const getPoolLink = (project, pool) => {
         case 'beefy-finance':
             url = `https://app.beefy.com/vault/${pool.replace(/-[0-9]+$/, '')}`
             break;
+        case 'velodrome':
+            url = `https://app.velodrome.finance/liquidity/manage?address=${pool}`
+            break;
     }
     return poolLinks[pool] || url || projectLinks[project];
 }
