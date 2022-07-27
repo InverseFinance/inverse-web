@@ -8,6 +8,8 @@ import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { RadioCardGroup } from '../Input/RadioCardGroup';
+import { useEffect, useState } from 'react';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -110,6 +112,17 @@ const columns = [
 ]
 
 export const OppysTable = ({ oppys }: { oppys: YieldOppy[] }) => {
+    const [category, setCategory] = useState('all');
+    const [filteredOppys, setFilteredOppys] = useState(oppys);
+
+    useEffect(() => {
+        if (category === 'all') {
+            setFilteredOppys(oppys);
+        } else {
+            const regEx = new RegExp(category, 'i');
+            setFilteredOppys(oppys.filter(o => regEx.test(o.symbol)));
+        }
+    }, [oppys, category]);
 
     return <Container
         noPadding
@@ -117,6 +130,33 @@ export const OppysTable = ({ oppys }: { oppys: YieldOppy[] }) => {
         label="Earn with INV & DOLA on external platforms"
         description="DeFi yield opportunities on Ethereum, Optimism and Fantom"
         href="https://docs.inverse.finance/inverse-finance/yield-opportunities"
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+        right={
+            <RadioCardGroup
+                wrapperProps={{ mt: { base: '2' }, overflow: 'auto', maxW: '90vw' }}
+                group={{
+                    name: 'category',
+                    defaultValue: category,
+                    onChange: (v) => { setCategory(v) },
+                }}
+                radioCardProps={{
+                    w: 'fit-content',
+                    textAlign: 'center',
+                    px: { base: '2', md: '3' },
+                    py: '1',
+                    fontSize: '12px',
+                    whiteSpace: 'nowrap'
+                }}
+                options={[
+                    { label: 'All', value: 'all' },
+                    { label: 'INV', value: 'inv' },
+                    { label: 'DOLA', value: 'dola' },
+                ]}
+            />
+        }
     >
         <VStack w='full' spacing="10">
             <Table
@@ -124,7 +164,7 @@ export const OppysTable = ({ oppys }: { oppys: YieldOppy[] }) => {
                 defaultSort="tvlUsd"
                 defaultSortDir="desc"
                 columns={columns}
-                items={oppys}
+                items={filteredOppys}
                 sortChevronProps={{ w: 8, h: 8, transform: 'translateX(20px)' }}
                 colBoxProps={{ fontWeight: "extrabold" }}
             />
