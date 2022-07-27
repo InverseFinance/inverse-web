@@ -43,11 +43,11 @@ export const useAccountMarkets = (address?: string): SWR & Markets => {
 export const useOppys = (): SWR & {
   oppys: YieldOppy[]
 } => {
-  const { data, error } = useCustomSWR(`/api/oppys`, fetcher)
+  const { data, error, isLoading } = useCustomSWR(`/api/oppys`, fetcher)
 
   return {
     oppys: data?.pools || [],
-    isLoading: !error && !data,
+    isLoading: isLoading,
     isError: error,
   }
 }

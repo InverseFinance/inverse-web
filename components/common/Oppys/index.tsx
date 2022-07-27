@@ -10,6 +10,7 @@ import Link from '@app/components/common/Link';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { RadioCardGroup } from '../Input/RadioCardGroup';
 import { useEffect, useState } from 'react';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -111,7 +112,13 @@ const columns = [
     },
 ]
 
-export const OppysTable = ({ oppys }: { oppys: YieldOppy[] }) => {
+export const OppysTable = ({
+    oppys,
+    isLoading,
+}: {
+    oppys: YieldOppy[],
+    isLoading?: boolean,
+}) => {
     const [category, setCategory] = useState('all');
     const [filteredOppys, setFilteredOppys] = useState(oppys);
 
@@ -158,46 +165,49 @@ export const OppysTable = ({ oppys }: { oppys: YieldOppy[] }) => {
             />
         }
     >
-        <VStack w='full' spacing="10">
-            <Table
-                keyName="pool"
-                defaultSort="tvlUsd"
-                defaultSortDir="desc"
-                columns={columns}
-                items={filteredOppys}
-                sortChevronProps={{ w: 8, h: 8, transform: 'translateX(20px)' }}
-                colBoxProps={{ fontWeight: "extrabold" }}
-            />
-            <InfoMessage
-                alertProps={{ w: 'full' }}
-                description={
-                    <VStack alignItems="flex-start">
-                        {
-                            oppys?.length > 0 && !oppys.find(o => o.project === 'convex-finance') &&
-                            <HStack spacing="1">
-                                <Text>Another option is staking DOLA-3POOL on</Text>
-                                <Link href={projectLinks['convex-finance']} target="_blank" isExternal>Convex Finance</Link>
-                            </HStack>
+        {
+            isLoading ? <SkeletonBlob />
+                :
+                <VStack w='full' spacing="10">
+                    <Table
+                        keyName="pool"
+                        defaultSort="tvlUsd"
+                        defaultSortDir="desc"
+                        columns={columns}
+                        items={filteredOppys}
+                        sortChevronProps={{ w: 8, h: 8, transform: 'translateX(20px)' }}
+                        colBoxProps={{ fontWeight: "extrabold" }}
+                    />
+                    <InfoMessage
+                        alertProps={{ w: 'full' }}
+                        description={
+                            <VStack alignItems="flex-start">
+                                {
+                                    oppys?.length > 0 && !oppys.find(o => o.project === 'convex-finance') &&
+                                    <HStack spacing="1">
+                                        <Text>Another option is staking DOLA-3POOL on</Text>
+                                        <Link href={projectLinks['convex-finance']} target="_blank" isExternal>Convex Finance</Link>
+                                    </HStack>
+                                }
+                                <Text>
+                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.
+                                </Text>
+                                <Text>Please make your own Due Diligence.</Text>
+                            </VStack>
                         }
-                        <Text>
-                            Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.
+                    />
+                    <HStack as="a" href="https://defillama.com/" target="_blank">
+                        <Text color="secondaryTextColor">
+                            Powered By Defi Llama
                         </Text>
-                        <Text>Please make your own Due Diligence.</Text>
-                    </VStack>
-                }
-            />
-            <HStack as="a" href="https://defillama.com/" target="_blank">
-                <Text color="secondaryTextColor">
-                    Powered By Defi Llama
-                </Text>
-                <Image borderRadius="50px" w="40px" src="/assets/projects/defi-llama.jpg" />
-            </HStack>
-        </VStack>
+                        <Image borderRadius="50px" w="40px" src="/assets/projects/defi-llama.jpg" />
+                    </HStack>
+                </VStack>
+        }
     </Container>
 }
 
 export const Oppys = () => {
-    const { oppys } = useOppys();
-
-    return <OppysTable oppys={oppys} />
+    const { oppys, isLoading } = useOppys();
+    return <OppysTable isLoading={isLoading} oppys={oppys} />
 }
