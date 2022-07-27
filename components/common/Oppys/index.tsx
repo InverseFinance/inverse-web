@@ -30,6 +30,7 @@ const projectLinks = {
     'yearn-finance': 'https://yearn.finance',
     'uniswap': 'https://info.uniswap.org/#/pools',
     'sushiswap': 'https://app.sushi.com/farm?chainId=1',
+    'convex-finance': 'https://www.convexfinance.com/stake',
 }
 
 const getPoolLink = (project, pool) => {
@@ -128,11 +129,21 @@ export const OppysTable = ({ oppys }: { oppys: YieldOppy[] }) => {
                 colBoxProps={{ fontWeight: "extrabold" }}
             />
             <InfoMessage
-                title="Disclaimer"
+                alertProps={{ w: 'full' }}
                 description={
-                    <Text>
-                        Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance. Please make your own Due Diligence.
-                    </Text>
+                    <VStack alignItems="flex-start">
+                        {
+                            oppys?.length > 0 && !oppys.find(o => o.project === 'convex-finance') &&
+                            <HStack spacing="1">
+                                <Text>Another option is staking DOLA-3POOL on</Text>
+                                <Link href={projectLinks['convex-finance']} target="_blank" isExternal>Convex Finance</Link>
+                            </HStack>
+                        }
+                        <Text>
+                            Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.
+                        </Text>
+                        <Text>Please make your own Due Diligence.</Text>
+                    </VStack>
                 }
             />
             <HStack as="a" href="https://defillama.com/" target="_blank">
