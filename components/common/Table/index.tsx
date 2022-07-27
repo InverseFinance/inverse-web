@@ -8,6 +8,7 @@ import { Autocomplete } from '../Input/Autocomplete';
 import { isAddress } from 'ethers/lib/utils';
 import { namedAddress } from '@app/util';
 import { uniqueBy } from '@app/util/misc';
+import { AutocompleteProps } from '@app/types';
 
 export type Column = {
   label: string
@@ -18,6 +19,7 @@ export type Column = {
   showFilter?: boolean
   filterWidth?: any
   customSubheader?: React.ReactChild
+  filterItemRenderer?: AutocompleteProps["itemRenderer"]
 }
 
 type TableProps = {
@@ -119,6 +121,7 @@ export const Table = ({
       >
         {columns.map((col: Column, i) => {
           const ColHeader = col.header;
+          const FilterItem = col.filterItemRenderer;
           const filterItems = uniqueBy(
             sortedItems?.map(item => {
               const v = item[col.field]?.toString();
@@ -142,14 +145,14 @@ export const Table = ({
               >
                 {
                   col.tooltip ?
-                    <AnimatedInfoTooltip iconProps={{ fontSize:'12px', mr: "1" }} zIndex="2" message={col.tooltip} size="small" />
+                    <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1" }} zIndex="2" message={col.tooltip} size="small" />
                     : null
                 }
                 <VStack alignItems="center" justifyContent="flex-start" cursor="pointer">
                   <Box
                     data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
                     onClick={(e) => {
-                      if(!!e && e.target.id.startsWith('popover-')) {
+                      if (!!e && e.target.id.startsWith('popover-')) {
                         return;
                       }
                       return toggleSort(col)
@@ -175,6 +178,11 @@ export const Table = ({
                       showChevron={false}
                       inputProps={{ p: '0' }}
                       defaultValue={filters[col.field]}
+                      itemRenderer={
+                        col.filterItemRenderer ?
+                          (value) => <FilterItem {...{ [col.field]: value }} />
+                          : undefined
+                      }
                       onItemSelect={(item) => {
                         setFilters({ ...filters, [col.field]: item.value === '' ? null : item.value })
                       }}
@@ -200,14 +208,14 @@ export const Table = ({
           align="center"
           fontWeight="semibold"
           fontSize="sm"
-          cursor={ !!onClick ? 'pointer' : undefined }
+          cursor={!!onClick ? 'pointer' : undefined}
           p={2.5}
           pl={4}
           pr={4}
           minW='fit-content'
           borderRadius={8}
           onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
-            if(!!e && e?.target?.id.startsWith('popover-')) {
+            if (!!e && e?.target?.id.startsWith('popover-')) {
               return;
             }
             return onClick(item, e);
