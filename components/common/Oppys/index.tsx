@@ -20,6 +20,7 @@ const Cell = ({ ...props }) => {
 const poolLinks = {
     '0x28368D7090421Ca544BC89799a2Ea8489306E3E5-fantom': 'https://ftm.curve.fi/factory/14/deposit',
     '0xAA5A67c256e27A5d80712c51971408db3370927D-ethereum': 'https://curve.fi/factory/27/deposit',
+    '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352': 'https://v2.info.uniswap.org/pair/0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
 }
 
 const projectLinks = {
@@ -47,7 +48,7 @@ const getPoolLink = (project, pool) => {
             url = `https://app.beefy.com/vault/${pool.replace(/-[0-9]+$/, '')}`
             break;
     }
-    return url || poolLinks[pool] || projectLinks[project];
+    return poolLinks[pool] || url || projectLinks[project];
 }
 
 const columns = [
