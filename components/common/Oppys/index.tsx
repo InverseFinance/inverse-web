@@ -8,7 +8,7 @@ import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { RadioCardGroup } from '../Input/RadioCardGroup';
+import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 
@@ -82,20 +82,24 @@ const columns = [
     {
         field: 'project',
         label: 'Project',
-        header: ({ ...props }) => <ColHeader w="200px" justify="flex-start"  {...props} />,
-        value: ({ project }) => <Cell w="200px" justify="flex-start" >
+        header: ({ ...props }) => <ColHeader w="220px" justify="flex-start"  {...props} />,
+        value: ({ project }) => <Cell w="220px" justify="flex-start" >
             <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Ficons%2F${project}.jpg&w=48&q=75`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
             <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
         </Cell>,
+        showFilter: true,
+        filterWidth: '220px',
     },
     {
         field: 'chain',
         label: 'Chain',
-        header: ({ ...props }) => <ColHeader justify="flex-start"  {...props} />,
-        value: ({ chain }) => <Cell justify="flex-start" >
+        header: ({ ...props }) => <ColHeader w="200px" justify="flex-start"  {...props} />,
+        value: ({ chain }) => <Cell w="200px" justify="flex-start" >
             <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Fchain-icons%2Frsz_${chain.toLowerCase()}.jpg&w=48&q=75`} />
             <Text textTransform="capitalize">{chain}</Text>
         </Cell>,
+        showFilter: true,
+        filterWidth: '200px',
     },
     {
         field: 'apy',
