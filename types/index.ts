@@ -576,3 +576,12 @@ export type LiquidationItem = LiquidationEvent & {
   repaidUnderlying: Token
   seizedUnderlying: Token
 }
+
+export type YieldOppy = {
+  apy: number,
+  chain: string,
+  tvlUsd: number,
+  project: string,
+  symbol: string,
+  pool: string,
+}
