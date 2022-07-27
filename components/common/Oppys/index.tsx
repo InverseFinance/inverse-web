@@ -20,6 +20,10 @@ const Cell = ({ ...props }) => {
     return <HStack fontSize="16px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
+const FilterItem = ({ ...props }) => {
+    return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" {...props} />
+}
+
 const poolLinks = {
     '0x28368D7090421Ca544BC89799a2Ea8489306E3E5-fantom': 'https://ftm.curve.fi/factory/14/deposit',
     '0xAA5A67c256e27A5d80712c51971408db3370927D-ethereum': 'https://curve.fi/factory/27/deposit',
@@ -58,14 +62,28 @@ const getPoolLink = (project, pool) => {
     return poolLinks[pool] || url || projectLinks[project];
 }
 
+const ProjectItem = ({ project }: { project: string }) => {
+    return <>
+        <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Ficons%2F${project}.jpg&w=48&q=75`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
+        <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
+    </>
+}
+
+const ChainItem = ({ chain }: { chain: string }) => {
+    return <>
+        <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Fchain-icons%2Frsz_${chain.toLowerCase()}.jpg&w=48&q=75`} />
+        <Text textTransform="capitalize">{chain}</Text>
+    </>
+}
+
 const columns = [
     {
         field: 'symbol',
         label: 'Pool',
-        header: ({ ...props }) => <ColHeader justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: ({ symbol, pool, project }) => {
             const link = getPoolLink(project, pool);
-            return <Cell justify="flex-start">
+            return <Cell justify="flex-start" minWidth="200px">
                 <VStack borderBottom="1px solid #fff">
                     {
                         !!true ?
@@ -78,28 +96,31 @@ const columns = [
                 </VStack>
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '190px',
+        filterItemRenderer: ({ symbol }) => <FilterItem><Text>{symbol}</Text></FilterItem>
     },
     {
         field: 'project',
         label: 'Project',
-        header: ({ ...props }) => <ColHeader w="220px" justify="flex-start"  {...props} />,
-        value: ({ project }) => <Cell w="220px" justify="flex-start" >
-            <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Ficons%2F${project}.jpg&w=48&q=75`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
-            <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
+        header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-start"  {...props} />,
+        value: ({ project }) => <Cell minWidth="220px" justify="flex-start" >
+            <ProjectItem project={project} />
         </Cell>,
         showFilter: true,
-        filterWidth: '220px',
+        filterWidth: '210px',
+        filterItemRenderer: (props) => <FilterItem><ProjectItem {...props} /></FilterItem>,
     },
     {
         field: 'chain',
         label: 'Chain',
-        header: ({ ...props }) => <ColHeader w="200px" justify="flex-start"  {...props} />,
-        value: ({ chain }) => <Cell w="200px" justify="flex-start" >
-            <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Fchain-icons%2Frsz_${chain.toLowerCase()}.jpg&w=48&q=75`} />
-            <Text textTransform="capitalize">{chain}</Text>
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        value: ({ chain }) => <Cell minWidth="200px" justify="flex-start" >
+            <ChainItem chain={chain} />
         </Cell>,
         showFilter: true,
-        filterWidth: '200px',
+        filterWidth: '190px',
+        filterItemRenderer: (props) => <FilterItem><ChainItem {...props} /></FilterItem>,
     },
     {
         field: 'apy',
