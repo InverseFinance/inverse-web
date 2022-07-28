@@ -183,13 +183,6 @@ export const AnchorModal = ({
             isUserBorrowAbilityPaused && <WarningMessage alertProps={{ fontSize: '12px' }} description={`Borrowing ability paused because you are using paused collaterals: ${pausedCollaterals?.map(m => m.underlying.symbol).join(', ')}`} />
           }
           {
-            operation === AnchorOperations.supply && asset.underlying.symbol === RTOKEN_SYMBOL && asset.mintable &&
-            <InfoMessage
-              title="Asset with automatic claim/restake!"
-              description="Your supplied INV balance will automatically increase, no need to claim and re-stake!"
-            />
-          }
-          {
             (asset.liquidity < parseFloat(amount) || asset.liquidity === 0) && isWithdrawOrMigrate ?
               <InfoMessage
                 alertProps={{ w: 'full', fontSize: '12px' }}
@@ -340,6 +333,14 @@ export const AnchorModal = ({
           !needWithdrawWarning && operation === AnchorOperations.withdraw &&
           <InfoMessage alertProps={{ fontSize: '12px' }}
             description='Withdrawing with "max" can leave some "dust" not "withdraw all".' />
+        }
+        {
+          operation === AnchorOperations.supply && asset.underlying.symbol === RTOKEN_SYMBOL && asset.mintable &&
+          <InfoMessage
+            alertProps={{ fontSize: '12px' }}
+            title="Asset with automatic claim/restake!"
+            description="Your supplied INV balance will automatically increase, no need to claim and re-stake!"
+          />
         }
       </Stack>
     </Modal>
