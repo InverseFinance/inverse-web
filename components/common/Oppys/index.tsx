@@ -84,9 +84,9 @@ const columns = [
         value: ({ symbol, pool, project }) => {
             const link = getPoolLink(project, pool);
             return <Cell justify="flex-start" minWidth="200px">
-                <VStack borderBottom="1px solid #fff">
+                <VStack borderBottom={ !link ? undefined : "1px solid #fff" }>
                     {
-                        !!true ?
+                        !!link ?
                             <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank">
                                 <ExternalLinkIcon /> {symbol}
                             </Link>
