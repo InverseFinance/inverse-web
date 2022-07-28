@@ -98,7 +98,7 @@ export const BondSlide = ({
                     <Flex alignItems="center">
                         <TimeIcon fontSize="16px" />
                         <Text mx="2" fontWeight="extrabold">Wait {bond.vestingDays} days</Text>
-                        <AnimatedInfoTooltip message={`After bonding you will need to wait ${bond.vestingDays} days to claim 100% of your INVs, you can also claim a proportional part before vesting completion`} />
+                        <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait ${bond.vestingDays} days to claim 100% of your INVs, you can also claim a proportional part before vesting completion`} />
                     </Flex>
                     <Text>=></Text>
                     <Stack direction="row" alignItems="center">
@@ -143,7 +143,7 @@ export const BondSlide = ({
                     </HStack>
                     <HStack w='full' justify="space-between">
                         <Text>
-                            Current Max Available Payout for this bond <AnimatedInfoTooltip message="The number of INVs available in this bonding contract" />:
+                            Current Max Available Payout for this bond <AnimatedInfoTooltip type="tooltip" message="The number of INVs available in this bonding contract" />:
                         </Text>
                         <Text fontWeight="bold" textAlign="right">
                             {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
@@ -161,7 +161,7 @@ export const BondSlide = ({
                         <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
                             {
                                 !isApproved ?
-                                    <ApproveButton signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
+                                    <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
                                     <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit
