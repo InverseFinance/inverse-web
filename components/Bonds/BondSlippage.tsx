@@ -21,14 +21,14 @@ export const BondSlippage = ({
         <HStack alignItems="center" color={color} w='full' spacing="2">
             <Flex flexDirection={{ base: 'column', sm: 'row' }}>
                 <Text minW="120px" color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'left' }} w="full" fontSize="12px" mr="2">
-                    <AnimatedInfoTooltip size="intermediary" message="The maximum slippage accepted for the bond, if the slippage exceeds the maximum chosen the transaction will fail." />
+                    <AnimatedInfoTooltip type="tooltip" size="intermediary" message="The maximum slippage accepted for the bond, if the slippage exceeds the maximum chosen the transaction will fail." />
                     Max. slippage :
                 </Text>
                 <SlippageRadioGroup defaultValue={maxSlippage.toString()} onChange={onChange} />
             </Flex>
             <Flex flexDirection={{ base: 'column', sm: 'row' }} color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" ml="2">
                 <Text color={color}>
-                    <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken.symbol} that you will receive`} />
+                    <AnimatedInfoTooltip type="tooltip" size="intermediary" message={`The minimum amount of ${toToken.symbol} that you will receive`} />
                     Min. received&nbsp;:&nbsp;
                 </Text>
                 <Text color={color}><b>{minReceived}</b></Text>
