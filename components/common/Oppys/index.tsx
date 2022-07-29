@@ -34,6 +34,7 @@ const projectLinks = {
     'concentrator': 'https://concentrator.aladdin.club/#/vault',
     'curve': 'https://curve.fi',
     'beefy-finance': 'https://app.beefy.com',
+    'beefy': 'https://app.beefy.com',
     'yearn-finance': 'https://yearn.finance',
     'uniswap': 'https://info.uniswap.org/#/pools',
     'sushiswap': 'https://app.sushi.com/farm?chainId=1',
@@ -53,6 +54,7 @@ const getPoolLink = (project, pool) => {
             url = `https://info.uniswap.org/#/pools/${pool}`
             break;
         case 'beefy-finance':
+        case 'beefy':
             url = `https://app.beefy.com/vault/${pool.replace(/-[0-9]+$/, '')}`
             break;
         case 'velodrome':
