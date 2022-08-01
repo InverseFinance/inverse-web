@@ -38,7 +38,7 @@ const cards = [
     label: 'Lend & Borrow',
     image: '/assets/products/anchor.png',
     href: '/frontier',
-    bg: "url('/assets/frontier3.png')",
+    bg: "url('/assets/frontier.png')",
   },
   {
     title: 'DOLA',
@@ -46,7 +46,7 @@ const cards = [
     label: 'Swap DOLA',
     image: '/assets/products/dola.png',
     href: '/stabilizer',
-    bg: "url('/assets/dola1.png')",
+    bg: "url('/assets/dola.png')",
   },
 ]
 
