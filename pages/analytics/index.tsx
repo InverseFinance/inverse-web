@@ -10,6 +10,7 @@ export const Analytics = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Analytics</title>
         <meta name="og:title" content="Inverse Finance - Analytics" />
         <meta name="og:description" content="Detailed Analytics" />
+        <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/2tCFzmEbLPvp0FfONQnKKw/9eacce843bf6c3edf18dd06c4eb892ac/Inverse_Analytics.png?w=3840&q=75" />
         <meta name="description" content="Inverse Finance Analytics" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, analytics, dune" />
       </Head>

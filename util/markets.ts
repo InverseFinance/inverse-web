@@ -241,3 +241,13 @@ export const getYieldOppys = async () => {
     } catch (e) { console.log(e) }
     return {};
 }
+
+export const triggerSupply = (marketName: string) => {
+    const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: marketName } });
+    document.dispatchEvent(customEvent);
+}
+
+export const triggerBorrow = (marketName: string) => {
+    const customEvent = new CustomEvent('open-anchor-borrow', { detail: { market: marketName } });
+    document.dispatchEvent(customEvent);
+}
