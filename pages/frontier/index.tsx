@@ -25,6 +25,7 @@ export const Anchor = () => {
     <Layout>
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Frontier</title>
+        <meta name="og:image" content="https://inverse.finance/assets/frontier.png" />
       </Head>
       <AppNav active="Frontier" activeSubmenu="Overview" />
       <ErrorBoundary>

@@ -11,6 +11,8 @@ export const NewsletterPage = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Newsletter</title>
         <meta name="og:title" content="Inverse Finance - Newsletter" />
         <meta name="description" content="Inverse Finance Newsletter" />
+        <meta name="og:description" content="Inverse Finance Newsletter" />
+        <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/7pSjnOVQJfwsIgGljrntqm/177006643eedab87cc9b3557ea62d315/Newsletter_Backlog_op4.png?w=3840&q=75" />
         <meta name="keywords" content="Inverse Finance, inv, token, newsletter, dola, defi" />
       </Head>
       <Flex direction="column" w={{ base: 'full' }} justify="center" pt="100px">

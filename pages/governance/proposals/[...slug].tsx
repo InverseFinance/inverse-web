@@ -42,6 +42,7 @@ export const Governance = ({ proposal }: { proposal: Proposal }) => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Proposal Details</title>
         <meta name="og:title" content={`Inverse Finance - Proposal`} />
         <meta name="og:description" content={`${proposal?.title || 'Proposal Not Found'}`} />
+        <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75" />
         <meta name="description" content={`Inverse Finance DAO's Proposal: ${proposal?.title || 'Proposal Not Found'}`} />
         <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal`} />
       </Head>
