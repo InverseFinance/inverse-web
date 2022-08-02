@@ -14,7 +14,7 @@ import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@app/hooks/useDAO'
-import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { shortenNumber } from '@app/util/markets'
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
@@ -164,14 +164,14 @@ export const Overview = () => {
                 } />
             }
           />}
-          <SuppplyInfos token={TOKENS[INV]} supplies={[
+          <SupplyInfos token={TOKENS[INV]} supplies={[
             { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply - optimism?.invTotalSupply },
             { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
             { chainId: NetworkIds.optimism, supply: optimism?.invTotalSupply },
           ]}
           />
 
-          <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+          <SupplyInfos token={TOKENS[DOLA]} supplies={[
             { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
             { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
             { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },

@@ -9,7 +9,7 @@ import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useFedHistory, useFedPolicyChartData, useFedPolicyMsg, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
-import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Container } from '@app/components/common/Container';
 import { EditIcon } from '@chakra-ui/icons'
 import { useState } from 'react'
@@ -185,16 +185,16 @@ export const FedPolicyPage = () => {
                             </>
                         }
                     />
-                    <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+                    <SupplyInfos token={TOKENS[DOLA]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
                     ]}
                     />
-                    <SuppplyInfos
+                    <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
                         supplies={feds}
                     />
-                    <SuppplyInfos
+                    <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
                         supplies={
                             feds.map((fed, fedIndex) => {

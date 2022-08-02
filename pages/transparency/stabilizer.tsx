@@ -9,7 +9,7 @@ import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useStabilizer } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
-import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import Table from '@app/components/common/Table'
 import { Container } from '@app/components/common/Container';
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
@@ -233,7 +233,7 @@ export const StabilizerTransparency = () => {
                     <ShrinkableInfoMessage description={
                         <Text>Profits are made in DAI and sent to the Inverse Treasury on each swap</Text>
                     } />
-                    <SuppplyInfos token={TOKENS[DOLA]} supplies={[
+                    <SupplyInfos token={TOKENS[DOLA]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
                     ]}
