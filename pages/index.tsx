@@ -226,11 +226,13 @@ export const Landing = () => {
             <Text as="h4" fontSize="2xl" fontWeight="bold">
               Join the Inverse Finance DAO - Governance By The People
             </Text>
-            <Image
+            <Link href="https://docs.inverse.finance/inverse-finance/governance" isExternal={true} target="_blank">
+              <Image
                 borderRadius="5px"
                 maxW="600px"
                 src="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75"
               />
+            </Link>
             <Stack spacing="6" direction={{ base: 'column', md: 'row' }}>
               <Text fontSize="lg">
                 Inverse Finance was created by a sole developer in December 2020, and since then has grown to include
