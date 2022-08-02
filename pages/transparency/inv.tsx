@@ -10,7 +10,7 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { usePrices } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import { useDAO } from '@app/hooks/useDAO'
-import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
@@ -87,7 +87,7 @@ export const InvPage = () => {
           <InvFlowChart {...invFlowChartData} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <SuppplyInfos token={TOKENS[INV]} supplies={[
+          <SupplyInfos token={TOKENS[INV]} supplies={[
             { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
             { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
           ]}

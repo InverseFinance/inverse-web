@@ -77,7 +77,14 @@ export const AnchorOverview = () => {
     setIsDetailsSlidedDown(!isDetailsOpen);
   }, [isDetailsOpen], !isDetailsOpen, 500, 0)
 
-  if(!account || borrowLimitPercent === 0) {
+  if (!account
+    || (
+      !!account
+      && borrowLimitPercent === 0
+      && rewardAmount === 0
+      && pausedCollaterals?.length === 0
+      && totalInterestsUsd?.total === 0
+    )) {
     return <></>
   }
 

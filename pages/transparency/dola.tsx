@@ -9,14 +9,14 @@ import { NetworkIds } from '@app/types'
 import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO } from '@app/hooks/useDAO'
-import { SuppplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
+import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 
 const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 
 export const DolaDiagram = () => {
-  const { dolaTotalSupply, dolaOperator, fantom, feds } = useDAO();
+  const { dolaTotalSupply, dolaOperator, fantom, feds, optimism } = useDAO();
 
   const fedsWithData = feds;
 
@@ -38,12 +38,13 @@ export const DolaDiagram = () => {
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
-          <SuppplyInfos token={TOKENS[DOLA]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+          <SupplyInfos token={TOKENS[DOLA]} supplies={[
+            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply},
             { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
           ]}
           />
-          <SuppplyInfos
+          <SupplyInfos
             title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
             supplies={fedsWithData}
           />
