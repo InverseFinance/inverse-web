@@ -37,7 +37,7 @@ export const FedPolicyPage = () => {
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
     const userAddress = (query?.viewAddress as string) || account;
-    const { dolaTotalSupply, fantom, feds } = useDAO();
+    const { dolaTotalSupply, fantom, feds, optimism } = useDAO();
     const [msgUpdates, setMsgUpdates] = useState(0)
 
     const { totalEvents: policyEvents, isLoading: isPolicyLoading } = useFedHistory();
@@ -186,8 +186,9 @@ export const FedPolicyPage = () => {
                         }
                     />
                     <SupplyInfos token={TOKENS[DOLA]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+                        { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
                     ]}
                     />
                     <SupplyInfos

@@ -16,7 +16,7 @@ const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 
 export const DolaDiagram = () => {
-  const { dolaTotalSupply, dolaOperator, fantom, feds } = useDAO();
+  const { dolaTotalSupply, dolaOperator, fantom, feds, optimism } = useDAO();
 
   const fedsWithData = feds;
 
@@ -39,8 +39,9 @@ export const DolaDiagram = () => {
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
           <SupplyInfos token={TOKENS[DOLA]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply},
             { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+            { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
           ]}
           />
           <SupplyInfos

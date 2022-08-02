@@ -95,7 +95,7 @@ const columns = [
 ]
 
 export const StabilizerTransparency = () => {
-    const { dolaTotalSupply, fantom } = useDAO();
+    const { dolaTotalSupply, fantom, optimism } = useDAO();
     const { totalEvents } = useStabilizer();
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
@@ -234,8 +234,9 @@ export const StabilizerTransparency = () => {
                         <Text>Profits are made in DAI and sent to the Inverse Treasury on each swap</Text>
                     } />
                     <SupplyInfos token={TOKENS[DOLA]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply },
+                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
                         { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
+                        { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
                     ]}
                     />
                 </VStack>
