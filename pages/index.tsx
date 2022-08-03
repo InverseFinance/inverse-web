@@ -229,7 +229,7 @@ export const Landing = () => {
             <Link href="https://docs.inverse.finance/inverse-finance/governance" isExternal={true} target="_blank">
               <Image
                 borderRadius="5px"
-                maxW="600px"
+                maxW={{ base: '100%', lg: '600px' }}
                 src="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75"
               />
             </Link>
