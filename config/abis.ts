@@ -310,6 +310,14 @@ export const DEBT_CONVERTER_ABI = [
   "function convertDolaIOUsToDola(uint dolaIOUs) public view returns (uint)",
   "function convertDolaToDolaIOUs(uint dola) public view returns (uint)",
   "function balanceOfDola(address _addr) external view returns (uint)",
+  "event NewOwner(address owner)",
+  "event NewTreasury(address treasury)",
+  "event NewGovernance(address governance)",
+  "event NewTransferWhitelistAddress(address whitelistedAddr)",
+  "event NewAnnualExchangeRateIncrease(uint increase)",
+  "event Repayment(uint dolaAmount, uint epoch)",
+  "event Redemption(address user, uint dolaAmount)",
+  "event Conversion(address user, uint epoch, address anToken, uint dolaAmount)",
 ]
 
 export const BALANCER_VAULT_ABI = [
