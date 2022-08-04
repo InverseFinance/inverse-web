@@ -30,6 +30,8 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { useDebtConverter } from '@app/hooks/useDebtConverter'
 import { useOraclePrice } from '@app/hooks/usePrices'
 import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
+import { DebtConverterConversions } from '@app/components/Anchor/DebtConverter/conversions'
+import { useRouter } from 'next/router'
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
@@ -49,6 +51,8 @@ const outputToken = {
 
 export const DebtConverterPage = () => {
     const { library, account } = useWeb3React<Web3Provider>()
+    const { query } = useRouter()
+    const userAddress = (query?.viewAddress as string) || account;
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
     const { exchangeRate: exRateIOU } = useDebtConverter();
@@ -222,6 +226,9 @@ export const DebtConverterPage = () => {
                                 </VStack>
                             </Container>
                             : <SkeletonBlob />
+                    }
+                    {
+                        !!account && <DebtConverterConversions account={userAddress} />
                     }
                 </Flex>
             </ErrorBoundary>
