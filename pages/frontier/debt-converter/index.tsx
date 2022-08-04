@@ -17,22 +17,21 @@ import { Market, Token } from '@app/types'
 
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 
-import { getToken } from '@app/variables/tokens'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { roundFloorString } from '@app/util/misc'
-import { useConvertToUnderlying, useDebtRepayerOutput, useMarketDebtRepayer } from '@app/hooks/useDebtRepayer'
 import { InfoMessage } from '@app/components/common/Messages'
 import { dollarify, getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
 import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
-import { sellV1AnToken } from '@app/util/contracts'
+import { convertToIOU } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { useDebtConverter } from '@app/hooks/useDebtConverter'
 import { useOraclePrice } from '@app/hooks/usePrices'
+import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
 
-const { TOKENS, DEBT_REPAYER, DEBT_CONVERTER } = getNetworkConfigConstants();
+const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
 type anToken = Token & { ctoken: string };
 
@@ -53,7 +52,6 @@ export const DebtConverterPage = () => {
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
     const { exchangeRate: exRateIOU } = useDebtConverter();
-    const { price } = useOraclePrice(anEth);
 
     const v1markets = markets
         ?.filter(m => m.underlying.symbol.toLowerCase().endsWith('-v1'));
@@ -62,16 +60,16 @@ export const DebtConverterPage = () => {
     const tokens: { [key: string]: anToken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.token]: { ...curr.underlying, ctoken: curr.token } }), {});
 
     const [outputAmount, setOutputAmount] = useState(0);
+    const [antokenAmount, setAntokenAmount] = useState('');
     const [collateralAmount, setCollateralAmount] = useState('');
 
     const [collateralMarket, setCollateralMarket] = useState<Market>({})
+    const { price } = useOraclePrice(collateralMarket?.token);
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_CONVERTER);
 
-    const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_CONVERTER);
     const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
-
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
     const { underlyingBalance: anYfiBal } = useConvertToUnderlying(anYfi, anBalances ? anBalances[anYfi] : '0');
@@ -79,8 +77,8 @@ export const DebtConverterPage = () => {
 
     const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: true }
 
-    const outputLiquidity = liquidities && liquidities[outputToken.address] ? getBnToNumber(liquidities[outputToken.address], outputToken.decimals) : 0;
     const outputBalance = outputTokenBalances && outputTokenBalances[outputToken.address] ? getBnToNumber(outputTokenBalances[outputToken.address], outputToken.decimals) : 0;
+    const minOutput = outputAmount * 0.99;
 
     useEffect(() => {
         if (!v1markets.length || collateralMarket.underlying) { return };
@@ -88,7 +86,7 @@ export const DebtConverterPage = () => {
     }, [v1markets, collateralMarket])
 
     useEffect(() => {
-        setOutputAmount(parseFloat(collateralAmount||0) * price);
+        setOutputAmount(parseFloat(collateralAmount || 0) * price);
     }, [collateralAmount, price])
 
     const changeCollateral = (v: anToken) => {
@@ -98,6 +96,15 @@ export const DebtConverterPage = () => {
 
     const changeCollateralAmount = (newAmount: string) => {
         setCollateralAmount(newAmount);
+        const amount = newAmount || '0';
+        const exRate = exchangeRates && exchangeRates[collateralMarket.token] ? getBnToNumber(exchangeRates[collateralMarket.token]) : 0;
+        const anAmount = exRate ? parseFloat(amount) / exRate : parseFloat(amount);
+        const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);
+        setAntokenAmount(formattedAmount);
+    }
+
+    const handleConvert = (isAllCase = false) => {
+        return convertToIOU(library?.getSigner(), collateralMarket.token, isAllCase ? '0' : antokenAmount, minOutput);
     }
 
     return (
@@ -154,7 +161,7 @@ export const DebtConverterPage = () => {
                                                     {collateralMarket.underlying.symbol} Oracle Price:
                                                 </Text>
                                             </HStack>
-                                            <Text>{dollarify(price, 2)}</Text>
+                                            <Text>{price ? dollarify(price, 2) : '-'}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -167,24 +174,24 @@ export const DebtConverterPage = () => {
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
-                                                <AnimatedInfoTooltip message="The amount you will receive if there is no slippage" />
+                                                <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />
                                                 <Text>
-                                                    Receive Amount:
+                                                    DOLA worth of IOUs:
                                                 </Text>
                                             </HStack>
                                             <Text>
-                                                ~{shortenNumber(outputAmount, 2)} {outputToken.symbol}
+                                                ~{shortenNumber(outputAmount, 2)}
                                             </Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
-                                                <AnimatedInfoTooltip message="The minimum amount you accept to receive after possible slippage, if it's below, the transaction will revert" />
+                                                <AnimatedInfoTooltip message="The minimum amount of DOLA worth of IOUs you accept to receive after possible slippage, if it's below, the transaction will revert" />
                                                 <Text>
                                                     Min. Receive Amount:
                                                 </Text>
                                             </HStack>
                                             <Text fontWeight="bold">
-                                                ~{shortenNumber(outputAmount * 0.99, 2)} {outputToken.symbol}
+                                                ~{shortenNumber(minOutput, 2)}
                                             </Text>
                                         </Stack>
                                         <HStack w='full' pt="4">
@@ -199,11 +206,14 @@ export const DebtConverterPage = () => {
                                                     />
                                                     :
                                                     <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
-                                                        <SubmitButton refreshOnSuccess={true}>
-                                                            exchange
+                                                        <SubmitButton
+                                                            disabled={!collateralAmount || !parseFloat(collateralAmount)}
+                                                            onClick={() => handleConvert(false)}
+                                                            refreshOnSuccess={true}>
+                                                            convert
                                                         </SubmitButton>
-                                                        <SubmitButton refreshOnSuccess={true}>
-                                                            exchange all available
+                                                        <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
+                                                            convert all
                                                         </SubmitButton>
                                                     </Stack>
                                             }
