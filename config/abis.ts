@@ -300,6 +300,18 @@ export const DEBT_REPAYER_ABI = [
   "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
 ]
 
+export const DEBT_CONVERTER_ABI = [
+  "function convert(address anToken, uint amount, uint minOut) external",
+  "function repayment(uint amount) external",
+  "function redeemConversion(uint _conversion, uint _endEpoch) public",
+  "function redeemConversionDust(uint _conversion) public",
+  "function redeemAll(uint _conversion) external",
+  "function getRedeemableDolaFor(address _addr, uint _conversion, uint _epoch) public view returns (uint)",
+  "function convertDolaIOUsToDola(uint dolaIOUs) public view returns (uint)",
+  "function convertDolaToDolaIOUs(uint dola) public view returns (uint)",
+  "function balanceOfDola(address _addr) external view returns (uint)",
+]
+
 export const BALANCER_VAULT_ABI = [
   "function getPoolTokens(bytes32 poolId) public view returns (address[], uint256[], uint256)"
 ]
