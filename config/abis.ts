@@ -310,6 +310,7 @@ export const DEBT_CONVERTER_ABI = [
   "function convertDolaIOUsToDola(uint dolaIOUs) public view returns (uint)",
   "function convertDolaToDolaIOUs(uint dola) public view returns (uint)",
   "function balanceOfDola(address _addr) external view returns (uint)",
+  "function exchangeRateMantissa() external view returns (uint)",
   "event NewOwner(address owner)",
   "event NewTreasury(address treasury)",
   "event NewGovernance(address governance)",
@@ -350,6 +351,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     SWAP_ROUTER,
     STABILIZER,
     DEBT_REPAYER,
+    DEBT_CONVERTER,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -373,6 +375,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
         [STABILIZER, STABILIZER_ABI],
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
+        [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
