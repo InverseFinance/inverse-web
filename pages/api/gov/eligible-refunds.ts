@@ -170,8 +170,7 @@ export default async function handler(req, res) {
 
     totalItems = totalItems
       .filter(t =>
-        t.successful
-        && t.timestamp >= startTimestamp
+        t.timestamp >= startTimestamp
         && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
         && !ignoredTxs.includes(t.txHash)
       );
