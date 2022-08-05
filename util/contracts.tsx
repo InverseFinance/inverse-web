@@ -332,3 +332,11 @@ export const convertToIOU = (
   const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
   return contract.convert(anToken, amount, minDOLAoutput);
 }
+
+export const redeemAllIOUs = (
+  signer: JsonRpcSigner,
+  conversionIndex: string | number,
+) => {
+  const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
+  return contract.redeemAll(conversionIndex);
+}

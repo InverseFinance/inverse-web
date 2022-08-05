@@ -1,8 +1,7 @@
-import { Market, SWR, Token } from '@app/types'
+import { SWR } from '@app/types'
 import useEtherSWR from './useEtherSWR'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
-import { BigNumber } from 'ethers';
 import { useContractEvents } from './useContractEvents';
 import { DEBT_CONVERTER_ABI } from '@app/config/abis';
 import { DebtConversion } from '@app/types';

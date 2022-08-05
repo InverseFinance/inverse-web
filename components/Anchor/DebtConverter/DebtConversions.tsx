@@ -1,15 +1,15 @@
 import { Flex, HStack, Text } from "@chakra-ui/react"
-import { useContractEvents } from '@app/hooks/useContractEvents';
-import { getNetworkConfigConstants } from '@app/util/networks';
-import { DEBT_CONVERTER_ABI } from "@app/config/abis";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { UnderlyingItemBlock } from "@app/components/common/Assets/UnderlyingItemBlock";
 import { UNDERLYING } from "@app/variables/tokens";
-import { getBnToNumber, shortenNumber } from "@app/util/markets";
+import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-
-const { DEBT_CONVERTER } = getNetworkConfigConstants();
+import { DebtConversion } from "@app/types";
+import { useDebtConversions, useDebtConverter } from "@app/hooks/useDebtConverter";
+import { redeemAllIOUs } from "@app/util/contracts";
+import { JsonRpcSigner } from '@ethersproject/providers';
+import { showToast } from '@app/util/notify';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -33,6 +33,7 @@ const columns = [
     {
         field: 'epoch',
         label: 'epoch',
+        tooltip: 'The Repayment epoch',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ epoch }) => <Cell minWidth="100px" justify="center" >
             <Text>{epoch}</Text>
@@ -51,37 +52,61 @@ const columns = [
     },
     {
         field: 'dolaAmount',
-        label: 'dola amount',
+        label: 'Total Value',
+        tooltip: 'The total DOLA value at the moment of conversion',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
         value: ({ dolaAmount }) => <Cell minWidth="200px" justify="flex-end" >
             <Text>{shortenNumber(dolaAmount, 2)}</Text>
         </Cell>,
     },
+    {
+        field: 'redeemableIOUs',
+        label: 'Redeemable IOUs',
+        tooltip: 'IOUs redeemable at the moment',
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
+        value: ({ redeemableIOUs }) => <Cell minWidth="200px" justify="flex-end" >
+            <Text>{shortenNumber(redeemableIOUs, 2)}</Text>
+        </Cell>,
+    },
+    {
+        field: 'redeemableDolas',
+        label: 'Redeemable DOLAs',
+        tooltip: 'DOLAs corresponding to the current redeemable IOUs',
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
+        value: ({ redeemableDolas }) => <Cell minWidth="200px" justify="flex-end" >
+            <Text>{shortenNumber(redeemableDolas, 2)}</Text>
+        </Cell>,
+    },
 ]
 
 export const DebtConversions = ({
-    account
+    account,
+    signer,
 }: {
     account: string
+    signer: JsonRpcSigner,
 }) => {
-    const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
+    const { totalRedeemableDola } = useDebtConverter(account);
+    const { conversions } = useDebtConversions(account);
 
-    const items = (events)?.map((e, i) => {
-        return {
-            ...e.args,
-            dolaAmount: getBnToNumber(e.args.dolaAmount),
-            epoch: getBnToNumber(e.args.epoch, 0),
-            conversionIndex: i,
-            txHash: e.transactionHash,
-            blocknumber: e.blockNumber,
+    const handleRedeem = (conversion: DebtConversion) => {
+        if(!conversion.redeemableIOUs) {
+            showToast({ status: 'info', description: 'No redeemable IOUs at the moment for this conversation' })
+            return;
         }
-    });
+        return redeemAllIOUs(signer, conversion.conversionIndex);
+    }
 
-    return <Container label="Past Conversions" w='full'>
+    return <Container
+        label="Past Conversions"
+        description={`Total redeemable DOLAs: ${shortenNumber(totalRedeemableDola, 2)}`}
+        w='full'
+    >
         <Table
             keyName="conversionIndex"
             columns={columns}
-            items={items}
+            items={conversions}
+            onClick={handleRedeem}
         />
     </Container>
 }

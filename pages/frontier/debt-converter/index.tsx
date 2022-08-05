@@ -55,7 +55,7 @@ export const DebtConverterPage = () => {
     const userAddress = (query?.viewAddress as string) || account;
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU, repaymentEpoch } = useDebtConverter();
+    const { exchangeRate: exRateIOU, repaymentEpoch } = useDebtConverter(account);
 
     const v1markets = markets
         ?.filter(m => m.underlying.symbol.toLowerCase().endsWith('-v1'));
