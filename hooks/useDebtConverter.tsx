@@ -8,13 +8,18 @@ const { DEBT_REPAYER } = getNetworkConfigConstants();
 
 export const useDebtConverter = (): SWR & {
     exchangeRate: number,
+    repaymentEpoch: number,
 } => {
-    const { data: exRateData, error } = useEtherSWR([
-        [DEBT_REPAYER, 'exchangeRateMantissa']
+    const { data, error } = useEtherSWR([
+        [DEBT_REPAYER, 'exchangeRateMantissa'],
+        [DEBT_REPAYER, 'repaymentEpoch'],
     ])
+
+    const [exRateData, repaymentEpoch] = data || [null, null];
 
     return {
         exchangeRate: exRateData ? getBnToNumber(exRateData) : 1,
+        repaymentEpoch: repaymentEpoch ? getBnToNumber(repaymentEpoch, 0) : 1,
         isLoading: !exRateData && !error,
         isError: !!error,
     }

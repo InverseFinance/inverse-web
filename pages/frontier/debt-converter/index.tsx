@@ -55,7 +55,7 @@ export const DebtConverterPage = () => {
     const userAddress = (query?.viewAddress as string) || account;
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU } = useDebtConverter();
+    const { exchangeRate: exRateIOU, repaymentEpoch } = useDebtConverter();
 
     const v1markets = markets
         ?.filter(m => m.underlying.symbol.toLowerCase().endsWith('-v1'));
@@ -157,6 +157,15 @@ export const DebtConverterPage = () => {
                                                 </Text>
                                             </HStack>
                                             <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="Repayments are made in different Epochs" />
+                                                <Text>
+                                                    Repayment Epoch:
+                                                </Text>
+                                            </HStack>
+                                            <Text>{repaymentEpoch}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
