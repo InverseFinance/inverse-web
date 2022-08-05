@@ -308,6 +308,7 @@ export const DEBT_CONVERTER_ABI = [
   "function redeemConversion(uint _conversion, uint _endEpoch) public",
   "function redeemConversionDust(uint _conversion) public",
   "function redeemAll(uint _conversion) external",
+  "function getRedeemableDolaIOUsFor(address _addr, uint _conversion, uint _epoch) public view returns (uint)",
   "function getRedeemableDolaFor(address _addr, uint _conversion, uint _epoch) public view returns (uint)",
   "function convertDolaIOUsToDola(uint dolaIOUs) public view returns (uint)",
   "function convertDolaToDolaIOUs(uint dola) public view returns (uint)",
