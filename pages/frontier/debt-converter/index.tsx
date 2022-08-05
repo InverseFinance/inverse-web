@@ -30,7 +30,7 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { useDebtConverter } from '@app/hooks/useDebtConverter'
 import { useOraclePrice } from '@app/hooks/usePrices'
 import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
-import { DebtConverterConversions } from '@app/components/Anchor/DebtConverter/conversions'
+import { DebtConversions } from '@app/components/Anchor/DebtConverter/DebtConversions'
 import { useRouter } from 'next/router'
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
@@ -118,128 +118,130 @@ export const DebtConverterPage = () => {
             </Head>
             <AppNav active="Frontier" activeSubmenu="Debt Converter" />
             <ErrorBoundary>
-                <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="700px">
-                    {
-                        v1markets?.length > 0 && !!collateralMarket?.underlying ?
-                            <Container
-                                label="Debt Converter"
-                                description="Contract"
-                                href={`${getScanner("1")}/address/${DEBT_CONVERTER}`}
-                                contentProps={{ p: '8' }}
-                            >
-                                <VStack w='full' alignItems="flex-start" spacing="5">
-                                    <InfoMessage
-                                        description={
-                                            <VStack>
-                                                <Text>
-                                                    <b>Convert</b> your v1 Frontier <b>receipt tokens</b> (anEth, anWBTC, anYFI) into DOLA IOUs.
-                                                </Text>
-                                            </VStack>
-                                        }
-                                    />
-                                    <AssetInput
-                                        amount={collateralAmount}
-                                        token={{ ...collateralMarket?.underlying, ctoken: collateralMarket.token }}
-                                        assetOptions={swapOptions}
-                                        onAssetChange={(newToken) => changeCollateral(newToken)}
-                                        onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
-                                        orderByBalance={true}
-                                        dropdownSelectedProps={{ fontSize: '12px' }}
-                                        {...commonAssetInputProps}
-                                    />
-
-                                    <VStack w='full' spacing="4">
-                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                            <HStack>
-                                                <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
-                                                <Text>
-                                                    IOU Exchange Rate:
-                                                </Text>
-                                            </HStack>
-                                            <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
-                                        </Stack>
-                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                            <HStack>
-                                                <AnimatedInfoTooltip message="Repayments are made in different Epochs" />
-                                                <Text>
-                                                    Repayment Epoch:
-                                                </Text>
-                                            </HStack>
-                                            <Text>{repaymentEpoch}</Text>
-                                        </Stack>
-                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                            <HStack>
-                                                <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
-                                                <Text>
-                                                    {collateralMarket.underlying.symbol} Oracle Price:
-                                                </Text>
-                                            </HStack>
-                                            <Text>{price ? dollarify(price, 2) : '-'}</Text>
-                                        </Stack>
-                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                            <HStack>
-                                                <AnimatedInfoTooltip message="Your current IOU balance:" />
-                                                <Text>
-                                                    Your current {outputToken.symbol} balance:
-                                                </Text>
-                                            </HStack>
-                                            <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
-                                        </Stack>
-                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                            <HStack>
-                                                <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />
-                                                <Text>
-                                                    DOLA worth of IOUs:
-                                                </Text>
-                                            </HStack>
-                                            <Text>
-                                                ~{shortenNumber(outputAmount, 2)}
-                                            </Text>
-                                        </Stack>
-                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                            <HStack>
-                                                <AnimatedInfoTooltip message="The minimum amount of DOLA worth of IOUs you accept to receive after possible slippage, if it's below, the transaction will revert" />
-                                                <Text>
-                                                    Min. Receive Amount:
-                                                </Text>
-                                            </HStack>
-                                            <Text fontWeight="bold">
-                                                ~{shortenNumber(minOutput, 2)}
-                                            </Text>
-                                        </Stack>
-                                        <HStack w='full' pt="4">
-                                            {
-                                                !hasAllowance(approvals, collateralMarket?.token) ?
-                                                    <ApproveButton
-                                                        tooltipMsg=""
-                                                        isDisabled={false}
-                                                        address={collateralMarket?.token}
-                                                        toAddress={DEBT_CONVERTER}
-                                                        signer={library?.getSigner()}
-                                                    />
-                                                    :
-                                                    <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
-                                                        <SubmitButton
-                                                            disabled={!collateralAmount || !parseFloat(collateralAmount)}
-                                                            onClick={() => handleConvert(false)}
-                                                            refreshOnSuccess={true}>
-                                                            convert
-                                                        </SubmitButton>
-                                                        <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
-                                                            convert all
-                                                        </SubmitButton>
-                                                    </Stack>
+                <VStack maxWidth="1200px">
+                    <VStack maxW={"700px"}>
+                        {
+                            v1markets?.length > 0 && !!collateralMarket?.underlying ?
+                                <Container
+                                    label="Debt Converter"
+                                    description="Contract"
+                                    href={`${getScanner("1")}/address/${DEBT_CONVERTER}`}
+                                    contentProps={{ p: '8' }}
+                                >
+                                    <VStack w='full' alignItems="flex-start" spacing="5">
+                                        <InfoMessage
+                                            description={
+                                                <VStack>
+                                                    <Text>
+                                                        <b>Convert</b> your v1 Frontier <b>receipt tokens</b> (anEth, anWBTC, anYFI) into DOLA IOUs.
+                                                    </Text>
+                                                </VStack>
                                             }
-                                        </HStack>
+                                        />
+                                        <AssetInput
+                                            amount={collateralAmount}
+                                            token={{ ...collateralMarket?.underlying, ctoken: collateralMarket.token }}
+                                            assetOptions={swapOptions}
+                                            onAssetChange={(newToken) => changeCollateral(newToken)}
+                                            onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
+                                            orderByBalance={true}
+                                            dropdownSelectedProps={{ fontSize: '12px' }}
+                                            {...commonAssetInputProps}
+                                        />
+
+                                        <VStack w='full' spacing="4">
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
+                                                    <Text>
+                                                        IOU Exchange Rate:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Repayments are made in different Epochs" />
+                                                    <Text>
+                                                        Repayment Epoch:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{repaymentEpoch}</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
+                                                    <Text>
+                                                        {collateralMarket.underlying.symbol} Oracle Price:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{price ? dollarify(price, 2) : '-'}</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Your current IOU balance:" />
+                                                    <Text>
+                                                        Your current {outputToken.symbol} balance:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />
+                                                    <Text>
+                                                        DOLA worth of IOUs:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>
+                                                    ~{shortenNumber(outputAmount, 2)}
+                                                </Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="The minimum amount of DOLA worth of IOUs you accept to receive after possible slippage, if it's below, the transaction will revert" />
+                                                    <Text>
+                                                        Min. Receive Amount:
+                                                    </Text>
+                                                </HStack>
+                                                <Text fontWeight="bold">
+                                                    ~{shortenNumber(minOutput, 2)}
+                                                </Text>
+                                            </Stack>
+                                            <HStack w='full' pt="4">
+                                                {
+                                                    !hasAllowance(approvals, collateralMarket?.token) ?
+                                                        <ApproveButton
+                                                            tooltipMsg=""
+                                                            isDisabled={false}
+                                                            address={collateralMarket?.token}
+                                                            toAddress={DEBT_CONVERTER}
+                                                            signer={library?.getSigner()}
+                                                        />
+                                                        :
+                                                        <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
+                                                            <SubmitButton
+                                                                disabled={!collateralAmount || !parseFloat(collateralAmount)}
+                                                                onClick={() => handleConvert(false)}
+                                                                refreshOnSuccess={true}>
+                                                                convert
+                                                            </SubmitButton>
+                                                            <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
+                                                                convert all
+                                                            </SubmitButton>
+                                                        </Stack>
+                                                }
+                                            </HStack>
+                                        </VStack>
                                     </VStack>
-                                </VStack>
-                            </Container>
-                            : <SkeletonBlob />
-                    }
+                                </Container>
+                                : <SkeletonBlob />
+                        }
+                    </VStack>
                     {
-                        !!account && <DebtConverterConversions account={userAddress} />
+                        !!account && <DebtConversions account={userAddress} />
                     }
-                </Flex>
+                </VStack>
             </ErrorBoundary>
         </Layout>
     )

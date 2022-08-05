@@ -13,7 +13,7 @@ export const UnderlyingItemBlock = ({
 }: {
     symbol: string,
     imgSize?: number,
-    nameAttribute: 'name' | 'symbol'
+    nameAttribute?: 'name' | 'symbol'
     imgProps?: ImageProps,
     props?: FlexProps
 }) => {
