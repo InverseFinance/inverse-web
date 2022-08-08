@@ -328,7 +328,6 @@ export const convertToIOU = (
   amount: string | BigNumber,
   minDOLAoutput: string | BigNumber,
 ) => {
-
   const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
   return contract.convert(anToken, amount, minDOLAoutput);
 }
