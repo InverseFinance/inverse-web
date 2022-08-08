@@ -300,7 +300,7 @@ export const DEBT_REPAYER_ABI = [
   "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
 ]
 
-export const DEBT_CONVERTER_ABI = [
+export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
   "function conversions(address user, conversionIndex uint) public returns (tuple(uint lastEpochRedeemed, uint dolaIOUAmount, uint dolaIOUsRedeemed)[])",
   "function repaymentEpoch() public returns (uint)",
   "function convert(address anToken, uint amount, uint minOut) external",
@@ -320,9 +320,9 @@ export const DEBT_CONVERTER_ABI = [
   "event NewTransferWhitelistAddress(address whitelistedAddr)",
   "event NewAnnualExchangeRateIncrease(uint increase)",
   "event Repayment(uint dolaAmount, uint epoch)",
-  "event Redemption(address user, uint dolaAmount)",
-  "event Conversion(address user, uint epoch, address anToken, uint dolaAmount)",
-]
+  "event Redemption(address indexed user, uint dolaAmount)",
+  "event Conversion(address indexed user, address indexed anToken, uint epoch, uint dolaAmount, uint underlyingAmount)",
+]);
 
 export const BALANCER_VAULT_ABI = [
   "function getPoolTokens(bytes32 poolId) public view returns (address[], uint256[], uint256)"
