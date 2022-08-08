@@ -301,7 +301,7 @@ export const DEBT_REPAYER_ABI = [
 ]
 
 export const DEBT_CONVERTER_ABI = [
-  "function conversions(address user) conversionIndex) public returns (tuple(uint lastEpochRedeemed, uint dolaIOUAmount, uint dolaIOUsRedeemed)[])",
+  "function conversions(address user, conversionIndex uint) public returns (tuple(uint lastEpochRedeemed, uint dolaIOUAmount, uint dolaIOUsRedeemed)[])",
   "function repaymentEpoch() public returns (uint)",
   "function convert(address anToken, uint amount, uint minOut) external",
   "function repayment(uint amount) external",
