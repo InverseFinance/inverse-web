@@ -12,20 +12,20 @@ import { JsonRpcSigner } from '@ethersproject/providers';
 import { showToast } from '@app/util/notify';
 
 const ColHeader = ({ ...props }) => {
-    return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
+    return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
 }
 
 const Cell = ({ ...props }) => {
-    return <HStack fontSize="16px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+    return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
 const columns = [
     {
         field: 'txHash',
         label: 'tx',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         value: ({ txHash }) => {
-            return <Cell justify="flex-start" minWidth="200px">
+            return <Cell justify="flex-start" minWidth="150px">
                 <ScannerLink value={txHash} type="tx" />
             </Cell>
         },
@@ -42,10 +42,10 @@ const columns = [
     {
         field: 'anToken',
         label: 'asset',
-        header: ({ ...props }) => <ColHeader minWidth="220px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ anToken }) => {
             const underlying = UNDERLYING[anToken];
-            return <Cell minWidth="220px" justify="center" >
+            return <Cell minWidth="100px" justify="center" >
                 <UnderlyingItemBlock symbol={underlying?.symbol} imgSize={20} />
             </Cell>
         },
@@ -63,8 +63,8 @@ const columns = [
         field: 'redeemableIOUs',
         label: 'Redeemable IOUs',
         tooltip: 'IOUs redeemable at the moment',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
-        value: ({ redeemableIOUs }) => <Cell minWidth="200px" justify="flex-end" >
+        header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-end"  {...props} />,
+        value: ({ redeemableIOUs }) => <Cell minWidth="220px" justify="flex-end" >
             <Text>{shortenNumber(redeemableIOUs, 2)}</Text>
         </Cell>,
     },
@@ -72,8 +72,8 @@ const columns = [
         field: 'redeemableDolas',
         label: 'Redeemable DOLAs',
         tooltip: 'DOLAs corresponding to the current redeemable IOUs',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
-        value: ({ redeemableDolas }) => <Cell minWidth="200px" justify="flex-end" >
+        header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-end"  {...props} />,
+        value: ({ redeemableDolas }) => <Cell minWidth="220px" justify="flex-end" >
             <Text>{shortenNumber(redeemableDolas, 2)}</Text>
         </Cell>,
     },
