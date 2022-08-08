@@ -35,9 +35,11 @@ export const useDebtConversions = (account: string): SWR & {
     isLoading: boolean,
 } => {
     const { exchangeRate } = useDebtConverter(account);
-    const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
+    // Events: contract need to index addresses
+    // const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
+    const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion');
     const { data, error } = useEtherSWR([
-        events?.map((e, i) => [DEBT_REPAYER, 'getRedeemableDolaIOUsFor', account, i, e.args.epoch]),
+        ...events?.map((e, i) => [DEBT_CONVERTER, 'getRedeemableDolaIOUsFor', account, i, e.args.epoch]),
     ]);
 
     return {
