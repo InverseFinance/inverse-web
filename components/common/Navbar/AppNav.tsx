@@ -324,9 +324,9 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         >
           {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
           <Text>{connectBtnLabel}</Text>
-          {
+          {/* {
             !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
-          }
+          } */}
         </Flex>
       </PopoverTrigger>
       <PopoverContent
