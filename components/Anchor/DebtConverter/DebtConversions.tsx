@@ -51,17 +51,26 @@ const columns = [
         },
     },
     {
+        field: 'underlyingAmount',
+        label: 'sold amount',
+        tooltip: 'The amount of asset exchanged for IOUs',
+        header: ({ ...props }) => <ColHeader minWidth="140px" justify="flex-end"  {...props} />,
+        value: ({ underlyingAmount }) => <Cell minWidth="140px" justify="flex-end" >
+            <Text>{shortenNumber(underlyingAmount, 2)}</Text>
+        </Cell>,
+    },
+    {
         field: 'dolaAmount',
-        label: 'Total Value',
-        tooltip: 'The total DOLA value at the moment of conversion',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
-        value: ({ dolaAmount }) => <Cell minWidth="200px" justify="flex-end" >
+        label: 'Sell Worth',
+        tooltip: 'The total DOLA value of the exchanged asset at the moment of conversion',
+        header: ({ ...props }) => <ColHeader minWidth="140px" justify="flex-end"  {...props} />,
+        value: ({ dolaAmount }) => <Cell minWidth="140px" justify="flex-end" >
             <Text>{shortenNumber(dolaAmount, 2)}</Text>
         </Cell>,
     },
     {
         field: 'redeemableIOUs',
-        label: 'Redeemable IOUs',
+        label: 'Redeemable IOU',
         tooltip: 'IOUs redeemable at the moment',
         header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-end"  {...props} />,
         value: ({ redeemableIOUs }) => <Cell minWidth="220px" justify="flex-end" >
@@ -104,6 +113,7 @@ export const DebtConversions = ({
     >
         <Table
             keyName="conversionIndex"
+            noDataMessage="No Conversions yet"
             columns={columns}
             items={conversions}
             onClick={handleRedeem}
