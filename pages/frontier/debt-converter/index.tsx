@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import { HStack, Stack, Text, VStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -77,7 +77,8 @@ export const DebtConverterPage = () => {
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_CONVERTER);
 
-    const { balances: outputTokenBalances } = useBalances([anYfi], 'balanceOf');
+    const { balances: outputTokenBalances } = useBalances([DEBT_CONVERTER], 'balanceOf', userAddress);
+
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
