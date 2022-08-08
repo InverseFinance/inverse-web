@@ -13,8 +13,6 @@ import {
   Box,
   VStack,
   useMediaQuery,
-  Badge,
-  BadgeProps,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -56,7 +54,6 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
-import { useNbUnseenLiquidations } from '@app/hooks/useLiquidations'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -218,39 +215,24 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
   />
 }
 
-const LiquidationsBadge = ({
-  account,
-  ...props
-}: {
-  account: string | null,
-} & Partial<BadgeProps>) => {
-  const nb = useNbUnseenLiquidations(account);
-  if (!nb) {
-    return <></>;
-  }
-  return <Badge bgColor="error" color="mainTextColor" {...props}>
-    {nb}
-  </Badge>
-}
+// const LiquidationsMenuItem = ({
+//   account,
+//   ...props
+// }: {
+//   account: string | null,
+// } & Partial<BadgeProps>) => {
+//   const router = useRouter();
+//   const nb = useNbUnseenLiquidations(account);
 
-const LiquidationsMenuItem = ({
-  account,
-  ...props
-}: {
-  account: string | null,
-} & Partial<BadgeProps>) => {
-  const router = useRouter();
-  const nb = useNbUnseenLiquidations(account);
+//   if (!nb) { return <></> }
 
-  if (!nb) { return <></> }
-
-  return <ConnectionMenuItem onClick={() => router.push(`/transparency/liquidations?borrower=${account}`)}>
-    <WarningIcon boxSize={3} color="error" />
-    <Text fontWeight="semibold">
-      {nb} Unread liquidations
-    </Text>
-  </ConnectionMenuItem>
-}
+//   return <ConnectionMenuItem onClick={() => router.push(`/transparency/liquidations?borrower=${account}`)}>
+//     <WarningIcon boxSize={3} color="error" />
+//     <Text fontWeight="semibold">
+//       {nb} Unread liquidations
+//     </Text>
+//   </ConnectionMenuItem>
+// }
 
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
@@ -342,9 +324,9 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         >
           {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
           <Text>{connectBtnLabel}</Text>
-          {
+          {/* {
             !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
-          }
+          } */}
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -405,9 +387,9 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Text fontWeight="semibold">Clear View Address</Text>
               </ConnectionMenuItem>
             }
-            {
+            {/* {
               !!account && <LiquidationsMenuItem account={userAddress} />
-            }
+            } */}
             {/* {
               !!chainId && chainId.toString() === NetworkIds.rinkeby ?
                 <>
