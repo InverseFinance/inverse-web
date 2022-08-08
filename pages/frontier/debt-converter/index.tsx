@@ -33,16 +33,21 @@ import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
 import { DebtConversions } from '@app/components/Anchor/DebtConverter/DebtConversions'
 import { useRouter } from 'next/router'
 
+import { parseEther } from 'ethers/lib/utils';
+
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
 type anToken = Token & { ctoken: string };
 
 const anEth = '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8';
 const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
-const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
+// const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
+const anYfi = '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326';
+
+const compatibleMarkets = [anEth, anWbtc, anYfi];
 
 const outputToken = {
-    address: '0x',
+    address: DEBT_CONVERTER,
     name: 'DOLA IOU',
     symbol: 'IOU',
     image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
@@ -58,7 +63,7 @@ export const DebtConverterPage = () => {
     const { exchangeRate: exRateIOU, repaymentEpoch } = useDebtConverter(account);
 
     const v1markets = markets
-        ?.filter(m => m.underlying.symbol.toLowerCase().endsWith('-v1'));
+        ?.filter(m => compatibleMarkets.includes(m.token));
 
     const swapOptions = v1markets?.map(m => (m.token));
     const tokens: { [key: string]: anToken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.token]: { ...curr.underlying, ctoken: curr.token } }), {});
@@ -72,7 +77,7 @@ export const DebtConverterPage = () => {
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_CONVERTER);
 
-    const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
+    const { balances: outputTokenBalances } = useBalances([anYfi], 'balanceOf');
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
@@ -82,6 +87,7 @@ export const DebtConverterPage = () => {
     const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: true }
 
     const outputBalance = outputTokenBalances && outputTokenBalances[outputToken.address] ? getBnToNumber(outputTokenBalances[outputToken.address], outputToken.decimals) : 0;
+
     const minOutput = outputAmount * 0.99;
 
     useEffect(() => {
@@ -108,7 +114,12 @@ export const DebtConverterPage = () => {
     }
 
     const handleConvert = (isAllCase = false) => {
-        return convertToIOU(library?.getSigner(), collateralMarket.token, isAllCase ? '0' : antokenAmount, minOutput);
+        return convertToIOU(
+            library?.getSigner(),
+            collateralMarket.token,
+            (isAllCase ? '0' : antokenAmount),
+            parseEther(minOutput.toString()),
+        );
     }
 
     return (
