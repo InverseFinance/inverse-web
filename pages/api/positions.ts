@@ -2,6 +2,7 @@ import "source-map-support";
 import { getNetworkConfig } from '@app/util/networks';
 import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis';
 import { getPositionsDetails } from '@app/util/positions';
+import { uniqueBy } from "@app/util/misc";
 
 const client = getRedisClient();
 
@@ -35,6 +36,8 @@ export default async function handler(req, res) {
             const positionsCache = JSON.parse(await client.get('positions') || '{"positions": []}');
             positions = positionsCache.positions;
         }
+
+        positions = uniqueBy(positions, (o1, o2) => o1.account === o2.account);
 
         const resultData = {
             ...meta,

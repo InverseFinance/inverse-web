@@ -6,18 +6,23 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Positions
+      - name: Positions init
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=0' \
+          --url 'https://www.inverse.finance/api/cron-positions?pageSize=50&pageOffset=0' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       - name: Positions
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=600' \
+          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=50' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       - name: Positions
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=1200' \
+          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=650' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Positions
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=1250' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
