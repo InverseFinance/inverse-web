@@ -592,6 +592,7 @@ export type DebtConversion = {
   epoch: number
   dolaAmount: number
   conversionIndex: number
+  underlyingAmount: number
   txHash: string
   blocknumber: number
   redeemableIOUs: number

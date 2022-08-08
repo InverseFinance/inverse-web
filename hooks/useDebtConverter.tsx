@@ -5,6 +5,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { useContractEvents } from './useContractEvents';
 import { DEBT_CONVERTER_ABI } from '@app/config/abis';
 import { DebtConversion } from '@app/types';
+import { UNDERLYING } from '@app/variables/tokens';
 
 const { DEBT_REPAYER, DEBT_CONVERTER } = getNetworkConfigConstants();
 
@@ -34,10 +35,8 @@ export const useDebtConversions = (account: string): SWR & {
     conversions: DebtConversion[],
     isLoading: boolean,
 } => {
-    const { exchangeRate } = useDebtConverter(account);
-    // Events: contract need to index addresses
-    // const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
-    const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion');
+    const { exchangeRate } = useDebtConverter(account);    
+    const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
     const { data, error } = useEtherSWR([
         ...events?.map((e, i) => [DEBT_CONVERTER, 'getRedeemableDolaIOUsFor', account, i, e.args.epoch]),
     ]);
@@ -49,6 +48,7 @@ export const useDebtConversions = (account: string): SWR & {
                 user: e.args.user,
                 anToken: e.args.anToken,
                 dolaAmount: getBnToNumber(e.args.dolaAmount),
+                underlyingAmount: getBnToNumber(e.args.underlyingAmount, UNDERLYING[e.args.anToken].decimals),
                 epoch: getBnToNumber(e.args.epoch, 0),
                 conversionIndex: i,
                 txHash: e.transactionHash,
