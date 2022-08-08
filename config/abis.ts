@@ -302,7 +302,7 @@ export const DEBT_REPAYER_ABI = [
 
 export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
   "function conversions(address user, conversionIndex uint) public returns (tuple(uint lastEpochRedeemed, uint dolaIOUAmount, uint dolaIOUsRedeemed)[])",
-  "function repaymentEpoch() public returns (uint)",
+  "function repaymentEpoch() public view returns (uint)",
   "function convert(address anToken, uint amount, uint minOut) external",
   "function repayment(uint amount) external",
   "function redeemConversion(uint _conversion, uint _endEpoch) public",

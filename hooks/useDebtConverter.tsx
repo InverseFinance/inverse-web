@@ -7,7 +7,7 @@ import { DEBT_CONVERTER_ABI } from '@app/config/abis';
 import { DebtConversion } from '@app/types';
 import { UNDERLYING } from '@app/variables/tokens';
 
-const { DEBT_REPAYER, DEBT_CONVERTER } = getNetworkConfigConstants();
+const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
 export const useDebtConverter = (account: string): SWR & {
     exchangeRate: number,
@@ -15,16 +15,16 @@ export const useDebtConverter = (account: string): SWR & {
     totalRedeemableDola: number,
 } => {
     const { data, error } = useEtherSWR([
-        [DEBT_REPAYER, 'exchangeRateMantissa'],
-        [DEBT_REPAYER, 'repaymentEpoch'],
-        [DEBT_REPAYER, 'balanceOfDola', account],
+        [DEBT_CONVERTER, 'exchangeRateMantissa'],
+        [DEBT_CONVERTER, 'repaymentEpoch'],
+        [DEBT_CONVERTER, 'balanceOfDola', account],
     ])
 
-    const [exRateData, repaymentEpoch, totalRedeemableDola] = data || [null, null, null];
+    const [exRateData, repaymentEpoch, totalRedeemableDola] =  data || [null, null, null];
 
     return {
         exchangeRate: exRateData ? getBnToNumber(exRateData) : 1,
-        repaymentEpoch: repaymentEpoch ? getBnToNumber(repaymentEpoch, 0) : 1,
+        repaymentEpoch: repaymentEpoch ? getBnToNumber(repaymentEpoch, 0) : 0,
         totalRedeemableDola: totalRedeemableDola ? getBnToNumber(totalRedeemableDola) : 0,
         isLoading: !exRateData && !error,
         isError: !!error,
