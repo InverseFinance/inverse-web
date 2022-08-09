@@ -136,16 +136,22 @@ export const DebtConverterPage = () => {
                             v1markets?.length > 0 && !!collateralMarket?.underlying ?
                                 <Container
                                     label="Debt Converter"
-                                    description="Contract"
+                                    description="See the Contract"
                                     href={`${getScanner("1")}/address/${DEBT_CONVERTER}`}
                                     contentProps={{ p: '8' }}
                                 >
                                     <VStack w='full' alignItems="flex-start" spacing="5">
                                         <InfoMessage
+                                            alertProps={{
+                                                fontSize: '12px'
+                                            }}
                                             description={
                                                 <VStack>
                                                     <Text>
-                                                        <b>Convert</b> your v1 Frontier <b>receipt tokens</b> (anEth, anWBTC, anYFI) into DOLA IOUs.
+                                                        <b>Convert</b> your v1 Frontier stuck tokens (ETH-V1, WBTC-v1 or YFI-V1) into DOLA IOUs.
+                                                    </Text>
+                                                    <Text>
+                                                        You will then be possible to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them each them each time the Inverse Treasury makes a debt repayment to the Debt Converter contract. The redeemable part of the IOUs will be proportional to the size of the repayment compared to the total debt put into the contract.
                                                     </Text>
                                                 </VStack>
                                             }
@@ -164,24 +170,6 @@ export const DebtConverterPage = () => {
                                         <VStack w='full' spacing="4">
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
-                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
-                                                    <Text>
-                                                        IOU Exchange Rate:
-                                                    </Text>
-                                                </HStack>
-                                                <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
-                                            </Stack>
-                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                                <HStack>
-                                                    <AnimatedInfoTooltip message="Repayments are made in different Epochs" />
-                                                    <Text>
-                                                        Repayment Epoch:
-                                                    </Text>
-                                                </HStack>
-                                                <Text>{repaymentEpoch}</Text>
-                                            </Stack>
-                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                                <HStack>
                                                     <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
                                                     <Text>
                                                         {collateralMarket.underlying.symbol} Oracle Price:
@@ -191,18 +179,18 @@ export const DebtConverterPage = () => {
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
-                                                    <AnimatedInfoTooltip message="Your current IOU balance:" />
+                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
                                                     <Text>
-                                                        Your current {outputToken.symbol} balance:
+                                                        IOU Exchange Rate:
                                                     </Text>
                                                 </HStack>
-                                                <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
+                                                <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
                                                     <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />
                                                     <Text>
-                                                        DOLA worth of IOUs:
+                                                        DOLA worth of the IOUs to receive:
                                                     </Text>
                                                 </HStack>
                                                 <Text>
@@ -213,7 +201,7 @@ export const DebtConverterPage = () => {
                                                 <HStack>
                                                     <AnimatedInfoTooltip message="The minimum amount of DOLA worth of IOUs you accept to receive after possible slippage, if it's below, the transaction will revert" />
                                                     <Text>
-                                                        Min. Receive Amount:
+                                                        Min. DOLA worth to receive:
                                                     </Text>
                                                 </HStack>
                                                 <Text fontWeight="bold">
