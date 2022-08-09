@@ -151,7 +151,7 @@ export const DebtConverterPage = () => {
                                                         <b>Convert</b> your v1 Frontier stuck tokens (ETH-V1, WBTC-v1 or YFI-V1) into DOLA IOUs.
                                                     </Text>
                                                     <Text>
-                                                        You will then be possible to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them each them each time the Inverse Treasury makes a debt repayment to the Debt Converter contract. The redeemable part of the IOUs will be proportional to the size of the repayment compared to the total debt put into the contract.
+                                                        NB: you will be possible to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each them each time the Inverse Treasury makes a debt repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract.
                                                     </Text>
                                                 </VStack>
                                             }
@@ -239,7 +239,7 @@ export const DebtConverterPage = () => {
                         }
                     </VStack>
                     {
-                        !!account && <DebtConversions account={userAddress} />
+                        !!account && <DebtConversions account={userAddress} signer={library?.getSigner()} />
                     }
                 </VStack>
             </ErrorBoundary>

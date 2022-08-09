@@ -20,7 +20,7 @@ export const useDebtConverter = (account: string): SWR & {
         [DEBT_CONVERTER, 'balanceOfDola', account],
     ])
 
-    const [exRateData, repaymentEpoch, totalRedeemableDola] =  data || [null, null, null];
+    const [exRateData, repaymentEpoch, totalRedeemableDola] = data || [null, null, null];
 
     return {
         exchangeRate: exRateData ? getBnToNumber(exRateData) : 1,
@@ -35,22 +35,37 @@ export const useDebtConversions = (account: string): SWR & {
     conversions: DebtConversion[],
     isLoading: boolean,
 } => {
-    const { exchangeRate } = useDebtConverter(account);    
+    const { exchangeRate, repaymentEpoch } = useDebtConverter(account);
+
     const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
-    const { data: currentlyRedeemable, error } = useEtherSWR([
-        ...events?.map((e, i) => [DEBT_CONVERTER, 'getRedeemableDolaIOUsFor', account, i, e.args.epoch]),
-    ]);
+
+    const repaymentsEpochs = [...Array(repaymentEpoch).keys()];
+    const { data: currentlyRedeemableData, error } = useEtherSWR(
+        events?.map((e, i) => {
+            return repaymentsEpochs.map(epochIndex => [DEBT_CONVERTER, 'getRedeemableDolaIOUsFor', account, i, epochIndex]);
+        }).flat(),
+    );
+
+    const currentlyRedeemable = repaymentEpoch && currentlyRedeemableData ?
+        events?.map((e, i) => {
+            return repaymentsEpochs
+            .map(epochIndex => getBnToNumber(currentlyRedeemableData[i + epochIndex]))
+            .reduce((prev, curr) => prev + curr, 0);
+        }) :
+        events?.map(e => 0);
+
     const { data, error: conversionsError } = useEtherSWR([
         ...events?.map((e, i) => [DEBT_CONVERTER, 'conversions', account, i]),
     ]);
 
     return {
         conversions: !!events && !!data && !!currentlyRedeemable && !!exchangeRate ? events.map((e, i) => {
-            const currentlyRedeemableIOUs = getBnToNumber(currentlyRedeemable[i]);
             const conversion = data[i];
             const redeemableIOUs = getBnToNumber(conversion.dolaIOUAmount);
             const redeemedIOUs = getBnToNumber(conversion.dolaIOUsRedeemed);
+            const currentlyRedeemableIOUs = currentlyRedeemable[i];
             const lastEpochRedeemed = getBnToNumber(conversion.lastEpochRedeemed, 0);
+            const leftToRedeem = redeemableIOUs - redeemedIOUs;
             return {
                 user: e.args.user,
                 anToken: e.args.anToken,
@@ -65,7 +80,9 @@ export const useDebtConversions = (account: string): SWR & {
                 currentlyRedeemableIOUs,
                 redeemableIOUs,
                 redeemableDolas: redeemableIOUs * exchangeRate,
-                redeemablePerc: (currentlyRedeemableIOUs / (redeemableIOUs - redeemedIOUs)) * 100,
+                leftToRedeem,
+                currentlyRedeemableDOLAs: currentlyRedeemableIOUs * exchangeRate,
+                redeemablePerc: leftToRedeem ? (currentlyRedeemableIOUs / leftToRedeem) * 100 : 0,
                 redeemedPerc: (redeemedIOUs / redeemableIOUs) * 100,
             }
         }) : [],
@@ -86,7 +103,7 @@ export const useDebtRepayments = (): SWR & {
             return {
                 txHash: e.transactionHash,
                 blocknumber: e.blockNumber,
-                dolaAmount: getBnToNumber(e.args.dolaAmount),                
+                dolaAmount: getBnToNumber(e.args.dolaAmount),
                 epoch: getBnToNumber(e.args.epoch, 0),
             }
         }) : [],

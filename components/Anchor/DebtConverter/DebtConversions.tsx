@@ -1,4 +1,5 @@
-import { Flex, HStack, Text } from "@chakra-ui/react"
+import { useState } from 'react';
+import { Flex, Stack, Text, useDisclosure, VStack, HStack } from "@chakra-ui/react"
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { UnderlyingItemBlock } from "@app/components/common/Assets/UnderlyingItemBlock";
@@ -6,18 +7,20 @@ import { UNDERLYING } from "@app/variables/tokens";
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { DebtConversion } from "@app/types";
-import { useDebtConversions, useDebtConverter } from "@app/hooks/useDebtConverter";
+import { useDebtConversions } from "@app/hooks/useDebtConverter";
 import { redeemAllIOUs } from "@app/util/contracts";
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { showToast } from '@app/util/notify';
 import { BlockTimestamp } from "@app/components/common/BlockTimestamp";
+import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
+import { InfoMessage } from '@app/components/common/Messages';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
 }
 
 const Cell = ({ ...props }) => {
-    return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+    return <Stack direction="row" fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
 const columns = [
@@ -52,7 +55,7 @@ const columns = [
     // },
     {
         field: 'anToken',
-        label: 'asset',
+        label: 'asset sold',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ anToken }) => {
             const underlying = UNDERLYING[anToken];
@@ -81,20 +84,28 @@ const columns = [
     },
     {
         field: 'redeemedIOUs',
-        label: 'Redeemed IOU',
+        label: 'already Redeemed',
         tooltip: 'IOUs already redeemed',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
-        value: ({ redeemedIOUs, redeemableIOUs, redeemedPerc }) => <Cell minWidth="150px" justify="flex-end" >
-            <Text>{shortenNumber(redeemedIOUs)} / {shortenNumber(redeemableIOUs, 2)} ({shortenNumber(redeemedPerc, 2)}%)</Text>
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-end"  {...props} />,
+        value: ({ redeemedIOUs, redeemableIOUs, redeemedPerc }) => <Cell direction="column" minWidth="180px" alignItems="flex-end" >
+            <Text>{shortenNumber(redeemedIOUs)} / {shortenNumber(redeemableIOUs, 2)} IOUs</Text>
+            <Text>({shortenNumber(redeemedPerc, 2)}%)</Text>
         </Cell>,
     },
     {
         field: 'currentlyRedeemableIOUs',
-        label: 'Redeemable IOU',
+        label: 'Redeemable now',
         tooltip: 'IOUs redeemable at the moment',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
-        value: ({ redeemableIOUs, currentlyRedeemableIOUs, redeemablePerc, redeemedIOUs }) => <Cell minWidth="150px" justify="flex-end" >
-            <Text>{shortenNumber(currentlyRedeemableIOUs)} / {shortenNumber(redeemableIOUs - redeemedIOUs, 2)} ({shortenNumber(redeemablePerc, 2)}%)</Text>
+        value: ({ leftToRedeem, currentlyRedeemableIOUs, redeemablePerc }) => <Cell direction="column" minWidth="150px" alignItems="flex-end" >
+            {
+                leftToRedeem > 0 ?
+                    <>
+                        <Text>{shortenNumber(currentlyRedeemableIOUs)} / {shortenNumber(leftToRedeem, 2)} IOUs</Text>
+                        <Text>({shortenNumber(redeemablePerc, 2)}%)</Text>
+                    </>
+                    : <Text>-</Text>
+            }
         </Cell>,
     },
     // {
@@ -115,28 +126,60 @@ export const DebtConversions = ({
     account: string
     signer: JsonRpcSigner,
 }) => {
-    const { totalRedeemableDola } = useDebtConverter(account);
     const { conversions } = useDebtConversions(account);
+    const { isOpen, onClose, onOpen } = useDisclosure();
+    const [conversion, setConversion] = useState<DebtConversion | null>(null);
 
-    const handleRedeem = (conversion: DebtConversion) => {
-        if(!conversion.redeemableIOUs) {
+    const openRedeem = (conversion: DebtConversion) => {
+        setConversion(conversion);
+        if (!conversion.redeemableIOUs) {
             showToast({ status: 'info', description: 'No redeemable IOUs at the moment for this conversation' })
             return;
+        } else {
+            onOpen();
         }
+    }
+
+    const handleRedeem = () => {
         return redeemAllIOUs(signer, conversion.conversionIndex);
     }
 
     return <Container
         label="Past Conversions"
-        description={`Total redeemable DOLAs: ${shortenNumber(totalRedeemableDola, 2)}`}
-        w='full'
+        description={`All the Debt Conversions you made to get DOLA IOUs - Redeems will be possible progressively after each Debt Repayment made by the Treasury`}
+        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >
+        <ConfirmModal
+            title={`Confirm Redeem IOU`}
+            onClose={onClose}
+            onCancel={onClose}
+            onOk={handleRedeem}
+            isOpen={isOpen}
+        >
+            <VStack my="4" mx="2">
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description={
+                        <VStack alignItems="flex-start" w='full'>
+                            <HStack w='full' justifyContent="space-between">
+                                <Text>This will redeem:</Text>
+                                <Text>~{shortenNumber(conversion?.currentlyRedeemableIOUs, 2)} IOUs</Text>
+                            </HStack>
+                            <HStack w='full' justifyContent="space-between">
+                                <Text>You will get:</Text>
+                                <Text>~{shortenNumber(conversion?.currentlyRedeemableDOLAs, 2)} DOLA</Text>
+                            </HStack>
+                        </VStack>
+                    }
+                />
+            </VStack>
+        </ConfirmModal>
         <Table
             keyName="conversionIndex"
             noDataMessage="No Conversion yet"
             columns={columns}
             items={conversions}
-            onClick={handleRedeem}
+            onClick={openRedeem}
             defaultSort="blocknumber"
             defaultSortDir="desc"
         />

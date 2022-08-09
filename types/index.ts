@@ -600,6 +600,8 @@ export type DebtConversion = {
   redeemablePerc: number
   redeemedPerc: number
   currentlyRedeemableIOUs: number
+  currentlyRedeemableDOLAs: number
+  leftToRedeem: number
 }
 
 export type DebtRepayment = {
