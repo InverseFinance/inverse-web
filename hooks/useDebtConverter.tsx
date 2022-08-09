@@ -65,6 +65,8 @@ export const useDebtConversions = (account: string): SWR & {
                 currentlyRedeemableIOUs,
                 redeemableIOUs,
                 redeemableDolas: redeemableIOUs * exchangeRate,
+                redeemablePerc: (currentlyRedeemableIOUs / (redeemableIOUs - redeemedIOUs)) * 100,
+                redeemedPerc: (redeemedIOUs / redeemableIOUs) * 100,
             }
         }) : [],
         isLoading: !data && !events && !currentlyRedeemable,

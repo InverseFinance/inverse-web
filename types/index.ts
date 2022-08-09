@@ -597,5 +597,7 @@ export type DebtConversion = {
   blocknumber: number
   redeemableIOUs: number
   redeemedIOUs: number
+  redeemablePerc: number
+  redeemedPerc: number
   currentlyRedeemableIOUs: number
 }
