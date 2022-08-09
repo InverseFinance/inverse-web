@@ -4,7 +4,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
 import { useContractEvents } from './useContractEvents';
 import { DEBT_CONVERTER_ABI } from '@app/config/abis';
-import { DebtConversion } from '@app/types';
+import { DebtRepayment, DebtConversion } from '@app/types';
 import { UNDERLYING } from '@app/variables/tokens';
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
@@ -73,3 +73,25 @@ export const useDebtConversions = (account: string): SWR & {
         isError: !!error || !!conversionsError,
     }
 }
+
+export const useDebtRepayments = (): SWR & {
+    repayments: DebtRepayment[],
+    isLoading: boolean,
+} => {
+
+    const { events, error } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Repayment');
+
+    return {
+        repayments: !!events ? events.map((e) => {
+            return {
+                txHash: e.transactionHash,
+                blocknumber: e.blockNumber,
+                dolaAmount: getBnToNumber(e.args.dolaAmount),                
+                epoch: getBnToNumber(e.args.epoch, 0),
+            }
+        }) : [],
+        isLoading: !events,
+        isError: !!error,
+    }
+}
+

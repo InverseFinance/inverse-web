@@ -601,3 +601,8 @@ export type DebtConversion = {
   redeemedPerc: number
   currentlyRedeemableIOUs: number
 }
+
+export type DebtRepayment = {
+  epoch: number
+  dolaAmount: number
+}
