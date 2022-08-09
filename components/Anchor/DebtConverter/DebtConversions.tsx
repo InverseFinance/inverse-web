@@ -133,7 +133,7 @@ export const DebtConversions = ({
     >
         <Table
             keyName="conversionIndex"
-            noDataMessage="No Conversions yet"
+            noDataMessage="No Conversion yet"
             columns={columns}
             items={conversions}
             onClick={handleRedeem}

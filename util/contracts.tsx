@@ -339,3 +339,11 @@ export const redeemAllIOUs = (
   const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
   return contract.redeemAll(conversionIndex);
 }
+
+export const debtRepay = (
+  signer: JsonRpcSigner,
+  dolaAmount: string | BigNumber,
+) => {
+  const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
+  return contract.repayment(dolaAmount);
+}
