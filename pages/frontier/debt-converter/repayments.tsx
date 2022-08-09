@@ -36,8 +36,8 @@ export const DebtConverterRepaymentsPage = () => {
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
 
-    const { data } = useEtherSWR([DEBT_CONVERTER, 'outstandingDebt']);
-    const outstandingDebt = data ? getBnToNumber(data) : 0;
+    const { data: bnOutstandingDebt } = useEtherSWR([DEBT_CONVERTER, 'outstandingDebt']);
+    const outstandingDebt = bnOutstandingDebt ? getBnToNumber(bnOutstandingDebt) : 0;
 
     const swapOptions = [DOLA];
     const [collateralAmount, setCollateralAmount] = useState('');
@@ -52,10 +52,14 @@ export const DebtConverterRepaymentsPage = () => {
         setCollateralAmount(newAmount);
     }
 
-    const handleRepayment = () => {
+    const handleRepayment = (isMax = false) => {
+        const amount = isMax ?
+            bnOutstandingDebt.gt(balances[DOLA]) ? balances[DOLA] : bnOutstandingDebt
+            :
+            parseEther(collateralAmount);
         return debtRepay(
             library?.getSigner(),
-            parseEther(collateralAmount),
+            amount,
         );
     }
 
@@ -97,6 +101,12 @@ export const DebtConverterRepaymentsPage = () => {
                                                 onClick={() => handleRepayment()}
                                                 refreshOnSuccess={true}>
                                                 make a repayment
+                                            </SubmitButton>
+                                            <SubmitButton
+                                                disabled={!outstandingDebt}
+                                                onClick={() => handleRepayment(true)}
+                                                refreshOnSuccess={true}>
+                                                repay max
                                             </SubmitButton>
                                         </Stack>
                                 }
