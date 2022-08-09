@@ -596,4 +596,6 @@ export type DebtConversion = {
   txHash: string
   blocknumber: number
   redeemableIOUs: number
+  redeemedIOUs: number
+  currentlyRedeemableIOUs: number
 }

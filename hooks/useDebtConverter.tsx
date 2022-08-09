@@ -37,27 +37,37 @@ export const useDebtConversions = (account: string): SWR & {
 } => {
     const { exchangeRate } = useDebtConverter(account);    
     const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
-    const { data, error } = useEtherSWR([
+    const { data: currentlyRedeemable, error } = useEtherSWR([
         ...events?.map((e, i) => [DEBT_CONVERTER, 'getRedeemableDolaIOUsFor', account, i, e.args.epoch]),
+    ]);
+    const { data, error: conversionsError } = useEtherSWR([
+        ...events?.map((e, i) => [DEBT_CONVERTER, 'conversions', account, i]),
     ]);
 
     return {
-        conversions: !!events && !!data && !!exchangeRate ? events.map((e, i) => {
-            const redeemableIOUs = getBnToNumber(data[i]);
+        conversions: !!events && !!data && !!currentlyRedeemable && !!exchangeRate ? events.map((e, i) => {
+            const currentlyRedeemableIOUs = getBnToNumber(currentlyRedeemable[i]);
+            const conversion = data[i];
+            const redeemableIOUs = getBnToNumber(conversion.dolaIOUAmount);
+            const redeemedIOUs = getBnToNumber(conversion.dolaIOUsRedeemed);
+            const lastEpochRedeemed = getBnToNumber(conversion.lastEpochRedeemed, 0);
             return {
                 user: e.args.user,
                 anToken: e.args.anToken,
                 dolaAmount: getBnToNumber(e.args.dolaAmount),
                 underlyingAmount: getBnToNumber(e.args.underlyingAmount, UNDERLYING[e.args.anToken].decimals),
                 epoch: getBnToNumber(e.args.epoch, 0),
+                lastEpochRedeemed,
                 conversionIndex: i,
                 txHash: e.transactionHash,
                 blocknumber: e.blockNumber,
+                redeemedIOUs,
+                currentlyRedeemableIOUs,
                 redeemableIOUs,
                 redeemableDolas: redeemableIOUs * exchangeRate,
             }
         }) : [],
-        isLoading: !data && !events,
-        isError: !!error,
+        isLoading: !data && !events && !currentlyRedeemable,
+        isError: !!error || !!conversionsError,
     }
 }
