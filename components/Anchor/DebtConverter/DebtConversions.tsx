@@ -10,9 +10,10 @@ import { useDebtConversions, useDebtConverter } from "@app/hooks/useDebtConverte
 import { redeemAllIOUs } from "@app/util/contracts";
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { showToast } from '@app/util/notify';
+import { BlockTimestamp } from "@app/components/common/BlockTimestamp";
 
 const ColHeader = ({ ...props }) => {
-    return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
+    return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
 }
 
 const Cell = ({ ...props }) => {
@@ -31,14 +32,24 @@ const columns = [
         },
     },
     {
-        field: 'epoch',
-        label: 'epoch',
-        tooltip: 'The Repayment epoch',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ epoch }) => <Cell minWidth="100px" justify="center" >
-            <Text>{epoch}</Text>
-        </Cell>,
+        field: 'blocknumber',
+        label: 'time',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        value: ({ blocknumber }) => {
+            return <Cell justify="flex-start" minWidth="150px">
+                <BlockTimestamp blockNumber={blocknumber} />
+            </Cell>
+        },
     },
+    // {
+    //     field: 'epoch',
+    //     label: 'epoch',
+    //     tooltip: 'The Repayment epoch',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ epoch }) => <Cell minWidth="100px" justify="center" >
+    //         <Text>{epoch}</Text>
+    //     </Cell>,
+    // },
     {
         field: 'anToken',
         label: 'asset',
@@ -69,23 +80,32 @@ const columns = [
         </Cell>,
     },
     {
-        field: 'redeemableIOUs',
-        label: 'Redeemable IOU',
-        tooltip: 'IOUs redeemable at the moment',
-        header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-end"  {...props} />,
-        value: ({ redeemableIOUs }) => <Cell minWidth="220px" justify="flex-end" >
-            <Text>{shortenNumber(redeemableIOUs, 2)}</Text>
+        field: 'redeemedIOUs',
+        label: 'Redeemed IOU',
+        tooltip: 'IOUs already redeemed',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
+        value: ({ redeemedIOUs, redeemableIOUs, redeemedPerc }) => <Cell minWidth="150px" justify="flex-end" >
+            <Text>{shortenNumber(redeemedIOUs)} / {shortenNumber(redeemableIOUs, 2)} ({shortenNumber(redeemedPerc, 2)}%)</Text>
         </Cell>,
     },
     {
-        field: 'redeemableDolas',
-        label: 'Redeemable DOLAs',
-        tooltip: 'DOLAs corresponding to the current redeemable IOUs',
-        header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-end"  {...props} />,
-        value: ({ redeemableDolas }) => <Cell minWidth="220px" justify="flex-end" >
-            <Text>{shortenNumber(redeemableDolas, 2)}</Text>
+        field: 'currentlyRedeemableIOUs',
+        label: 'Redeemable IOU',
+        tooltip: 'IOUs redeemable at the moment',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
+        value: ({ redeemableIOUs, currentlyRedeemableIOUs, redeemablePerc, redeemedIOUs }) => <Cell minWidth="150px" justify="flex-end" >
+            <Text>{shortenNumber(currentlyRedeemableIOUs)} / {shortenNumber(redeemableIOUs - redeemedIOUs, 2)} ({shortenNumber(redeemablePerc, 2)}%)</Text>
         </Cell>,
     },
+    // {
+    //     field: 'redeemableDolas',
+    //     label: 'Redeemable DOLAs',
+    //     tooltip: 'DOLAs corresponding to the current redeemable IOUs',
+    //     header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
+    //     value: ({ redeemableDolas }) => <Cell minWidth="150px" justify="flex-end" >
+    //         <Text>{shortenNumber(redeemableDolas, 2)}</Text>
+    //     </Cell>,
+    // },
 ]
 
 export const DebtConversions = ({
@@ -117,6 +137,8 @@ export const DebtConversions = ({
             columns={columns}
             items={conversions}
             onClick={handleRedeem}
+            defaultSort="blocknumber"
+            defaultSortDir="desc"
         />
     </Container>
 }
