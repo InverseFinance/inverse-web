@@ -51,7 +51,6 @@ export const useDebtConversions = (account: string): SWR & {
             ]);
         }).flat(),
     );
-    const nbConversions = events?.length || 0;
 
     const { data: conversions, error: conversionsError } = useEtherSWR([
         ...events?.map((e, i) => [DEBT_CONVERTER, 'conversions', account, i]),
@@ -120,6 +119,19 @@ export const useDebtRepayments = (): SWR & {
             }
         }) : [],
         isLoading: !events,
+        isError: !!error,
+    }
+}
+
+export const useDebtConverterMaxUnderlyingPrice = (anToken: string) => {
+    const { data, error } = useEtherSWR([
+        [DEBT_CONVERTER, 'maxConvertPrice', anToken],
+    ]);
+
+    return {
+        // always 18 decimals even for anWBTC, see contract
+        maxUnderlyingPrice: data ? getBnToNumber(data) : null,
+        isLoading: !data && !error,
         isError: !!error,
     }
 }

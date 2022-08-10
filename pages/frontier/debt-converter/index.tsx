@@ -27,7 +27,7 @@ import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { convertToIOU } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import { useDebtConverter } from '@app/hooks/useDebtConverter'
+import { useDebtConverter, useDebtConverterMaxUnderlyingPrice } from '@app/hooks/useDebtConverter'
 import { useOraclePrice } from '@app/hooks/usePrices'
 import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
 import { DebtConversions } from '@app/components/Anchor/DebtConverter/DebtConversions'
@@ -59,7 +59,7 @@ export const DebtConverterPage = () => {
     const userAddress = (query?.viewAddress as string) || account;
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU, repaymentEpoch } = useDebtConverter(account);
+    const { exchangeRate: exRateIOU } = useDebtConverter(account);
 
     const v1markets = markets
         ?.filter(m => compatibleMarkets.includes(m.token));
@@ -73,11 +73,10 @@ export const DebtConverterPage = () => {
 
     const [collateralMarket, setCollateralMarket] = useState<Market>({})
     const { price } = useOraclePrice(collateralMarket?.token);
+    const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.token);
+    const maxPrice = maxUnderlyingPrice ? maxUnderlyingPrice : price;
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_CONVERTER);
-
-    const { balances: outputTokenBalances } = useBalances([DEBT_CONVERTER], 'balanceOf', userAddress);
-
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
@@ -85,8 +84,6 @@ export const DebtConverterPage = () => {
     const balancesAsUnderlying = { [anEth]: anEthBal, [anWbtc]: anWbtcBal, [anYfi]: anYfiBal };
 
     const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: true }
-
-    const outputBalance = outputTokenBalances && outputTokenBalances[outputToken.address] ? getBnToNumber(outputTokenBalances[outputToken.address], outputToken.decimals) : 0;
 
     const minOutput = outputAmount * 0.99;
 
@@ -96,8 +93,8 @@ export const DebtConverterPage = () => {
     }, [v1markets, collateralMarket])
 
     useEffect(() => {
-        setOutputAmount(parseFloat(collateralAmount || 0) * price);
-    }, [collateralAmount, price])
+        setOutputAmount(parseFloat(collateralAmount || 0) * maxPrice);
+    }, [collateralAmount, maxPrice])
 
     const changeCollateral = (v: anToken) => {
         setCollateralMarket(v1markets.find(m => m.token === v.ctoken)!);
@@ -176,6 +173,17 @@ export const DebtConverterPage = () => {
                                                 </HStack>
                                                 <Text>{price ? dollarify(price, 2) : '-'}</Text>
                                             </Stack>
+                                            {
+                                                maxPrice !== price && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                    <HStack>
+                                                        <AnimatedInfoTooltip message="For safety reasons a maximum price is set for the asset" />
+                                                        <Text>
+                                                            {collateralMarket.underlying.symbol} Max accepted Price:
+                                                        </Text>
+                                                    </HStack>
+                                                    <Text>{maxPrice ? dollarify(maxPrice, 2) : '-'}</Text>
+                                                </Stack>
+                                            }
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
                                                     <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
