@@ -121,18 +121,18 @@ export default async function handler(req, res) {
       })
     ])
 
-    const multisigsAllowanceValues: BigNumber[][] = await Promise.all([
+    const multisigsAllowanceValues: BigNumber[][] =(await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
-        return Promise.all(
+        return Promise.allSettled(
           chainFundsToCheck.map(tokenAddress => {
             const contract = new Contract(tokenAddress, ERC20_ABI, provider);
             return contract.allowance(TREASURY, m.address);
           })
         )
       })
-    ])
+    ])).map(m => m.map(a => a.status === 'fulfilled' ? a.value : BigNumber.from('0')));
 
     const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
       const multisig = multisigsToShow[i];
