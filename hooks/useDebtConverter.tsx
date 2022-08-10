@@ -64,7 +64,7 @@ export const useDebtConversions = (account: string): SWR & {
                     if(epochIndex < getBnToNumber(conversions[i].lastEpochRedeemed, 0)) {
                         return 0;
                     }
-                    return getBnToNumber(currentlyRedeemableData[(i * nbConversions) + epochIndex])
+                    return getBnToNumber(currentlyRedeemableData[(i + epochIndex) + i * (repaymentEpoch - 1)])
                 })
                 .reduce((prev, curr) => prev + curr, 0);
         }) :
