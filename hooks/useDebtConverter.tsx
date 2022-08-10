@@ -9,23 +9,20 @@ import { UNDERLYING } from '@app/variables/tokens';
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
-export const useDebtConverter = (account: string): SWR & {
+export const useDebtConverter = (): SWR & {
     exchangeRate: number,
     repaymentEpoch: number,
-    totalRedeemableDola: number,
 } => {
     const { data, error } = useEtherSWR([
         [DEBT_CONVERTER, 'exchangeRateMantissa'],
         [DEBT_CONVERTER, 'repaymentEpoch'],
-        [DEBT_CONVERTER, 'balanceOfDola', account],
     ])
 
-    const [exRateData, repaymentEpoch, totalRedeemableDola] = data || [null, null, null];
+    const [exRateData, repaymentEpoch] = data || [null, null];
 
     return {
         exchangeRate: exRateData ? getBnToNumber(exRateData) : 1,
         repaymentEpoch: repaymentEpoch ? getBnToNumber(repaymentEpoch, 0) : 0,
-        totalRedeemableDola: totalRedeemableDola ? getBnToNumber(totalRedeemableDola) : 0,
         isLoading: !exRateData && !error,
         isError: !!error,
     }
@@ -35,7 +32,7 @@ export const useDebtConversions = (account: string): SWR & {
     conversions: DebtConversion[],
     isLoading: boolean,
 } => {
-    const { exchangeRate, repaymentEpoch } = useDebtConverter(account);
+    const { exchangeRate, repaymentEpoch } = useDebtConverter();
 
     const { events } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Conversion', [account]);
 
@@ -106,7 +103,6 @@ export const useDebtRepayments = (): SWR & {
     repayments: DebtRepayment[],
     isLoading: boolean,
 } => {
-
     const { events, error, isLoading } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Repayment');
 
     return {

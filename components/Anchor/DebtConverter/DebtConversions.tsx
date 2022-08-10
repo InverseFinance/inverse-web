@@ -44,15 +44,6 @@ const columns = [
             </Cell>
         },
     },
-    // {
-    //     field: 'epoch',
-    //     label: 'epoch',
-    //     tooltip: 'The Repayment epoch',
-    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-    //     value: ({ epoch }) => <Cell minWidth="100px" justify="center" >
-    //         <Text>{epoch}</Text>
-    //     </Cell>,
-    // },
     {
         field: 'anToken',
         label: 'asset sold',
@@ -108,15 +99,6 @@ const columns = [
             }
         </Cell>,
     },
-    // {
-    //     field: 'redeemableDolas',
-    //     label: 'Redeemable DOLAs',
-    //     tooltip: 'DOLAs corresponding to the current redeemable IOUs',
-    //     header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
-    //     value: ({ redeemableDolas }) => <Cell minWidth="150px" justify="flex-end" >
-    //         <Text>{shortenNumber(redeemableDolas, 2)}</Text>
-    //     </Cell>,
-    // },
 ]
 
 export const DebtConversions = ({
