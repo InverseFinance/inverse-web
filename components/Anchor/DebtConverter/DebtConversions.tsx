@@ -145,7 +145,7 @@ export const DebtConversions = ({
     }
 
     return <Container
-        label="Past Conversions"
+        label="Conversions & Redeems"
         description={`All the Debt Conversions you made to get DOLA IOUs - Redeems will be possible progressively after each Debt Repayment made by the Treasury`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >

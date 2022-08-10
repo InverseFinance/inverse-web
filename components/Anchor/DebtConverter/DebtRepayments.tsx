@@ -43,7 +43,7 @@ const columns = [
                 <BlockTimestamp blockNumber={blocknumber} />
             </Cell>
         },
-    },   
+    },
     {
         field: 'dolaAmount',
         label: 'DOLA amount',
@@ -52,21 +52,22 @@ const columns = [
         value: ({ dolaAmount }) => <Cell minWidth="150px" justify="flex-end" >
             <Text>{shortenNumber(dolaAmount, 2)}</Text>
         </Cell>,
-    },    
+    },
 ]
 
 export const DebtRepayments = () => {
-    const { repayments } = useDebtRepayments();
+    const { repayments, isLoading } = useDebtRepayments();
     const total = repayments?.reduce((prev, curr) => prev + curr.dolaAmount, 0);
 
     return <Container
         label="Debt Repayments"
         description={total ? `Total repaid so far: ${shortenNumber(total, 2)} DOLAs` : undefined}
         w='full'
+        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >
         <Table
             keyName="epoch"
-            noDataMessage="No Repayment yet"
+            noDataMessage={isLoading ? 'Loading...' : 'No repayment yet'}
             columns={columns}
             items={repayments}
             defaultSort="blocknumber"

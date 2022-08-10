@@ -18,7 +18,7 @@ export const useContractEvents = (address: string, abi: string[], method: string
 
     return {
         events: data || [],
-        isLoading: !data,
+        isLoading: !data && !error,
         error,
     }
 }

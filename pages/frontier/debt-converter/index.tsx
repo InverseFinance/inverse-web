@@ -34,6 +34,7 @@ import { DebtConversions } from '@app/components/Anchor/DebtConverter/DebtConver
 import { useRouter } from 'next/router'
 
 import { parseEther } from 'ethers/lib/utils';
+import Link from '@app/components/common/Link'
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
@@ -249,6 +250,7 @@ export const DebtConverterPage = () => {
                         !!account && <DebtConversions account={userAddress} signer={library?.getSigner()} />
                     }
                 </VStack>
+                <Link mt="5" href="/frontier/debt-converter/repayments">Go to Debt Converter Repayments</Link>
             </ErrorBoundary>
         </Layout>
     )

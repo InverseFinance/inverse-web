@@ -107,7 +107,7 @@ export const useDebtRepayments = (): SWR & {
     isLoading: boolean,
 } => {
 
-    const { events, error } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Repayment');
+    const { events, error, isLoading } = useContractEvents(DEBT_CONVERTER, DEBT_CONVERTER_ABI, 'Repayment');
 
     return {
         repayments: !!events ? events.map((e) => {
@@ -118,7 +118,7 @@ export const useDebtRepayments = (): SWR & {
                 epoch: getBnToNumber(e.args.epoch, 0),
             }
         }) : [],
-        isLoading: !events,
+        isLoading,
         isError: !!error,
     }
 }
