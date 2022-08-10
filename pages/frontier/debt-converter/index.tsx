@@ -41,8 +41,7 @@ type anToken = Token & { ctoken: string };
 
 const anEth = '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8';
 const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
-// const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
-const anYfi = '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326';
+const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
 
 const compatibleMarkets = [anEth, anWbtc, anYfi];
 
