@@ -11,10 +11,19 @@ import { Web3Provider } from '@ethersproject/providers'
 import { DebtRepayments } from '@app/components/Anchor/DebtConverter/DebtRepayments'
 import { DebtRepay } from '@app/components/Anchor/DebtConverter/DebtRepay'
 import { useDebtConverterOwner } from '@app/hooks/useDebtConverter'
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
+import { useState } from 'react'
+import { InfoMessage } from '@app/components/common/Messages'
+import Link from '@app/components/common/Link'
 
 export const DebtConverterRepaymentsPage = () => {
     const { account } = useWeb3React<Web3Provider>()
     const { owner } = useDebtConverterOwner();
+    const [isConnected, setIsConnected] = useState(true)
+
+    useDebouncedEffect(() => {
+        setIsConnected(!!account)
+    }, [account], 500);
 
     return (
         <Layout>
@@ -23,14 +32,16 @@ export const DebtConverterRepaymentsPage = () => {
             </Head>
             <AppNav active="Frontier" activeSubmenu="Debt Converter" />
             <ErrorBoundary>
-                <VStack maxWidth="1200px">                    
+                <VStack maxWidth="1200px">
                     {
-                        !!account && <DebtRepayments />
+                        isConnected && account === owner && <DebtRepay />
                     }
                     {
-                        !!account && account === owner && <DebtRepay />
+                        isConnected ? <DebtRepayments /> :
+                            <InfoMessage alertProps={{ mt: '8' }} description="Please connect your wallet" />
                     }
                 </VStack>
+                <Link mt="5" href="/frontier/debt-converter">Go to Debt Converter</Link>
             </ErrorBoundary>
         </Layout >
     )
