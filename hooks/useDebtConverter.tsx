@@ -123,14 +123,29 @@ export const useDebtRepayments = (): SWR & {
     }
 }
 
-export const useDebtConverterMaxUnderlyingPrice = (anToken: string) => {
-    const { data, error } = useEtherSWR([
-        [DEBT_CONVERTER, 'maxConvertPrice', anToken],
-    ]);
+export const useDebtConverterMaxUnderlyingPrice = (anToken: string): SWR & {
+    maxUnderlyingPrice: number | null,
+    isLoading: boolean,
+} => {
+    const { data, error } = useEtherSWR([DEBT_CONVERTER, 'maxConvertPrice', anToken]);
 
     return {
         // always 18 decimals even for anWBTC, see contract
         maxUnderlyingPrice: data ? getBnToNumber(data) : null,
+        isLoading: !data && !error,
+        isError: !!error,
+    }
+}
+
+export const useDebtConverterOwner = (): SWR & {
+    owner: string | undefined,
+    isLoading: boolean,
+} => {
+    const { data, error } = useEtherSWR([DEBT_CONVERTER, 'owner']);
+
+    return {
+        // always 18 decimals even for anWBTC, see contract
+        owner: data,
         isLoading: !data && !error,
         isError: !!error,
     }

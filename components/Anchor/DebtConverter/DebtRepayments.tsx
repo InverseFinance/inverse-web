@@ -16,11 +16,20 @@ const Cell = ({ ...props }) => {
 
 const columns = [
     {
+        field: 'epoch',
+        label: 'epoch',
+        tooltip: 'The Repayment epoch',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        value: ({ epoch }) => <Cell minWidth="150px" justify="flex-start" >
+            <Text>{epoch}</Text>
+        </Cell>,
+    },
+    {
         field: 'txHash',
         label: 'tx',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ txHash }) => {
-            return <Cell justify="flex-start" minWidth="150px">
+            return <Cell justify="center" minWidth="150px">
                 <ScannerLink value={txHash} type="tx" />
             </Cell>
         },
@@ -28,28 +37,19 @@ const columns = [
     {
         field: 'blocknumber',
         label: 'time',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ blocknumber }) => {
-            return <Cell justify="flex-start" minWidth="150px">
+            return <Cell justify="center" minWidth="150px">
                 <BlockTimestamp blockNumber={blocknumber} />
             </Cell>
         },
-    },
-    {
-        field: 'epoch',
-        label: 'epoch',
-        tooltip: 'The Repayment epoch',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ epoch }) => <Cell minWidth="100px" justify="center" >
-            <Text>{epoch}</Text>
-        </Cell>,
-    },    
+    },   
     {
         field: 'dolaAmount',
         label: 'DOLA amount',
         tooltip: 'The amount of DOLA used for debt repayment',
-        header: ({ ...props }) => <ColHeader minWidth="140px" justify="flex-end"  {...props} />,
-        value: ({ dolaAmount }) => <Cell minWidth="140px" justify="flex-end" >
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
+        value: ({ dolaAmount }) => <Cell minWidth="150px" justify="flex-end" >
             <Text>{shortenNumber(dolaAmount, 2)}</Text>
         </Cell>,
     },    
@@ -57,9 +57,11 @@ const columns = [
 
 export const DebtRepayments = () => {
     const { repayments } = useDebtRepayments();
+    const total = repayments?.reduce((prev, curr) => prev + curr.dolaAmount, 0);
 
     return <Container
         label="Debt Repayments"
+        description={total ? `Total repaid so far: ${shortenNumber(total, 2)} DOLAs` : undefined}
         w='full'
     >
         <Table

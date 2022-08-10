@@ -95,7 +95,7 @@ const columns = [
     {
         field: 'currentlyRedeemableIOUs',
         label: 'Redeemable now',
-        tooltip: 'IOUs redeemable at the moment',
+        tooltip: 'IOUs redeemable at the moment for your remaining IOUs',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ leftToRedeem, currentlyRedeemableIOUs, redeemablePerc }) => <Cell direction="column" minWidth="150px" alignItems="flex-end" >
             {
