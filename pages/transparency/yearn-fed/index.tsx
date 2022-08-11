@@ -13,7 +13,7 @@ import { shortenNumber } from '@app/util/markets'
 import Container from '@app/components/common/Container'
 import { getScanner } from '@app/util/web3'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
-import { fetchJson } from 'ethers/lib/utils'
+import { commify, fetchJson } from 'ethers/lib/utils'
 import { FedAreaChart } from '@app/components/Transparency/fed/FedAreaChart'
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import Link from '@app/components/common/Link'
@@ -211,6 +211,11 @@ export interface Action {
 export interface Yearn {
   vaults: Vault[];
   strategies: Strategy[];
+  crv: {
+    crv_locker: string
+    yvecrv_minted: string
+    keep_crv_percent: number
+  }
 }
 
 export interface Strategy {
@@ -304,6 +309,23 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   const { chartData: chartDataPolicies } = useFedPolicyChartData(fedHistoricalEvents, false);
   const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, false);
 
+  const aggregStrategiesByVault = yearnFedData?.yearn?.vaults.map(v => {
+    // aggregated old and the newer strategies for the vault
+    const aggreg = yearnFedData.yearn.strategies.sort((a, b) => a.last_report - b.last_report)
+      .filter(s => s.vault_address === v.address)
+      .reduce((prev, curr) => {
+        return {
+          ...curr,
+          total_gain: prev.total_gain + curr.total_gain,
+          total_gain_usd: prev.total_gain_usd + curr.total_gain_usd,
+          total_loss: prev.total_loss + curr.total_loss,
+          total_loss_usd: prev.total_loss_usd + curr.total_loss_usd,
+        }
+      }, { total_gain: 0, total_loss: 0, total_gain_usd: 0, total_loss_usd: 0 });
+
+    return aggreg;
+  });
+
   return (
     <Layout>
       <Head>
@@ -328,6 +350,26 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                     Last Update: {moment(yearnFedData.last_update * 1000).fromNow()}
                   </Text>
                 </Box>
+                <Container noPadding label="CRV stats"
+                  m="0"
+                  p="0"
+                  contentProps={{ px: { lg: '8' } }}
+                >
+                  <HStack w='full' justify="space-between">
+                    <HStack>
+                      <Text color="secondaryTextColor">Current CRV keep rate:</Text>
+                      <Text fontWeight="bold">{yearnFedData.yearn.crv.keep_crv_percent / 1e4}%</Text>
+                    </HStack>
+                    <HStack>
+                      <Text color="secondaryTextColor">Total CRV locked:</Text>
+                      <Text fontWeight="bold">{commify(parseFloat(yearnFedData.yearn.crv.crv_locked).toFixed(2))}</Text>
+                    </HStack>
+                    <HStack>
+                      <Text color="secondaryTextColor">yveCRV minted:</Text>
+                      <Text fontWeight="bold">{commify(parseFloat(yearnFedData.yearn.crv.yvecrv_minted).toFixed(2))}</Text>
+                    </HStack>
+                  </HStack>
+                </Container>
                 <Container
                   label="Curve Pool Assets"
                   description={
@@ -385,10 +427,15 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                   </Stack>
                 </Container>
 
-                <Container label="Strategies" m="0" p="0">
+                <Container
+                  label="Vault Strategies"
+                  description="Total Gains & Losses include past strategies"
+                  m="0"
+                  p="0"
+                >
                   <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
-                    {yearnFedData.yearn.strategies.map((s, i) => {
-                      const { management_fee, deposit_limit, vault_performance_fee } = yearnFedData.yearn.vaults[i];
+                    {aggregStrategiesByVault?.map((s, i) => {
+                      const { management_fee, deposit_limit, vault_performance_fee } = yearnFedData.yearn.vaults.find(v => v.address === s.vault_address);
                       return <InfoMessage
                         alertProps={{ w: { base: '100%', lg: '50%' }, textAlign: 'left', fontSize: '14px' }}
                         title={<Text fontWeight="extrabold" fontSize="16px">{s.name}</Text>}
@@ -399,7 +446,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                               <Text textAlign='right'>{moment(s.last_report * 1000).format('MMM Do YYYY')}, {moment(s.last_report * 1000).fromNow()}</Text>
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
-                              <Text>Strategy:</Text>
+                              <Text>Current Strategy:</Text>
                               <ScannerLink value={s.address} />
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
