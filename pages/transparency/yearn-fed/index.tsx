@@ -358,7 +358,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                   <HStack w='full' justify="space-between">
                     <HStack>
                       <Text color="secondaryTextColor">Current CRV keep rate:</Text>
-                      <Text fontWeight="bold">{yearnFedData.yearn.crv.keep_crv_percent / 1e5}%</Text>
+                      <Text fontWeight="bold">{yearnFedData.yearn.crv.keep_crv_percent / 1e4}%</Text>
                     </HStack>
                     <HStack>
                       <Text color="secondaryTextColor">Total CRV locked:</Text>
