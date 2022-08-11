@@ -310,19 +310,18 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, false);
 
   const aggregStrategiesByVault = yearnFedData?.yearn?.vaults.map(v => {
-    const aggreg = yearnFedData.yearn.strategies
+    // aggregated old and the newer strategies for the vault
+    const aggreg = yearnFedData.yearn.strategies.sort((a, b) => a.last_report - b.last_report)
       .filter(s => s.vault_address === v.address)
       .reduce((prev, curr) => {
         return {
           ...curr,
-          last_report: Math.max(prev.last_report, curr.last_report),
-          addresses: prev.addresses.concat(curr.address),
           total_gain: prev.total_gain + curr.total_gain,
           total_gain_usd: prev.total_gain_usd + curr.total_gain_usd,
           total_loss: prev.total_loss + curr.total_loss,
           total_loss_usd: prev.total_loss_usd + curr.total_loss_usd,
         }
-      }, { addresses: [], total_gain: 0, total_loss: 0, last_report: 0, total_gain_usd: 0, total_loss_usd: 0 });
+      }, { total_gain: 0, total_loss: 0, total_gain_usd: 0, total_loss_usd: 0 });
 
     return aggreg;
   });
@@ -428,7 +427,12 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                   </Stack>
                 </Container>
 
-                <Container label="Vault Strategies" m="0" p="0">
+                <Container
+                  label="Vault Strategies"
+                  description="Total Gains & Losses include past strategies"
+                  m="0"
+                  p="0"
+                >
                   <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
                     {aggregStrategiesByVault?.map((s, i) => {
                       const { management_fee, deposit_limit, vault_performance_fee } = yearnFedData.yearn.vaults.find(v => v.address === s.vault_address);
@@ -442,12 +446,8 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                               <Text textAlign='right'>{moment(s.last_report * 1000).format('MMM Do YYYY')}, {moment(s.last_report * 1000).fromNow()}</Text>
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
-                              <Text>Strategies:</Text>
-                              <HStack>
-                                {s.addresses.map(sAd => {
-                                  return <ScannerLink value={sAd} />
-                                })}
-                              </HStack>
+                              <Text>Current Strategy:</Text>
+                              <ScannerLink value={s.address} />
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
                               <Text>Vault:</Text>
