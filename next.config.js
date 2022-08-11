@@ -75,11 +75,48 @@ const redirects = async () => {
   ]
 }
 
+const ContentSecurityPolicy = `
+  default-src 'self';
+  script-src 'self' https://www.googletagmanager.com https://js.sentry-cdn.com https://substackcdn.com https://platform.twitter.com 'unsafe-inline';
+  img-src * data:;
+  child-src *;
+  style-src 'self' 'unsafe-inline';
+  connect-src *;
+  font-src 'self';
+`
+
+const headers = async () => {
+  return [
+    {
+      source: '/:path*',
+      headers: [
+        {
+          key: 'X-Frame-Options',
+          value: 'SAMEORIGIN',
+        },
+        {
+          key: 'Referrer-Policy',
+          value: 'same-origin',
+        },
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff',
+        },
+        {
+          key: 'Content-Security-Policy',
+          value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim()
+        }
+      ],
+    },
+  ]
+}
+
 const common = {
   images: {
     domains: ['images.ctfassets.net'],
   },
   redirects,
+  headers,
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
