@@ -35,49 +35,40 @@ import { useRouter } from 'next/router'
 
 import { parseEther } from 'ethers/lib/utils';
 import Link from '@app/components/common/Link'
+import { UNDERLYING } from '@app/variables/tokens'
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
-type anToken = Token & { ctoken: string };
+type TokenWithCtoken = Token & { ctoken: string };
 
 const anEth = '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8';
 const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
 const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
 
-const compatibleMarkets = [anEth, anWbtc, anYfi];
-
-const outputToken = {
-    address: DEBT_CONVERTER,
-    name: 'DOLA IOU',
-    symbol: 'IOU',
-    image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
-    decimals: 18,
-}
+const compatibleCtokens = [anEth, anWbtc, anYfi];
+const v1markets = compatibleCtokens.map(an => {
+    return { underlying: UNDERLYING[an], ctoken: an };
+});
 
 export const DebtConverterPage = () => {
     const { library, account } = useWeb3React<Web3Provider>()
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
-    const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU } = useDebtConverter(account);
+    const { exchangeRate: exRateIOU } = useDebtConverter();
 
-    const v1markets = markets
-        ?.filter(m => compatibleMarkets.includes(m.token));
-
-    const swapOptions = v1markets?.map(m => (m.token));
-    const tokens: { [key: string]: anToken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.token]: { ...curr.underlying, ctoken: curr.token } }), {});
+    const tokens: { [key: string]: TokenWithCtoken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.ctoken]: { ...curr.underlying, ctoken: curr.ctoken } }), {});
 
     const [outputAmount, setOutputAmount] = useState(0);
     const [antokenAmount, setAntokenAmount] = useState('');
     const [collateralAmount, setCollateralAmount] = useState('');
 
-    const [collateralMarket, setCollateralMarket] = useState<Market>({})
-    const { price } = useOraclePrice(collateralMarket?.token);
-    const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.token);
+    const [collateralMarket, setCollateralMarket] = useState<Partial<Market>>({})
+    const { price } = useOraclePrice(collateralMarket?.ctoken);
+    const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.ctoken);
     const maxPrice = maxUnderlyingPrice ? maxUnderlyingPrice : price;
 
-    const { approvals } = useAllowances([collateralMarket?.token], DEBT_CONVERTER);
+    const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
@@ -97,15 +88,15 @@ export const DebtConverterPage = () => {
         setOutputAmount(parseFloat(collateralAmount || 0) * maxPrice);
     }, [collateralAmount, maxPrice])
 
-    const changeCollateral = (v: anToken) => {
-        setCollateralMarket(v1markets.find(m => m.token === v.ctoken)!);
+    const changeCollateral = (v: TokenWithCtoken) => {
+        setCollateralMarket(v1markets.find(m => m.ctoken === v.ctoken)!);
         changeCollateralAmount(collateralAmount);
     }
 
     const changeCollateralAmount = (newAmount: string) => {
         setCollateralAmount(newAmount);
         const amount = newAmount || '0';
-        const exRate = exchangeRates && exchangeRates[collateralMarket.token] ? getBnToNumber(exchangeRates[collateralMarket.token]) : 0;
+        const exRate = exchangeRates && exchangeRates[collateralMarket.ctoken] ? getBnToNumber(exchangeRates[collateralMarket.ctoken]) : 0;
         const anAmount = exRate ? parseFloat(amount) / exRate : parseFloat(amount);
         const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);
         setAntokenAmount(formattedAmount);
@@ -114,7 +105,7 @@ export const DebtConverterPage = () => {
     const handleConvert = (isAllCase = false) => {
         return convertToIOU(
             library?.getSigner(),
-            collateralMarket.token,
+            collateralMarket.ctoken,
             (isAllCase ? '0' : antokenAmount),
             parseEther(minOutput.toString()),
         );
@@ -155,8 +146,8 @@ export const DebtConverterPage = () => {
                                         />
                                         <AssetInput
                                             amount={collateralAmount}
-                                            token={{ ...collateralMarket?.underlying, ctoken: collateralMarket.token }}
-                                            assetOptions={swapOptions}
+                                            token={{ ...collateralMarket?.underlying, ctoken: collateralMarket?.ctoken }}
+                                            assetOptions={compatibleCtokens}
                                             onAssetChange={(newToken) => changeCollateral(newToken)}
                                             onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
                                             orderByBalance={true}
@@ -218,11 +209,11 @@ export const DebtConverterPage = () => {
                                             </Stack>
                                             <HStack w='full' pt="4">
                                                 {
-                                                    !hasAllowance(approvals, collateralMarket?.token) ?
+                                                    !hasAllowance(approvals, collateralMarket?.ctoken) ?
                                                         <ApproveButton
                                                             tooltipMsg=""
                                                             isDisabled={false}
-                                                            address={collateralMarket?.token}
+                                                            address={collateralMarket?.ctoken}
                                                             toAddress={DEBT_CONVERTER}
                                                             signer={library?.getSigner()}
                                                         />
