@@ -116,7 +116,7 @@ const common = {
     domains: ['images.ctfassets.net'],
   },
   redirects,
-  headers,
+  // headers,
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
