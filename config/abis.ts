@@ -300,6 +300,33 @@ export const DEBT_REPAYER_ABI = [
   "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
 ]
 
+export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
+  "function conversions(address user, uint conversionIndex) public view returns (tuple(uint lastEpochRedeemed, uint dolaIOUAmount, uint dolaIOUsRedeemed))",
+  "function outstandingDebt() public view returns (uint)",
+  "function owner() public view returns (address)",
+  "function maxConvertPrice(address anToken) public view returns (uint)",
+  "function repaymentEpoch() public view returns (uint)",
+  "function convert(address anToken, uint amount, uint minOut) external",
+  "function repayment(uint amount) external",
+  "function redeemConversion(uint _conversion, uint _endEpoch) public",
+  "function redeemConversionDust(uint _conversion) public",
+  "function redeemAll(uint _conversion) external",
+  "function getRedeemableDolaIOUsFor(address _addr, uint _conversion, uint _epoch) public view returns (uint)",
+  "function getRedeemableDolaFor(address _addr, uint _conversion, uint _epoch) public view returns (uint)",
+  "function convertDolaIOUsToDola(uint dolaIOUs) public view returns (uint)",
+  "function convertDolaToDolaIOUs(uint dola) public view returns (uint)",
+  "function balanceOfDola(address _addr) external view returns (uint)",
+  "function exchangeRateMantissa() external view returns (uint)",
+  "event NewOwner(address owner)",
+  "event NewTreasury(address treasury)",
+  "event NewGovernance(address governance)",
+  "event NewTransferWhitelistAddress(address whitelistedAddr)",
+  "event NewAnnualExchangeRateIncrease(uint increase)",
+  "event Repayment(uint dolaAmount, uint epoch)",
+  "event Redemption(address indexed user, uint dolaAmount)",
+  "event Conversion(address indexed user, address indexed anToken, uint epoch, uint dolaAmount, uint underlyingAmount)",
+]);
+
 export const BALANCER_VAULT_ABI = [
   "function getPoolTokens(bytes32 poolId) public view returns (address[], uint256[], uint256)"
 ]
@@ -330,6 +357,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     SWAP_ROUTER,
     STABILIZER,
     DEBT_REPAYER,
+    DEBT_CONVERTER,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -353,6 +381,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [SWAP_ROUTER, SWAP_ROUTER_ABI],
         [STABILIZER, STABILIZER_ABI],
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
+        [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

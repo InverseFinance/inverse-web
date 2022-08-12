@@ -1,0 +1,250 @@
+import { HStack, Stack, Text, VStack } from '@chakra-ui/react'
+
+import Container from '@app/components/common/Container'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
+import Layout from '@app/components/common/Layout'
+import { AppNav } from '@app/components/common/Navbar'
+import Head from 'next/head'
+import { useEffect, useState } from 'react'
+
+import { useWeb3React } from '@web3-react/core'
+import { Web3Provider } from '@ethersproject/providers'
+import { AssetInput } from '@app/components/common/Assets/AssetInput'
+import { useMarkets } from '@app/hooks/useMarkets'
+import { getNetworkConfigConstants } from '@app/util/networks'
+import { useBalances } from '@app/hooks/useBalances'
+import { Market, Token } from '@app/types'
+
+import { SkeletonBlob } from '@app/components/common/Skeleton'
+
+import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
+import { roundFloorString } from '@app/util/misc'
+import { InfoMessage } from '@app/components/common/Messages'
+import { dollarify, getBnToNumber, shortenNumber } from '@app/util/markets'
+import { SubmitButton } from '@app/components/common/Button'
+import { useAllowances } from '@app/hooks/useApprovals'
+import { getScanner, hasAllowance } from '@app/util/web3'
+import { ApproveButton } from '@app/components/Anchor/AnchorButton'
+import { convertToIOU } from '@app/util/contracts'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { useDebtConverter, useDebtConverterMaxUnderlyingPrice } from '@app/hooks/useDebtConverter'
+import { useOraclePrice } from '@app/hooks/usePrices'
+import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
+import { DebtConversions } from '@app/components/Anchor/DebtConverter/DebtConversions'
+import { useRouter } from 'next/router'
+
+import { parseEther } from 'ethers/lib/utils';
+import Link from '@app/components/common/Link'
+import { UNDERLYING } from '@app/variables/tokens'
+
+const { DEBT_CONVERTER } = getNetworkConfigConstants();
+
+type TokenWithCtoken = Token & { ctoken: string };
+
+const anEth = '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8';
+const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
+const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
+
+const compatibleCtokens = [anEth, anWbtc, anYfi];
+const v1markets = compatibleCtokens.map(an => {
+    return { underlying: UNDERLYING[an], ctoken: an };
+});
+
+export const DebtConverterPage = () => {
+    const { library, account } = useWeb3React<Web3Provider>()
+    const { query } = useRouter()
+    const userAddress = (query?.viewAddress as string) || account;
+    const { exchangeRates } = useExchangeRatesV2();
+    const { exchangeRate: exRateIOU } = useDebtConverter();
+
+    const tokens: { [key: string]: TokenWithCtoken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.ctoken]: { ...curr.underlying, ctoken: curr.ctoken } }), {});
+
+    const [outputAmount, setOutputAmount] = useState(0);
+    const [antokenAmount, setAntokenAmount] = useState('');
+    const [collateralAmount, setCollateralAmount] = useState('');
+
+    const [collateralMarket, setCollateralMarket] = useState<Partial<Market>>({})
+    const { price } = useOraclePrice(collateralMarket?.ctoken);
+    const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.ctoken);
+    const maxPrice = maxUnderlyingPrice ? maxUnderlyingPrice : price;
+
+    const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
+    const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
+    const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
+    const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
+    const { underlyingBalance: anYfiBal } = useConvertToUnderlying(anYfi, anBalances ? anBalances[anYfi] : '0');
+    const balancesAsUnderlying = { [anEth]: anEthBal, [anWbtc]: anWbtcBal, [anYfi]: anYfiBal };
+
+    const commonAssetInputProps = { tokens: tokens, balances: balancesAsUnderlying, balanceKey: 'ctoken', showBalance: true }
+
+    const minOutput = outputAmount * 0.99;
+
+    useEffect(() => {
+        if (!v1markets.length || collateralMarket.underlying) { return };
+        setCollateralMarket(v1markets[0]);
+    }, [v1markets, collateralMarket])
+
+    useEffect(() => {
+        setOutputAmount(parseFloat(collateralAmount || 0) * maxPrice);
+    }, [collateralAmount, maxPrice])
+
+    const changeCollateral = (v: TokenWithCtoken) => {
+        setCollateralMarket(v1markets.find(m => m.ctoken === v.ctoken)!);
+        changeCollateralAmount(collateralAmount);
+    }
+
+    const changeCollateralAmount = (newAmount: string) => {
+        setCollateralAmount(newAmount);
+        const amount = newAmount || '0';
+        const exRate = exchangeRates && exchangeRates[collateralMarket.ctoken] ? getBnToNumber(exchangeRates[collateralMarket.ctoken]) : 0;
+        const anAmount = exRate ? parseFloat(amount) / exRate : parseFloat(amount);
+        const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);
+        setAntokenAmount(formattedAmount);
+    }
+
+    const handleConvert = (isAllCase = false) => {
+        return convertToIOU(
+            library?.getSigner(),
+            collateralMarket.ctoken,
+            (isAllCase ? '0' : antokenAmount),
+            parseEther(minOutput.toString()),
+        );
+    }
+
+    return (
+        <Layout>
+            <Head>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - Debt Converter</title>
+            </Head>
+            <AppNav active="Frontier" activeSubmenu="Debt Converter" />
+            <ErrorBoundary>
+                <VStack maxWidth="1200px">
+                    <VStack maxW={"700px"}>
+                        {
+                            v1markets?.length > 0 && !!collateralMarket?.underlying ?
+                                <Container
+                                    label="Debt Converter"
+                                    description="See the Contract"
+                                    href={`${getScanner("1")}/address/${DEBT_CONVERTER}`}
+                                    contentProps={{ p: '8' }}
+                                >
+                                    <VStack w='full' alignItems="flex-start" spacing="5">
+                                        <InfoMessage
+                                            alertProps={{
+                                                fontSize: '12px'
+                                            }}
+                                            description={
+                                                <VStack>
+                                                    <Text>
+                                                        <b>Convert</b> your v1 Frontier stuck tokens (ETH-V1, WBTC-v1 or YFI-V1) into DOLA IOUs.
+                                                    </Text>
+                                                    <Text>
+                                                        NB: you will be able to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each time the Inverse Treasury makes a Debt Repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract.
+                                                    </Text>
+                                                </VStack>
+                                            }
+                                        />
+                                        <AssetInput
+                                            amount={collateralAmount}
+                                            token={{ ...collateralMarket?.underlying, ctoken: collateralMarket?.ctoken }}
+                                            assetOptions={compatibleCtokens}
+                                            onAssetChange={(newToken) => changeCollateral(newToken)}
+                                            onAmountChange={(newAmount) => changeCollateralAmount(newAmount)}
+                                            orderByBalance={true}
+                                            dropdownSelectedProps={{ fontSize: '12px' }}
+                                            {...commonAssetInputProps}
+                                        />
+
+                                        <VStack w='full' spacing="4">
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
+                                                    <Text>
+                                                        {collateralMarket.underlying.symbol} Oracle Price:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{price ? dollarify(price, 2) : '-'}</Text>
+                                            </Stack>
+                                            {
+                                                maxPrice !== price && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                    <HStack>
+                                                        <AnimatedInfoTooltip message="For safety reasons a maximum price is set for the asset" />
+                                                        <Text>
+                                                            {collateralMarket.underlying.symbol} Max accepted Price:
+                                                        </Text>
+                                                    </HStack>
+                                                    <Text>{maxPrice ? dollarify(maxPrice, 2) : '-'}</Text>
+                                                </Stack>
+                                            }
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
+                                                    <Text>
+                                                        IOU Exchange Rate:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />
+                                                    <Text>
+                                                        DOLA worth of the IOUs to receive:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>
+                                                    ~{shortenNumber(outputAmount, 2)}
+                                                </Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="The minimum amount of DOLA worth of IOUs you accept to receive after possible slippage, if it's below, the transaction will revert" />
+                                                    <Text>
+                                                        Min. DOLA worth to receive:
+                                                    </Text>
+                                                </HStack>
+                                                <Text fontWeight="bold">
+                                                    ~{shortenNumber(minOutput, 2)}
+                                                </Text>
+                                            </Stack>
+                                            <HStack w='full' pt="4">
+                                                {
+                                                    !hasAllowance(approvals, collateralMarket?.ctoken) ?
+                                                        <ApproveButton
+                                                            tooltipMsg=""
+                                                            isDisabled={false}
+                                                            address={collateralMarket?.ctoken}
+                                                            toAddress={DEBT_CONVERTER}
+                                                            signer={library?.getSigner()}
+                                                        />
+                                                        :
+                                                        <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
+                                                            <SubmitButton
+                                                                disabled={!collateralAmount || !parseFloat(collateralAmount)}
+                                                                onClick={() => handleConvert(false)}
+                                                                refreshOnSuccess={true}>
+                                                                convert
+                                                            </SubmitButton>
+                                                            <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
+                                                                convert all
+                                                            </SubmitButton>
+                                                        </Stack>
+                                                }
+                                            </HStack>
+                                        </VStack>
+                                    </VStack>
+                                </Container>
+                                : <SkeletonBlob />
+                        }
+                    </VStack>
+                    {
+                        !!account && <DebtConversions account={userAddress} signer={library?.getSigner()} />
+                    }
+                </VStack>
+                <Link mt="5" href="/frontier/debt-converter/repayments">Go to Debt Converter Repayments</Link>
+            </ErrorBoundary>
+        </Layout>
+    )
+}
+
+export default DebtConverterPage

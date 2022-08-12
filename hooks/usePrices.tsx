@@ -12,6 +12,8 @@ import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
 import { getBnToNumber } from '@app/util/markets';
 
+const { ORACLE } = getNetworkConfigConstants();
+
 export const usePrice = (coingeckoId: string): SWR & Prices => {
   const { data, error } = useCustomSWR(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoId}`, fetcher)
 
@@ -88,6 +90,18 @@ export const useAnchorPricesUsd = () => {
     prices: usdPrices,
     isError,
     isLoading,
+  }
+}
+
+export const useOraclePrice = (anToken: string) => {
+  const { data, error } = useEtherSWR([
+    ORACLE, 'getUnderlyingPrice', anToken
+  ]);
+
+  return {
+    price: data ? parseFloat(formatUnits(data, BigNumber.from(36).sub(UNDERLYING[anToken].decimals))) : null,
+    isLoading: !error && !data,
+    isError: error,
   }
 }
 

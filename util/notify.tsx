@@ -40,22 +40,25 @@ export const showToast = (options: CustomToastOptions) => {
 
 export const showFailNotif = (e: any, isFromTx?: boolean) => {
     console.log(e);
-    const msg = (e?.error?.message || e?.data?.message || e.reason || e.message || '').substring(0, 200);
+    const msg = (e?.reason || e?.error?.message || e?.data?.message || e?.message || '').substring(0, 200);
     // error codes relatable to transaction cancellation by user
+    const revertMsg = "reverted with reason string ";
+    const reasonStringIdx = msg.indexOf(revertMsg);
 
     if ([-32603, 4001].includes(e?.code)) {
-        const revertMsg = "reverted with reason string ";
-        const reasonStringIdx = msg.indexOf(revertMsg);
+
         showToast({
             title: 'Transaction canceled',
             status: 'warning',
             description: reasonStringIdx === -1 ? 'User canceled transaction in wallet' : capitalize(msg.substring(reasonStringIdx)),
         })
     } else {
+        const revertMsg = "reverted with reason string ";
+        const reasonStringIdx = e?.data?.message.indexOf(revertMsg);
         showToast({
             title: `${isFromTx ? 'Transaction prevented' : 'Action failed'}`,
             status: 'warning',
-            description: msg || undefined,
+            description: reasonStringIdx === -1 ? (msg || undefined) : capitalize(msg.substring(reasonStringIdx)),
         })
     }
 }

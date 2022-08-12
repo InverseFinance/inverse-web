@@ -18,6 +18,7 @@ import {
   DISPERSE_APP_ABI,
   DEBT_REPAYER_ABI,
   BALANCER_VAULT_ABI,
+  DEBT_CONVERTER_ABI,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
@@ -28,6 +29,8 @@ import { getProvider } from './providers'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
 import { BigNumber } from 'ethers'
+
+const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
 export const getNewContract = (
   address: string,
@@ -317,4 +320,30 @@ export const sellV1AnToken = (signer: JsonRpcSigner, anToken: string, amount: st
   const { DEBT_REPAYER } = getNetworkConfigConstants();
   const contract = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, signer);
   return contract.sellDebt(anToken, amount, minUnderlyingReceived);
+}
+
+export const convertToIOU = (
+  signer: JsonRpcSigner,
+  anToken: string,
+  amount: string | BigNumber,
+  minDOLAoutput: string | BigNumber,
+) => {
+  const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
+  return contract.convert(anToken, amount, minDOLAoutput);
+}
+
+export const redeemAllIOUs = (
+  signer: JsonRpcSigner,
+  conversionIndex: string | number,
+) => {
+  const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
+  return contract.redeemAll(conversionIndex);
+}
+
+export const debtRepay = (
+  signer: JsonRpcSigner,
+  dolaAmount: string | BigNumber,
+) => {
+  const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
+  return contract.repayment(dolaAmount);
 }

@@ -585,3 +585,26 @@ export type YieldOppy = {
   symbol: string,
   pool: string,
 }
+
+export type DebtConversion = {
+  user: string
+  anToken: string
+  epoch: number
+  dolaAmount: number
+  conversionIndex: number
+  underlyingAmount: number
+  txHash: string
+  blocknumber: number
+  redeemableIOUs: number
+  redeemedIOUs: number
+  redeemablePerc: number
+  redeemedPerc: number
+  currentlyRedeemableIOUs: number
+  currentlyRedeemableDOLAs: number
+  leftToRedeem: number
+}
+
+export type DebtRepayment = {
+  epoch: number
+  dolaAmount: number
+}
