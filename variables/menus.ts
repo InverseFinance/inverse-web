@@ -12,10 +12,10 @@ export const MENUS = {
           label: 'Stake INV',
           href: '/frontier?marketType=supply&market=inv#',
         },
-        {
-          label: 'Borrow DOLA',
-          href: '/frontier?marketType=borrow&market=dola#',
-        },
+        // {
+        //   label: 'Borrow DOLA',
+        //   href: '/frontier?marketType=borrow&market=dola#',
+        // },
       ],
     },
     {
