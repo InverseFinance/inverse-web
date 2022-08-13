@@ -546,16 +546,21 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       m="0"
                     >
                       <Table
-                        keyName="txn_hash"
+                        keyName="id"
                         defaultSort="timestamp"
                         defaultSortDir="desc"
                         columns={reportsColumn}
                         items={
-                          yearnFedData.yearn.strategies.find(s => s.address === '0x7928becDda70755B9ABD5eE7c7D5E267F1412042').reports
-                            .map((r) => ({
-                              ...r,
-                              net_debt_added: (parseFloat(r.debt_added) - parseFloat(r.debt_paid)) * parseFloat(r.want_price_at_block),
-                            }))
+                          yearnFedData.yearn.strategies
+                            .filter(s => s.vault_address === '0x67B9F46BCbA2DF84ECd41cC6511ca33507c9f4E9')
+                            .map(s => {
+                              return s.reports
+                                .map((r) => ({
+                                  ...r,
+                                  net_debt_added: (parseFloat(r.debt_added) - parseFloat(r.debt_paid)) * parseFloat(r.want_price_at_block),
+                                }))
+                            })
+                            .flat()
                         } />
                     </Container>
                   </>
