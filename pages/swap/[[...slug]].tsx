@@ -63,8 +63,7 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
               <Stack>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
                 <Text mt="">
-                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum and Fantom,
-                  every single DOLA in circulation is backed by collateral worth a higher value making it what is called an over-collateralized stablecoin.
+                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum, Fantom and Optimism.                  
                 </Text>
               </Stack>
             }
