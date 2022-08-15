@@ -340,7 +340,6 @@ export const DBR_ABI = ERC20_ABI.concat([
   "function lastUpdated(address) public view returns (uint)",
   "function deficitOf(address) public view returns (uint)",
   "function signedBalanceOf(address) public view returns (int)",
-  "function signedBalanceOf(address) public view returns (int)",
 ]);
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {

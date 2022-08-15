@@ -51,6 +51,7 @@ const chainTokenAddresses = {
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+    DBR: '0x',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -313,6 +314,13 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'convex-finance',
     },
+    [chainTokenAddresses["1"].DBR]: {
+      address: chainTokenAddresses["1"].DBR,
+      name: 'DBR',
+      symbol: 'DBR',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      decimals: 18,
+    }
   },
   "250": {
     CHAIN_COIN: {
