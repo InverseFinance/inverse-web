@@ -331,6 +331,18 @@ export const BALANCER_VAULT_ABI = [
   "function getPoolTokens(bytes32 poolId) public view returns (address[], uint256[], uint256)"
 ]
 
+export const DBR_ABI = ERC20_ABI.concat([
+  "function totalDueTokensAccrued() public view returns (uint)",
+  "function replenishmentPriceBps() public view returns (uint)",
+  "function markets(address) public view returns (bool)",
+  "function debts(address) public view returns (uint)",
+  "function dueTokensAccrued(address) public view returns (uint)",
+  "function lastUpdated(address) public view returns (uint)",
+  "function deficitOf(address) public view returns (uint)",
+  "function signedBalanceOf(address) public view returns (int)",
+  "function signedBalanceOf(address) public view returns (int)",
+]);
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -358,6 +370,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     STABILIZER,
     DEBT_REPAYER,
     DEBT_CONVERTER,
+    DBR,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -382,6 +395,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [STABILIZER, STABILIZER_ABI],
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
+        [DBR, DBR_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

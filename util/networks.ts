@@ -157,5 +157,6 @@ export const getNetworkConfigConstants = (
         DISPERSE_APP: config.disperseApp,
         DEBT_REPAYER: config.debtRepayer,
         DEBT_CONVERTER: config.debtConverter,
+        DBR: config.dbr,
     }
 }
