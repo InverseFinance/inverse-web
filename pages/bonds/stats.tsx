@@ -11,8 +11,8 @@ export const BondsPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Bonds Stats</title>
                 <meta name="og:title" content="Inverse Finance - Bonds" />
-                <meta name="og:description" content="Buy INV at a discount thanks to bonds" />
-                <meta name="description" content="Buy INV at a discount thanks to bonds" />
+                <meta name="og:description" content="Inverse Finance's Bonds stats" />
+                <meta name="description" content="Inverse Finance's Bonds stats" />
                 <meta name="keywords" content="Inverse Finance, inv, token, DeFi, bonds, discount, olympus, ohm" />
             </Head>
             <AppNav active="Bonds" activeSubmenu="Bonds Stats" />
