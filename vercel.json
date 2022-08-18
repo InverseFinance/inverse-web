@@ -1,13 +1,13 @@
 {
     "functions": {
       "pages/api/positions.ts": {
-        "maxDuration": 60
+        "maxDuration": 10
       },
       "pages/api/cron-positions.ts": {
-        "maxDuration": 60
+        "maxDuration": 10
       },
       "pages/api/cron-ex-rates.ts": {
-        "maxDuration": 60
+        "maxDuration": 10
       }
     }
   }
