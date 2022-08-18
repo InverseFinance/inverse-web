@@ -332,6 +332,7 @@ export const BALANCER_VAULT_ABI = [
 ]
 
 export const DBR_ABI = ERC20_ABI.concat([
+  "function balances(address) public view returns (uint)",
   "function totalDueTokensAccrued() public view returns (uint)",
   "function replenishmentPriceBps() public view returns (uint)",
   "function markets(address) public view returns (bool)",
@@ -341,6 +342,32 @@ export const DBR_ABI = ERC20_ABI.concat([
   "function deficitOf(address) public view returns (uint)",
   "function signedBalanceOf(address) public view returns (int)",
 ]);
+
+export const F2_ORACLE_ABI = [
+  "function getPrice(address) public view returns (uint)",
+];
+
+export const F2_SIMPLE_ESCROW = [
+  "function balance() public view returns (uint)",
+];
+
+export const F2_MARKET_ABI = [
+  // "function collateral() public view returns (address)",
+  "function collateralFactorBps() public view returns (uint)",
+  // "function oracle() public view returns (address)",
+  // "function borrowPaused() public view returns (bool)",
+  "function totalDebt() public view returns (uint)",
+  "function escrows(address) public view returns (address)",
+  // "function debts(address) public view returns (uint)",
+  // "function predictEscrow(address user) public view returns (address)",
+  "function getCreditLimit(address user) public view returns (uint)",
+  "function getWithdrawalLimit(address user) public view returns (uint)",
+  "function deposit(uint amount) public",
+  "function borrow(uint amount) public",
+  // "function withdraw(address to, uint amount) public",
+  // "function repay(address user, uint amount) public",
+  // "function forceReplenish(address user) public",
+];
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
@@ -370,6 +397,8 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     DEBT_REPAYER,
     DEBT_CONVERTER,
     DBR,
+    F2_ORACLE,
+    F2_MARKETS,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -395,6 +424,8 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         [DBR, DBR_ABI],
+        [F2_ORACLE, F2_ORACLE_ABI],
+        ...F2_MARKETS.map((m) => [m.address, F2_MARKET_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

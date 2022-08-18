@@ -23,7 +23,13 @@ const mainConfig = {
     disperseApp: '0xD152f549545093347A162Dce210e7293f1452150',
     debtRepayer: '0x79E8AB29Ff79805025c9462a2f2F12e9A496f81d',
     debtConverter: '0x5e6CB7E728E1C320855587E1D9C6F7972ebdD6D5',
-    dbr: '0x',
+    dbr: '0x8ac87219a0F5639BC01b470F87BA2b26356CB2B9',
+    f2Oracle: '0xCa1D199b6F53Af7387ac543Af8e8a34455BBe5E0',
+    f2markets: [{
+        name: 'WETH',
+        collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        address: '0xf5c4a909455C00B99A90d93b48736F3196DB5621',
+    }],
     feds: [
         { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
         { chainId: NetworkIds.mainnet, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
