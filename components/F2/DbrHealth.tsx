@@ -13,47 +13,23 @@ import { preciseCommify } from '@app/util/misc';
 export const DbrHealth = () => {
   const { account } = useWeb3React<Web3Provider>()
 
-  const dbrPrice = 2.1;
   const { balance, dbrNbDaysExpiry, signedBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate } = useAccountDBR(account);
 
-  const borrowTotal = 0;
-
   let badgeColorScheme = 'success'
-  let health
   const hasDebt = dailyDebtAccrual !== 0;
-
-  // if(!hasDebt) {
-  //   return <></>
-  // }
-
-  // if (!hasDebt) {
-  //   badgeColorScheme = 'gray'
-  //   health = 'NO COLLATERAL'
-  // } else if (dbrNbDaysExpiry >= 180) {
-  //   badgeColorScheme = 'green'
-  //   health = 'Healthy'
-  // } else if (dbrNbDaysExpiry >= 90) {
-  //   badgeColorScheme = 'yellow'
-  //   health = 'Moderate'
-  // } else if (dbrNbDaysExpiry >= 30) {
-  //   badgeColorScheme = 'orange'
-  //   health = 'Low Health'
-  // } else if (dbrNbDaysExpiry >= 7) {
-  //   badgeColorScheme = 'red'
-  //   health = 'Very Low Health'
-  // } else if (dbrNbDaysExpiry >= 0) {
-  //   badgeColorScheme = 'red'
-  //   health = 'Depleted Soon!'
-  // } else if (signedBalance <= 0) {
-  //   badgeColorScheme = 'red'
-  //   health = 'Depleted!'
-  // }
 
   return (
     <VStack w='full' spacing="0">
       <HStack w='full' justifyContent="space-between">
         <Text color="secondaryTextColor">Borrowing Stamina</Text>
-        {!!dailyDebtAccrual &&
+        {
+          signedBalance > 0 && !dailyDebtAccrual &&
+          <Text color="secondaryTextColor">
+            {preciseCommify(signedBalance, 0)} DOLA / Year
+          </Text>
+        }
+        {
+          !!dailyDebtAccrual &&
           <Text color="secondaryTextColor">
             -{shortenNumber(dailyDebtAccrual)} DBR a day
           </Text>
@@ -108,12 +84,15 @@ export const DbrHealth = () => {
         <Text color="secondaryTextColor">
           {
             !!dbrNbDaysExpiry ?
-              `${preciseCommify(dbrNbDaysExpiry, 0)} days left`
+              `${preciseCommify(dbrNbDaysExpiry, 0)} days left before Exhaustion`
               :
               hasDebt ?
                 'Exhausted! Collateral Health may get damaged'
                 :
-                'Having a Borrowing period requires DBR tokens'
+                signedBalance === 0 ?
+                  'Get DBR tokens to hold loans over time'
+                  :
+                  'No on-going Loans'
           }
         </Text>
         <Text color="secondaryTextColor">
