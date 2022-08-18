@@ -42,6 +42,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     const { balances } = useBalances([f2market.collateral]);
     const { balances: marketBnBalances } = useBalances([DOLA], 'balanceOf', f2market.address);
+    const { balances: dolaBalances } = useBalances([DOLA], 'balanceOf');
+    const dolaBalance = dolaBalances ? getBnToNumber(dolaBalances[DOLA]) : 0;
+
     const bnMarketDolaLiquidity = marketBnBalances ? marketBnBalances[DOLA] : BigNumber.from('0');
     const marketDolaLiquidity = marketBnBalances ? getBnToNumber(marketBnBalances[DOLA]) : 0;
 
@@ -147,7 +150,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     </HStack>
                                     <HStack w='full' justifyContent="space-between">
                                         <Text>Your DOLA Balance:</Text>
-                                        <Text>{shortenNumber(dbrBalance, 2)}</Text>
+                                        <Text>{shortenNumber(dolaBalance, 2)}</Text>
                                     </HStack>
                                     <HStack w='full' justifyContent="space-between">
                                         <Text>Available DOLA liquidity:</Text>
