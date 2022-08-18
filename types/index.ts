@@ -608,3 +608,13 @@ export type DebtRepayment = {
   epoch: number
   dolaAmount: number
 }
+
+export type F2Market = {
+  address: string
+  name: string
+  collateral: string
+  underlying: Token
+  price: number
+  collateralFactor: number
+  totalDebt: number
+}
