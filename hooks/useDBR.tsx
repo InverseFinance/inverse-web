@@ -21,6 +21,7 @@ export const useAccountDBR = (account: string): SWR & {
   dbrNbDaysExpiry: number,
   dbrExpiryDate: number,
   dbrDepletionPerc: number,
+  bnDebt: BigNumber,
 } => {
   const { data, error } = useEtherSWR([
     [DBR, 'balanceOf', account],
@@ -50,6 +51,7 @@ export const useAccountDBR = (account: string): SWR & {
     dbrNbDaysExpiry,
     dbrExpiryDate,
     dbrDepletionPerc,
+    bnDebt: data ? data[1] : zero,
     isLoading: !error && !data,
     isError: error,
   }
