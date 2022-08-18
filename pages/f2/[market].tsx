@@ -115,10 +115,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         <Text>Collateral Factor:</Text>
                                         <Text>{f2market.collateralFactor}%</Text>
                                     </HStack>
-                                    {/* <HStack w='full' justifyContent="space-between">
-                                        <Text>Your current Credit Limit:</Text>
-                                        <Text>{shortenNumber(creditLimit, 2)} DOLA</Text>
-                                    </HStack> */}
                                 </VStack>
                                 <SimpleAmountForm
                                     address={f2market.collateral}
