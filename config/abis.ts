@@ -364,8 +364,8 @@ export const F2_MARKET_ABI = [
   "function getWithdrawalLimit(address user) public view returns (uint)",
   "function deposit(uint amount) public",
   "function borrow(uint amount) public",
-  // "function withdraw(address to, uint amount) public",
-  // "function repay(address user, uint amount) public",
+  "function withdraw(address to, uint amount) public",
+  "function repay(address user, uint amount) public",
   // "function forceReplenish(address user) public",
 ];
 

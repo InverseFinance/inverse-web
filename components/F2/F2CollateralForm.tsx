@@ -6,36 +6,60 @@ import { commify } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2deposit } from '@app/util/f2'
+import { f2deposit, f2withdraw } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
+import { useState } from 'react'
 
 export const F2CollateralForm = ({
     f2market,
     account,
     signer,
+    isDepositDefault = true
 }: {
     f2market: F2Market
     account: string | null | undefined
     signer: JsonRpcSigner | undefined
+    isDepositDefault?: boolean
 }) => {
     const colDecimals = f2market.underlying.decimals;
+    const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
     const { deposits } = useAccountDBRMarket(f2market, account);
     const { balances } = useBalances([f2market.collateral]);
     const collateralBalance = balances ? getBnToNumber(balances[f2market.collateral], colDecimals) : 0;
 
-    const handleDeposit = (amount: BigNumber) => {
-        if(!signer) { return }
-        return f2deposit(signer, f2market.address, amount)
+    const handleAction = (amount: BigNumber) => {
+        if (!signer) { return }
+        return isDeposit ? 
+            f2deposit(signer, f2market.address, amount)
+            : f2withdraw(signer, f2market.address, amount)
     }
+
+    const switchMode = () => {
+        setIsDeposit(!isDeposit);
+    }
+
+    const btnlabel = isDeposit ? `Deposit` : 'Withdraw';
+    const btnMaxlabel = `${btnlabel} Max`;
 
     return <Container
         noPadding
         p="0"
         label="Deposit Collateral"
         description="To be able to Borrow"
+        right={
+            <Text
+                onClick={() => switchMode()}
+                fontSize="14px"
+                cursor="pointer"
+                textDecoration="underline"
+                color="secondaryTextColor"
+                w='fit-content'>
+                Switch to {isDeposit ? 'Withdraw' : 'Deposit'}
+            </Text>
+        }
         w={{ base: 'full', lg: '50%' }}
     >
         <VStack justifyContent='space-between' w='full' minH="270px">
@@ -67,10 +91,10 @@ export const F2CollateralForm = ({
                 destination={f2market.address}
                 signer={signer}
                 decimals={colDecimals}
-                onAction={({ bnAmount }) => handleDeposit(bnAmount)}
-                onMaxAction={({ bnAmount }) => handleDeposit(bnAmount)}
-                actionLabel="Deposit"
-                maxActionLabel="Deposit MAX"
+                onAction={({ bnAmount }) => handleAction(bnAmount)}
+                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                actionLabel={btnlabel}
+                maxActionLabel={btnMaxlabel}
             />
         </VStack>
     </Container>
