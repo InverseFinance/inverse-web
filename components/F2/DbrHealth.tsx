@@ -1,11 +1,8 @@
-import { Flex, Stack, Text, Badge, VStack, HStack } from '@chakra-ui/react'
+import { Flex, Stack, Text, VStack, HStack } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { commify } from 'ethers/lib/utils'
-import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { shortenNumber } from '@app/util/markets';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import moment from 'moment';
 
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc';
@@ -13,7 +10,7 @@ import { preciseCommify } from '@app/util/misc';
 export const DbrHealth = () => {
   const { account } = useWeb3React<Web3Provider>()
 
-  const { balance, dbrNbDaysExpiry, signedBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate } = useAccountDBR(account);
+  const { dbrNbDaysExpiry, signedBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate } = useAccountDBR(account);
 
   let badgeColorScheme = 'success'
   const hasDebt = dailyDebtAccrual !== 0;
@@ -25,7 +22,7 @@ export const DbrHealth = () => {
         {
           signedBalance > 0 && !dailyDebtAccrual &&
           <Text color="secondaryTextColor">
-            {preciseCommify(signedBalance, 0)} DOLA / Year
+            {preciseCommify(signedBalance, 2)} DOLA / Year
           </Text>
         }
         {
@@ -50,33 +47,9 @@ export const DbrHealth = () => {
             fontSize="sm"
             fontWeight="semibold"
           >
-            {/* <Stack direction="row" align="center">
-              <Flex whiteSpace="nowrap" color="primary.300" fontSize="sm">
-                DBR Health
-              </Flex>
-              <AnimatedInfoTooltip message="This shows your DBR balance health, your DBR balance decreases over time depending on your debt, if the bar is at 100% it means your DBRs are depleted." />
-              <Text>{`${dbrDepletionPerc}%`}</Text>
-            </Stack> */}
             <Flex w="full" h={1} borderRadius={8} bgColor={`${badgeColorScheme}Alpha`}>
               <Flex w={`${dbrDepletionPerc}%`} h="full" borderRadius={8} bgColor={badgeColorScheme}></Flex>
             </Flex>
-            {/* <Stack direction="row" align="center">
-              <Text>{`$${borrowTotal ? commify((borrowTotal).toFixed(2)) : '0.00'}`}</Text>
-              {hasDebt && (
-                <>
-                  <Badge variant="subtle" colorScheme={badgeColorScheme}>
-                    {health}
-                  </Badge>
-                  <AnimatedInfoTooltip
-                    message={
-                      <>
-                        This badge indicates your current DBR health.                                                
-                      </>
-                    }
-                  />
-                </>
-              )}
-            </Stack> */}
           </Stack>
         </Flex>
       </Container>
