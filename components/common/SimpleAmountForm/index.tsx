@@ -86,13 +86,13 @@ export const SimpleAmountForm = (props: PropsWithFun) => {
             />
         }
         {
-            !balance ?
+            !allowance ?
                 <ApproveButton
                     w='full'
                     address={address}
                     toAddress={destination}
                     signer={signer}
-                    isDisabled={balance > 0}
+                    isDisabled={balance <= 0}
                 /> :
                 <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
                     <SubmitButton
