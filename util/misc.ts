@@ -1,3 +1,4 @@
+import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length);
@@ -26,7 +27,7 @@ export const roundFloorString = (v: number, precision = 8) => {
     return toFixed(v, precision);
 }
 
-function toFixed(num: number, fixed = 2) {
+export function toFixed(num: number, fixed = 2) {
     try {
         var re = new RegExp('^-?\\d+(?:\.\\d{0,' + (fixed || -1) + '})?');
         return (removeScientificFormat(num).toString() || '0').match(re)[0];
@@ -168,4 +169,13 @@ export const _getProp = (object: Object, key: string) => {
         return key.toLowerCase() === lcKey
     });
     return found?.[1];
+}
+
+export const preciseCommify = (v: number, precision: number, isDollar = false) => {
+    if(precision === 0 ){
+        return `${isDollar ? '$' : ''}${commify(v.toFixed(0))}`;
+    }
+    const fixed = v.toFixed(precision);
+    const split = fixed.split('.');
+    return `${isDollar ? '$' : ''}${commify(split[0])}.${split[1]}`;
 }
