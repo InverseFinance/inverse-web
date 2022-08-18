@@ -11,7 +11,7 @@ import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 
-export const F2Collateral = ({
+export const F2CollateralForm = ({
     f2market,
     account,
     signer,
@@ -22,7 +22,7 @@ export const F2Collateral = ({
 }) => {
     const colDecimals = f2market.underlying.decimals;
 
-    const { escrow, deposits, creditLimit, withdrawalLimit } = useAccountDBRMarket(f2market, account);
+    const { deposits } = useAccountDBRMarket(f2market, account);
     const { balances } = useBalances([f2market.collateral]);
     const collateralBalance = balances ? getBnToNumber(balances[f2market.collateral], colDecimals) : 0;
 
