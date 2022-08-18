@@ -1,0 +1,108 @@
+import { useState } from 'react';
+import { Flex, Stack, Text, useDisclosure } from "@chakra-ui/react"
+import Table from "@app/components/common/Table";
+import { UnderlyingItemBlock } from "@app/components/common/Assets/UnderlyingItemBlock";
+import { shortenNumber } from "@app/util/markets";
+import Container from "@app/components/common/Container";
+import { useDBRMarkets } from '@app/hooks/useDBR';
+import { commify } from 'ethers/lib/utils';
+import { useRouter } from 'next/router';
+
+const ColHeader = ({ ...props }) => {
+    return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
+}
+
+const Cell = ({ ...props }) => {
+    return <Stack direction="row" fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+}
+
+const columns = [
+    {
+        field: 'name',
+        label: 'Market',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ address, underlying }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <UnderlyingItemBlock symbol={underlying?.symbol} imgSize={20} />
+            </Cell>
+        },
+    },
+    {
+        field: 'supplyApy',
+        label: 'SUPPLY APY',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ supplyApy }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <Text>{supplyApy}%</Text>
+            </Cell>
+        },
+    },
+    {
+        field: 'price',
+        label: 'price',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ price }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <Text>${commify((price||0)?.toFixed(2))}</Text>
+            </Cell>
+        },
+    },
+    {
+        field: 'collateralFactor',
+        label: 'C.F',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ collateralFactor }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <Text>{shortenNumber(collateralFactor, 2)}%</Text>
+            </Cell>
+        },
+    },
+    {
+        field: 'totalDebt',
+        label: 'Borrowed Against',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ totalDebt }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <Text>{shortenNumber(totalDebt, 2)} DOLA</Text>
+            </Cell>
+        },
+    },
+    {
+        field: 'totalDebt',
+        label: 'Health',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ totalDebt }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <Text>health here</Text>
+            </Cell>
+        },
+    },
+]
+
+export const F2Markets = ({
+
+}: {
+
+}) => {
+    const { markets } = useDBRMarkets();
+    const router = useRouter();
+
+    const openMarket = (market: any) => {
+        router.push(`/f2/${market.address}`)
+    }
+
+    return <Container
+        label="Markets"        
+        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+    >
+        <Table
+            keyName="address"
+            noDataMessage="Loading..."
+            columns={columns}
+            items={markets}
+            onClick={openMarket}
+            defaultSort="address"
+            defaultSortDir="desc"
+        />
+    </Container>
+}
