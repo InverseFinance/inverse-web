@@ -53,33 +53,9 @@ export const CreditLimitBar = ({
             fontSize="sm"
             fontWeight="semibold"
           >
-            {/* <Stack direction="row" align="center">
-              <Flex whiteSpace="nowrap" color="primary.300" fontSize="sm">
-                Credit Limit Health
-              </Flex>
-              <AnimatedInfoTooltip message="This shows your Credit Limit balance health, your Credit Limit balance decreases over time depending on your debt, if the bar is at 100% it means your Credit Limits are depleted." />
-              <Text>{`${shortenNumber(perc, 2)}%`}</Text>
-            </Stack> */}
-            <Flex w="full" h={1} borderRadius={8} bgColor={`${badgeColorScheme}Alpha`}>
-              <Flex w={`${perc}%`} h="full" borderRadius={8} bgColor={badgeColorScheme}></Flex>
+            <Flex w="full" h={'4px'} alignItems="center" borderRadius={8} bgColor={`${badgeColorScheme}Alpha`}>
+              <Flex w={`${perc}%`} h="6px" borderRadius={8} bgColor={badgeColorScheme}></Flex>
             </Flex>
-            {/* <Stack direction="row" align="center">
-              <Text>{`$${creditLimit ? commify((creditLimit).toFixed(2)) : '0.00'}`}</Text>
-              {hasDebt && (
-                <>
-                  <Badge variant="subtle" colorScheme={badgeColorScheme}>
-                    {health}
-                  </Badge>
-                  <AnimatedInfoTooltip
-                    message={
-                      <>
-                        This badge indicates your current Credit Limit health.                                                
-                      </>
-                    }
-                  />
-                </>
-              )}
-            </Stack> */}
           </Stack>
         </Flex>
       </Container>

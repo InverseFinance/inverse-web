@@ -47,8 +47,8 @@ export const DbrHealth = () => {
             fontSize="sm"
             fontWeight="semibold"
           >
-            <Flex w="full" h={1} borderRadius={8} bgColor={`${badgeColorScheme}Alpha`}>
-              <Flex w={`${dbrDepletionPerc}%`} h="full" borderRadius={8} bgColor={badgeColorScheme}></Flex>
+            <Flex w="full" h={"4px"} alignItems="center" borderRadius={8} bgColor={`${badgeColorScheme}Alpha`}>
+              <Flex w={`${dbrDepletionPerc}%`} h="6px" borderRadius={8} bgColor={badgeColorScheme}></Flex>
             </Flex>
           </Stack>
         </Flex>
