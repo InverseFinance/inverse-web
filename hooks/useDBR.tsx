@@ -104,14 +104,17 @@ export const useAccountDBRMarket = (market: any, account: string): {
   bnCreditLimit: BigNumber
   withdrawalLimit: number
   bnWithdrawalLimit: BigNumber
+  debt: number
+  bnDebt: BigNumber
 } => {
   const { data: accountMarketData, error } = useEtherSWR([
     [market.address, 'escrows', account],
     [market.address, 'getCreditLimit', account],
     [market.address, 'getWithdrawalLimit', account],
+    [market.address, 'debts', account],
   ]);
 
-  const [escrow, creditLimit, withdrawalLimit] = accountMarketData || [undefined, undefined, undefined];
+  const [escrow, creditLimit, withdrawalLimit, debt] = accountMarketData || [undefined, undefined, undefined, undefined];
 
   const { data: balance } = useEtherSWR({
     args: [[escrow, 'balance']],
@@ -128,5 +131,7 @@ export const useAccountDBRMarket = (market: any, account: string): {
     bnCreditLimit: creditLimit ? creditLimit : zero,
     withdrawalLimit: withdrawalLimit ? getBnToNumber(withdrawalLimit, decimals) : 0,
     bnWithdrawalLimit: withdrawalLimit ? withdrawalLimit : zero,
+    debt: debt ? getBnToNumber(debt) : 0,
+    bnDebt: debt ? debt : zero,
   }
 }
