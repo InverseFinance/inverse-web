@@ -32,7 +32,7 @@ type ActionProps = Props & {
 export type SimpleAmountFormProps = Props & {
     onAction: (p: ActionProps) => void
     onMaxAction: (p: ActionProps) => void
-    onAmountChange: (v: number) => void
+    onAmountChange?: (v: number) => void
 }
 
 const zeroBn = BigNumber.from('0');

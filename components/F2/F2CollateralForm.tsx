@@ -16,19 +16,22 @@ export const F2CollateralForm = ({
     f2market,
     account,
     signer,
-    isDepositDefault = true
+    isDepositDefault = true,
+    onAmountChange,
 }: {
     f2market: F2Market
     account: string | null | undefined
     signer: JsonRpcSigner | undefined
     isDepositDefault?: boolean
+    onAmountChange?: (v: number) => void
 }) => {
     const colDecimals = f2market.underlying.decimals;
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
-    const { deposits } = useAccountDBRMarket(f2market, account);
+    const { deposits, bnDeposits } = useAccountDBRMarket(f2market, account);
     const { balances } = useBalances([f2market.collateral]);
-    const collateralBalance = balances ? getBnToNumber(balances[f2market.collateral], colDecimals) : 0;
+    const bnCollateralBalance = balances ? balances[f2market.collateral] : BigNumber.from('0');
+    const collateralBalance = balances ? getBnToNumber(bnCollateralBalance, colDecimals) : 0;
 
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
@@ -91,10 +94,12 @@ export const F2CollateralForm = ({
                 destination={f2market.address}
                 signer={signer}
                 decimals={colDecimals}
+                maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits]}
                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={btnlabel}
                 maxActionLabel={btnMaxlabel}
+                onAmountChange={(floatNumber) => !!onAmountChange && onAmountChange(isDeposit ? floatNumber : -floatNumber)}
             />
         </VStack>
     </Container>
