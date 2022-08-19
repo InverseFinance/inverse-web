@@ -43,7 +43,6 @@ export const F2CollateralForm = ({
 
     const handleAmountChange = (floatNumber: number) => {
         setAmount(floatNumber)
-        !!onAmountChange && onAmountChange(isDeposit ? floatNumber : -floatNumber);
     }
 
     const switchMode = () => {
@@ -55,16 +54,18 @@ export const F2CollateralForm = ({
         onAmountChange(isDeposit ? amount : -amount);
     }, [isDeposit, amount, onAmountChange]);
 
-    const btnlabel = isDeposit ? `Deposit` : 'Withdraw';
-    const btnMaxlabel = `${btnlabel} Max`;
+    const btnLabel = isDeposit ? `Deposit` : 'Withdraw';
+    const btnMaxlabel = `${btnLabel} Max`;
+    const mainColor = isDeposit ? 'infoAlpha' : 'lightPrimaryAlpha';
 
     return <Container
         noPadding
         p="0"
-        label="Deposit Collateral"
-        description="To be able to Borrow"
+        label={`${btnLabel} Collateral`}
+        description={isDeposit ? `To be able to Borrow` : `This will reduce the Collateral Health`}
+        contentBgColor={mainColor}
         right={
-            <Text
+            (deposits > 0 || !isDeposit) && <Text
                 onClick={() => switchMode()}
                 fontSize="14px"
                 cursor="pointer"
@@ -108,7 +109,7 @@ export const F2CollateralForm = ({
                 maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits]}
                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                actionLabel={btnlabel}
+                actionLabel={btnLabel}
                 maxActionLabel={btnMaxlabel}
                 onAmountChange={handleAmountChange}
             />

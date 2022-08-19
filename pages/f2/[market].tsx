@@ -20,7 +20,7 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const [newCollateralAmount, setNewCollateralAmount] = useState(0);
-    const [newDebtAmount, setNewDebtAmount] = useState(null);
+    const [newDebtAmount, setNewDebtAmount] = useState(0);
     const { account, library } = useWeb3React<Web3Provider>();
     const { markets } = useDBRMarkets(market);
     const f2market = markets[0];
@@ -43,10 +43,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         spacing="12"
                     >
                         <ErrorBoundary description="Failed to load Dbr Health">
-                            <CreditLimitBar account={account} market={f2market} newCollateralAmount={newCollateralAmount} />
+                            <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} />
                         </ErrorBoundary>
                         <ErrorBoundary description="Failed to load Dbr Health">
-                            <DbrHealth />
+                            <DbrHealth debtDelta={newDebtAmount} />
                         </ErrorBoundary>
                     </Stack>
                     <Stack
@@ -65,6 +65,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             signer={library?.getSigner()}
                             f2market={f2market}
                             account={account}
+                            onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
                         />
                     </Stack>
                 </VStack>

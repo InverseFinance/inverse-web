@@ -12,7 +12,7 @@ import { useAccountDBR, useAccountDBRMarket } from '@app/hooks/useDBR'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { roundFloorString } from '@app/util/misc'
 import { parseEther } from '@ethersproject/units'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -21,13 +21,16 @@ export const F2BorrowForm = ({
     account,
     signer,
     isBorrowDefault,
+    onAmountChange,
 }: {
     f2market: F2Market
     account: string | null | undefined
     signer: JsonRpcSigner | undefined
     isBorrowDefault?: boolean
+    onAmountChange?: (v: number) => void
 }) => {
     const [isBorrow, setIsBorrow] = useState(isBorrowDefault);
+    const [amount, setAmount] = useState(0);
     const colDecimals = f2market.underlying.decimals;
 
     const { balance: dbrBalance, debt, bnDebt } = useAccountDBR(account);
@@ -55,17 +58,28 @@ export const F2BorrowForm = ({
         setIsBorrow(!isBorrow);
     }
 
+    const handleAmountChange = (floatNumber: number) => {
+        setAmount(floatNumber)
+    }
+
+    useEffect(() => {
+        if(!onAmountChange) { return };
+        onAmountChange(isBorrow ? amount : -amount);
+    }, [isBorrow, amount, onAmountChange]);
+
     const btnlabel = isBorrow ? `Borrow` : 'Repay';
     const btnMaxlabel = `${btnlabel} Max`;
+    const mainColor = !isBorrow ? 'infoAlpha' : 'lightPrimaryAlpha';
 
     return <Container
         noPadding
         p="0"
-        label="Borrow DOLA stablecoin"
-        description="Against your deposited collateral"
-        w={{ base: 'full', lg: '50%' }}
+        label={isBorrow ? `Borrow DOLA stablecoin` : `Repay Borrowed DOLA debt`}
+        description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
+        w={{ base: 'full', lg: '50%' }}        
+        contentBgColor={mainColor}
         right={
-            <Text
+            (debt > 0 || !isBorrow) && <Text
                 onClick={() => switchMode()}
                 fontSize="14px"
                 cursor="pointer"
@@ -91,12 +105,12 @@ export const F2BorrowForm = ({
                     <Text>{shortenNumber(debt, 2)}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Available DOLA liquidity:</Text>
-                    <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
                     <Text>Your DOLA Borrow Rights:</Text>
                     <Text>{shortenNumber(dbrBalance, 2)}</Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text>Available DOLA liquidity:</Text>
+                    <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
                 </HStack>
             </VStack>
             <SimpleAmountForm
@@ -110,6 +124,7 @@ export const F2BorrowForm = ({
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={btnlabel}
                 maxActionLabel={btnMaxlabel}
+                onAmountChange={handleAmountChange}
             />
         </VStack>
     </Container>

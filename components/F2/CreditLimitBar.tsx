@@ -12,11 +12,13 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 export const CreditLimitBar = ({
   market,
   account,
-  newCollateralAmount,
+  amountDelta,
+  debtDelta,
 }: {
   market: F2Market
   account: string
-  newCollateralAmount: number
+  amountDelta: number
+  debtDelta: number
 }) => {
   const [isChanging, setIsChanging] = useState(false);
   const { creditLimit, deposits, withdrawalLimit, debt } = useAccountDBRMarket(market, account);
@@ -24,14 +26,16 @@ export const CreditLimitBar = ({
 
   const f2market = markets[0];
 
-  let badgeColorScheme = 'error'
+  const badgeColorScheme = 'error'
+
   const hasDebt = deposits && withdrawalLimit && deposits > 0 && deposits !== withdrawalLimit;
   const perc = Math.max(hasDebt ? withdrawalLimit / deposits * 100 : deposits ? 100 : 0, 0);
-  const newCreditLimit = (deposits + (newCollateralAmount || 0)) * f2market.collateralFactor / 100 * f2market.price;
-  const newDebt = debt;
-  const previewPerc = !newCollateralAmount ?
+  const newCreditLimit = (deposits + (amountDelta || 0)) * f2market.collateralFactor / 100 * f2market.price;
+  const newDebt = debt + debtDelta;
+
+  const previewPerc = !amountDelta && !debtDelta ?
     perc : Math.max(newDebt > 0 && newCreditLimit > 0 ?
-      ((newCreditLimit - debt) / newCreditLimit) * 100
+      ((newCreditLimit - newDebt) / newCreditLimit) * 100
       : 0, 0);
   
   const isPreviewing = previewPerc !== perc;
@@ -44,7 +48,7 @@ export const CreditLimitBar = ({
     setTimeout(() => {
       setIsChanging(false);
     }, 400)
-  }, [newCollateralAmount], 200);
+  }, [amountDelta, debtDelta], 200);
 
   return (
     <VStack w='full' spacing="0">
@@ -87,10 +91,10 @@ export const CreditLimitBar = ({
                 w={`${perc}%`}
                 h="6px"
                 borderLeftRadius={8}
-                borderRightRadius={newCollateralAmount ? '0' : 8}
+                borderRightRadius={isPreviewing ? '0' : 8}
                 bgColor={badgeColorScheme}></Flex>
               {
-                !!newCollateralAmount && <Flex
+                isPreviewing && <Flex
                   position="absolute"
                   zIndex="2"
                   transition="box-shadow, width 0.2s ease-in-out"
