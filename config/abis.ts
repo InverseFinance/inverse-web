@@ -352,21 +352,21 @@ export const F2_SIMPLE_ESCROW = [
 ];
 
 export const F2_MARKET_ABI = [
-  // "function collateral() public view returns (address)",
+  "function collateral() public view returns (address)",
   "function collateralFactorBps() public view returns (uint)",
-  // "function oracle() public view returns (address)",
-  // "function borrowPaused() public view returns (bool)",
+  "function oracle() public view returns (address)",
+  "function borrowPaused() public view returns (bool)",
   "function totalDebt() public view returns (uint)",
   "function escrows(address) public view returns (address)",
-  // "function debts(address) public view returns (uint)",
-  // "function predictEscrow(address user) public view returns (address)",
+  "function debts(address) public view returns (uint)",
+  "function predictEscrow(address user) public view returns (address)",
   "function getCreditLimit(address user) public view returns (uint)",
   "function getWithdrawalLimit(address user) public view returns (uint)",
   "function deposit(uint amount) public",
   "function borrow(uint amount) public",
   "function withdraw(address to, uint amount) public",
   "function repay(address user, uint amount) public",
-  // "function forceReplenish(address user) public",
+  "function forceReplenish(address user) public",
 ];
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
