@@ -177,5 +177,5 @@ export const preciseCommify = (v: number, precision: number, isDollar = false) =
     }
     const fixed = v.toFixed(precision);
     const split = fixed.split('.');
-    return `${isDollar ? '$' : ''}${commify(split[0])}.${split[1]}`;
+    return `${isDollar ? '$' : ''}${commify(split[0])}.${split[1]}`.replace('$-', '-$');
 }
