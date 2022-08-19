@@ -10,7 +10,7 @@ import { f2deposit, f2withdraw } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const F2CollateralForm = ({
     f2market,
@@ -26,6 +26,7 @@ export const F2CollateralForm = ({
     onAmountChange?: (v: number) => void
 }) => {
     const colDecimals = f2market.underlying.decimals;
+    const [amount, setAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
     const { deposits, bnDeposits } = useAccountDBRMarket(f2market, account);
@@ -40,9 +41,19 @@ export const F2CollateralForm = ({
             : f2withdraw(signer, f2market.address, amount)
     }
 
+    const handleAmountChange = (floatNumber: number) => {
+        setAmount(floatNumber)
+        !!onAmountChange && onAmountChange(isDeposit ? floatNumber : -floatNumber);
+    }
+
     const switchMode = () => {
         setIsDeposit(!isDeposit);
     }
+
+    useEffect(() => {
+        if(!onAmountChange) { return };
+        onAmountChange(isDeposit ? amount : -amount);
+    }, [isDeposit, amount, onAmountChange]);
 
     const btnlabel = isDeposit ? `Deposit` : 'Withdraw';
     const btnMaxlabel = `${btnlabel} Max`;
@@ -99,7 +110,7 @@ export const F2CollateralForm = ({
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={btnlabel}
                 maxActionLabel={btnMaxlabel}
-                onAmountChange={(floatNumber) => !!onAmountChange && onAmountChange(isDeposit ? floatNumber : -floatNumber)}
+                onAmountChange={handleAmountChange}
             />
         </VStack>
     </Container>
