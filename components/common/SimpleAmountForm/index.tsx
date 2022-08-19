@@ -29,14 +29,15 @@ type ActionProps = Props & {
     balance: number
 }
 
-type PropsWithFun = Props & {
+export type SimpleAmountFormProps = Props & {
     onAction: (p: ActionProps) => void
     onMaxAction: (p: ActionProps) => void
+    onAmountChange: (v: number) => void
 }
 
 const zeroBn = BigNumber.from('0');
 
-export const SimpleAmountForm = (props: PropsWithFun) => {
+export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const {
         address,
         destination,
@@ -49,6 +50,7 @@ export const SimpleAmountForm = (props: PropsWithFun) => {
         actionLabel = 'Submit',
         maxActionLabel = 'Submit MAX',
         maxAmountFrom,
+        onAmountChange,
     } = props;
 
     const [amount, setAmount] = useState('0');
@@ -67,12 +69,20 @@ export const SimpleAmountForm = (props: PropsWithFun) => {
         const bnAmount = isMax ? maxBn[0] : parseUnits((amount || '0'), decimals);
         const params = {
             bnAmount,
-            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount),
+            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount)||0,
             allowance,
             balance,
             ...props,
         };
         return isMax ? onAction(params) : onMaxAction(params);
+    }
+
+    const handleChange = (value: string) => {
+        setAmount(value);
+        if(onAmountChange) {
+            const floatAmount = parseFloat(value)||0;
+            onAmountChange(floatAmount);
+        }
     }
 
     return <VStack w='full'>
@@ -81,7 +91,7 @@ export const SimpleAmountForm = (props: PropsWithFun) => {
             <BalanceInput
                 value={amount}
                 inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
-                onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
+                onChange={(e: React.MouseEvent<HTMLInputElement>) => handleChange(e.target.value)}
                 onMaxClick={() => setToMaxDeposit()}
             />
         }
