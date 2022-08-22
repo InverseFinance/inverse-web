@@ -20,6 +20,8 @@ type Props = {
     actionLabel?: string
     maxActionLabel?: string
     maxAmountFrom?: BigNumber[]
+    btnThemeColor?: string
+    showMaxBtn?: boolean
 }
 
 type ActionProps = Props & {
@@ -51,6 +53,8 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         maxActionLabel = 'Submit MAX',
         maxAmountFrom,
         onAmountChange,
+        btnThemeColor,
+        showMaxBtn = true,
     } = props;
 
     const [amount, setAmount] = useState('0');
@@ -60,16 +64,19 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const balance = balances ? getBnToNumber(balances[address], decimals) : 0;
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
     maxBn.sort((a, b) => a.gt(b) ? 1 : -1);
+    const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
 
     const setToMaxDeposit = () => {
-        setAmount(formatUnits(maxBn[0], decimals));
+        const max = formatUnits(maxBn[0], decimals);
+        setAmount(max);
+        handleChange(max);
     }
 
     const handleAction = (isMax = false) => {
         const bnAmount = isMax ? maxBn[0] : parseUnits((amount || '0'), decimals);
         const params = {
             bnAmount,
-            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount)||0,
+            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,
             allowance,
             balance,
             ...props,
@@ -79,8 +86,8 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     const handleChange = (value: string) => {
         setAmount(value);
-        if(onAmountChange) {
-            const floatAmount = parseFloat(value)||0;
+        if (onAmountChange) {
+            const floatAmount = parseFloat(value) || 0;
             onAmountChange(floatAmount);
         }
     }
@@ -99,6 +106,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
             !allowance ?
                 <ApproveButton
                     w='full'
+                    themeColor={btnThemeColor}
                     address={address}
                     toAddress={destination}
                     signer={signer}
@@ -106,17 +114,21 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                 /> :
                 <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
                     <SubmitButton
+                        themeColor={btnThemeColor}
                         onClick={() => handleAction()}
                         refreshOnSuccess={true}
-                        disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > balance) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}>
+                        disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}>
                         {actionLabel}
                     </SubmitButton>
-                    <SubmitButton
-                        onClick={() => handleAction(true)}
-                        disabled={isMaxDisabled}
-                        refreshOnSuccess={true}>
-                        {maxActionLabel}
-                    </SubmitButton>
+                    {
+                        showMaxBtn && <SubmitButton
+                            themeColor={btnThemeColor}
+                            onClick={() => handleAction(true)}
+                            disabled={isMaxDisabled}
+                            refreshOnSuccess={true}>
+                            {maxActionLabel}
+                        </SubmitButton>
+                    }
                 </Stack>
         }
     </VStack>
