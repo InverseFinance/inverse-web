@@ -13,6 +13,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { roundFloorString } from '@app/util/misc'
 import { parseEther } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -20,7 +21,7 @@ export const F2BorrowForm = ({
     f2market,
     account,
     signer,
-    isBorrowDefault,
+    isBorrowDefault = true,
     onAmountChange,
 }: {
     f2market: F2Market
@@ -34,7 +35,7 @@ export const F2BorrowForm = ({
     const colDecimals = f2market.underlying.decimals;
 
     const { balance: dbrBalance, debt, bnDebt } = useAccountDBR(account);
-    const { withdrawalLimit } = useAccountDBRMarket(f2market, account);
+    const { withdrawalLimit, deposits, debt: marketDebt } = useAccountDBRMarket(f2market, account);
 
     const { balances: marketBnBalances } = useBalances([DOLA], 'balanceOf', f2market.address);
     const { balances: dolaBalances } = useBalances([DOLA], 'balanceOf');
@@ -63,20 +64,20 @@ export const F2BorrowForm = ({
     }
 
     useEffect(() => {
-        if(!onAmountChange) { return };
+        if (!onAmountChange) { return };
         onAmountChange(isBorrow ? amount : -amount);
     }, [isBorrow, amount, onAmountChange]);
 
     const btnlabel = isBorrow ? `Borrow` : 'Repay';
     const btnMaxlabel = `${btnlabel} Max`;
-    const mainColor = !isBorrow ? 'infoAlpha' : 'lightPrimaryAlpha';
+    const mainColor = 'lightPrimaryAlpha'//!isBorrow ? 'infoAlpha' : 'lightPrimaryAlpha';
 
     return <Container
         noPadding
         p="0"
         label={isBorrow ? `Borrow DOLA stablecoin` : `Repay Borrowed DOLA debt`}
         description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
-        w={{ base: 'full', lg: '50%' }}        
+        w={{ base: 'full', lg: '50%' }}
         contentBgColor={mainColor}
         right={
             (debt > 0 || !isBorrow) && <Text
@@ -90,7 +91,7 @@ export const F2BorrowForm = ({
             </Text>
         }
     >
-        <VStack justifyContent='space-between' w='full' minH="270px">
+        <VStack justifyContent='space-between' w='full' minH="300px">
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text>Borrow Asset:</Text>
@@ -101,7 +102,11 @@ export const F2BorrowForm = ({
                     <Text>{shortenNumber(dolaBalance, 2)}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Your DOLA Debt:</Text>
+                    <Text>Your DOLA Debt in this Market:</Text>
+                    <Text>{shortenNumber(marketDebt, 2)}</Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text>Your Total DOLA debt:</Text>
                     <Text>{shortenNumber(debt, 2)}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
@@ -109,23 +114,43 @@ export const F2BorrowForm = ({
                     <Text>{shortenNumber(dbrBalance, 2)}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Available DOLA liquidity:</Text>
+                    <Text>Market's available DOLA liquidity:</Text>
                     <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
                 </HStack>
             </VStack>
-            <SimpleAmountForm
-                address={isBorrow ? f2market.collateral : DOLA}
-                destination={f2market.address}
-                signer={signer}
-                decimals={colDecimals}
-                isDisabled={false}
-                maxAmountFrom={isBorrow ? [bnMarketDolaLiquidity, bnMaxNewBorrow] : [bnDolaBalance, bnDebt]}
-                onAction={({ bnAmount }) => handleAction(bnAmount)}
-                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                actionLabel={btnlabel}
-                maxActionLabel={btnMaxlabel}
-                onAmountChange={handleAmountChange}
-            />
+            {
+                deposits > 0 && dbrBalance > 0 ?
+                    <SimpleAmountForm
+                        address={isBorrow ? f2market.collateral : DOLA}
+                        destination={f2market.address}
+                        signer={signer}
+                        decimals={colDecimals}
+                        maxAmountFrom={isBorrow ? [bnMarketDolaLiquidity, bnMaxNewBorrow] : [bnDolaBalance, bnDebt]}
+                        onAction={({ bnAmount }) => handleAction(bnAmount)}
+                        onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                        actionLabel={btnlabel}
+                        maxActionLabel={btnMaxlabel}
+                        onAmountChange={handleAmountChange}
+                        // btnThemeColor={!isBorrow ? 'blue.600' : undefined}
+                        showMaxBtn={!isBorrow}
+                    />
+                    : <>
+                        {deposits === 0 &&
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                title="No Collateral Deposited yet"
+                                description={`You will be able to borrow a percentage of the deposited collateral worth, if the collateral worth covers less than ${f2market.collateralFactor}% of the borrow then liquidations of deposits can happen to cover the deficits.`}
+                            />
+                        }
+                        {dbrBalance === 0 && debt === 0 &&
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                title="No DBR tokens"
+                                description={`You need DBR tokens in your wallet to hold borrows over time`}
+                            />
+                        }
+                    </>
+            }
         </VStack>
     </Container>
 }

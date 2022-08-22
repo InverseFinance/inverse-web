@@ -46,7 +46,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} />
                         </ErrorBoundary>
                         <ErrorBoundary description="Failed to load Dbr Health">
-                            <DbrHealth debtDelta={newDebtAmount} />
+                            <DbrHealth account={account} debtDelta={newDebtAmount} />
                         </ErrorBoundary>
                     </Stack>
                     <Stack

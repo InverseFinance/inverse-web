@@ -1,13 +1,8 @@
-import { Flex, Stack, Text, VStack, HStack } from '@chakra-ui/react'
-import Container from '@app/components/common/Container'
-
-import { shortenNumber } from '@app/util/markets';
-
+import { Text, VStack, HStack } from '@chakra-ui/react'
 import { useAccountDBRMarket, useDBRMarkets } from '@app/hooks/useDBR'
-import { preciseCommify } from '@app/util/misc';
 import { F2Market } from '@app/types';
-import { useState } from 'react';
-import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
+import { F2StateInfo } from './F2StateInfo';
+import { QuantityBar } from './QuantityBar';
 
 export const CreditLimitBar = ({
   market,
@@ -20,7 +15,6 @@ export const CreditLimitBar = ({
   amountDelta: number
   debtDelta: number
 }) => {
-  const [isChanging, setIsChanging] = useState(false);
   const { creditLimit, deposits, withdrawalLimit, debt } = useAccountDBRMarket(market, account);
   const { markets } = useDBRMarkets([market.address]);
 
@@ -34,21 +28,18 @@ export const CreditLimitBar = ({
   const newDebt = debt + debtDelta;
 
   const previewPerc = !amountDelta && !debtDelta ?
-    perc : Math.max(newDebt > 0 && newCreditLimit > 0 ?
-      ((newCreditLimit - newDebt) / newCreditLimit) * 100
-      : 0, 0);
-  
-  const isPreviewing = previewPerc !== perc;
+    perc : Math.min(
+      Math.max(
+        (newCreditLimit > 0 ?
+          ((newCreditLimit - newDebt) / newCreditLimit) * 100
+          : 0)
+        , 0)
+      , 100);
+
+  const isPreviewing = !!(amountDelta || debtDelta);
 
   const creditLeft = withdrawalLimit * f2market?.price * f2market.collateralFactor / 100;
   const newCreditLeft = newCreditLimit - newDebt;
-
-  useDebouncedEffect(() => {
-    setIsChanging(true);
-    setTimeout(() => {
-      setIsChanging(false);
-    }, 400)
-  }, [amountDelta, debtDelta], 200);
 
   return (
     <VStack w='full' spacing="0">
@@ -56,76 +47,36 @@ export const CreditLimitBar = ({
         <Text color="secondaryTextColor">Collateral Health</Text>
         <Text color="secondaryTextColor">
           {
-            hasDebt || deposits ? `${shortenNumber(perc, 2)}%${isPreviewing ? ` => ${shortenNumber(previewPerc, 2)}%`: ''}` : ``
+            (hasDebt || deposits) && <F2StateInfo
+              currentValue={perc}
+              nextValue={isPreviewing && perc !== previewPerc ? previewPerc : undefined}
+              type={'perc'}
+            />
           }
         </Text>
       </HStack>
-      <Container
-        noPadding
-        p="0"
-        contentBgColor={ previewPerc > 0 ? `gradient2` : 'errorAlpha' }
-      >
-        <Flex w="full" justify="center">
-          <Stack
-            w="full"
-            direction={{ base: 'column', sm: 'row' }}
-            justify="center"
-            align="center"
-            spacing={2}
-            fontSize="sm"
-            fontWeight="semibold"
-          >
-            <Flex
-              position="relative"
-              boxShadow={isChanging ? '0px 0px 5px 0px red' : undefined}
-              transition="box-shadow 0.2s ease-in-out"
-              w="full"
-              h={'4px'}
-              alignItems="center"
-              borderRadius={8}
-              bgColor={`${badgeColorScheme}Alpha`}
-            >
-              <Flex
-                transition="box-shadow 0.2s ease-in-out"
-                boxShadow={isChanging ? '0px 0px 5px 0px red' : undefined}
-                w={`${perc}%`}
-                h="6px"
-                borderLeftRadius={8}
-                borderRightRadius={isPreviewing ? '0' : 8}
-                bgColor={badgeColorScheme}></Flex>
-              {
-                isPreviewing && <Flex
-                  position="absolute"
-                  zIndex="2"
-                  transition="box-shadow, width 0.2s ease-in-out"
-                  boxShadow={isChanging ? '0px 0px 5px 0px red' : undefined}
-                  left={previewPerc > perc ? `${perc}%` : `${previewPerc}%`}
-                  w={previewPerc > perc ? `${previewPerc - perc}%` : `${perc - previewPerc}%`}
-                  h="6px"
-                  borderLeftRadius={perc > previewPerc ? 8 : 0}
-                  borderRightRadius={previewPerc > perc ? 8 : 0}
-                  bgColor={'#ffffff66'}></Flex>
-              }
-            </Flex>
-          </Stack>
-        </Flex>
-      </Container>
+      <QuantityBar
+        perc={perc}
+        previewPerc={previewPerc}
+        hasError={!!hasDebt && !!isPreviewing && previewPerc <= 0 }
+        badgeColorScheme={badgeColorScheme}
+        isPreviewing={isPreviewing}
+      />
       <HStack pt="4" w='full' justifyContent="space-between">
-        <Text color="secondaryTextColor">
-          {
-            creditLeft ?
-              `${preciseCommify(creditLeft, 2, true)}${isPreviewing ? ` => ${preciseCommify(newCreditLeft, 2, true)}` : ''}` :
-              `Deposit to Gain Health`
-          }
-        </Text>
-        <Text color="secondaryTextColor">
-          {
-            creditLimit ?
-              `Total: ${preciseCommify(creditLimit, 2, true)}`
-              :
-              `No Collateral deposited`
-          }
-        </Text>
+        <F2StateInfo
+          currentValue={creditLeft}
+          nextValue={isPreviewing ? newCreditLeft : undefined}
+          type={'dollar'}
+          placeholder="Deposit to Gain Health"
+          suffix=" left"
+        />
+        <F2StateInfo
+          currentValue={creditLimit}
+          nextValue={isPreviewing ? newCreditLeft : undefined}
+          type={'dollar'}
+          placeholder="No Collateral deposited"
+          prefix={creditLimit && !isPreviewing ? 'Total: ' : ''}
+        />
       </HStack>
     </VStack>
   )

@@ -29,7 +29,7 @@ export const F2CollateralForm = ({
     const [amount, setAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
-    const { deposits, bnDeposits } = useAccountDBRMarket(f2market, account);
+    const { deposits, bnDeposits, debt } = useAccountDBRMarket(f2market, account);
     const { balances } = useBalances([f2market.collateral]);
     const bnCollateralBalance = balances ? balances[f2market.collateral] : BigNumber.from('0');
     const collateralBalance = balances ? getBnToNumber(bnCollateralBalance, colDecimals) : 0;
@@ -56,7 +56,7 @@ export const F2CollateralForm = ({
 
     const btnLabel = isDeposit ? `Deposit` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
-    const mainColor = isDeposit ? 'infoAlpha' : 'lightPrimaryAlpha';
+    const mainColor = 'infoAlpha'//isDeposit ? 'infoAlpha' : 'lightPrimaryAlpha';
 
     return <Container
         noPadding
@@ -77,7 +77,7 @@ export const F2CollateralForm = ({
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack justifyContent='space-between' w='full' minH="270px">
+        <VStack justifyContent='space-between' w='full' minH="300px">
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text>Collateral Name:</Text>
@@ -112,6 +112,8 @@ export const F2CollateralForm = ({
                 actionLabel={btnLabel}
                 maxActionLabel={btnMaxlabel}
                 onAmountChange={handleAmountChange}
+                btnThemeColor={'blue.600'}
+                showMaxBtn={isDeposit || !debt}
             />
         </VStack>
     </Container>

@@ -59,7 +59,7 @@ const columns = [
     },
     {
         field: 'totalDebt',
-        label: 'Borrowed Against',
+        label: 'Total Borrows',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ totalDebt }) => {
             return <Cell minWidth="100px" justify="center" >
