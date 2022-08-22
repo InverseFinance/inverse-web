@@ -12,14 +12,14 @@ const zero = BigNumber.from('0');
 const oneDay = 86400000;
 const oneYear = oneDay * 365;
 
-export const useAccountDBR = (account: string): SWR & {
+export const useAccountDBR = (account: string, previewDebt?: number): SWR & {
   balance: number,
   debt: number,
   interests: number,
   signedBalance: number,
   dailyDebtAccrual: number,
   dbrNbDaysExpiry: number,
-  dbrExpiryDate: number,
+  dbrExpiryDate: number | null,
   dbrDepletionPerc: number,
   bnDebt: BigNumber,
 } => {
@@ -36,15 +36,16 @@ export const useAccountDBR = (account: string): SWR & {
   // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];
 
   // interests are not auto-compounded
-  const dailyDebtAccrual = (oneDay * debt / oneYear);
+  const _debt = previewDebt ?? debt; 
+  const dailyDebtAccrual = (oneDay * _debt / oneYear);
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balance / dailyDebtAccrual : 0;
-  const dbrExpiryDate = (+new Date() + dbrNbDaysExpiry * oneDay);
+  const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   return {
     balance,
-    debt,
+    debt: _debt,
     interests,
     signedBalance,
     dailyDebtAccrual,
