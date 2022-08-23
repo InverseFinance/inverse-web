@@ -29,7 +29,7 @@ export const F2CollateralForm = ({
     const [amount, setAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
-    const { deposits, bnDeposits, debt } = useAccountDBRMarket(f2market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit } = useAccountDBRMarket(f2market, account);
     const { balances } = useBalances([f2market.collateral]);
     const bnCollateralBalance = balances ? balances[f2market.collateral] : BigNumber.from('0');
     const collateralBalance = balances ? getBnToNumber(bnCollateralBalance, colDecimals) : 0;
@@ -106,7 +106,7 @@ export const F2CollateralForm = ({
                 destination={f2market.address}
                 signer={signer}
                 decimals={colDecimals}
-                maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits]}
+                maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={btnLabel}

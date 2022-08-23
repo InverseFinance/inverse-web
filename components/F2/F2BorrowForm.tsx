@@ -75,7 +75,7 @@ export const F2BorrowForm = ({
     return <Container
         noPadding
         p="0"
-        label={isBorrow ? `Borrow DOLA stablecoin` : `Repay Borrowed DOLA debt`}
+        label={isBorrow ? `Borrow DOLA` : `Repay Borrowed DOLA debt`}
         description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
         w={{ base: 'full', lg: '50%' }}
         contentBgColor={mainColor}
@@ -109,10 +109,10 @@ export const F2BorrowForm = ({
                     <Text>Your Total DOLA debt:</Text>
                     <Text>{shortenNumber(debt, 2)}</Text>
                 </HStack>
-                <HStack w='full' justifyContent="space-between">
+                {/* <HStack w='full' justifyContent="space-between">
                     <Text>Your DOLA Borrow Rights:</Text>
                     <Text>{shortenNumber(dbrBalance, 2)}</Text>
-                </HStack>
+                </HStack> */}
                 <HStack w='full' justifyContent="space-between">
                     <Text>Market's available DOLA liquidity:</Text>
                     <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
