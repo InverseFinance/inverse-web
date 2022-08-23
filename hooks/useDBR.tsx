@@ -36,7 +36,7 @@ export const useAccountDBR = (account: string, previewDebt?: number): SWR & {
   // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];
 
   // interests are not auto-compounded
-  const _debt = previewDebt ?? debt; 
+  const _debt = previewDebt ?? debt;
   const dailyDebtAccrual = (oneDay * _debt / oneYear);
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balance / dailyDebtAccrual : 0;
@@ -97,7 +97,10 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   }
 }
 
-export const useAccountDBRMarket = (market: any, account: string): {
+export const useAccountDBRMarket = (
+  market: F2Market,
+  account: string,
+): {
   escrow: string | undefined
   deposits: number
   bnDeposits: BigNumber
@@ -105,8 +108,12 @@ export const useAccountDBRMarket = (market: any, account: string): {
   bnCreditLimit: BigNumber
   withdrawalLimit: number
   bnWithdrawalLimit: BigNumber
+  creditLeft: number
+  perc: number
   debt: number
   bnDebt: BigNumber
+  hasDebt: boolean
+  liquidationPrice: number | null
 } => {
   const { data: accountMarketData, error } = useEtherSWR([
     [market.address, 'escrows', account],
@@ -115,24 +122,41 @@ export const useAccountDBRMarket = (market: any, account: string): {
     [market.address, 'debts', account],
   ]);
 
-  const [escrow, creditLimit, withdrawalLimit, debt] = accountMarketData || [undefined, undefined, undefined, undefined];
+  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
 
-  const { data: balance } = useEtherSWR({
+  const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
     abi: F2_SIMPLE_ESCROW,
   });
+  const bnDeposits = (escrowData ? escrowData[0] : zero);
 
   const decimals = market.underlying.decimals;
 
+  const { deposits, withdrawalLimit } = {
+    deposits: bnDeposits ? getBnToNumber(bnDeposits, decimals) : 0,
+    withdrawalLimit: bnWithdrawalLimit ? getBnToNumber(bnWithdrawalLimit, decimals) : 0,
+  }
+
+  const hasDebt = !!deposits && !!withdrawalLimit && deposits > 0 && deposits !== withdrawalLimit;
+  const debt = bnDebt ? getBnToNumber(bnDebt) : 0;
+  const perc = Math.max(hasDebt ? withdrawalLimit / deposits * 100 : deposits ? 100 : 0, 0);
+
+  const creditLeft = withdrawalLimit * market?.price * market.collateralFactor / 100;
+  const liquidationPrice = hasDebt ? debt / (market.collateralFactor/100 * deposits) : null;
+
   return {
     escrow,
-    deposits: balance ? getBnToNumber(balance[0], decimals) : 0,
-    bnDeposits: balance ? balance[0] : BigNumber.from('0'),
-    creditLimit: creditLimit ? getBnToNumber(creditLimit) : 0,
-    bnCreditLimit: creditLimit ? creditLimit : zero,
-    withdrawalLimit: withdrawalLimit ? getBnToNumber(withdrawalLimit, decimals) : 0,
-    bnWithdrawalLimit: withdrawalLimit ? withdrawalLimit : zero,
-    debt: debt ? getBnToNumber(debt) : 0,
-    bnDebt: debt ? debt : zero,
+    deposits,
+    bnDeposits,
+    creditLimit: bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0,
+    bnCreditLimit,
+    withdrawalLimit,
+    bnWithdrawalLimit,
+    debt,
+    bnDebt,
+    creditLeft,
+    perc,
+    hasDebt,
+    liquidationPrice,
   }
 }
