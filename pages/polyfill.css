@@ -15,6 +15,9 @@ body {
       -webkit-backdrop-filter: blur(1.5rem);
       backdrop-filter: blur(1.5rem);
     }
+    .infoLight-bg {
+        background-color: #4299e144 !important;
+    }  
     .info-bg {
         background-color: #4299e122 !important;
     }    
