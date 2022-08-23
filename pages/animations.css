@@ -1,0 +1,18 @@
+@keyframes box-shadow-anim {
+    0% {
+        box-shadow: none;
+    }
+
+    50% {
+        box-shadow: 0px 0px 2px 1px #ffffffaa;
+    }
+
+    100% {
+        box-shadow: none;
+    }
+}
+
+.box-shadow-highlight-anim {
+    -webkit-animation: box-shadow-anim ease-in-out 1s infinite;
+    animation: box-shadow-anim ease-in-out 1s infinite;
+}
