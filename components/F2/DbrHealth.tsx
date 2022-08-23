@@ -4,6 +4,7 @@ import { useAccountDBR } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
+import { F2DbrInfosModal } from './F2DbrInfosModal';
 
 export const DbrHealth = ({
   account,
@@ -12,6 +13,7 @@ export const DbrHealth = ({
   account: string
   debtDelta: number
 }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const { dbrNbDaysExpiry, signedBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);
   const { dailyDebtAccrual: newDailyRate, dbrExpiryDate: previewExpiryDate, dbrDepletionPerc: previewPerc } = useAccountDBR(account, debt + debtDelta);
 
@@ -20,7 +22,8 @@ export const DbrHealth = ({
   const isPreviewing = !!debtDelta;
 
   return (
-    <VStack w='full' spacing="0" alignItems="center">
+    <VStack w='full' spacing="0" alignItems="center" onClick={() => onOpen()}>
+      <F2DbrInfosModal onClose={onClose} isOpen={isOpen} />
       <HStack w='full' justifyContent="space-between">
         <F2StateInfo
           currentValue={dbrExpiryDate}
