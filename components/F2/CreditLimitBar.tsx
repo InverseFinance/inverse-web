@@ -1,8 +1,10 @@
 import { Text, VStack, HStack } from '@chakra-ui/react'
-import { useAccountDBRMarket, useDBRMarkets } from '@app/hooks/useDBR'
+import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { F2Market } from '@app/types';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
+import { f2CalcNewHealth } from '@app/util/f2';
+import { preciseCommify } from '@app/util/misc';
 
 export const CreditLimitBar = ({
   market,
@@ -15,50 +17,47 @@ export const CreditLimitBar = ({
   amountDelta: number
   debtDelta: number
 }) => {
-  const { creditLimit, deposits, withdrawalLimit, debt } = useAccountDBRMarket(market, account);
-  const { markets } = useDBRMarkets([market.address]);
-
-  const f2market = markets[0];
+  const { creditLimit, deposits, debt, perc, hasDebt, creditLeft, liquidationPrice } = useAccountDBRMarket(market, account);
 
   const badgeColorScheme = 'error'
 
-  const hasDebt = deposits && withdrawalLimit && deposits > 0 && deposits !== withdrawalLimit;
-  const perc = Math.max(hasDebt ? withdrawalLimit / deposits * 100 : deposits ? 100 : 0, 0);
-  const newCreditLimit = (deposits + (amountDelta || 0)) * f2market.collateralFactor / 100 * f2market.price;
-  const newDebt = debt + debtDelta;
-
-  const previewPerc = !amountDelta && !debtDelta ?
-    perc : Math.min(
-      Math.max(
-        (newCreditLimit > 0 ?
-          ((newCreditLimit - newDebt) / newCreditLimit) * 100
-          : 0)
-        , 0)
-      , 100);
+  const {
+    newPerc, newCreditLeft, newLiquidationPrice
+  } = f2CalcNewHealth(market, deposits, debt, amountDelta, debtDelta, perc);
 
   const isPreviewing = !!(amountDelta || debtDelta);
-
-  const creditLeft = withdrawalLimit * f2market?.price * f2market.collateralFactor / 100;
-  const newCreditLeft = newCreditLimit - newDebt;
+  console.log(liquidationPrice)
+  console.log(newLiquidationPrice)
 
   return (
-    <VStack w='full' spacing="0">
+    <VStack w='full' spacing="0" alignItems="center">
       <HStack w='full' justifyContent="space-between">
-        <Text color="secondaryTextColor">Collateral Health</Text>
+        <F2StateInfo
+          currentValue={liquidationPrice}
+          nextValue={isPreviewing ? newLiquidationPrice : undefined}
+          type={'dollar'}
+          placeholder="No Risk"
+          prefix="Liquidation Price: "
+          tooltip={`If the collateral price reaches or goes below ${preciseCommify(liquidationPrice||newLiquidationPrice||0, 2, true)}, liquidations may happen on your collateral.`}
+        />
         <Text color="secondaryTextColor">
           {
-            (hasDebt || deposits) && <F2StateInfo
+            (hasDebt || deposits)
+            && <F2StateInfo
               currentValue={perc}
-              nextValue={isPreviewing && perc !== previewPerc ? previewPerc : undefined}
+              nextValue={isPreviewing && perc !== newPerc ? newPerc : undefined}
               type={'perc'}
+              prefix="Health Level: "
+              tooltip="The percentage of the Loan covered by your Collateral, the higher the safer."
             />
           }
         </Text>
       </HStack>
       <QuantityBar
+        title="Collateral Health"
         perc={perc}
-        previewPerc={previewPerc}
-        hasError={!!hasDebt && !!isPreviewing && previewPerc <= 0 }
+        previewPerc={newPerc}
+        hasError={!!hasDebt && !!isPreviewing && newPerc <= 0}
         badgeColorScheme={badgeColorScheme}
         isPreviewing={isPreviewing}
       />
@@ -68,14 +67,16 @@ export const CreditLimitBar = ({
           nextValue={isPreviewing ? newCreditLeft : undefined}
           type={'dollar'}
           placeholder="Deposit to Gain Health"
-          suffix=" left"
+          suffix=" Health Left"
+          tooltip="The Borrowing Power left in USD, if it reaches 0, liquidations can happen."
         />
         <F2StateInfo
           currentValue={creditLimit}
           nextValue={isPreviewing ? newCreditLeft : undefined}
           type={'dollar'}
           placeholder="No Collateral deposited"
-          prefix={creditLimit && !isPreviewing ? 'Total: ' : ''}
+          tooltip="The borrowing power in USD given by your deposited collaterals."
+          prefix={'Borrowing Power: '}
         />
       </HStack>
     </VStack>
