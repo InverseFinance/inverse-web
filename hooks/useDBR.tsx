@@ -12,7 +12,10 @@ const zero = BigNumber.from('0');
 const oneDay = 86400000;
 const oneYear = oneDay * 365;
 
-export const useAccountDBR = (account: string, previewDebt?: number): SWR & {
+export const useAccountDBR = (
+  account: string | undefined | null,
+  previewDebt?: number,
+): SWR & {
   balance: number,
   debt: number,
   interests: number,
@@ -142,7 +145,7 @@ export const useAccountDBRMarket = (
   const perc = Math.max(hasDebt ? withdrawalLimit / deposits * 100 : deposits ? 100 : 0, 0);
 
   const creditLeft = withdrawalLimit * market?.price * market.collateralFactor / 100;
-  const liquidationPrice = hasDebt ? debt / (market.collateralFactor/100 * deposits) : null;
+  const liquidationPrice = hasDebt ? debt / (market.collateralFactor / 100 * deposits) : null;
 
   return {
     escrow,
@@ -159,4 +162,28 @@ export const useAccountDBRMarket = (
     hasDebt,
     liquidationPrice,
   }
+}
+
+export const useAccountF2Markets = (
+  markets: F2Market[],
+  account: string,
+): {
+  escrow: string | undefined
+  deposits: number
+  bnDeposits: BigNumber
+  creditLimit: number
+  bnCreditLimit: BigNumber
+  withdrawalLimit: number
+  bnWithdrawalLimit: BigNumber
+  creditLeft: number
+  perc: number
+  debt: number
+  bnDebt: BigNumber
+  hasDebt: boolean
+  liquidationPrice: number | null
+}[] => {
+  return markets.map(m => {
+    const accountData =  useAccountDBRMarket(m, account);
+    return { ...m, ...accountData }
+  });
 }

@@ -6,8 +6,10 @@ import Head from 'next/head'
 import { F2Header } from '@app/components/F2/F2Header'
 import { DbrHealth } from '@app/components/F2/DbrHealth'
 import { F2Markets } from '@app/components/F2/F2Markets'
+import { useAccount } from '@app/hooks/misc'
 
 export const F2PAGE = () => {
+    const account = useAccount();
     return (
         <Layout>
             <Head>
@@ -18,10 +20,14 @@ export const F2PAGE = () => {
                 <VStack w='full' maxW="84rem">
                     <ErrorBoundary description="Failed to load header"><F2Header /></ErrorBoundary>
                     <ErrorBoundary description="Failed to load Dbr Health">
-                        <VStack px='6' w='full'><DbrHealth /></VStack>
+                        <VStack px='6' w='full'>
+                            <DbrHealth account={account} />
+                        </VStack>
                     </ErrorBoundary>
-                    <ErrorBoundary description="Failed to Markets"><F2Markets /></ErrorBoundary>
-                </VStack>                
+                    <ErrorBoundary description="Failed to Markets">
+                        <F2Markets />
+                    </ErrorBoundary>
+                </VStack>
             </ErrorBoundary>
         </Layout>
     )

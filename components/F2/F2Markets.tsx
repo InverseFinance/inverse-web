@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Flex, Stack, Text, useDisclosure } from "@chakra-ui/react"
+import { Flex, Stack, Text } from "@chakra-ui/react"
 import Table from "@app/components/common/Table";
 import { UnderlyingItemBlock } from "@app/components/common/Assets/UnderlyingItemBlock";
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useDBRMarkets } from '@app/hooks/useDBR';
+import { useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
 import { commify } from 'ethers/lib/utils';
 import { useRouter } from 'next/router';
+import { useAccount } from '@app/hooks/misc';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -68,12 +68,22 @@ const columns = [
         },
     },
     {
-        field: 'totalDebt',
+        field: 'debt',
+        label: 'You Borrowed',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ debt }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <Text>{shortenNumber(debt, 2)} DOLA</Text>
+            </Cell>
+        },
+    },
+    {
+        field: 'perc',
         label: 'Health',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ totalDebt }) => {
+        value: ({ perc, hasDebt }) => {
             return <Cell minWidth="100px" justify="center" >
-                <Text>health here</Text>
+                <Text>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</Text>
             </Cell>
         },
     },
@@ -85,6 +95,8 @@ export const F2Markets = ({
 
 }) => {
     const { markets } = useDBRMarkets();
+    const account = useAccount();
+    const accountMarkets = useAccountF2Markets(markets, account);
     const router = useRouter();
 
     const openMarket = (market: any) => {
@@ -99,7 +111,7 @@ export const F2Markets = ({
             keyName="address"
             noDataMessage="Loading..."
             columns={columns}
-            items={markets}
+            items={accountMarkets}
             onClick={openMarket}
             defaultSort="address"
             defaultSortDir="desc"
