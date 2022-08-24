@@ -1,16 +1,20 @@
 export const MENUS = {
   "nav": [
     {
-      label: 'Frontier',
-      href: '/frontier',
+      label: 'Markets',
+      href: '/f2',
       submenus: [
         {
-          label: 'Overview',
-          href: '/frontier',
+          label: 'Fixed Rate Markets',
+          href: '/f2',
         },
         {
-          label: 'Stake INV',
-          href: '/frontier?marketType=supply&market=inv#',
+          label: 'WETH Market',
+          href: '/f2/',
+        },
+        {
+          label: 'Frontier (deprecated)',
+          href: '/frontier',
         },
         // {
         //   label: 'Borrow DOLA',
@@ -19,12 +23,24 @@ export const MENUS = {
       ],
     },
     {
-      label: 'INV',
+      label: 'Tokens',
       href: '/inv',
       submenus: [
         {
+          label: 'Overview',
+          href: '/tokens',
+        },
+        {
           label: 'INV',
-          href: '/inv',
+          href: '/tokens/inv',
+        },
+        {
+          label: 'DOLA',
+          href: '/swap/DAI/DOLA',
+        },
+        {
+          label: 'DBR',
+          href: '/tokens/dbr',
         },
         {
           label: 'Yield Opportunities',
@@ -32,24 +48,24 @@ export const MENUS = {
         },
       ]
     },
-    {
-      label: 'Swap',
-      href: '/swap/DAI/DOLA',
-      submenus: [
-        {
-          label: 'Buy DOLA with DAI',
-          href: '/swap/DAI/DOLA',
-        },
-        {
-          label: 'Buy DOLA with USDC',
-          href: '/swap/USDC/DOLA',
-        },
-        {
-          label: 'Buy DOLA with USDT',
-          href: '/swap/USDT/USDT',
-        },
-      ]
-    },
+    // {
+    //   label: 'Swap',
+    //   href: '/swap/DAI/DOLA',
+    //   submenus: [
+    //     {
+    //       label: 'Buy DOLA with DAI',
+    //       href: '/swap/DAI/DOLA',
+    //     },
+    //     {
+    //       label: 'Buy DOLA with USDC',
+    //       href: '/swap/USDC/DOLA',
+    //     },
+    //     {
+    //       label: 'Buy DOLA with USDT',
+    //       href: '/swap/USDT/USDT',
+    //     },
+    //   ]
+    // },
     {
       label: 'Bonds',
       href: '/bonds',
@@ -164,20 +180,20 @@ export const MENUS = {
       groupLabel: 'Products',
       items: [
         {
-          label: 'INV',
-          href: '/inv',
+          label: 'Fixed Markets',
+          href: '/f2',
         },
         {
-          label: 'Frontier',
-          href: '/frontier',
-        },
-        {
-          label: 'DOLA',
-          href: '/swap',
+          label: 'Tokens',
+          href: '/tokens',
         },
         {
           label: 'Bonds',
           href: '/bonds',
+        },
+        {
+          label: 'Frontier',
+          href: '/frontier',
         },
       ],
     },
@@ -227,10 +243,6 @@ export const MENUS = {
           href: 'https://t.me/InverseFinance',
         },
         {
-          label: 'Blog',
-          href: '/blog',
-        },
-        {
           label: 'Newsletter',
           href: '/newsletter',
         },
@@ -244,9 +256,13 @@ export const MENUS = {
           href: 'https://twitter.com/InverseFinance',
         },
         {
-          label: 'Medium',
-          href: 'https://medium.com/inverse-finance',
+          label: 'Blog',
+          href: '/blog',
         },
+        // {
+        //   label: 'Medium',
+        //   href: 'https://medium.com/inverse-finance',
+        // },
       ],
     },
   ],
@@ -263,10 +279,10 @@ export const MENUS = {
       href: 'https://t.me/InverseFinance',
       image: '/assets/socials/telegram.svg',
     },
-    {
-      href: 'https://medium.com/inverse-finance',
-      image: '/assets/socials/medium.svg',
-    },
+    // {
+    //   href: 'https://medium.com/inverse-finance',
+    //   image: '/assets/socials/medium.svg',
+    // },
     {
       href: 'https://github.com/InverseFinance',
       image: '/assets/socials/github.svg',
