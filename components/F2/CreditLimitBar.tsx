@@ -1,10 +1,11 @@
-import { Text, VStack, HStack } from '@chakra-ui/react'
+import { Text, VStack, HStack, useDisclosure } from '@chakra-ui/react'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { F2Market } from '@app/types';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
 import { f2CalcNewHealth } from '@app/util/f2';
 import { preciseCommify } from '@app/util/misc';
+import { F2HealthInfosModal } from './Modals/F2HealthInfosModal';
 
 export const CreditLimitBar = ({
   market,
@@ -17,6 +18,7 @@ export const CreditLimitBar = ({
   amountDelta: number
   debtDelta: number
 }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const { creditLimit, deposits, debt, perc, hasDebt, creditLeft, liquidationPrice } = useAccountDBRMarket(market, account);
 
   const badgeColorScheme = 'error'
@@ -26,11 +28,10 @@ export const CreditLimitBar = ({
   } = f2CalcNewHealth(market, deposits, debt, amountDelta, debtDelta, perc);
 
   const isPreviewing = !!(amountDelta || debtDelta);
-  console.log(liquidationPrice)
-  console.log(newLiquidationPrice)
 
   return (
     <VStack w='full' spacing="0" alignItems="center">
+      <F2HealthInfosModal onClose={onClose} isOpen={isOpen} />
       <HStack w='full' justifyContent="space-between">
         <F2StateInfo
           currentValue={liquidationPrice}
@@ -38,7 +39,7 @@ export const CreditLimitBar = ({
           type={'dollar'}
           placeholder="No Risk"
           prefix="Liquidation Price: "
-          tooltip={`If the collateral price reaches or goes below ${preciseCommify(liquidationPrice||newLiquidationPrice||0, 2, true)}, liquidations may happen on your collateral.`}
+          tooltip={`If the collateral price reaches or goes below ${preciseCommify(liquidationPrice || newLiquidationPrice || 0, 2, true)}, liquidations may happen on your collateral.`}
         />
         <Text color="secondaryTextColor">
           {
@@ -60,6 +61,8 @@ export const CreditLimitBar = ({
         hasError={!!hasDebt && !!isPreviewing && newPerc <= 0}
         badgeColorScheme={badgeColorScheme}
         isPreviewing={isPreviewing}
+        cursor="pointer"
+        onClick={() => onOpen()}
       />
       <HStack pt="4" w='full' justifyContent="space-between">
         <F2StateInfo

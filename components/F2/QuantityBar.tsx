@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ export const QuantityBar = ({
     isPreviewing,
     hasError,
     title,
+    ...props
 }: {
     badgeColorScheme?: string,
     perc: number,
@@ -17,7 +18,7 @@ export const QuantityBar = ({
     isPreviewing?: boolean,
     hasError?: boolean,
     title?: string,
-}) => {
+} & Partial<FlexProps>) => {
     const [isChanging, setIsChanging] = useState(false);
     const _previewPerc = Math.min(Math.max(previewPerc ?? perc, 0), 100);
 
@@ -32,6 +33,7 @@ export const QuantityBar = ({
         noPadding
         p="0"
         contentBgColor={hasError ? `errorAlpha` : 'gradient2'}
+        {...props}
     >
         <Flex w="full" justify="center">
             {

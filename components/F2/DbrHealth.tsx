@@ -4,7 +4,7 @@ import { useAccountDBR } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
-import { F2DbrInfosModal } from './F2DbrInfosModal';
+import { F2DbrInfosModal } from './Modals/F2DbrInfosModal';
 
 export const DbrHealth = ({
   account,
@@ -22,7 +22,7 @@ export const DbrHealth = ({
   const isPreviewing = !!debtDelta;
 
   return (
-    <VStack w='full' spacing="0" alignItems="center" onClick={() => onOpen()}>
+    <VStack w='full' spacing="0" alignItems="center">
       <F2DbrInfosModal onClose={onClose} isOpen={isOpen} />
       <HStack w='full' justifyContent="space-between">
         <F2StateInfo
@@ -51,6 +51,8 @@ export const DbrHealth = ({
         previewPerc={previewPerc}
         badgeColorScheme={'success'}
         isPreviewing={isPreviewing}
+        cursor="pointer"
+        onClick={() => onOpen()}
       />
       <HStack pt="4" w='full' justifyContent="space-between">
         {/* <Text color="secondaryTextColor">
