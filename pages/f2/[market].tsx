@@ -5,22 +5,24 @@ import { AppNav } from '@app/components/common/Navbar'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { Stack, VStack } from '@chakra-ui/react'
+import { HStack, Stack, VStack, Text } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
-import { DbrHealth } from '@app/components/F2/DbrHealth'
+import { DbrHealth } from '@app/components/F2/bars/DbrHealth'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
-import { CreditLimitBar } from '@app/components/F2/CreditLimitBar'
-import { F2CollateralForm } from '@app/components/F2/F2CollateralForm'
-import { F2BorrowForm } from '@app/components/F2/F2BorrowForm'
+import { CreditLimitBar } from '@app/components/F2/bars/CreditLimitBar'
+import { F2CollateralForm } from '@app/components/F2/forms/F2CollateralForm'
+import { F2BorrowForm } from '@app/components/F2/forms/F2BorrowForm'
 import { useState } from 'react'
+import { SettingsIcon } from '@chakra-ui/icons'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const [newCollateralAmount, setNewCollateralAmount] = useState(0);
     const [newDebtAmount, setNewDebtAmount] = useState(0);
+    const [isAdvancedMode, setIsAdvancedMode] = useState(false);
     const { account, library } = useWeb3React<Web3Provider>();
     const { markets } = useDBRMarkets(market);
     const f2market = markets[0];
@@ -30,12 +32,25 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             <AppNav active="Frontier" />
             <ErrorBoundary>
                 <VStack w='full' maxW="84rem" alignItems="flex-start" p="6" spacing="8">
-                    <SimmpleBreadcrumbs
-                        breadcrumbs={[
-                            { label: 'F2', href: '/f2' },
-                            { label: `${f2market.name} Market`, href: '#' },
-                        ]}
-                    />
+                    <HStack w='full' justify="space-between">
+                        <SimmpleBreadcrumbs
+                            breadcrumbs={[
+                                { label: 'F2', href: '/f2' },
+                                { label: `${f2market.name} Market`, href: '#' },
+                            ]}
+                        />
+                        <HStack color="mainTextColor" _hover={{ color: 'secondary' }}>
+                            <Text
+                                onClick={() => setIsAdvancedMode(!isAdvancedMode)}
+                                cursor="pointer"
+                                fontWeight="bold"
+                                color="mainTextColor"
+                                _hover={{ color: 'secondary' }}>
+                                Switch to {isAdvancedMode ? 'Simple' : 'Advanced'} Mode
+                            </Text>
+                            <SettingsIcon />
+                        </HStack>
+                    </HStack>
                     <Stack
                         alignItems="flex-start"
                         w='full'
@@ -49,25 +64,37 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             <DbrHealth account={account} debtDelta={newDebtAmount} />
                         </ErrorBoundary>
                     </Stack>
-                    <Stack
-                        alignItems="flex-start"
-                        w='full'
-                        direction={{ base: 'column', lg: 'row' }}
-                        spacing="12"
-                    >
-                        <F2CollateralForm
-                            signer={library?.getSigner()}
-                            f2market={f2market}
-                            account={account}
-                            onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                        />
-                        <F2BorrowForm
-                            signer={library?.getSigner()}
-                            f2market={f2market}
-                            account={account}
-                            onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
-                        />
-                    </Stack>
+                    {
+                        isAdvancedMode ?
+                            <Stack
+                                alignItems="flex-start"
+                                w='full'
+                                direction={{ base: 'column', lg: 'row' }}
+                                spacing="12"
+                            >
+                                <F2CollateralForm
+                                    signer={library?.getSigner()}
+                                    f2market={f2market}
+                                    account={account}
+                                    onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
+                                />
+                                <F2BorrowForm
+                                    signer={library?.getSigner()}
+                                    f2market={f2market}
+                                    account={account}
+                                    onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
+                                />
+                            </Stack>
+                            :
+                            <Stack
+                                alignItems="flex-start"
+                                w='full'
+                                direction={{ base: 'column', lg: 'row' }}
+                                spacing="12"
+                            >
+
+                            </Stack>
+                    }
                 </VStack>
             </ErrorBoundary>
         </Layout>

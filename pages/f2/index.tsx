@@ -4,7 +4,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { F2Header } from '@app/components/F2/F2Header'
-import { DbrHealth } from '@app/components/F2/DbrHealth'
+import { DbrHealth } from '@app/components/F2/bars/DbrHealth'
 import { F2Markets } from '@app/components/F2/F2Markets'
 import { useAccount } from '@app/hooks/misc'
 

@@ -5,7 +5,7 @@ import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
 import { f2CalcNewHealth } from '@app/util/f2';
 import { preciseCommify } from '@app/util/misc';
-import { F2HealthInfosModal } from './Modals/F2HealthInfosModal';
+import { F2HealthInfosModal } from '../Modals/F2HealthInfosModal';
 
 export const CreditLimitBar = ({
   market,
@@ -39,7 +39,10 @@ export const CreditLimitBar = ({
           type={'dollar'}
           placeholder="No Risk"
           prefix="Liquidation Price: "
-          tooltip={`If the collateral price reaches or goes below ${preciseCommify(liquidationPrice || newLiquidationPrice || 0, 2, true)}, liquidations may happen on your collateral.`}
+          tooltip={
+            hasDebt ? `If the collateral price reaches or goes below ${preciseCommify(liquidationPrice || newLiquidationPrice || 0, 2, true)}, liquidations may happen on your collateral.`
+              : ''
+          }
         />
         {
           (hasDebt || deposits)
@@ -49,7 +52,10 @@ export const CreditLimitBar = ({
             type={'perc'}
             placeholder=""
             prefix="Health Level: "
-            tooltip="The percentage of the Loan covered by your Collateral, the higher the safer."
+            tooltip={
+              hasDebt ? "The percentage of the Loan covered by your Collateral, the higher the safer."
+              : ''
+            }
           />
         }
       </HStack>
@@ -70,15 +76,19 @@ export const CreditLimitBar = ({
           type={'dollar'}
           placeholder="Deposit to Gain Health"
           suffix=" Health Left"
-          tooltip="The Borrowing Power left in USD, if it reaches 0, liquidations can happen."
+          tooltip={
+            hasDebt ? "The Borrowing Power left in USD, if it reaches 0, liquidations can happen." : ''
+          }
         />
         <F2StateInfo
           currentValue={creditLimit}
           nextValue={isPreviewing ? newCreditLeft : undefined}
           type={'dollar'}
           placeholder="No Collateral deposited"
-          tooltip="The borrowing power in USD given by your deposited collaterals."
           prefix={'Borrowing Power: '}
+          tooltip={
+            hasDebt ? "The borrowing power in USD given by your deposited collaterals." : ''
+          }
         />
       </HStack>
     </VStack>

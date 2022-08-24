@@ -4,7 +4,7 @@ import { useAccountDBR } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
-import { F2DbrInfosModal } from './Modals/F2DbrInfosModal';
+import { F2DbrInfosModal } from '../Modals/F2DbrInfosModal';
 
 export const DbrHealth = ({
   account,
@@ -32,8 +32,11 @@ export const DbrHealth = ({
           placeholder={hasDebt && dbrNbDaysExpiry <= 0 ? 'Exhausted!' : 'No on-going Loans'}
           prefix={hasDebt && !isPreviewing ? 'Fixed Rate until ' : undefined}
           nullPlaceholder="no more loan"
-          tooltipTitle="Fixed Rate until"
-          tooltip="Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+          tooltipTitle={hasDebt ? "Fixed Rate until" : ''}
+          tooltip={
+            hasDebt ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+              : ''
+          }
         />
         <F2StateInfo
           currentValue={-dailyDebtAccrual}
@@ -77,7 +80,10 @@ export const DbrHealth = ({
           suffix={(isPreviewing && previewExpiryDate !== null) || (!isPreviewing && hasDebt) ? ' before Fixed Rate Exhaustion' : undefined}
           nullPlaceholder="no more loan"
           tooltipTitle="Time before Exhaustion"
-          tooltip="Remaining time before you become in deficit of DBR tokens (Exhaustion state), a state  where someone can do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+          tooltip={
+            hasDebt ? "Remaining time before you become in deficit of DBR tokens (Exhaustion state), a state  where someone can do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+              : ''
+          }
         />
         <F2StateInfo
           currentValue={signedBalance}
