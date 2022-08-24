@@ -41,18 +41,17 @@ export const CreditLimitBar = ({
           prefix="Liquidation Price: "
           tooltip={`If the collateral price reaches or goes below ${preciseCommify(liquidationPrice || newLiquidationPrice || 0, 2, true)}, liquidations may happen on your collateral.`}
         />
-        <Text color="secondaryTextColor">
-          {
-            (hasDebt || deposits)
-            && <F2StateInfo
-              currentValue={perc}
-              nextValue={isPreviewing && perc !== newPerc ? newPerc : undefined}
-              type={'perc'}
-              prefix="Health Level: "
-              tooltip="The percentage of the Loan covered by your Collateral, the higher the safer."
-            />
-          }
-        </Text>
+        {
+          (hasDebt || deposits)
+          && <F2StateInfo
+            currentValue={perc}
+            nextValue={isPreviewing && perc !== newPerc ? newPerc : undefined}
+            type={'perc'}
+            placeholder=""
+            prefix="Health Level: "
+            tooltip="The percentage of the Loan covered by your Collateral, the higher the safer."
+          />
+        }
       </HStack>
       <QuantityBar
         title="Collateral Health"

@@ -139,7 +139,7 @@ export const F2BorrowForm = ({
                             <InfoMessage
                                 alertProps={{ w: 'full' }}
                                 title="No Collateral Deposited yet"
-                                description={`You will be able to borrow a percentage of the deposited collateral worth, if the collateral worth covers less than ${f2market.collateralFactor}% of the borrow then liquidations of deposits can happen to cover the deficits.`}
+                                description={`Loans need to be covered by a collateral, please deposit some.`}
                             />
                         }
                         {dbrBalance === 0 && debt === 0 &&

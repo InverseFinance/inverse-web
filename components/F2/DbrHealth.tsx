@@ -1,4 +1,4 @@
-import { Text, VStack, HStack, useDisclosure } from '@chakra-ui/react'
+import { VStack, HStack, useDisclosure } from '@chakra-ui/react'
 
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc';
@@ -8,9 +8,9 @@ import { F2DbrInfosModal } from './Modals/F2DbrInfosModal';
 
 export const DbrHealth = ({
   account,
-  debtDelta,
+  debtDelta = 0,
 }: {
-  account: string
+  account: string | undefined | null
   debtDelta: number
 }) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -38,7 +38,7 @@ export const DbrHealth = ({
         <F2StateInfo
           currentValue={-dailyDebtAccrual}
           nextValue={isPreviewing ? -newDailyRate : undefined}
-          placeholder={`${preciseCommify(balance, 2)} DOLA / Year`}
+          placeholder={balance ? `${preciseCommify(balance, 2)} DOLA / Year` : ''}
           suffix=" DBR a day"
           prefix="Fixed Rate: "
           type="number"
@@ -73,7 +73,7 @@ export const DbrHealth = ({
           currentValue={dbrExpiryDate}
           nextValue={isPreviewing ? previewExpiryDate : undefined}
           type={'remainingTime'}
-          placeholder={hasDebt && dbrNbDaysExpiry <= 0 ? 'Exhausted!' : ' '}
+          placeholder={hasDebt && dbrNbDaysExpiry <= 0 ? 'Exhausted!' : 'Borrow to start'}
           suffix={(isPreviewing && previewExpiryDate !== null) || (!isPreviewing && hasDebt) ? ' before Fixed Rate Exhaustion' : undefined}
           nullPlaceholder="no more loan"
           tooltipTitle="Time before Exhaustion"
