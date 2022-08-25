@@ -63,7 +63,7 @@ export const CreditLimitBar = ({
         title="Collateral Health"
         perc={perc}
         previewPerc={newPerc}
-        hasError={!!hasDebt && !!isPreviewing && newPerc <= 0}
+        hasError={(!!hasDebt || !!isPreviewing) && newPerc <= 0}
         badgeColorScheme={badgeColorScheme}
         isPreviewing={isPreviewing}
         cursor="pointer"
@@ -75,7 +75,8 @@ export const CreditLimitBar = ({
           nextValue={isPreviewing ? newCreditLeft : undefined}
           type={'dollar'}
           placeholder="Deposit to Gain Health"
-          suffix=" Health Left"
+          suffix=" Borrowing Power Left"
+          tooltipTitle="Borrowing Power Left"
           tooltip={
             hasDebt ? "The Borrowing Power left in USD, if it reaches 0, liquidations can happen." : ''
           }
@@ -85,7 +86,8 @@ export const CreditLimitBar = ({
           nextValue={isPreviewing ? newCreditLeft : undefined}
           type={'dollar'}
           placeholder="No Collateral deposited"
-          prefix={'Borrowing Power: '}
+          prefix={'Total: '}
+          tooltipTitle="Total Borrowing Power"
           tooltip={
             hasDebt ? "The borrowing power in USD given by your deposited collaterals." : ''
           }

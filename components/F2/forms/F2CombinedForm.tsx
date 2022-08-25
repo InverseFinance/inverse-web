@@ -12,23 +12,23 @@ import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 
-export const F2CollateralForm = ({
+export const F2CombinedForm = ({
     f2market,
     account,
     signer,
     isDepositDefault = true,
-    onAmountChange,
-    isAdvancedMode,
+    onDepositChange,
+    onDebtChange,
 }: {
     f2market: F2Market
     account: string | null | undefined
     signer: JsonRpcSigner | undefined
     isDepositDefault?: boolean
-    isAdvancedMode?: boolean
-    onAmountChange?: (v: number) => void
+    onDepositChange?: (v: number) => void
+    onDebtChange?: (v: number) => void
 }) => {
     const colDecimals = f2market.underlying.decimals;
-    const [amount, setAmount] = useState(0);
+    const [collateralAmount, setCollateralAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit } = useAccountDBRMarket(f2market, account);
@@ -43,8 +43,8 @@ export const F2CollateralForm = ({
             : f2withdraw(signer, f2market.address, amount)
     }
 
-    const handleAmountChange = (floatNumber: number) => {
-        setAmount(floatNumber)
+    const handleCollateralChange = (floatNumber: number) => {
+        setCollateralAmount(floatNumber)
     }
 
     const switchMode = () => {
@@ -52,18 +52,23 @@ export const F2CollateralForm = ({
     }
 
     useEffect(() => {
-        if(!onAmountChange) { return };
-        onAmountChange(isDeposit ? amount : -amount);
-    }, [isDeposit, amount, onAmountChange]);
+        if(!onDepositChange) { return };
+        onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
+    }, [isDeposit, collateralAmount, onDepositChange]);
+
+    useEffect(() => {
+        if(!onDepositChange) { return };
+        onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
+    }, [isDeposit, collateralAmount, onDepositChange]);
 
     const btnLabel = isDeposit ? `Deposit` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
-    const mainColor = 'infoAlpha'//isDeposit ? 'infoAlpha' : 'lightPrimaryAlpha';
+    const mainColor = 'infoAlpha'
 
     return <Container
         noPadding
         p="0"
-        label={`${btnLabel} Collateral`}
+        label={`${btnLabel} Collateral and Borrow`}
         description={isDeposit ? `To be able to Borrow` : `This will reduce the Collateral Health`}
         contentBgColor={mainColor}
         right={
@@ -79,7 +84,7 @@ export const F2CollateralForm = ({
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack justifyContent='space-between' w='full' minH={ isAdvancedMode ? '300px' : 'fit-content' }>
+        <VStack justifyContent='space-between' w='full' minH="300px">
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text>Collateral Name:</Text>
@@ -113,10 +118,9 @@ export const F2CollateralForm = ({
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={btnLabel}
                 maxActionLabel={btnMaxlabel}
-                onAmountChange={handleAmountChange}
+                onAmountChange={handleCollateralChange}
                 btnThemeColor={'blue.600'}
                 showMaxBtn={isDeposit || !debt}
-                onlyShowApproveBtn={!isAdvancedMode}
             />
         </VStack>
     </Container>

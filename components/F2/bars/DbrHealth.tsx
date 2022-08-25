@@ -30,11 +30,11 @@ export const DbrHealth = ({
           nextValue={isPreviewing ? previewExpiryDate : undefined}
           type={'date'}
           placeholder={hasDebt && dbrNbDaysExpiry <= 0 ? 'Exhausted!' : 'No on-going Loans'}
-          prefix={hasDebt && !isPreviewing ? 'Fixed Rate until ' : undefined}
+          prefix={(hasDebt && !isPreviewing) || (isPreviewing && !dbrExpiryDate) ? 'Fixed Rate until ' : undefined}
           nullPlaceholder="no more loan"
-          tooltipTitle={hasDebt ? "Fixed Rate until" : ''}
+          tooltipTitle={hasDebt || isPreviewing ? "Fixed Rate until" : ''}
           tooltip={
-            hasDebt ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+            hasDebt || isPreviewing ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
               : ''
           }
         />

@@ -22,6 +22,7 @@ type Props = {
     maxAmountFrom?: BigNumber[]
     btnThemeColor?: string
     showMaxBtn?: boolean
+    onlyShowApproveBtn?: boolean
 }
 
 type ActionProps = Props & {
@@ -55,6 +56,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         onAmountChange,
         btnThemeColor,
         showMaxBtn = true,
+        onlyShowApproveBtn = false,
     } = props;
 
     const [amount, setAmount] = useState('0');
@@ -112,16 +114,19 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                     signer={signer}
                     isDisabled={balance <= 0}
                 /> :
+                !onlyShowApproveBtn &&
                 <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
                     <SubmitButton
                         themeColor={btnThemeColor}
                         onClick={() => handleAction()}
                         refreshOnSuccess={true}
+                        onSuccess={() => handleChange('0')}
                         disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}>
                         {actionLabel}
                     </SubmitButton>
                     {
                         showMaxBtn && <SubmitButton
+                            onSuccess={() => handleChange('0')}
                             themeColor={btnThemeColor}
                             onClick={() => handleAction(true)}
                             disabled={isMaxDisabled}

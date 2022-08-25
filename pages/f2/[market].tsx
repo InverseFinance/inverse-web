@@ -64,37 +64,28 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             <DbrHealth account={account} debtDelta={newDebtAmount} />
                         </ErrorBoundary>
                     </Stack>
-                    {
-                        isAdvancedMode ?
-                            <Stack
-                                alignItems="flex-start"
-                                w='full'
-                                direction={{ base: 'column', lg: 'row' }}
-                                spacing="12"
-                            >
-                                <F2CollateralForm
-                                    signer={library?.getSigner()}
-                                    f2market={f2market}
-                                    account={account}
-                                    onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                />
-                                <F2BorrowForm
-                                    signer={library?.getSigner()}
-                                    f2market={f2market}
-                                    account={account}
-                                    onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
-                                />
-                            </Stack>
-                            :
-                            <Stack
-                                alignItems="flex-start"
-                                w='full'
-                                direction={{ base: 'column', lg: 'row' }}
-                                spacing="12"
-                            >
 
-                            </Stack>
-                    }
+                    <Stack
+                        alignItems="flex-start"
+                        w='full'
+                        direction={{ base: 'column', lg: 'row' }}
+                        spacing="12"
+                    >
+                        <F2CollateralForm
+                            signer={library?.getSigner()}
+                            f2market={f2market}
+                            account={account}
+                            onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
+                            isAdvancedMode={isAdvancedMode}
+                        />
+                        <F2BorrowForm
+                            signer={library?.getSigner()}
+                            f2market={f2market}
+                            account={account}
+                            onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
+                            isAdvancedMode={isAdvancedMode}
+                        />
+                    </Stack>
                 </VStack>
             </ErrorBoundary>
         </Layout>
