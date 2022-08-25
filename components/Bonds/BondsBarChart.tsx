@@ -37,7 +37,7 @@ export const BondsBarChart = ({
             const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.amount, 0);
 
             return {
-                label: `${type.replace(/(-)([0-9]+$)/, ' ($2 days vesting)')}: ${shortenNumber(y, 2, true)}`,
+                label: `${type.replace(/(-)([0-9]+$)/, ' ($2 days vesting)')}: ${shortenNumber(y, 2, false)}`,
                 x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
                 y,
             }
