@@ -6,7 +6,7 @@ import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 
-const { DBR, F2_MARKETS, F2_ORACLE } = getNetworkConfigConstants();
+const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
 const oneDay = 86400000;
@@ -115,6 +115,8 @@ export const useAccountDBRMarket = (
   perc: number
   debt: number
   bnDebt: BigNumber
+  bnDola: BigNumber
+  dola: number
   hasDebt: boolean
   liquidationPrice: number | null
 } => {
@@ -125,7 +127,12 @@ export const useAccountDBRMarket = (
     [market.address, 'debts', account],
   ]);
 
+  const { data: dolaData } = useEtherSWR([
+    [DOLA, 'balanceOf', market.address],
+  ]);
+
   const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
+  const [bnDola] = dolaData || [zero];
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
@@ -161,6 +168,8 @@ export const useAccountDBRMarket = (
     perc,
     hasDebt,
     liquidationPrice,
+    bnDola,
+    dola: bnDola ? getBnToNumber(bnDola) : 0,
   }
 }
 
