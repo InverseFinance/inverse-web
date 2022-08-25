@@ -63,7 +63,7 @@ const redirects = async () => {
       permanent: true,
     },
     {
-      source: '/swap/*',
+      source: '/swap/:path',
       destination: '/tokens/dola',
       permanent: true,
     },
