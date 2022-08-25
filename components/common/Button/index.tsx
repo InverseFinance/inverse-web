@@ -4,6 +4,7 @@ import { getNetwork } from '@app/util/networks';
 import { NetworkItem } from '@app/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
 import { SmartButtonProps } from '@app/types';
+import { gaEvent } from '@app/util/analytics';
 
 export const LinkButton = ({
   children,
@@ -19,11 +20,19 @@ export const LinkButton = ({
   isOutline?: boolean
   flexProps?: FlexProps
 }) => {
-  const extraFlexProps = isOutline ? { bgColor: 'primary.850', borderColor: 'primary.600'  } : { bgColor: 'primary.500', borderColor: 'primary.500' }
+  const extraFlexProps = isOutline ? { bgColor: 'primary.850', borderColor: 'primary.600' } : { bgColor: 'primary.500', borderColor: 'primary.500' }
   const finalFlexProps = { ...extraFlexProps, ...flexProps };
+
+  const handleGa = (e) => {
+    const btnAction = e?.target?.getAttribute('data-ga-event') || e?.target?.innerText || '';
+    if (btnAction) {
+      gaEvent({ action: btnAction })
+    }
+  }
+
   return (
     <NextLink href={href} passHref>
-      <Link w="full" color="mainTextColor" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
+      <Link onClick={handleGa} w="full" color="mainTextColor" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
         <Flex
           justify="center"
           cursor="pointer"
@@ -116,12 +125,12 @@ export const SubmitButton = (props: SmartButtonProps) => {
   return (
     <SmartButton
       w="full"
-      bgColor={ !props?.colorScheme ? 'primary.600' : undefined }
+      bgColor={!props?.colorScheme ? 'primary.600' : undefined}
       fontSize="13px"
       fontWeight="semibold"
       textTransform="uppercase"
       _focus={{}}
-      _hover={ !props?.colorScheme ? { bgColor: 'primary.700' } : undefined }
+      _hover={!props?.colorScheme ? { bgColor: 'primary.700' } : undefined}
       {...props}
     />
   )
