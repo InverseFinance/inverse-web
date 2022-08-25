@@ -23,6 +23,8 @@ type Props = {
     btnThemeColor?: string
     showMaxBtn?: boolean
     onlyShowApproveBtn?: boolean
+    hideInputIfNoAllowance?: boolean
+    hideButtons?: boolean
 }
 
 type ActionProps = Props & {
@@ -57,9 +59,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         btnThemeColor,
         showMaxBtn = true,
         onlyShowApproveBtn = false,
+        hideInputIfNoAllowance = true,
+        hideButtons = false,
     } = props;
 
-    const [amount, setAmount] = useState('0');
+    const [amount, setAmount] = useState('');
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
     const allowance = approvals ? getBnToNumber(approvals[address], decimals) : 0;
@@ -96,7 +100,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     return <VStack w='full'>
         {
-            !!allowance &&
+            (!!allowance || !hideInputIfNoAllowance) &&
             <BalanceInput
                 value={amount}
                 inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
@@ -105,36 +109,37 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
             />
         }
         {
-            !allowance ?
-                <ApproveButton
-                    w='full'
-                    themeColor={btnThemeColor}
-                    address={address}
-                    toAddress={destination}
-                    signer={signer}
-                    isDisabled={balance <= 0}
-                /> :
-                !onlyShowApproveBtn &&
-                <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
-                    <SubmitButton
+            hideButtons ? null :
+                !allowance ?
+                    <ApproveButton
+                        w='full'
                         themeColor={btnThemeColor}
-                        onClick={() => handleAction()}
-                        refreshOnSuccess={true}
-                        onSuccess={() => handleChange('0')}
-                        disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}>
-                        {actionLabel}
-                    </SubmitButton>
-                    {
-                        showMaxBtn && <SubmitButton
-                            onSuccess={() => handleChange('0')}
+                        address={address}
+                        toAddress={destination}
+                        signer={signer}
+                        isDisabled={balance <= 0}
+                    /> :
+                    !onlyShowApproveBtn &&
+                    <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
+                        <SubmitButton
                             themeColor={btnThemeColor}
-                            onClick={() => handleAction(true)}
-                            disabled={isMaxDisabled}
-                            refreshOnSuccess={true}>
-                            {maxActionLabel}
+                            onClick={() => handleAction()}
+                            refreshOnSuccess={true}
+                            onSuccess={() => handleChange('0')}
+                            disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}>
+                            {actionLabel}
                         </SubmitButton>
-                    }
-                </Stack>
+                        {
+                            showMaxBtn && <SubmitButton
+                                onSuccess={() => handleChange('0')}
+                                themeColor={btnThemeColor}
+                                onClick={() => handleAction(true)}
+                                disabled={isMaxDisabled}
+                                refreshOnSuccess={true}>
+                                {maxActionLabel}
+                            </SubmitButton>
+                        }
+                    </Stack>
         }
     </VStack>
 }

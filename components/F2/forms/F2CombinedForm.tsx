@@ -1,16 +1,17 @@
-import { VStack, Text, HStack } from '@chakra-ui/react'
+import { VStack, Text, HStack, Stack } from '@chakra-ui/react'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import Container from '@app/components/common/Container'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
-import { commify } from '@ethersproject/units'
+import { commify, parseEther } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2deposit, f2withdraw } from '@app/util/f2'
+import { f2CalcNewHealth, f2deposit, f2withdraw } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
+import { preciseCommify } from '@app/util/misc'
 
 export const F2CombinedForm = ({
     f2market,
@@ -29,16 +30,20 @@ export const F2CombinedForm = ({
 }) => {
     const colDecimals = f2market.underlying.decimals;
     const [collateralAmount, setCollateralAmount] = useState(0);
+    const [debtAmount, setDebtAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit } = useAccountDBRMarket(f2market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDola } = useAccountDBRMarket(f2market, account);
+    const {
+        newPerc, newLiquidationPrice, newCreditLimit
+    } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, debtAmount, perc);
+
     const { balances } = useBalances([f2market.collateral]);
     const bnCollateralBalance = balances ? balances[f2market.collateral] : BigNumber.from('0');
-    const collateralBalance = balances ? getBnToNumber(bnCollateralBalance, colDecimals) : 0;
 
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
-        return isDeposit ? 
+        return isDeposit ?
             f2deposit(signer, f2market.address, amount)
             : f2withdraw(signer, f2market.address, amount)
     }
@@ -47,29 +52,35 @@ export const F2CombinedForm = ({
         setCollateralAmount(floatNumber)
     }
 
+    const handleDebtChange = (floatNumber: number) => {
+        setDebtAmount(floatNumber)
+    }
+
     const switchMode = () => {
         setIsDeposit(!isDeposit);
     }
 
     useEffect(() => {
-        if(!onDepositChange) { return };
+        if (!onDepositChange) { return };
         onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
     }, [isDeposit, collateralAmount, onDepositChange]);
 
     useEffect(() => {
-        if(!onDepositChange) { return };
+        if (!onDepositChange) { return };
         onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
     }, [isDeposit, collateralAmount, onDepositChange]);
 
-    const btnLabel = isDeposit ? `Deposit` : 'Withdraw';
+    const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
-    const mainColor = 'infoAlpha'
+    const mainColor = 'infoAlpha';
+    const isFormFilled = !!collateralAmount && !!debtAmount;
+    const riskColor = !isFormFilled ? 'secondaryTextColor' : (newPerc >= 75 ? 'success' : (newPerc >= 50 ? 'lightWarning' : (newPerc >= 25 ? 'warning' : 'error')));
 
     return <Container
         noPadding
         p="0"
         label={`${btnLabel} Collateral and Borrow`}
-        description={isDeposit ? `To be able to Borrow` : `This will reduce the Collateral Health`}
+        description={`Quick and Easy Fixed-Rate Borrowing`}
         contentBgColor={mainColor}
         right={
             (deposits > 0 || !isDeposit) && <Text
@@ -84,44 +95,54 @@ export const F2CombinedForm = ({
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack justifyContent='space-between' w='full' minH="300px">
-            <VStack alignItems='flex-start' w='full'>
-                <HStack w='full' justifyContent="space-between">
-                    <Text>Collateral Name:</Text>
-                    <Text><UnderlyingItemBlock symbol={f2market?.underlying.symbol} /></Text>
-                </HStack>
-
-                <HStack w='full' justifyContent="space-between">
-                    <Text>Oracle Price:</Text>
-                    <Text>${commify(f2market.price.toFixed(2))}</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
-                    <Text>Your Balance:</Text>
-                    <Text>{shortenNumber(collateralBalance, 2)} ({shortenNumber(collateralBalance * f2market.price, 2, true)})</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
-                    <Text>Your Deposits:</Text>
-                    <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * f2market.price, 2, true)})</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
-                    <Text>Collateral Factor:</Text>
-                    <Text>{f2market.collateralFactor}%</Text>
-                </HStack>
+        <VStack w='full' spacing="8">
+            <VStack w='full' alignItems="flex-start">
+                <Text>How much <b>Collateral</b> do you want to <b>Deposit</b>?</Text>
+                <SimpleAmountForm
+                    address={f2market.collateral}
+                    destination={f2market.address}
+                    signer={signer}
+                    decimals={colDecimals}
+                    maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
+                    onAction={({ bnAmount }) => handleAction(bnAmount)}
+                    onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                    actionLabel={btnLabel}
+                    maxActionLabel={btnMaxlabel}
+                    onAmountChange={handleCollateralChange}
+                    btnThemeColor={'blue.600'}
+                    showMaxBtn={isDeposit || !debt}
+                    hideInputIfNoAllowance={false}
+                    hideButtons={true}
+                />
             </VStack>
-            <SimpleAmountForm
-                address={f2market.collateral}
-                destination={f2market.address}
-                signer={signer}
-                decimals={colDecimals}
-                maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
-                onAction={({ bnAmount }) => handleAction(bnAmount)}
-                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                actionLabel={btnLabel}
-                maxActionLabel={btnMaxlabel}
-                onAmountChange={handleCollateralChange}
-                btnThemeColor={'blue.600'}
-                showMaxBtn={isDeposit || !debt}
-            />
+            <VStack w='full' alignItems="flex-start">
+                <Text>How much <b>DOLA</b> do you want to <b>Borrow</b>?</Text>
+                <SimpleAmountForm
+                    address={f2market.collateral}
+                    destination={f2market.address}
+                    signer={signer}
+                    decimals={colDecimals}
+                    maxAmountFrom={isDeposit ? [bnDola, parseEther((newCreditLimit*0.99).toFixed(0))] : []}
+                    onAction={({ bnAmount }) => handleAction(bnAmount)}
+                    onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                    actionLabel={btnLabel}
+                    maxActionLabel={btnMaxlabel}
+                    onAmountChange={handleDebtChange}
+                    btnThemeColor={'blue.600'}
+                    showMaxBtn={!isDeposit}
+                    hideInputIfNoAllowance={false}
+                    hideButtons={false}
+                    isDisabled={newPerc < 1}
+                />
+                <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
+                    <Text color={riskColor} fontWeight={ newPerc <= 25 ? 'bold' : undefined }>
+                        Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
+                    </Text>
+                    <Text color={riskColor} fontWeight={ newPerc <= 25 ? 'bold' : undefined }>
+                        Liquidation Price: {isFormFilled ? preciseCommify(newLiquidationPrice, 2, true) : '-'}
+                    </Text>
+                </Stack>
+            </VStack>
         </VStack>
     </Container>
 }
