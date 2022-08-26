@@ -79,7 +79,7 @@ export const F2CollateralForm = ({
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack justifyContent='space-between' w='full' minH={ isAdvancedMode ? '300px' : 'fit-content' }>
+        <VStack justifyContent='space-between' w='full' minH={ '300px' }>
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text>Collateral Name:</Text>

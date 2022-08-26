@@ -103,7 +103,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
             (!!allowance || !hideInputIfNoAllowance) &&
             <BalanceInput
                 value={amount}
-                inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
+                inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' } }}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => handleChange(e.target.value)}
                 onMaxClick={() => setToMaxDeposit()}
             />
