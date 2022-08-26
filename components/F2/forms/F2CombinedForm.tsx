@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, Slider, SliderTrack, SliderFilledTrack, SliderThumb, SliderMark, Popover, PopoverTrigger, PopoverArrow, PopoverContent, PopoverCloseButton, PopoverHeader, PopoverBody, TextProps } from '@chakra-ui/react'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import Container from '@app/components/common/Container'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
@@ -12,6 +12,21 @@ import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { preciseCommify } from '@app/util/misc'
+import { SettingsIcon } from '@chakra-ui/icons'
+
+const SliderTick = (props: Partial<TextProps>) => {
+    return <Text
+        _hover={{ color: 'mainTextColor' }}
+        color="secondaryTextColor"
+        transition="color 200ms"
+        fontSize="sm"
+        w="fit-content"
+        whiteSpace="nowrap"
+        transform="translateX(-50%)"
+        cursor="pointer"
+        position="absolute"
+        {...props} />
+}
 
 export const F2CombinedForm = ({
     f2market,
@@ -29,6 +44,8 @@ export const F2CombinedForm = ({
     onDebtChange?: (v: number) => void
 }) => {
     const colDecimals = f2market.underlying.decimals;
+    const [showOptions, setShowOptions] = useState(false);
+    const [duration, setDuration] = useState(365);
     const [collateralAmount, setCollateralAmount] = useState(0);
     const [debtAmount, setDebtAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
@@ -79,19 +96,61 @@ export const F2CombinedForm = ({
     return <Container
         noPadding
         p="0"
-        label={`${btnLabel} Collateral and Borrow`}
+        label={`Deposit Collateral and Borrow`}
         description={`Quick and Easy Fixed-Rate Borrowing`}
         contentBgColor={mainColor}
         right={
-            (deposits > 0 || !isDeposit) && <Text
-                onClick={() => switchMode()}
-                fontSize="14px"
-                cursor="pointer"
-                textDecoration="underline"
-                color="secondaryTextColor"
-                w='fit-content'>
-                Switch to {isDeposit ? 'Withdraw' : 'Deposit'}
-            </Text>
+            <HStack>
+                <Popover placement="bottom-start">
+                    <PopoverTrigger>
+                        <SettingsIcon />
+                    </PopoverTrigger>
+                    <PopoverContent minW="400px" maxW='98vw' className="blurred-container primary-bg" _focus={{}}>
+                        <PopoverArrow bg="mainBackgroundColor" />
+                        <PopoverCloseButton />
+                        <PopoverHeader>Fixed-Rate loan Duration</PopoverHeader>
+                        <PopoverBody >
+                            <VStack w='full' alignItems="flex-start" spacing="40px">
+                                <Text fontWeight="bold" fontSize="14px">For how long do you want to lock-in a Fixed Rate?</Text>
+                                <VStack w='full' px="8">
+                                    <Slider
+                                        value={duration}
+                                        onChange={(v: number) => setDuration(v)}
+                                        min={1}
+                                        max={730}
+                                        step={1}
+                                        aria-label='slider-ex-4'
+                                        defaultValue={365}>
+                                        <SliderMark
+                                            value={duration}
+                                            textAlign='center'
+                                            bg='primary.500'
+                                            color='white'
+                                            mt='-45px'
+                                            borderRadius="50px"
+                                            transform="translateX(-50%)"
+                                            w='100px'
+                                        >
+                                            {duration} days
+                                        </SliderMark>
+                                        <SliderTrack h="15px" bg='primary.100'>
+                                            <SliderFilledTrack bg={'primary.200'} />
+                                        </SliderTrack>
+                                        <SliderThumb h="30px" />
+                                    </Slider>
+                                    <HStack py="2" w='full' position="relative">
+                                        <SliderTick left="0%" onClick={() => setDuration(1)}>1 Day</SliderTick>
+                                        {/* <SliderTick left="25%" onClick={() => setDuration(180)}>6 Months</SliderTick> */}
+                                        <SliderTick left="50%" onClick={() => setDuration(365)}>12 Months</SliderTick>
+                                        {/* <SliderTick left="75%" onClick={() => setDuration(545)}>18 Months</SliderTick> */}
+                                        <SliderTick left="100%" onClick={() => setDuration(730)}>24 Months</SliderTick>
+                                    </HStack>
+                                </VStack>
+                            </VStack>
+                        </PopoverBody>
+                    </PopoverContent>
+                </Popover>
+            </HStack>
         }
         w={{ base: 'full', lg: '50%' }}
     >
@@ -122,7 +181,7 @@ export const F2CombinedForm = ({
                     destination={f2market.address}
                     signer={signer}
                     decimals={colDecimals}
-                    maxAmountFrom={isDeposit ? [bnDola, parseEther((newCreditLimit*0.99).toFixed(0))] : []}
+                    maxAmountFrom={isDeposit ? [bnDola, parseEther((newCreditLimit * 0.99).toFixed(0))] : []}
                     onAction={({ bnAmount }) => handleAction(bnAmount)}
                     onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                     actionLabel={btnLabel}
@@ -135,10 +194,10 @@ export const F2CombinedForm = ({
                     isDisabled={newPerc < 1}
                 />
                 <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
-                    <Text color={riskColor} fontWeight={ newPerc <= 25 ? 'bold' : undefined }>
+                    <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
                         Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
                     </Text>
-                    <Text color={riskColor} fontWeight={ newPerc <= 25 ? 'bold' : undefined }>
+                    <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
                         Liquidation Price: {isFormFilled ? preciseCommify(newLiquidationPrice, 2, true) : '-'}
                     </Text>
                 </Stack>
