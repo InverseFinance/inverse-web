@@ -8,21 +8,23 @@ export const BigImageButton = ({
     bg,
     onClick,
     isActive = true,
+    fadingGradient = '',
     ...props
 }: {
     title?: string
     subtitle?: string
     bg: StackProps["bg"]
     onClick?: () => void
+    fadingGradient?: string
     isActive?: boolean
 }) => {
     return <VStack
         fontWeight="bold"
-        cursor={ !onClick ? undefined : isActive ? 'pointer' : 'not-allowed' }
+        cursor={!onClick ? undefined : isActive ? 'pointer' : 'not-allowed'}
         transitionProperty="transform"
         transitionDuration="500ms"
-        filter={ isActive ? undefined : 'grayscale(1)' }
-        _hover={ !onClick ? undefined : { transform: isActive ? 'scale(1.05)' : undefined } }
+        filter={isActive ? undefined : 'grayscale(1)'}
+        _hover={!onClick ? undefined : { transform: isActive ? 'scale(1.05)' : undefined }}
         borderRadius="5px"
         alignItems="flex-start"
         justify="center"
@@ -32,7 +34,7 @@ export const BigImageButton = ({
         spacing="0"
         h="100px"
         w='200px'
-        fontSize="20px"        
+        fontSize="20px"
         position="relative"
         p="0"
         px="0"
@@ -42,8 +44,10 @@ export const BigImageButton = ({
         onClick={onClick}
         {...props}
     >
-        <Box zIndex="1" position="absolute" top="-1px" bottom="-1px" left="-1px" right="-1px" margin="auto"
-            background="verticalGradient" />
+        {
+            !!fadingGradient && <Box zIndex="1" position="absolute" top="-1px" bottom="-1px" left="-1px" right="-1px" margin="auto"
+                background={fadingGradient} />
+        }
         <Box zIndex="2" position="relative" w="full" py="2" px="2">
             <chakra.span zIndex="2" fontWeight="extrabold">
                 {title}
