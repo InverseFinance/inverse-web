@@ -8,22 +8,42 @@ import { DebtRepayment, DebtConversion } from '@app/types';
 import { UNDERLYING } from '@app/variables/tokens';
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
+const oneYearSecs = 31536000;
 
 export const useDebtConverter = (): SWR & {
     exchangeRate: number,
     repaymentEpoch: number,
+    apr: number,
 } => {
     const { data, error } = useEtherSWR([
         [DEBT_CONVERTER, 'exchangeRateMantissa'],
         [DEBT_CONVERTER, 'repaymentEpoch'],
+        [DEBT_CONVERTER, 'exchangeRateIncreasePerSecond'],
     ])
 
-    const [exRateData, repaymentEpoch] = data || [null, null];
+    const [exRateData, repaymentEpoch, increasePerSec] = data || [null, null, null];
 
     return {
         exchangeRate: exRateData ? getBnToNumber(exRateData) : 1,
         repaymentEpoch: repaymentEpoch ? getBnToNumber(repaymentEpoch, 0) : 0,
+        apr: increasePerSec ? getBnToNumber(increasePerSec) * oneYearSecs * 100 : 0,
         isLoading: !exRateData && !error,
+        isError: !!error,
+    }
+}
+
+export const useIOUbalance = (account: string): SWR & {
+    IOUbalance: number,
+} => {
+    const { data, error } = useEtherSWR(
+        [DEBT_CONVERTER, 'balanceOf', account],
+    )
+
+    const IOUbalance = data || null;
+
+    return {
+        IOUbalance: IOUbalance ? getBnToNumber(IOUbalance) : 0,
+        isLoading: !data && !error,
         isError: !!error,
     }
 }
