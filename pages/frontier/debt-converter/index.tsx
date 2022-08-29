@@ -20,14 +20,14 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { roundFloorString } from '@app/util/misc'
 import { InfoMessage } from '@app/components/common/Messages'
-import { dollarify, getBnToNumber, shortenNumber } from '@app/util/markets'
+import { dollarify, getBnToNumber, getMonthlyRate, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
 import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { convertToIOU } from '@app/util/contracts'
-import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import { useDebtConverter, useDebtConverterMaxUnderlyingPrice } from '@app/hooks/useDebtConverter'
+import { AnimatedInfoTooltip, InfoPopover } from '@app/components/common/Tooltip'
+import { useDebtConverter, useDebtConverterMaxUnderlyingPrice, useIOUbalance } from '@app/hooks/useDebtConverter'
 import { useOraclePrice } from '@app/hooks/usePrices'
 import { useConvertToUnderlying } from '@app/hooks/useDebtRepayer'
 import { DebtConversions } from '@app/components/Anchor/DebtConverter/DebtConversions'
@@ -55,7 +55,8 @@ export const DebtConverterPage = () => {
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU } = useDebtConverter();
+    const { exchangeRate: exRateIOU, apr } = useDebtConverter();
+    const { IOUbalance } = useIOUbalance(userAddress);
 
     const tokens: { [key: string]: TokenWithCtoken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.ctoken]: { ...curr.underlying, ctoken: curr.ctoken } }), {});
 
@@ -111,6 +112,8 @@ export const DebtConverterPage = () => {
         );
     }
 
+    const monthyDOLAEarnings = getMonthlyRate(IOUbalance, apr);
+
     return (
         <Layout>
             <Head>
@@ -127,6 +130,19 @@ export const DebtConverterPage = () => {
                                     description="See the Contract"
                                     href={`${getScanner("1")}/address/${DEBT_CONVERTER}`}
                                     contentProps={{ p: '8' }}
+                                    right={
+                                        IOUbalance > 0 && <InfoPopover
+                                            tooltipProps={{ className: `blurred-container success-bg`, borderColor: 'success' }}
+                                            message={
+                                                <Text fontWeight="bold">
+                                                    Monthly interests: {shortenNumber(monthyDOLAEarnings, 2)} DOLAs
+                                                </Text>
+                                            }>
+                                            <Text>
+                                                Your IOUs: {shortenNumber(IOUbalance, 2)}
+                                            </Text>
+                                        </InfoPopover>
+                                    }
                                 >
                                     <VStack w='full' alignItems="flex-start" spacing="5">
                                         <InfoMessage
@@ -178,12 +194,25 @@ export const DebtConverterPage = () => {
                                             }
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
-                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA" />
+                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA, increases over time." />
                                                     <Text>
-                                                        IOU Exchange Rate:
+                                                        Current IOU Exchange Rate:
                                                     </Text>
                                                 </HStack>
                                                 <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message={
+                                                        <Text>
+                                                            The Exchange Rate between IOUs and DOLAs increases over time, meaning <b>your IOUs generate interests in DOLA</b>.
+                                                        </Text>
+                                                    } />
+                                                    <Text>
+                                                        Current Interest Rate:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{shortenNumber(apr, 2)}%</Text>
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
