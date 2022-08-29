@@ -13,6 +13,7 @@ import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { preciseCommify } from '@app/util/misc'
 import { SettingsIcon } from '@chakra-ui/icons'
+import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 
 const SliderTick = (props: Partial<TextProps>) => {
     return <Text
@@ -96,9 +97,10 @@ export const F2CombinedForm = ({
     return <Container
         noPadding
         p="0"
-        label={`Deposit Collateral and Borrow`}
+        label={`Deposit Collateral and Borrow DOLA`}
         description={`Quick and Easy Fixed-Rate Borrowing`}
         contentBgColor={mainColor}
+        image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         right={
             <HStack>
                 <Popover placement="bottom-start">

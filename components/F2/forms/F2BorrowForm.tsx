@@ -14,6 +14,8 @@ import { roundFloorString } from '@app/util/misc'
 import { parseEther } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
+import { BigImageButton } from '@app/components/common/Button/BigImageButton'
+import { ArrowUpIcon } from '@chakra-ui/icons'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -85,7 +87,7 @@ export const F2BorrowForm = ({
         onAmountChange(isBorrow ? amount : -amount);
     }, [isBorrow, amount, onAmountChange]);
 
-    const btnlabel = !isAdvancedMode ? 'Deposit & Borrow' : isBorrow ? `Borrow` : 'Repay';
+    const btnlabel = isBorrow ? 'Borrow' : 'Repay';
     const btnMaxlabel = `${btnlabel} Max`;
     const mainColor = 'lightPrimaryAlpha'//!isBorrow ? 'infoAlpha' : 'lightPrimaryAlpha';
 
@@ -95,7 +97,21 @@ export const F2BorrowForm = ({
         label={isBorrow ? `Borrow DOLA` : `Repay Borrowed DOLA debt`}
         description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
         w={{ base: 'full', lg: '50%' }}
-        contentBgColor={mainColor}
+        contentProps={{
+            position: 'relative',
+            backgroundColor: mainColor,
+            _after: {
+                content: '""',
+                position: 'absolute',
+                backgroundImage: `url('/assets/f2/${isBorrow ? 'up-arrow' : 'down-arrow'}.svg')`,
+                backgroundPosition: '50% 25%',
+                backgroundSize: '100px',
+                backgroundRepeat: 'no-repeat',
+                top: 0, left: 0, right: 0, bottom: 0,
+                opacity: 0.25,
+            },            
+        }}
+        image={<BigImageButton bg="url('/assets/dola.png')" h="50px" w="80px" />}
         right={
             (debt > 0 || !isBorrow) && <Text
                 onClick={() => switchMode()}
@@ -111,19 +127,19 @@ export const F2BorrowForm = ({
         <VStack justifyContent='space-between' w='full' minH={isAdvancedMode ? '300px' : 'fit-content'}>
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Borrow Asset:</Text>
+                    <Text color="secondaryTextColor">Borrow Asset:</Text>
                     <Text><UnderlyingItemBlock symbol={'DOLA'} /></Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Your DOLA Balance:</Text>
+                    <Text color="secondaryTextColor">Your DOLA Balance:</Text>
                     <Text>{shortenNumber(dolaBalance, 2)}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Your DOLA Debt in this Market:</Text>
+                    <Text color="secondaryTextColor">Your DOLA Debt:</Text>
                     <Text>{shortenNumber(marketDebt, 2)}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Your Total DOLA debt:</Text>
+                    <Text color="secondaryTextColor">Your Total DOLA debt:</Text>
                     <Text>{shortenNumber(debt, 2)}</Text>
                 </HStack>
                 {/* <HStack w='full' justifyContent="space-between">
@@ -131,7 +147,7 @@ export const F2BorrowForm = ({
                     <Text>{shortenNumber(dbrBalance, 2)}</Text>
                 </HStack> */}
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Market's available DOLA liquidity:</Text>
+                    <Text color="secondaryTextColor">Market's available DOLA liquidity:</Text>
                     <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
                 </HStack>
                 {!isAdvancedMode && <Divider />}
@@ -170,7 +186,7 @@ export const F2BorrowForm = ({
                                 <SliderTick left="25%" onClick={() => setDuration(180)}>6 Months</SliderTick>
                                 <SliderTick left="50%" onClick={() => setDuration(365)}>12 Months</SliderTick>
                                 <SliderTick left="75%" onClick={() => setDuration(545)}>18 Months</SliderTick>
-                                <SliderTick left="100%" onClick={() => setDuration(730)}>24 Months</SliderTick>                             
+                                <SliderTick left="100%" onClick={() => setDuration(730)}>24 Months</SliderTick>
                             </HStack>
                         </VStack>
                     </VStack>

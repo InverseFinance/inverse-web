@@ -33,7 +33,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         <Layout>
             <AppNav active="Frontier" />
             <ErrorBoundary>
-                <VStack w='full' maxW="84rem" alignItems="flex-start" p="6" spacing="8">
+                <VStack w='full' maxW="84rem" alignItems="flex-start" p="8" spacing="8">
                     <HStack w='full' justify="space-between">
                         <SimmpleBreadcrumbs
                             breadcrumbs={[

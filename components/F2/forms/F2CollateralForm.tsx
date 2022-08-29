@@ -11,6 +11,7 @@ import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
+import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 
 export const F2CollateralForm = ({
     f2market,
@@ -18,13 +19,11 @@ export const F2CollateralForm = ({
     signer,
     isDepositDefault = true,
     onAmountChange,
-    isAdvancedMode,
 }: {
     f2market: F2Market
     account: string | null | undefined
     signer: JsonRpcSigner | undefined
     isDepositDefault?: boolean
-    isAdvancedMode?: boolean
     onAmountChange?: (v: number) => void
 }) => {
     const colDecimals = f2market.underlying.decimals;
@@ -65,7 +64,21 @@ export const F2CollateralForm = ({
         p="0"
         label={`${btnLabel} Collateral`}
         description={isDeposit ? `To be able to Borrow` : `This will reduce the Collateral Health`}
-        contentBgColor={mainColor}
+        contentProps={{
+            position: 'relative',
+            backgroundColor: mainColor,
+            _after: {
+                content: '""',
+                position: 'absolute',
+                backgroundImage: `url('/assets/f2/${isDeposit ? 'down-arrow' : 'up-arrow'}.svg')`,
+                backgroundPosition: '50% 25%',
+                backgroundSize: '100px',
+                backgroundRepeat: 'no-repeat',
+                top: 0, left: 0, right: 0, bottom: 0,
+                opacity: 0.25,
+            },            
+        }}
+        image={<BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
         right={
             (deposits > 0 || !isDeposit) && <Text
                 onClick={() => switchMode()}
@@ -82,24 +95,23 @@ export const F2CollateralForm = ({
         <VStack justifyContent='space-between' w='full' minH={ '300px' }>
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Collateral Name:</Text>
+                    <Text color="secondaryTextColor">Collateral Name:</Text>
                     <Text><UnderlyingItemBlock symbol={f2market?.underlying.symbol} /></Text>
                 </HStack>
-
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Oracle Price:</Text>
+                    <Text color="secondaryTextColor">Oracle Price:</Text>
                     <Text>${commify(f2market.price.toFixed(2))}</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Your Balance:</Text>
+                    <Text color="secondaryTextColor">Your Balance:</Text>
                     <Text>{shortenNumber(collateralBalance, 2)} ({shortenNumber(collateralBalance * f2market.price, 2, true)})</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Your Deposits:</Text>
+                    <Text color="secondaryTextColor">Your Deposits:</Text>
                     <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * f2market.price, 2, true)})</Text>
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
-                    <Text>Collateral Factor:</Text>
+                    <Text color="secondaryTextColor">Collateral Factor:</Text>
                     <Text>{f2market.collateralFactor}%</Text>
                 </HStack>
             </VStack>
@@ -116,7 +128,6 @@ export const F2CollateralForm = ({
                 onAmountChange={handleAmountChange}
                 btnThemeColor={'blue.600'}
                 showMaxBtn={isDeposit || !debt}
-                onlyShowApproveBtn={!isAdvancedMode}
             />
         </VStack>
     </Container>
