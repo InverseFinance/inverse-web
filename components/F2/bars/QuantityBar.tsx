@@ -21,6 +21,7 @@ export const QuantityBar = ({
 } & Partial<FlexProps>) => {
     const [isChanging, setIsChanging] = useState(false);
     const _previewPerc = Math.min(Math.max(previewPerc ?? perc, 0), 100);
+    const _perc = Math.min(Math.max(perc, 0), 100);
 
     useDebouncedEffect(() => {
         setIsChanging(true);
@@ -63,7 +64,7 @@ export const QuantityBar = ({
                     <Flex
                         transition="box-shadow 0.2s ease-in-out"
                         boxShadow={isChanging ? '0px 0px 5px 0px red' : undefined}
-                        w={`${perc}%`}
+                        w={`${_perc}%`}
                         h="6px"
                         borderLeftRadius={8}
                         borderRightRadius={isPreviewing ? '0' : 8}
@@ -75,12 +76,12 @@ export const QuantityBar = ({
                             zIndex="2"
                             transition="box-shadow, width 0.2s ease-in-out"
                             boxShadow={isChanging ? '0px 0px 5px 0px red' : undefined}
-                            left={_previewPerc > perc ? `${perc}%` : `${_previewPerc}%`}
-                            w={_previewPerc > perc ? `${_previewPerc - perc}%` : `${perc - _previewPerc}%`}
+                            left={_previewPerc > _perc ? `${_perc}%` : `${_previewPerc}%`}
+                            w={_previewPerc > _perc ? `${_previewPerc - _perc}%` : `${_perc - _previewPerc}%`}
                             h="6px"
-                            borderLeftRadius={perc > _previewPerc ? 8 : 0}
-                            borderRightRadius={_previewPerc > perc ? 8 : 0}
-                            bgColor={perc === 0 ? badgeColorScheme : '#ffffffbb'}></Flex>
+                            borderLeftRadius={_perc > _previewPerc ? 8 : 0}
+                            borderRightRadius={_previewPerc > _perc ? 8 : 0}
+                            bgColor={_perc === 0 ? badgeColorScheme : '#ffffffbb'}></Flex>
                     }
                 </Flex>
             </Stack>
