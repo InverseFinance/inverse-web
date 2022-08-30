@@ -27,7 +27,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
     const { account, library } = useWeb3React<Web3Provider>();
     const { markets } = useDBRMarkets(market);
-
     const f2market = markets.length > 0 ? markets[0] : undefined;
 
     return (
@@ -76,6 +75,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             f2market={f2market}
                                             account={account}
                                             onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
+                                            switchToSimpleMode={() => setIsAdvancedMode(false)}
                                         />
                                     </Stack>
                                     <Stack
@@ -129,7 +129,7 @@ export async function getStaticProps(context) {
 
 export async function getStaticPaths() {
     return {
-        paths: F2_MARKETS.map(m => `/f2/${m.address}`),
+        paths: F2_MARKETS.map(m => `/f2/${m.name}`),
         fallback: true,
     }
 }

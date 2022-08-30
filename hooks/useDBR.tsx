@@ -66,7 +66,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 } => {
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
   const markets = F2_MARKETS
-    .filter(m => !!marketOrList ? _markets.includes(m.address) : true)
+    .filter(m => !!marketOrList ? _markets.includes(m.name) : true)
     .map(m => {
       return {
         ...m,

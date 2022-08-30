@@ -100,7 +100,7 @@ export const F2Markets = ({
     const router = useRouter();
 
     const openMarket = (market: any) => {
-        router.push(`/f2/${market.address}`)
+        router.push(`/f2/${market.name}`)
     }
 
     return <Container
