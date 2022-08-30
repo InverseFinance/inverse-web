@@ -196,3 +196,9 @@ export const useAccountF2Markets = (
     return { ...m, ...accountData }
   });
 }
+
+export const useDBRPrice = (): { price: number } => {
+  return {
+    price: 0.015
+  }
+}
