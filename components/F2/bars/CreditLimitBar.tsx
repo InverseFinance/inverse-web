@@ -1,9 +1,9 @@
-import { Text, VStack, HStack, useDisclosure } from '@chakra-ui/react'
+import { VStack, HStack, useDisclosure } from '@chakra-ui/react'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { F2Market } from '@app/types';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
-import { f2CalcNewHealth } from '@app/util/f2';
+import { f2CalcNewHealth, getRiskColor } from '@app/util/f2';
 import { preciseCommify } from '@app/util/misc';
 import { F2HealthInfosModal } from '../Modals/F2HealthInfosModal';
 
@@ -24,10 +24,11 @@ export const CreditLimitBar = ({
   const badgeColorScheme = 'error'
 
   const {
-    newPerc, newCreditLeft, newLiquidationPrice
+    newPerc, newCreditLeft, newLiquidationPrice, newDebt
   } = f2CalcNewHealth(market, deposits, debt, amountDelta, debtDelta, perc);
 
   const isPreviewing = !!(amountDelta || debtDelta);
+  const riskColor = newDebt > 0 ? getRiskColor(newPerc) : 'secondaryTextColor';
 
   return (
     <VStack w='full' spacing="0" alignItems="center">
@@ -39,6 +40,7 @@ export const CreditLimitBar = ({
           type={'dollar'}
           placeholder="No Risk"
           prefix="Liquidation Price: "
+          color={riskColor}
           tooltip={
             hasDebt ? `If the collateral price reaches or goes below ${preciseCommify(liquidationPrice || newLiquidationPrice || 0, 2, true)}, liquidations may happen on your collateral.`
               : ''
@@ -52,6 +54,7 @@ export const CreditLimitBar = ({
             type={'perc'}
             placeholder=""
             prefix="Health Level: "
+            color={riskColor}
             tooltip={
               hasDebt ? "The percentage of the Loan covered by your Collateral, the higher the safer."
               : ''

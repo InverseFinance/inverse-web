@@ -1,32 +1,24 @@
-import { Stack, VStack, Text, HStack, Slider, SliderTrack, SliderFilledTrack, SliderThumb, SliderMark, Popover, PopoverTrigger, PopoverArrow, PopoverContent, PopoverCloseButton, PopoverHeader, PopoverBody, TextProps } from '@chakra-ui/react'
-import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
+import { Stack, VStack, Text, HStack } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { getBnToNumber, shortenNumber } from '@app/util/markets'
-import { commify, parseEther } from '@ethersproject/units'
+import { shortenNumber } from '@app/util/markets'
+import { parseEther } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2CalcNewHealth, f2deposit, f2withdraw } from '@app/util/f2'
+import { f2CalcNewHealth, f2deposit, f2withdraw, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
-import { preciseCommify } from '@app/util/misc'
-import { SettingsIcon } from '@chakra-ui/icons'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { F2DurationSlider } from './F2DurationSlider'
 
-const SliderTick = (props: Partial<TextProps>) => {
-    return <Text
-        _hover={{ color: 'mainTextColor' }}
-        color="secondaryTextColor"
-        transition="color 200ms"
-        fontSize="sm"
-        w="fit-content"
-        whiteSpace="nowrap"
-        transform="translateX(-50%)"
-        cursor="pointer"
-        position="absolute"
-        {...props} />
+const TextInfo = ({ message, children }) => {
+    return <HStack>
+        <AnimatedInfoTooltip message={message} iconProps={{ color: 'secondaryTextColor', fontSize: '12px' }} />
+        {children}
+    </HStack>
 }
 
 export const F2CombinedForm = ({
@@ -45,7 +37,6 @@ export const F2CombinedForm = ({
     onDebtChange?: (v: number) => void
 }) => {
     const colDecimals = f2market.underlying.decimals;
-    const [showOptions, setShowOptions] = useState(false);
     const [duration, setDuration] = useState(365);
     const [collateralAmount, setCollateralAmount] = useState(0);
     const [debtAmount, setDebtAmount] = useState(0);
@@ -74,10 +65,6 @@ export const F2CombinedForm = ({
         setDebtAmount(floatNumber)
     }
 
-    const switchMode = () => {
-        setIsDeposit(!isDeposit);
-    }
-
     useEffect(() => {
         if (!onDepositChange) { return };
         onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
@@ -90,73 +77,22 @@ export const F2CombinedForm = ({
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
-    const mainColor = 'infoAlpha';
     const isFormFilled = !!collateralAmount && !!debtAmount;
-    const riskColor = !isFormFilled ? 'secondaryTextColor' : (newPerc >= 75 ? 'success' : (newPerc >= 50 ? 'lightWarning' : (newPerc >= 25 ? 'warning' : 'error')));
+    const riskColor = !isFormFilled ? 'secondaryTextColor' : getRiskColor(newPerc);
 
     return <Container
         noPadding
         p="0"
         label={`Deposit ${f2market.name} and Borrow DOLA`}
         description={`Quick and Easy Fixed-Rate Borrowing`}
-        contentBgColor={mainColor}
+        contentBgColor={'lightPrimaryAlpha'}
         image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         right={
-            <HStack>
-                <Popover placement="bottom-start">
-                    <PopoverTrigger>
-                        <SettingsIcon />
-                    </PopoverTrigger>
-                    <PopoverContent minW="400px" maxW='98vw' className="blurred-container primary-bg" _focus={{}}>
-                        <PopoverArrow bg="mainBackgroundColor" />
-                        <PopoverCloseButton />
-                        <PopoverHeader>Fixed-Rate loan Duration</PopoverHeader>
-                        <PopoverBody >
-                            <VStack w='full' alignItems="flex-start" spacing="40px">
-                                <Text fontWeight="bold" fontSize="14px">For how long do you want to lock-in a Fixed Rate?</Text>
-                                <VStack w='full' px="8">
-                                    <Slider
-                                        value={duration}
-                                        onChange={(v: number) => setDuration(v)}
-                                        min={1}
-                                        max={730}
-                                        step={1}
-                                        aria-label='slider-ex-4'
-                                        defaultValue={365}>
-                                        <SliderMark
-                                            value={duration}
-                                            textAlign='center'
-                                            bg='primary.500'
-                                            color='white'
-                                            mt='-45px'
-                                            borderRadius="50px"
-                                            transform="translateX(-50%)"
-                                            w='100px'
-                                        >
-                                            {duration} days
-                                        </SliderMark>
-                                        <SliderTrack h="15px" bg='primary.100'>
-                                            <SliderFilledTrack bg={'primary.200'} />
-                                        </SliderTrack>
-                                        <SliderThumb h="30px" />
-                                    </Slider>
-                                    <HStack py="2" w='full' position="relative">
-                                        <SliderTick left="0%" onClick={() => setDuration(1)}>1 Day</SliderTick>
-                                        {/* <SliderTick left="25%" onClick={() => setDuration(180)}>6 Months</SliderTick> */}
-                                        <SliderTick left="50%" onClick={() => setDuration(365)}>12 Months</SliderTick>
-                                        {/* <SliderTick left="75%" onClick={() => setDuration(545)}>18 Months</SliderTick> */}
-                                        <SliderTick left="100%" onClick={() => setDuration(730)}>24 Months</SliderTick>
-                                    </HStack>
-                                </VStack>
-                            </VStack>
-                        </PopoverBody>
-                    </PopoverContent>
-                </Popover>
-            </HStack>
+            <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack w='full' spacing="8" minH="300px" justify="center">
+        <VStack w='full' spacing="6" minH="300px" justify="center">
             <VStack w='full' alignItems="flex-start">
                 <Text>How much <b>Collateral</b> do you want to <b>Deposit</b>?</Text>
                 <SimpleAmountForm
@@ -169,8 +105,7 @@ export const F2CombinedForm = ({
                     onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                     actionLabel={btnLabel}
                     maxActionLabel={btnMaxlabel}
-                    onAmountChange={handleCollateralChange}
-                    btnThemeColor={'blue.600'}
+                    onAmountChange={handleCollateralChange}                    
                     showMaxBtn={isDeposit || !debt}
                     hideInputIfNoAllowance={false}
                     hideButtons={true}
@@ -189,20 +124,37 @@ export const F2CombinedForm = ({
                     actionLabel={btnLabel}
                     maxActionLabel={btnMaxlabel}
                     onAmountChange={handleDebtChange}
-                    btnThemeColor={'blue.600'}
                     showMaxBtn={!isDeposit}
                     hideInputIfNoAllowance={false}
                     hideButtons={false}
                     isDisabled={newPerc < 1}
                 />
-                <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
-                    <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
-                        Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
-                    </Text>
-                    <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
-                        Liquidation Price: {isFormFilled ? preciseCommify(newLiquidationPrice, 2, true) : '-'}
-                    </Text>
-                </Stack>
+                <VStack spacing="0" w='full'>
+                    <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
+                        <TextInfo message="Percentage of the loan covered by the collateral worth">
+                            <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
+                                Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
+                            </Text>
+                        </TextInfo>
+                        <TextInfo message="Minimum Collateral Price before liquidations can happen">
+                            <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
+                                Liquidation Price: {isFormFilled ? `${shortenNumber(newLiquidationPrice, 2)}%` : '-'}
+                            </Text>
+                        </TextInfo>
+                    </Stack>
+                    <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
+                        <TextInfo message="Fixed Rate borrowing is handled thanks to DBR tokens, don't sell them unless you know what you're doing!">
+                            <Text color="secondaryTextColor">
+                                DBR to receive: X
+                            </Text>
+                        </TextInfo>
+                        <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
+                            <Text color="secondaryTextColor">
+                                Fixed Rate Validity: {duration} days
+                            </Text>
+                        </TextInfo>
+                    </Stack>
+                </VStack>
             </VStack>
         </VStack>
     </Container>

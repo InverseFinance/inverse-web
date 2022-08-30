@@ -31,6 +31,7 @@ export const F2StateInfo = ({
     type = 'number',
     nullPlaceholder = '',
     tooltipTitle = '',
+    color = 'secondaryTextColor'
 }: {
     currentValue: number | null
     nextValue?: number | null
@@ -42,6 +43,7 @@ export const F2StateInfo = ({
     type?: 'number' | 'remainingTime' | 'dollar' | 'perc' | 'date'
     nullPlaceholder?: string
     tooltipTitle?: string
+    color?: string
 }) => {
     const currentFormatted = formatValue(currentValue, precision, type);
     const nextFormatted = nextValue !== undefined ? formatValue(nextValue, precision, type, nullPlaceholder ?? placeholder) : '';
@@ -50,7 +52,7 @@ export const F2StateInfo = ({
         placeholder :
         <>{prefix}{currentFormatted}{!!nextFormatted && <b> => {nextFormatted}</b>}{suffix}</>
 
-    const text = <Text cursor="default" color="secondaryTextColor" _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
+    const text = <Text cursor="default" color={color} _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
         {content}
     </Text>
 

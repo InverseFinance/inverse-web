@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Slider, SliderTrack, SliderFilledTrack, SliderThumb, SliderMark, Divider, TextProps } from '@chakra-ui/react'
+import { VStack, Text, HStack, Box, Link } from '@chakra-ui/react'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import Container from '@app/components/common/Container'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
@@ -15,42 +15,26 @@ import { parseEther } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
-import { ArrowUpIcon } from '@chakra-ui/icons'
 
 const { DOLA } = getNetworkConfigConstants();
-
-const SliderTick = (props: Partial<TextProps>) => {
-    return <Text
-        _hover={{ color: 'mainTextColor' }}
-        color="secondaryTextColor"
-        transition="color 200ms"
-        fontSize="sm"
-        w="fit-content"
-        whiteSpace="nowrap"
-        transform="translateX(-50%)"
-        cursor="pointer"
-        position="absolute"
-        {...props} />
-}
 
 export const F2BorrowForm = ({
     f2market,
     account,
     signer,
     isBorrowDefault = true,
-    isAdvancedMode = true,
     onAmountChange,
+    switchToSimpleMode,
 }: {
     f2market: F2Market
     account: string | null | undefined
     signer: JsonRpcSigner | undefined
     isBorrowDefault?: boolean
-    isAdvancedMode?: boolean
-    onAmountChange?: (v: number) => void
+    onAmountChange: (v: number) => void
+    switchToSimpleMode: () => void
 }) => {
     const [isBorrow, setIsBorrow] = useState(isBorrowDefault);
     const [amount, setAmount] = useState(0);
-    const [duration, setDuration] = useState(365);
     const colDecimals = f2market.underlying.decimals;
 
     const { balance: dbrBalance, debt, bnDebt } = useAccountDBR(account);
@@ -184,7 +168,18 @@ export const F2BorrowForm = ({
                             <InfoMessage
                                 alertProps={{ w: 'full' }}
                                 title="No DBR tokens"
-                                description={`You need DBR tokens in your wallet to hold borrows over time`}
+                                description={
+                                    <Box >
+                                        <Link textDecoration="underline" href="https://app.sushi.com/" target="_blank" isExternal>
+                                            Get DBR tokens
+                                        </Link>
+                                        <Text display="inline-block">&nbsp;first or use the&nbsp;</Text>
+                                        <Text cursor="pointer" textDecoration="underline" display="inline-block" onClick={() => switchToSimpleMode()}>
+                                            Simple Mode
+                                        </Text>
+                                        <Text display="inline-block">&nbsp;to auto-buy them</Text>
+                                    </Box>
+                                }
                             />
                         }
                     </VStack>

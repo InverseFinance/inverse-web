@@ -9,7 +9,7 @@ export const F2DbrInfosModal = ({
     isOpen: boolean
 }) => {
     return <InfoModal
-        title={`Borrowing Stamina and What is DBR?`}
+        title={`Fixed Rate Validity and What is DBR?`}
         onClose={onClose}
         onOk={onClose}
         isOpen={isOpen}
