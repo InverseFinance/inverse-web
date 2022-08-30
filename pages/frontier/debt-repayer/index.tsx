@@ -167,7 +167,7 @@ export const DebtRepayerPage = () => {
                                             <HStack>
                                                 <AnimatedInfoTooltip message="There can be a premium when Exchanging" />
                                                 <Text>
-                                                    Exchange Rate:
+                                                    Current Exchange Rate:
                                                 </Text>
                                             </HStack>
                                             <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 2)} {outputToken.symbol}</Text>
@@ -189,6 +189,15 @@ export const DebtRepayerPage = () => {
                                                 </Text>
                                             </HStack>
                                             <Text>{shortenNumber(outputLiquidity, 2)} {outputToken.symbol}</Text>
+                                        </Stack>
+                                        <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                            <HStack>
+                                                <AnimatedInfoTooltip message="Ratio of the Liquidity compared to the RemainingDebt" />
+                                                <Text>
+                                                    Reserve Ratio:
+                                                </Text>
+                                            </HStack>
+                                            <Text>{remainingDebt ? shortenNumber(outputLiquidity/remainingDebt*100, 2) : 0}%</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
