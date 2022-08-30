@@ -89,7 +89,7 @@ export const F2BorrowForm = ({
 
     const btnlabel = isBorrow ? 'Borrow' : 'Repay';
     const btnMaxlabel = `${btnlabel} Max`;
-    const mainColor = 'lightPrimaryAlpha'//!isBorrow ? 'infoAlpha' : 'lightPrimaryAlpha';
+    const isVirgin = deposits === 0 && dbrBalance === 0 && debt === 0;
 
     return <Container
         noPadding
@@ -99,7 +99,7 @@ export const F2BorrowForm = ({
         w={{ base: 'full', lg: '50%' }}
         contentProps={{
             position: 'relative',
-            backgroundColor: mainColor,
+            backgroundColor: 'lightPrimaryAlpha',
             _after: {
                 content: '""',
                 position: 'absolute',
@@ -108,8 +108,9 @@ export const F2BorrowForm = ({
                 backgroundSize: '100px',
                 backgroundRepeat: 'no-repeat',
                 top: 0, left: 0, right: 0, bottom: 0,
-                opacity: 0.25,
-            },            
+                opacity: 0.5,
+                zIndex: -1,
+            },
         }}
         image={<BigImageButton bg="url('/assets/dola.png')" h="50px" w="80px" />}
         right={
@@ -124,7 +125,7 @@ export const F2BorrowForm = ({
             </Text>
         }
     >
-        <VStack justifyContent='space-between' w='full' minH={isAdvancedMode ? '300px' : 'fit-content'}>
+        <VStack justifyContent='space-between' w='full' minH={'280px'}>
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Borrow Asset:</Text>
@@ -134,67 +135,29 @@ export const F2BorrowForm = ({
                     <Text color="secondaryTextColor">Your DOLA Balance:</Text>
                     <Text>{shortenNumber(dolaBalance, 2)}</Text>
                 </HStack>
-                <HStack w='full' justifyContent="space-between">
-                    <Text color="secondaryTextColor">Your DOLA Debt:</Text>
-                    <Text>{shortenNumber(marketDebt, 2)}</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
-                    <Text color="secondaryTextColor">Your Total DOLA debt:</Text>
-                    <Text>{shortenNumber(debt, 2)}</Text>
-                </HStack>
+                {
+                    !isVirgin && <>
+                        <HStack w='full' justifyContent="space-between">
+                            <Text color="secondaryTextColor">Your DOLA Debt:</Text>
+                            <Text>{shortenNumber(marketDebt, 2)}</Text>
+                        </HStack>
+                        <HStack w='full' justifyContent="space-between">
+                            <Text color="secondaryTextColor">Your Total DOLA debt:</Text>
+                            <Text>{shortenNumber(debt, 2)}</Text>
+                        </HStack>
+                    </>
+                }
                 {/* <HStack w='full' justifyContent="space-between">
                     <Text>Your DOLA Borrow Rights:</Text>
                     <Text>{shortenNumber(dbrBalance, 2)}</Text>
                 </HStack> */}
                 <HStack w='full' justifyContent="space-between">
-                    <Text color="secondaryTextColor">Market's available DOLA liquidity:</Text>
+                    <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
                     <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
                 </HStack>
-                {!isAdvancedMode && <Divider />}
-                {
-                    !isAdvancedMode &&
-                    <VStack w='full' alignItems="flex-start" spacing="40px">
-                        <Text fontWeight="bold">For how long do you want to lock-in a Fixed Rate?</Text>
-                        <VStack w='full' px="8">
-                            <Slider
-                                value={duration}
-                                onChange={(v: number) => setDuration(v)}
-                                min={1}
-                                max={730}
-                                step={1}
-                                aria-label='slider-ex-4'
-                                defaultValue={365}>
-                                <SliderMark
-                                    value={duration}
-                                    textAlign='center'
-                                    bg='primary.500'
-                                    color='white'
-                                    mt='-45px'
-                                    borderRadius="50px"
-                                    transform="translateX(-50%)"
-                                    w='100px'
-                                >
-                                    {duration} days
-                                </SliderMark>
-                                <SliderTrack h="15px" bg='primary.100'>
-                                    <SliderFilledTrack bg={'primary.200'} />
-                                </SliderTrack>
-                                <SliderThumb h="30px" />
-                            </Slider>
-                            <HStack py="2" w='full' position="relative">
-                                <SliderTick left="0%" onClick={() => setDuration(1)}>1 Day</SliderTick>
-                                <SliderTick left="25%" onClick={() => setDuration(180)}>6 Months</SliderTick>
-                                <SliderTick left="50%" onClick={() => setDuration(365)}>12 Months</SliderTick>
-                                <SliderTick left="75%" onClick={() => setDuration(545)}>18 Months</SliderTick>
-                                <SliderTick left="100%" onClick={() => setDuration(730)}>24 Months</SliderTick>
-                            </HStack>
-                        </VStack>
-                    </VStack>
-                }
             </VStack>
-
             {
-                (deposits > 0 && dbrBalance > 0) || !isAdvancedMode ?
+                (deposits > 0 && dbrBalance > 0) ?
                     <SimpleAmountForm
                         address={isBorrow ? f2market.collateral : DOLA}
                         destination={f2market.address}
@@ -209,22 +172,22 @@ export const F2BorrowForm = ({
                         // btnThemeColor={!isBorrow ? 'blue.600' : undefined}
                         showMaxBtn={!isBorrow}
                     />
-                    : <>
-                        {deposits === 0 && isAdvancedMode &&
+                    : <VStack>
+                        {deposits === 0 &&
                             <InfoMessage
                                 alertProps={{ w: 'full' }}
                                 title="No Collateral Deposited yet"
                                 description={`Loans need to be covered by a collateral, please deposit some.`}
                             />
                         }
-                        {dbrBalance === 0 && debt === 0 && isAdvancedMode &&
+                        {dbrBalance === 0 && debt === 0 &&
                             <InfoMessage
                                 alertProps={{ w: 'full' }}
                                 title="No DBR tokens"
                                 description={`You need DBR tokens in your wallet to hold borrows over time`}
                             />
                         }
-                    </>
+                    </VStack>
             }
         </VStack>
     </Container>

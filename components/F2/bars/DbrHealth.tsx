@@ -49,7 +49,7 @@ export const DbrHealth = ({
         />
       </HStack>
       <QuantityBar
-        title="Borrow Stamina"
+        title="Fixed Rate Validity"
         perc={dbrDepletionPerc}
         previewPerc={previewPerc}
         badgeColorScheme={'success'}

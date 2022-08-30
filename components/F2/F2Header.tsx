@@ -6,6 +6,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify, shortenNumber } from '@app/util/markets'
 import { AnchorBigButton } from '../Anchor/AnchorBigButton'
+import { useDBRPrice } from '@app/hooks/useDBR'
 
 const Btn = (props) => <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} {...props} />
 
@@ -27,7 +28,7 @@ export const F2Header = () => {
   const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
-  const dbrPrice = 0.021;
+  const { price: dbrPrice } = useDBRPrice();
 
   const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
 

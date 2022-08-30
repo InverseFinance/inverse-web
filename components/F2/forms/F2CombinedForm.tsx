@@ -97,7 +97,7 @@ export const F2CombinedForm = ({
     return <Container
         noPadding
         p="0"
-        label={`Deposit Collateral and Borrow DOLA`}
+        label={`Deposit ${f2market.name} and Borrow DOLA`}
         description={`Quick and Easy Fixed-Rate Borrowing`}
         contentBgColor={mainColor}
         image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
@@ -156,7 +156,7 @@ export const F2CombinedForm = ({
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack w='full' spacing="8">
+        <VStack w='full' spacing="8" minH="300px" justify="center">
             <VStack w='full' alignItems="flex-start">
                 <Text>How much <b>Collateral</b> do you want to <b>Deposit</b>?</Text>
                 <SimpleAmountForm

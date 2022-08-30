@@ -75,7 +75,8 @@ export const F2CollateralForm = ({
                 backgroundSize: '100px',
                 backgroundRepeat: 'no-repeat',
                 top: 0, left: 0, right: 0, bottom: 0,
-                opacity: 0.25,
+                opacity: 0.5,
+                zIndex: -1,
             },            
         }}
         image={<BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
@@ -92,7 +93,7 @@ export const F2CollateralForm = ({
         }
         w={{ base: 'full', lg: '50%' }}
     >
-        <VStack justifyContent='space-between' w='full' minH={ '300px' }>
+        <VStack justifyContent='space-between' w='full' minH={ '280px' }>
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Name:</Text>
