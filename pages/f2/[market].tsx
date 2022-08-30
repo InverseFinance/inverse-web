@@ -27,7 +27,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
     const { account, library } = useWeb3React<Web3Provider>();
     const { markets } = useDBRMarkets(market);
-    const f2market = markets[0];
+
+    const f2market = markets.length > 0 ? markets[0] : undefined;
 
     return (
         <Layout>
@@ -38,7 +39,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         <SimmpleBreadcrumbs
                             breadcrumbs={[
                                 { label: 'F2', href: '/f2' },
-                                { label: `${f2market.name} Market`, href: '#' },
+                                { label: `${f2market?.name || market} Market`, href: '#' },
                             ]}
                         />
                         <HStack color="mainTextColor" _hover={{ color: 'secondary' }}>
@@ -55,58 +56,58 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                     </HStack>
 
                     {
-                        isAdvancedMode ?
-                            <>
+                        !f2market ? <Text>Market not found</Text>
+                            : isAdvancedMode ?
+                                <>
+                                    <Stack
+                                        alignItems="flex-start"
+                                        w='full'
+                                        direction={{ base: 'column', lg: 'row' }}
+                                        spacing="12"
+                                    >
+                                        <F2CollateralForm
+                                            signer={library?.getSigner()}
+                                            f2market={f2market}
+                                            account={account}
+                                            onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
+                                        />
+                                        <F2BorrowForm
+                                            signer={library?.getSigner()}
+                                            f2market={f2market}
+                                            account={account}
+                                            onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
+                                        />
+                                    </Stack>
+                                    <Stack
+                                        alignItems="flex-start"
+                                        w='full'
+                                        direction={{ base: 'column', lg: 'row' }}
+                                        spacing="12"
+                                    >
+                                        <ErrorBoundary description="Failed to load Dbr Health">
+                                            <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} />
+                                        </ErrorBoundary>
+                                        <ErrorBoundary description="Failed to load Dbr Health">
+                                            <DbrHealth account={account} debtDelta={newDebtAmount} />
+                                        </ErrorBoundary>
+                                    </Stack>
+                                </>
+                                :
                                 <Stack
                                     alignItems="flex-start"
                                     w='full'
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
                                 >
-                                    <ErrorBoundary description="Failed to load Dbr Health">
-                                        <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} />
-                                    </ErrorBoundary>
-                                    <ErrorBoundary description="Failed to load Dbr Health">
-                                        <DbrHealth account={account} debtDelta={newDebtAmount} />
-                                    </ErrorBoundary>
-                                </Stack>
-
-                                <Stack
-                                    alignItems="flex-start"
-                                    w='full'
-                                    direction={{ base: 'column', lg: 'row' }}
-                                    spacing="12"
-                                >
-                                    <F2CollateralForm
+                                    <MarketInfos account={account} market={f2market} />
+                                    <F2CombinedForm
                                         signer={library?.getSigner()}
                                         f2market={f2market}
                                         account={account}
-                                        onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                    />
-                                    <F2BorrowForm
-                                        signer={library?.getSigner()}
-                                        f2market={f2market}
-                                        account={account}
-                                        onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
+                                        onDepositChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
+                                        onDebtChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
                                     />
                                 </Stack>
-                            </>
-                            :
-                            <Stack
-                                alignItems="flex-start"
-                                w='full'
-                                direction={{ base: 'column', lg: 'row' }}
-                                spacing="12"
-                            >
-                                <MarketInfos account={account} market={f2market} />
-                                <F2CombinedForm
-                                    signer={library?.getSigner()}
-                                    f2market={f2market}
-                                    account={account}
-                                    onDepositChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                    onDebtChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                />
-                            </Stack>
 
                     }
                 </VStack>
