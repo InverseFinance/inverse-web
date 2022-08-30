@@ -31,6 +31,7 @@ const InfoModal = ({
         <Modal
             onClose={onClose}
             isOpen={isOpen}
+            scrollBehavior="inside"
             header={
                 <Stack minWidth={24} direction="row" align="center" >
                     <InfoIcon mr="2" /><Text>{title}</Text>
