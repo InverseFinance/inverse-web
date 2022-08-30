@@ -58,3 +58,7 @@ export const f2CalcNewHealth = (
         newLiquidationPrice,
     }
 }
+
+export const getRiskColor = (newPerc: number) => {
+    return (newPerc >= 75 ? 'success' : (newPerc >= 50 ? 'lightWarning' : (newPerc >= 25 ? 'warning' : 'error')));
+}
