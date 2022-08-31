@@ -50,7 +50,7 @@ export const F2StateInfo = ({
 
     const content = !currentValue && !nextValue ?
         placeholder :
-        <>{prefix}{currentFormatted}{!!nextFormatted && <b> => {nextFormatted}</b>}{suffix}</>
+        <>{prefix}{currentFormatted}{!!nextFormatted && currentFormatted !== nextFormatted && <b> => {nextFormatted}</b>}{suffix}</>
 
     const text = <Text cursor="default" color={color} _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
         {content}
@@ -66,7 +66,8 @@ export const F2StateInfo = ({
                     {!!title && <Text fontSize="18px" fontWeight="extrabold">{title.replace(':', '')}:</Text>}
                     {!!tooltip && <Text textAlign="left">{tooltip}</Text>}
                     {
-                        hasPreview && <VStack w='full' spacing="0" alignItems="flex-start">
+                        hasPreview && currentFormatted !== nextFormatted
+                        && <VStack w='full' spacing="0" alignItems="flex-start">
                             <HStack w='full' justifyContent="space-between">
                                 <Text>Current:</Text>
                                 <Text>{currentFormatted}</Text>

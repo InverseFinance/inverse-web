@@ -78,15 +78,15 @@ export const CreditLimitBar = ({
           nextValue={isPreviewing ? newCreditLeft : undefined}
           type={'dollar'}
           placeholder="Deposit to Gain Health"
-          suffix=" Borrowing Power Left"
-          tooltipTitle="Borrowing Power Left"
+          suffix=" Health Left"
+          tooltipTitle="Health Left"
           tooltip={
             hasDebt ? "The Borrowing Power left in USD, if it reaches 0, liquidations can happen." : ''
           }
         />
         <F2StateInfo
           currentValue={creditLimit}
-          nextValue={isPreviewing ? newCreditLeft : undefined}
+          nextValue={isPreviewing ? creditLimit : undefined}
           type={'dollar'}
           placeholder="No Collateral deposited"
           prefix={'Total: '}

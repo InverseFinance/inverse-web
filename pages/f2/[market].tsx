@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { useDBRMarkets } from '@app/hooks/useDBR'
+import { useAccountDBRMarket, useDBRMarkets } from '@app/hooks/useDBR'
 
 import { HStack, Stack, VStack, Text } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -28,6 +28,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 ? markets[0] : undefined;
+    const { debt } = useAccountDBRMarket(f2market, account);
 
     return (
         <Layout>
@@ -56,7 +57,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
                     {
                         !f2market ? <Text>Market not found</Text>
-                            : isAdvancedMode ?
+                            : isAdvancedMode || debt > 0 ?
                                 <>
                                     <Stack
                                         alignItems="flex-start"

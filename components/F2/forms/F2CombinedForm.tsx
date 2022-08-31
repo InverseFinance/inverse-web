@@ -13,10 +13,14 @@ import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { F2DurationSlider } from './F2DurationSlider'
+import { preciseCommify } from '@app/util/misc'
 
-const TextInfo = ({ message, children }) => {
+const TextInfo = ({ message, children, color = 'secondaryTextColor' }) => {
     return <HStack>
-        <AnimatedInfoTooltip message={message} iconProps={{ color: 'secondaryTextColor', fontSize: '12px' }} />
+        <AnimatedInfoTooltip
+            message={message}
+            iconProps={{ color, fontSize: '12px' }}
+        />
         {children}
     </HStack>
 }
@@ -105,7 +109,7 @@ export const F2CombinedForm = ({
                     onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                     actionLabel={btnLabel}
                     maxActionLabel={btnMaxlabel}
-                    onAmountChange={handleCollateralChange}                    
+                    onAmountChange={handleCollateralChange}
                     showMaxBtn={isDeposit || !debt}
                     hideInputIfNoAllowance={false}
                     hideButtons={true}
@@ -131,21 +135,21 @@ export const F2CombinedForm = ({
                 />
                 <VStack spacing="0" w='full'>
                     <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
-                        <TextInfo message="Percentage of the loan covered by the collateral worth">
+                        <TextInfo color={riskColor} message="Percentage of the loan covered by the collateral worth">
                             <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
                                 Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
                             </Text>
                         </TextInfo>
-                        <TextInfo message="Minimum Collateral Price before liquidations can happen">
+                        <TextInfo color={riskColor} message="Minimum Collateral Price before liquidations can happen">
                             <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
-                                Liquidation Price: {isFormFilled ? `${shortenNumber(newLiquidationPrice, 2)}%` : '-'}
+                                Liquidation Price: {isFormFilled ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}
                             </Text>
                         </TextInfo>
                     </Stack>
                     <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
                         <TextInfo message="Fixed Rate borrowing is handled thanks to DBR tokens, don't sell them unless you know what you're doing!">
                             <Text color="secondaryTextColor">
-                                DBR to receive: X
+                                DBR to receive: {shortenNumber(debtAmount / (365 / duration), 2)}
                             </Text>
                         </TextInfo>
                         <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">

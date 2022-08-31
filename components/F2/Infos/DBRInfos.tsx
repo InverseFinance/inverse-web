@@ -3,7 +3,7 @@ import { VStack, Text, Image } from "@chakra-ui/react"
 export const DBRInfos = () => {
     return <VStack w='full' py="4" px="8" alignItems="flex-start" spacing="4">
         <Text fontSize="18px" fontWeight="bold">
-            A simple Sports Analogy to understand!
+            What is DBR?
         </Text>
         <VStack w='full' bgColor="white" p="2" borderRadius="50px">
             <Image src="/assets/f2/jogging-dbr.svg" w="full" maxH="100px" />
