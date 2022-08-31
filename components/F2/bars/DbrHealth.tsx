@@ -22,11 +22,18 @@ export const DbrHealth = ({
 
   const isPreviewing = !!debtDelta;
   const riskColor = newDailyRate > 0 ? getRiskColor(previewPerc) : 'secondaryTextColor';
-  const needsRechargeSoon = previewNbDays <= 30 && hasDebt;
+  const needsRechargeSoon = isPreviewing ? previewNbDays <= 30 && hasDebt : dbrNbDaysExpiry <= 30 && hasDebt;
 
   return (
     <VStack w='full' spacing="0" alignItems="center">
-      <F2DbrInfosModal onClose={onClose} isOpen={isOpen} />
+      <F2DbrInfosModal
+        onClose={onClose}
+        isOpen={isOpen}
+        hasDebt={hasDebt}
+        needsRechargeSoon={needsRechargeSoon}
+        dbrNbDaysExpiry={dbrNbDaysExpiry}
+        dailyDebtAccrual={dailyDebtAccrual}
+      />
       <HStack w='full' justifyContent="space-between">
         <F2StateInfo
           currentValue={dbrExpiryDate}
