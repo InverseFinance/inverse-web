@@ -11,7 +11,7 @@ export const f2deposit = (signer: JsonRpcSigner, market: string, amount: string 
 export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, to?: string) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
     const _to = to ? to : await signer.getAddress();
-    return contract.withdraw(_to, amount);
+    return contract.withdraw(amount);
 }
 
 export const f2borrow = (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
