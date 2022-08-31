@@ -48,7 +48,7 @@ export const F2CombinedForm = ({
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDola } = useAccountDBRMarket(f2market, account);
     const {
-        newPerc, newLiquidationPrice, newCreditLimit
+        newPerc, newLiquidationPrice, newCreditLimit, newDebt
     } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, debtAmount, perc);
 
     const { balances } = useBalances([f2market.collateral]);
@@ -75,13 +75,13 @@ export const F2CombinedForm = ({
     }, [isDeposit, collateralAmount, onDepositChange]);
 
     useEffect(() => {
-        if (!onDepositChange) { return };
-        onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
-    }, [isDeposit, collateralAmount, onDepositChange]);
+        if (!onDebtChange) { return };
+        onDebtChange(isDeposit ? debtAmount : -debtAmount);
+    }, [isDeposit, debtAmount, onDebtChange]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
-    const isFormFilled = !!collateralAmount && !!debtAmount;
+    const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'secondaryTextColor' : getRiskColor(newPerc);
 
     return <Container

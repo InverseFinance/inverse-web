@@ -52,7 +52,7 @@ export const DbrHealth = ({
         <F2StateInfo
           currentValue={-dailyDebtAccrual}
           nextValue={isPreviewing ? -newDailyRate : undefined}
-          placeholder={balance ? `${preciseCommify(balance, 2)} DOLA / Year` : ''}
+          placeholder={balance ? `Can borrow ${preciseCommify(balance, 2)} DOLA / Year` : ''}
           suffix=" DBR a day"
           prefix="Fixed Rate: "
           type="number"

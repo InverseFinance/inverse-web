@@ -41,7 +41,7 @@ export const F2DbrInfosModal = ({
             bgColorActive="blue.800"
             bgColor="blue.700"
             active={tab}
-            options={[INFOS_TAB, CALCULATOR_TAB]}
+            options={dailyDebtAccrual > 0 ? [INFOS_TAB, CALCULATOR_TAB]: [INFOS_TAB]}
             onClick={(v) => (setTab(v))}
         />
         {

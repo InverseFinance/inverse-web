@@ -171,11 +171,11 @@ export const _getProp = (object: Object, key: string) => {
     return found?.[1];
 }
 
-export const preciseCommify = (v: number, precision: number, isDollar = false) => {
-    if(precision === 0 ){
-        return `${isDollar ? '$' : ''}${commify(v.toFixed(0))}`;
+export const preciseCommify = (v: number, precision: number, isDollar = false) => {    
+    if(precision === 0 || !v){
+        return `${isDollar ? '$' : ''}${commify((v||0).toFixed(0))}`;
     }
-    const fixed = v.toFixed(precision);
-    const split = fixed.split('.');
+    const fixed = v?.toFixed(precision);
+    const split = fixed?.split('.');
     return `${isDollar ? '$' : ''}${commify(split[0])}.${split[1]}`.replace('$-', '-$');
 }

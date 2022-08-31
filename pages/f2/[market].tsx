@@ -57,7 +57,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
                     {
                         !f2market ? <Text>Market not found</Text>
-                            : isAdvancedMode || debt > 0 ?
+                            : isAdvancedMode ?
                                 <>
                                     <Stack
                                         alignItems="flex-start"
@@ -106,11 +106,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         f2market={f2market}
                                         account={account}
                                         onDepositChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                        onDebtChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
+                                        onDebtChange={(floatAmount) => setNewDebtAmount(floatAmount)}
                                     />
                                 </Stack>
 
-                    }
+                    }                                                        
                 </VStack>
             </ErrorBoundary>
         </Layout>
