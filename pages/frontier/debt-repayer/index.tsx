@@ -170,7 +170,7 @@ export const DebtRepayerPage = () => {
                                                     Current Exchange Rate:
                                                 </Text>
                                             </HStack>
-                                            <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 2)} {outputToken.symbol}</Text>
+                                            <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 4)} {outputToken.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
