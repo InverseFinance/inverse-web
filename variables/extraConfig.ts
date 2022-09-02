@@ -22,7 +22,7 @@ const mainConfig = {
     swapRouter: '0x66F625B8c4c635af8b74ECe2d7eD0D58b4af3C3d',
     disperseApp: '0xD152f549545093347A162Dce210e7293f1452150',
     debtRepayer: '0x9eb6BF2E582279cfC1988d3F2043Ff4DF18fa6A0',
-    debtConverter: '0x167Fc6F41467E52d7BB3686E2EE376e42Ed5Ea6B',
+    debtConverter: '0xF668A78Bf7997D26A992a3bC07Bcd21523E0a3D3',
     feds: [
         { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
         { chainId: NetworkIds.mainnet, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
