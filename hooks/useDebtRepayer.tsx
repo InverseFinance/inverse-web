@@ -5,6 +5,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { BigNumber } from 'ethers';
 
 const { DEBT_REPAYER } = getNetworkConfigConstants();
+const BASELINE_DECIMALS = 4;
 
 export const useDebtRepayer = (markets: Market[]): SWR & {
     remainingDebts: number[],
@@ -18,7 +19,7 @@ export const useDebtRepayer = (markets: Market[]): SWR & {
     ])
 
     return {
-        discounts: discounts ? discounts.map(b => getBnToNumber(b)) : [],
+        discounts: discounts ? discounts.map(b => getBnToNumber(b, BASELINE_DECIMALS)) : [],
         remainingDebts: remainingDebts ? remainingDebts.map((b, i) => getBnToNumber(b, markets[i].underlying.decimals)) : [],
         isLoading: !discounts && !remainingDebts && !error,
         isError: !!error,
@@ -37,7 +38,7 @@ export const useMarketDebtRepayer = (market: Market): SWR & {
     ])
 
     return {
-        discount: discount ? getBnToNumber(discount) : 1,
+        discount: discount ? getBnToNumber(discount, BASELINE_DECIMALS) : 0,
         remainingDebt: remainingDebt ? getBnToNumber(remainingDebt, market.underlying.decimals) : 0,
         isLoading: !discount && !remainingDebt && !error,
         isError: !!error,
