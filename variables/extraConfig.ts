@@ -23,12 +23,13 @@ const mainConfig = {
     disperseApp: '0xD152f549545093347A162Dce210e7293f1452150',
     debtRepayer: '0x79E8AB29Ff79805025c9462a2f2F12e9A496f81d',
     debtConverter: '0x5e6CB7E728E1C320855587E1D9C6F7972ebdD6D5',
-    dbr: '0xCa1D199b6F53Af7387ac543Af8e8a34455BBe5E0',
-    f2Oracle: '0xdF46e54aAadC1d55198A4a8b4674D7a4c927097A',
+    dbr: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
+    f2Oracle: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
     f2markets: [{
         name: 'WETH',
-        collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        address: '0xFD2Cf3b56a73c75A7535fFe44EBABe7723c64719',
+        // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        collateral: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        address: '0x8b70f2ED64DcbbeC47bd4b241b4628d7D5d7C30a',
     }],
     feds: [
         { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
@@ -118,4 +119,14 @@ const mainConfig = {
 export const EXTRA_CONFIG = {
     "1": mainConfig,
     "31337": mainConfig,
+    "4": {
+        dbr: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
+        f2Oracle: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
+        f2markets: [{
+            name: 'WETH',
+            // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            collateral: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+            address: '0x8b70f2ED64DcbbeC47bd4b241b4628d7D5d7C30a',
+        }],
+    }
 }

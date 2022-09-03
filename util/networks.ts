@@ -43,7 +43,7 @@ export const getNetworkConfigConstants = (
         isSupportedNetwork(configOrChainId.chainId) ?
             configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
 
-    const MULTISIGS: Multisig[] = config.multisigs;
+    const MULTISIGS: Multisig[] = config.multisigs || [];
 
     const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
 
@@ -85,7 +85,8 @@ export const getNetworkConfigConstants = (
     const ANCHOR_TOKENS = Object.keys(UNDERLYING).filter(ad => ![XINV, XINV_V1].includes(ad));
     const ANCHOR_CHAIN_COIN = '0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86'//Object.entries(UNDERLYING).find(([key, token]) => !token.address)![0];
     const ANCHOR_CHAIN_COINS = ['0x8e103Eb7a0D01Ab2b2D29C91934A9aD17eB54b86', '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8'];
-    const ANCHOR_DOLA = Object.entries(UNDERLYING).find(([key, token]) => token.address === process.env.NEXT_PUBLIC_DOLA)![0];
+    const findAnchorDola = Object.entries(UNDERLYING).find(([key, token]) => token.address === process.env.NEXT_PUBLIC_DOLA)!;
+    const ANCHOR_DOLA = findAnchorDola?.length > 0 ? findAnchorDola[0] : '';
 
     const ALL_UNDERLYING: TokenList = {
         ...UNDERLYING,
@@ -102,10 +103,10 @@ export const getNetworkConfigConstants = (
         [DOLA_PAYROLL]: 'DolaPayroll',
         ...CUSTOM_NAMED_ADDRESSES,
     }
-    MULTISIGS.forEach(m => NAMED_ADDRESSES[m.address] = m.name)
+    MULTISIGS?.forEach(m => NAMED_ADDRESSES[m.address] = m.name)
 
     // FEDS
-    const FEDS: Fed[] = config.feds.map((fed) => {
+    const FEDS: Fed[] = (config.feds||[]).map((fed) => {
         return { ...fed, abi: fed.isXchain ? XCHAIN_FED_ABI : FED_ABI }
     });
     const FEDS_WITH_ALL = [{ name: 'All Feds', projectImage: '/assets/projects/eth-ftm.webp', address: '', chainId: NetworkIds.ethftm }]
@@ -159,6 +160,6 @@ export const getNetworkConfigConstants = (
         DEBT_CONVERTER: config.debtConverter,
         DBR: config.dbr,
         F2_ORACLE: config.f2Oracle,
-        F2_MARKETS: config.f2markets,
+        F2_MARKETS: config.f2markets||[],
     }
 }
