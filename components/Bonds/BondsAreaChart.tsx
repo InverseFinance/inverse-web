@@ -5,7 +5,7 @@ import { AreaChart, AreaChartProps } from '@app/components/Transparency/AreaChar
 export const BondsAreaChart = ({
     chartData,
     onlyChart = false,
-    maxChartWidth = 650,
+    maxChartWidth = 600,
     ...props
 }: {
     chartData: any,
