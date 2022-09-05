@@ -43,7 +43,7 @@ export const LandingNav = () => {
             </Link>
           ))}
           <Flex w={28}>
-            <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="/frontier">Enter App</LinkButton>
+            <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="/f2/WETH">Enter App</LinkButton>
           </Flex>
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
@@ -79,7 +79,7 @@ export const LandingNav = () => {
               {label}
             </Link>
           ))}
-          <Link href="/frontier">Enter App</Link>
+          <Link href="/f2">Enter App</Link>
         </Stack>
       </Flex>
       {!showMobileNav && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement isLanding={true} />}
