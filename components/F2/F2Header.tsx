@@ -57,7 +57,7 @@ export const F2Header = () => {
             </Text>
           </Flex>
           <Flex direction="column" width="184px">
-            <TextOrSkeleton value={dbrPrice} text={`$${(dbrPrice || 0).toFixed(2)}`} />
+            <TextOrSkeleton value={dbrPrice} text={`$${(dbrPrice || 0).toFixed(3)}`} />
             <Text color="secondary" fontSize="sm" fontWeight="semibold">
               DBR Price
             </Text>
