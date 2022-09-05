@@ -12,6 +12,7 @@ export type Props = {
     onOk?: () => void
     children?: ReactNode
     minW?: any
+    footerLeft?: ReactNode
 }
 
 const InfoModal = ({
@@ -22,6 +23,7 @@ const InfoModal = ({
     onOk,
     children,
     minW,
+    footerLeft,
 }: Props) => {
     const handleOk = () => {
         return onOk ? onOk() : () => {};
@@ -38,8 +40,9 @@ const InfoModal = ({
                 </Stack>
             }
             footer={
-                <HStack>
-                    <SubmitButton themeColor="blue.500" onClick={handleOk} >{okLabel}</SubmitButton>
+                <HStack w='full' justify="space-between">
+                    <HStack>{footerLeft}</HStack>
+                    <SubmitButton w='fit-content' themeColor="blue.500" onClick={handleOk} >{okLabel}</SubmitButton>
                 </HStack>
             }
             minW={minW}
