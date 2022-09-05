@@ -67,7 +67,7 @@ export const DebtConverterPage = () => {
     const [collateralMarket, setCollateralMarket] = useState<Partial<Market>>({})
     const { price } = useOraclePrice(collateralMarket?.ctoken);
     const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.ctoken);
-    const maxPrice = maxUnderlyingPrice ? maxUnderlyingPrice : price;
+    const maxPrice = (maxUnderlyingPrice !== null ? maxUnderlyingPrice : price)||0;
 
     const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
@@ -182,14 +182,14 @@ export const DebtConverterPage = () => {
                                                 <Text>{price ? dollarify(price, 2) : '-'}</Text>
                                             </Stack>
                                             {
-                                                maxPrice !== price && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                price !== null && maxPrice <= (0.7 * price) && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                     <HStack>
                                                         <AnimatedInfoTooltip message="For safety reasons a maximum price is set for the asset" />
                                                         <Text>
                                                             {collateralMarket.underlying.symbol} Max accepted Price:
                                                         </Text>
                                                     </HStack>
-                                                    <Text>{maxPrice ? dollarify(maxPrice, 2) : '-'}</Text>
+                                                    <Text>{dollarify(maxPrice, 2)}</Text>
                                                 </Stack>
                                             }
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
