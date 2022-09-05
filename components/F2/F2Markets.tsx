@@ -7,6 +7,7 @@ import { useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
 import { commify } from 'ethers/lib/utils';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
+import { getRiskColor } from "@app/util/f2";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -82,8 +83,9 @@ const columns = [
         label: 'Health',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ perc, hasDebt }) => {
+            const color = getRiskColor(perc);
             return <Cell minWidth="100px" justify="center" >
-                <Text>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</Text>
+                <Text color={color}>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</Text>
             </Cell>
         },
     },
