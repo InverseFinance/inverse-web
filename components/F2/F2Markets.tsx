@@ -85,7 +85,7 @@ const columns = [
         value: ({ perc, hasDebt }) => {
             const color = getRiskColor(perc);
             return <Cell minWidth="100px" justify="center" >
-                <Text color={color}>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</Text>
+                <Text color={perc && hasDebt ? color : undefined}>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</Text>
             </Cell>
         },
     },
