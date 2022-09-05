@@ -67,7 +67,7 @@ export const DebtConverterPage = () => {
     const [collateralMarket, setCollateralMarket] = useState<Partial<Market>>({})
     const { price } = useOraclePrice(collateralMarket?.ctoken);
     const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.ctoken);
-    const maxPrice = (maxUnderlyingPrice !== null ? maxUnderlyingPrice : price)||0;
+    const maxPrice = (maxUnderlyingPrice !== 0 && maxUnderlyingPrice !== null ? maxUnderlyingPrice : price)||0;
 
     const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
