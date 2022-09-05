@@ -2,11 +2,12 @@ import { ApproveButton } from "@app/components/Anchor/AnchorButton";
 import { useAllowances } from "@app/hooks/useApprovals";
 import { useBalances } from "@app/hooks/useBalances";
 import { getBnToNumber } from "@app/util/markets";
+import { hasAllowance } from "@app/util/web3";
 import { Stack, VStack } from "@chakra-ui/react"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitButton } from "../Button";
 import { BalanceInput } from "../Input"
 
@@ -64,13 +65,18 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     } = props;
 
     const [amount, setAmount] = useState('');
+    const [tokenApproved, setTokenApproved] = useState(false);
+    const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
-    const allowance = approvals ? getBnToNumber(approvals[address], decimals) : 0;
     const balance = balances ? getBnToNumber(balances[address], decimals) : 0;
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
     maxBn.sort((a, b) => a.gt(b) ? 1 : -1);
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
+
+    useEffect(() => {
+        setTokenApproved(freshTokenApproved || hasAllowance(approvals, address));
+    }, [approvals, address, freshTokenApproved]);
 
     const setToMaxDeposit = () => {
         const max = formatUnits(maxBn[0], decimals);
@@ -82,8 +88,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         const bnAmount = isMax ? maxBn[0] : parseUnits((amount || '0'), decimals);
         const params = {
             bnAmount,
-            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,
-            allowance,
+            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,            
             balance,
             ...props,
         };
@@ -100,7 +105,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     return <VStack w='full'>
         {
-            (!!allowance || !hideInputIfNoAllowance) &&
+            (tokenApproved || !hideInputIfNoAllowance) &&
             <BalanceInput
                 value={amount}
                 inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' } }}
@@ -110,7 +115,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         }
         {
             hideButtons ? null :
-                !allowance ?
+                !tokenApproved ?
                     <ApproveButton
                         w='full'
                         themeColor={btnThemeColor}
@@ -118,6 +123,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         toAddress={destination}
                         signer={signer}
                         isDisabled={balance <= 0}
+                        onSuccess={() => setFreshTokenApproved(true)}
                     /> :
                     !onlyShowApproveBtn &&
                     <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
