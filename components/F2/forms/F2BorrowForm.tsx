@@ -5,7 +5,7 @@ import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2borrow, f2repay } from '@app/util/f2'
+import { f2borrow, f2repay, getDBRBuyLink } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBR, useAccountDBRMarket } from '@app/hooks/useDBR'
@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 
-const { DOLA, DBR } = getNetworkConfigConstants();
+const { DOLA } = getNetworkConfigConstants();
 
 export const F2BorrowForm = ({
     f2market,
@@ -170,7 +170,7 @@ export const F2BorrowForm = ({
                                 title="No DBR tokens"
                                 description={
                                     <Box >
-                                        <Link textDecoration="underline" href={`https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`} target="_blank" isExternal>
+                                        <Link textDecoration="underline" href={getDBRBuyLink()} target="_blank" isExternal>
                                             Get DBR tokens
                                         </Link>
                                         <Text display="inline-block">&nbsp;first or use the&nbsp;</Text>

@@ -7,9 +7,7 @@ import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify, shortenNumber } from '@app/util/markets'
 import { AnchorBigButton } from '../Anchor/AnchorBigButton'
 import { useDBRPrice } from '@app/hooks/useDBR'
-import { getNetworkConfigConstants } from '@app/util/networks'
-
-const { DBR } = getNetworkConfigConstants();
+import { getDBRBuyLink } from '@app/util/f2'
 
 const Btn = (props) => <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} {...props} />
 
@@ -79,7 +77,7 @@ export const F2Header = () => {
             Buy DOLA
           </Btn>
           <Btn
-            href={`https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`}
+            href={getDBRBuyLink()}
             target="_blank">
             Buy DBR
           </Btn>

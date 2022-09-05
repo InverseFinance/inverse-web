@@ -2,6 +2,9 @@ import { F2_MARKET_ABI } from "@app/config/abis";
 import { F2Market } from "@app/types";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
+import { getNetworkConfigConstants } from "./networks";
+
+const { DBR } = getNetworkConfigConstants();
 
 export const f2deposit = (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
@@ -61,4 +64,8 @@ export const f2CalcNewHealth = (
 
 export const getRiskColor = (newPerc: number) => {
     return (newPerc >= 75 ? 'success' : (newPerc >= 50 ? 'lightWarning' : (newPerc >= 25 ? 'warning' : 'error')));
+}
+
+export const getDBRBuyLink = () => {
+    return `https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`
 }
