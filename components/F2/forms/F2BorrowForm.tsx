@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 
-const { DOLA } = getNetworkConfigConstants();
+const { DOLA, DBR } = getNetworkConfigConstants();
 
 export const F2BorrowForm = ({
     f2market,
@@ -170,7 +170,7 @@ export const F2BorrowForm = ({
                                 title="No DBR tokens"
                                 description={
                                     <Box >
-                                        <Link textDecoration="underline" href="https://app.sushi.com/" target="_blank" isExternal>
+                                        <Link textDecoration="underline" href={`https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`} target="_blank" isExternal>
                                             Get DBR tokens
                                         </Link>
                                         <Text display="inline-block">&nbsp;first or use the&nbsp;</Text>
