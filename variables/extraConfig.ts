@@ -119,14 +119,14 @@ const mainConfig = {
 export const EXTRA_CONFIG = {
     "1": mainConfig,
     "31337": mainConfig,
-    "4": {
-        dbr: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
-        f2Oracle: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
+    "5": {
+        dbr: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
+        f2Oracle: '0x65C5967a121B1e8bF0277702819DA49816B6d54f',
         f2markets: [{
             name: 'WETH',
             // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-            collateral: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
-            address: '0x8b70f2ED64DcbbeC47bd4b241b4628d7D5d7C30a',
+            collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+            address: '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710',
         }],
     }
 }

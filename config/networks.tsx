@@ -107,7 +107,7 @@ const networks: Network[] = [
     name: 'Goerli',
     coinSymbol: 'eth',
     isTestnet: true,
-    isSupported: false,
+    isSupported: true,
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
   {
