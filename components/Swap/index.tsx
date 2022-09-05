@@ -38,7 +38,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const gasPrice = useGasPrice();
   const { prices } = usePrices();
   const { buyFee, sellFee } = useStabilizerFees();
-  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER } = getNetworkConfigConstants(chainId)
+  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER } = getNetworkConfigConstants('1')
 
   const swapOptions = [DOLA, DAI, USDC, USDT]//, INV];
 
@@ -55,11 +55,11 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const defaultFromToken = getToken(TOKENS, from) || getToken(TOKENS, 'DOLA')!;
   const defaultToToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!
   const [fromToken, setFromToken] = useState(defaultFromToken)
-  const [toToken, setToToken] = useState(defaultToToken.symbol !== defaultFromToken.symbol ? defaultToToken : defaultFromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
+  const [toToken, setToToken] = useState(defaultToToken?.symbol !== defaultFromToken?.symbol ? defaultToToken : defaultFromToken?.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
   const [bestRoute, setBestRoute] = useState<Swappers | ''>('')
   const [chosenRoute, setChosenRoute] = useState<Swappers>(Swappers.stabilizer)
   const [manualChosenRoute, setManualChosenRoute] = useState<Swappers | ''>('')
-  const [swapDir, setSwapDir] = useState<string>(fromToken.symbol + toToken.symbol)
+  const [swapDir, setSwapDir] = useState<string>(fromToken?.symbol + toToken?.symbol)
   const [canUseStabilizer, setCanUseStabilizer] = useState(true);
   const [noStabilizerLiquidity, setNoStabilizerLiquidity] = useState(false);
   const [notEnoughTokens, setNotEnoughTokens] = useState(false);
@@ -83,14 +83,14 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     const fromToken = getToken(TOKENS, from) || getToken(TOKENS, 'DOLA')!;
     const toToken = getToken(TOKENS, to) || getToken(TOKENS, 'DAI')!;
     setFromToken(fromToken);
-    setToToken(toToken.symbol !== fromToken.symbol ? toToken : fromToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA]);
+    setToToken(toToken?.symbol !== fromToken?.symbol ? toToken : fromToken?.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA]);
   }, [from, to]);
 
   useEffect(() => {
-    setSwapDir(fromToken.symbol + toToken.symbol);
+    setSwapDir(fromToken?.symbol + toToken?.symbol);
     const stablizerTokens = ['DOLA', 'DAI'];
-    setCanUseStabilizer(stablizerTokens.includes(fromToken.symbol) && stablizerTokens.includes(toToken.symbol));
-    setNeedsCurveRouter([fromToken.symbol, toToken.symbol].includes('MIM'));
+    setCanUseStabilizer(stablizerTokens.includes(fromToken?.symbol) && stablizerTokens.includes(toToken?.symbol));
+    setNeedsCurveRouter([fromToken?.symbol, toToken?.symbol].includes('MIM'));
   }, [fromToken, toToken])
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       const dy = await crvFun(library, fromToken, toToken, rateAmountRef);
 
       let costCrvInEth = DEFAULT_CRV_COST * gasPrice;
-      const isStabBuy = toToken.symbol === 'DOLA';
+      const isStabBuy = toToken?.symbol === 'DOLA';
       let costStabInEth = (isStabBuy ? DEFAULT_STAB_BUY_COST : DEFAULT_STAB_SELL_COST) * gasPrice;
 
       // try to get dynamic estimation, may fail if signer has not enough balance or token is not approved yet
@@ -166,11 +166,11 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
     // if INV case we can only use 1inch
-    if (fromToken.symbol === 'INV') {
+    if (fromToken?.symbol === 'INV') {
       return Swappers.oneinch
     } // if DOLA-DAI we can use either stabilizer, crv or 1inch
     else if (canUseStabilizer) {
-      const notEnoughLiquidity = toToken.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
+      const notEnoughLiquidity = toToken?.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
       setNoStabilizerLiquidity(notEnoughLiquidity);
       const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir];
 
@@ -190,8 +190,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
     setter(newToken)
-    if (newToken.symbol === otherToken.symbol) {
-      otherSetter(newToken.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
+    if (newToken?.symbol === otherToken?.symbol) {
+      otherSetter(newToken?.symbol === 'DOLA' ? TOKENS[DAI] : TOKENS[DOLA])
     }
   }
 
@@ -260,7 +260,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
         tx = await crvSwapFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
-        const isStabBuy = toToken.symbol === 'DOLA';
+        const isStabBuy = toToken?.symbol === 'DOLA';
         const stabilizerOperation: string = isStabBuy ? 'buy' : 'sell';
         // reduce amount to cover stabilizer fee
         const amountMinusFee = parseFloat(fromAmount) - buyFee * parseFloat(fromAmount);
@@ -299,31 +299,32 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       contentBgColor="gradient3"
       label="Swap DOLA using Curve or the Stabilizer"
     >
+      <Text>yo</Text>
       <Stack w="full" direction="column" spacing="5">
-        <AssetInput
+        {/* <AssetInput
           amount={fromAmount}
           token={fromToken}
           assetOptions={swapOptions}
           onAssetChange={(newToken) => changeToken(newToken, setFromToken, toToken, setToToken)}
           onAmountChange={(newAmount) => changeAmount(newAmount, true)}
           {...commonAssetInputProps}
-        />
+        /> */}
 
         <SimpleGrid columns={3} w="full" alignItems="center">
-          <Text opacity="0.6" align="left">From {fromToken.symbol}</Text>
+          <Text opacity="0.6" align="left">From {fromToken?.symbol}</Text>
           <InverseAnimIcon height={50} width={50} autoplay={!isAnimStopped} loop={false}
             boxProps={{ onClick: handleInverse, w: "full", textAlign: "center" }} />
-          <Text opacity="0.6" align="right">To {toToken.symbol}</Text>
+          <Text opacity="0.6" align="right">To {toToken?.symbol}</Text>
         </SimpleGrid>
 
-        <AssetInput
+        {/* <AssetInput
           amount={toAmount}
           token={toToken}
           assetOptions={swapOptions}
           onAssetChange={(newToken) => changeToken(newToken, setToToken, fromToken, setFromToken)}
           onAmountChange={(newAmount) => changeAmount(newAmount, false)}
           {...commonAssetInputProps}
-        />
+        /> */}
 
         <Divider borderColor="#ccccccaa" />
 

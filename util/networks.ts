@@ -38,12 +38,15 @@ export const getSupportedNetworks = (): Network[] => NETWORKS
 export const getNetworkConfigConstants = (
     configOrChainId: NetworkConfig | string | number = process.env.NEXT_PUBLIC_CHAIN_ID!,
 ) => {
-    const config = typeof configOrChainId === 'string' || typeof configOrChainId === 'number' ?
+    let config = typeof configOrChainId === 'string' || typeof configOrChainId === 'number' ?
         getNetworkConfig(configOrChainId, true)! :
         isSupportedNetwork(configOrChainId.chainId) ?
             configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
-
-    const MULTISIGS: Multisig[] = config.multisigs || [];
+            
+    if(!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID) && config === undefined) {
+        config = { anchor: {} };
+    }
+    const MULTISIGS: Multisig[] = config?.multisigs || [];
 
     const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
 

@@ -77,6 +77,10 @@ export const SwapFooter = ({
         init()
     }, [])
 
+    if(!fromToken?.symbol || !toToken?.symbol) {
+        return <></>
+    }
+
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
@@ -100,7 +104,7 @@ export const SwapFooter = ({
         :
         <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
 
-    const exRate = exRates && exRates[chosenRoute] ? exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || '' : '';
+    const exRate = exRates && exRates[chosenRoute] ? exRates[chosenRoute][fromToken?.symbol + toToken?.symbol]?.toFixed(4) || '' : '';
 
     return (
         <>
@@ -132,7 +136,7 @@ export const SwapFooter = ({
                                 !exRate ?
                                     isStabilizer ? '' : 'Fetching rates...'
                                     :
-                                    `Exchange Rate : 1 ${fromToken.symbol} = ${exRate} ${toToken.symbol}`
+                                    `Exchange Rate : 1 ${fromToken?.symbol} = ${exRate} ${toToken?.symbol}`
                         }
                     </SwapText>
                 </VStack>

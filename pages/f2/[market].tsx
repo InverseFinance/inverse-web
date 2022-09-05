@@ -110,7 +110,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     />
                                 </Stack>
 
-                    }                                                        
+                    }
                 </VStack>
             </ErrorBoundary>
         </Layout>
@@ -129,6 +129,9 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
+    if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+        return { paths: [], fallback: true }
+    }
     return {
         paths: F2_MARKETS.map(m => `/f2/${m.name}`),
         fallback: true,

@@ -120,6 +120,7 @@ export const EXTRA_CONFIG = {
     "1": mainConfig,
     "31337": mainConfig,
     "5": {
+        ...mainConfig,
         dbr: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
         f2Oracle: '0x65C5967a121B1e8bF0277702819DA49816B6d54f',
         f2markets: [{
