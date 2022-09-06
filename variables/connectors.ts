@@ -13,14 +13,14 @@ export const injectedConnector = new InjectedConnector({
 
 export const walletConnectConnector = new WalletConnectConnector({
     rpc: {
-        [CHAIN_ID]: "https://rpc.flashbots.net"
+        [CHAIN_ID]: "https://cloudflare-eth.com"
     }
 })
 
 export const walletLinkConnector = new WalletLinkConnector({
     appName: process.env.NEXT_PUBLIC_TITLE!,
     appLogoUrl: process.env.NEXT_PUBLIC_LOGO_URL,
-    url: 'https://rpc.flashbots.net',
+    url: 'https://cloudflare-eth.com',
     supportedChainIds: [CHAIN_ID],
     darkMode: true,
 })
