@@ -1,5 +1,5 @@
 import { SettingsIcon } from '@chakra-ui/icons'
-import { VStack, Text, HStack, Slider, SliderTrack, SliderFilledTrack, SliderThumb, SliderMark, Popover, PopoverTrigger, PopoverArrow, PopoverContent, PopoverCloseButton, PopoverHeader, PopoverBody, TextProps } from '@chakra-ui/react'
+import { VStack, Text, HStack, Slider, SliderTrack, SliderFilledTrack, SliderThumb, SliderMark, Popover, PopoverTrigger, PopoverArrow, PopoverContent, PopoverCloseButton, PopoverHeader, PopoverBody, TextProps, Button } from '@chakra-ui/react'
 
 const SliderTick = (props: Partial<TextProps>) => {
     return <Text
@@ -23,7 +23,7 @@ export const F2DurationSliderInput = ({
     showText?: boolean
 }) => {
     return <VStack w='full' alignItems="flex-start" spacing="40px">
-        { showText && <Text fontWeight="bold" fontSize="14px">For how long do you want to lock-in a Fixed Rate?</Text> }
+        {showText && <Text fontWeight="bold" fontSize="14px">For how long do you want to lock-in a Fixed Rate?</Text>}
         <VStack w='full' px="10">
             <Slider
                 value={duration}
@@ -71,7 +71,9 @@ export const F2DurationSlider = ({
     return <HStack>
         <Popover placement="bottom-start">
             <PopoverTrigger>
-                <SettingsIcon cursor="pointer" />
+                <Button _active={{ bg: 'transparent' }} _focus={{ bg: 'transparent' }} _hover={{}} bg="transparent">
+                    <SettingsIcon cursor="pointer" />
+                </Button>
             </PopoverTrigger>
             <PopoverContent minW={{ base: '400px', lg: '500px' }} maxW='98vw' className="blurred-container primary-bg" _focus={{}}>
                 <PopoverArrow bg="mainBackgroundColor" />
