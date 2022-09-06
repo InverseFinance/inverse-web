@@ -32,6 +32,8 @@ export const F2CombinedForm = ({
     isDepositDefault = true,
     onDepositChange,
     onDebtChange,
+    onHealthOpen,
+    onDbrOpen,
 }: {
     f2market: F2Market
     account: string | null | undefined
@@ -39,6 +41,8 @@ export const F2CombinedForm = ({
     isDepositDefault?: boolean
     onDepositChange?: (v: number) => void
     onDebtChange?: (v: number) => void
+    onHealthOpen: () => void,
+    onDbrOpen: () => void,
 }) => {
     const colDecimals = f2market.underlying.decimals;
     const [duration, setDuration] = useState(365);
@@ -136,24 +140,24 @@ export const F2CombinedForm = ({
                 <VStack spacing="0" w='full'>
                     <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
                         <TextInfo color={riskColor} message="Percentage of the loan covered by the collateral worth">
-                            <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
+                            <Text cursor="pointer" onClick={() => onHealthOpen()} color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
                                 Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
                             </Text>
                         </TextInfo>
                         <TextInfo color={riskColor} message="Minimum Collateral Price before liquidations can happen">
-                            <Text color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
+                            <Text cursor="pointer" onClick={() => onHealthOpen()} color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
                                 Liquidation Price: {isFormFilled ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}
                             </Text>
                         </TextInfo>
                     </Stack>
                     <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
                         <TextInfo message="Fixed Rate borrowing is handled thanks to DBR tokens, don't sell them unless you know what you're doing!">
-                            <Text color="secondaryTextColor">
+                            <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
                                 DBR to receive: {shortenNumber(debtAmount / (365 / duration), 2)}
                             </Text>
                         </TextInfo>
                         <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
-                            <Text color="secondaryTextColor">
+                            <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
                                 Fixed Rate Validity: {duration} days
                             </Text>
                         </TextInfo>

@@ -3,9 +3,9 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { useAccountDBRMarket, useDBRMarkets } from '@app/hooks/useDBR'
+import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { HStack, Stack, VStack, Text } from '@chakra-ui/react'
+import { HStack, Stack, VStack, Text, useDisclosure } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { DbrHealth } from '@app/components/F2/bars/DbrHealth'
@@ -18,6 +18,8 @@ import { useState } from 'react'
 import { SettingsIcon } from '@chakra-ui/icons'
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
 import { MarketInfos } from '@app/components/F2/Infos/MarketInfos'
+import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
+import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -27,12 +29,18 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
     const { account, library } = useWeb3React<Web3Provider>();
     const { markets } = useDBRMarkets(market);
-    const f2market = markets.length > 0 ? markets[0] : undefined;
-    const { debt } = useAccountDBRMarket(f2market, account);
+    const f2market = markets.length > 0 ? markets[0] : undefined;    
+    const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
+    const { isOpen: isHealthOpen, onOpen: onHealthOpen, onClose: onHealthClose } = useDisclosure();
 
     return (
         <Layout>
             <AppNav active="Frontier" />
+            <F2DbrInfosModal
+                onClose={onDbrClose}
+                isOpen={isDbrOpen}
+            />
+            <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
                 <VStack w='full' maxW="84rem" alignItems="flex-start" p="8" spacing="8">
                     <HStack w='full' justify="space-between">
@@ -86,10 +94,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         spacing="12"
                                     >
                                         <ErrorBoundary description="Failed to load Dbr Health">
-                                            <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} />
+                                            <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} onModalOpen={onHealthOpen} />
                                         </ErrorBoundary>
                                         <ErrorBoundary description="Failed to load Dbr Health">
-                                            <DbrHealth account={account} debtDelta={newDebtAmount} />
+                                            <DbrHealth account={account} debtDelta={newDebtAmount} onModalOpen={onDbrOpen} />
                                         </ErrorBoundary>
                                     </Stack>
                                 </>
@@ -107,6 +115,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         account={account}
                                         onDepositChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
                                         onDebtChange={(floatAmount) => setNewDebtAmount(floatAmount)}
+                                        onDbrOpen={onDbrOpen}
+                                        onHealthOpen={onHealthOpen} 
                                     />
                                 </Stack>
 

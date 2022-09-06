@@ -1,20 +1,20 @@
-import { VStack, HStack, useDisclosure } from '@chakra-ui/react'
+import { VStack, HStack } from '@chakra-ui/react'
 
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
-import { F2DbrInfosModal } from '../Modals/F2DbrInfosModal';
 import { getRiskColor } from '@app/util/f2';
 
 export const DbrHealth = ({
   account,
   debtDelta = 0,
+  onModalOpen,
 }: {
   account: string | undefined | null
   debtDelta: number
+  onModalOpen: () => void
 }) => {
-  const { isOpen, onClose, onOpen } = useDisclosure();
   const { dbrNbDaysExpiry, signedBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);
   const { dailyDebtAccrual: newDailyRate, dbrExpiryDate: previewExpiryDate, dbrDepletionPerc: previewPerc, dbrNbDaysExpiry: previewNbDays } = useAccountDBR(account, debt + debtDelta);
 
@@ -26,14 +26,6 @@ export const DbrHealth = ({
 
   return (
     <VStack w='full' spacing="0" alignItems="center">
-      <F2DbrInfosModal
-        onClose={onClose}
-        isOpen={isOpen}
-        hasDebt={hasDebt}
-        needsRechargeSoon={needsRechargeSoon}
-        dbrNbDaysExpiry={dbrNbDaysExpiry}
-        dailyDebtAccrual={dailyDebtAccrual}
-      />
       <HStack w='full' justifyContent="space-between">
         <F2StateInfo
           currentValue={dbrExpiryDate}
@@ -68,7 +60,7 @@ export const DbrHealth = ({
         isPreviewing={isPreviewing}
         cursor="pointer"
         hasError={needsRechargeSoon}
-        onClick={() => onOpen()}
+        onClick={() => onModalOpen()}
       />
       <HStack pt="4" w='full' justifyContent="space-between">
         {/* <Text color="secondaryTextColor">

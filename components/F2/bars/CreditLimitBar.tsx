@@ -1,24 +1,24 @@
-import { VStack, HStack, useDisclosure } from '@chakra-ui/react'
+import { VStack, HStack } from '@chakra-ui/react'
 import { useAccountDBRMarket } from '@app/hooks/useDBR'
 import { F2Market } from '@app/types';
 import { F2StateInfo } from './F2StateInfo';
 import { QuantityBar } from './QuantityBar';
 import { f2CalcNewHealth, getRiskColor } from '@app/util/f2';
 import { preciseCommify } from '@app/util/misc';
-import { F2HealthInfosModal } from '../Modals/F2HealthInfosModal';
 
 export const CreditLimitBar = ({
   market,
   account,
   amountDelta,
   debtDelta,
+  onModalOpen,
 }: {
   market: F2Market
   account: string
   amountDelta: number
   debtDelta: number
+  onModalOpen: () => void
 }) => {
-  const { isOpen, onClose, onOpen } = useDisclosure();
   const { creditLimit, deposits, debt, perc, hasDebt, creditLeft, liquidationPrice } = useAccountDBRMarket(market, account);
 
   const badgeColorScheme = 'error'
@@ -32,7 +32,6 @@ export const CreditLimitBar = ({
 
   return (
     <VStack w='full' spacing="0" alignItems="center">
-      <F2HealthInfosModal onClose={onClose} isOpen={isOpen} />
       <HStack w='full' justifyContent="space-between">
         <F2StateInfo
           currentValue={liquidationPrice}
@@ -70,7 +69,7 @@ export const CreditLimitBar = ({
         badgeColorScheme={badgeColorScheme}
         isPreviewing={isPreviewing}
         cursor="pointer"
-        onClick={() => onOpen()}
+        onClick={() => onModalOpen()}
       />
       <HStack pt="4" w='full' justifyContent="space-between">
         <F2StateInfo
