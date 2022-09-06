@@ -108,6 +108,7 @@ const networks: Network[] = [
     coinSymbol: 'eth',
     isTestnet: true,
     isSupported: true,
+    scan: 'https://goerli.etherscan.io',
     image: `/assets/networks/${NETWORK_CODENAMES.ethereum}.png`,
   },
   {
