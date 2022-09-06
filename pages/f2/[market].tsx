@@ -35,7 +35,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     return (
         <Layout>
-            <AppNav active="Frontier" />
+            <AppNav active="Markets" activeSubmenu={`${market} Market`} />
             <F2DbrInfosModal
                 onClose={onDbrClose}
                 isOpen={isDbrOpen}
@@ -43,7 +43,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
                 <VStack w='full' maxW="84rem" alignItems="flex-start" p="8" spacing="8">
-                    <HStack w='full' justify="space-between">
+                    <Stack direction={{ base: 'column', sm:'row' }} w='full' justify="space-between">
                         <SimmpleBreadcrumbs
                             breadcrumbs={[
                                 { label: 'F2', href: '/f2' },
@@ -60,7 +60,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             </Text>
                             <SettingsIcon cursor="pointer" />
                         </HStack>
-                    </HStack>
+                    </Stack>
 
                     {
                         !f2market ? <Text>Market not found</Text>

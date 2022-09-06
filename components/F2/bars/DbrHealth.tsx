@@ -12,7 +12,7 @@ export const DbrHealth = ({
   onModalOpen,
 }: {
   account: string | undefined | null
-  debtDelta: number
+  debtDelta?: number
   onModalOpen: () => void
 }) => {
   const { dbrNbDaysExpiry, signedBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);

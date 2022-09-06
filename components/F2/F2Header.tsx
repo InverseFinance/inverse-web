@@ -8,6 +8,7 @@ import { dollarify, shortenNumber } from '@app/util/markets'
 import { AnchorBigButton } from '../Anchor/AnchorBigButton'
 import { useDBRPrice } from '@app/hooks/useDBR'
 import { getDBRBuyLink } from '@app/util/f2'
+import { useRouter } from 'next/router'
 
 const Btn = (props) => <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} {...props} />
 
@@ -26,6 +27,7 @@ const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
 
 export const F2Header = () => {
   const { markets } = useMarkets()
+  const router = useRouter();
   const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
@@ -92,13 +94,13 @@ export const F2Header = () => {
         <Stack justifyContent="flex-start" alignItems="flex-start" spacing={4} w='full' maxW="600px">
           <Stack direction={{ base: 'column', lg: 'row' }} spacing="6" w='100%' alignItems="center" justify="space-between">
             <AnchorBigButton
-              // onClick={() => triggerSupply('inv')}
+              onClick={() => router.push('frontier?marketType=supply&market=inv')}
               bg="url('/assets/stake-inv.png')"
               title="Stake INV"
               subtitle={`${apy}% APY`}
             />
             <AnchorBigButton
-              // onClick={() => triggerBorrow('dola')}
+              onClick={() => router.push('f2/WETH')}
               bg="url('/assets/dola.png')"
               title="Borrow DOLA"
               subtitle={`${shortenNumber(dbrPrice*100, 2)}%`}

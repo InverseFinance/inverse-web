@@ -1,8 +1,10 @@
 import { NavButtons } from "@app/components/common/Button"
 import Link from "@app/components/common/Link";
 import InfoModal from "@app/components/common/Modal/InfoModal"
+import { useAccount } from "@app/hooks/misc";
+import { useAccountDBR } from "@app/hooks/useDBR";
 import { getDBRBuyLink } from "@app/util/f2";
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { F2RechargeDBRForm } from "../forms/F2RechargeDBRForm";
 import { DBRInfos } from "../Infos/DBRInfos"
 
@@ -13,24 +15,13 @@ const DBR_LINK = getDBRBuyLink();
 export const F2DbrInfosModal = ({
     onClose,
     isOpen,
-    hasDebt,
-    dbrNbDaysExpiry,
-    dailyDebtAccrual,
-    needsRechargeSoon,
 }: {
     onClose: () => void
     isOpen: boolean
-    hasDebt: boolean
-    needsRechargeSoon: boolean
-    dbrNbDaysExpiry: number
-    dailyDebtAccrual: number
 }) => {
-    const [tab, setTab] = useState(needsRechargeSoon ? CALCULATOR_TAB : INFOS_TAB);
-
-    useEffect(() => {
-        if (!isOpen) { return }
-        setTab(needsRechargeSoon ? CALCULATOR_TAB : INFOS_TAB);
-    }, [needsRechargeSoon, isOpen]);
+    const [tab, setTab] = useState(INFOS_TAB);
+    const account = useAccount();
+    const { dailyDebtAccrual, debt } = useAccountDBR(account);
 
     return <InfoModal
         title={`Fixed Rate Validity and DBR`}
@@ -41,7 +32,7 @@ export const F2DbrInfosModal = ({
         okLabel="Close"
         footerLeft={
             <Link textDecoration="underline" fontWeight="bold" href={DBR_LINK} isExternal target="_blank">
-                {hasDebt ? `Recharge DBR balance` : `Get DBR tokens`}
+                {debt > 0 ? 'Recharge DBR balance' : 'Get DBR tokens'}
             </Link>
         }
     >

@@ -8,6 +8,7 @@ import { commify } from 'ethers/lib/utils';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
+import { BigImageButton } from "../common/Button/BigImageButton";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -106,7 +107,10 @@ export const F2Markets = ({
     }
 
     return <Container
-        label="Markets"        
+        label="Fixed-Rate Markets"
+        description="Read more about Inverse's Fixed Rate Markets"
+        href="https://docs.inverse.finance/"
+        image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >
         <Table

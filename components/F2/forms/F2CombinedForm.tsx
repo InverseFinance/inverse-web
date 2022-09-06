@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, useMediaQuery } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
@@ -49,6 +49,7 @@ export const F2CombinedForm = ({
     const [collateralAmount, setCollateralAmount] = useState(0);
     const [debtAmount, setDebtAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
+    const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDola } = useAccountDBRMarket(f2market, account);
     const {
@@ -91,10 +92,10 @@ export const F2CombinedForm = ({
     return <Container
         noPadding
         p="0"
-        label={`Deposit ${f2market.name} and Borrow DOLA`}
+        label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
         description={`Quick and Easy Fixed-Rate Borrowing`}
         contentBgColor={'lightPrimaryAlpha'}
-        image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
+        image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" /> }
         right={
             <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
         }
