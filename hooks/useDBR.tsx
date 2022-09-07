@@ -5,6 +5,8 @@ import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
+import { fetcher } from '@app/util/web3'
+import { useCustomSWR } from "./useCustomSWR";
 
 const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
@@ -64,7 +66,12 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
+  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets`, fetcher);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
+
+  const cachedMarkets = (apiData?.markets || F2_MARKETS)
+    .filter(m => !!marketOrList ? _markets.includes(m.name) : true);
+
   const markets = F2_MARKETS
     .filter(m => !!marketOrList ? _markets.includes(m.name) : true)
     .map(m => {
@@ -73,6 +80,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         underlying: TOKENS[m.collateral],
       }
     });
+    
   const nbMarkets = markets.length;
 
   const { data, error } = useEtherSWR([
@@ -85,22 +93,29 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
     ...markets.map(m => {
       return [m.address, 'totalDebt']
     }),
+    ...markets.map(m => {
+      return [DOLA, 'balanceOf', m.address]
+    }),
   ]);
 
   return {
     markets: markets.map((m, i) => {
       return {
         ...m,
+        ...cachedMarkets[i],
         supplyApy: 0,
-        price: data ? getBnToNumber(data[i * nbMarkets]) : 0,
-        collateralFactor: data ? getBnToNumber(data[i * nbMarkets + 1], 2) : 0,
-        totalDebt: data ? getBnToNumber(data[i * nbMarkets + 2]) : 0,
+        price: data ? getBnToNumber(data[i * nbMarkets]) : cachedMarkets[i].price ?? 0,
+        collateralFactor: data ? getBnToNumber(data[i * nbMarkets + 1], 4) : cachedMarkets[i].collateralFactor ?? 0,
+        totalDebt: data ? getBnToNumber(data[i * nbMarkets + 2]) : cachedMarkets[i].totalDebt ?? 0,
+        bnDolaLiquidity: data ? data[i * nbMarkets + 3] : cachedMarkets[i].bnDolaLiquidity ?? 0,
+        dolaLiquidity: data ? getBnToNumber(data[i * nbMarkets + 3]) : cachedMarkets[i].dolaLiquidity ?? 0,
       }
     }),
   }
 }
 
-type AccountDBRMarket = {
+type AccountDBRMarket = F2Market & {
+  account: string | undefined | null
   escrow: string | undefined
   deposits: number
   bnDeposits: BigNumber
@@ -112,10 +127,8 @@ type AccountDBRMarket = {
   perc: number
   debt: number
   bnDebt: BigNumber
-  bnDola: BigNumber
-  dola: number
-  bnCollateral: BigNumber
-  collateral: number
+  bnCollateralBalance: BigNumber
+  collateralBalance: number
   hasDebt: boolean
   liquidationPrice: number | null
 }
@@ -132,19 +145,18 @@ export const useAccountDBRMarket = (
   ]);
 
   const { data: balances } = useEtherSWR([
-    [DOLA, 'balanceOf', market.address],
     [market.collateral, 'balanceOf', account],
   ]);
 
   const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
-  const [bnDola, bnCollateral] = balances || [zero, zero];
+  const [bnCollateralBalance]: BigNumber[] = balances || [zero];
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
     abi: F2_SIMPLE_ESCROW,
   });
   const bnDeposits = (escrowData ? escrowData[0] : zero);
-  
+
   const decimals = market.underlying.decimals;
 
   const { deposits, withdrawalLimit } = {
@@ -156,10 +168,12 @@ export const useAccountDBRMarket = (
   const debt = bnDebt ? getBnToNumber(bnDebt) : 0;
   const perc = Math.max(hasDebt ? withdrawalLimit / deposits * 100 : deposits ? 100 : 0, 0);
 
-  const creditLeft = withdrawalLimit * market?.price * market.collateralFactor / 100;
-  const liquidationPrice = hasDebt ? debt / (market.collateralFactor / 100 * deposits) : null;
+  const creditLeft = withdrawalLimit * market?.price * market.collateralFactor;
+  const liquidationPrice = hasDebt ? debt / (market.collateralFactor * deposits) : null;
 
   return {
+    ...market,
+    account,
     escrow,
     deposits,
     bnDeposits,
@@ -173,10 +187,8 @@ export const useAccountDBRMarket = (
     perc,
     hasDebt,
     liquidationPrice,
-    bnDola,
-    dola: bnDola ? getBnToNumber(bnDola) : 0,
-    bnCollateral,
-    collateral: bnCollateral ? getBnToNumber(bnCollateral, decimals) : 0,
+    bnCollateralBalance,
+    collateralBalance: (bnCollateralBalance ? getBnToNumber(bnCollateralBalance, decimals) : 0),
   }
 }
 
@@ -185,7 +197,7 @@ export const useAccountF2Markets = (
   account: string,
 ): AccountDBRMarket[] => {
   return markets.map(m => {
-    const accountData =  useAccountDBRMarket(m, account);
+    const accountData = useAccountDBRMarket(m, account);
     return { ...m, ...accountData }
   });
 }
