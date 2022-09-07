@@ -100,10 +100,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   }
 }
 
-export const useAccountDBRMarket = (
-  market: F2Market,
-  account: string,
-): {
+type AccountDBRMarket = {
   escrow: string | undefined
   deposits: number
   bnDeposits: BigNumber
@@ -117,9 +114,16 @@ export const useAccountDBRMarket = (
   bnDebt: BigNumber
   bnDola: BigNumber
   dola: number
+  bnCollateral: BigNumber
+  collateral: number
   hasDebt: boolean
   liquidationPrice: number | null
-} => {
+}
+
+export const useAccountDBRMarket = (
+  market: F2Market,
+  account: string,
+): AccountDBRMarket => {
   const { data: accountMarketData, error } = useEtherSWR([
     [market.address, 'escrows', account],
     [market.address, 'getCreditLimit', account],
@@ -127,12 +131,13 @@ export const useAccountDBRMarket = (
     [market.address, 'debts', account],
   ]);
 
-  const { data: dolaData } = useEtherSWR([
+  const { data: balances } = useEtherSWR([
     [DOLA, 'balanceOf', market.address],
+    [market.collateral, 'balanceOf', account],
   ]);
 
   const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
-  const [bnDola] = dolaData || [zero];
+  const [bnDola, bnCollateral] = balances || [zero, zero];
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
@@ -170,27 +175,15 @@ export const useAccountDBRMarket = (
     liquidationPrice,
     bnDola,
     dola: bnDola ? getBnToNumber(bnDola) : 0,
+    bnCollateral,
+    collateral: bnCollateral ? getBnToNumber(bnCollateral, decimals) : 0,
   }
 }
 
 export const useAccountF2Markets = (
   markets: F2Market[],
   account: string,
-): {
-  escrow: string | undefined
-  deposits: number
-  bnDeposits: BigNumber
-  creditLimit: number
-  bnCreditLimit: BigNumber
-  withdrawalLimit: number
-  bnWithdrawalLimit: BigNumber
-  creditLeft: number
-  perc: number
-  debt: number
-  bnDebt: BigNumber
-  hasDebt: boolean
-  liquidationPrice: number | null
-}[] => {
+): AccountDBRMarket[] => {
   return markets.map(m => {
     const accountData =  useAccountDBRMarket(m, account);
     return { ...m, ...accountData }
