@@ -68,7 +68,7 @@ export const F2Header = () => {
         </Stack>
         <Stack w='full' spacing={2} direction="row">
           <Btn
-            href={'/swap/DAI/DOLA'}
+            href={'https://app.1inch.io/#/1/swap/DAI/INV'}
             target="_blank">
             Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
           </Btn>
