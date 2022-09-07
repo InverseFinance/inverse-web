@@ -19,6 +19,7 @@ import { clearStoredDelegationsCollected, getStoredDelegationsCollected, isValid
 import { handleTx } from '@app/util/transactions'
 import { TopDelegatesAutocomplete } from '../common/Input/TopDelegatesAutocomplete'
 import { TEST_IDS } from '@app/config/test-ids'
+import { Voter } from './Votes'
 
 enum VoteType {
   for = 'For',
@@ -57,26 +58,7 @@ export const VoteCountModal = ({ isOpen, onClose, proposal, voteType }: VoteCoun
     >
       <Stack m={3} height={400} overflowY="auto">
         {votes.map(({ voter, votes }: ProposalVote) => (
-          <Link href={`/governance/delegates/${voter}`}>
-            <Flex
-              cursor="pointer"
-              justify="space-between"
-              p={2}
-              borderRadius={8}
-              _hover={{ bgColor: 'primary.850' }}
-              key={voter}
-            >
-              <Stack direction="row" align="center">
-                <Avatar address={voter} sizePx={28} />
-                <Text fontSize="sm" fontWeight="semibold">
-                  {namedAddress(voter, chainId)}
-                </Text>
-              </Stack>
-              <Text fontSize="sm" fontWeight="semibold">
-                {commify(votes.toFixed(2))}
-              </Text>
-            </Flex>
-          </Link>
+          <Voter voter={voter} votes={votes} />
         ))}
       </Stack>
     </Modal>
