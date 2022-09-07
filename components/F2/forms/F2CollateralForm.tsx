@@ -113,7 +113,7 @@ export const F2CollateralForm = ({
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Factor:</Text>
-                    <Text>{f2market.collateralFactor}%</Text>
+                    <Text>{f2market.collateralFactor*100}%</Text>
                 </HStack>
             </VStack>
             <SimpleAmountForm

@@ -38,17 +38,13 @@ export const F2BorrowForm = ({
     const colDecimals = f2market.underlying.decimals;
 
     const { balance: dbrBalance, debt, bnDebt } = useAccountDBR(account);
-    const { withdrawalLimit, deposits, debt: marketDebt } = useAccountDBRMarket(f2market, account);
+    const { withdrawalLimit, deposits, debt: marketDebt, bnDolaLiquidity, dolaLiquidity } = useAccountDBRMarket(f2market, account);
 
-    const { balances: marketBnBalances } = useBalances([DOLA], 'balanceOf', f2market.address);
     const { balances: dolaBalances } = useBalances([DOLA], 'balanceOf');
     const dolaBalance = dolaBalances ? getBnToNumber(dolaBalances[DOLA]) : 0;
     const bnDolaBalance = dolaBalances ? dolaBalances[DOLA] : BigNumber.from('0');
 
-    const bnMarketDolaLiquidity = marketBnBalances ? marketBnBalances[DOLA] : BigNumber.from('0');
-    const marketDolaLiquidity = marketBnBalances ? getBnToNumber(marketBnBalances[DOLA]) : 0;
-
-    const creditLeft = withdrawalLimit * f2market?.price * f2market.collateralFactor / 100;
+    const creditLeft = withdrawalLimit * f2market?.price * f2market.collateralFactor;
     const bnMaxNewBorrow = parseEther(roundFloorString(creditLeft || 0));
 
     const handleAction = (amount: BigNumber) => {
@@ -137,7 +133,7 @@ export const F2BorrowForm = ({
                 </HStack> */}
                 <HStack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
-                    <Text>{shortenNumber(marketDolaLiquidity, 2)}</Text>
+                    <Text>{shortenNumber(dolaLiquidity, 2)}</Text>
                 </HStack>
             </VStack>
             {
@@ -147,7 +143,7 @@ export const F2BorrowForm = ({
                         destination={f2market.address}
                         signer={signer}
                         decimals={colDecimals}
-                        maxAmountFrom={isBorrow ? [bnMarketDolaLiquidity, bnMaxNewBorrow] : [bnDolaBalance, bnDebt]}
+                        maxAmountFrom={isBorrow ? [bnDolaLiquidity, bnMaxNewBorrow] : [bnDolaBalance, bnDebt]}
                         onAction={({ bnAmount }) => handleAction(bnAmount)}
                         onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                         actionLabel={btnlabel}

@@ -9,15 +9,15 @@ import { getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "../common/Button/BigImageButton";
 
 const ColHeader = ({ ...props }) => {
-    return <Flex  justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
+    return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
 }
 
 const Cell = ({ ...props }) => {
-    return <Stack  direction="row" fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+    return <Stack direction="row" fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
 const CellText = ({ ...props }) => {
-    return <Text fontSize="16px" {...props}/>
+    return <Text fontSize="16px" {...props} />
 }
 
 const columns = [
@@ -60,18 +60,18 @@ const columns = [
         tooltip: 'Collateral Factor: percentage of the collateral worth transformed into borrowing power',
         value: ({ collateralFactor }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(collateralFactor, 2)}%</CellText>
+                <CellText>{shortenNumber(collateralFactor * 100, 2)}%</CellText>
             </Cell>
         },
     },
     {
-        field: 'dola',
+        field: 'dolaLiquidity',
         label: 'Liquidity',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         tooltip: 'Remaining borrowable DOLA liquidity',
-        value: ({ dola }) => {
+        value: ({ dolaLiquidity }) => {
             return <Cell minWidth="100px" justify="center" >
-                <CellText>{shortenNumber(dola, 2, true)}</CellText>
+                <CellText>{shortenNumber(dolaLiquidity, 2, true)}</CellText>
             </Cell>
         },
     },
@@ -87,14 +87,18 @@ const columns = [
         },
     },
     {
-        field: 'collateral',
+        field: 'collateralBalance',
         label: 'Wallet',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         tooltip: 'Collateral balance in your wallet',
-        value: ({ collateral, price }) => {
+        value: ({ collateralBalance, price, account }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{shortenNumber(collateral, 2)}</CellText>
-                <CellText>({shortenNumber(collateral * price, 2, true)})</CellText>
+                {
+                    account ? <>
+                        <CellText>{shortenNumber(collateralBalance, 2)}</CellText>
+                        <CellText>({shortenNumber(collateralBalance * price, 2, true)})</CellText>
+                    </> : <>-</>
+                }
             </Cell>
         },
     },
@@ -103,11 +107,15 @@ const columns = [
         label: 'Your Deposits',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         tooltip: 'Amount of Collateral you deposited in the Market',
-        value: ({ deposits, price }) => {
+        value: ({ deposits, price, account }) => {
             return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0">
-            <CellText>{shortenNumber(deposits, 2)}</CellText>
-            <CellText>({shortenNumber(deposits * price, 2, true)})</CellText>
-        </Cell>
+                {
+                    account ? <>
+                        <CellText>{shortenNumber(deposits, 2)}</CellText>
+                        <CellText>({shortenNumber(deposits * price, 2, true)})</CellText>
+                    </> : <>-</>
+                }
+            </Cell>
         },
     },
     {
@@ -115,9 +123,9 @@ const columns = [
         label: 'Your Debt',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Amount of DOLA you borrowed from the Market',
-        value: ({ debt }) => {
+        value: ({ debt, account }) => {
             return <Cell minWidth="120px" justify="center" >
-                <CellText>{shortenNumber(debt, 2, true)}</CellText>
+                <CellText>{account ? shortenNumber(debt, 2, true) : '-'}</CellText>
             </Cell>
         },
     },
@@ -139,7 +147,7 @@ export const F2Markets = ({
 
 }: {
 
-}) => {
+    }) => {
     const { markets } = useDBRMarkets();
     const account = useAccount();
     const accountMarkets = useAccountF2Markets(markets, account);

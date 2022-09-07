@@ -203,6 +203,7 @@ export type NetworkConfig = {
     oracle: string,
     treasury: string,
   }
+  F2_MARKETS: F2Market[]
   [key: string]: string | any;
 }
 
@@ -617,4 +618,6 @@ export type F2Market = {
   price: number
   collateralFactor: number
   totalDebt: number
+  bnDolaLiquidity: BigNumber
+  dolaLiquidity: number
 }

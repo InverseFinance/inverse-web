@@ -51,7 +51,7 @@ export const F2CombinedForm = ({
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDola } = useAccountDBRMarket(f2market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity } = useAccountDBRMarket(f2market, account);
     const {
         newPerc, newLiquidationPrice, newCreditLimit, newDebt
     } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, debtAmount, perc);
@@ -127,7 +127,7 @@ export const F2CombinedForm = ({
                     destination={f2market.address}
                     signer={signer}
                     decimals={colDecimals}
-                    maxAmountFrom={isDeposit ? [bnDola, parseEther((newCreditLimit * 0.99).toFixed(0))] : []}
+                    maxAmountFrom={isDeposit ? [bnDolaLiquidity, parseEther((newCreditLimit * 0.99).toFixed(0))] : []}
                     onAction={({ bnAmount }) => handleAction(bnAmount)}
                     onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                     actionLabel={btnLabel}

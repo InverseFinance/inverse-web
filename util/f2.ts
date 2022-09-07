@@ -41,7 +41,7 @@ export const f2CalcNewHealth = (
     perc: number,
 ) => {
     const newDeposits = (deposits + (depositsDelta || 0));
-    const newCreditLimit = newDeposits * market.collateralFactor / 100 * market.price;
+    const newCreditLimit = newDeposits * market.collateralFactor * market.price;
     const newDebt = debt + debtDelta;
 
     const newPerc = !depositsDelta && !debtDelta ?
@@ -51,7 +51,7 @@ export const f2CalcNewHealth = (
                 : 0
         );
     const newCreditLeft = newCreditLimit - newDebt;
-    const newLiquidationPrice = newDebt && newDeposits ? newDebt / (market.collateralFactor/100 * newDeposits) : null;
+    const newLiquidationPrice = newDebt && newDeposits ? newDebt / (market.collateralFactor * newDeposits) : null;
 
     return {
         newCreditLimit,

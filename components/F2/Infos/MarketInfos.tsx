@@ -9,6 +9,8 @@ import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
+import { getScanner } from '@app/util/web3'
+import { CHAIN_ID } from '@app/config/constants'
 
 export const MarketInfos = ({
     market,
@@ -18,7 +20,7 @@ export const MarketInfos = ({
     account: string | null | undefined
 }) => {
     const colDecimals = market.underlying.decimals;
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, dola } = useAccountDBRMarket(market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, dolaLiquidity } = useAccountDBRMarket(market, account);
     const { balances } = useBalances([market.collateral]);
     const bnCollateralBalance = balances ? balances[market.collateral] : BigNumber.from('0');
     const collateralBalance = balances ? getBnToNumber(bnCollateralBalance, colDecimals) : 0;
@@ -28,7 +30,8 @@ export const MarketInfos = ({
         noPadding
         p="0"
         label={`${market.name}'s Market Infos`}
-        description={<ScannerLink value={market.address} />}
+        description={'See Contract'}
+        href={`${getScanner(CHAIN_ID)}/address/${market.address}`}
         contentBgColor={'infoAlpha'}
         image={<BigImageButton bg={`url('/assets/f2/markets/${market.name}.png')`} h="50px" w="80px" />}
         w={{ base: 'full', lg: '50%' }}
@@ -44,7 +47,7 @@ export const MarketInfos = ({
             </HStack>
             <HStack w='full' justifyContent="space-between">
                 <Text color="secondaryTextColor">Collateral Factor:</Text>
-                <Text>{market.collateralFactor}%</Text>
+                <Text>{market.collateralFactor*100}%</Text>
             </HStack>
             <HStack w='full' justifyContent="space-between">
                 <Text color="secondaryTextColor">Market's borrows:</Text>
@@ -52,7 +55,7 @@ export const MarketInfos = ({
             </HStack>
             <HStack w='full' justifyContent="space-between">
                 <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
-                <Text>{shortenNumber(dola, 2)}</Text>
+                <Text>{shortenNumber(dolaLiquidity, 2)}</Text>
             </HStack>
             <HStack w='full' justifyContent="space-between">
                 <Text color="secondaryTextColor">Your Balance:</Text>
