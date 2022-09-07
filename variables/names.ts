@@ -54,6 +54,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE': 'Naoufel',
     '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb': 'Nour',
     '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Edo',
+    '0x52f63971afd2a32524c859c29943f9bea38ca907': 'Edo2',
     '0x8E199c07E9c8D5CCbCA86fF5665A5b171b20D5E7': 'Marshmellow',
     '0x27b8D1347bE36Ff697b48d1D74323E6a9f28eA6D': 'Ishita',
     '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': '0xMT',
