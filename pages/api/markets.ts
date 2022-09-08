@@ -4,6 +4,7 @@ import {
   BLOCKS_PER_DAY,
   HAS_REWARD_TOKEN,
   BURN_ADDRESS,
+  CHAIN_ID,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -17,8 +18,14 @@ import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
+  const networkConfig = getNetworkConfig(CHAIN_ID, true)!;
   const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.3`;
+
+  if(CHAIN_ID === '5') {
+    const r = await fetch('https://www.inverse.finance/api/markets');
+    res.status(200).send(await r.json());    
+    return;
+  }
 
   try {
     const {
