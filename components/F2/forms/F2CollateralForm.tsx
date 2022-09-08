@@ -37,7 +37,7 @@ export const F2CollateralForm = ({
 
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
-        return isDeposit ? 
+        return isDeposit ?
             f2deposit(signer, f2market.address, amount)
             : f2withdraw(signer, f2market.address, amount)
     }
@@ -51,7 +51,7 @@ export const F2CollateralForm = ({
     }
 
     useEffect(() => {
-        if(!onAmountChange) { return };
+        if (!onAmountChange) { return };
         onAmountChange(isDeposit ? amount : -amount);
     }, [isDeposit, amount, onAmountChange]);
 
@@ -64,6 +64,10 @@ export const F2CollateralForm = ({
         p="0"
         label={`${btnLabel} Collateral`}
         description={isDeposit ? `To be able to Borrow` : `This will reduce the Collateral Health`}
+        headerProps={{
+            direction: { base: 'column', sm: 'row' },
+            align: { base: 'flex-start', sm: 'flex-end' },
+        }}
         contentProps={{
             position: 'relative',
             backgroundColor: mainColor,
@@ -77,11 +81,12 @@ export const F2CollateralForm = ({
                 top: 0, left: 0, right: 0, bottom: 0,
                 opacity: 0.5,
                 zIndex: -1,
-            },            
+            },
         }}
         image={<BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
         right={
             (deposits > 0 || !isDeposit) && <Text
+                mt={{ base: '2', sm: '0' }}
                 onClick={() => switchMode()}
                 fontSize="14px"
                 cursor="pointer"
@@ -91,9 +96,8 @@ export const F2CollateralForm = ({
                 Switch to {isDeposit ? 'Withdraw' : 'Deposit'}
             </Text>
         }
-        w={{ base: 'full', lg: '50%' }}
     >
-        <VStack justifyContent='space-between' w='full' minH={ '280px' }>
+        <VStack justifyContent='space-between' w='full' minH={'280px'}>
             <VStack alignItems='flex-start' w='full'>
                 <HStack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Name:</Text>
@@ -113,7 +117,7 @@ export const F2CollateralForm = ({
                 </HStack>
                 <HStack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Factor:</Text>
-                    <Text>{f2market.collateralFactor*100}%</Text>
+                    <Text>{f2market.collateralFactor * 100}%</Text>
                 </HStack>
             </VStack>
             <SimpleAmountForm

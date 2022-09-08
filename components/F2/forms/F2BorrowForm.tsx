@@ -75,8 +75,11 @@ export const F2BorrowForm = ({
         noPadding
         p="0"
         label={isBorrow ? `Borrow DOLA` : `Repay Borrowed DOLA debt`}
+        headerProps={{
+            direction: { base: 'column', sm: 'row' },
+            align: { base: 'flex-start', sm: 'flex-end' },
+        }}
         description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
-        w={{ base: 'full', lg: '50%' }}
         contentProps={{
             position: 'relative',
             backgroundColor: 'lightPrimaryAlpha',
@@ -95,6 +98,7 @@ export const F2BorrowForm = ({
         image={<BigImageButton bg="url('/assets/dola.png')" h="50px" w="80px" />}
         right={
             (debt > 0 || !isBorrow) && <Text
+                mt={{ base: '2', sm: '0' }}
                 onClick={() => switchMode()}
                 fontSize="14px"
                 cursor="pointer"
