@@ -103,7 +103,7 @@ export const F2Header = () => {
               onClick={() => router.push('f2/WETH')}
               bg="url('/assets/dola.png')"
               title="Borrow DOLA"
-              subtitle={`${shortenNumber(dbrPrice*100, 2)}%`}
+              subtitle={`${shortenNumber(dbrPrice*100, 2)}% Fixed-Rate`}
             />
           </Stack>
         </Stack>
