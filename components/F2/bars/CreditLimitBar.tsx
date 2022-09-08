@@ -24,7 +24,7 @@ export const CreditLimitBar = ({
   const badgeColorScheme = 'error'
 
   const {
-    newPerc, newCreditLeft, newLiquidationPrice, newDebt
+    newPerc, newCreditLeft, newLiquidationPrice, newDebt, newCreditLimit
   } = f2CalcNewHealth(market, deposits, debt, amountDelta, debtDelta, perc);
 
   const isPreviewing = !!(amountDelta || debtDelta);
@@ -85,7 +85,7 @@ export const CreditLimitBar = ({
         />
         <F2StateInfo
           currentValue={creditLimit}
-          nextValue={isPreviewing ? creditLimit : undefined}
+          nextValue={isPreviewing ? newCreditLimit : undefined}
           type={'dollar'}
           placeholder="No Collateral deposited"
           prefix={'Total: '}
