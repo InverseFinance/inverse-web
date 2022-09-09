@@ -86,8 +86,9 @@ export const DebtConverterPage = () => {
     }, [v1markets, collateralMarket])
 
     useEffect(() => {
-        setOutputAmount(parseFloat(collateralAmount || 0) * maxPrice);
-    }, [collateralAmount, maxPrice])
+        const outputPrice = Math.min(price||0, maxPrice);
+        setOutputAmount(parseFloat(collateralAmount || 0) * outputPrice);
+    }, [collateralAmount, price, maxPrice])
 
     const changeCollateral = (v: TokenWithCtoken) => {
         setCollateralMarket(v1markets.find(m => m.ctoken === v.ctoken)!);
@@ -108,7 +109,7 @@ export const DebtConverterPage = () => {
             library?.getSigner(),
             collateralMarket.ctoken,
             (isAllCase ? '0' : antokenAmount),
-            parseEther(minOutput.toString()),
+            parseEther(minOutput.toFixed(2)),
         );
     }
 
@@ -184,7 +185,7 @@ export const DebtConverterPage = () => {
                                             {
                                                 price !== null && maxPrice <= (0.7 * price) && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                     <HStack>
-                                                        <AnimatedInfoTooltip message="For safety reasons a maximum price is set for the asset" />
+                                                        <AnimatedInfoTooltip message="The max price is set to the price during the exploit" />
                                                         <Text>
                                                             {collateralMarket.underlying.symbol} Max accepted Price:
                                                         </Text>
