@@ -134,7 +134,7 @@ export const DebtRepayerPage = () => {
                         v1markets?.length > 0 && !!collateralMarket?.underlying ?
                             <Container
                                 label="Debt Repayer"
-                                description="Contract"
+                                description="See the Contract"
                                 href={`${getScanner("1")}/address/${DEBT_REPAYER}`}
                                 contentProps={{ p: '8' }}
                             >
