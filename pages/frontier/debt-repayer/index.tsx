@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Link, Stack, Text, VStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -106,19 +106,19 @@ export const DebtRepayerPage = () => {
         const amount = newAmount || '0';
         const exRate = exchangeRates && exchangeRates[collateralMarket.token] ? getBnToNumber(exchangeRates[collateralMarket.token]) : 0;
         const anAmount = exRate ? parseFloat(amount) / exRate : parseFloat(amount);
-        const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);        
+        const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);
         setAntokenAmount(formattedAmount);
     }
 
     const handleSell = () => {
-        if (!library?.getSigner()) { return }        
+        if (!library?.getSigner()) { return }
         const min = parseUnits(roundFloorString(minOutput, 5), outputToken.decimals);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, antokenAmount, min);
     }
 
     const handleSellAll = () => {
         if (!library?.getSigner()) { return }
-        const maxAntokenAmount = anBalances[collateralMarket.token];        
+        const maxAntokenAmount = anBalances[collateralMarket.token];
         const min = parseUnits(roundFloorString(maxOutput * 0.99, 5), outputToken.decimals);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
     }
@@ -151,6 +151,9 @@ export const DebtRepayerPage = () => {
                                                     The main purpose of the <b>DebtRepayer</b> is to give <b>priority to users</b> regarding available liquidity, avoiding liquidators taking it all. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
                                                 </Text>
                                                 <Text>The DebtRepayer liquidity is distinct from the v1 markets liquidity.</Text>
+                                                <Link isExternal target="_blank" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/using-frontier/debt-converter-and-repayer">
+                                                    Learn more in the docs
+                                                </Link>
                                             </VStack>
                                         }
                                     />
