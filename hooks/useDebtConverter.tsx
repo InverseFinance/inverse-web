@@ -73,7 +73,7 @@ export const useDebtConversions = (account: string): SWR & {
         ...events?.map((e, i) => [DEBT_CONVERTER, 'conversions', account, i]),
     ]);
 
-    const currentlyRedeemable = repaymentEpoch && currentlyRedeemableData ?
+    const currentlyRedeemable = repaymentEpoch && currentlyRedeemableData && !!conversions ?
         events?.map((e, i) => {
             return repaymentsEpochs
                 .map(epochIndex => {
