@@ -70,7 +70,7 @@ export const DebtConverterPage = () => {
     const { price } = useOraclePrice(collateralMarket?.ctoken);
     const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.ctoken);
 
-    const maxPrice = (maxUnderlyingPrice !== 0 && maxUnderlyingPrice !== null ? maxUnderlyingPrice : price)||0;
+    const maxPrice = (maxUnderlyingPrice !== 0 && maxUnderlyingPrice !== null ? maxUnderlyingPrice : price) || 0;
 
     const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
@@ -160,7 +160,7 @@ export const DebtConverterPage = () => {
                                                     </Text>
                                                     <Text>
                                                         NB: you will be able to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each time the Inverse Treasury makes a Debt Repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
-                                                    </Text>                                                    
+                                                    </Text>
                                                 </VStack>
                                             }
                                         />
@@ -176,6 +176,28 @@ export const DebtConverterPage = () => {
                                         />
 
                                         <VStack w='full' spacing="4">
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA, increases over time." />
+                                                    <Text>
+                                                        Current IOU Exchange Rate:
+                                                    </Text>
+                                                </HStack>
+                                                <Text fontWeight="bold">1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message={
+                                                        <Text>
+                                                            The Exchange Rate between IOUs and DOLAs increases over time, meaning <b>your IOUs generate interests in DOLA</b>.
+                                                        </Text>
+                                                    } />
+                                                    <Text>
+                                                        Current Interest Rate:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{shortenNumber(apr, 2)}%</Text>
+                                            </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
                                                     <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
@@ -196,28 +218,6 @@ export const DebtConverterPage = () => {
                                                     <Text>{dollarify(maxPrice, 2)}</Text>
                                                 </Stack>
                                             }
-                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                                <HStack>
-                                                    <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA, increases over time." />
-                                                    <Text>
-                                                        Current IOU Exchange Rate:
-                                                    </Text>
-                                                </HStack>
-                                                <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
-                                            </Stack>
-                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                                <HStack>
-                                                    <AnimatedInfoTooltip message={
-                                                        <Text>
-                                                            The Exchange Rate between IOUs and DOLAs increases over time, meaning <b>your IOUs generate interests in DOLA</b>.
-                                                        </Text>
-                                                    } />
-                                                    <Text>
-                                                        Current Interest Rate:
-                                                    </Text>
-                                                </HStack>
-                                                <Text>{shortenNumber(apr, 2)}%</Text>
-                                            </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
                                                     <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />

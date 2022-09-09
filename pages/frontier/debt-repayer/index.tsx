@@ -29,7 +29,7 @@ import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { sellV1AnToken } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import { commify } from '@ethersproject/units'
+import { commify, parseUnits } from '@ethersproject/units'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
@@ -106,20 +106,20 @@ export const DebtRepayerPage = () => {
         const amount = newAmount || '0';
         const exRate = exchangeRates && exchangeRates[collateralMarket.token] ? getBnToNumber(exchangeRates[collateralMarket.token]) : 0;
         const anAmount = exRate ? parseFloat(amount) / exRate : parseFloat(amount);
-        const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);
+        const formattedAmount = roundFloorString(anAmount * (10 ** collateralMarket.underlying.decimals), 0);        
         setAntokenAmount(formattedAmount);
     }
 
     const handleSell = () => {
-        if (!library?.getSigner()) { return }
-        const min = roundFloorString(minOutput * (10 ** outputToken.decimals), 0);
+        if (!library?.getSigner()) { return }        
+        const min = parseUnits(roundFloorString(minOutput, 5), outputToken.decimals);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, antokenAmount, min);
     }
 
     const handleSellAll = () => {
         if (!library?.getSigner()) { return }
-        const maxAntokenAmount = anBalances[collateralMarket.token];
-        const min = roundFloorString(maxOutput * 0.99 * (10 ** outputToken.decimals), 0);
+        const maxAntokenAmount = anBalances[collateralMarket.token];        
+        const min = parseUnits(roundFloorString(maxOutput * 0.99, 5), outputToken.decimals);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
     }
 
@@ -130,7 +130,7 @@ export const DebtRepayerPage = () => {
             </Head>
             <AppNav active="Frontier" activeSubmenu="Debt Repayer" />
             <ErrorBoundary>
-                <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="700px">
+                <Flex direction="column" w={{ base: 'full' }} maxWidth="700px">
                     {
                         v1markets?.length > 0 && !!collateralMarket?.underlying ?
                             <Container
@@ -173,7 +173,7 @@ export const DebtRepayerPage = () => {
                                                     Current Exchange Rate:
                                                 </Text>
                                             </HStack>
-                                            <Text>1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 4)} {outputToken.symbol}</Text>
+                                            <Text fontWeight="bold">1 {collateralMarket.underlying.symbol} => {shortenNumber(discount, 4)} {outputToken.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -191,7 +191,7 @@ export const DebtRepayerPage = () => {
                                                     Available Liquidity:
                                                 </Text>
                                             </HStack>
-                                            <Text>{shortenNumber(outputLiquidity, 2)} {outputToken.symbol}</Text>
+                                            <Text>{shortenNumber(outputLiquidity, 4)} {outputToken.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
