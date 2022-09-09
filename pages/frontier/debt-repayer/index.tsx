@@ -21,7 +21,7 @@ import { getToken } from '@app/variables/tokens'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { roundFloorString } from '@app/util/misc'
 import { useConvertToUnderlying, useDebtRepayerOutput, useMarketDebtRepayer } from '@app/hooks/useDebtRepayer'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
@@ -29,6 +29,7 @@ import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { sellV1AnToken } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { commify } from '@ethersproject/units'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -60,7 +61,7 @@ export const DebtRepayerPage = () => {
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_REPAYER);
 
-    const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
+    const { balances: liquidities, isLoading: isLoadingLiquidity } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
     const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
 
@@ -116,7 +117,7 @@ export const DebtRepayerPage = () => {
 
     const handleSellAll = () => {
         if (!library?.getSigner()) { return }
-        const maxAntokenAmount = anBalances[collateralMarket.token];
+        const maxAntokenAmount = anBalances[collateralMarket.token];        
         const min = roundFloorString(maxOutput * 0.99 * (10 ** outputToken.decimals), 0);
         return sellV1AnToken(library?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
     }
@@ -139,6 +140,7 @@ export const DebtRepayerPage = () => {
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
                                     <InfoMessage
+                                        alertProps={{ fontSize: '12px' }}
                                         description={
                                             <VStack>
                                                 <Text>
@@ -179,7 +181,7 @@ export const DebtRepayerPage = () => {
                                                     Remaining Debt:
                                                 </Text>
                                             </HStack>
-                                            <Text>{shortenNumber(remainingDebt, 2)} {collateralMarket.underlying.symbol}</Text>
+                                            <Text>{commify(remainingDebt.toFixed(2))} {collateralMarket.underlying.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -206,7 +208,7 @@ export const DebtRepayerPage = () => {
                                                     Your {outputToken.symbol} balance:
                                                 </Text>
                                             </HStack>
-                                            <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
+                                            <Text>{shortenNumber(outputBalance, 4)} {outputToken.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -252,7 +254,7 @@ export const DebtRepayerPage = () => {
                                             }
                                         </HStack>
                                         {
-                                            !outputLiquidity && <InfoMessage alertProps={{ w: 'full' }} description="No Liquidity at the moment" />
+                                            !outputLiquidity && !isLoadingLiquidity && <WarningMessage alertProps={{ w: 'full' }} description="No Liquidity at the moment" />
                                         }
                                     </VStack>
                                 </VStack>
