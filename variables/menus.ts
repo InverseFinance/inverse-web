@@ -12,10 +12,14 @@ export const MENUS = {
           label: 'Stake INV',
           href: '/frontier?marketType=supply&market=inv#',
         },
-        // {
-        //   label: 'Borrow DOLA',
-        //   href: '/frontier?marketType=borrow&market=dola#',
-        // },
+        {
+          label: 'Debt Converter',
+          href: '/frontier/debt-converter',
+        },
+        {
+          label: 'Debt Repayer',
+          href: '/frontier/debt-repayer',
+        },
       ],
     },
     {
@@ -243,10 +247,10 @@ export const MENUS = {
           label: 'Twitter',
           href: 'https://twitter.com/InverseFinance',
         },
-        {
-          label: 'Medium',
-          href: 'https://medium.com/inverse-finance',
-        },
+        // {
+        //   label: 'Medium',
+        //   href: 'https://medium.com/inverse-finance',
+        // },
       ],
     },
   ],
@@ -263,10 +267,10 @@ export const MENUS = {
       href: 'https://t.me/InverseFinance',
       image: '/assets/socials/telegram.svg',
     },
-    {
-      href: 'https://medium.com/inverse-finance',
-      image: '/assets/socials/medium.svg',
-    },
+    // {
+    //   href: 'https://medium.com/inverse-finance',
+    //   image: '/assets/socials/medium.svg',
+    // },
     {
       href: 'https://github.com/InverseFinance',
       image: '/assets/socials/github.svg',

@@ -21,7 +21,7 @@ import { getToken } from '@app/variables/tokens'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { roundFloorString } from '@app/util/misc'
 import { useConvertToUnderlying, useDebtRepayerOutput, useMarketDebtRepayer } from '@app/hooks/useDebtRepayer'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
@@ -29,6 +29,8 @@ import { getScanner, hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { sellV1AnToken } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { commify } from '@ethersproject/units'
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -42,6 +44,7 @@ export const DebtRepayerPage = () => {
     const { library, account } = useWeb3React<Web3Provider>()
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
+    const { usdShortfall } = useAccountLiquidity()
 
     const weth = getToken(TOKENS, 'WETH')!;
 
@@ -51,7 +54,6 @@ export const DebtRepayerPage = () => {
     const swapOptions = v1markets?.map(m => (m.token));
     const tokens: { [key: string]: anToken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.token]: { ...curr.underlying, ctoken: curr.token } }), {});
 
-    const [outputAmount, setOutputAmount] = useState('');
     const [antokenAmount, setAntokenAmount] = useState('');
     const [collateralAmount, setCollateralAmount] = useState('');
 
@@ -60,7 +62,7 @@ export const DebtRepayerPage = () => {
 
     const { approvals } = useAllowances([collateralMarket?.token], DEBT_REPAYER);
 
-    const { balances: liquidities } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
+    const { balances: liquidities, isLoading: isLoadingLiquidity } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
     const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
 
@@ -133,19 +135,20 @@ export const DebtRepayerPage = () => {
                         v1markets?.length > 0 && !!collateralMarket?.underlying ?
                             <Container
                                 label="Debt Repayer"
-                                description="Contract"
+                                description="See the Contract"
                                 href={`${getScanner("1")}/address/${DEBT_REPAYER}`}
                                 contentProps={{ p: '8' }}
                             >
                                 <VStack w='full' alignItems="flex-start" spacing="5">
                                     <InfoMessage
+                                        alertProps={{ fontSize: '12px' }}
                                         description={
                                             <VStack>
                                                 <Text>
                                                     <b>Exchange</b> your v1 Frontier <b>receipt tokens</b> (anEth, anWBTC, anYFI) against their <b>underlying tokens</b> (WETH, WBTC, YFI).
                                                 </Text>
                                                 <Text>
-                                                    The main purpose of the <b>DebtRepayer</b> is to give <b>priority to users</b> regarding available liquidity, avoiding liquidators taking it all.
+                                                    The main purpose of the <b>DebtRepayer</b> is to give <b>priority to users</b> regarding available liquidity, avoiding liquidators taking it all. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
                                                 </Text>
                                                 <Text>The DebtRepayer liquidity is distinct from the v1 markets liquidity.</Text>
                                             </VStack>
@@ -179,7 +182,7 @@ export const DebtRepayerPage = () => {
                                                     Remaining Debt:
                                                 </Text>
                                             </HStack>
-                                            <Text>{shortenNumber(remainingDebt, 2)} {collateralMarket.underlying.symbol}</Text>
+                                            <Text>{commify(remainingDebt.toFixed(2))} {collateralMarket.underlying.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -197,7 +200,7 @@ export const DebtRepayerPage = () => {
                                                     Reserve Ratio:
                                                 </Text>
                                             </HStack>
-                                            <Text>{remainingDebt ? shortenNumber(outputLiquidity/remainingDebt*100, 2) : 0}%</Text>
+                                            <Text>{remainingDebt ? shortenNumber(outputLiquidity / remainingDebt * 100, 2) : 0}%</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -206,7 +209,7 @@ export const DebtRepayerPage = () => {
                                                     Your {outputToken.symbol} balance:
                                                 </Text>
                                             </HStack>
-                                            <Text>{shortenNumber(outputBalance, 2)} {outputToken.symbol}</Text>
+                                            <Text>{shortenNumber(outputBalance, 4)} {outputToken.symbol}</Text>
                                         </Stack>
                                         <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                             <HStack>
@@ -230,29 +233,36 @@ export const DebtRepayerPage = () => {
                                                 ~{shortenNumber(minOutput, 4)} {outputToken.symbol}
                                             </Text>
                                         </Stack>
-                                        <HStack w='full' pt="4">
-                                            {
-                                                !hasAllowance(approvals, collateralMarket?.token) ?
-                                                    <ApproveButton
-                                                        tooltipMsg=""
-                                                        isDisabled={false}
-                                                        address={collateralMarket?.token}
-                                                        toAddress={DEBT_REPAYER}
-                                                        signer={library?.getSigner()}
-                                                    />
-                                                    :
-                                                    <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
-                                                        <SubmitButton disabled={!collateralAmount || (parseFloat(collateralAmount) * discount > outputLiquidity) || !maxOutput || !outputLiquidity} onClick={handleSell} refreshOnSuccess={true}>
-                                                            exchange
-                                                        </SubmitButton>
-                                                        <SubmitButton disabled={!maxOutput || !outputLiquidity} onClick={handleSellAll} refreshOnSuccess={true}>
-                                                            exchange all available
-                                                        </SubmitButton>
-                                                    </Stack>
-                                            }
-                                        </HStack>
                                         {
-                                            !outputLiquidity && <InfoMessage alertProps={{ w: 'full' }} description="No Liquidity at the moment" />
+                                            usdShortfall > 0 ? <WarningMessage
+                                                alertProps={{ w: 'full' }}
+                                                description="Cannot use while being in Shortfall, please repay your debts first"
+                                            /> :
+                                                <HStack w='full' pt="4">
+                                                    {
+                                                        !hasAllowance(approvals, collateralMarket?.token) ?
+                                                            <ApproveButton
+                                                                tooltipMsg=""
+                                                                isDisabled={false}
+                                                                address={collateralMarket?.token}
+                                                                toAddress={DEBT_REPAYER}
+                                                                signer={library?.getSigner()}
+                                                            />
+                                                            :
+                                                            <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
+                                                                <SubmitButton disabled={!collateralAmount || (parseFloat(collateralAmount) * discount > outputLiquidity) || !maxOutput || !outputLiquidity} onClick={handleSell} refreshOnSuccess={true}>
+                                                                    exchange
+                                                                </SubmitButton>
+                                                                <SubmitButton disabled={!maxOutput || !outputLiquidity} onClick={handleSellAll} refreshOnSuccess={true}>
+                                                                    exchange all available
+                                                                </SubmitButton>
+                                                            </Stack>
+                                                    }
+                                                </HStack>
+                                        }
+
+                                        {
+                                            !outputLiquidity && !isLoadingLiquidity && <WarningMessage alertProps={{ w: 'full' }} description="No Liquidity at the moment" />
                                         }
                                     </VStack>
                                 </VStack>
