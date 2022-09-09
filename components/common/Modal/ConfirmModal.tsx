@@ -54,7 +54,7 @@ const ConfirmModal = ({
             }
             footer={
                 <HStack>
-                    <SubmitButton onClick={handleCancel}>{cancelLabel}</SubmitButton>
+                    { !!cancelLabel && <SubmitButton onClick={handleCancel}>{cancelLabel}</SubmitButton> }
                     <SubmitButton refreshOnSuccess={true} onClick={handleOk} onSuccess={handleSuccess}>{okLabel}</SubmitButton>
                 </HStack>
             }
