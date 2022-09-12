@@ -1,4 +1,4 @@
-import { VStack, Text, HStack } from '@chakra-ui/react'
+import { VStack, Text, HStack, FlexProps, Stack } from '@chakra-ui/react'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import Container from '@app/components/common/Container'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
@@ -7,7 +7,6 @@ import { F2Market } from '@app/types'
 import { BigNumber } from 'ethers'
 import { useBalances } from '@app/hooks/useBalances'
 import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
-import ScannerLink from '@app/components/common/ScannerLink'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import { getScanner } from '@app/util/web3'
 import { CHAIN_ID } from '@app/config/constants'
@@ -15,10 +14,11 @@ import { CHAIN_ID } from '@app/config/constants'
 export const MarketInfos = ({
     market,
     account,
+    ...props
 }: {
     market: F2Market
     account: string | null | undefined
-}) => {
+} & Partial<FlexProps>) => {
     const colDecimals = market.underlying.decimals;
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, dolaLiquidity } = useAccountDBRMarket(market, account);
     const { balances } = useBalances([market.collateral]);
@@ -34,45 +34,54 @@ export const MarketInfos = ({
         href={`${getScanner(CHAIN_ID)}/address/${market.address}`}
         contentBgColor={'infoAlpha'}
         image={<BigImageButton bg={`url('/assets/f2/markets/${market.name}.png')`} h="50px" w="80px" />}
-        w={{ base: 'full', lg: '50%' }}
+        w='full'
+        {...props}
     >
-        <VStack justifyContent='space-between' w='full' minH="300px" justify="center">
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Collateral Name:</Text>
-                <Text><UnderlyingItemBlock symbol={market?.underlying.symbol} /></Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Oracle Price:</Text>
-                <Text>${commify(market.price.toFixed(2))}</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Collateral Factor:</Text>
-                <Text>{market.collateralFactor*100}%</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Market's borrows:</Text>
-                <Text>{shortenNumber(market.totalDebt, 2)} DOLAs</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
-                <Text>{shortenNumber(dolaLiquidity, 2)}</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Your Balance:</Text>
-                <Text>{shortenNumber(collateralBalance, 2)} ({shortenNumber(collateralBalance * market.price, 2, true)})</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Your Deposits:</Text>
-                <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * market.price, 2, true)})</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text color="secondaryTextColor">Your Debt:</Text>
-                <Text>{shortenNumber(debt, 2)} DOLAs</Text>
-            </HStack>
-            <HStack w='full' justifyContent="space-between">
-                <Text fontWeight="bold" color="secondaryTextColor">Current Fixed Rate:</Text>
-                <Text color="secondary" fontWeight="bold">{shortenNumber(dbrPrice * 100, 2)}%</Text>
-            </HStack>
-        </VStack>
+        <Stack direction={{ base: 'column', lg: 'row' }} justifyContent='space-between' w='full' justify="center">
+            <VStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Collateral Name:</Text>
+                    <Text><UnderlyingItemBlock symbol={market?.underlying.symbol} /></Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Oracle Price:</Text>
+                    <Text>${commify(market.price.toFixed(2))}</Text>
+                </HStack>
+            </VStack>
+            <VStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Collateral Factor:</Text>
+                    <Text>{market.collateralFactor * 100}%</Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
+                    <Text>{shortenNumber(dolaLiquidity, 2)}</Text>
+                </HStack>
+            </VStack>
+            <VStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Market's Borrows:</Text>
+                    <Text>{shortenNumber(market.totalDebt, 2)} DOLAs</Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Market's Deposits:</Text>
+                    <Text>no contract func. yet</Text>
+                </HStack>
+            </VStack>
+            <VStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Your Deposits:</Text>
+                    <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * market.price, 2, true)})</Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                    <Text color="secondaryTextColor">Your Debt:</Text>
+                    <Text>{shortenNumber(debt, 2)} DOLAs</Text>
+                </HStack>
+                {/* <HStack w='full' justifyContent="space-between">
+                    <Text fontWeight="bold" color="secondaryTextColor">Current Fixed Rate:</Text>
+                    <Text color="secondary" fontWeight="bold">{shortenNumber(dbrPrice * 100, 2)}%</Text>
+                </HStack> */}
+            </VStack>
+        </Stack>
     </Container>
 }
