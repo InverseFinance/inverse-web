@@ -56,7 +56,7 @@ export const DebtConverterPage = () => {
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU, apr } = useDebtConverter();
+    const { exchangeRate: exRateIOU, apr, outstandingDebt } = useDebtConverter();
     const { usdShortfall } = useAccountLiquidity();
     const { IOUbalance } = useIOUbalance(userAddress);
 
@@ -186,7 +186,7 @@ export const DebtConverterPage = () => {
                                                         Current IOU Exchange Rate:
                                                     </Text>
                                                 </HStack>
-                                                <Text fontWeight="bold">1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                                <Text fontWeight="bold">1 IOU => {shortenNumber(exRateIOU, 4)} DOLA</Text>
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
@@ -199,7 +199,7 @@ export const DebtConverterPage = () => {
                                                         Current Interest Rate:
                                                     </Text>
                                                 </HStack>
-                                                <Text>{shortenNumber(apr, 2)}%</Text>
+                                                <Text>{shortenNumber(apr, 4)}%</Text>
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
@@ -221,6 +221,17 @@ export const DebtConverterPage = () => {
                                                     <Text>{dollarify(maxPrice, 2)}</Text>
                                                 </Stack>
                                             }
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Current amount of DOLA-denominated debt accrued by the DebtConverter contract" />
+                                                    <Text>
+                                                        Current Outstanding Debt in Contract:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>
+                                                    ~{shortenNumber(outstandingDebt, 2)}
+                                                </Text>
+                                            </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
                                                     <AnimatedInfoTooltip message="The amount of DOLA worth of IOUs you will receive if there is no slippage" />

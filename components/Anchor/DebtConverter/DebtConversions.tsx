@@ -61,7 +61,7 @@ const columns = [
         tooltip: 'The amount of asset exchanged for IOUs',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="flex-end"  {...props} />,
         value: ({ underlyingAmount }) => <Cell minWidth="140px" justify="flex-end" >
-            <Text>{shortenNumber(underlyingAmount, 2)}</Text>
+            <Text>{shortenNumber(underlyingAmount, 4)}</Text>
         </Cell>,
     },
     {

@@ -14,19 +14,22 @@ export const useDebtConverter = (): SWR & {
     exchangeRate: number,
     repaymentEpoch: number,
     apr: number,
+    outstandingDebt: number,
 } => {
     const { data, error } = useEtherSWR([
         [DEBT_CONVERTER, 'exchangeRateMantissa'],
         [DEBT_CONVERTER, 'repaymentEpoch'],
         [DEBT_CONVERTER, 'exchangeRateIncreasePerSecond'],
+        [DEBT_CONVERTER, 'outstandingDebt'],
     ])
 
-    const [exRateData, repaymentEpoch, increasePerSec] = data || [null, null, null];
-
+    const [exRateData, repaymentEpoch, increasePerSec, bnOutstandingDebt] = data || [null, null, null];
+    
     return {
         exchangeRate: exRateData ? getBnToNumber(exRateData) : 1,
         repaymentEpoch: repaymentEpoch ? getBnToNumber(repaymentEpoch, 0) : 0,
         apr: increasePerSec ? getBnToNumber(increasePerSec) * oneYearSecs * 100 : 0,
+        outstandingDebt: bnOutstandingDebt ? getBnToNumber(bnOutstandingDebt) : 0,
         isLoading: !exRateData && !error,
         isError: !!error,
     }

@@ -62,6 +62,7 @@ const chainTokenAddresses = {
     YVCRVIB: '0x27b7b1ad7288079A66d12350c828D3C00A6F07d7',
     YVCRV3CRYPTO: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
+    DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -225,6 +226,16 @@ const chainTokens = {
       name: 'Dola-3pool CRV LP',
       symbol: 'DOLA-3POOL',
       coingeckoId: 'dai',
+      protocolImage: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'
+    },
+    [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
+      address: chainTokenAddresses["1"].DOLAFRAXUSDC,
+      name: 'DOLA-FRAX-USDC',
+      symbol: 'DOLA-FRAX-USDC',      
       protocolImage: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
       decimals: 18,
       isLP: true,
