@@ -98,13 +98,12 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     </Stack>
                                 </>
                                 :
-                                <Stack
+                                <VStack
                                     alignItems="flex-start"
                                     w='full'
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
-                                >
-                                    <MarketInfos account={account} market={f2market} />
+                                >                                    
                                     <F2CombinedForm
                                         signer={library?.getSigner()}
                                         f2market={f2market}
@@ -112,11 +111,12 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         onDepositChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
                                         onDebtChange={(floatAmount) => setNewDebtAmount(floatAmount)}
                                         onDbrOpen={onDbrOpen}
-                                        onHealthOpen={onHealthOpen}
+                                        onHealthOpen={onHealthOpen}                                        
                                     />
-                                </Stack>
+                                    <MarketInfos account={account} market={f2market}  />
+                                </VStack>
 
-                    }
+                    }                    
                 </VStack>
             </ErrorBoundary>
         </Layout>
