@@ -3,15 +3,16 @@ import { useAllowances } from "@app/hooks/useApprovals";
 import { useBalances } from "@app/hooks/useBalances";
 import { getBnToNumber } from "@app/util/markets";
 import { hasAllowance } from "@app/util/web3";
-import { Stack, VStack } from "@chakra-ui/react"
+import { ButtonProps, Stack, VStack } from "@chakra-ui/react"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
-import { SubmitButton } from "../Button";
-import { BalanceInput } from "../Input"
+import { SubmitButton } from "@app/components/common/Button";
+import { BalanceInput } from "@app/components/common//Input"
 
 type Props = {
+    defaultAmount?: string
     address: string
     destination: string
     signer?: JsonRpcSigner
@@ -26,6 +27,9 @@ type Props = {
     onlyShowApproveBtn?: boolean
     hideInputIfNoAllowance?: boolean
     hideButtons?: boolean
+    hideInput?: boolean
+    btnProps?: ButtonProps
+    showBalance?: boolean
 }
 
 type ActionProps = Props & {
@@ -45,6 +49,7 @@ const zeroBn = BigNumber.from('0');
 
 export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const {
+        defaultAmount = '',
         address,
         destination,
         signer,
@@ -62,9 +67,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         onlyShowApproveBtn = false,
         hideInputIfNoAllowance = true,
         hideButtons = false,
+        hideInput = false,
+        btnProps,
+        showBalance,
     } = props;
-
-    const [amount, setAmount] = useState('');
+    const [amount, setAmount] = useState(defaultAmount);
     const [tokenApproved, setTokenApproved] = useState(false);
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
@@ -73,6 +80,10 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
     maxBn.sort((a, b) => a.gt(b) ? 1 : -1);
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
+
+    useEffect(() => {
+        setAmount(defaultAmount);
+    }, [defaultAmount])
 
     useEffect(() => {
         setTokenApproved(freshTokenApproved || hasAllowance(approvals, address));
@@ -88,7 +99,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         const bnAmount = isMax ? maxBn[0] : parseUnits((amount || '0'), decimals);
         const params = {
             bnAmount,
-            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,            
+            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,
             balance,
             ...props,
         };
@@ -105,9 +116,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     return <VStack w='full'>
         {
-            (tokenApproved || !hideInputIfNoAllowance) &&
+            (tokenApproved || !hideInputIfNoAllowance) && !hideInput &&
             <BalanceInput
                 value={amount}
+                showBalance={showBalance}
+                balance={balance}
                 inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' } }}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => handleChange(e.target.value)}
                 onMaxClick={() => setToMaxDeposit()}
@@ -124,6 +137,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         signer={signer}
                         isDisabled={balance <= 0}
                         onSuccess={() => setFreshTokenApproved(true)}
+                        {...btnProps}
                     /> :
                     !onlyShowApproveBtn &&
                     <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
@@ -132,7 +146,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             onClick={() => handleAction()}
                             refreshOnSuccess={true}
                             onSuccess={() => handleChange('0')}
-                            disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}>
+                            disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}
+                            {...btnProps}
+                        >
                             {actionLabel}
                         </SubmitButton>
                         {
@@ -141,7 +157,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                                 themeColor={btnThemeColor}
                                 onClick={() => handleAction(true)}
                                 disabled={isMaxDisabled}
-                                refreshOnSuccess={true}>
+                                refreshOnSuccess={true}
+                                {...btnProps}
+                            >
                                 {maxActionLabel}
                             </SubmitButton>
                         }
