@@ -1,16 +1,21 @@
+import { ButtonProps } from '@chakra-ui/react';
 import type { CBPayInstanceType, InitOnRampParams } from '@coinbase/cbpay-js';
 import { initOnRamp } from '@coinbase/cbpay-js';
-import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import { SubmitButton } from '../common/Button';
 
-export const CoinbasePayButton: React.FC = () => {
-    const { account } = useWeb3React();
+export const CoinbasePayButton = ({
+    account,
+    ...props
+}: {
+    account: string
+} & ButtonProps) => {    
     const [onrampInstance, setOnrampInstance] = useState<CBPayInstanceType | undefined>();
 
     useEffect(() => {
         initOnRamp({
             appId: '033abd6f-0903-4abc-bc2f-fed226b408a2',
+            clientName: 'Inverse Finance',
             widgetParameters: {
                 destinationWallets: [
                     {
@@ -29,7 +34,7 @@ export const CoinbasePayButton: React.FC = () => {
             onEvent: (event) => {
                 console.log('event', event);
             },
-            experienceLoggedIn: 'popup',
+            experienceLoggedIn: 'embedded',
             experienceLoggedOut: 'popup',
             closeOnExit: true,
             closeOnSuccess: true,
@@ -46,5 +51,5 @@ export const CoinbasePayButton: React.FC = () => {
         onrampInstance?.open();
     };
 
-    return <SubmitButton color="mainTextColor" w='fit-content' onClick={handleClick} disabled={!onrampInstance}>Buy with Coinbase</SubmitButton>;
+    return <SubmitButton {...props} color="mainTextColor" w='fit-content' onClick={handleClick} disabled={!onrampInstance}>Buy with Coinbase</SubmitButton>;
 };

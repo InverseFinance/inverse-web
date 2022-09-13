@@ -9,6 +9,7 @@ import { useMarkets } from '@app/hooks/useMarkets';
 import { LinkButton } from '@app/components/common/Button';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay';
+import { useWeb3React } from '@web3-react/core';
 
 const Step = ({
   label,
@@ -37,6 +38,7 @@ const Step = ({
 
 export const InvPlus = () => {
   const { markets } = useMarkets();
+  const { account } = useWeb3React();
 
   const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN);
   const apy = rewardTokenMarket?.supplyApy.toFixed(2) || 100;
@@ -124,7 +126,9 @@ export const InvPlus = () => {
           </Flex>
         </Flex>
         <Flex w="full" justify="center">
-          <CoinbasePayButton />
+          {
+            !!account && <CoinbasePayButton mt="10px" account={account} />
+          }
         </Flex>
       </Flex>
     </Layout>
