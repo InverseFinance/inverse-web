@@ -42,7 +42,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <VStack w='full' maxW={ isAdvancedMode ? '84rem' : '1200px' } alignItems="flex-start" p="8" spacing="8">
+                <VStack w='full' maxW={ isAdvancedMode ? '84rem' : '900px' } alignItems="flex-start" p="8" spacing="8">
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
                         <SimmpleBreadcrumbs
                             breadcrumbs={[

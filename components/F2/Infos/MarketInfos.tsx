@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, FlexProps, Stack } from '@chakra-ui/react'
+import { VStack, Text, FlexProps, Stack } from '@chakra-ui/react'
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock'
 import Container from '@app/components/common/Container'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
@@ -38,50 +38,50 @@ export const MarketInfos = ({
         {...props}
     >
         <Stack direction={{ base: 'column', lg: 'row' }} justifyContent='space-between' w='full' justify="center">
-            <VStack>
-                <HStack w='full' justifyContent="space-between">
+            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Name:</Text>
                     <Text><UnderlyingItemBlock symbol={market?.underlying.symbol} /></Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Oracle Price:</Text>
                     <Text>${commify(market.price.toFixed(2))}</Text>
-                </HStack>
-            </VStack>
-            <VStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+            </Stack>
+            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Factor:</Text>
                     <Text>{market.collateralFactor * 100}%</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
                     <Text>{shortenNumber(dolaLiquidity, 2)}</Text>
-                </HStack>
-            </VStack>
-            <VStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+            </Stack>
+            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Market's Borrows:</Text>
                     <Text>{shortenNumber(market.totalDebt, 2)} DOLAs</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Market's Deposits:</Text>
                     <Text>no contract func. yet</Text>
-                </HStack>
-            </VStack>
-            <VStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+            </Stack>
+            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Your Deposits:</Text>
                     <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * market.price, 2, true)})</Text>
-                </HStack>
-                <HStack w='full' justifyContent="space-between">
+                </Stack>
+                <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Your Debt:</Text>
                     <Text>{shortenNumber(debt, 2)} DOLAs</Text>
-                </HStack>
-                {/* <HStack w='full' justifyContent="space-between">
+                </Stack>
+                {/* <Stack w='full' justifyContent="space-between">
                     <Text fontWeight="bold" color="secondaryTextColor">Current Fixed Rate:</Text>
                     <Text color="secondary" fontWeight="bold">{shortenNumber(dbrPrice * 100, 2)}%</Text>
-                </HStack> */}
-            </VStack>
+                </Stack> */}
+            </Stack>
         </Stack>
     </Container>
 }
