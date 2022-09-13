@@ -1,4 +1,4 @@
-import { ButtonProps } from '@chakra-ui/react';
+import { Box, ButtonProps } from '@chakra-ui/react';
 import type { CBPayInstanceType, InitOnRampParams } from '@coinbase/cbpay-js';
 import { initOnRamp, generateOnRampURL } from '@coinbase/cbpay-js';
 import { useEffect, useState } from 'react';
@@ -18,8 +18,9 @@ export const CoinbasePayButton = ({
         // testing
         window['__initOnRamp'] = initOnRamp;
         window['__generateOnRampURL'] = generateOnRampURL;
-        initOnRamp({
+        const options = {
             appId,
+            target: '#coinbase-pay-container',
             widgetParameters: {
                 destinationWallets: [
                     {
@@ -38,11 +39,13 @@ export const CoinbasePayButton = ({
             onEvent: (event) => {
                 console.log('event', event);
             },
-            experienceLoggedIn: 'popup',
+            experienceLoggedIn: 'embedded',
             experienceLoggedOut: 'popup',
             closeOnExit: true,
             closeOnSuccess: true,
-        }, (_, instance) => {
+        };
+        console.log(options)
+        initOnRamp(options, (_, instance) => {
             setOnrampInstance(instance);
         });
 
@@ -62,5 +65,8 @@ export const CoinbasePayButton = ({
         onrampInstance?.open();
     };
 
-    return <SubmitButton {...props} color="mainTextColor" w='fit-content' onClick={handleClick} disabled={!onrampInstance}>Buy with Coinbase</SubmitButton>;
+    return <Box>
+        <SubmitButton {...props} color="mainTextColor" w='fit-content' onClick={handleClick} disabled={!onrampInstance}>Buy with Coinbase</SubmitButton>
+        <Box id="coinbase-pay-container"></Box>
+    </Box>;
 };
