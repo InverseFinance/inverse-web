@@ -1,4 +1,4 @@
-import { Box, Flex, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text, VStack, Image } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -6,7 +6,7 @@ import { Link } from '@app/components/common/Link';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { ReactNode } from 'react';
 import { useMarkets } from '@app/hooks/useMarkets';
-import { LinkButton } from '@app/components/common/Button';
+import { LinkButton, SubmitButton } from '@app/components/common/Button';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay';
 import { useWeb3React } from '@web3-react/core';
@@ -125,11 +125,19 @@ export const InvPlus = () => {
             </VStack>
           </Flex>
         </Flex>
-        <Flex w="full" justify="center">
-          {
-            !!account && <CoinbasePayButton mt="10px" account={account} />
-          }
-        </Flex>
+        <VStack spacing="2" pt="10">
+          <Text fontSize="16px" fontWeight="extrabold">Get INV on:</Text>
+          <HStack w="full" justify="center" alignItems="center">
+            <Link isExternal target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!}>
+              <SubmitButton w="fit-content" color="mainTextColor">
+                Sushiswap <Image src="/assets/projects/Sushiswap.png" h="20px" ml="2" />
+              </SubmitButton>
+            </Link>
+            {
+              !!account && <CoinbasePayButton account={account} />
+            }
+          </HStack>
+        </VStack>
       </Flex>
     </Layout>
   )
