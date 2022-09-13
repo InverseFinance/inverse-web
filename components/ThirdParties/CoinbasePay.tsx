@@ -1,6 +1,6 @@
-import { Box, ButtonProps } from '@chakra-ui/react';
-import type { CBPayInstanceType, InitOnRampParams } from '@coinbase/cbpay-js';
-import { initOnRamp, generateOnRampURL } from '@coinbase/cbpay-js';
+import { ButtonProps, Image } from '@chakra-ui/react';
+import type { CBPayInstanceType } from '@coinbase/cbpay-js';
+import { initOnRamp } from '@coinbase/cbpay-js';
 import { useEffect, useState } from 'react';
 import { SubmitButton } from '../common/Button';
 
@@ -8,16 +8,15 @@ const appId = '033abd6f-0903-4abc-bc2f-fed226b408a2';
 
 export const CoinbasePayButton = ({
     account,
+    text = 'Coinbase Pay',
     ...props
 }: {
     account: string
+    text: string
 } & ButtonProps) => {
     const [onrampInstance, setOnrampInstance] = useState<CBPayInstanceType | undefined>();
 
-    useEffect(() => {
-        // testing
-        window['__initOnRamp'] = initOnRamp;
-        window['__generateOnRampURL'] = generateOnRampURL;
+    useEffect(() => {        
         const options = {
             appId,
             target: '#coinbase-pay-container',
@@ -26,7 +25,7 @@ export const CoinbasePayButton = ({
                     {
                         address: account,
                         blockchains: ['ethereum'],
-                        // assets: [],
+                        assets: [],
                     },
                 ],
             },
@@ -39,12 +38,11 @@ export const CoinbasePayButton = ({
             onEvent: (event) => {
                 console.log('event', event);
             },
-            experienceLoggedIn: 'embedded',
+            experienceLoggedIn: 'popup',
             experienceLoggedOut: 'popup',
             closeOnExit: true,
             closeOnSuccess: true,
-        };
-        console.log(options)
+        };        
         initOnRamp(options, (_, instance) => {
             setOnrampInstance(instance);
         });
@@ -54,19 +52,11 @@ export const CoinbasePayButton = ({
         };
     }, [account]);
 
-    const handleClick = () => {
-        const onRampURL = generateOnRampURL({
-            appId,
-            destinationWallets: [
-                { address: account, blockchains: ["ethereum"] },
-            ]
-        });
-        console.log(onRampURL);
+    const handleClick = () => {        
         onrampInstance?.open();
     };
 
-    return <Box>
-        <SubmitButton {...props} color="mainTextColor" w='fit-content' onClick={handleClick} disabled={!onrampInstance}>Buy with Coinbase</SubmitButton>
-        <Box id="coinbase-pay-container"></Box>
-    </Box>;
+    return <SubmitButton {...props} color="mainTextColor" w='fit-content' onClick={handleClick} isLoading={!onrampInstance} disabled={!onrampInstance}>
+        {text} <Image src="/assets/projects/coinbase.svg" h="20px" ml="2" />
+    </SubmitButton>
 };
