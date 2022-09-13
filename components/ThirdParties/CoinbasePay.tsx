@@ -1,21 +1,25 @@
 import { ButtonProps } from '@chakra-ui/react';
 import type { CBPayInstanceType, InitOnRampParams } from '@coinbase/cbpay-js';
-import { initOnRamp } from '@coinbase/cbpay-js';
+import { initOnRamp, generateOnRampURL } from '@coinbase/cbpay-js';
 import { useEffect, useState } from 'react';
 import { SubmitButton } from '../common/Button';
+
+const appId = '033abd6f-0903-4abc-bc2f-fed226b408a2';
 
 export const CoinbasePayButton = ({
     account,
     ...props
 }: {
     account: string
-} & ButtonProps) => {    
+} & ButtonProps) => {
     const [onrampInstance, setOnrampInstance] = useState<CBPayInstanceType | undefined>();
 
     useEffect(() => {
+        // testing
+        window['__initOnRamp'] = initOnRamp;
+        window['__generateOnRampURL'] = generateOnRampURL;
         initOnRamp({
-            appId: '033abd6f-0903-4abc-bc2f-fed226b408a2',
-            clientName: 'Inverse Finance',
+            appId,
             widgetParameters: {
                 destinationWallets: [
                     {
@@ -34,7 +38,7 @@ export const CoinbasePayButton = ({
             onEvent: (event) => {
                 console.log('event', event);
             },
-            experienceLoggedIn: 'embedded',
+            experienceLoggedIn: 'popup',
             experienceLoggedOut: 'popup',
             closeOnExit: true,
             closeOnSuccess: true,
@@ -48,6 +52,13 @@ export const CoinbasePayButton = ({
     }, [account]);
 
     const handleClick = () => {
+        const onRampURL = generateOnRampURL({
+            appId,
+            destinationWallets: [
+                { address: account, blockchains: ["ethereum"] },
+            ]
+        });
+        console.log(onRampURL);
         onrampInstance?.open();
     };
 
