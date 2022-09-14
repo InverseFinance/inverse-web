@@ -30,6 +30,7 @@ type Props = {
     hideInput?: boolean
     btnProps?: ButtonProps
     showBalance?: boolean
+    inputRight?: any
 }
 
 type ActionProps = Props & {
@@ -70,6 +71,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         hideInput = false,
         btnProps,
         showBalance,
+        inputRight,
     } = props;
     const [amount, setAmount] = useState(defaultAmount);
     const [tokenApproved, setTokenApproved] = useState(false);
@@ -124,6 +126,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                 inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' } }}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => handleChange(e.target.value)}
                 onMaxClick={() => setToMaxDeposit()}
+                label={inputRight}
             />
         }
         {
