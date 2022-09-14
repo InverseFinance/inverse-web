@@ -1,8 +1,8 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, FlexProps, ScaleFade, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, FlexProps, ScaleFade, Stack, Text } from '@chakra-ui/react'
 import Link from '@app/components/common/Link'
 import { NotifBadge } from '../NotifBadge'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const Container = ({
   label,
@@ -33,6 +33,7 @@ export const Container = ({
   headerProps?: FlexProps
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [showImage, setShowImage] = useState(!!image);
   const title = (
     <Flex cursor={collapsable ? 'pointer' : undefined} onClick={collapsable ? () => setCollapsed(!collapsed) : undefined} position="relative" w="fit-content">
       {typeof label === 'string' ? (
@@ -68,11 +69,17 @@ export const Container = ({
     {children}
   </Flex>
 
+  useEffect(() => {    
+    setShowImage(!!image)
+  }, [image])
+
   return (
     <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
       <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
         <Stack direction="row" align="center">
-          {image}
+          {<Box display={showImage ? 'inline-block' : 'none'}>
+            {image}
+          </Box>}
           <Flex direction="column" justify="flex-end">
             {title}
             {desc}
