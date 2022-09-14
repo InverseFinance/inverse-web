@@ -246,7 +246,7 @@ export const F2CombinedForm = ({
                     </TextInfo>
                     <Text color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>{isFormFilled ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}</Text>
                 </VStack>
-                <VStack spacing="0" alignItems="flex-end">
+                <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                     <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
                         <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
                             DBR cover:
@@ -254,7 +254,7 @@ export const F2CombinedForm = ({
                     </TextInfo>
                     <Text>{shortenNumber(debtAmount / (365 / duration), 2)}</Text>
                 </VStack>
-                <VStack spacing="0" alignItems="flex-end">
+                <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                     <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
                         <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
                             Rate Validity:
