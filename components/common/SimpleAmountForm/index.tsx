@@ -3,7 +3,7 @@ import { useAllowances } from "@app/hooks/useApprovals";
 import { useBalances } from "@app/hooks/useBalances";
 import { getBnToNumber } from "@app/util/markets";
 import { hasAllowance } from "@app/util/web3";
-import { ButtonProps, Stack, VStack } from "@chakra-ui/react"
+import { ButtonProps, InputProps, Stack, VStack } from "@chakra-ui/react"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
@@ -30,7 +30,9 @@ type Props = {
     hideInput?: boolean
     btnProps?: ButtonProps
     showBalance?: boolean
+    isError?: boolean
     inputRight?: any
+    inputProps?: InputProps
 }
 
 type ActionProps = Props & {
@@ -72,6 +74,8 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         btnProps,
         showBalance,
         inputRight,
+        inputProps,
+        isError,
     } = props;
     const [amount, setAmount] = useState(defaultAmount);
     const [tokenApproved, setTokenApproved] = useState(false);
@@ -123,10 +127,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                 value={amount}
                 showBalance={showBalance}
                 balance={balance}
-                inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' } }}
+                inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' }, ...inputProps }}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => handleChange(e.target.value)}
                 onMaxClick={() => setToMaxDeposit()}
                 label={inputRight}
+                isError={isError}
             />
         }
         {

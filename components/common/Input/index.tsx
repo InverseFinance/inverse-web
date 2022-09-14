@@ -1,3 +1,4 @@
+import theme from '@app/variables/theme'
 import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
@@ -40,27 +41,36 @@ type BalanceInputProps = {
   showBalance?: boolean
   balance?: string
   showMax?: boolean
+  isError?: boolean
 }
 
-export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, ...props }: BalanceInputProps & Partial<FlexProps>) => (
-  <Flex w="full" bgColor="primary.850" borderRadius={8} align="center" {...props}>
+export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, ...props }: BalanceInputProps & Partial<FlexProps>) => {
+  return <Flex
+    w="full"
+    bgColor='primary.850'
+
+    borderRadius={8}
+    align="center"
+    {...props}
+    border={isError ? `1px solid ${theme.colors.error}` : "none"}
+  >
     <Flex w="full" position="relative" align="center">
       <Flex
         cursor="pointer"
         position="absolute"
         left={0}
-        fontWeight={ showBalance ? 'normal' : 'extrabold' }
-        fontSize={ showBalance ? 'xs' : 'sm' }
+        fontWeight={showBalance ? 'normal' : 'extrabold'}
+        fontSize={showBalance ? 'xs' : 'sm'}
         ml={4}
         color="secondaryTextColor"
         zIndex="1"
         onClick={onMaxClick}
         _hover={{ color: 'mainTextColor' }}
-        visibility={ showMax ? 'visible' : 'hidden' }
+        visibility={showMax ? 'visible' : 'hidden'}
       >
         {
           showBalance ? `Bal ${balance}` : 'MAX'
-        }
+        }        
       </Flex>
       <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />
     </Flex>
@@ -72,4 +82,4 @@ export const BalanceInput = ({ value, label, onChange, onMaxClick, inputProps, s
       label
     )}
   </Flex>
-)
+}
