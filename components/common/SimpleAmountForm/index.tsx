@@ -33,6 +33,7 @@ type Props = {
     isError?: boolean
     inputRight?: any
     inputProps?: InputProps
+    showMax?: boolean
 }
 
 type ActionProps = Props & {
@@ -76,6 +77,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         inputRight,
         inputProps,
         isError,
+        showMax,
     } = props;
     const [amount, setAmount] = useState(defaultAmount);
     const [tokenApproved, setTokenApproved] = useState(false);
@@ -132,6 +134,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                 onMaxClick={() => setToMaxDeposit()}
                 label={inputRight}
                 isError={isError}
+                showMax={showMax}
             />
         }
         {
