@@ -15,6 +15,9 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { preciseCommify } from '@app/util/misc'
 import { F2DurationInput } from './F2DurationInput'
 import InfoModal from '@app/components/common/Modal/InfoModal'
+import { MarketImage } from '@app/components/common/Assets/MarketImage'
+import { TOKENS } from '@app/variables/tokens'
+import { getNetworkConfigConstants } from '@app/util/networks'
 
 const TextInfo = ({ message, children, color = 'secondaryTextColor' }) => {
     return <HStack>
@@ -25,6 +28,10 @@ const TextInfo = ({ message, children, color = 'secondaryTextColor' }) => {
         {children}
     </HStack>
 }
+
+const { DOLA } = getNetworkConfigConstants();
+
+const dolaToken = TOKENS[DOLA];
 
 export const F2CombinedForm = ({
     f2market,
@@ -93,7 +100,7 @@ export const F2CombinedForm = ({
     const leftPart = <Stack direction={{ base: 'column', lg: 'row' }} spacing="4" w={{ base: '100%', lg: '100%' }} >
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The more you deposit, the more you can borrow against">
-                <Text><b>Collateral</b> to <b>Deposit</b>:</Text>
+                <Text><b>Deposit</b> {f2market.name}:</Text>
             </TextInfo>
             <SimpleAmountForm
                 address={f2market.collateral}
@@ -110,11 +117,12 @@ export const F2CombinedForm = ({
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
                 showBalance={true}
+                inputRight={<MarketImage pr="2" image={f2market.underlying.image} size={25} />}
             />
         </VStack>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
-                <Text><b>DOLA stablecoin</b> to <b>Borrow</b>:</Text>
+                <Text><b>Borrow</b> DOLA:</Text>
             </TextInfo>
             <SimpleAmountForm
                 address={f2market.collateral}
@@ -131,6 +139,7 @@ export const F2CombinedForm = ({
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
                 isDisabled={newPerc < 1}
+                inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
             />
         </VStack>
     </Stack>
@@ -138,10 +147,10 @@ export const F2CombinedForm = ({
     const rightPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text>Fixed Rate <b>Duration</b>:</Text>
+                <Text><b>Duration</b> of the Fixed-Rate Loan:</Text>
             </TextInfo>
             <F2DurationInput
-                onChange={v => setDuration(v)}
+                onChange={(v) => setDuration(v)}
                 showText={false}
             />
         </VStack>

@@ -33,6 +33,16 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
     const { isOpen: isHealthOpen, onOpen: onHealthOpen, onClose: onHealthClose } = useDisclosure();
 
+    const combinedFormProps = {
+        signer: library?.getSigner(),
+        f2market,
+        account,
+        onDepositChange: (floatAmount) => setNewCollateralAmount(floatAmount),
+        onDebtChange: (floatAmount) => setNewDebtAmount(floatAmount),
+        onDbrOpen,
+        onHealthOpen,
+    }
+
     return (
         <Layout>
             <AppNav active="Markets" activeSubmenu={`${market} Market`} />
@@ -42,7 +52,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <VStack w='full' maxW={ isAdvancedMode ? '84rem' : '900px' } alignItems="flex-start" p="8" spacing="8">
+                <VStack w='full' maxW={isAdvancedMode ? '84rem' : '900px'} alignItems="flex-start" p="8" spacing="8">
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
                         <SimmpleBreadcrumbs
                             breadcrumbs={[
@@ -103,20 +113,14 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     w='full'
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
-                                >                                    
+                                >
                                     <F2CombinedForm
-                                        signer={library?.getSigner()}
-                                        f2market={f2market}
-                                        account={account}
-                                        onDepositChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                        onDebtChange={(floatAmount) => setNewDebtAmount(floatAmount)}
-                                        onDbrOpen={onDbrOpen}
-                                        onHealthOpen={onHealthOpen}                                        
+                                        {...combinedFormProps}
                                     />
-                                    <MarketInfos account={account} market={f2market}  />
+                                    <MarketInfos account={account} market={f2market} />
                                 </VStack>
 
-                    }                    
+                    }
                 </VStack>
             </ErrorBoundary>
         </Layout>
