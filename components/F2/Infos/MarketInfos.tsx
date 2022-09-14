@@ -37,8 +37,8 @@ export const MarketInfos = ({
         w='full'
         {...props}
     >
-        <Stack direction={{ base: 'column', lg: 'row' }} justifyContent='space-between' w='full' justify="center">
-            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+        <Stack spacing='4' p="2" px='4' direction={{ base: 'column', lg: 'row' }} justifyContent='space-between' w='full' justify="center">
+            <Stack spacing='4' direction={{ base: 'column', sm: 'row', lg: 'column' }}>
                 <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Name:</Text>
                     <Text><UnderlyingItemBlock symbol={market?.underlying.symbol} /></Text>
@@ -48,17 +48,17 @@ export const MarketInfos = ({
                     <Text>${commify(market.price.toFixed(2))}</Text>
                 </Stack>
             </Stack>
-            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+            <Stack spacing='4' direction={{ base: 'column', sm: 'row', lg: 'column' }}>
                 <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Collateral Factor:</Text>
                     <Text>{market.collateralFactor * 100}%</Text>
                 </Stack>
                 <Stack w='full' justifyContent="space-between">
-                    <Text color="secondaryTextColor">Market's DOLA liquidity:</Text>
-                    <Text>{shortenNumber(dolaLiquidity, 2)}</Text>
+                    <Text color="secondaryTextColor">Market's liquidity:</Text>
+                    <Text>{shortenNumber(dolaLiquidity, 2)} DOLA</Text>
                 </Stack>
             </Stack>
-            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+            <Stack spacing='4' direction={{ base: 'column', sm: 'row', lg: 'column' }}>
                 <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Market's Borrows:</Text>
                     <Text>{shortenNumber(market.totalDebt, 2)} DOLAs</Text>
@@ -68,7 +68,7 @@ export const MarketInfos = ({
                     <Text>no contract func. yet</Text>
                 </Stack>
             </Stack>
-            <Stack direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+            <Stack spacing='4' direction={{ base: 'column', sm: 'row', lg: 'column' }}>
                 <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Your Deposits:</Text>
                     <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * market.price, 2, true)})</Text>

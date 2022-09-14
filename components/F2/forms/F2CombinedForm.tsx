@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, Flex, Box, useDisclosure } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, Flex, Box, useDisclosure, SimpleGrid } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
@@ -7,8 +7,7 @@ import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
-import { useBalances } from '@app/hooks/useBalances'
-import { useAccountDBRMarket } from '@app/hooks/useDBR'
+import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -60,6 +59,7 @@ export const F2CombinedForm = ({
     const [debtAmount, setDebtAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
+    const { price: dbrPrice } = useDBRPrice();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance } = useAccountDBRMarket(f2market, account);
@@ -114,7 +114,7 @@ export const F2CombinedForm = ({
                 showMaxBtn={isDeposit || !debt}
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
-                // showBalance={true}
+                showBalance={true}
                 inputRight={<MarketImage pr="2" image={f2market.underlying.image} size={25} />}
                 isError={collateralAmount > collateralBalance}
             />
@@ -134,6 +134,7 @@ export const F2CombinedForm = ({
                 actionLabel={btnLabel}
                 maxActionLabel={btnMaxlabel}
                 onAmountChange={handleDebtChange}
+                showMax={false}
                 showMaxBtn={!isDeposit}
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
@@ -182,46 +183,26 @@ export const F2CombinedForm = ({
                 fontSize: '18px'
             }}
         />
-
     </HStack>
 
-    const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column' }}>
+    const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
+        <VStack alignItems="flex-start">
+            <TextInfo message="The Fixed Annual Borrowing Rate">
+                <Text color="secondaryTextColor">Current Fixed-Rate:</Text>
+            </TextInfo>
+            <Text color="secondaryTextColor" fontWeight="extrabold" fontSize="24px">
+                {shortenNumber(dbrPrice * 100, 2)}%
+            </Text>
+        </VStack>
         {actionBtn}
-        <HStack w='full' justify="space-between" top={{ md: '-4' }} position={{ base: 'relative', md: 'absolute' }}>
-            <VStack alignItems="flex-start">
-                <TextInfo color={riskColor} message="Percentage of the loan covered by the collateral worth">
-                    <Text cursor="pointer" onClick={() => onHealthOpen()} color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
-                        Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
-                    </Text>
-                </TextInfo>
-                <TextInfo color={riskColor} message="Minimum Collateral Price before liquidations can happen">
-                    <Text cursor="pointer" onClick={() => onHealthOpen()} color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
-                        Liq. Price: {isFormFilled ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}
-                    </Text>
-                </TextInfo>
-            </VStack>
-
-            <VStack alignItems={{ base: 'flex-end', md: 'flex-end' }}>
-                <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
-                    <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
-                        DBR cover: {shortenNumber(debtAmount / (365 / duration), 2)}
-                    </Text>
-                </TextInfo>
-                <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
-                    <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
-                        Fixed-Rate: {duration} days
-                    </Text>
-                </TextInfo>
-            </VStack>
-        </HStack>
-
     </Stack>
 
     return <Container
         noPadding
         p="0"
         label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
-        description={`Quick and Easy Fixed-Rate Borrowing`}
+        description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
+        href="https://docs.inverse.finance/inverse-finance/about-inverse"
         contentBgColor={'lightPrimaryAlpha'}
         image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         // right={
@@ -235,25 +216,55 @@ export const F2CombinedForm = ({
                 <Text>Breakdown here</Text>
             </VStack>
         </InfoModal>
-        <VStack w='full' px='2%' alignItems="center" spacing="8">
-            <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
+        <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
+            <Stack justify="space-between" w='full' spacing="6" direction={{ base: 'column' }}>
                 {leftPart}
                 {rightPart}
             </Stack>
+            {
+                parseFloat(collateralAmount) > collateralBalance &&
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description="Not Enough collateral to deposit"
+                />
+            }
             <Divider borderColor="#cccccc66" />
-            <VStack w='full' spacing="4" alignItems="center">
-                {
-                    parseFloat(collateralAmount) > collateralBalance &&
-                    <InfoMessage
-                        alertProps={{ w: 'full' }}
-                        description="Not Enough collateral to deposit"
-                    />
-                }
-                {bottomPart}
-                <Text onClick={() => onOpen()} cursor="pointer" _hover={{ color: 'mainTextColor' }} fontSize="12px" color="secondaryTextColor">
-                    See Breakdown
-                </Text>
-            </VStack>
+            <Stack w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
+                <VStack spacing="0" alignItems="flex-start">
+                    <TextInfo message="Percentage of the loan covered by the collateral worth">
+                        <Text color="secondaryTextColor" cursor="pointer" onClick={() => onHealthOpen()} >
+                            Collateral Health:
+                        </Text>
+                    </TextInfo>
+                    <Text color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>{isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="flex-start">
+                    <TextInfo message="Minimum Collateral Price before liquidations can happen">
+                        <Text color="secondaryTextColor" cursor="pointer" onClick={() => onHealthOpen()}>
+                            Liq. Price:
+                        </Text>
+                    </TextInfo>
+                    <Text color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>{isFormFilled ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="flex-end">
+                    <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
+                        <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
+                            DBR cover:
+                        </Text>
+                    </TextInfo>
+                    <Text>{shortenNumber(debtAmount / (365 / duration), 2)}</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="flex-end">
+                    <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
+                        <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
+                            Rate Validity:
+                        </Text>
+                    </TextInfo>
+                    <Text>{duration} days</Text>
+                </VStack>
+            </Stack>
+            <Divider borderColor="#cccccc66" />
+            {bottomPart}
         </VStack>
     </Container>
 }

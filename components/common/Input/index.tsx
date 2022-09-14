@@ -48,7 +48,6 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
   return <Flex
     w="full"
     bgColor='primary.850'
-
     borderRadius={8}
     align="center"
     {...props}
