@@ -13,11 +13,12 @@ import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { preciseCommify } from '@app/util/misc'
-import { F2DurationInput } from './F2DurationInput'
+import { F2DurationInput, F2DurationMultiInput } from './F2DurationInput'
 import InfoModal from '@app/components/common/Modal/InfoModal'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const TextInfo = ({ message, children, color = 'secondaryTextColor' }) => {
     return <HStack>
@@ -61,13 +62,10 @@ export const F2CombinedForm = ({
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity } = useAccountDBRMarket(f2market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance } = useAccountDBRMarket(f2market, account);
     const {
         newPerc, newLiquidationPrice, newCreditLimit, newDebt
     } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, debtAmount, perc);
-
-    const { balances } = useBalances([f2market.collateral]);
-    const bnCollateralBalance = balances ? balances[f2market.collateral] : BigNumber.from('0');
 
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
@@ -116,8 +114,9 @@ export const F2CombinedForm = ({
                 showMaxBtn={isDeposit || !debt}
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
-                showBalance={true}
+                // showBalance={true}
                 inputRight={<MarketImage pr="2" image={f2market.underlying.image} size={25} />}
+                isError={collateralAmount > collateralBalance}
             />
         </VStack>
         <VStack w='full' alignItems="flex-start">
@@ -149,14 +148,18 @@ export const F2CombinedForm = ({
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
                 <Text><b>Duration</b> of the Fixed-Rate Loan:</Text>
             </TextInfo>
-            <F2DurationInput
+            {/* <F2DurationInput
+                onChange={(v) => setDuration(v)}
+                showText={false}
+            /> */}
+            <F2DurationMultiInput
                 onChange={(v) => setDuration(v)}
                 showText={false}
             />
         </VStack>
     </VStack>
 
-    const actionBtn = <HStack w='250px'>
+    const actionBtn = <HStack>
         <SimpleAmountForm
             defaultAmount={collateralAmount?.toString()}
             address={f2market.collateral}
@@ -175,7 +178,7 @@ export const F2CombinedForm = ({
             hideButtons={false}
             btnProps={{
                 h: '50px',
-                w: 'full',
+                w: 'fit-content',
                 fontSize: '18px'
             }}
         />
@@ -184,9 +187,8 @@ export const F2CombinedForm = ({
 
     const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column' }}>
         {actionBtn}
-
         <HStack w='full' justify="space-between" top={{ md: '-4' }} position={{ base: 'relative', md: 'absolute' }}>
-            <VStack  alignItems="flex-start">
+            <VStack alignItems="flex-start">
                 <TextInfo color={riskColor} message="Percentage of the loan covered by the collateral worth">
                     <Text cursor="pointer" onClick={() => onHealthOpen()} color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
                         Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
@@ -199,7 +201,7 @@ export const F2CombinedForm = ({
                 </TextInfo>
             </VStack>
 
-            <VStack  alignItems={{ base: 'flex-end', md: 'flex-end' }}>
+            <VStack alignItems={{ base: 'flex-end', md: 'flex-end' }}>
                 <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
                     <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
                         DBR cover: {shortenNumber(debtAmount / (365 / duration), 2)}
@@ -240,6 +242,13 @@ export const F2CombinedForm = ({
             </Stack>
             <Divider borderColor="#cccccc66" />
             <VStack w='full' spacing="4" alignItems="center">
+                {
+                    parseFloat(collateralAmount) > collateralBalance &&
+                    <InfoMessage
+                        alertProps={{ w: 'full' }}
+                        description="Not Enough collateral to deposit"
+                    />
+                }
                 {bottomPart}
                 <Text onClick={() => onOpen()} cursor="pointer" _hover={{ color: 'mainTextColor' }} fontSize="12px" color="secondaryTextColor">
                     See Breakdown
