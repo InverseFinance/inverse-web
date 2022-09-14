@@ -1,6 +1,13 @@
 import { Input } from '@app/components/common/Input'
 import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
-import { VStack, Text, HStack, Stack, StackProps } from '@chakra-ui/react'
+import { VStack, Text, HStack, Stack, StackProps, NumberInputProps } from '@chakra-ui/react'
+import {
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+} from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 
 const multiplicators = {
@@ -36,7 +43,7 @@ export const F2DurationInput = ({
             return
         }
         const nbDays = multiplicators[durationType] * parseFloat(inputValue);
-        onChange(nbDays > 0 && !isNaN(nbDays)  ? nbDays : 0);
+        onChange(nbDays > 0 && !isNaN(nbDays) ? nbDays : 0);
     }, [durationType, inputValue]);
 
     const override = isInPopover ? 'full' : undefined;
@@ -44,15 +51,15 @@ export const F2DurationInput = ({
     return <VStack w='full' alignItems="flex-start" spacing="2">
         {showText && <Text fontWeight="bold" fontSize="14px">For <b>how long</b> do you want to <b>lock-in</b> a Fixed Rate?</Text>}
         <Stack direction={isInPopover ? 'column' : { base: 'column', sm: 'row' }} w='full' spacing="4">
-            <Input w={{ base: 'full', sm: override||'20%', md: override||'50%' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} />
+            <Input w={{ base: 'full', sm: override || '20%', md: override || '50%' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} />
             <RadioGridCardGroup
                 wrapperProps={{
                     minChildWidth: { base: '60px', sm: '90px' },
                     spacing: '1',
                     overflow: 'auto',
                     position: 'relative',
-                    my: '2',                               
-                    w: { base: 'full%', sm: override||'80%', md: override||'50%' },
+                    my: '2',
+                    w: { base: 'full%', sm: override || '80%', md: override || '50%' },
                 }}
                 group={{
                     name: 'durationType',
@@ -71,4 +78,57 @@ export const F2DurationInput = ({
             />
         </Stack>
     </VStack>
+}
+
+const DurationNumber = ({
+    label,
+    ...props
+}: { label: string } & Partial<NumberInputProps>) => {
+    return <VStack position="relative">
+        <Text color="secondaryTextColor" fontWeight="bold" fontSize="18px" zIndex="1" position="absolute" right="35px" top="15px">{label}</Text>
+        <NumberInput
+            bgColor="primary.850"
+            outline="none"
+            border="1px solid #cccccc66"
+            borderRadius="5px"
+            _focus={{ outline: 'none' }}
+            defaultValue={1}
+            min={0}
+            max={99}
+            step={1}
+            precision={0}
+            {...props}
+            >
+            <NumberInputField
+                // _focus={{ outline: 'none' }}
+                fontSize="24px"
+                fontWeight="500"
+                outline="none"
+                border="none"
+            />
+            <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+            </NumberInputStepper>
+        </NumberInput>
+    </VStack>
+}
+
+export const F2DurationMultiInput = ({
+    onChange,
+}: {
+    onChange: (v: number) => void
+}) => {
+    const [values, setValues] = useState({ years: '0', months: '0', days: '0' });
+    const handleChange = (v, key) => {
+        const newValues = { ...values, [key]: v }
+        setValues(newValues);
+        onChange(parseInt(newValues.years) * 365 + parseInt(newValues.months) * 30 + parseInt(newValues.days))
+    }
+
+    return <Stack direction={{ base: 'column', md: 'row' }}>
+        <DurationNumber defaultValue={1} min={0} max={99} label="Years" onChange={(v) => handleChange(v, 'years')} />
+        <DurationNumber defaultValue={0} min={0} max={999} label="Months" onChange={(v) => handleChange(v, 'months')} />
+        <DurationNumber defaultValue={0} min={0} max={9999} label="Days" onChange={(v) => handleChange(v, 'days')} />       
+    </Stack>
 }
