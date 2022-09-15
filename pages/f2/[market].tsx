@@ -20,6 +20,7 @@ import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
 import { MarketInfos } from '@app/components/F2/Infos/MarketInfos'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal'
+import { useAccount } from '@app/hooks/misc'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -27,7 +28,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [newCollateralAmount, setNewCollateralAmount] = useState(0);
     const [newDebtAmount, setNewDebtAmount] = useState(0);
     const [isAdvancedMode, setIsAdvancedMode] = useState(false);
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { library } = useWeb3React<Web3Provider>();
+    const account = useAccount();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 ? markets[0] : undefined;
     const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
