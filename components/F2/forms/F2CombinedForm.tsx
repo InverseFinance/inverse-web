@@ -19,7 +19,7 @@ import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { InfoMessage } from '@app/components/common/Messages'
 
-const TextInfo = ({ message, children, color = 'secondaryTextColor' }) => {
+const TextInfo = ({ message, children, color = 'mainTextColor' }) => {
     return <HStack>
         <AnimatedInfoTooltip
             message={message}
@@ -93,12 +93,12 @@ export const F2CombinedForm = ({
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
-    const riskColor = !isFormFilled ? 'secondaryTextColor' : getRiskColor(newPerc);
+    const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
     const leftPart = <Stack direction={{ base: 'column', lg: 'row' }} spacing="4" w={{ base: '100%', lg: '100%' }} >
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The more you deposit, the more you can borrow against">
-                <Text><b>Deposit</b> {f2market.name}:</Text>
+                <Text color="mainTextColor"><b>Deposit</b> {f2market.name}:</Text>
             </TextInfo>
             <SimpleAmountForm
                 address={f2market.collateral}
@@ -115,13 +115,13 @@ export const F2CombinedForm = ({
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
                 showBalance={true}
-                inputRight={<MarketImage pr="2" image={f2market.underlying.image} size={25} />}
+                inputRight={<MarketImage pr="2" image={f2market.icon||f2market.underlying.image} size={25} />}
                 isError={collateralAmount > collateralBalance}
             />
         </VStack>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
-                <Text><b>Borrow</b> DOLA:</Text>
+                <Text color="mainTextColor"><b>Borrow</b> DOLA:</Text>
             </TextInfo>
             <SimpleAmountForm
                 address={f2market.collateral}
@@ -147,7 +147,7 @@ export const F2CombinedForm = ({
     const rightPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text><b>Duration</b> of the Fixed-Rate Loan:</Text>
+                <Text color="mainTextColor"><b>Duration</b> of the Fixed-Rate Loan:</Text>
             </TextInfo>
             {/* <F2DurationInput
                 onChange={(v) => setDuration(v)}
@@ -187,10 +187,10 @@ export const F2CombinedForm = ({
 
     const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
         <VStack alignItems="flex-start">
-            <TextInfo message="The Fixed Annual Borrowing Rate">
-                <Text color="secondaryTextColor">Current Fixed-Rate:</Text>
+            <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate">
+                <Text color="accentTextColor">Current Fixed-Rate:</Text>
             </TextInfo>
-            <Text color="secondaryTextColor" fontWeight="extrabold" fontSize="24px">
+            <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
                 {shortenNumber(dbrPrice * 100, 2)}%
             </Text>
         </VStack>
@@ -232,7 +232,7 @@ export const F2CombinedForm = ({
             <Stack w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
                 <VStack spacing="0" alignItems="flex-start">
                     <TextInfo message="Percentage of the loan covered by the collateral worth">
-                        <Text color="secondaryTextColor" cursor="pointer" onClick={() => onHealthOpen()} >
+                        <Text color="mainTextColor" cursor="pointer" onClick={() => onHealthOpen()} >
                             Collateral Health:
                         </Text>
                     </TextInfo>
@@ -240,7 +240,7 @@ export const F2CombinedForm = ({
                 </VStack>
                 <VStack spacing="0" alignItems="flex-start">
                     <TextInfo message="Minimum Collateral Price before liquidations can happen">
-                        <Text color="secondaryTextColor" cursor="pointer" onClick={() => onHealthOpen()}>
+                        <Text color="mainTextColor" cursor="pointer" onClick={() => onHealthOpen()}>
                             Liq. Price:
                         </Text>
                     </TextInfo>
@@ -248,7 +248,7 @@ export const F2CombinedForm = ({
                 </VStack>
                 <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                     <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
-                        <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
+                        <Text cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
                             DBR cover:
                         </Text>
                     </TextInfo>
@@ -256,7 +256,7 @@ export const F2CombinedForm = ({
                 </VStack>
                 <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                     <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
-                        <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
+                        <Text cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
                             Rate Validity:
                         </Text>
                     </TextInfo>

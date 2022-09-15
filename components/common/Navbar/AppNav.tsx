@@ -54,6 +54,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
+import { THEME_NAME } from '@app/variables/theme'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -555,12 +556,12 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
                   {
                     submenus?.length > 0 &&
                     <PopoverContent maxW="230px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
-                      <PopoverBody className="blurred-container primary-bg compat-mode2" borderRadius="10px">
+                      <PopoverBody className={`blurred-container ${THEME_NAME}-bg compat-mode2`} borderRadius="10px">
                         <VStack spacing="4" p="4">
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
-                              ?.map(s => <Link key={s.href} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
+                              ?.map(s => <Link key={s.href} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'accentTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
                           }
                         </VStack>
                       </PopoverBody>
@@ -620,7 +621,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
             borderColor="primary.800"
           >
             {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? 'mainTextColor' : 'secondaryTextColor'}>
+              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? 'mainTextColor' : 'accentTextColor'}>
                 {label}
                 {
                   href === '/governance' && nbNotif > 0 &&

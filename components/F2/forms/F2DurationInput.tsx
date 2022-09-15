@@ -86,7 +86,7 @@ const DurationNumber = ({
     ...props
 }: { label: string } & Partial<NumberInputProps>) => {
     return <VStack position="relative">
-        <Text color="secondaryTextColor" fontWeight="bold" fontSize="18px" zIndex="1" position="absolute" right="35px" top="15px">{label}</Text>
+        <Text color="mainTextColor" fontWeight="bold" fontSize="18px" zIndex="1" position="absolute" right="35px" top="15px">{label}</Text>
         <NumberInput
             bgColor="primary.850"
             outline="none"

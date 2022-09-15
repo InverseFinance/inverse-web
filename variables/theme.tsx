@@ -14,10 +14,11 @@ const theme = extendTheme({
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: 'none',//"url('/assets/landing/graphic1.webp')",
     mainTextColor: '#333',
-    secondaryTextColor: '#221d45',
-    accentTextColor: '#221d45',
+    secondaryTextColor: '#666',
+    accentTextColor: '#665cba',
     navBarBackground: '#ececec',
     navBarBorderColor: '#e9e9e9',
+    footerBgColor: '#dcdcdc',
     primary: {
       50: '#c0c0c0',
       100: '#c3c3c3',
@@ -99,6 +100,7 @@ export const INPUT_BORDER = `1px solid ${theme.colors['primary']['500']}`
 export const BUTTON_BG = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(120,120,255) 100%)';
 export const BUTTON_BG_COLOR = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(80,80,180) 100%)';
 export const BUTTON_TEXT_COLOR = 'white';
+export const THEME_NAME = 'light';
 
 export const CHART_COLORS = [
   '#bbb7e0',

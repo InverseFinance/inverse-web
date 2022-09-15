@@ -620,4 +620,5 @@ export type F2Market = {
   totalDebt: number
   bnDolaLiquidity: BigNumber
   dolaLiquidity: number
+  icon?: string
 }

@@ -18,6 +18,7 @@ const theme = extendTheme({
     accentTextColor: '#34E795',
     navBarBackground: '#100e21',
     navBarBorderColor: '#221d45',
+    footerBgColor: 'transparent',
     primary: {
       50: '#eeedf7',
       100: '#dddbf0',
@@ -99,6 +100,7 @@ export const INPUT_BORDER = `none`
 export const BUTTON_BG = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
 export const BUTTON_BG_COLOR = 'primary.600';
 export const BUTTON_TEXT_COLOR = 'white';
+export const THEME_NAME = 'dark';
 
 export const CHART_COLORS = [
   '#bbb7e0',
