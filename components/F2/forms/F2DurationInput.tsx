@@ -1,5 +1,6 @@
 import { Input } from '@app/components/common/Input'
 import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { INPUT_BORDER } from '@app/variables/theme'
 import { VStack, Text, HStack, Stack, StackProps, NumberInputProps } from '@chakra-ui/react'
 import {
     NumberInput,
@@ -89,7 +90,7 @@ const DurationNumber = ({
         <NumberInput
             bgColor="primary.850"
             outline="none"
-            border="1px solid #cccccc66"
+            border={INPUT_BORDER}
             borderRadius="5px"
             _focus={{ outline: 'none' }}
             defaultValue={1}

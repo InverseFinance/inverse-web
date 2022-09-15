@@ -5,6 +5,7 @@ import { NetworkItem } from '@app/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
 import { SmartButtonProps } from '@app/types';
 import { gaEvent } from '@app/util/analytics';
+import { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_TEXT_COLOR } from '@app/variables/theme';
 
 export const LinkButton = ({
   children,
@@ -125,12 +126,14 @@ export const SubmitButton = (props: SmartButtonProps) => {
   return (
     <SmartButton
       w="full"
-      bgColor={!props?.colorScheme ? 'primary.600' : undefined}
+      bg={BUTTON_BG}
+      bgColor={!props?.colorScheme ? BUTTON_BG_COLOR : undefined}
       fontSize="13px"
       fontWeight="semibold"
       textTransform="uppercase"
+      color={BUTTON_TEXT_COLOR}
       _focus={{}}
-      _hover={!props?.colorScheme ? { bgColor: 'primary.700' } : undefined}
+      _hover={!props?.colorScheme ? { filter: 'brightness(1.25)' } : undefined}
       {...props}
     />
   )

@@ -1,3 +1,4 @@
+import { TABS_COLOR_SCHEME, TABS_VARIANT } from '@app/variables/theme';
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
 type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
@@ -25,7 +26,7 @@ export const TransparencyTabs = ({ active }: { active: TabsType}) => {
     const activeIndex = tabs.findIndex(tab => tab.page === active);
 
     return (
-        <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme="white" variant='solid-rounded'>
+        <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme={TABS_COLOR_SCHEME} variant={TABS_VARIANT}>
             <TabList justifyContent={{ base: 'flex-start', sm: 'center' }}>
                 {tabs.map(tab => <Tab _focus={{outline: 'none'}} key={tab.page}>{tab.label}</Tab>)}
             </TabList>

@@ -1,4 +1,4 @@
-import theme from '@app/variables/theme'
+import theme, { INPUT_BORDER } from '@app/variables/theme'
 import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
@@ -51,7 +51,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
     borderRadius={8}
     align="center"
     {...props}
-    border={isError ? `1px solid ${theme.colors.error}` : "none"}
+    border={isError ? `1px solid ${theme.colors.error}` : INPUT_BORDER}
   >
     <Flex w="full" position="relative" align="center">
       <Flex
