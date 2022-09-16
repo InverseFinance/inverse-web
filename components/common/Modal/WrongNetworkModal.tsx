@@ -4,6 +4,7 @@ import { WarningIcon } from '@chakra-ui/icons'
 import { getSupportedNetworks } from '@app/util/networks';
 import { switchWalletNetwork } from '@app/util/web3';
 import { NetworkButton } from '@app/components/common/Button';
+import { CHAIN_ID } from '@app/config/constants';
 
 export type WrongNetworkModalProps = {
     isOpen: boolean
@@ -13,7 +14,7 @@ export type WrongNetworkModalProps = {
 const WrongNetworkModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
 
     const networkListItems = getSupportedNetworks()
-        .filter(n => !n.isTestnet)
+        .filter(n => !n.isTestnet || CHAIN_ID === '5')
         .map((network) => {
             return <ListItem key={network.id}>
                 <NetworkButton chainId={network.id} onClick={() => switchWalletNetwork(network.id, onClose)} />
@@ -26,7 +27,7 @@ const WrongNetworkModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
             isOpen={isOpen}
             header={
                 <Stack minWidth={24} direction="row" align="center" >
-                    <WarningIcon color="orange.100" mr="2" />
+                    <WarningIcon color="warning" mr="2" />
                     <Text>Unsupported Network</Text>
                 </Stack>
             }

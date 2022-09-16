@@ -20,6 +20,7 @@ import { ProposalTags } from './ProposalTags'
 import { SubmitButton } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import theme from '@app/variables/theme'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -119,7 +120,7 @@ export const ProposalPreview = ({
           _hover={{ bgColor: 'primary.850' }}
           cursor="pointer"
           borderRadius={8}
-          borderTop={`1px solid #393562`}
+          borderTop={`1px solid ${theme.colors.primary['500']}`}
         >
           <Flex
             w="full"
