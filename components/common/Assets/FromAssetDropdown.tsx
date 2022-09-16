@@ -54,7 +54,7 @@ export const FromAssetDropdown = ({
                             !!asset.protocolImage && <Image borderRadius="20px" position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="protocol" w={3} h={3} src={asset.protocolImage} />
                         }
                     </Flex>
-                    <Flex minW="80px" fontSize="lg" alignItems="center" fontWeight="semibold" color="primary.100" justify="space-between" {...dropdownSelectedProps}>
+                    <Flex minW="80px" fontSize="lg" alignItems="center" fontWeight="semibold" color="secondaryTextColor" justify="space-between" {...dropdownSelectedProps}>
                         {asset.symbol} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </>
@@ -78,11 +78,11 @@ export const FromAssetDropdown = ({
                                     !!token.protocolImage && <Image borderRadius="20px" position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="protocol" w={3} h={3} src={token.protocolImage} />
                                 }
                             </Flex>
-                            <Flex fontWeight="semibold" align="center" color="primary.100">
+                            <Flex fontWeight="semibold" align="center" color="secondaryTextColor">
                                 {token.symbol}
                             </Flex>
                         </Stack>
-                        <Text fontWeight="semibold" color="primary.100">
+                        <Text fontWeight="semibold" color="secondaryTextColor">
                             {shortenNumber((token.balance||0), 2, false, true)}
                         </Text>
                     </Flex>

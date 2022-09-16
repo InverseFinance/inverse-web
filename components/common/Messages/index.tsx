@@ -84,10 +84,10 @@ export const Message = ({
                 {showIcon && icon}
                 <Flex flexDirection="column" w='full'>
                     {
-                        title ? <AlertTitle {...alertTitleProps}>{title}</AlertTitle> : null
+                        title ? <AlertTitle color="mainTextColor" {...alertTitleProps}>{title}</AlertTitle> : null
                     }
                     {
-                        description ? <AlertDescription {...alertDescriptionProps}>{description}</AlertDescription> : null
+                        description ? <AlertDescription color="mainTextColor" {...alertDescriptionProps}>{description}</AlertDescription> : null
                     }
                 </Flex>
             </Flex>

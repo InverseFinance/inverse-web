@@ -40,7 +40,7 @@ const sortList = (list: AutocompleteItem[]) => {
 const HighlightBefore = ({ label, char }: { label: string, char: string }) => {
     const index = label.indexOf(char)
     return <>
-        <Text color="secondary" fontWeight="bold" display="inline-block" whiteSpace="pre">
+        <Text color="accentTextColor" fontWeight="bold" display="inline-block" whiteSpace="pre">
             {label.substring(0, index)}
         </Text>
         <Text display="inline-block" whiteSpace="pre">

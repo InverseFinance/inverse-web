@@ -11,13 +11,13 @@ type BreadcrumbsProps = {
 }
 
 export const SimmpleBreadcrumbs = ({ breadcrumbs }: { breadcrumbs: BreadcrumbsProps["breadcrumbs"] }) => {
-  return <Breadcrumb fontSize="sm" separator={<ChevronRightIcon color="primary.100" />} spacing="1">
+  return <Breadcrumb fontSize="sm" separator={<ChevronRightIcon color="lightAccentTextColor" />} spacing="1">
     {breadcrumbs.map(({ href, label }, i) => (
       <BreadcrumbItem key={i}>
         <Link href={href} passHref>
           <BreadcrumbLink
             fontWeight={i + 1 !== breadcrumbs.length ? 'medium' : 'semibold'}
-            color={i + 1 !== breadcrumbs.length ? 'primary.100' : 'mainTextColor'}
+            color={i + 1 !== breadcrumbs.length ? 'lightAccentTextColor' : 'mainTextColor'}
             _hover={{ color: 'mainTextColor' }}
           >
             {label}

@@ -3,7 +3,7 @@ import { extendTheme } from '@chakra-ui/react'
 const theme = extendTheme({
   colors: {
     mainBackgroundColor: '#ffffff',
-    containerContentBackground: '#ffffff',
+    containerContentBackground: 'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
     gradient3: 'linear-gradient(125deg, rgba(225,222,251,1) 0%, rgba(242,237,255,1) 50%, rgba(225,222,251,1) 100%);',
     gradient2: 'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
     gradient1: 'linear-gradient(125deg, rgba(242,237,255,1) 0%, rgba(169,155,255,1) 50%, rgba(242,237,255,1) 100%);',
@@ -13,10 +13,13 @@ const theme = extendTheme({
     verticalGradientGray: 'linear-gradient(0deg, rgba(51,51,51,0.2) 0%, rgba(51,51,51,0.7) 40%, rgba(51,51,51,0.7) 60%, rgba(51,51,51,0.2) 100%)',
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: 'none',//"url('/assets/landing/graphic1.webp')",
+    contrastMainTextColor: '#fff',
     mainTextColor: '#333',
     secondaryTextColor: '#666',
-    accentTextColor: '#665cba',
-    navBarBackground: '#ececec',
+    accentTextColor: '#6d46d8',// dola bg
+    lightAccentTextColor: '#776fc2',
+    navBarBackgroundColor: '#ececec',
+    navBarBackground: undefined,
     navBarBorderColor: '#e9e9e9',
     footerBgColor: '#dcdcdc',
     primary: {
@@ -67,7 +70,7 @@ const theme = extendTheme({
     darkPrimaryAlpha: '#221d4522',
     lightPrimary: '#bbb7e0',
     lightPrimaryAlpha: '#bbb7e022',
-    secondary: '#34E795',
+    secondary: '#25C9A1',
     secondaryPlus: '#00FF8A',
     secondaryAlpha: '#34E79522',
     success: '#25C9A1',
@@ -100,6 +103,7 @@ export const INPUT_BORDER = `1px solid ${theme.colors['primary']['500']}`
 export const BUTTON_BG = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(120,120,255) 100%)';
 export const BUTTON_BG_COLOR = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(80,80,180) 100%)';
 export const BUTTON_TEXT_COLOR = 'white';
+export const BUTTON_BOX_SHADOW = `0 0 1px 1px ${theme.colors['primary']['500']}`;
 export const THEME_NAME = 'light';
 
 export const CHART_COLORS = [

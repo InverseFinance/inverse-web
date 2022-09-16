@@ -25,7 +25,7 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
     color="mainTextColor"
     isExternal={href.startsWith('http') ? true : false}
     href={href}
-    _hover={{ color: 'primary.100' }}
+    _hover={{ color: 'lightAccentTextColor' }}
   >
     {msg}
     <ExternalLinkIcon ml="2" />

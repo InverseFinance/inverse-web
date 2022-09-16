@@ -45,7 +45,7 @@ export const F2DurationSliderInput = ({
                 >
                     {duration} days
                 </SliderMark>
-                <SliderTrack h="15px" bg='primary.100'>
+                <SliderTrack h="15px" bg='lightAccentTextColor'>
                     <SliderFilledTrack bg={'primary.200'} />
                 </SliderTrack>
                 <SliderThumb h="30px" />

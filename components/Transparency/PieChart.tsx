@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 import THEME, { CHART_COLORS } from '@app/variables/theme';
+import theme from '@app/variables/theme';
 
 type Props = { x: string, y: number, perc?: number }[]
 
@@ -195,14 +196,14 @@ export const PieChart = ({
                     style={{
                         data: {
                             fillOpacity: 0.9,
-                            stroke: "#fff",
+                            stroke: theme.colors.mainTextColor,
                             strokeWidth: 1,
                             cursor: ({ datum }) => datum.fund?.drill ? 'pointer' : 'normal',
                             fill: ({ datum }) => datum.fill || colorScale[datum._x - 1],
                         },
                         labels: {
                             fontSize: 12,
-                            fill: ({ datum }) => datum.labelFill || '#fff',
+                            fill: ({ datum }) => datum.labelFill || theme.colors.mainTextColor,
                             cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
                         },
                     }}

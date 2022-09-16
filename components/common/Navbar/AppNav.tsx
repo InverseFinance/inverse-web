@@ -512,7 +512,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
       />
       <Flex
         w={isBlog ? '100vw' : '99vw'}
-        backgroundColor="navBarBackground"
+        background="navBarBackground"
+        backgroundColor="navBarBackgroundColor"
         borderColor="navBarBorderColor"
         borderBottomWidth={showMobileNav ? 0 : 1}
         p={4}

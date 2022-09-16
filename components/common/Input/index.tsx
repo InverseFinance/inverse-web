@@ -74,7 +74,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
       <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />
     </Flex>
     {typeof label === 'string' ? (
-      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="primary.100" align="center" pl={2} pr={4}>
+      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="lightAccentTextColor" align="center" pl={2} pr={4}>
         {label}
       </Text>
     ) : (

@@ -232,7 +232,7 @@ export const Proposals = ({
               fontWeight="semibold"
               borderRadius={8}
               textTransform="uppercase"
-              color="primary.100"
+              color="lightAccentTextColor"
               _hover={{ bgColor: 'primary.850' }}
             >
               View All

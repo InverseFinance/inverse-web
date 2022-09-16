@@ -105,7 +105,7 @@ export const Table = ({
     }
   }
 
-  const chevronProps = { color: 'primary.300', w: 4, h: 4, ...sortChevronProps };
+  const chevronProps = { color: 'accentTextColor', w: 4, h: 4, ...sortChevronProps };
 
   return (
     <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
@@ -145,7 +145,7 @@ export const Table = ({
               >
                 {
                   col.tooltip ?
-                    <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1" }} zIndex="2" message={col.tooltip} size="small" />
+                    <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
                     : null
                 }
                 <VStack alignItems={ i === 0  ? 'flex-start' : i === (columns.length -1) ? 'flex-end' : 'center' } justifyContent="flex-start" cursor="pointer">
@@ -158,7 +158,9 @@ export const Table = ({
                       return toggleSort(col)
                     }}
                     userSelect="none"
-                    position="relative">
+                    position="relative"
+                    color="accentTextColor"
+                    >
                     {col.label}
                     {
                       sortBy === col.field ?

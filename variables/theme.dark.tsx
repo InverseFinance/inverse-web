@@ -13,9 +13,11 @@ const theme = extendTheme({
     verticalGradientGray: 'linear-gradient(0deg, rgba(51,51,51,0.2) 0%, rgba(51,51,51,0.7) 40%, rgba(51,51,51,0.7) 60%, rgba(51,51,51,0.2) 100%)',
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: "url('/assets/landing/graphic1.webp')",
+    contrastMainTextColor: '#333',
     mainTextColor: '#fff',
     secondaryTextColor: '#bbb7e0',
     accentTextColor: '#34E795',
+    lightAccentTextColor: '#dddbf0',
     navBarBackground: '#100e21',
     navBarBorderColor: '#221d45',
     footerBgColor: 'transparent',
@@ -100,6 +102,7 @@ export const INPUT_BORDER = `none`
 export const BUTTON_BG = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
 export const BUTTON_BG_COLOR = 'primary.600';
 export const BUTTON_TEXT_COLOR = 'white';
+export const BUTTON_BOX_SHADOW = '';
 export const THEME_NAME = 'dark';
 
 export const CHART_COLORS = [

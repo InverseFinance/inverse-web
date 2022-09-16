@@ -201,7 +201,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               </Flex>
             </Stack>
             <Flex direction="column">
-              <Text fontSize="xs" fontWeight="semibold" color="primary.100" mb="2">
+              <Text fontSize="xs" fontWeight="semibold" color="lightAccentTextColor" mb="2">
                 Delegate Address :
               </Text>
               {

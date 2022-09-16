@@ -287,7 +287,7 @@ export const Landing = () => {
               <Text fontSize="5xl" fontWeight="bold" lineHeight={1}>
                 {formatStat(stat)}
               </Text>
-              <Text fontSize="lg" fontWeight="bold" color="primary.100">
+              <Text fontSize="lg" fontWeight="bold" color="lightAccentTextColor">
                 {stat.label}
               </Text>
             </Stack>

@@ -18,9 +18,9 @@ const Tag = ({
             e.preventDefault();
             onTagSelect({ name, address });
         }
-        return <Text _hover={{ color: 'mainTextColor' }} display="inline-block" mr="2" whiteSpace="nowrap" color="secondaryTextColor" cursor="pointer" onClick={handleSelect}>#{name}</Text>
+        return <Text _hover={{ color: 'mainTextColor' }} display="inline-block" mr="2" whiteSpace="nowrap" color="accentTextColor" cursor="pointer" onClick={handleSelect}>#{name}</Text>
     }
-    return <ScannerLink mr="2" whiteSpace="nowrap" color="secondaryTextColor" chainId="1" value={address} label={`#${name}`} style={{ textDecoration: 'none' }} />
+    return <ScannerLink mr="2" whiteSpace="nowrap" color="accentTextColor" chainId="1" value={address} label={`#${name}`} style={{ textDecoration: 'none' }} />
 }
 
 export const getProposalTags = (functions: ProposalFunction[]) => {
