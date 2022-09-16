@@ -1,5 +1,5 @@
 import { Flex, Stack, Text, Badge, useDisclosure, VStack, Box } from '@chakra-ui/react'
-import { StyledButton } from '@app/components/common/Button'
+import { OutlineButton, StyledButton, SubmitButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@app/hooks/useAnchorRewards'
@@ -115,24 +115,26 @@ export const AnchorOverview = () => {
         right={
           <Stack visibility={!account ? 'hidden' : 'visible'} direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
             <Flex flexDirection="row" alignItems="center">
-              <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
+              <Text color="accentTextColor" fontSize="14" mr="2" fontWeight="bold">
                 {`${rewardAmount?.toFixed(4)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards`}
               </Text>
               <AnimatedInfoTooltip
-                iconProps={{ boxSize: 3, mt: '2px' }}
+                iconProps={{ boxSize: 3, mt: '2px', color: 'accentTextColor' }}
                 message={
                   <>
                     This represents the total amount of your accrued {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APR</b>.
                   </>
                 } />
             </Flex>
-            <StyledButton
+            <OutlineButton
+              w='fit-content'
+              maxH={{ base: '30px', sm: 'auto' }}
               isDisabled={!rewardAmount}
               onClick={handleClaim}
               data-testid={TEST_IDS.anchor.claim}
             >
               Claim
-            </StyledButton>
+            </OutlineButton>
           </Stack>
         }
       >

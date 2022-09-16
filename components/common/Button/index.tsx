@@ -5,7 +5,7 @@ import { NetworkItem } from '@app/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
 import { SmartButtonProps } from '@app/types';
 import { gaEvent } from '@app/util/analytics';
-import { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BOX_SHADOW, BUTTON_TEXT_COLOR } from '@app/variables/theme';
+import theme, { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BOX_SHADOW, BUTTON_TEXT_COLOR } from '@app/variables/theme';
 
 export const LinkButton = ({
   children,
@@ -21,7 +21,7 @@ export const LinkButton = ({
   isOutline?: boolean
   flexProps?: FlexProps
 }) => {
-  const extraFlexProps = isOutline ? { bgColor: 'primary.850', borderColor: 'primary.600' } : { bgColor: 'primary.500', borderColor: 'primary.500' }
+  const extraFlexProps = isOutline ? { bg: 'primary.850', borderColor: 'accentTextColor' } : { bg: BUTTON_BG, borderColor: 'primary.500' }
   const finalFlexProps = { ...extraFlexProps, ...flexProps };
 
   const handleGa = (e) => {
@@ -33,7 +33,7 @@ export const LinkButton = ({
 
   return (
     <NextLink href={href} passHref>
-      <Link onClick={handleGa} w="full" color="mainTextColor" fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
+      <Link onClick={handleGa} w="full" color={isOutline ? 'accentTextColor' :"contrastMainTextColor"} fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
         <Flex
           justify="center"
           cursor="pointer"
@@ -41,7 +41,7 @@ export const LinkButton = ({
           borderWidth={1}
           alignItems="center"
           p={2}
-          _hover={{ bgColor: 'primary.600', borderColor: 'primary.600', transition: 'all 250ms' }}
+          _hover={{ filter: 'brightness(1.25)', transition: 'all 250ms' }}
           {...finalFlexProps}
         >
           {children}
@@ -103,23 +103,7 @@ export const NetworkButton = ({
 }
 
 export const OutlineButton = (props: any) => (
-  <Flex
-    justify="center"
-    cursor={props.onClick ? 'pointer' : ''}
-    fontSize="sm"
-    align="center"
-    bgColor="primary.800"
-    borderRadius={4}
-    borderWidth={1}
-    borderColor="primary.700"
-    fontWeight="semibold"
-    color="mainTextColor"
-    p={2}
-    pl={4}
-    pr={4}
-    _hover={{ bgColor: 'primary.850' }}
-    {...props}
-  />
+  <SubmitButton color="accentTextColor" bg={'primary.850'} border={`1px solid ${theme.colors.accentTextColor}`} {...props} />
 )
 
 export const SubmitButton = (props: SmartButtonProps) => {

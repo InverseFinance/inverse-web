@@ -54,7 +54,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
-import { THEME_NAME } from '@app/variables/theme'
+import theme, { THEME_NAME } from '@app/variables/theme'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -67,9 +67,9 @@ const NavBadge = (props: any) => (
     bgColor="primary.800"
     borderRadius={4}
     borderWidth={1}
-    borderColor="primary.700"
+    borderColor="primary.500"
     fontWeight="semibold"
-    color="mainTextColor"
+    color="secondaryTextColor"
     p={2}
     px={{ base: '2', xl: '4' }}
     {...props}
@@ -90,13 +90,10 @@ const NetworkBadge = ({
 
   const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
 
-  const network = getNetwork(chainId || '');
-  const bgColor = network?.bgColor || 'primary.800';
-
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
-      onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bgColor={bgColor}>
+      onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bg={'primary.800'}>
       <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
@@ -308,16 +305,18 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       <PopoverTrigger>
         <Flex
           justify="center"
-          bgColor="primary.600"
+          bgColor="primary.800"
+          border={`1px solid ${theme.colors.primary['100']}`}
           cursor="pointer"
           fontSize="sm"
           align="center"
           borderRadius={4}
           fontWeight="semibold"
-          color="mainTextColor"
+          color="secondaryTextColor"
           p={2.5}
           pl={4}
           pr={4}
+          h="40px"
           _hover={{ bgColor: 'primary.600' }}
           alignItems="center"
           data-testid={TEST_IDS.connectBtn}
@@ -511,7 +510,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         onClose={onWrongNetClose}
       />
       <Flex
-        w={isBlog ? '100vw' : '99vw'}
+        w={isBlog ? '100vw' : '100vw'}
         background="navBarBackground"
         backgroundColor="navBarBackgroundColor"
         borderColor="navBarBorderColor"

@@ -179,7 +179,7 @@ export const Autocomplete = ({
                         height="100%"
                         onClick={clear}
                         pointer="cursor"
-                        children={<CloseIcon color={searchValue ? '#cccccc' : '#cccccc22'} fontSize="12px" boxSize="3" />}
+                        children={<CloseIcon opacity={searchValue ? 1 : 0.2} color={'secondaryTextColor'} fontSize="12px" boxSize="3" />}
                     />
                 }
                 <InputComp

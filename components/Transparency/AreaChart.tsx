@@ -4,11 +4,12 @@ import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
+import theme from '@app/variables/theme';
 
 type Props = { x: number, y: number }[]
 
 const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px' },
+    tickLabels: { fill: theme.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
     grid: {
         stroke: '#666666aa',
         strokeDasharray: '4 4',
@@ -87,7 +88,7 @@ export const AreaChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" {...titleProps} />
+                    !!title && <VictoryLabel text={title} style={{ fill: theme.colors.mainTextColor, fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" {...titleProps} />
                 }
                 <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
                 <VictoryAxis style={axisStyle} />
@@ -110,7 +111,7 @@ export const AreaChart = ({
                     }
                     style={{
                         data: { fillOpacity: 0.9, fill: `url(#${mainColor}-gradient)`, stroke: strokeColors[mainColor], strokeWidth: 1 },
-                        labels: { fill: 'white', fontSize: '12px', fontFamily: 'Inter' }
+                        labels: { fill: theme.colors.mainTextColor, fontSize: '12px', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}
                 />

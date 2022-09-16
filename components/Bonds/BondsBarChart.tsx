@@ -52,7 +52,7 @@ export const BondsBarChart = ({
             colorScale={defaultColorScale}
             isDollars={false}
             titleProps={{
-                style:{ fill: 'white', fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
+                style:{ fill: theme.colors.mainTextColor, fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
                 y: 10,
             }}
             labelProps={{

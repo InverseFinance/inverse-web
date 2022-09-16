@@ -1,4 +1,4 @@
-import { useMediaQuery } from '@chakra-ui/react'
+import { theme, useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { AreaChart, AreaChartProps } from '@app/components/Transparency/AreaChart'
 
@@ -27,7 +27,7 @@ export const BondsAreaChart = ({
                 width={chartWidth}
                 data={chartData}
                 titleProps={{
-                    style:{ fill: 'white', fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
+                    style:{ fill: theme.colors.mainTextColor, fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
                     y: 10,
                 }}            
                 {...props}

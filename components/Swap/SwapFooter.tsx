@@ -77,7 +77,7 @@ export const SwapFooter = ({
         init()
     }, [])
 
-    if(!fromToken?.symbol || !toToken?.symbol) {
+    if (!fromToken?.symbol || !toToken?.symbol) {
         return <></>
     }
 
@@ -108,11 +108,11 @@ export const SwapFooter = ({
 
     return (
         <>
-            <HStack h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
+            <HStack spacing="1" alignItems="center" h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
+                <AnimatedInfoTooltip
+                    size="intermediary"
+                    message="If enabled (Recommended): calculates the Best Route in total USD terms, meaning it includes the USD worth of the Eth Gas Fees needed for the transaction with the current gas price. Gas Fees are estimations only, check the real cost in your wallet." />
                 <Text color="secondaryTextColor">
-                    <AnimatedInfoTooltip
-                        size="intermediary"
-                        message="If enabled (Recommended): calculates the Best Route in total USD terms, meaning it includes the USD worth of the Eth Gas Fees needed for the transaction with the current gas price. Gas Fees are estimations only, check the real cost in your wallet." />
                     Best Rate Including Swap Gas Fees
                 </Text>
                 <Switch value="true" isChecked={includeCostInBestRate} onChange={onIncludeTxCostChange} />

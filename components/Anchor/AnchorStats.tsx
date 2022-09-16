@@ -42,7 +42,7 @@ type AnchorStatsProps = {
 
 const StatBlock = ({ label, stats }: StatBlockProps) => (
   <Stack w="full" pt={2} spacing={1}>
-    <Text fontSize="xs" fontWeight="semibold" color="primary.300" textTransform="uppercase">
+    <Text fontSize="xs" fontWeight="semibold" color="lightAccentTextColor" textTransform="uppercase">
       {label}
     </Text>
     {stats.map(({ label, value, color, tooltipMsg }) => (

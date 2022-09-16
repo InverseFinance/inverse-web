@@ -8,7 +8,7 @@ import theme from '@app/variables/theme';
 type Props = { x: string, y: number, label?: string }[][]
 
 const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px', padding: 14 },
+    tickLabels: { fill: theme.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
     grid: {
         stroke: '#666666aa',
         strokeDasharray: '4 4',
@@ -70,7 +70,7 @@ export const BarChart = ({
                 padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle"  {...titleProps} />
+                    !!title && <VictoryLabel text={title} style={{ fill: theme.colors.mainTextColor, fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle"  {...titleProps} />
                 }
                 <VictoryAxis
                     style={defaultAxisStyle}

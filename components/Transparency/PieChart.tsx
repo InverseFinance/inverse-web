@@ -210,7 +210,7 @@ export const PieChart = ({
                 />
                 {
                     showTotalUsd && <text
-                        fill="#fff"
+                        fill={theme.colors.mainTextColor}
                         dominantBaseline="middle"
                         textAnchor="middle"
                         x="50%"

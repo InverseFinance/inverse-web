@@ -11,7 +11,7 @@ const InterestDetails = (interests: Interests) => {
         + parseFloat(interests.borrowInterests.toFixed(2));
 
     return (
-        <Box p="1" textAlign="left" minW="300">
+        <Box p="1" textAlign="left" minW="300" color="mainTextColor">
             <Flex justify="space-between">Supply interest: <InterestText value={interests.supplyUsdInterests} /></Flex>
             {HAS_REWARD_TOKEN && <Flex justify="space-between">{RTOKEN_SYMBOL} rewards: <InterestText value={interests.invUsdInterests} /></Flex>}
             <Flex justify="space-between">Borrowing interest: <InterestText value={interests.borrowInterests} /></Flex>
@@ -23,7 +23,7 @@ const InterestDetails = (interests: Interests) => {
 
 const InterestText = ({ value, ...props }: { value: number } & Partial<TextProps>) => {
     return (
-        <Text display="inline-block" fontWeight="bold" color={value === 0 ? undefined : value > 0 ? 'secondary' : 'orange.400'} {...props}>
+        <Text display="inline-block" fontWeight="bold" color={value === 0 ? undefined : value > 0 ? 'accentTextColor' : 'orange.400'} {...props}>
             {dollarify(value, 2, true)} a month
         </Text>
     )
@@ -38,11 +38,12 @@ export const AnchorInterests = ({
     interestTextProps?: TextProps,
     iconProps?: IconProps,
  }) => {
+    const color = interests?.total > 0 ? 'accentTextColor' : 'warning';
     return (
         <Flex alignItems="center">
-            <InterestText fontSize="14" value={interests.total} mr="2" color={interests?.total > 0 ? 'secondary' : 'warning'} {...interestTextProps} />
+            <InterestText fontSize="14" value={interests.total} mr="2" color={color} {...interestTextProps} />
             <InfoTooltip
-                iconProps={{ boxSize: 3, mt: '2px', ...iconProps }}
+                iconProps={{ boxSize: 3, color: color, mt: '2px', ...iconProps }}
                 tooltipProps={{
                     className: 'blurred-container info-bg',
                     borderColor: 'info'

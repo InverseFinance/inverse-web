@@ -270,7 +270,7 @@ export const AnchorModal = ({
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
-              <Text fontSize="13px" fontWeight="semibold" color="primary.250">
+              <Text fontSize="13px" fontWeight="semibold" color="lightAccentTextColor">
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">

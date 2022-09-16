@@ -2,12 +2,12 @@ import { extendTheme } from '@chakra-ui/react'
 
 const theme = extendTheme({
   colors: {
-    mainBackgroundColor: '#ffffff',
-    containerContentBackground: 'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
-    gradient3: 'linear-gradient(125deg, rgba(225,222,251,1) 0%, rgba(242,237,255,1) 50%, rgba(225,222,251,1) 100%);',
-    gradient2: 'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
-    gradient1: 'linear-gradient(125deg, rgba(242,237,255,1) 0%, rgba(169,155,255,1) 50%, rgba(242,237,255,1) 100%);',
-    mainBackground: 'ffffff',//radial-gradient(circle at center, #2a2557, #100e21 50%)',
+    mainBackgroundColor: '#eeedf7',
+    containerContentBackground: '#ffffff',//'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
+    gradient3: 'linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(239,239,239,1) 50%, rgba(255,255,255,1) 100%)',//'linear-gradient(125deg, rgba(225,222,251,1) 0%, rgba(242,237,255,1) 50%, rgba(225,222,251,1) 100%);',
+    gradient2: 'linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(239,239,239,1) 50%, rgba(255,255,255,1) 100%)',//'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
+    gradient1: 'linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(239,239,239,1) 50%, rgba(255,255,255,1) 100%)',//'linear-gradient(125deg, rgba(242,237,255,1) 0%, rgba(169,155,255,1) 50%, rgba(242,237,255,1) 100%);',
+    mainBackground: 'radial-gradient(circle at center, #dddce6, #eeedf7 50%)',
     verticalGradient: 'linear-gradient(0deg, #100e21ff, #2a255722 60%)',
     verticalGradientTopBottom: 'linear-gradient(180deg, #100e21ff, #2a255722 60%)',
     verticalGradientGray: 'linear-gradient(0deg, rgba(51,51,51,0.2) 0%, rgba(51,51,51,0.7) 40%, rgba(51,51,51,0.7) 60%, rgba(51,51,51,0.2) 100%)',
@@ -18,9 +18,9 @@ const theme = extendTheme({
     secondaryTextColor: '#666',
     accentTextColor: '#6d46d8',// dola bg
     lightAccentTextColor: '#776fc2',
-    navBarBackgroundColor: '#ececec',
+    navBarBackgroundColor: '#eeedf7',
     navBarBackground: undefined,
-    navBarBorderColor: '#e9e9e9',
+    navBarBorderColor: '#cccccc',
     footerBgColor: '#dcdcdc',
     primary: {
       50: '#c0c0c0',

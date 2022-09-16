@@ -298,17 +298,16 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       my="0"
       contentBgColor="gradient3"
       label="Swap DOLA using Curve or the Stabilizer"
-    >
-      <Text>yo</Text>
+    >      
       <Stack w="full" direction="column" spacing="5">
-        {/* <AssetInput
+        <AssetInput
           amount={fromAmount}
           token={fromToken}
           assetOptions={swapOptions}
           onAssetChange={(newToken) => changeToken(newToken, setFromToken, toToken, setToToken)}
           onAmountChange={(newAmount) => changeAmount(newAmount, true)}
           {...commonAssetInputProps}
-        /> */}
+        />
 
         <SimpleGrid columns={3} w="full" alignItems="center">
           <Text opacity="0.6" align="left">From {fromToken?.symbol}</Text>
@@ -317,14 +316,14 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
           <Text opacity="0.6" align="right">To {toToken?.symbol}</Text>
         </SimpleGrid>
 
-        {/* <AssetInput
+        <AssetInput
           amount={toAmount}
           token={toToken}
           assetOptions={swapOptions}
           onAssetChange={(newToken) => changeToken(newToken, setToToken, fromToken, setFromToken)}
           onAmountChange={(newAmount) => changeAmount(newAmount, false)}
           {...commonAssetInputProps}
-        /> */}
+        />
 
         <Divider borderColor="#ccccccaa" />
 

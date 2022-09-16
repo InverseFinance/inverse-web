@@ -8,7 +8,7 @@ const SOCIALS = MENUS.socials;
 const LINK_GROUPS = MENUS.footerGroups;
 
 export const Footer = () => (
-  <Stack bgColor="footerBgColor" w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="mainTextColor">
+  <Stack bgColor="transparent" w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="mainTextColor">
     <Stack width={{ base: 'full', lg: 72 }} spacing={4}>
       <Stack direction="row" align="center">
         <Logo boxSize={7} />

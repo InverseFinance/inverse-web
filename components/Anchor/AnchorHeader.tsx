@@ -49,19 +49,19 @@ export const AnchorHeader = () => {
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
             <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={`$${(prices[RTOKEN_CG_ID]?.usd || 0).toFixed(2)}`} />
-            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+            <Text color="accentTextColor" fontSize="sm" fontWeight="semibold">
               {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>
           </Flex>
           <Flex direction="column" justify="center"  width="184px">
             <TextOrSkeleton value={totalSupply} text={dollarify(totalSupply || 0, 0)} />
-            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+            <Text color="accentTextColor" fontSize="sm" fontWeight="semibold">
               DOLA Supply
             </Text>
           </Flex>
           <Flex direction="column">
             <TextOrSkeleton value={tvlData?.anchor?.tvl} text={dollarify(tvlData?.anchor?.tvl || 0, 0)} />
-            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+            <Text color="accentTextColor" fontSize="sm" fontWeight="semibold">
               Total Value Locked
             </Text>
           </Flex>
@@ -95,19 +95,19 @@ export const AnchorHeader = () => {
         <Stack direction="row" align="center">
           <Text as="h2" color="mainTextColor" fontSize="2xl" fontWeight="semibold">
             Stake INV on Frontier and Earn
-            <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="secondary">
+            <chakra.span pl={2} fontSize="2xl" fontWeight="semibold" color="accentTextColor">
               {apy}% APY
             </chakra.span>
           </Text>
         </Stack>
         <Stack w="full" spacing={1} pl={4}>
-          <Text color="secondary">
+          <Text color="accentTextColor">
             <CheckIcon /> High-yield Positive Sum Rewards Token
           </Text>
-          <Text color="secondary">
+          <Text color="accentTextColor">
             <CheckIcon /> Revenue Sharing Payouts
           </Text>
-          <Text color="secondary">
+          <Text color="accentTextColor">
             <CheckIcon /> Usable as Collateral
           </Text>
         </Stack>

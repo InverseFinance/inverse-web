@@ -123,7 +123,7 @@ export const InvPlus = () => {
           </Flex>
         </Flex>
         <Flex w="full" justify="center">
-          <LinkButton w="100px" target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!} mt="10" color="mainTextColor">
+          <LinkButton w="100px" target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!} mt="10">
             Buy {RTOKEN_SYMBOL}
           </LinkButton>
         </Flex>

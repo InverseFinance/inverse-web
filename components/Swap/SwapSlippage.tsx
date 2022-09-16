@@ -16,7 +16,7 @@ export const SwapSlippage = ({
     onChange: (v: string) => void,
 }) => {
     const minReceived = toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100)).toFixed(4)
-    const color = 'whiteAlpha.800'
+    const color = 'mainTextColor'
 
     return (
         <VStack direction="column" color={color} w='full' spacing="2">

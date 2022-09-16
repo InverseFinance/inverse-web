@@ -15,7 +15,7 @@ export const BondSlippage = ({
     onChange: (v: string) => void,
 }) => {
     const minReceived = toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100))
-    const color = 'whiteAlpha.800'
+    const color = 'mainTextColor'
 
     return (
         <HStack alignItems="center" color={color} w='full' spacing="2">
