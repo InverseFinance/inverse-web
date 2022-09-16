@@ -36,7 +36,7 @@ export const F2DurationSliderInput = ({
                 <SliderMark
                     value={duration}
                     textAlign='center'
-                    bg='primary.500'
+                    bg='lightAccentTextColor'
                     color='white'
                     mt='-45px'
                     borderRadius="50px"
@@ -45,8 +45,8 @@ export const F2DurationSliderInput = ({
                 >
                     {duration} days
                 </SliderMark>
-                <SliderTrack h="15px" bg='lightAccentTextColor'>
-                    <SliderFilledTrack bg={'primary.200'} />
+                <SliderTrack h="15px" bg='secondaryTextColor'>
+                    <SliderFilledTrack bg={'lightAccentTextColor'} />
                 </SliderTrack>
                 <SliderThumb h="30px" />
             </Slider>

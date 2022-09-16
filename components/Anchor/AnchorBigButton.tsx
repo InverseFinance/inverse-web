@@ -43,7 +43,7 @@ export const AnchorBigButton = ({
         <Box zIndex="1" position="absolute" top="-1px" bottom="-1px" left="-1px" right="-1px" margin="auto"
             background="verticalGradient" />
         <Box zIndex="2" position="relative" w="full" py="2" px="6">
-            <chakra.span zIndex="2" fontWeight="extrabold">
+            <chakra.span color="white" zIndex="2" fontWeight="extrabold">
                 {title}
             </chakra.span>
             <Text zIndex="2" fontSize="18px" color="secondary" textShadow="1px 1px #333" >

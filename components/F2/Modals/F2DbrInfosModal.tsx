@@ -37,8 +37,8 @@ export const F2DbrInfosModal = ({
         }
     >
         <NavButtons
-            bgColorActive="blue.800"
-            bgColor="blue.700"
+            // bgColorActive="blue.800"
+            // bgColor="blue.700"
             active={tab}
             options={[INFOS_TAB, CALCULATOR_TAB]}
             onClick={(v) => (setTab(v))}

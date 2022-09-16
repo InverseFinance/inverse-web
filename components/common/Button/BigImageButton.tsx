@@ -49,10 +49,10 @@ export const BigImageButton = ({
                 background={fadingGradient} />
         }
         <Box zIndex="2" position="relative" w="full" py="2" px="2">
-            <chakra.span zIndex="2" fontWeight="extrabold">
+            <chakra.span color="white" zIndex="2" fontWeight="extrabold">
                 {title}
             </chakra.span>
-            <Text zIndex="2" fontSize="14px" color="secondary" textShadow="1px 1px #333" >
+            <Text zIndex="2" fontSize="14px" color="accentTextColor" textShadow="1px 1px #333" >
                 {subtitle}
             </Text>
         </Box>

@@ -41,6 +41,8 @@ export const SearchProposals = ({
                     type="search"
                     value={query}            
                     placeholder="Search text / tag"
+                    borderColor="secondaryTextColor"
+                    _hover={{ borderColor: 'mainTextColor' }}
                     onChange={(e) => {
                         setQuery(e.target.value);
                     }}

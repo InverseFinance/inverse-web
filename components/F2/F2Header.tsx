@@ -49,19 +49,19 @@ export const F2Header = () => {
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
             <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={`$${(prices[RTOKEN_CG_ID]?.usd || 0).toFixed(2)}`} />
-            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+            <Text color="accentTextColor" fontSize="sm" fontWeight="semibold">
               {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Price
             </Text>
           </Flex>
           <Flex direction="column" justify="center" width="184px">
             <TextOrSkeleton value={totalSupply} text={dollarify(totalSupply || 0, 0)} />
-            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+            <Text color="accentTextColor" fontSize="sm" fontWeight="semibold">
               DOLA Supply
             </Text>
           </Flex>
           <Flex direction="column" width="184px">
             <TextOrSkeleton value={dbrPrice} text={`$${(dbrPrice || 0).toFixed(3)}`} />
-            <Text color="secondary" fontSize="sm" fontWeight="semibold">
+            <Text color="accentTextColor" fontSize="sm" fontWeight="semibold">
               DBR Price
             </Text>
           </Flex>

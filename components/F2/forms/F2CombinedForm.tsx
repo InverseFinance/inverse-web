@@ -203,7 +203,7 @@ export const F2CombinedForm = ({
         label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
         description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
         href="https://docs.inverse.finance/inverse-finance/about-inverse"
-        contentBgColor={'lightPrimaryAlpha'}
+        // contentBgColor={'lightPrimaryAlpha'}
         image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         // right={
         //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />

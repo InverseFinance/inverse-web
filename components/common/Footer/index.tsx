@@ -2,6 +2,7 @@ import { Image, Stack, Text } from '@chakra-ui/react'
 import { MENUS } from '@app/variables/menus'
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
+import { THEME_NAME } from '@app/variables/theme';
 
 const SOCIALS = MENUS.socials;
 
@@ -20,7 +21,7 @@ export const Footer = () => (
       <Stack direction="row" spacing={5} align="center">
         {SOCIALS.map(({ href, image }, i) => (
           <Link key={i} href={href} as="a">
-            <Image width="24px" height="20px" src={image} alt="Social" />
+            <Image filter={ THEME_NAME === 'dark' ? undefined : 'invert(0.8)' } width="24px" height="20px" src={image} alt="Social" />
           </Link>
         ))}
       </Stack>

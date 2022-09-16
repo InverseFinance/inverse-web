@@ -82,7 +82,7 @@ export const F2BorrowForm = ({
         description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
         contentProps={{
             position: 'relative',
-            backgroundColor: 'lightPrimaryAlpha',
+            backgroundColor: '#ffffffdd',//'lightPrimaryAlpha',
             _after: {
                 content: '""',
                 position: 'absolute',

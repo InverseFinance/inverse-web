@@ -63,7 +63,7 @@ export const f2CalcNewHealth = (
 }
 
 export const getRiskColor = (newPerc: number) => {
-    return (newPerc >= 75 ? 'success' : (newPerc >= 50 ? 'lightWarning' : (newPerc >= 25 ? 'warning' : 'error')));
+    return (newPerc >= 75 ? 'mainTextColor' : (newPerc >= 50 ? 'lightWarning' : (newPerc >= 25 ? 'warning' : 'error')));
 }
 
 export const getDBRBuyLink = () => {

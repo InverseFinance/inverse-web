@@ -70,7 +70,7 @@ export const F2CollateralForm = ({
         }}
         contentProps={{
             position: 'relative',
-            backgroundColor: mainColor,
+            backgroundColor: '#ffffffdd',//mainColor,
             _after: {
                 content: '""',
                 position: 'absolute',
@@ -81,6 +81,7 @@ export const F2CollateralForm = ({
                 top: 0, left: 0, right: 0, bottom: 0,
                 opacity: 0.5,
                 zIndex: -1,
+                filter: 'hue-rotate(20deg)'
             },
         }}
         image={<BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
@@ -130,8 +131,7 @@ export const F2CollateralForm = ({
                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={btnLabel}
                 maxActionLabel={btnMaxlabel}
-                onAmountChange={handleAmountChange}
-                btnThemeColor={'blue.600'}
+                onAmountChange={handleAmountChange}            
                 showMaxBtn={isDeposit || !debt}
             />
         </VStack>

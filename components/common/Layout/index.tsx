@@ -13,7 +13,7 @@ export const Layout = ({ children, bgColor = 'mainBackgroundColor', bg = 'mainBa
       minH="100vh"
       direction="column"
       align="center"
-      borderColor="primary.800"
+      borderColor="primary.500"
       borderBottomWidth={1}
       pb={6}
     >
