@@ -2,11 +2,13 @@ import { F2_SIMPLE_ESCROW } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
-import { TOKENS } from "@app/variables/tokens";
+import { getToken, TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
+import { useLpPrice } from "./usePrices";
+import { CHAIN_ID } from "@app/config/constants";
 
 const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
@@ -80,7 +82,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         underlying: TOKENS[m.collateral],
       }
     });
-    
+
   const nbMarkets = markets.length;
 
   const { data, error } = useEtherSWR([
@@ -203,7 +205,27 @@ export const useAccountF2Markets = (
 }
 
 export const useDBRPrice = (): { price: number } => {
+  const weth = getToken(TOKENS, 'WETH')
+  const { data } = useEtherSWR({
+    args: [      
+        [
+          // sushi
+          '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+          'getAmountsOut',
+          '1000000000000000000',
+          [weth.address, DBR],
+        ],      
+    ],
+    abi: ['function getAmountsOut(uint256, address[]) public view returns (uint256[])']
+  })
+  const { data: ethPrice } = useEtherSWR({
+    args: [
+      ['0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', 'latestAnswer'],
+    ],
+    abi: ['function latestAnswer() public view returns (uint256)'],
+  });
+  const out = data && data[0] ? getBnToNumber(data[0][1]) : 0;
   return {
-    price: 0.015
+    price: ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0
   }
 }

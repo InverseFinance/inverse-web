@@ -103,7 +103,7 @@ export const F2CombinedForm = ({
 
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
-        alert('Simple-Mode Contract is not implemented yet - Please Advanced-Mode for now');
+        alert('Simple-Mode Contract is not implemented yet - Please use Advanced-Mode for now');
     }
 
     const handleCollateralChange = (floatNumber: number) => {
