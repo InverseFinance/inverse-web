@@ -59,6 +59,7 @@ export const f2CalcNewHealth = (
         newDebt,
         newPerc,
         newLiquidationPrice,
+        newDeposits,
     }
 }
 

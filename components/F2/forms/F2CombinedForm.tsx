@@ -33,6 +33,31 @@ const { DOLA } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
 
+const AmountInfos = ({
+    label,
+    value,
+    newValue,
+    price,
+    dbrCover
+}: {
+    label: string
+    value: number
+    newValue?: number
+    price?: number
+    dbrCover?: number
+}) => {
+    const textProps = { fontSize: '12px', color: 'secondaryTextColor' }
+    return <HStack spacing="1" justify="space-between">
+        <Text {...textProps}>
+            {label}: {shortenNumber(value, 2, false, true)} {price && value ? `(${shortenNumber(value * price, 2, true)})` : ''}
+        </Text>
+        {
+            !!newValue && value !== newValue &&
+            <Text {...textProps}>=> {shortenNumber(newValue, 2, false, true)} {price ? `(${shortenNumber(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Cover = ${shortenNumber(dbrCover + newValue, 2)}` : ''}</Text>
+        }
+    </HStack>
+}
+
 export const F2CombinedForm = ({
     f2market,
     account,
@@ -63,13 +88,22 @@ export const F2CombinedForm = ({
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance } = useAccountDBRMarket(f2market, account);
+
+    const dbrCover = debtAmount / (365 / duration);
+    const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
+    // const newTotalDebt = newDebt + dbrCover;
+
     const {
-        newPerc, newLiquidationPrice, newCreditLimit, newDebt
+        newDebt, newDeposits
     } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, debtAmount, perc);
+
+    const {
+        newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt
+    } = f2CalcNewHealth(f2market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
 
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
-        alert('Contract not implemented for this yet');
+        alert('Simple-Mode Contract is not implemented yet - Please Advanced-Mode for now');
     }
 
     const handleCollateralChange = (floatNumber: number) => {
@@ -115,9 +149,10 @@ export const F2CombinedForm = ({
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
                 showBalance={true}
-                inputRight={<MarketImage pr="2" image={f2market.icon||f2market.underlying.image} size={25} />}
+                inputRight={<MarketImage pr="2" image={f2market.icon || f2market.underlying.image} size={25} />}
                 isError={collateralAmount > collateralBalance}
             />
+            <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={f2market.price} />
         </VStack>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
@@ -141,6 +176,7 @@ export const F2CombinedForm = ({
                 isDisabled={newPerc < 1}
                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
             />
+            <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} newValue={newDebt} />
         </VStack>
     </Stack>
 
@@ -150,7 +186,7 @@ export const F2CombinedForm = ({
                 <Text color="mainTextColor"><b>Duration</b> of the Fixed-Rate Loan:</Text>
             </TextInfo>
             <F2DurationInput
-                onChange={(v) => setDuration(v)}                
+                onChange={(v) => setDuration(v)}
             />
             {/* <F2DurationMultiInput
                 onChange={(v) => setDuration(v)}                
@@ -243,7 +279,9 @@ export const F2CombinedForm = ({
                             Liq. Price:
                         </Text>
                     </TextInfo>
-                    <Text color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>{isFormFilled ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}</Text>
+                    <Text color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>
+                        {isFormFilled ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}
+                    </Text>
                 </VStack>
                 <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                     <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
@@ -251,7 +289,7 @@ export const F2CombinedForm = ({
                             DBR cover:
                         </Text>
                     </TextInfo>
-                    <Text>{shortenNumber(debtAmount / (365 / duration), 2)}</Text>
+                    <Text>{shortenNumber(dbrCover, 2)} ({shortenNumber(dbrCoverDebt, 2, true)})</Text>
                 </VStack>
                 <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                     <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
