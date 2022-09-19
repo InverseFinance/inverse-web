@@ -54,7 +54,7 @@ export const MarketInfos = ({
                     <Text>{market.collateralFactor * 100}%</Text>
                 </Stack>
                 <Stack w='full' justifyContent="space-between">
-                    <Text color="secondaryTextColor">Market's liquidity:</Text>
+                    <Text color="secondaryTextColor">Liquidity:</Text>
                     <Text>{shortenNumber(dolaLiquidity, 2)} DOLA</Text>
                 </Stack>
             </Stack>

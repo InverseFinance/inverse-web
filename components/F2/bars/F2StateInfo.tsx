@@ -50,9 +50,9 @@ export const F2StateInfo = ({
 
     const content = !currentValue && !nextValue ?
         placeholder :
-        <>{prefix}{currentFormatted}{!!nextFormatted && currentFormatted !== nextFormatted && <b> => {nextFormatted}</b>}{suffix}</>
+        <>{prefix}{currentFormatted}{!!nextFormatted && currentFormatted !== nextFormatted && <b textShadow="inherit"> => {nextFormatted}</b>}{suffix}</>
 
-    const text = <Text cursor="default" color={color} _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
+    const text = <Text textShadow={`0px 1px 1px #ccc`} cursor="default" color={color} _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
         {content}
     </Text>
 

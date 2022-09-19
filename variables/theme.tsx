@@ -76,7 +76,7 @@ const theme = extendTheme({
     success: '#25C9A1',
     successAlpha: '#25C9A122',
     successLight: '#25C9A199',
-    lightWarning: '#edc536',
+    lightWarning: 'orangered',
     error: '#F44061',
     errorAlpha: '#F4406166',
     warning: '#ed8936',
