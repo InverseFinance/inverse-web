@@ -149,14 +149,12 @@ export const F2CombinedForm = ({
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
                 <Text color="mainTextColor"><b>Duration</b> of the Fixed-Rate Loan:</Text>
             </TextInfo>
-            {/* <F2DurationInput
-                onChange={(v) => setDuration(v)}
-                showText={false}
-            /> */}
-            <F2DurationMultiInput
-                onChange={(v) => setDuration(v)}
-                showText={false}
+            <F2DurationInput
+                onChange={(v) => setDuration(v)}                
             />
+            {/* <F2DurationMultiInput
+                onChange={(v) => setDuration(v)}                
+            /> */}
         </VStack>
     </VStack>
 
@@ -174,6 +172,7 @@ export const F2CombinedForm = ({
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
             showMaxBtn={false}
+            isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0}
             hideInputIfNoAllowance={false}
             hideInput={true}
             hideButtons={false}

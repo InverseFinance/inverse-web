@@ -68,7 +68,7 @@ export const MarketInfos = ({
                     <Text>no contract func. yet</Text>
                 </Stack>
             </Stack>
-            <Stack spacing='4' direction={{ base: 'column', sm: 'row', lg: 'column' }}>
+            {/* <Stack spacing='4' direction={{ base: 'column', sm: 'row', lg: 'column' }}>
                 <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Your Deposits:</Text>
                     <Text>{shortenNumber(deposits, 2)} ({shortenNumber(deposits * market.price, 2, true)})</Text>
@@ -76,12 +76,8 @@ export const MarketInfos = ({
                 <Stack w='full' justifyContent="space-between">
                     <Text color="secondaryTextColor">Your Debt:</Text>
                     <Text>{shortenNumber(debt, 2)} DOLAs</Text>
-                </Stack>
-                {/* <Stack w='full' justifyContent="space-between">
-                    <Text fontWeight="bold" color="secondaryTextColor">Current Fixed Rate:</Text>
-                    <Text color="secondary" fontWeight="bold">{shortenNumber(dbrPrice * 100, 2)}%</Text>
-                </Stack> */}
-            </Stack>
+                </Stack>                
+            </Stack> */}
         </Stack>
     </Container>
 }

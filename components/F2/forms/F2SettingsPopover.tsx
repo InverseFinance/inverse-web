@@ -19,7 +19,7 @@ export const F2SettingsPopover = ({
                 <PopoverCloseButton />
                 <PopoverHeader>Fixed-Rate loan Duration</PopoverHeader>
                 <PopoverBody >
-                    <F2DurationInput isInPopover={true} onChange={onDurationChange} direction="column" />
+                    <F2DurationInput isInPopover={true} onChange={onDurationChange} />
                 </PopoverBody>
             </PopoverContent>
         </Popover>
