@@ -86,7 +86,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const { balances } = useBalances([address]);
     const balance = balances ? getBnToNumber(balances[address], decimals) : 0;
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
-    maxBn.sort((a, b) => a.gt(b) ? 1 : -1);
+    maxBn.sort((a, b) => getBnToNumber(a) > getBnToNumber(b) ? 1 : -1);
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
 
     useEffect(() => {
