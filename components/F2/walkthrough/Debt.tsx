@@ -8,7 +8,7 @@ import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
 import { parseEther } from "@ethersproject/units"
 import { useContext, useEffect } from "react"
 import { F2FormInfos } from "../forms/F2FormInfos"
-import { F2MarketContext } from "."
+import { F2MarketContext } from "./WalkthroughContainer"
 import { InfoMessage } from "@app/components/common/Messages"
 import { shortenNumber } from "@app/util/markets"
 

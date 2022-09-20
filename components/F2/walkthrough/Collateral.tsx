@@ -6,7 +6,7 @@ import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { useContext } from "react"
-import { F2MarketContext } from "."
+import { F2MarketContext } from "./WalkthroughContainer"
 
 export const F2WalkthroughCollateral = ({
     onStepChange,

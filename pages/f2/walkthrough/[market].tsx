@@ -7,7 +7,7 @@ import { useDBRMarkets } from '@app/hooks/useDBR'
 import { Stack, VStack, Text } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
-import { F2Walkthrough } from '@app/components/F2/walkthrough'
+import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
