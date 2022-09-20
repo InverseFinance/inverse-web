@@ -45,7 +45,7 @@ export async function getStaticProps(context) {
     const { market } = context.params;
 
     return {
-        props: { market: market },
+        props: { market },
     }
 }
 

@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { useContext, useEffect } from "react"
 import { F2DurationInput } from "../forms/F2DurationInput"
-import { F2MarketContext } from "./Index"
+import { F2MarketContext } from "."
 
 export const F2WalkthroughDuration = ({
     onStepChange,

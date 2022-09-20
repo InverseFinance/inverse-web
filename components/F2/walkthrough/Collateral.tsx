@@ -6,7 +6,7 @@ import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { useContext } from "react"
-import { F2MarketContext } from "./Index"
+import { F2MarketContext } from "."
 
 export const F2WalkthroughCollateral = ({
     onStepChange,
@@ -29,6 +29,10 @@ export const F2WalkthroughCollateral = ({
         deposits,
         bnWithdrawalLimit,
     } = useContext(F2MarketContext);
+    const yo = useContext(F2MarketContext);
+    console.log(market)
+    console.log(yo)
+    if(!market) return <></>
 
     return <VStack w='full' alignItems="flex-start">
         <TextInfo message="The more you deposit, the more you can borrow against">

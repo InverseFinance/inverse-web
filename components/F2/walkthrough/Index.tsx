@@ -155,20 +155,22 @@ export const F2Walkthrough = ({
             dbrCover,
             newLiquidationPrice,
         }}>
-            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
-                {
-                    step === 1 && <F2WalkthroughIntro onStepChange={handleStepChange} />
-                }
-                {
-                    step === 2 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
-                }
-                {
-                    step === 3 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
-                }
-                {
-                    step === 4 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
-                }
-            </VStack>
+            {
+                !!market && <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
+                    {
+                        step === 1 && <F2WalkthroughIntro onStepChange={handleStepChange} />
+                    }
+                    {
+                        step === 2 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
+                    }
+                    {
+                        step === 3 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
+                    }
+                    {
+                        step === 4 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
+                    }
+                </VStack>
+            }
         </F2MarketContext.Provider>
     </Container>
 }
