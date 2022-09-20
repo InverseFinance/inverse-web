@@ -18,45 +18,12 @@ import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { InfoMessage } from '@app/components/common/Messages'
-
-const TextInfo = ({ message, children, color = 'mainTextColor' }) => {
-    return <HStack>
-        <AnimatedInfoTooltip
-            message={message}
-            iconProps={{ color, fontSize: '12px' }}
-        />
-        {children}
-    </HStack>
-}
+import { TextInfo } from '@app/components/common/Messages/TextInfo'
+import { AmountInfos } from '@app/components/common/Messages/AmountInfos'
 
 const { DOLA } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
-
-const AmountInfos = ({
-    label,
-    value,
-    newValue,
-    price,
-    dbrCover
-}: {
-    label: string
-    value: number
-    newValue?: number
-    price?: number
-    dbrCover?: number
-}) => {
-    const textProps = { fontSize: '12px', color: 'secondaryTextColor' }
-    return <HStack spacing="1" justify="space-between">
-        <Text {...textProps}>
-            {label}: {shortenNumber(value, 2, false, true)} {price && value ? `(${shortenNumber(value * price, 2, true)})` : ''}
-        </Text>
-        {
-            !!newValue && value !== newValue &&
-            <Text {...textProps}>=> {shortenNumber(newValue, 2, false, true)} {price ? `(${shortenNumber(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Cover = ${shortenNumber(dbrCover + newValue, 2)}` : ''}</Text>
-        }
-    </HStack>
-}
 
 export const F2CombinedForm = ({
     f2market,

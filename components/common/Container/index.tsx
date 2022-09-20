@@ -76,7 +76,7 @@ export const Container = ({
   return (
     <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
       <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
-        <Stack direction="row" align="center">
+        <Stack direction="row" align="center" spacing={showImage ? undefined : 0}>
           {<Box display={showImage ? 'inline-block' : 'none'}>
             {image}
           </Box>}
