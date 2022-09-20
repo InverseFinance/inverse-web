@@ -25,7 +25,7 @@ export const F2DurationInput = ({
     defaultType = 'months',
     isInPopover,
 }: {
-    onChange: (v: number) => void,
+    onChange: (v: number, typedValue: number, type: string) => void,
     defaultValue?: string
     defaultType?: 'days' | 'weeks' | 'months' | 'quarters' | 'years'
     isInPopover?: boolean
@@ -38,12 +38,12 @@ export const F2DurationInput = ({
     }
 
     useEffect(() => {
-        if (!inputValue?.trim()) {
-            onChange(0)
+        if (!inputValue?.toString().trim()) {
+            onChange(0, inputValue, durationType);
             return
         }
         const nbDays = multiplicators[durationType] * parseFloat(inputValue);
-        onChange(nbDays > 0 && !isNaN(nbDays) ? nbDays : 0);
+        onChange(nbDays > 0 && !isNaN(nbDays) ? nbDays : 0, inputValue, durationType);
     }, [durationType, inputValue]);
 
     const override = isInPopover ? 'full' : undefined;
@@ -53,7 +53,7 @@ export const F2DurationInput = ({
             <Input py="0" h='48px' borderWidth='1' border={INPUT_BORDER} w={{ base: 'full', sm: override || '90px' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} />
             <RadioGridCardGroup
                 wrapperProps={{
-                    minChildWidth: { base: '60px', sm: '90px' },
+                    minChildWidth: { base: '60px', sm: '80px' },
                     spacing: '1',
                     overflow: 'auto',
                     position: 'relative',
