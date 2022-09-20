@@ -30,7 +30,7 @@ export const F2WalkthroughDuration = ({
             defaultType={durationType}
             onChange={onChange}
         />
-        <AmountInfos label="Duraion in days" value={duration} />
+        <AmountInfos label="Duration in days" value={duration} />
         <HStack w='full' justify="flex-end" pt="4">
             <SubmitButton onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back

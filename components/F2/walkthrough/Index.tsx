@@ -1,4 +1,4 @@
-import { VStack, useMediaQuery, FlexProps } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -19,6 +19,7 @@ import React from 'react'
 import { useRouter } from 'next/router'
 import { F2WalkthroughDebt } from './Debt'
 import { F2WalkthroughDuration } from './Duration'
+import { F2WalkthroughRecap } from './Recap'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -66,7 +67,7 @@ export const F2Walkthrough = ({
     const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
 
     const {
-        newDebt, newDeposits
+        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees
     } = f2CalcNewHealth(market, deposits, debt, collateralAmount, debtAmount, perc);
 
     const {
@@ -107,12 +108,12 @@ export const F2Walkthrough = ({
             setStep(parseInt(stepString));
         } else if (step !== 0) {
             setStep(1);
-        }
+        }        
     }, [router])
 
     useEffect(() => {
         window['walkthrough-container'].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-    }, [step]);
+    }, [step, debtAmount, duration, collateralAmount]);
 
     return <Container
         noPadding
@@ -154,6 +155,7 @@ export const F2Walkthrough = ({
             riskColor,
             dbrCover,
             newLiquidationPrice,
+            newTotalDebt,
         }}>
             {
                 !!market && <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
@@ -169,6 +171,9 @@ export const F2Walkthrough = ({
                     {
                         step === 4 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
                     }
+                    {
+                        step === 5 && <F2WalkthroughRecap onStepChange={handleStepChange} />
+                    }                    
                 </VStack>
             }
         </F2MarketContext.Provider>

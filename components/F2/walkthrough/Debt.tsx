@@ -9,6 +9,8 @@ import { parseEther } from "@ethersproject/units"
 import { useContext, useEffect } from "react"
 import { F2FormInfos } from "../forms/F2FormInfos"
 import { F2MarketContext } from "."
+import { InfoMessage } from "@app/components/common/Messages"
+import { shortenNumber } from "@app/util/markets"
 
 export const F2WalkthroughDebt = ({
     onStepChange,
@@ -35,6 +37,7 @@ export const F2WalkthroughDebt = ({
         debtAmount,
         dbrCover,
         newLiquidationPrice,
+        collateralAmount,
     } = useContext(F2MarketContext);
 
     return <VStack w='full' alignItems="flex-start">
@@ -62,18 +65,18 @@ export const F2WalkthroughDebt = ({
         />
         <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} newValue={newDebt} />
         <Divider />
-        <F2FormInfos
-            newPerc={newPerc}
-            riskColor={riskColor}
-            isFormFilled={debtAmount > 0}
-            newLiquidationPrice={newLiquidationPrice}
-            f2market={market}
-            dbrCoverDebt={dbrCoverDebt}
-            dbrCover={dbrCover}
-            duration={duration}
-            // onHealthOpen={onHealthOpen}
-            // onDbrOpen={onDbrOpen}
-        />
+        {
+            newPerc < 1 &&
+            <InfoMessage
+                alertProps={{ w: 'full' }}
+                description={
+                    <VStack w='full' alignItems="flex-start" spaing="0">
+                        <Text>Collateral Health is less than 1%</Text>
+                        <Text>Please borrow less or add more collateral</Text>
+                    </VStack>
+                }
+            />
+        }
         <HStack w='full' justify="flex-end" pt="4">
             <SubmitButton onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
