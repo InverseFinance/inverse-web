@@ -71,7 +71,7 @@ export const F2FormInfos = ({
                 <Text>{shortenNumber(f2market.price, 2, true)}</Text>
             </VStack>
             <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
-                <TextInfo message="Current market price for DBR">
+                <TextInfo message="Current market price for DBR, the token used to pay borrowing fees">
                     <Text cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
                         DBR price:
                     </Text>

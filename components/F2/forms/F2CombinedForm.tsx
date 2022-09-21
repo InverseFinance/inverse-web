@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, Flex, Box, useDisclosure, SimpleGrid } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
@@ -10,9 +10,8 @@ import { BigNumber } from 'ethers'
 import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
-import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import { preciseCommify } from '@app/util/misc'
-import { F2DurationInput, F2DurationMultiInput } from './F2DurationInput'
+
+import { F2DurationInput } from './F2DurationInput'
 import InfoModal from '@app/components/common/Modal/InfoModal'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
@@ -151,7 +150,7 @@ export const F2CombinedForm = ({
     const rightPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text color="mainTextColor">Estimated <b>Duration</b> of the Fixed-Rate Loan - Stoppable any time:</Text>
+                <Text color="mainTextColor"><b>Duration</b> of the Fixed-Rate, Loan is Stoppable at any time:</Text>
             </TextInfo>
             <F2DurationInput
                 onChange={(v) => setDuration(v)}
