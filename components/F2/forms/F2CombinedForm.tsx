@@ -151,7 +151,7 @@ export const F2CombinedForm = ({
     const rightPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text color="mainTextColor"><b>Duration</b> of the Fixed-Rate Loan:</Text>
+                <Text color="mainTextColor">Estimated <b>Duration</b> of the Fixed-Rate Loan - Stoppable any time:</Text>
             </TextInfo>
             <F2DurationInput
                 onChange={(v) => setDuration(v)}
@@ -189,7 +189,7 @@ export const F2CombinedForm = ({
     </HStack>
 
     const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
-        <VStack alignItems="flex-start">
+        <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
             <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate">
                 <Text color="accentTextColor">Current Fixed-Rate:</Text>
             </TextInfo>
@@ -197,6 +197,14 @@ export const F2CombinedForm = ({
                 {shortenNumber(dbrPrice * 100, 2)}%
             </Text>
         </VStack>
+        {/* <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
+            <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate">
+                <Text color="accentTextColor">DBR price:</Text>
+            </TextInfo>
+            <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
+                {shortenNumber(dbrPrice, 4, true)}
+            </Text>
+        </VStack> */}
         {actionBtn}
     </Stack>
 
@@ -241,6 +249,7 @@ export const F2CombinedForm = ({
                 dbrCoverDebt={dbrCoverDebt}
                 dbrCover={dbrCover}
                 duration={duration}
+                dbrPrice={dbrPrice}
                 onHealthOpen={onHealthOpen}
                 onDbrOpen={onDbrOpen}
             />

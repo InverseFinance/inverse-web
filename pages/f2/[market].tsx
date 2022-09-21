@@ -119,7 +119,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     <F2CombinedForm
                                         {...combinedFormProps}
                                     />
-                                    <MarketInfos account={account} market={f2market} />
+                                    {/* <MarketInfos account={account} market={f2market} /> */}
                                 </VStack>
 
                     }
