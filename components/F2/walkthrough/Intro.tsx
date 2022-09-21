@@ -43,9 +43,21 @@ export const F2WalkthroughIntro = ({
                 </VStack>
             }
         /> */}
+        {/* <InfoMessage
+            alertProps={{ w: 'full' }}
+            title="What are the key features and safety measures?"
+            description={
+                <VStack spacing="0" w='full' alignItems="flex-start">
+                    <Text>- Fixed-Rate DOLA stablecoin borrowing</Text>
+                    <Text>- Fix Rate now, borrow later, trade your borrow rate</Text>
+                    <Text>- Isolated Markets and Liquidity, user funds not borrowable</Text>                                     
+                    <Text>- Flashloan attack protection, Borrow caps</Text>                    
+                </VStack>
+            }
+        /> */}
         <HStack w='full' justify="flex-end" pt="4">
             <SubmitButton onClick={() => onStepChange(2)}>
-                Continue
+                Get Started
             </SubmitButton>
         </HStack>
     </>

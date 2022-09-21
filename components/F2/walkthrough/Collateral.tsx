@@ -1,8 +1,8 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import { SubmitButton } from "@app/components/common/Button"
+import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
-import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { useContext } from "react"
@@ -31,6 +31,8 @@ export const F2WalkthroughCollateral = ({
         bnWithdrawalLimit,
     } = useContext(F2MarketContext);
 
+    const isNotEnoughBalance = collateralAmount > collateralBalance;
+
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="The more you deposit, the more you can borrow against">
@@ -45,9 +47,15 @@ export const F2WalkthroughCollateral = ({
                 maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                 onAmountChange={onChange}
                 inputRight={<MarketImage ml="10px" pr="20px" image={market.icon || market.underlying.image} size={40} />}
-                isError={collateralAmount > collateralBalance}
+                isError={isNotEnoughBalance}
             />
             <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={market.price} textProps={{ fontSize: '14px' }} />
+            {
+                isNotEnoughBalance && <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description="Not enough balance"
+                />
+            }
         </VStack>
         <HStack w='full' justify="flex-end" pt="4">
             <SubmitButton onClick={() => onStepChange(step - 1)}>
