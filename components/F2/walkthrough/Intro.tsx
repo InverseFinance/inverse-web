@@ -7,7 +7,7 @@ export const F2WalkthroughIntro = ({
 }: {    
     onStepChange: (step: number) => void
 }) => {
-    return <VStack w='full' alignItems="flex-start">
+    return <>
         <InfoMessage
             alertProps={{ w: 'full' }}
             title="What is F2?"
@@ -48,5 +48,5 @@ export const F2WalkthroughIntro = ({
                 Continue
             </SubmitButton>
         </HStack>
-    </VStack>
+    </>
 }

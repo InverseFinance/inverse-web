@@ -1,7 +1,7 @@
 import { Input } from '@app/components/common/Input'
-import { RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
+import { RadioCardGroup, RadioGridCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { INPUT_BORDER } from '@app/variables/theme'
-import { VStack, Text, HStack, Stack, StackProps, NumberInputProps } from '@chakra-ui/react'
+import { VStack, Text, HStack, Stack, StackProps, NumberInputProps, InputProps } from '@chakra-ui/react'
 import {
     NumberInput,
     NumberInputField,
@@ -24,11 +24,13 @@ export const F2DurationInput = ({
     defaultValue = '12',
     defaultType = 'months',
     isInPopover,
+    inputProps,
 }: {
     onChange: (v: number, typedValue: number, type: string) => void,
     defaultValue?: string
     defaultType?: 'days' | 'weeks' | 'months' | 'quarters' | 'years'
     isInPopover?: boolean
+    inputProps?: InputProps
 }) => {
     const [durationType, setDurationType] = useState(defaultType);
     const [inputValue, setInputValue] = useState(defaultValue);
@@ -50,15 +52,16 @@ export const F2DurationInput = ({
 
     return <VStack w='full' alignItems="flex-start" spacing="2">        
         <Stack direction={isInPopover ? 'column' : { base: 'column', sm: 'row' }} w='full' spacing="4">
-            <Input py="0" h='48px' borderWidth='1' border={INPUT_BORDER} w={{ base: 'full', sm: override || '90px' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} />
-            <RadioGridCardGroup
+            <Input py="0" h='48px' borderWidth='1' border={INPUT_BORDER} w={{ base: 'full', sm: override || '90px' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} {...inputProps} />
+            <RadioCardGroup
                 wrapperProps={{
-                    minChildWidth: { base: '60px', sm: '80px' },
-                    spacing: '1',
-                    overflow: 'auto',
-                    position: 'relative',
-                    my: '2',
-                    w: { base: 'full%', sm: override || 'calc(100% - 90px)' },
+                    // minChildWidth: { base: '60px', sm: '80px' },
+                    // spacing: '1',
+                    // overflow: 'auto',
+                    // position: 'relative',
+                    // my: '2',
+                    w: { base: 'full' },
+                    justify: 'space-between'
                 }}
                 group={{
                     name: 'durationType',

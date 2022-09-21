@@ -158,7 +158,7 @@ export const F2Walkthrough = ({
             newTotalDebt,
         }}>
             {
-                !!market && <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
+                !!market && <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="flex-start" spacing="6">
                     {
                         step === 1 && <F2WalkthroughIntro onStepChange={handleStepChange} />
                     }
