@@ -1,5 +1,5 @@
 import theme, { INPUT_BORDER } from '@app/variables/theme'
-import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps } from '@chakra-ui/react'
+import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps, TextProps } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
   <ChakraInput
@@ -42,9 +42,11 @@ type BalanceInputProps = {
   balance?: string
   showMax?: boolean
   isError?: boolean
+  inputRightProps?: TextProps
+  inputLeftProps?: FlexProps
 }
 
-export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, ...props }: BalanceInputProps & Partial<FlexProps>) => {
+export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, inputRightProps, inputLeftProps, ...props }: BalanceInputProps & Partial<FlexProps>) => {
   return <Flex
     w="full"
     bgColor='primary.850'
@@ -66,6 +68,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
         onClick={onMaxClick}
         _hover={{ color: 'mainTextColor' }}
         visibility={showMax ? 'visible' : 'hidden'}
+        {...inputLeftProps}
       >
         {
           showBalance ? `Bal ${balance}` : 'MAX'
@@ -74,7 +77,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
       <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />
     </Flex>
     {typeof label === 'string' ? (
-      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="lightAccentTextColor" align="center" pl={2} pr={4}>
+      <Text whiteSpace="nowrap" fontSize="lg" fontWeight="semibold" color="lightAccentTextColor" align="center" pl={2} pr={4} {...inputRightProps}>
         {label}
       </Text>
     ) : (
