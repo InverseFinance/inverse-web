@@ -75,7 +75,7 @@ export const AnchorHeader = () => {
             </LinkButton>
           }
           {
-            <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={'/swap/DAI/DOLA'}
+            <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} data-testid={TEST_IDS.anchor.buyDola} href={'/tokens/dola'}
               target={'_self'}>
               Buy DOLA
             </LinkButton>

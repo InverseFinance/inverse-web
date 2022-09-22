@@ -95,7 +95,7 @@ export const AnchorOverview = () => {
       }
       <Container
         noPadding
-        contentBgColor="gradient2"
+        // contentBgColor="gradient2"
         contentProps={{
           cursor: 'pointer',
           onClick: () => isDetailsOpen ? onDetailsClose() : onDetailsOpen(),
@@ -126,7 +126,7 @@ export const AnchorOverview = () => {
                   </>
                 } />
             </Flex>
-            <OutlineButton
+            <SubmitButton
               w='fit-content'
               maxH={{ base: '30px', sm: 'auto' }}
               isDisabled={!rewardAmount}
@@ -134,7 +134,7 @@ export const AnchorOverview = () => {
               data-testid={TEST_IDS.anchor.claim}
             >
               Claim
-            </OutlineButton>
+            </SubmitButton>
           </Stack>
         }
       >
@@ -156,8 +156,8 @@ export const AnchorOverview = () => {
               <AnimatedInfoTooltip message="Your borrow limit represents the maximum amount that you're allowed to borrow across all tokens. If you reach 100% of your borrow limit, you will get liquidated." />
               <Text>{`${borrowLimitPercent}%`}</Text>
             </Stack>
-            <Flex w="full" h={1} borderRadius={8} bgColor="primary.500">
-              <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="inverse.300"></Flex>
+            <Flex w="full" h={1} borderRadius={8} bgColor="navBarBackgroundColor">
+              <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="secondaryTextColor"></Flex>
             </Flex>
             <Stack direction="row" align="center">
               <Text>{`$${borrowTotal ? commify((borrowTotal).toFixed(2)) : '0.00'}`}</Text>

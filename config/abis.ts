@@ -426,7 +426,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         [DBR, DBR_ABI],
         [F2_ORACLE, F2_ORACLE_ABI],
-        ...F2_MARKETS.map((m) => [m.address, F2_MARKET_ABI]),
+        ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

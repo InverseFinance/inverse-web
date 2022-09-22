@@ -5,7 +5,7 @@ import { NetworkItem } from '@app/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
 import { SmartButtonProps } from '@app/types';
 import { gaEvent } from '@app/util/analytics';
-import theme, { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BOX_SHADOW, BUTTON_TEXT_COLOR } from '@app/variables/theme';
+import theme, { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BORDER_COLOR, BUTTON_BOX_SHADOW, BUTTON_TEXT_COLOR, OUTLINE_BUTTON_BG, OUTLINE_BUTTON_BORDER_COLOR, OUTLINE_BUTTON_TEXT_COLOR } from '@app/variables/theme';
 
 export const LinkButton = ({
   children,
@@ -21,7 +21,11 @@ export const LinkButton = ({
   isOutline?: boolean
   flexProps?: FlexProps
 }) => {
-  const extraFlexProps = isOutline ? { bg: 'primary.850', borderColor: 'accentTextColor' } : { bg: BUTTON_BG, borderColor: 'primary.500' }
+  const extraFlexProps = isOutline ?
+    { bg: OUTLINE_BUTTON_BG, borderColor: OUTLINE_BUTTON_BORDER_COLOR }
+    :
+    { bg: BUTTON_BG, borderColor: BUTTON_BORDER_COLOR }
+
   const finalFlexProps = { ...extraFlexProps, ...flexProps };
 
   const handleGa = (e) => {
@@ -33,7 +37,7 @@ export const LinkButton = ({
 
   return (
     <NextLink href={href} passHref>
-      <Link onClick={handleGa} w="full" color={isOutline ? 'accentTextColor' :"contrastMainTextColor"} fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
+      <Link onClick={handleGa} w="full" color={isOutline ? OUTLINE_BUTTON_TEXT_COLOR : BUTTON_TEXT_COLOR} fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
         <Flex
           justify="center"
           cursor="pointer"
@@ -101,10 +105,6 @@ export const NetworkButton = ({
     </StyledButton>
   )
 }
-
-export const OutlineButton = (props: any) => (
-  <SubmitButton color="accentTextColor" bg={'primary.850'} border={`1px solid ${theme.colors.accentTextColor}`} {...props} />
-)
 
 export const SubmitButton = (props: SmartButtonProps) => {
   return (

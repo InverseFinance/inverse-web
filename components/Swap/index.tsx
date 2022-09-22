@@ -296,7 +296,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       noPadding
       py="0"
       my="0"
-      contentBgColor="gradient3"
+      // contentBgColor="gradient3"
       label="Swap DOLA using Curve or the Stabilizer"
     >      
       <Stack w="full" direction="column" spacing="5">

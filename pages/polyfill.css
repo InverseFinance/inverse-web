@@ -66,6 +66,10 @@ body {
         background-color: #221d45 !important;
         opacity: 0.98;
     }
+    .compat-mode2.dark-bg {
+        background-color: #221d45 !important;
+        opacity: 0.98;
+    }
 
     .info-bg {
         background-color: #4299e1dd !important;

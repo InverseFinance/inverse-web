@@ -25,13 +25,7 @@ const mainConfig = {
     debtConverter: '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A',
     dbr: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
     f2Oracle: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
-    f2markets: [{
-        name: 'WETH',
-        // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        collateral: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
-        address: '0x8b70f2ED64DcbbeC47bd4b241b4628d7D5d7C30a',
-        icon: '/assets/projects/Ether.png',
-    }],
+    f2markets: [],
     feds: [
         { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
         { chainId: NetworkIds.mainnet, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },

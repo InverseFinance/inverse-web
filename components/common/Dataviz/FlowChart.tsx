@@ -28,7 +28,7 @@ const ElementLabel = ({ label, address, chainId }: { label: React.ReactNode, add
     <VStack>
       <Flex fontWeight="bold" fontSize="18px" alignItems="center">{label}</Flex>
       {
-        isAddress(address) && !!address && <ScannerLink chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
+        isAddress(address) && !!address && <ScannerLink color="white" chainId={chainId} _hover={{ color: 'blackAlpha.800' }} value={address} label={shortenAddress(address)} />
       }
     </VStack>
   )

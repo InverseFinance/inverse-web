@@ -1,5 +1,6 @@
 import { Flex, FlexProps } from '@chakra-ui/react'
 import Footer from '@app/components/common/Footer'
+import theme from '@app/variables/theme'
 
 export const Layout = ({ children, bgColor = 'mainBackgroundColor', bg = 'mainBackground', ...props }: {
   children?: React.ReactNode,
@@ -13,7 +14,7 @@ export const Layout = ({ children, bgColor = 'mainBackgroundColor', bg = 'mainBa
       minH="100vh"
       direction="column"
       align="center"
-      borderColor="primary.500"
+      borderColor={`${theme.colors.mainTextColor}11`}
       borderBottomWidth={1}
       pb={6}
     >

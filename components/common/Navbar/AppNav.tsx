@@ -54,7 +54,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
-import theme, { THEME_NAME } from '@app/variables/theme'
+import theme, { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BORDER_COLOR, BUTTON_TEXT_COLOR, NAV_BUTTON_BG, NAV_BUTTON_BORDER_COLOR, NAV_BUTTON_TEXT_COLOR, OUTLINE_BUTTON_BORDER_COLOR, THEME_NAME } from '@app/variables/theme'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -64,12 +64,12 @@ const NavBadge = (props: any) => (
     fontSize="12px"
     h="40px"
     align="center"
-    bgColor="primary.800"
+    bgColor={NAV_BUTTON_BG}
     borderRadius={4}
     borderWidth={1}
-    borderColor="primary.500"
+    borderColor={NAV_BUTTON_BORDER_COLOR}
     fontWeight="semibold"
-    color="secondaryTextColor"
+    color={NAV_BUTTON_TEXT_COLOR}
     p={2}
     px={{ base: '2', xl: '4' }}
     {...props}
@@ -93,7 +93,9 @@ const NetworkBadge = ({
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
-      onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bg={'primary.800'}>
+      onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
+      // bg={'primary.800'}
+    >
       <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
@@ -305,25 +307,25 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       <PopoverTrigger>
         <Flex
           justify="center"
-          bgColor="primary.800"
-          border={`1px solid ${theme.colors.primary['100']}`}
+          bg={BUTTON_BG}
+          border={`1px solid ${BUTTON_BORDER_COLOR}`}
           cursor="pointer"
           fontSize="sm"
           align="center"
           borderRadius={4}
           fontWeight="semibold"
-          color="secondaryTextColor"
+          color={BUTTON_TEXT_COLOR}
           p={2.5}
           pl={4}
           pr={4}
           h="40px"
-          _hover={{ bgColor: 'primary.600' }}
+          _hover={{ filter: 'brightness(1.25)' }}
           alignItems="center"
           data-testid={TEST_IDS.connectBtn}
           position="relative"
         >
           {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
-          <Text>{connectBtnLabel}</Text>
+          <Text color={BUTTON_TEXT_COLOR}>{connectBtnLabel}</Text>
           {/* {
             !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
           } */}
@@ -561,7 +563,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
-                              ?.map(s => <Link key={s.href} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'accentTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
+                              ?.map(s => <Link key={s.href} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
                           }
                         </VStack>
                       </PopoverBody>
@@ -597,9 +599,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         }
         <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
-            <Image w={4} h={4} src="/assets/cancel.svg" alt="Cancel" filter={ THEME_NAME === 'dark' ? undefined : 'invert(0.8)' } />
+            <Image w={4} h={4} src="/assets/cancel.svg" alt="Cancel" filter={THEME_NAME === 'dark' ? undefined : 'invert(0.8)'} />
           ) : (
-            <Image w={6} h={6} src="/assets/hamburger.svg" alt="Menu" filter={ THEME_NAME === 'dark' ? undefined : 'invert(0.8)' } />
+            <Image w={6} h={6} src="/assets/hamburger.svg" alt="Menu" filter={THEME_NAME === 'dark' ? undefined : 'invert(0.8)'} />
           )}
           {
             active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>
