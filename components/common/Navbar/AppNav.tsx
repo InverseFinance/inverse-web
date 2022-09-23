@@ -1,4 +1,4 @@
-import { CloseIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
+import { CloseIcon, MoonIcon, SunIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -12,7 +12,7 @@ import {
   useDisclosure,
   Box,
   VStack,
-  useMediaQuery,
+  useMediaQuery,  
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -28,8 +28,6 @@ import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
 import { isPreviouslyConnected } from '@app/util/web3';
 import { NetworkItem } from '@app/components/common/NetworkItem'
-import { NetworkIds } from '@app/types'
-import { getINVsFromFaucet, getDOLAsFromFaucet } from '@app/util/contracts'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
@@ -54,7 +52,9 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
-import theme, { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BORDER_COLOR, BUTTON_TEXT_COLOR, NAV_BUTTON_BG, NAV_BUTTON_BORDER_COLOR, NAV_BUTTON_TEXT_COLOR, OUTLINE_BUTTON_BORDER_COLOR, THEME_NAME } from '@app/variables/theme'
+import { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BORDER_COLOR, BUTTON_TEXT_COLOR, NAV_BUTTON_BG, NAV_BUTTON_BORDER_COLOR, NAV_BUTTON_TEXT_COLOR, OUTLINE_BUTTON_BORDER_COLOR, THEME_NAME } from '@app/variables/theme'
+import { switchTheme } from '@app/util/theme'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const NAV_ITEMS = MENUS.nav
 
@@ -94,7 +94,7 @@ const NetworkBadge = ({
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
-      // bg={'primary.800'}
+    // bg={'primary.800'}
     >
       <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
       <Flex direction="row" color="red" ml="1">
@@ -237,6 +237,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
+  const { themeName } = useAppTheme();
   const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
@@ -361,6 +362,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
+              <ConnectionMenuItem
+                onClick={() => switchTheme()}
+              >
+                {themeName === 'dark' ? <SunIcon boxSize={3} /> : <MoonIcon boxSize={3} />}
+                <Text fontWeight="semibold">
+                  {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </Text>
+              </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
         )}
@@ -389,6 +398,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Text fontWeight="semibold">Clear View Address</Text>
               </ConnectionMenuItem>
             }
+            <ConnectionMenuItem
+              onClick={() => switchTheme()}
+            >
+              {themeName === 'dark' ? <SunIcon boxSize={3} /> : <MoonIcon boxSize={3} />}
+              <Text fontWeight="semibold">
+                {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </Text>
+            </ConnectionMenuItem>
             {/* {
               !!account && <LiquidationsMenuItem account={userAddress} />
             } */}
