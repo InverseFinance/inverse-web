@@ -42,6 +42,7 @@ export const CoinbasePayButton = ({
             isOpen={isOpen && !!url}
             onClose={handleClose}
             size={'2xl'}
+            p="10px"
         >
             <Spinner
                 zIndex="-1"
