@@ -17,7 +17,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     return (
         <Layout>
-            <AppNav active="Markets" activeSubmenu={`${market} Market`} />
+            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary>
                 <VStack id="walkthrough-container" w='full' maxW={'650px'} alignItems="flex-start" px="8" spacing="8">
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">

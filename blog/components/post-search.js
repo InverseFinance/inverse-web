@@ -9,13 +9,14 @@ import useSWR from 'swr';
 import BlogText from './common/text';
 import DateComponent from './date';
 import Link from 'next/link';
-import theme from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export default function PostSearch({ ...props }) {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState(query);
     const [isFocused, setIsFocused] = useState(false);
     const { locale } = useContext(BlogContext);
+    const { themeStyles } = useAppTheme();
     const { data: results } = useSWR(`/api/blog/post-search?search=${debouncedQuery}&locale=${locale}`, fetchJson);
 
     useDebouncedEffect(() => {
@@ -66,7 +67,7 @@ export default function PostSearch({ ...props }) {
                     maxH="500px"
                     overflowY="auto"
                     overflowX="hidden"
-                    boxShadow={`0 0 5px 5px ${theme.colors.mainBackgroundColor}`}
+                    boxShadow={`0 0 5px 5px ${themeStyles.colors.mainBackgroundColor}`}
                     top={{ base: '55px', sm: '60px' }}
                     left={{ base: '0', sm: 'auto' }}
                     right={{ base: '0', sm: 'auto' }}
@@ -83,15 +84,15 @@ export default function PostSearch({ ...props }) {
                                     p="4"
                                     w='full'
                                     alignItems="flex-start"
-                                    borderTop={i > 0 ? `1px solid ${theme.colors.secondaryTextColor}` : undefined}
-                                    _hover={{ bgColor: theme.colors.mainBackgroundColor }}
+                                    borderTop={i > 0 ? `1px solid ${themeStyles.colors.secondaryTextColor}` : undefined}
+                                    _hover={{ bgColor: themeStyles.colors.mainBackgroundColor }}
                                     as="a"
                                 >
                                     <BlogText fontWeight="bold" color="mainTextColor">
                                         {item.title}
                                     </BlogText>
-                                    <Excerpt asLink={false} excerpt={item.excerpt} content={item.content} url={url} charLimit={100} color={theme.colors.secondaryTextColor} />
-                                    <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" color={theme.colors.secondaryTextColor} />
+                                    <Excerpt asLink={false} excerpt={item.excerpt} content={item.content} url={url} charLimit={100} color={themeStyles.colors.secondaryTextColor} />
+                                    <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" color={themeStyles.colors.secondaryTextColor} />
                                 </VStack>
                             </Link>
                         })
@@ -103,7 +104,7 @@ export default function PostSearch({ ...props }) {
                             p="4"
                             w='full'
                             alignItems="flex-start"
-                            _hover={{ bgColor: theme.colors.mainBackgroundColor }}
+                            _hover={{ bgColor: themeStyles.colors.mainBackgroundColor }}
                         >
                             <BlogText w='full'>No Result</BlogText>
                         </VStack>

@@ -47,7 +47,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     return (
         <Layout>
-            <AppNav active="Markets" activeSubmenu={`${market} Market`} />
+            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <F2DbrInfosModal
                 onClose={onDbrClose}
                 isOpen={isDbrOpen}

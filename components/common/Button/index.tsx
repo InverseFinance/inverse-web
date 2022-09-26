@@ -5,7 +5,7 @@ import { NetworkItem } from '@app/components/common/NetworkItem';
 import { SmartButton } from './SmartButton';
 import { SmartButtonProps } from '@app/types';
 import { gaEvent } from '@app/util/analytics';
-import theme, { BUTTON_BG, BUTTON_BG_COLOR, BUTTON_BORDER_COLOR, BUTTON_BOX_SHADOW, BUTTON_TEXT_COLOR, OUTLINE_BUTTON_BG, OUTLINE_BUTTON_BORDER_COLOR, OUTLINE_BUTTON_TEXT_COLOR } from '@app/variables/theme';
+import { useAppThemeParams } from '@app/hooks/useAppTheme';
 
 export const LinkButton = ({
   children,
@@ -21,6 +21,7 @@ export const LinkButton = ({
   isOutline?: boolean
   flexProps?: FlexProps
 }) => {
+  const { OUTLINE_BUTTON_BG, OUTLINE_BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_BORDER_COLOR, OUTLINE_BUTTON_TEXT_COLOR, BUTTON_TEXT_COLOR } = useAppThemeParams();
   const extraFlexProps = isOutline ?
     { bg: OUTLINE_BUTTON_BG, borderColor: OUTLINE_BUTTON_BORDER_COLOR }
     :
@@ -107,6 +108,7 @@ export const NetworkButton = ({
 }
 
 export const SubmitButton = (props: SmartButtonProps) => {
+  const { BUTTON_BG_COLOR, BUTTON_TEXT_COLOR, BUTTON_BG, BUTTON_BOX_SHADOW } = useAppThemeParams();
   return (
     <SmartButton
       w="full"

@@ -19,7 +19,7 @@ export const F2PAGE = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - F2</title>
             </Head>
-            <AppNav active="Markets" activeSubmenu="Fixed Rate Markets" />
+            <AppNav active="Borrow" activeSubmenu="Fixed Rate Markets" />
             <F2DbrInfosModal
                 onClose={onDbrClose}
                 isOpen={isDbrOpen}

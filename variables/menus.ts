@@ -1,7 +1,7 @@
 export const MENUS = {
   "nav": [
     {
-      label: 'Markets',
+      label: 'Borrow',
       href: '/f2',
       submenus: [
         {

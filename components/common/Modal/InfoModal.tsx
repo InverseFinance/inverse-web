@@ -3,7 +3,7 @@ import { HStack, Stack, Text } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { ReactNode } from 'react';
 import { InfoIcon } from '@chakra-ui/icons';
-import { THEME_NAME } from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export type Props = {
     title?: string,
@@ -26,6 +26,7 @@ const InfoModal = ({
     minW,
     footerLeft,
 }: Props) => {
+    const { themeName } = useAppTheme();
     const handleOk = () => {
         return onOk ? onOk() : () => {};
     }
@@ -47,7 +48,7 @@ const InfoModal = ({
                 </HStack>
             }
             minW={minW}
-            className={`blurred-container ${THEME_NAME}-bg`}
+            className={`blurred-container ${themeName}-bg`}
             bg="transparent"
         >
             {children ? children : <></>}

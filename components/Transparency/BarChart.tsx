@@ -4,16 +4,9 @@ import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { shortenNumber } from '@app/util/markets';
 import theme from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: string, y: number, label?: string }[][]
-
-const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: theme.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
-    grid: {
-        stroke: '#666666aa',
-        strokeDasharray: '4 4',
-    }
-}
 
 export type BarChartProps = {
     groupedData: Props,
@@ -40,6 +33,7 @@ export const BarChart = ({
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(65);
+    const { themeStyles } = useAppTheme();
 
     useEffect(() => {
         setRightPadding(isLargerThan ? 65 : 20)
@@ -55,6 +49,14 @@ export const BarChart = ({
     })
 
     const lightMode = width <= 400;
+
+    const defaultAxisStyle: VictoryAxisProps["style"] = {
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
+        grid: {
+            stroke: '#666666aa',
+            strokeDasharray: '4 4',
+        }
+    }
 
     return (
         <Box

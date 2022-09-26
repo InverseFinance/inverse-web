@@ -1,9 +1,10 @@
-import { TABS_COLOR_SCHEME, TABS_VARIANT } from '@app/variables/theme'
+import { useAppThemeParams } from '@app/hooks/useAppTheme';
 import { Tab, TabList, Tabs } from '@chakra-ui/react'
 
 export const BondsTabs = ({
     defaultIndex = 0
 }) => {
+    const { TABS_COLOR_SCHEME, TABS_VARIANT } = useAppThemeParams();
     return <Tabs
         defaultIndex={defaultIndex}
         mt="5"

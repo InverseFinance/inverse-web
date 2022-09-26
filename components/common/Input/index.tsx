@@ -1,4 +1,4 @@
-import theme, { INPUT_BORDER } from '@app/variables/theme'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps, TextProps } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
@@ -47,13 +47,14 @@ type BalanceInputProps = {
 }
 
 export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, inputRightProps, inputLeftProps, ...props }: BalanceInputProps & Partial<FlexProps>) => {
+  const { themeStyles, themeParams } = useAppTheme();
   return <Flex
     w="full"
     bgColor='primary.850'
     borderRadius={8}
     align="center"
     {...props}
-    border={isError ? `1px solid ${theme.colors.error}` : INPUT_BORDER}
+    border={isError ? `1px solid ${themeStyles.colors.error}` : themeParams.INPUT_BORDER}
   >
     <Flex w="full" position="relative" align="center">
       <Flex

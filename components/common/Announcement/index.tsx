@@ -8,7 +8,7 @@ import { OLD_XINV } from '@app/config/constants';
 import { utils } from 'ethers'
 
 import { useRouter } from 'next/router';
-import { ANNOUNCEMENT_BAR_BORDER } from '@app/variables/theme';
+import { useAppThemeParams } from '@app/hooks/useAppTheme';
 
 const XinvMigrationMessage = () => {
   const symbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL
@@ -36,6 +36,7 @@ export const Announcement = ({ isLanding = false }: { isLanding?: boolean }) => 
   const router = useRouter()
   const { balances } = useSupplyBalances()
   const needsXinvMigration = balances && balances[OLD_XINV] && Number(utils.formatEther(balances[OLD_XINV])) > 0.1
+  const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
 
   return (
     <Flex

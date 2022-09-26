@@ -16,14 +16,17 @@ export const lightTheme = extendTheme({
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: 'none',//"url('/assets/landing/graphic1.webp')",
     contrastMainTextColor: '#fff',
-    mainTextColor: '#333',
-    secondaryTextColor: '#666',
+    mainTextColor: '#333333',
+    mainTextColorAlpha: '#33333311',
+    secondaryTextColor: '#666666',
     accentTextColor: '#6d46d8',// dola bg
     lightAccentTextColor: '#776fc2',
     navBarBackgroundColor: '#eeedf7',
     navBarBackground: undefined,
     navBarBorderColor: '#cccccc',
     footerBgColor: '#dcdcdc',
+    barUnfilledColor: '#eeedf7',
+    barFilledColor: 'secondaryTextColor',
     primary: {
       50: '#c0c0c0',
       100: '#c3c3c3',
@@ -98,47 +101,7 @@ export const lightTheme = extendTheme({
   },
 });
 
-const theme = lightTheme;
-
-export const ANNOUNCEMENT_BAR_BORDER = '1px solid #dddddd' 
-export const TABS_COLOR_SCHEME = 'white' 
-export const TABS_VARIANT = 'line'
-export const INPUT_BORDER = undefined//`1px solid ${theme.colors['primary']['500']}`
-
-export const BUTTON_BG = 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(120,120,255) 100%)';
-export const BUTTON_BORDER_COLOR = 'primary.600';
-export const BUTTON_BG_COLOR = 'accentTextColor';
-export const BUTTON_TEXT_COLOR = 'white';
-export const BUTTON_BOX_SHADOW = `0 0 1px 1px ${theme.colors['primary']['500']}`;
-
-export const OUTLINE_BUTTON_BG = 'primary.800'//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
-export const OUTLINE_BUTTON_BG_COLOR = '';
-export const OUTLINE_BUTTON_BORDER_COLOR = 'accentTextColor';
-export const OUTLINE_BUTTON_TEXT_COLOR = 'accentTextColor';
-export const OUTLINE_BUTTON_BOX_SHADOW = '';
-
-export const NAV_BUTTON_BG = 'primary.800'//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
-export const NAV_BUTTON_BG_COLOR = '';
-export const NAV_BUTTON_BORDER_COLOR = 'accentTextColor';
-export const NAV_BUTTON_TEXT_COLOR = 'accentTextColor';
-export const NAV_BUTTON_BOX_SHADOW = '';
-
-export const THEME_NAME = 'light';
-
-export const CHART_COLORS = [
-  '#bbb7e0',
-  '#9993d1',
-  '#776fc2',
-  '#564bb1',
-  '#453c8d',
-  '#332d69',
-  '#221d45',
-  '#100e21',
-  '#0f0d1f',
-];
-
-export default theme
-
+export default lightTheme
 // import { extendTheme } from '@chakra-ui/react'
 export const darkTheme = extendTheme({
   colors: {
@@ -156,12 +119,16 @@ export const darkTheme = extendTheme({
     announcementBarBackground: "url('/assets/landing/graphic1.webp')",
     contrastMainTextColor: '#333',
     mainTextColor: '#ffffff',
+    mainTextColorAlpha: '#ffffff11',
     secondaryTextColor: '#bbb7e0',
     accentTextColor: '#34E795',
     lightAccentTextColor: '#dddbf0',
+    navBarBackgroundColor: '#100e21',
     navBarBackground: '#100e21',
     navBarBorderColor: '#221d45',
     footerBgColor: 'transparent',
+    barUnfilledColor: '#eeedf7',
+    barFilledColor: 'secondaryTextColor',
     primary: {
       50: '#eeedf7',
       100: '#dddbf0',
@@ -236,43 +203,78 @@ export const darkTheme = extendTheme({
   },
 });
 
-// const theme = extendTheme(darkTheme)
+export const OTHER_THEME_PARAMS = {
+  light: {
+    ANNOUNCEMENT_BAR_BORDER: '1px solid #dddddd',
+    TABS_COLOR_SCHEME: 'white',
+    TABS_VARIANT: 'line',
+    INPUT_BORDER: undefined,//`1px solid ${theme.colors['primary']['500']}`
 
-// export const ANNOUNCEMENT_BAR_BORDER = '1px solid #221d45' 
-// export const TABS_COLOR_SCHEME = 'white' 
-// export const TABS_VARIANT = 'solid-rounded'
-// export const INPUT_BORDER = `none`
+    BUTTON_BG: 'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(120,120,255) 100%)',
+    BUTTON_BORDER_COLOR: 'primary.600',
+    BUTTON_BG_COLOR: 'accentTextColor',
+    BUTTON_TEXT_COLOR: 'white',
+    BUTTON_BOX_SHADOW: `0 0 1px 1px ${lightTheme.colors['primary']['500']}`,
 
-// export const BUTTON_BG = 'primary.500'//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
-// export const BUTTON_BG_COLOR = 'primary.500';
-// export const BUTTON_BORDER_COLOR = 'primary.500';
-// export const BUTTON_TEXT_COLOR = 'white';
-// export const BUTTON_BOX_SHADOW = '';
+    OUTLINE_BUTTON_BG: 'primary.800',//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)',
+    OUTLINE_BUTTON_BG_COLOR: '',
+    OUTLINE_BUTTON_BORDER_COLOR: 'accentTextColor',
+    OUTLINE_BUTTON_TEXT_COLOR: 'accentTextColor',
+    OUTLINE_BUTTON_BOX_SHADOW: '',
 
-// export const OUTLINE_BUTTON_BG = 'primary.850'//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
-// export const OUTLINE_BUTTON_BG_COLOR = 'primary.600';
-// export const OUTLINE_BUTTON_BORDER_COLOR = 'primary.600';
-// export const OUTLINE_BUTTON_TEXT_COLOR = 'white';
-// export const OUTLINE_BUTTON_BOX_SHADOW = '';
+    NAV_BUTTON_BG: 'primary.800',//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)',
+    NAV_BUTTON_BG_COLOR: '',
+    NAV_BUTTON_BORDER_COLOR: 'accentTextColor',
+    NAV_BUTTON_TEXT_COLOR: 'accentTextColor',
+    NAV_BUTTON_BOX_SHADOW: '',
+    CHART_COLORS: [
+      '#bbb7e0',
+      '#9993d1',
+      '#776fc2',
+      '#564bb1',
+      '#453c8d',
+      '#332d69',
+      '#221d45',
+      '#100e21',
+      '#0f0d1f',
+    ]
+  },
+  dark: {
+    ANNOUNCEMENT_BAR_BORDER: '1px solid #221d45',
+    TABS_COLOR_SCHEME: 'white',
+    TABS_VARIANT: 'solid-rounded',
+    INPUT_BORDER: `none`,
 
-// export const NAV_BUTTON_BG = 'primary.800'//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
-// export const NAV_BUTTON_BG_COLOR = 'primary.600';
-// export const NAV_BUTTON_BORDER_COLOR = 'primary.600';
-// export const NAV_BUTTON_TEXT_COLOR = 'white';
-// export const NAV_BUTTON_BOX_SHADOW = '';
+    BUTTON_BG: 'primary.500',//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)';
+    BUTTON_BG_COLOR: 'primary.500',
+    BUTTON_BORDER_COLOR: 'primary.500',
+    BUTTON_TEXT_COLOR: 'white',
+    BUTTON_BOX_SHADOW: '',
 
-// export const THEME_NAME = 'dark';
+    OUTLINE_BUTTON_BG: 'primary.850',//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)',
+    OUTLINE_BUTTON_BG_COLOR: 'primary.600',
+    OUTLINE_BUTTON_BORDER_COLOR: 'primary.600',
+    OUTLINE_BUTTON_TEXT_COLOR: 'white',
+    OUTLINE_BUTTON_BOX_SHADOW: '',
 
-// export const CHART_COLORS = [
-//   '#bbb7e0',
-//   '#9993d1',
-//   '#776fc2',
-//   '#564bb1',
-//   '#453c8d',
-//   '#332d69',
-//   '#221d45',
-//   '#100e21',
-//   '#0f0d1f',
-// ];
+    NAV_BUTTON_BG: 'primary.800',//'linear-gradient(125deg, rgb(80,80,180,1) 0%, rgb(160,160,250) 100%)',
+    NAV_BUTTON_BG_COLOR: 'primary.600',
+    NAV_BUTTON_BORDER_COLOR: 'primary.600',
+    NAV_BUTTON_TEXT_COLOR: 'white',
+    NAV_BUTTON_BOX_SHADOW: '',
 
-// export default theme
+    THEME_NAME: 'dark',
+
+    CHART_COLORS: [
+      '#bbb7e0',
+      '#9993d1',
+      '#776fc2',
+      '#564bb1',
+      '#453c8d',
+      '#332d69',
+      '#221d45',
+      '#100e21',
+      '#0f0d1f',
+    ],
+  }
+}

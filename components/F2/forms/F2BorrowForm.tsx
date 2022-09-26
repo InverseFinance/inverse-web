@@ -15,7 +15,6 @@ import { parseEther } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
-import theme from '@app/variables/theme'
 
 const { DOLA } = getNetworkConfigConstants();
 

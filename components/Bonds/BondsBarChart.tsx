@@ -1,13 +1,11 @@
-import theme from '@app/variables/theme';
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart, BarChartProps } from '@app/components/Transparency/BarChart'
 import moment from 'moment'
 import { shortenNumber } from '@app/util/markets';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const months = [...Array(12).keys()];
-
-const defaultColorScale = [theme.colors.secondary, theme.colors.teal[200], theme.colors.teal[300]];
 
 export const BondsBarChart = ({
     chartData,
@@ -17,6 +15,8 @@ export const BondsBarChart = ({
     chartData: any,
     maxChartWidth?: number,
 } & Partial<BarChartProps>) => {
+    const { themeStyles } = useAppTheme();
+    const defaultColorScale = [themeStyles.colors.secondary, themeStyles.colors.teal[200], themeStyles.colors.teal[300]];
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
 
@@ -52,7 +52,7 @@ export const BondsBarChart = ({
             colorScale={defaultColorScale}
             isDollars={false}
             titleProps={{
-                style:{ fill: theme.colors.mainTextColor, fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
+                style:{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
                 y: 10,
             }}
             labelProps={{

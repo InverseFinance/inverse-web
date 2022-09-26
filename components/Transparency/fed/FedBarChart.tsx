@@ -1,15 +1,16 @@
-import theme from '@app/variables/theme';
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart } from '../BarChart'
 import moment from 'moment'
 import { shortenNumber } from '@app/util/markets';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const months = [...Array(12).keys()];
 
 export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { chartData: any, maxChartWidth?: number }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
+    const { themeStyles } = useAppTheme();
 
     useEffect(() => {
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
@@ -39,7 +40,7 @@ export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { char
             height={300}
             title="Monthly profits for the last 12 months"
             groupedData={barChartData}
-            colorScale={[theme.colors.secondary]}
+            colorScale={[themeStyles.colors.secondary]}
             isDollars={true}
             {...props}
         />

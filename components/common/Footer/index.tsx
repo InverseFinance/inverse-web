@@ -2,26 +2,27 @@ import { Image, Stack, Text } from '@chakra-ui/react'
 import { MENUS } from '@app/variables/menus'
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
-import { THEME_NAME } from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const SOCIALS = MENUS.socials;
 
 const LINK_GROUPS = MENUS.footerGroups;
 
-export const Footer = () => (
-  <Stack bgColor="transparent" w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="mainTextColor">
+export const Footer = () => {
+  const { themeName } = useAppTheme();
+  return <Stack bgColor="transparent" w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="mainTextColor">
     <Stack width={{ base: 'full', lg: 72 }} spacing={4}>
       <Stack direction="row" align="center">
         <Logo boxSize={7} />
         <Text fontWeight="bold">{process.env.NEXT_PUBLIC_TITLE}</Text>
       </Stack>
       <Text fontSize="13px">
-      Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can participate in the decision-making process. Join us!
+        Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can participate in the decision-making process. Join us!
       </Text>
       <Stack direction="row" spacing={5} align="center">
         {SOCIALS.map(({ href, image }, i) => (
           <Link key={i} href={href} as="a">
-            <Image filter={ THEME_NAME === 'dark' ? undefined : 'invert(0.8)' } width="24px" height="20px" src={image} alt="Social" />
+            <Image filter={themeName === 'dark' ? undefined : 'invert(0.8)'} width="24px" height="20px" src={image} alt="Social" />
           </Link>
         ))}
       </Stack>
@@ -46,6 +47,6 @@ export const Footer = () => (
       ))}
     </Stack>
   </Stack>
-)
+}
 
 export default Footer

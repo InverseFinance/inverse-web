@@ -1,4 +1,4 @@
-import { TABS_COLOR_SCHEME, TABS_VARIANT } from '@app/variables/theme';
+import { useAppThemeParams } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
 type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
@@ -18,6 +18,7 @@ const tabs = [
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {
+    const { TABS_COLOR_SCHEME, TABS_VARIANT } = useAppThemeParams();
     const handleTab = (newIndex: number) => {
         // cleaner visually than router.push
         window.location.pathname = `/transparency/${tabs[newIndex].page}`

@@ -1,6 +1,6 @@
 import { Input } from '@app/components/common/Input'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
-import { INPUT_BORDER } from '@app/variables/theme'
+import { useAppThemeParams } from '@app/hooks/useAppTheme'
 import { VStack, Text, Stack, NumberInputProps, InputProps } from '@chakra-ui/react'
 import {
     NumberInput,
@@ -34,6 +34,7 @@ export const F2DurationInput = ({
 }) => {
     const [durationType, setDurationType] = useState(defaultType);
     const [inputValue, setInputValue] = useState(defaultValue);
+    const { INPUT_BORDER } = useAppThemeParams();
 
     const handleChange = (v: string) => {
         setInputValue(v.replace(/[^0-9.]/gi, ''));
@@ -82,6 +83,7 @@ const DurationNumber = ({
     label,
     ...props
 }: { label: string } & Partial<NumberInputProps>) => {
+    const { INPUT_BORDER } = useAppThemeParams();
     return <VStack position="relative">
         <Text color="mainTextColor" fontWeight="bold" fontSize="18px" zIndex="1" position="absolute" right="35px" top="15px">{label}</Text>
         <NumberInput

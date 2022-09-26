@@ -10,15 +10,13 @@ import { Web3Provider } from '@ethersproject/providers';
 import { DeleteIcon } from '@chakra-ui/icons'
 import { clearLocalDrafts } from '@app/util/governance'
 import { useEffect, useState } from 'react'
-import theme from '@app/variables/theme'
 import useStorage from '@app/hooks/useStorage'
 import { AnimatedInfoTooltip } from '../common/Tooltip'
 import { DRAFT_WHITELIST } from '@app/config/constants'
 import { SearchProposals } from './SearchProposals'
 import { getProposalTags } from './ProposalTags'
 import { namedAddress } from '@app/util'
-
-
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { account } = useWeb3React<Web3Provider>()
@@ -26,6 +24,7 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
   const { value: draftLinkPrefStored, setter: saveDraftLinkPref } = useStorage('draft-link-pref');
   const [prefersEditMode, setPrefersEditMode] = useState(!!draftLinkPrefStored);
   const now = new Date()
+  const { themeStyles } = useAppTheme();
 
   const previews: Partial<Proposal>[] = drafts.map(d => {
     return {
@@ -63,12 +62,12 @@ export const PublicDraftProposals = ({ drafts }: { drafts: any[] }) => {
       nbNotif={nbDraftNotif}
       description={
         <Flex fontSize="14px">
-          <Text color={theme.colors.secondaryTextColor} fontSize="14px">
+          <Text color={themeStyles.colors.secondaryTextColor} fontSize="14px">
             Off-Chain Draft Proposals
           </Text>
           {
             canDraft && <HStack alignItems="center" ml="2">
-              <Text color={theme.colors.secondaryTextColor}>
+              <Text color={themeStyles.colors.secondaryTextColor}>
                 - Directly use Draft Edit Links?
                 <AnimatedInfoTooltip iconProps={{ ml: '2', fontSize: '12px' }} message="Only whitelisted addresses see this option. Your choice will be remembered in your browser's cache." />
               </Text>

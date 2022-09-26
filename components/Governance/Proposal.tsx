@@ -20,7 +20,7 @@ import { ProposalTags } from './ProposalTags'
 import { SubmitButton } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import theme from '@app/variables/theme'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -94,6 +94,7 @@ export const ProposalPreview = ({
 }) => {
   const { query } = useRouter()
   const { unreadKeys } = useGovernanceNotifs()
+  const { themeStyles } = useAppTheme();
   const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions, proposer, executionTimestamp } = proposal
 
   const totalVotes = forVotes + againstVotes
@@ -120,7 +121,7 @@ export const ProposalPreview = ({
           _hover={{ bgColor: 'primary.850' }}
           cursor="pointer"
           borderRadius={8}
-          borderTop={`1px solid ${theme.colors.primary['500']}`}
+          borderTop={`1px solid ${themeStyles.colors.primary['500']}`}
         >
           <Flex
             w="full"
