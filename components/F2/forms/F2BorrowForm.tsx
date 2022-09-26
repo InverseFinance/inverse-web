@@ -141,7 +141,7 @@ export const F2BorrowForm = ({
                 </HStack>
             </VStack>
             {
-                (deposits > 0 && dbrBalance > 0) ?
+                (deposits > 0 && dbrBalance > 0 && (isBorrow || (!isBorrow && debt > 0))) ?
                     <SimpleAmountForm
                         address={isBorrow ? f2market.collateral : DOLA}
                         destination={f2market.address}
@@ -162,6 +162,12 @@ export const F2BorrowForm = ({
                                 alertProps={{ w: 'full' }}
                                 title="No Collateral Deposited yet"
                                 description={`Loans need to be covered by a collateral, please deposit some.`}
+                            />
+                        }
+                        {!isBorrow && debt === 0 &&
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                title="Nothing to repay"                                
                             />
                         }
                         {dbrBalance === 0 && debt === 0 &&
