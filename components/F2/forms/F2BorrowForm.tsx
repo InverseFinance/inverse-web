@@ -15,6 +15,7 @@ import { parseEther } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
+import theme from '@app/variables/theme'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -82,7 +83,7 @@ export const F2BorrowForm = ({
         description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
         contentProps={{
             position: 'relative',
-            backgroundColor: '#ffffffdd',//'lightPrimaryAlpha',
+            backgroundColor: `containerContentBackgroundAlpha`,//'lightPrimaryAlpha',
             _after: {
                 content: '""',
                 position: 'absolute',

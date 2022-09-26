@@ -70,7 +70,7 @@ export const F2CollateralForm = ({
         }}
         contentProps={{
             position: 'relative',
-            backgroundColor: '#ffffffdd',//mainColor,
+            backgroundColor: 'containerContentBackgroundAlpha',//mainColor,
             _after: {
                 content: '""',
                 position: 'absolute',

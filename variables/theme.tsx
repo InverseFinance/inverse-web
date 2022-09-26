@@ -4,6 +4,7 @@ export const lightTheme = extendTheme({
   initialColorMode: 'light',
   colors: {
     mainBackgroundColor: '#eeedf7',
+    containerContentBackgroundAlpha: '#ffffffdd',//'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
     containerContentBackground: '#ffffff',//'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
     gradient3: 'linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(239,239,239,1) 50%, rgba(255,255,255,1) 100%)',//'linear-gradient(125deg, rgba(225,222,251,1) 0%, rgba(242,237,255,1) 50%, rgba(225,222,251,1) 100%);',
     gradient2: 'linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(239,239,239,1) 50%, rgba(255,255,255,1) 100%)',//'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
@@ -142,6 +143,7 @@ export default theme
 export const darkTheme = extendTheme({
   colors: {
     mainBackgroundColor: '#2a2557',
+    containerContentBackgroundAlpha: '#2a2557aa',
     containerContentBackground: '#2a2557',
     gradient3: 'linear-gradient(125deg, rgba(25,22,51,1) 0%, rgba(42,37,87,1) 50%, rgba(25,22,51,1) 100%)',
     gradient2: 'linear-gradient(125deg, rgba(34,29,69,1) 0%, rgba(51,45,105,1) 50%, rgba(34,29,69,1) 100%);',
