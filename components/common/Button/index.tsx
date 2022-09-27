@@ -108,17 +108,19 @@ export const NetworkButton = ({
 }
 
 export const SubmitButton = (props: SmartButtonProps) => {
-  const { BUTTON_BG_COLOR, BUTTON_TEXT_COLOR, BUTTON_BG, BUTTON_BOX_SHADOW } = useAppThemeParams();
+  const { BUTTON_BG_COLOR, BUTTON_TEXT_COLOR, BUTTON_BG, BUTTON_BOX_SHADOW, BUTTON_BORDER_COLOR } = useAppThemeParams();
   return (
     <SmartButton
       w="full"
       bg={BUTTON_BG}
       bgColor={!props?.colorScheme ? BUTTON_BG_COLOR : undefined}
+      borderColor={BUTTON_BORDER_COLOR}
       fontSize="13px"
       fontWeight="semibold"
       textTransform="uppercase"
       color={BUTTON_TEXT_COLOR}
       boxShadow={BUTTON_BOX_SHADOW}
+      _active={{ filter: 'brightness(1.3)' } }
       _focus={{}}
       _hover={!props?.colorScheme ? { filter: 'brightness(1.25)' } : undefined}
       {...props}
