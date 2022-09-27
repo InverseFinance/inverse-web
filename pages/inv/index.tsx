@@ -129,7 +129,7 @@ export const InvPlus = () => {
           <HStack w="full" justify="center" alignItems="center">
             <Link isExternal target="_blank" href={process.env.NEXT_PUBLIC_BUY_RTOKEN_URL!}>
               <SubmitButton w="fit-content" color="mainTextColor">
-                Sushiswap <Image src="/assets/projects/Sushiswap.png" h="20px" ml="2" />
+                1inch <Image src="/assets/projects/1inch.png" h="20px" ml="2" />
               </SubmitButton>
             </Link>
             {
