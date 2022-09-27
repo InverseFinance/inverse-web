@@ -11,8 +11,7 @@ type Props = { x: string, y: number, perc?: number }[]
 const defaultGraphicData = [{ x: 'Loading...', y: 100 }]; // Data used to make the animate prop work
 class CustomLabel extends React.Component {
     render() {
-        const { datum, showAsAmountOnly } = this.props;
-        const { themeStyles } = useAppTheme();
+        const { datum, showAsAmountOnly, themeStyles } = this.props;    
         return (
             <g>
                 <VictoryLabel {...this.props} />
@@ -106,7 +105,7 @@ export const PieChart = ({
                     padding={{ ...defaultPadding, ...padding }}
                     theme={VictoryTheme.material}
                     data={chartData}
-                    labelComponent={<CustomLabel showAsAmountOnly={showAsAmountOnly} />}
+                    labelComponent={<CustomLabel themeStyles={themeStyles} showAsAmountOnly={showAsAmountOnly} />}
                     padAngle={20}
                     innerRadius={35}
                     colorScale={_colorScale}
