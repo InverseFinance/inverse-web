@@ -366,7 +366,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               <ConnectionMenuItem
                 onClick={() => switchTheme()}
               >
-                {themeName === 'dark' ? <SunIcon boxSize={3} /> : <MoonIcon boxSize={3} />}
+                {themeName === 'dark' ? <SunIcon boxSize={6} /> : <MoonIcon boxSize={6} />}
                 <Text fontWeight="semibold">
                   {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
                 </Text>
