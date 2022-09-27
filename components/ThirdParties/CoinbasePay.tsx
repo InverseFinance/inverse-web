@@ -1,4 +1,4 @@
-import { ButtonProps, Image, Spinner, useDisclosure } from '@chakra-ui/react';
+import { Box, ButtonProps, Image, Spinner, useDisclosure } from '@chakra-ui/react';
 import { generateOnRampURL } from '@coinbase/cbpay-js';
 import { useState } from 'react';
 import { SubmitButton } from '@app/components/common/Button';
@@ -9,6 +9,7 @@ const appId = '033abd6f-0903-4abc-bc2f-fed226b408a2';
 export const CoinbasePayButton = ({
     account,
     text = 'Coinbase Pay',
+    children,
     ...props
 }: {
     account: string
@@ -59,15 +60,21 @@ export const CoinbasePayButton = ({
                 src={url}
             />
         </Modal>
-        <SubmitButton
-            {...props}
-            color="mainTextColor"
-            w='fit-content'
-            onClick={handleClick}
-            isLoading={isOpen && !url}
-            disabled={!account}
-        >
-            {text} <Image src="/assets/projects/coinbase.svg" h="20px" ml="2" />
-        </SubmitButton>
+        {
+            children ? 
+                <Box display="inherit" w='full' onClick={handleClick}>
+                    {children}
+                </Box> :
+                <SubmitButton
+                    {...props}
+                    color="mainTextColor"
+                    w='fit-content'
+                    onClick={handleClick}
+                    isLoading={isOpen && !url}
+                    disabled={!account}
+                >
+                    {text} <Image src="/assets/projects/coinbase.svg" h="20px" ml="2" />
+                </SubmitButton>
+        }
     </>
 };
