@@ -1,8 +1,11 @@
-import { Box, ButtonProps, Image, Spinner, useDisclosure } from '@chakra-ui/react';
+import { Box, ButtonProps, Image, Spinner, useDisclosure, VStack } from '@chakra-ui/react';
 import { generateOnRampURL } from '@coinbase/cbpay-js';
 import { useState } from 'react';
 import { SubmitButton } from '@app/components/common/Button';
 import { Modal } from '@app/components/common/Modal';
+import Link from '@app/components/common/Link';
+import { InfoMessage } from '@app/components/common/Messages';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const appId = '033abd6f-0903-4abc-bc2f-fed226b408a2';
 
@@ -43,22 +46,17 @@ export const CoinbasePayButton = ({
             isOpen={isOpen && !!url}
             onClose={handleClose}
             size={'2xl'}
-            p="10px"
         >
-            <Spinner
-                zIndex="-1"
-                position="absolute"
-                margin="auto"
-                top="0"
-                bottom="0"
-                left="0"
-                right="0"
-            />
-            <iframe
-                width='100%'
-                height='500px'
-                src={url}
-            />
+            <VStack w='full'>
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    title="You need a Coinbase Account to use Coinbase Pay"  
+                    description="Coinbase Pay allows you buy tokens for your Ethereum address with fiat funds."                  
+                />
+                <Link href={url} isExternal target="_blank">
+                    Use Coinbase Pay <ExternalLinkIcon />
+                </Link>
+            </VStack>
         </Modal>
         {
             children ? 
