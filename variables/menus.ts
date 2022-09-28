@@ -23,29 +23,52 @@ export const MENUS = {
       ],
     },
     {
-      label: 'Tokens',
-      href: '/inv',
+      label: 'Earn',
+      href: '/yield-opportunities',
       submenus: [
         {
-          label: 'Overview',
-          href: '/tokens',
+          label: 'Stake INV',
+          href: '/stake',
         },
         {
-          label: 'INV',
-          href: '/tokens/inv',
-        },
-        {
-          label: 'DOLA',
-          href: '/swap/DAI/DOLA',
-        },
-        {
-          label: 'DBR',
-          href: '/tokens/dbr',
+          label: 'Bond DOLA for INV',
+          href: '/bonds',
         },
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
+      ],
+    },
+    // {
+    //   label: 'Stake',
+    //   href: '/f2',      
+    // },
+    {
+      label: 'Swap',
+      href: '/swap/DAI/DOLA',
+      submenus: [
+        {
+          label: 'Swap DOLA',
+          href: '/swap/DAI/DOLA',
+        },
+        {
+          label: 'Tokens',
+          href: '/tokens',
+        },
+        // {
+        //   label: 'INV',
+        //   href: '/tokens/inv',
+        // },
+
+        // {
+        //   label: 'DBR',
+        //   href: '/tokens/dbr',
+        // },
+        // {
+        //   label: 'Yield Opportunities',
+        //   href: '/yield-opportunities',
+        // },
       ]
     },
     // {
@@ -66,22 +89,85 @@ export const MENUS = {
     //     },
     //   ]
     // },
+    
+    // {
+    //   label: 'Bonds',
+    //   href: '/bonds',
+    //   submenus: [
+    //     {
+    //       label: 'Bonds',
+    //       href: '/bonds',
+    //     },
+    //     {
+    //       label: 'Bonds Stats',
+    //       href: '/bonds/stats',
+    //     },
+    //   ],
+    // },
     {
-      label: 'Bonds',
-      href: '/bonds',
+      label: 'Learn',
+      href: '/transparency/overview',
       submenus: [
         {
-          label: 'Bonds',
-          href: '/bonds',
+          href: '/transparency/overview',
+          label: 'Transparency Portal',
         },
         {
-          label: 'Bonds Stats',
-          href: '/bonds/stats',
+          href: '/analytics',
+          label: 'Analytics',
         },
-      ],
+        {
+          href: 'https://analytics.inverse.finance',
+          label: 'Docs',
+        },
+        {
+          label: 'Blog',
+          href: '/blog',
+        },
+        // {
+        //   href: '/transparency/treasury',
+        //   label: 'Treasury',
+        // },
+        // {
+        //   href: '/transparency/dao',
+        //   label: 'DAO',
+        // },
+        // {
+        //   href: '/transparency/inv',
+        //   label: 'INV',
+        // },
+        // {
+        //   href: '/transparency/dola',
+        //   label: 'DOLA & the Feds',
+        // },
+        // {
+        //   href: '/transparency/feds/policy/all',
+        //   label: 'Feds',
+        // },
+        // {
+        //   href: '/transparency/interest-model',
+        //   label: 'Interest Rates',
+        // },
+        // {
+        //   href: '/transparency/multisigs',
+        //   label: 'Multisig Wallets',
+        // },
+        // {
+        //   href: '/transparency/stabilizer',
+        //   label: 'Stabilizer',
+        // },
+        // {
+        //   href: '/transparency/shortfalls',
+        //   label: 'Shortfalls',
+        // },
+        // {
+        //   href: '/transparency/liquidations',
+        //   label: 'Liquidations',
+        // },
+      ]
     },
     {
-      label: 'Governance',
+      label: 'Participate',
       href: '/governance',
       submenus: [
         {
@@ -105,75 +191,25 @@ export const MENUS = {
           href: '/governance/delegates/$account',
         },
       ]
-    },
-    {
-      label: 'Transparency',
-      href: '/transparency/overview',
-      submenus: [
-        {
-          href: '/transparency/overview',
-          label: 'Overview',
-        },
-        {
-          href: '/transparency/treasury',
-          label: 'Treasury',
-        },
-        {
-          href: '/transparency/dao',
-          label: 'DAO',
-        },
-        {
-          href: '/transparency/inv',
-          label: 'INV',
-        },
-        {
-          href: '/transparency/dola',
-          label: 'DOLA & the Feds',
-        },
-        {
-          href: '/transparency/feds/policy/all',
-          label: 'Feds',
-        },
-        {
-          href: '/transparency/interest-model',
-          label: 'Interest Rates',
-        },
-        {
-          href: '/transparency/multisigs',
-          label: 'Multisig Wallets',
-        },
-        {
-          href: '/transparency/stabilizer',
-          label: 'Stabilizer',
-        },
-        {
-          href: '/transparency/shortfalls',
-          label: 'Shortfalls',
-        },
-        {
-          href: '/transparency/liquidations',
-          label: 'Liquidations',
-        },
-      ]
-    },
-    {
-      href: '/analytics',
-      label: 'Analytics',
-      submenus: [
-        {
-          href: '/analytics',
-          label: 'Dashboard',
-        },
-        {
-          href: 'https://analytics.inverse.finance',
-          label: 'Docs',
-        }
-      ],
-    },
-    {
-      label: 'Blog',
-      href: '/blog',
-    },
+    },    
+    // {
+    //   href: '/analytics',
+    //   label: 'Analytics',
+    //   submenus: [
+    //     {
+    //       href: '/analytics',
+    //       label: 'Dashboard',
+    //     },
+    //     {
+    //       href: 'https://analytics.inverse.finance',
+    //       label: 'Docs',
+    //     }
+    //   ],
+    // },
+    // {
+    //   label: 'Blog',
+    //   href: '/blog',
+    // },
   ],
   "footerGroups": [
     {
