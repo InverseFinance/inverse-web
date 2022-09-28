@@ -16,7 +16,7 @@ const formatBn = (bn: BigNumber, token: Token) => {
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.0`;
+  const cacheKey = `dao-cache-v1.2.1`;
 
   try {
 
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
       ...FEDS.map((fed: Fed) => {
         const fedContract = new Contract(fed.address, fed.abi, getProvider(fed.chainId));
         return Promise.all([
-          fedContract[fed.isXchain ? 'dstSupply' : 'supply'](),
+          fedContract[fed.isXchain ? 'dstSupply' : (fed.supplyFuncName || 'supply')](),
           fedContract[fed.isXchain ? 'GOV' : 'gov'](),
           fedContract['chair'](),
         ]);

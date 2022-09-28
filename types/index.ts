@@ -398,6 +398,7 @@ export type Fed = {
   name: string,
   projectImage: string,
   isXchain?: boolean,
+  supplyFuncName?: string
 }
 
 export type FedWithData = Fed & {
