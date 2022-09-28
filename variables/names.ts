@@ -42,6 +42,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
     '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'PatB GWG',
     '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Nakamomo',
+    '0xCf9aa49C83a4c4b465152877e95B2e8c4e995587': 'Nakamomo2',
     '0xad4a190d4aea2180b66906537f1fd9700c83842a': 'N3bs',
     '0xee568534d6f6181a933d46748426f82f970eebf4': 'N3bs2',
     '0x962228a90eac69238c7d1f216d80037e61ea9255': 'CryptoHarry',
