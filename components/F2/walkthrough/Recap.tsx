@@ -23,21 +23,14 @@ export const F2WalkthroughRecap = ({
         signer,
         colDecimals,
         collateralAmount,
-        debt,
-        newDebt,
         dbrCoverDebt,
         duration,
-        riskColor,
-        newCreditLimit,
-        bnDolaLiquidity,
-        newPerc,
-        dolaToken,
         debtAmount,
         dbrCover,
         newLiquidationPrice,
         durationTypedValue,
         durationType,
-        newTotalDebt,
+        dbrPrice,
         isDeposit,
         bnCollateralBalance,
         bnDeposits,
@@ -58,6 +51,9 @@ export const F2WalkthroughRecap = ({
             </TextInfo>
             <TextInfo message="The borrow fee that will be paid over time using the DBR tokens, don't sell them unless you know what you're doing">
                 <Text>Your borrow fee over time will be <b>{shortenNumber(dbrCover, 2)} DBRs ({shortenNumber(dbrCoverDebt, 2, true)})</b></Text>
+            </TextInfo>
+            <TextInfo message="The borrow fee that will be paid over time using the DBR tokens, don't sell them unless you know what you're doing">
+                <Text>Your fixed-rate fee will be equivalent to a <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b></Text>
             </TextInfo>
             <TextInfo message="The debt that you will need to repay, can increase if you exceed the chosen loan duration or run out of DBRs">
                 <Text>Your added debt will be <b>{shortenNumber(debtAmount + dbrCoverDebt, 2)} DOLA</b></Text>

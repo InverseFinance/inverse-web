@@ -3,6 +3,7 @@ import { preciseCommify } from "@app/util/misc";
 import { HStack, Text, VStack } from "@chakra-ui/react"
 import moment from 'moment';
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const formatValue = (value: number | null, precision = 2, type = 'number', nullPlaceholder = '') => {
     if (value === null) {
@@ -45,6 +46,7 @@ export const F2StateInfo = ({
     tooltipTitle?: string
     color?: string
 }) => {
+    const { themeName } = useAppTheme();
     const currentFormatted = formatValue(currentValue, precision, type);
     const nextFormatted = nextValue !== undefined ? formatValue(nextValue, precision, type, nullPlaceholder ?? placeholder) : '';
 
@@ -52,7 +54,7 @@ export const F2StateInfo = ({
         placeholder :
         <>{prefix}{currentFormatted}{!!nextFormatted && currentFormatted !== nextFormatted && <b textShadow="inherit"> => {nextFormatted}</b>}{suffix}</>
 
-    const text = <Text textShadow={`0px 1px 1px #ccc`} cursor="default" color={color} _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
+    const text = <Text textShadow={themeName === 'light' ? `0px 1px 1px #ccc` : undefined} cursor="default" color={color} _hover={{ color: 'mainTextColor' }} transition="color 0.4s">
         {content}
     </Text>
 
