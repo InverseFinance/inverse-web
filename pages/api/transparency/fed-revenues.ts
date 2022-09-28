@@ -33,7 +33,7 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.6`;
+    const cacheKey = `revenues-v1.0.7`;
 
     try {
 
