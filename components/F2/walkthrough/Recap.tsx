@@ -77,7 +77,7 @@ export const F2WalkthroughRecap = ({
                 decimals={colDecimals}
                 maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                 onAction={({ bnAmount }) => { alert('Contract not available yet') }}
-                onMaxAction={({ bnAmount }) => {}}
+                onMaxAction={({ bnAmount }) => { alert('Contract not available yet') }}
                 actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
                 showMaxBtn={false}
                 isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0}

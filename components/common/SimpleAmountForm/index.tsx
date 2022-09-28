@@ -115,7 +115,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
             balance,
             ...props,
         };
-        return isMax ? onAction(params) : onMaxAction(params);
+        return isMax ? onMaxAction(params) : onAction(params);
     }
 
     const handleChange = (value: string) => {
