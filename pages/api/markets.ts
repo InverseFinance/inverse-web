@@ -144,7 +144,7 @@ export default async function handler(req, res) {
       getYearnVaults(),
       getStethData(),
       getXSushiData(),
-      getPoolYield('0xAA5A67c256e27A5d80712c51971408db3370927D-ethereum'),
+      getPoolYield('a6aee229-3a38-47a1-a664-d142a4184ec9'),
     ]);
 
     const [yearnVaults, stethData, xSushiData, dola3poolYield] = externalYieldResults.map(r => {
