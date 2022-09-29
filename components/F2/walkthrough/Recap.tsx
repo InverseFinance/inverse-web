@@ -61,6 +61,9 @@ export const F2WalkthroughRecap = ({
             <TextInfo message="If the collateral price reaches that price, your collateral can be liquidated entirely">
                 <Text>Your liquidation price will be <b>{shortenNumber(newLiquidationPrice, 2, true)} (current price is {shortenNumber(market.price, 2, true)})</b></Text>
             </TextInfo>
+            <TextInfo message="The duration value is only to calculate the amount of DBR needed">
+                <Text>You can terminate the loan at any time and sell the remaining DBRs</Text>
+            </TextInfo>
         </VStack>
         <HStack w='full' justify="flex-end" pt="4">
             <SubmitButton onClick={() => onStepChange(step - 1)}>

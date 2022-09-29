@@ -189,7 +189,7 @@ export const F2CombinedForm = ({
 
     const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
         <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
-            <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate">
+            <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate, directly linked to DBR price">
                 <Text color="accentTextColor">Current Fixed-Rate:</Text>
             </TextInfo>
             <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
