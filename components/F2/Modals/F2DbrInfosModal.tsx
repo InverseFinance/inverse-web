@@ -24,7 +24,7 @@ export const F2DbrInfosModal = ({
     const { dailyDebtAccrual, debt } = useAccountDBR(account);
 
     return <InfoModal
-        title={`Fixed Rate Validity and DBR`}
+        title={`Fixed Rate Duration and DBR`}
         onClose={onClose}
         onOk={onClose}
         isOpen={isOpen}
@@ -32,7 +32,7 @@ export const F2DbrInfosModal = ({
         okLabel="Close"
         footerLeft={
             <Link textDecoration="underline" fontWeight="bold" href={DBR_LINK} isExternal target="_blank">
-                {debt > 0 ? 'Recharge DBR balance' : 'Get DBR tokens'}
+                {debt > 0 ? 'Top-up DBR balance' : 'Get DBR tokens'}
             </Link>
         }
     >

@@ -37,7 +37,7 @@ export const DbrHealth = ({
           tooltipTitle={hasDebt || isPreviewing ? "Fixed Rate until" : ''}
           color={riskColor}
           tooltip={
-            hasDebt || isPreviewing ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+            hasDebt || isPreviewing ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a forced top-up of your DBR, which will cause your debt to increase and damage the Collateral Health."
               : ''
           }
         />
@@ -53,7 +53,7 @@ export const DbrHealth = ({
         />
       </HStack>
       <QuantityBar
-        title={needsRechargeSoon ? 'Please Recharge DBR' : 'Fixed Rate Validity'}
+        title={needsRechargeSoon ? 'Please top-up DBR' : 'Fixed Rate Duration'}
         perc={dbrDepletionPerc}
         previewPerc={previewPerc}
         badgeColorScheme={'success'}
@@ -86,7 +86,7 @@ export const DbrHealth = ({
           nullPlaceholder="no more loan"
           tooltipTitle="Time before Exhaustion"
           tooltip={
-            hasDebt ? "Remaining time before you become in deficit of DBR tokens (Exhaustion state), a state  where someone can do a force recharge of your DBR, which will cause your debt to increase and damage the Collateral Health."
+            hasDebt ? "Remaining time before you become in deficit of DBR tokens (Exhaustion state), a state  where someone can do a forced top-up of your DBR, which will cause your debt to increase and damage the Collateral Health."
               : ''
           }
         />

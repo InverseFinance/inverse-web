@@ -162,7 +162,7 @@ export const F2CombinedFormSimplest = ({
                         </TextInfo>
                         <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
                             <Text cursor="pointer" onClick={() => onDbrOpen()} color="secondaryTextColor">
-                                Fixed Rate Validity: {duration} days
+                                Fixed Rate Duration: {duration} days
                             </Text>
                         </TextInfo>
                     </Stack>

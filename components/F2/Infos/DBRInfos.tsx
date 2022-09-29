@@ -21,13 +21,13 @@ export const DBRInfos = () => {
             - In the <b>Exhausted</b> state, someone can <b>force-recharge</b> your DBRs so that your current DBR deficit is gone.
         </Text>
         <Text textAlign="left">
-            - <b>Being forced-recharged is bad</b> for you <b>but not fatal</b>
+            - <b>Being forced top-up is bad</b> for you <b>but not fatal</b>
         </Text>
         <Text textAlign="left">
             - It's like a coach Doping you to keep up, it <b>recovers your stamina temporarily but at the cost of your Health</b> (increases debt, damaging Collateral Health).
         </Text>
         <Text textAlign="left">
-            - That's why it's better to recharge your DBR balance yourself before entering the <b>Exhausted</b> state by buying it on the open market for example.
+            - That's why it's better to top-up your DBR balance yourself before entering the <b>Exhausted</b> state by buying it on the open market for example.
         </Text>
     </VStack>
 }

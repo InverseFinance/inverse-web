@@ -44,7 +44,7 @@ export const F2RechargeDBRForm = ({
         description="This will buy enough DBR at market price so that your loan can last longer wihout entering the Exhausted state."
     /> */}
         {/* <SubmitButton colorScheme="blue">
-        Recharge
+        Top-up
     </SubmitButton> */}
     </VStack>
 }

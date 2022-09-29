@@ -47,7 +47,7 @@ export const F2FormInfos = ({
             <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
                 <TextInfo message="The Fixed Rate will be locked-in for a specific duration, you can change the duration by clicking the settings icon.">
                     <Text cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
-                        Rate Validity:
+                        Rate Duration:
                     </Text>
                 </TextInfo>
                 <Text>{duration} days</Text>
