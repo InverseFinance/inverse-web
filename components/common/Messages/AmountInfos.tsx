@@ -8,6 +8,7 @@ export const AmountInfos = ({
     price,
     dbrCover,
     textProps,
+    format = true,
     ...props
 }: {
     label: string
@@ -15,16 +16,18 @@ export const AmountInfos = ({
     newValue?: number
     price?: number
     dbrCover?: number
+    format?: boolean
     textProps?: Partial<TextProps>
 } & Partial<StackProps>) => {
     const _textProps = { fontSize: '12px', color: 'secondaryTextColor', ...textProps }
+    const formatFun = format ? shortenNumber : (v) => v;
     return <HStack spacing="1" justify="space-between" {...props}>
         <Text {..._textProps}>
-            {label}: {!!value || !value && !newValue ? shortenNumber(value, 2, false, true) : ''} {price && value ? `(${shortenNumber(value * price, 2, true)})` : ''}
+            {label}: {!!value || !value && !newValue ? formatFun(value, 2, false, true) : ''} {price && value ? `(${formatFun(value * price, 2, true)})` : ''}
         </Text>
         {
             !!newValue && value !== newValue &&
-            <Text {..._textProps}> {!!value && !!newValue ? '=> ' : ''}{shortenNumber(newValue, 2, false, true)} {price ? `(${shortenNumber(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Debt = ${shortenNumber(dbrCover + newValue, 2)}` : ''}</Text>
+            <Text {..._textProps}> {!!value && !!newValue ? '=> ' : ''}{formatFun(newValue, 2, false, true)} {price ? `(${formatFun(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Debt = ${formatFun(dbrCover + newValue, 2)}` : ''}</Text>
         }
     </HStack>
 }

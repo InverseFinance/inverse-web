@@ -7,7 +7,7 @@ import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
-import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
+import { useAccountDBRMarket, useDBRPrice, useAccountDBR } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 
@@ -68,6 +68,8 @@ export const F2CombinedForm = ({
         newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt
     } = f2CalcNewHealth(f2market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
 
+    const { dailyDebtAccrual: newDailyDBRBurn, dbrExpiryDate: newDBRExpiryDate } = useAccountDBR(account, newTotalDebt);
+
     const handleAction = (amount: BigNumber) => {
         if (!signer) { return }
         alert('Simple-Mode Contract is not implemented yet - Please use Advanced-Mode for now');
@@ -96,10 +98,10 @@ export const F2CombinedForm = ({
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
-    const leftPart = <Stack direction={{ base: 'column', lg: 'row' }} spacing="4" w={{ base: '100%', lg: '100%' }} >
+    const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The more you deposit, the more you can borrow against">
-                <Text color="mainTextColor"><b>Deposit</b> {f2market.name}:</Text>
+                <Text fontSize='18px' color="mainTextColor"><b>Deposit</b> {f2market.name}:</Text>
             </TextInfo>
             <SimpleAmountForm
                 address={f2market.collateral}
@@ -119,11 +121,12 @@ export const F2CombinedForm = ({
                 inputRight={<MarketImage pr="2" image={f2market.icon || f2market.underlying.image} size={25} />}
                 isError={collateralAmount > collateralBalance}
             />
-            <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={f2market.price} />
+            <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={f2market.price} textProps={{ fontSize: '14px' }} />
         </VStack>
+        <Divider borderColor="#cccccc66" />
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
-                <Text color="mainTextColor"><b>Borrow</b> DOLA:</Text>
+                <Text fontSize='18px' color="mainTextColor"><b>Borrow</b> DOLA:</Text>
             </TextInfo>
             <SimpleAmountForm
                 address={f2market.collateral}
@@ -143,18 +146,19 @@ export const F2CombinedForm = ({
                 isDisabled={newPerc < 1}
                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
             />
-            <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} newValue={newDebt} />
+            <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} newValue={newDebt} textProps={{ fontSize: '14px' }} />
         </VStack>
     </Stack>
 
     const rightPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text color="mainTextColor"><b>Duration</b> of the Fixed-Rate, Loan is Stoppable at any time:</Text>
+                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> of the Fixed-Rate, Loan is Stoppable at any time:</Text>
             </TextInfo>
             <F2DurationInput
                 onChange={(v) => setDuration(v)}
             />
+            <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
             {/* <F2DurationMultiInput
                 onChange={(v) => setDuration(v)}                
             /> */}
@@ -187,7 +191,7 @@ export const F2CombinedForm = ({
         />
     </HStack>
 
-    const bottomPart = <Stack position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
+    const bottomPart = <Stack pt='4' position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
         <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
             <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate, directly linked to DBR price">
                 <Text color="accentTextColor">Current Fixed-Rate:</Text>
@@ -207,38 +211,44 @@ export const F2CombinedForm = ({
         {actionBtn}
     </Stack>
 
-    return <Container
-        noPadding
-        p="0"
-        label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
-        description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
-        href="https://docs.inverse.finance/inverse-finance/about-inverse"
-        // contentBgColor={'lightPrimaryAlpha'}
-        image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
-        // right={
-        //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
-        // }
+    return <Stack
+        direction={{ base: 'column', lg: 'row' }}
         w='full'
-        {...props}
+        spacing="4"
     >
-        <InfoModal title="Loan Breakdown" isOpen={isOpen} onClose={onClose} onOk={onClose}>
-            <VStack>
-                <Text>Breakdown here</Text>
-            </VStack>
-        </InfoModal>
-        <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
-            <Stack justify="space-between" w='full' spacing="6" direction={{ base: 'column' }}>
-                {leftPart}
-                {rightPart}
-            </Stack>
-            {
-                parseFloat(collateralAmount) > collateralBalance &&
-                <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    description="Not Enough collateral to deposit"
-                />
-            }
-            <Divider borderColor="#cccccc66" />
+        <Container
+            noPadding
+            p="0"
+            label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
+            description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
+            href="https://docs.inverse.finance/inverse-finance/about-inverse"
+            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
+            // right={
+            //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
+            // }
+            w='full'
+            contentProps={{ minH: '430px' }}
+            {...props}
+        >
+            <InfoModal title="Loan Breakdown" isOpen={isOpen} onClose={onClose} onOk={onClose}>
+                <VStack>
+                    <Text>Breakdown here</Text>
+                </VStack>
+            </InfoModal>
+            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
+                <Stack justify="space-between" w='full' spacing="6" direction={{ base: 'column' }}>
+                    {leftPart}
+                    <Divider borderColor="#cccccc66" />
+                    {rightPart}
+                </Stack>
+                {
+                    parseFloat(collateralAmount) > collateralBalance &&
+                    <InfoMessage
+                        alertProps={{ w: 'full' }}
+                        description="Not Enough collateral to deposit"
+                    />
+                }
+                {/* <Divider borderColor="#cccccc66" />
             <F2FormInfos
                 newPerc={newPerc}
                 riskColor={riskColor}
@@ -253,7 +263,35 @@ export const F2CombinedForm = ({
                 onDbrOpen={onDbrOpen}
             />
             <Divider borderColor="#cccccc66" />
-            {bottomPart}
-        </VStack>
-    </Container>
+            {bottomPart} */}
+            </VStack>
+        </Container>
+        <Container
+            noPadding
+            w='full'
+            contentProps={{ minH: '430px' }}
+            p="0"
+            pt="51px"
+        >
+            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="0">
+                <F2FormInfos
+                    newPerc={newPerc}
+                    riskColor={riskColor}
+                    isFormFilled={isFormFilled}
+                    newLiquidationPrice={newLiquidationPrice}
+                    f2market={f2market}
+                    dbrCoverDebt={dbrCoverDebt}
+                    dbrCover={dbrCover}
+                    duration={duration}
+                    dbrPrice={dbrPrice}
+                    newDailyDBRBurn={newDailyDBRBurn}
+                    newDBRExpiryDate={newDBRExpiryDate}
+                    onHealthOpen={onHealthOpen}
+                    onDbrOpen={onDbrOpen}
+                />
+                <Divider borderColor="#cccccc66" />
+                {bottomPart}
+            </VStack>
+        </Container>
+    </Stack>
 }
