@@ -1,6 +1,7 @@
 import { SubmitButton } from "@app/components/common/Button"
 import { InfoMessage } from "@app/components/common/Messages"
 import { VStack, Text, HStack } from "@chakra-ui/react"
+import { DBRShortDescription } from "@app/components/F2/Infos/DBRShortDescription"
 
 export const F2WalkthroughIntro = ({    
     onStepChange,
@@ -17,6 +18,7 @@ export const F2WalkthroughIntro = ({
                 </VStack>
             }
         />
+        <DBRShortDescription />
         {/* <InfoMessage
             alertProps={{ w: 'full' }}
             title="What are the key features?"

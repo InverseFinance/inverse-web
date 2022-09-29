@@ -52,13 +52,13 @@ export const F2WalkthroughRecap = ({
             <TextInfo message="The borrow fee that will be paid over time using the DBR tokens, don't sell them unless you know what you're doing">
                 <Text>Your borrow fee over time will be <b>{shortenNumber(dbrCover, 2)} DBRs ({shortenNumber(dbrCoverDebt, 2, true)})</b></Text>
             </TextInfo>
-            <TextInfo message="The borrow fee that will be paid over time using the DBR tokens, don't sell them unless you know what you're doing">
+            <TextInfo message="The APR is directly linked to the DBR price">
                 <Text>Your fixed-rate fee will be equivalent to a <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b></Text>
             </TextInfo>
-            <TextInfo message="The debt that you will need to repay, can increase if you exceed the chosen loan duration or run out of DBRs">
-                <Text>Your added debt will be <b>{shortenNumber(debtAmount + dbrCoverDebt, 2)} DOLA</b></Text>
+            <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
+                <Text>Your debt for this loan will be <b>{shortenNumber(debtAmount + dbrCoverDebt, 2)} DOLA</b></Text>
             </TextInfo>
-            <TextInfo message="If the collateral price reaches that price, your collateral can be liquidated">
+            <TextInfo message="If the collateral price reaches that price, your collateral can be liquidated entirely">
                 <Text>Your liquidation price will be <b>{shortenNumber(newLiquidationPrice, 2, true)} (current price is {shortenNumber(market.price, 2, true)})</b></Text>
             </TextInfo>
         </VStack>

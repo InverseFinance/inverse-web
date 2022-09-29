@@ -24,7 +24,7 @@ export const AmountInfos = ({
         </Text>
         {
             !!newValue && value !== newValue &&
-            <Text {..._textProps}> {!!value && !!newValue ? '=> ' : ''}{shortenNumber(newValue, 2, false, true)} {price ? `(${shortenNumber(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Cover = ${shortenNumber(dbrCover + newValue, 2)}` : ''}</Text>
+            <Text {..._textProps}> {!!value && !!newValue ? '=> ' : ''}{shortenNumber(newValue, 2, false, true)} {price ? `(${shortenNumber(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Debt = ${shortenNumber(dbrCover + newValue, 2)}` : ''}</Text>
         }
     </HStack>
 }
