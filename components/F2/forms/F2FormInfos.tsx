@@ -27,15 +27,15 @@ export const F2FormInfos = ({
                         Collateral Health:
                     </Text>
                 </TextInfo>
-                <Text fontSize="18px"color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>{isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}</Text>
+                <Text fontSize="18px"color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'extrabold' : 'bold'}>{isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}</Text>
             </VStack>
             <VStack pb={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
                 <TextInfo message="Minimum Collateral Price before liquidations can happen">
                     <Text fontSize="18px"color="mainTextColor" cursor="pointer" onClick={() => onHealthOpen()}>
-                        Liq. Price:
+                        Liquidation Price:
                     </Text>
                 </TextInfo>
-                <Text fontSize="18px"color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'bold' : undefined}>
+                <Text fontSize="18px"color={newPerc < 75 ? riskColor : undefined} fontWeight={isFormFilled && newPerc <= 25 ? 'extrabold' : 'bold'}>
                     {isFormFilled ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-'}
                 </Text>
             </VStack>
@@ -73,7 +73,7 @@ export const F2FormInfos = ({
             <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }}  spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
                 <TextInfo message="Current market price for DBR, the token used to pay borrowing fees">
                     <Text fontSize="18px"cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
-                        DBR price:
+                        Current DBR price:
                     </Text>
                 </TextInfo>
                 <Text fontSize="18px" fontWeight="bold">{shortenNumber(dbrPrice, 4, true)}</Text>
@@ -99,9 +99,9 @@ export const F2FormInfos = ({
         <Divider borderColor="#cccccc66" />
         <Stack w='full' py={{ base: '2', sm: '0' }} direction={{ base: 'column', sm: 'row' }} justify="space-between">
             <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }}  spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
-                <TextInfo message="Current market price for DBR, the token used to pay borrowing fees">
+                <TextInfo message="The total number of DBRs that will be burned every day">
                     <Text fontSize="18px"cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
-                        New daily DBR burn:
+                        New total daily DBR burn:
                     </Text>
                 </TextInfo>
                 <Text fontSize="18px" fontWeight="bold">-{newDailyDBRBurn ? shortenNumber(newDailyDBRBurn, 4) : ''}</Text>
@@ -109,7 +109,7 @@ export const F2FormInfos = ({
             <VStack borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }}  spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
                 <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
                     <Text fontSize="18px"cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
-                        New DBR expiry date:
+                        New DBR depletion date:
                     </Text>
                 </TextInfo>
                 <Text fontSize="18px" fontWeight="bold">

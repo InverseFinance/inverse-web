@@ -179,7 +179,7 @@ export const F2CombinedForm = ({
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
             showMaxBtn={false}
-            isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0}
+            isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0 || newPerc < 1}
             hideInputIfNoAllowance={false}
             hideInput={true}
             hideButtons={false}
@@ -194,7 +194,7 @@ export const F2CombinedForm = ({
     const bottomPart = <Stack pt='4' position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
         <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
             <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate, directly linked to DBR price">
-                <Text color="accentTextColor">Current Fixed-Rate:</Text>
+                <Text color="accentTextColor">Current Fixed APR:</Text>
             </TextInfo>
             <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
                 {shortenNumber(dbrPrice * 100, 2)}%
@@ -219,10 +219,10 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             p="0"
-            label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
+            label={`${f2market.name} Market`}
             description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
             href="https://docs.inverse.finance/inverse-finance/about-inverse"
-            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
+            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
             // right={
             //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
             // }
@@ -271,7 +271,11 @@ export const F2CombinedForm = ({
             w='full'
             contentProps={{ minH: '430px' }}
             p="0"
-            pt="51px"
+            // pt="51px"
+            label={'Infos & Recap'}
+            description={`DBR's current price is the current Fixed APR - Learn More `}                        
+            href="https://docs.inverse.finance/inverse-finance/about-inverse"
+            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         >
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="0">
                 <F2FormInfos

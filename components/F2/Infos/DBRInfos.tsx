@@ -18,7 +18,7 @@ export const DBRInfos = () => {
             - If you run out of DBRs you enter the <b>Exhausted</b> state.
         </Text>
         <Text textAlign="left">
-            - In the <b>Exhausted</b> state, someone can <b>force-recharge</b> your DBRs so that your current DBR deficit is gone.
+            - In the <b>Exhausted</b> state, someone can <b>force top-up</b> your DBRs so that your current DBR deficit is gone.
         </Text>
         <Text textAlign="left">
             - <b>Being forced top-up is bad</b> for you <b>but not fatal</b>
