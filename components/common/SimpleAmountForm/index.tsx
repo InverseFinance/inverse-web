@@ -36,6 +36,7 @@ type Props = {
     showMax?: boolean
     inputRightProps?: TextProps
     inputLeftProps?: FlexProps
+    onSuccess?: () => void
 }
 
 type ActionProps = Props & {
@@ -82,6 +83,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         showMax,
         inputRightProps,
         inputLeftProps,
+        onSuccess,
     } = props;
     const [amount, setAmount] = useState(defaultAmount);
     const [tokenApproved, setTokenApproved] = useState(false);
@@ -170,7 +172,12 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         </SubmitButton>
                         {
                             showMaxBtn && <SubmitButton
-                                onSuccess={() => handleChange('0')}
+                                onSuccess={() => {
+                                    handleChange('0');
+                                    if (onSuccess) {
+                                        onSuccess();
+                                    }
+                                }}
                                 themeColor={btnThemeColor}
                                 onClick={() => handleAction(true)}
                                 disabled={isMaxDisabled}
