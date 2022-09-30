@@ -3,6 +3,7 @@ import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import moment from 'moment'
+import { NavButtons } from '@app/components/common/Button'
 
 export const F2FormInfos = ({
     newPerc,
@@ -20,7 +21,11 @@ export const F2FormInfos = ({
     onDbrOpen = () => { },
 }) => {
     return <VStack spacing="0" w='full'>
-        <Stack w='full' py={{ base: '2', sm: '0' }} direction={{ base: 'column', sm: 'row' }} justify="space-between">
+        {/* <NavButtons
+            active="Position Infos"
+            options={['Position Infos', 'DBR infos' ,'Market Infos']}
+        /> */}
+        <Stack w='full' pt='6' direction={{ base: 'column', sm: 'row' }} justify="space-between">
             <VStack pb={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
                 <TextInfo message="Percentage of the loan covered by the collateral worth">
                     <Text fontSize="18px"color="mainTextColor" cursor="pointer" onClick={() => onHealthOpen()} >
@@ -101,7 +106,7 @@ export const F2FormInfos = ({
             <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }}  spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
                 <TextInfo message="The total number of DBRs that will be burned every day">
                     <Text fontSize="18px"cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
-                        New total daily DBR burn:
+                        Total daily DBR burn:
                     </Text>
                 </TextInfo>
                 <Text fontSize="18px" fontWeight="bold">-{newDailyDBRBurn ? shortenNumber(newDailyDBRBurn, 4) : ''}</Text>
@@ -109,7 +114,7 @@ export const F2FormInfos = ({
             <VStack borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }}  spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
                 <TextInfo message="DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!">
                     <Text fontSize="18px"cursor="pointer" onClick={() => onDbrOpen()} color="mainTextColor">
-                        New DBR depletion date:
+                        DBR depletion date:
                     </Text>
                 </TextInfo>
                 <Text fontSize="18px" fontWeight="bold">
