@@ -148,6 +148,7 @@ export const NavButtons = ({ options, active, onClick, isStaking, bgColor = 'pri
         borderRadius={4}
         fontWeight="semibold"
         fontSize="15px"
+        alignItems="center"
         color={option === active ? 'mainTextColor' : 'secondaryTextColor'}
         onClick={() => onClick(option)}
         bgColor={option === active ? bgColorActive : bgColor}
