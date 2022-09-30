@@ -48,7 +48,7 @@ export const f2CalcNewHealth = (
         perc : betweenZeroAnd100(
             newCreditLimit > 0 ?
                 ((newCreditLimit - newDebt) / newCreditLimit) * 100
-                : 0
+                : newDebt > 0 ? 0 : 100
         );
     const newCreditLeft = newCreditLimit - newDebt;
     const newLiquidationPrice = newDebt && newDeposits ? newDebt / (market.collateralFactor * newDeposits) : null;
