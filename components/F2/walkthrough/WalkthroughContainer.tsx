@@ -1,9 +1,9 @@
-import { VStack, useMediaQuery, FlexProps, Text } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
+import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
@@ -40,17 +40,6 @@ export const F2MarketContext = React.createContext<{
 }>({
 
 });
-
-const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, perc): number => {
-    const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
-    const {
-        newPerc
-    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
-    if(newPerc < 1) {        
-        return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount - 0.1, perc)
-    }
-    return Math.floor(debtAmount);
-}
 
 export const F2Walkthrough = ({
     market,
@@ -92,7 +81,7 @@ export const F2Walkthrough = ({
 
     useEffect(() => {
         setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc));    
-    }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc])    
+    }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc]);
 
     const handleAction = (amount: BigNumber) => {
         if (!library?.getSigner()) { return }

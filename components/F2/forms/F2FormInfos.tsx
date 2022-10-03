@@ -79,9 +79,10 @@ export const F2FormInfos = ({
     newCreditLeft,
     dbrBalance,
     isAutoDBR,
+    maxBorrowable,
     onHealthOpen = () => { },
     onDbrOpen = () => { },
-}) => {
+}) => {    
     const [type, setType] = useState('Position Result');
 
     const newDbrBalance = dbrBalance + (isAutoDBR ? isDeposit ? dbrCover : -dbrCover : 0);
@@ -154,12 +155,12 @@ export const F2FormInfos = ({
         ],
         [
             {
-                tooltip: 'tbd',
+                tooltip: 'Your Current DBR balance',
                 title: 'DBR balance',
                 value: `${preciseCommify(dbrBalance, 2)} (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`,
             },
             {
-                tooltip: 'tbd',
+                tooltip: 'DBR balance after the transaction',
                 title: 'New DBR balance',
                 value: newDbrBalance === dbrBalance ? 'No change' : `${preciseCommify(newDbrBalance, 2)}  (${shortenNumber((newDbrBalance) * dbrPrice, 2, true)})`,
             },
@@ -190,55 +191,58 @@ export const F2FormInfos = ({
         ],
     ]
 
+    const remainingBorrowingPower = maxBorrowable - debtAmount;
+
     const positionInfos = [
         [
             {
                 tooltip: `Amouunt of Collateral that you are ${isDeposit ? 'depositing' : 'withdrawing'}`,
                 title: isDeposit ? 'Depositing' : 'Withdrawing',
-                value: `${collateralAmount > 0 ? `${shortenNumber(collateralAmount, 4)} (${shortenNumber(collateralAmount * f2market.price, 2, true)})` : '-'}`,
+                value: `${collateralAmount > 0 ? `${shortenNumber(collateralAmount, 4)} ${f2market.underlying.symbol} (${shortenNumber(collateralAmount * f2market.price, 2, true)})` : '-'}`,
             },
             {
                 tooltip: `Amouunt of Debt that you are ${isDeposit ? 'borrowing' : 'repaying'}`,
                 title: isDeposit ? 'Borrowing' : 'Repaying',
-                value: `${debtAmount > 0 ? shortenNumber(debtAmount, 4) : '-'}`,
+                value: `${debtAmount > 0 ? `${shortenNumber(debtAmount, 2)} DOLA` : '-'}`,
             },
         ],
         [
             {
                 tooltip: 'The total amount of collateral after you deposit/withdraw',
                 title: 'Total Deposits',
-                value: `${newDeposits ? `${shortenNumber(newDeposits, 4)} (${shortenNumber(newDeposits * f2market.price, 2, true)})` : '-'}`,
+                value: `${newDeposits ? `${shortenNumber(newDeposits, 4)} ${f2market.underlying.symbol} (${shortenNumber(newDeposits * f2market.price, 2, true)})` : '-'}`,
             },
             {
                 tooltip: 'The total amount of debt after you borrow/repay',
                 title: 'Total Debt',
-                value: `${newTotalDebt ? shortenNumber(newTotalDebt, 2) : '-'}`,
+                value: `${newTotalDebt ? `${shortenNumber(newTotalDebt, 2)} DOLA` : '-'}`,
             },
         ],
         [
             {
                 tooltip: 'The total Borrowing Power given by your collaterals in USD',
                 title: 'Borrowing Power',
-                value: `${newCreditLimit ? `${shortenNumber(newCreditLimit, 2, true)}` : '-'}`,
+                value: `${maxBorrowable ? `${shortenNumber(maxBorrowable, 0)} DOLA` : '-'}`,
             },
             {
-                tooltip: 'Your remaining Borrowing Power',
-                title: 'Borrowing Power Left',
-                value: `${newCreditLeft ? shortenNumber(newCreditLeft, 2, true) : '-'}`,
+                tooltip: 'Max debt before liquidation',
+                title: 'Max Debt',
+                value: `${newCreditLimit ? `${shortenNumber(newCreditLimit < 0 ? 0 : newCreditLimit, 0)} DOLA` : '-'}`,
+                color: newCreditLimit <= 0 && newDeposits > 0 ? 'error' : undefined
             },
         ],
         [
             {
                 tooltip: 'Percentage of the loan covered by the collateral worth',
                 title: 'Collateral Health',
-                value: isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-',
-                color: newPerc < 75 ? riskColor : undefined,
+                value: !!deposits || !!newDeposits ? `${shortenNumber(newPerc, 2)}%` : '-',
+                color: newPerc < 75 && newDeposits > 0 ? riskColor : undefined,
             },
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
-                value: isFormFilled ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
-                color: newPerc < 75 ? riskColor : undefined,
+                value: !!deposits || !!newDeposits ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
+                color: newPerc < 75 && newDeposits > 0 ? riskColor : undefined,
             },
         ],
     ]

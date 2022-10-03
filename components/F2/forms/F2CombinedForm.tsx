@@ -5,7 +5,7 @@ import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2borrow, f2CalcNewHealth, f2deposit, f2repay, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2borrow, f2CalcNewHealth, f2deposit, f2repay, f2withdraw, findMaxBorrow, getRiskColor } from '@app/util/f2'
 import { useAccountDBRMarket, useDBRPrice, useAccountDBR } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
@@ -66,6 +66,7 @@ export const F2CombinedForm = ({
     const [isAutoDBR, setIsAutoDBR] = useState(true);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
+    const [maxBorrowable, setMaxBorrowable] = useState(0);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [mode, setMode] = useState('Deposit & Borrow');
 
@@ -82,14 +83,17 @@ export const F2CombinedForm = ({
         setDuration(duration);
     }
 
+    const deltaCollateral = isDeposit ? collateralAmount : -collateralAmount;
+    const deltaDebt = isDeposit ? debtAmount : -debtAmount;
+
     const {
         newDebt
     } = f2CalcNewHealth(
         f2market,
         deposits,
         debt,
-        isDeposit ? collateralAmount : -collateralAmount,
-        isDeposit ? debtAmount : -debtAmount,
+        deltaCollateral,
+        deltaDebt,
         perc,
     );
 
@@ -103,10 +107,14 @@ export const F2CombinedForm = ({
         f2market,
         deposits,
         debt + (isDeposit && isAutoDBR ? dbrCoverDebt : 0),
-        hasCollateralChange ? isDeposit ? collateralAmount : -collateralAmount : 0,
-        hasDebtChange ? isDeposit ? debtAmount : -debtAmount : 0,
+        hasCollateralChange ? deltaCollateral : 0,
+        hasDebtChange ? deltaDebt : 0,
         perc,
     );
+
+    const {
+        newCreditLeft: maxBorrow
+    } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, 0, perc);
 
     const { dailyDebtAccrual: newDailyDBRBurn, dbrExpiryDate: newDBRExpiryDate } = useAccountDBR(account, newTotalDebt);
 
@@ -115,9 +123,11 @@ export const F2CombinedForm = ({
         const action = MODES[mode]
         if (['deposit', 'borrow'].includes(action) && isAutoDBR) {
             alert('AlphaPhase: auto-buying DBR is not supported yet, disable the option to proceed :)');
-        } else if (['withdraw', 'repay'].includes(action) && isAutoDBR) {
-            alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
-        } else if (action === 'deposit') {
+        }
+        // else if (['withdraw', 'repay'].includes(action) && isAutoDBR) {
+        //     alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
+        // } 
+        else if (action === 'deposit') {
             return f2deposit(signer, f2market.address, getNumberToBn(collateralAmount, f2market.underlying.decimals));
         } else if (action === 'borrow') {
             return f2borrow(signer, f2market.address, getNumberToBn(debtAmount, f2market.underlying.decimals));
@@ -151,13 +161,17 @@ export const F2CombinedForm = ({
 
     useEffect(() => {
         if (!onDepositChange) { return };
-        onDepositChange(isDeposit ? collateralAmount : -collateralAmount);
-    }, [isDeposit, collateralAmount, onDepositChange]);
+        onDepositChange(deltaCollateral);
+    }, [deltaCollateral, onDepositChange]);
 
     useEffect(() => {
         if (!onDebtChange) { return };
-        onDebtChange(isDeposit ? debtAmount : -debtAmount);
-    }, [isDeposit, debtAmount, onDebtChange]);
+        onDebtChange(deltaDebt);
+    }, [deltaDebt, onDebtChange]);
+
+    useEffect(() => {
+        setMaxBorrowable(findMaxBorrow(f2market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc, isAutoDBR));
+    }, [f2market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc, isAutoDBR]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
@@ -170,26 +184,31 @@ export const F2CombinedForm = ({
                 <TextInfo message="The more you deposit, the more you can borrow against">
                     <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {f2market.name}:</Text>
                 </TextInfo>
-                <SimpleAmountForm
-                    defaultAmount={collateralAmount}
-                    address={f2market.collateral}
-                    destination={f2market.address}
-                    signer={signer}
-                    decimals={colDecimals}
-                    maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits/*, bnWithdrawalLimit*/]}
-                    onAction={handleAction}
-                    onMaxAction={handleAction}
-                    actionLabel={btnLabel}
-                    maxActionLabel={btnMaxlabel}
-                    onAmountChange={handleCollateralChange}
-                    showMaxBtn={isDeposit || !debt}
-                    hideInputIfNoAllowance={false}
-                    hideButtons={true}
-                    showBalance={isDeposit}
-                    inputRight={<MarketImage pr="2" image={f2market.icon || f2market.underlying.image} size={25} />}
-                    isError={isDeposit ? collateralAmount > collateralBalance : collateralAmount > deposits}
-                />
-                <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={f2market.price} textProps={{ fontSize: '14px' }} />
+                {
+                    deposits > 0 || isDeposit ? <>
+                        <SimpleAmountForm
+                            defaultAmount={collateralAmount}
+                            address={f2market.collateral}
+                            destination={f2market.address}
+                            signer={signer}
+                            decimals={colDecimals}
+                            maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits/*, bnWithdrawalLimit*/]}
+                            onAction={handleAction}
+                            onMaxAction={handleAction}
+                            actionLabel={btnLabel}
+                            maxActionLabel={btnMaxlabel}
+                            onAmountChange={handleCollateralChange}
+                            showMaxBtn={isDeposit || !debt}
+                            hideInputIfNoAllowance={false}
+                            hideButtons={true}
+                            showBalance={isDeposit}
+                            inputRight={<MarketImage pr="2" image={f2market.icon || f2market.underlying.image} size={25} />}
+                            isError={isDeposit ? collateralAmount > collateralBalance : collateralAmount > deposits}
+                        />
+                        <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={f2market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} />
+                    </>
+                        : <Text>Nothing to withdraw</Text>
+                }
             </VStack>
         }
         {['d&b', 'r&w'].includes(MODES[mode]) && <Divider borderColor="#cccccc66" />}
@@ -198,37 +217,46 @@ export const F2CombinedForm = ({
                 <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
                     <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA:</Text>
                 </TextInfo>
-                <SimpleAmountForm
-                    defaultAmount={debtAmount}
-                    address={f2market.collateral}
-                    destination={f2market.address}
-                    signer={signer}
-                    decimals={colDecimals}
-                    maxAmountFrom={isDeposit ? [bnDolaLiquidity, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
-                    onAction={({ bnAmount }) => handleAction(bnAmount)}
-                    onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                    actionLabel={btnLabel}
-                    maxActionLabel={btnMaxlabel}
-                    onAmountChange={handleDebtChange}
-                    showMax={!isDeposit}
-                    showMaxBtn={!isDeposit}
-                    hideInputIfNoAllowance={false}
-                    hideButtons={true}
-                    inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
-                    isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
-                />
-                <AmountInfos
-                    dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : -dbrCoverDebt : 0}
-                    label="Debt"
-                    value={debt}
-                    newValue={newDebt}
-                    textProps={{ fontSize: '14px' }} />
-                <FormControl w='fit-content' display='flex' alignItems='center'>
-                    <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
-                        Auto-{isDeposit ? 'buy' : 'sell'} DBR?
-                    </FormLabel>
-                    <Switch onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
-                </FormControl>
+                {
+                    debt > 0 || isDeposit ?
+                        <>
+                            <SimpleAmountForm
+                                defaultAmount={debtAmount}
+                                address={f2market.collateral}
+                                destination={f2market.address}
+                                signer={signer}
+                                decimals={colDecimals}
+                                maxAmountFrom={isDeposit ? [bnDolaLiquidity, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
+                                onAction={({ bnAmount }) => handleAction(bnAmount)}
+                                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                                actionLabel={btnLabel}
+                                maxActionLabel={btnMaxlabel}
+                                onAmountChange={handleDebtChange}
+                                showMax={!isDeposit}
+                                showMaxBtn={!isDeposit}
+                                hideInputIfNoAllowance={false}
+                                hideButtons={true}
+                                inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
+                                isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
+                            />
+                            <AmountInfos
+                                dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : -dbrCoverDebt : 0}
+                                label="Debt"
+                                value={debt}
+                                newValue={newDebt}
+                                delta={deltaDebt}
+                                textProps={{ fontSize: '14px' }} />
+                        </>
+                        : <Text>Nothing to repay</Text>
+                }
+                {
+                    isDeposit && <FormControl w='fit-content' display='flex' alignItems='center'>
+                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+                            Auto-{isDeposit ? 'buy' : 'sell'} DBR?
+                        </FormLabel>
+                        <Switch onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+                    </FormControl>
+                }
             </VStack>
         }
     </Stack>
@@ -392,7 +420,7 @@ export const F2CombinedForm = ({
                     newDBRExpiryDate={newDBRExpiryDate}
                     onHealthOpen={onHealthOpen}
                     onDbrOpen={onDbrOpen}
-                    collateralAmount={collateralAmount}
+                    collateralAmount={hasCollateralChange ? collateralAmount : 0}
                     debtAmount={debtAmount}
                     isDeposit={isDeposit}
                     deposits={deposits}
@@ -403,12 +431,13 @@ export const F2CombinedForm = ({
                     newCreditLeft={newCreditLeft}
                     dbrBalance={dbrBalance}
                     isAutoDBR={isAutoDBR}
+                    maxBorrowable={maxBorrowable}
                 />
                 {
                     disabledConditions[MODES[mode]] && (!!debtAmount || !!collateralAmount) && newPerc < 1 &&
                     <WarningMessage
                         alertProps={{ w: 'full' }}
-                        description="Collateral Health too low to proceed"
+                        description="The resulting Collateral Health is too low to proceed"
                     />
                 }
                 {bottomPart}

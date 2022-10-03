@@ -4,7 +4,7 @@ import { HStack, StackProps, Text, TextProps } from "@chakra-ui/react"
 export const AmountInfos = ({
     label,
     value,
-    newValue,
+    delta,
     price,
     dbrCover,
     textProps,
@@ -13,7 +13,7 @@ export const AmountInfos = ({
 }: {
     label: string
     value: number
-    newValue?: number
+    delta?: number
     price?: number
     dbrCover?: number
     format?: boolean
@@ -21,16 +21,19 @@ export const AmountInfos = ({
 } & Partial<StackProps>) => {
     const _textProps = { fontSize: '12px', color: 'secondaryTextColor', ...textProps }
     const formatFun = format ? shortenNumber : (v) => v;
-    const deltaAmount = value && newValue ? newValue - value : 0;
-    const deltaSign = deltaAmount > 0 ? '+' : '-';
+    const deltaSign = (delta||0) > 0 ? '+' : '-';
+    const newValue = value + (delta||0);
 
     return <HStack spacing="1" justify="space-between" {...props}>
         <Text {..._textProps}>
-            {label}: {!!value || !value && !newValue ? formatFun(value, 2, false) : ''} {price && value ? `(${formatFun(value * price, 2, true)})` : ''}
-        </Text>
+            {label}: {!!value ? 
+            formatFun(value, 2, false) : ''} {price && !!value ? `(${formatFun(value * price, 2, true)})`
+             : delta || !!value ? '' : '0'
+            }
+        </Text>      
         {
-            !!newValue && value !== newValue &&
-            <Text {..._textProps}> {!!value && !!newValue ? `${deltaSign} ${formatFun(Math.abs(deltaAmount), 2, false)}${price ? ` (${formatFun(deltaAmount * price, 2, true)})` : ''} => ` : ''}{formatFun(newValue, 2, false)} {price ? `(${formatFun(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Debt = ${formatFun(dbrCover + newValue, 2)}` : ''}</Text>
+            (!!delta) &&
+            <Text {..._textProps}> {!!delta ? `${deltaSign}${!!value ? ' ' : ''}${formatFun(Math.abs(delta), 2, false)}${price ? ` (${formatFun(delta * price, 2, true)})` : ''} => ` : ''}{formatFun(newValue, 2, false)} {price ? `(${formatFun(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Debt = ${formatFun(dbrCover + newValue, 2)}` : ''}</Text>
         }
     </HStack>
 }

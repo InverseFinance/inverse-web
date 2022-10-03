@@ -62,7 +62,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                 { label: `${f2market?.name || market} Market`, href: '#' },
                             ]}
                         />
-                        <HStack onClick={() => setIsAdvancedMode(!isAdvancedMode)} color="mainTextColor" _hover={{ color: 'accentTextColor' }}>
+                        {/* <HStack onClick={() => setIsAdvancedMode(!isAdvancedMode)} color="mainTextColor" _hover={{ color: 'accentTextColor' }}>
                             <Text
                                 cursor="pointer"
                                 fontWeight="bold"
@@ -71,7 +71,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                 Switch to {isAdvancedMode ? 'Simple' : 'Advanced'} Mode
                             </Text>
                             <SettingsIcon cursor="pointer" />
-                        </HStack>
+                        </HStack> */}
                     </Stack>
 
                     {
