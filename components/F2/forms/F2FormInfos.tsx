@@ -22,7 +22,7 @@ const Infos = ({ infos }: { infos: [Data, Data] }) => {
     const [left, right] = infos;
     return <Stack borderBottom="1px solid #cccccc66" w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
         <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
-            <TextInfo message="Percentage of the loan covered by the collateral worth">
+            <TextInfo message={left.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={left.onClick ? 'pointer' : undefined} onClick={left.onClick} >
                     {left.title}:
                 </Text>
@@ -32,7 +32,7 @@ const Infos = ({ infos }: { infos: [Data, Data] }) => {
             </Text>
         </VStack>
         <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
-            <TextInfo message="Percentage of the loan covered by the collateral worth">
+            <TextInfo message={right.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={right.onClick ? 'pointer' : undefined} onClick={right.onClick} >
                     {right.title}:
                 </Text>
@@ -48,7 +48,7 @@ const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
     return <VStack spacing="0" w='full'>
         {
             listInfos.map((infos, i) => {
-                return <Infos key={i} infos={infos} />
+                return <Infos key={infos[0].title} infos={infos} />
             })
         }
     </VStack>

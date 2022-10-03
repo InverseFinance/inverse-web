@@ -165,7 +165,12 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             themeColor={btnThemeColor}
                             onClick={() => handleAction()}
                             refreshOnSuccess={true}
-                            onSuccess={() => handleChange('0')}
+                            onSuccess={() => {
+                                handleChange('0');
+                                if (onSuccess) {
+                                    onSuccess();
+                                }
+                            }}
                             disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}
                             {...btnProps}
                         >

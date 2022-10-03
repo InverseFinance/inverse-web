@@ -78,5 +78,5 @@ export const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collat
     if(newPerc < 1) {        
         return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount - 0.1, perc, isAutoDBR)
     }
-    return Math.floor(debtAmount);
+    return debtAmount < 0 ? 0 : Math.floor(debtAmount);
 }
