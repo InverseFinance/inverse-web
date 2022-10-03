@@ -85,7 +85,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         inputLeftProps,
         onSuccess,
     } = props;
-    const [amount, setAmount] = useState(defaultAmount);
+    const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
     const [tokenApproved, setTokenApproved] = useState(false);
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
@@ -121,9 +121,10 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }
 
     const handleChange = (value: string) => {
-        setAmount(value);
+        const num = value.replace(/[^0-9.]/, '')
+        setAmount(num);
         if (onAmountChange) {
-            const floatAmount = parseFloat(value) || 0;
+            const floatAmount = parseFloat(num) || 0;
             onAmountChange(floatAmount);
         }
     }
@@ -132,7 +133,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         {
             (tokenApproved || !hideInputIfNoAllowance) && !hideInput &&
             <BalanceInput
-                value={amount}
+                value={!amount ? '' : amount}
                 showBalance={showBalance}
                 balance={balance}
                 inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' }, ...inputProps }}
