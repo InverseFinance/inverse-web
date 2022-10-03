@@ -68,7 +68,7 @@ export const F2Walkthrough = ({
     const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
 
     const {
-        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees, newCreditLeft: maxBorrow
+        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees
     } = f2CalcNewHealth(market, deposits, debt, collateralAmount, debtAmount, perc);
 
     const {
