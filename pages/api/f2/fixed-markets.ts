@@ -28,6 +28,8 @@ export default async function handler(req, res) {
       bnTotalDebts,
       oracles,
       bnDola,
+      replenishmentIncentives,
+      liquidationIncentives,
     ] = await Promise.all([
       Promise.all(
         F2_MARKETS.map(m => {
@@ -52,6 +54,18 @@ export default async function handler(req, res) {
           return dolaContract.balanceOf(m.address);
         })
       ),
+      Promise.all(
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return market.replenishmentIncentiveBps();
+        })
+      ),
+      Promise.all(
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return market.liquidationIncentiveBps();
+        })
+      ),
     ]);
 
     const bnPrices = await Promise.all(
@@ -72,6 +86,8 @@ export default async function handler(req, res) {
         collateralFactor: getBnToNumber(bnCollateralFactors[i], 4),
         dolaLiquidity: getBnToNumber(bnDola[i]),
         bnDolaLiquidity: bnDola[i],
+        replenishmentIncentive: getBnToNumber(replenishmentIncentives[i], 4),
+        liquidationIncentive: getBnToNumber(liquidationIncentives[i], 4),
         supplyApy: 0,
       }
     })

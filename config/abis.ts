@@ -355,6 +355,8 @@ export const F2_SIMPLE_ESCROW = [
 export const F2_MARKET_ABI = [
   "function collateral() public view returns (address)",
   "function collateralFactorBps() public view returns (uint)",
+  "function replenishmentIncentiveBps() public view returns (uint)",
+  "function liquidationIncentiveBps() public view returns (uint)",
   "function oracle() public view returns (address)",
   "function borrowPaused() public view returns (bool)",
   "function totalDebt() public view returns (uint)",
