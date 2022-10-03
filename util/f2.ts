@@ -13,7 +13,6 @@ export const f2deposit = (signer: JsonRpcSigner, market: string, amount: string 
 
 export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, to?: string) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    const _to = to ? to : await signer.getAddress();
     return contract.withdraw(amount);
 }
 
@@ -69,4 +68,15 @@ export const getRiskColor = (newPerc: number) => {
 
 export const getDBRBuyLink = () => {
     return `https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`
+}
+
+export const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, perc, isAutoDBR = true): number => {
+    const dbrCoverDebt = isAutoDBR ? debtAmount * dbrPrice / (365 / duration) : 0;
+    const {
+        newPerc
+    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
+    if(newPerc < 1) {        
+        return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount - 0.1, perc, isAutoDBR)
+    }
+    return Math.floor(debtAmount);
 }
