@@ -11,6 +11,7 @@ import { F2FormInfos } from "../forms/F2FormInfos"
 import { F2MarketContext } from "./WalkthroughContainer"
 import { InfoMessage } from "@app/components/common/Messages"
 import { shortenNumber } from "@app/util/markets"
+import { preciseCommify } from "@app/util/misc"
 
 export const F2WalkthroughDebt = ({
     onStepChange,
@@ -38,6 +39,8 @@ export const F2WalkthroughDebt = ({
         dbrCover,
         newLiquidationPrice,
         collateralAmount,
+        newCreditLeft,
+        maxBorrowable,
     } = useContext(F2MarketContext);
 
     return <>
@@ -60,10 +63,15 @@ export const F2WalkthroughDebt = ({
                 isDisabled={newPerc < 1}
                 inputProps={{ autoFocus: true, fontSize: '50px', py: '40px', px: '20px' }}
                 inputRight={<MarketImage ml="10px" pr="20px" image={dolaToken.image} size={40} />}
+                isError={debtAmount > maxBorrowable}
             />
-            <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} newValue={newDebt} textProps={{ fontSize: '14px' }} />
+            <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} />
+            <InfoMessage
+                alertProps={{ w: 'full' }}
+                description={`Maximum Borrowing Power is ${preciseCommify(maxBorrowable, 0)} DOLA with current parameters`}
+            />
             {
-                newPerc < 1 &&
+                debtAmount > maxBorrowable &&
                 <InfoMessage
                     alertProps={{ w: 'full' }}
                     description={

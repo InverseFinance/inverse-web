@@ -41,6 +41,17 @@ export const F2MarketContext = React.createContext<{
 
 });
 
+const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, perc): number => {
+    const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
+    const {
+        newPerc
+    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
+    if(newPerc < 1) {        
+        return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount - 0.1, perc)
+    }
+    return Math.floor(debtAmount);
+}
+
 export const F2Walkthrough = ({
     market,
     ...props
@@ -58,6 +69,7 @@ export const F2Walkthrough = ({
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
+    const [maxBorrowable, setMaxBorrowable] = useState(0);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
 
@@ -67,12 +79,20 @@ export const F2Walkthrough = ({
     const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
 
     const {
-        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees
+        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees, newCreditLeft: maxBorrow
     } = f2CalcNewHealth(market, deposits, debt, collateralAmount, debtAmount, perc);
 
     const {
-        newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt
+        newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt, newCreditLeft
     } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
+
+    const {
+        newCreditLeft: maxBorrow
+    } = f2CalcNewHealth(market, deposits, debt, collateralAmount, 0, perc);
+
+    useEffect(() => {
+        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc));    
+    }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc])    
 
     const handleAction = (amount: BigNumber) => {
         if (!library?.getSigner()) { return }
@@ -156,6 +176,8 @@ export const F2Walkthrough = ({
             dbrCover,
             newLiquidationPrice,
             newTotalDebt,
+            newCreditLeft,
+            maxBorrowable,
         }}>
             {
                 !!market && <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="flex-start" spacing="6">

@@ -2,9 +2,10 @@ import { SubmitButton } from "@app/components/common/Button"
 import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import { preciseCommify } from "@app/util/misc"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import { F2DurationInput } from "../forms/F2DurationInput"
 import { F2MarketContext } from "./WalkthroughContainer"
 
@@ -20,6 +21,8 @@ export const F2WalkthroughDuration = ({
         durationType,
         durationTypedValue,
         duration,
+        newCreditLeft,
+        maxBorrowable,
     } = useContext(F2MarketContext);
 
     return <>
@@ -39,6 +42,10 @@ export const F2WalkthroughDuration = ({
                 }}
             />
             <AmountInfos label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
+            <InfoMessage
+                alertProps={{ w: 'full' }}
+                description={`Maximum Borrowing Power will be ${preciseCommify(maxBorrowable, 0)} DOLA`}
+            />
         </VStack>
         <HStack w='full' justify="flex-end" pt="4">
             <SubmitButton onClick={() => onStepChange(step - 1)}>

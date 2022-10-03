@@ -43,8 +43,8 @@ export const F2WalkthroughRecap = ({
             <TextInfo message="The more you deposit the more you can borrow">
                 <Text>You will deposit <b>{shortenNumber(collateralAmount, 2)} {market.underlying.symbol} ({shortenNumber(collateralAmount * market.price, 2, true)})</b></Text>
             </TextInfo>
-            <TextInfo message="Chosen duration for the Fixed-Rate, your borrow can last longer but it will increase your debt and your fees">
-                <Text>You will lock-In a Borrow fixed rate of <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationType} ({duration} days)</b></Text>
+            <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate">
+                <Text>You will lock-In a Borrow fixed rate of <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{ durationType !== 'days' ? ` (${duration} days)` : '' }</b></Text>
             </TextInfo>
             <TextInfo message="The amount of DOLA you will receive">
                 <Text>You will borrow <b>{shortenNumber(debtAmount, 2)} DOLA</b></Text>
@@ -69,9 +69,6 @@ export const F2WalkthroughRecap = ({
             <SubmitButton onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </SubmitButton>
-            {/* <SubmitButton onClick={() => {}} disabled={newPerc < 1 || !debtAmount}>
-                Deposit & Borrow
-            </SubmitButton> */}
             <SimpleAmountForm
                 defaultAmount={collateralAmount?.toString()}
                 address={market.collateral}
@@ -79,8 +76,8 @@ export const F2WalkthroughRecap = ({
                 signer={signer}
                 decimals={colDecimals}
                 maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
-                onAction={({ bnAmount }) => { alert('Contract not available yet') }}
-                onMaxAction={({ bnAmount }) => { alert('Contract not available yet') }}
+                onAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
+                onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
                 actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
                 showMaxBtn={false}
                 isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0}

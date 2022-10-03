@@ -49,7 +49,7 @@ export const F2WalkthroughCollateral = ({
                 inputRight={<MarketImage ml="10px" pr="20px" image={market.icon || market.underlying.image} size={40} />}
                 isError={isNotEnoughBalance}
             />
-            <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={market.price} textProps={{ fontSize: '14px' }} />
+            <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price} textProps={{ fontSize: '14px' }} />
             {
                 isNotEnoughBalance && <InfoMessage
                     alertProps={{ w: 'full' }}
