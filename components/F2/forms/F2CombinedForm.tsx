@@ -14,7 +14,7 @@ import { F2DurationInput } from './F2DurationInput'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import { AmountInfos } from '@app/components/common/Messages/AmountInfos'
 import { F2FormInfos } from './F2FormInfos'
@@ -70,6 +70,7 @@ export const F2CombinedForm = ({
     const [mode, setMode] = useState('Deposit & Borrow');
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt } = useAccountDBRMarket(f2market, account);
+    const { signedBalance: dbrBalance } = useAccountDBR(account);
 
     const dbrCover = debtAmount / (365 / duration);
     const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
@@ -82,20 +83,28 @@ export const F2CombinedForm = ({
     }
 
     const {
-        newDebt, newDeposits
-    } = f2CalcNewHealth(f2market, deposits, debt, isDeposit ? collateralAmount : -collateralAmount, isDeposit ? debtAmount : -debtAmount, perc);
+        newDebt
+    } = f2CalcNewHealth(
+        f2market,
+        deposits,
+        debt,
+        isDeposit ? collateralAmount : -collateralAmount,
+        isDeposit ? debtAmount : -debtAmount,
+        perc,
+    );
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
 
+    // with dbr cover
     const {
-        newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt
+        newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newDebt: newTotalDebt,
     } = f2CalcNewHealth(
         f2market,
         deposits,
         debt + (isDeposit && isAutoDBR ? dbrCoverDebt : 0),
         hasCollateralChange ? isDeposit ? collateralAmount : -collateralAmount : 0,
-        hasDebtChange? isDeposit ? debtAmount : -debtAmount : 0,
+        hasDebtChange ? isDeposit ? debtAmount : -debtAmount : 0,
         perc,
     );
 
@@ -104,7 +113,11 @@ export const F2CombinedForm = ({
     const handleAction = () => {
         if (!signer) { return }
         const action = MODES[mode]
-        if (action === 'deposit') {
+        if (['deposit', 'borrow'].includes(action) && isAutoDBR) {
+            alert('AlphaPhase: auto-buying DBR is not supported yet, disable the option to proceed :)');
+        } else if (['withdraw', 'repay'].includes(action) && isAutoDBR) {
+            alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
+        } else if (action === 'deposit') {
             return f2deposit(signer, f2market.address, getNumberToBn(collateralAmount, f2market.underlying.decimals));
         } else if (action === 'borrow') {
             return f2borrow(signer, f2market.address, getNumberToBn(debtAmount, f2market.underlying.decimals));
@@ -113,7 +126,7 @@ export const F2CombinedForm = ({
         } else if (action === 'repay') {
             return f2repay(signer, f2market.address, getNumberToBn(debtAmount, f2market.underlying.decimals));
         } else {
-            alert('Contract is not implemented yet for this action');
+            alert('AlphaPhase: Contract is not implemented yet for this action');
         }
     }
 
@@ -202,7 +215,7 @@ export const F2CombinedForm = ({
                     hideInputIfNoAllowance={false}
                     hideButtons={true}
                     inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
-                    isError={isDeposit ? newPerc < 1 : debtAmount > debt}
+                    isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
                 />
                 <AmountInfos
                     dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : -dbrCoverDebt : 0}
@@ -244,6 +257,7 @@ export const F2CombinedForm = ({
         'withdraw': collateralAmount <= 0 || collateralAmount > deposits || newPerc < 1,
     }
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow']
+    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw']
 
     const actionBtn = <HStack>
         <SimpleAmountForm
@@ -310,19 +324,19 @@ export const F2CombinedForm = ({
             contentProps={{ position: 'relative' }}
             {...props}
         >
-            <FormControl bg="info" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+            <FormControl bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
                 <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
                     Withdraw
                 </FormLabel>
-                <Switch onChange={handleDirectionChange} id='withdraw-mode' />
+                <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
             </FormControl>
-            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="6">
+            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
                 <NavButtons
                     active={mode}
                     options={isDeposit ? inOptions : outOptions}
                     onClick={(v) => setMode(v)}
                 />
-                <Stack justify="space-between" w='full' spacing="6" direction={{ base: 'column' }}>
+                <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && durationPart}
@@ -355,7 +369,7 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             w='full'
-            // contentProps={{ minH: '430px' }}
+            contentProps={{ minH: '543px' }}
             p="0"
             // pt="51px"
             label={'Infos & Recap'}
@@ -363,7 +377,7 @@ export const F2CombinedForm = ({
             href="https://docs.inverse.finance/inverse-finance/about-inverse"
             image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         >
-            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="0">
+            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="2">
                 <F2FormInfos
                     newPerc={newPerc}
                     riskColor={riskColor}
@@ -378,8 +392,25 @@ export const F2CombinedForm = ({
                     newDBRExpiryDate={newDBRExpiryDate}
                     onHealthOpen={onHealthOpen}
                     onDbrOpen={onDbrOpen}
+                    collateralAmount={collateralAmount}
+                    debtAmount={debtAmount}
+                    isDeposit={isDeposit}
+                    deposits={deposits}
+                    debt={debt}
+                    newDeposits={newDeposits}
+                    newTotalDebt={newTotalDebt}
+                    newCreditLimit={newCreditLimit}
+                    newCreditLeft={newCreditLeft}
+                    dbrBalance={dbrBalance}
+                    isAutoDBR={isAutoDBR}
                 />
-                <Divider borderColor="#cccccc66" />
+                {
+                    disabledConditions[MODES[mode]] && (!!debtAmount || !!collateralAmount) && newPerc < 1 &&
+                    <WarningMessage
+                        alertProps={{ w: 'full' }}
+                        description="Collateral Health too low to proceed"
+                    />
+                }
                 {bottomPart}
             </VStack>
         </Container>
