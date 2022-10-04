@@ -36,11 +36,16 @@ export const F2WalkthroughRecap = ({
         bnCollateralBalance,
         bnDeposits,
         bnWithdrawalLimit,
+        riskColor,
+        newPerc,
     } = useContext(F2MarketContext);
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="2">
             <Text fontSize="20px" fontWeight="extrabold">Recap:</Text>
+            <TextInfo message="The duration value is only to calculate the amount of DBR needed">
+                <Text>You can terminate the loan at any time</Text>
+            </TextInfo>
             <TextInfo message="The more you deposit the more you can borrow">
                 <Text>You will deposit <b>{shortenNumber(collateralAmount, 2)} {market.underlying.symbol} ({shortenNumber(collateralAmount * market.price, 2, true)})</b></Text>
             </TextInfo>
@@ -53,17 +58,17 @@ export const F2WalkthroughRecap = ({
             {/* <TextInfo message="The APR is directly linked to the DBR price">
                 <Text>Your fixed-rate fee will be equivalent to a <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b></Text>
             </TextInfo> */}
-            <TextInfo message="The borrow fee that will be paid over time using the DBR tokens, don't sell them unless you know what you're doing">
+            <TextInfo message="DBRs will be burned over time as fees to cover the loan, they should stay in your wallet while the loan is active">
                 <Text>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs ({shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the cost of your loan duration</Text>
             </TextInfo>
             <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
                 <Text>Your debt for this loan will be <b>{shortenNumber(debtAmount + dbrCoverDebt, 2)} DOLA</b></Text>
             </TextInfo>
-            <TextInfo message="If the collateral price reaches that price, your collateral can be liquidated entirely">
-                <Text>Your liquidation price will be <b>{preciseCommify(newLiquidationPrice, 0, true)} (current price is {preciseCommify(market.price, 0, true)})</b></Text>
+            <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
+                <Text fontWeight="bold" color={riskColor}>The Collateral Health will be <b style={{ fontWeight: '1000' }}>{shortenNumber(newPerc, 2)}%</b></Text>
             </TextInfo>
-            <TextInfo message="The duration value is only to calculate the amount of DBR needed">
-                <Text>You can terminate the loan at any time and sell the remaining DBRs</Text>
+            <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
+                <Text fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)} (current price is {preciseCommify(market.price, 0, true)})</b></Text>
             </TextInfo>
         </VStack>
         <HStack w='full' justify="flex-end" pt="4">

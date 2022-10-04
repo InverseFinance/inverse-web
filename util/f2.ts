@@ -63,7 +63,7 @@ export const f2CalcNewHealth = (
 }
 
 export const getRiskColor = (newPerc: number) => {
-    return (newPerc >= 75 ? 'secondaryTextColor' : (newPerc >= 50 ? 'orange' : (newPerc >= 25 ? 'orangered' : 'red')));
+    return (newPerc >= 75 ? 'seagreen' : (newPerc >= 50 ? 'darkgoldenrod' : (newPerc >= 25 ? 'darkorange' : 'red')));
 }
 
 export const getDBRBuyLink = () => {

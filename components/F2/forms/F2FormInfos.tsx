@@ -102,8 +102,8 @@ export const F2FormInfos = ({
         ],
         [
             {
-                tooltip: 'Collateral Factor for the collateral in this Market',
-                title: 'Collateral Factor',
+                tooltip: 'Max Collateral Factor for the collateral in this Market',
+                title: 'Max Collateral Factor',
                 value: `${shortenNumber(f2market.collateralFactor * 100, 2)}%`,
             },
             {
@@ -236,13 +236,13 @@ export const F2FormInfos = ({
                 tooltip: 'Percentage of the loan covered by the collateral worth',
                 title: 'Collateral Health',
                 value: !!deposits || !!newDeposits ? `${shortenNumber(newPerc, 2)}%` : '-',
-                color: newPerc < 75 && newDeposits > 0 ? riskColor : undefined,
+                color: newDeposits > 0 ? riskColor : undefined,
             },
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
                 value: !!deposits || !!newDeposits ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
-                color: newPerc < 75 && newDeposits > 0 ? riskColor : undefined,
+                color: newDeposits > 0 ? riskColor : undefined,
             },
         ],
     ]

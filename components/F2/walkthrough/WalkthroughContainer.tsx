@@ -1,4 +1,4 @@
-import { VStack, useMediaQuery, FlexProps, Progress, Text } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps, Progress, Text, Stack } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -20,7 +20,7 @@ import { useRouter } from 'next/router'
 import { F2WalkthroughDebt } from './Debt'
 import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
-import { SubmitButton } from '@app/components/common/Button'
+import LinkButton, { SubmitButton } from '@app/components/common/Button'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -54,8 +54,8 @@ export const F2Walkthrough = ({
     const account = useAccount();
     const [step, setStep] = useState(0);
     const [duration, setDuration] = useState(365);
-    const [durationType, setDurationType] = useState('months');
-    const [durationTypedValue, setDurationTypedValue] = useState(12);
+    const [durationType, setDurationType] = useState('years');
+    const [durationTypedValue, setDurationTypedValue] = useState(1);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
@@ -139,18 +139,25 @@ export const F2Walkthrough = ({
                 <VStack alignItems="flex-start" w='full' spacing='2'>
                     <Text fontSize='28px' fontWeight="extrabold">Introducing the <b>DOLA Borrowing Rights</b> token</Text>
                     <Text fontSize='18px'>
-                        Where DBR's purchase <b>price determines the Borrowing Rate</b>
+                        DBR's purchase <b>price is the Borrowing Rate</b>
                     </Text>
                     <Text fontSize='18px'>
-                        Get a <b>Fixed Borrow Rate for any amount time</b>
+                        One DBR allows to borrow One DOLA for one year
                     </Text>
                     <Text fontSize='18px'>
-                        <b>Fix a rate now</b> and borrow later, or <b>trade your rate</b>
+                        <b>Fix a rate now and borrow later</b>, or <b>trade your rate</b>
                     </Text>
                 </VStack>
-                <SubmitButton w='fit-content' fontSize='18px' p="8" onClick={() => setStep(1)}>
+                <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify='center'>
+                <LinkButton w='fit-content' p='0' flexProps={{ w: 'fit-content', px:'8', h: '70px', fontSize:'18px' }} href="https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit" isOutline={true}
+                    >
+                        Learn More
+                    </LinkButton>
+                    <SubmitButton w='fit-content' px='8' h='70px' fontSize='18px' onClick={() => setStep(1)}>
                     Get Started
-                </SubmitButton>
+                    </SubmitButton>
+
+                </Stack>
             </VStack>
         </VStack>
     }
