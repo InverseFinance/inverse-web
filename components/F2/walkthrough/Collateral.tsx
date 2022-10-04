@@ -36,7 +36,7 @@ export const F2WalkthroughCollateral = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="The more you deposit, the more you can borrow against">
-                <Text color="mainTextColor"><b>Deposit</b> {market.name}:</Text>
+                <Text fontSize="20px" color="mainTextColor"><b>Deposit</b> {market.name}:</Text>
             </TextInfo>
             <WalkthroughInput
                 defaultAmount={collateralAmount}

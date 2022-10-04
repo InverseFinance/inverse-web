@@ -28,7 +28,7 @@ export const F2WalkthroughDuration = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text color="mainTextColor">Choose an estimated <b>Duration</b> for the loan:</Text>
+                <Text fontSize="20px" color="mainTextColor">Choose an estimated <b>Duration</b> for the loan:</Text>
             </TextInfo>
             <F2DurationInput
                 defaultValue={durationTypedValue}
