@@ -27,6 +27,7 @@ export const lightTheme = extendTheme({
     footerBgColor: '#dcdcdc',
     barUnfilledColor: '#eeedf7',
     barFilledColor: 'secondaryTextColor',
+    modalContentBg: 'white',
     primary: {
       50: '#c0c0c0',
       100: '#c3c3c3',
@@ -129,6 +130,7 @@ export const darkTheme = extendTheme({
     footerBgColor: 'transparent',
     barUnfilledColor: '#eeedf7',
     barFilledColor: 'secondaryTextColor',
+    modalContentBg: 'linear-gradient(125deg, rgba(34,29,69,1) 0%, rgba(51,45,105,1) 50%, rgba(34,29,69,1) 100%);',
     primary: {
       50: '#eeedf7',
       100: '#dddbf0',
