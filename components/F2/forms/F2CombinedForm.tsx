@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, useDisclosure, Switch, FormControl, FormLabel } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, useDisclosure, Switch, FormControl, FormLabel, Flex } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
@@ -19,6 +19,8 @@ import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import { AmountInfos } from '@app/components/common/Messages/AmountInfos'
 import { F2FormInfos } from './F2FormInfos'
 import { NavButtons } from '@app/components/common/Button'
+import Link from '@app/components/common/Link'
+import { getDBRBuyLink } from '@app/util/f2'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -257,6 +259,21 @@ export const F2CombinedForm = ({
                         <Switch onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
                     </FormControl>
                 }
+                {
+                    isDeposit && !isAutoDBR && dbrBalance <= 0 &&
+                    <InfoMessage
+                        title="No DBRs in wallet"
+                        alertProps={{ w: 'full' }}
+                        description={
+                            <Flex display="inline-block">
+                                To borrow DOLA you need to <Link display="inline-block" href={getDBRBuyLink()} isExternal target="_blank">
+                                    buy DBR tokens
+                                </Link>
+                                &nbsp;or use the auto-buy option
+                            </Flex>
+                        }
+                    />
+                }
             </VStack>
         }
     </Stack>
@@ -280,7 +297,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': collateralAmount <= 0,
-        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1,
+        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0),
         'repay': debtAmount <= 0 || debtAmount > debt,
         'withdraw': collateralAmount <= 0 || collateralAmount > deposits || newPerc < 1,
     }
