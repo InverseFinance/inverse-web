@@ -38,14 +38,14 @@ export const F2Header = () => {
   return (
     <Flex
       w="full"
-      p={4}
+      p={'10px'}
       pb="0"
       justify="space-between"
       align={{ base: 'flex-start', md: 'flex-start' }}
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
+      <Stack w='full'  spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
             <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={`$${(prices[RTOKEN_CG_ID]?.usd || 0).toFixed(2)}`} />
@@ -91,13 +91,19 @@ export const F2Header = () => {
             Discover our Tokens
           </Text>
         </Stack> */}
-        <Stack justifyContent="flex-start" alignItems="flex-start" spacing={4} w='full' maxW="600px">
-          <Stack direction={{ base: 'column', lg: 'row' }} spacing="6" w='100%' alignItems="center" justify="space-between">
-            <AnchorBigButton
+        <Stack justifyContent="flex-start" alignItems="flex-start" spacing={4} w='full' >
+          <Stack direction={{ base: 'column', lg: 'row' }} spacing="6" w='100%' alignItems="center" justify="flex-end">
+            {/* <AnchorBigButton
               onClick={() => router.push('frontier?marketType=supply&market=inv')}
               bg="url('/assets/stake-inv.png')"
               title="Stake INV"
               subtitle={`${apy}% APY`}
+            /> */}
+            <AnchorBigButton
+              onClick={() => router.push('https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit')}
+              bg="url('/assets/stake-inv.png')"
+              title="MarketsV2 & DBR"
+              subtitle={`Learn More`}
             />
             <AnchorBigButton
               onClick={() => router.push('f2/WETH')}

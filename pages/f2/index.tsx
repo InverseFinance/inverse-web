@@ -14,6 +14,7 @@ export const F2PAGE = () => {
     const account = useAccount();
     const { debt } = useAccountDBR(account);
     const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
+    
     return (
         <Layout>
             <Head>

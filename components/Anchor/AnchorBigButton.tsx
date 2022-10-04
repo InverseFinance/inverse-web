@@ -47,7 +47,7 @@ export const AnchorBigButton = ({
             <chakra.span color="white" zIndex="2" fontWeight="extrabold">
                 {title}
             </chakra.span>
-            <Text zIndex="2" fontSize="18px" color="secondary" textShadow="1px 1px #333" >
+            <Text zIndex="2" fontSize="18px" color="white" textShadow="1px 1px #333" >
                 {subtitle}
             </Text>
         </Box>
