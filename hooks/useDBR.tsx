@@ -225,7 +225,8 @@ export const useDBRPrice = (): { price: number } => {
     abi: ['function latestAnswer() public view returns (uint256)'],
   });
   const out = data && data[0] ? getBnToNumber(data[0][1]) : 0;
+  // use coingecko as fallback when ready
   return {
-    price: ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0
+    price: ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
   }
 }
