@@ -11,6 +11,7 @@ import { F2FormInfos } from "../forms/F2FormInfos"
 import { F2MarketContext } from "./WalkthroughContainer"
 import { InfoMessage } from "@app/components/common/Messages"
 import { shortenNumber } from "@app/util/markets"
+import { preciseCommify } from "@app/util/misc"
 
 export const F2WalkthroughRecap = ({
     onStepChange,
@@ -59,7 +60,7 @@ export const F2WalkthroughRecap = ({
                 <Text>Your debt for this loan will be <b>{shortenNumber(debtAmount + dbrCoverDebt, 2)} DOLA</b></Text>
             </TextInfo>
             <TextInfo message="If the collateral price reaches that price, your collateral can be liquidated entirely">
-                <Text>Your liquidation price will be <b>{shortenNumber(newLiquidationPrice, 2, true)} (current price is {shortenNumber(market.price, 2, true)})</b></Text>
+                <Text>Your liquidation price will be <b>{preciseCommify(newLiquidationPrice, 0, true)} (current price is {preciseCommify(market.price, 0, true)})</b></Text>
             </TextInfo>
             <TextInfo message="The duration value is only to calculate the amount of DBR needed">
                 <Text>You can terminate the loan at any time and sell the remaining DBRs</Text>
