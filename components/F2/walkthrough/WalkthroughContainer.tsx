@@ -1,4 +1,4 @@
-import { VStack, useMediaQuery, FlexProps } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps, Progress, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -32,7 +32,7 @@ export const F2MarketContext = React.createContext<{
     signer: JsonRpcSigner,
     step: number,
     duration: number,
-    collateralAmount: numbner,
+    collateralAmount: number,
     debtAmount: number,
     dbrPrice: number,
     isSmallerThan728: boolean,
@@ -51,7 +51,7 @@ export const F2Walkthrough = ({
     const colDecimals = market.underlying.decimals;
     const { library } = useWeb3React();
     const account = useAccount();
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
     const [duration, setDuration] = useState(365);
     const [durationType, setDurationType] = useState('months');
     const [durationTypedValue, setDurationTypedValue] = useState(12);
@@ -116,7 +116,7 @@ export const F2Walkthrough = ({
         if (stepString && !isNaN(parseInt(stepString))) {
             setStep(parseInt(stepString));
         } else if (step !== 0) {
-            setStep(1);
+            setStep(0);
         }        
     }, [router])
 
@@ -171,19 +171,25 @@ export const F2Walkthrough = ({
             {
                 !!market && <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="flex-start" spacing="6">
                     {
-                        step === 1 && <F2WalkthroughIntro onStepChange={handleStepChange} />
+                        step > 0 && <VStack w='full'>
+                            <Text>Step {step} / 4</Text>
+                            <Progress w='full' value={(step) / 4 * 100} />
+                        </VStack>
                     }
                     {
-                        step === 2 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
+                        step === 0 && <F2WalkthroughIntro onStepChange={handleStepChange} />
                     }
                     {
-                        step === 3 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
+                        step === 1 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
                     }
                     {
-                        step === 4 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
+                        step === 2 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
                     }
                     {
-                        step === 5 && <F2WalkthroughRecap onStepChange={handleStepChange} />
+                        step === 3 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
+                    }
+                    {
+                        step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
                     }                    
                 </VStack>
             }

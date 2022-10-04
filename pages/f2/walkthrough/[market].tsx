@@ -19,15 +19,15 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         <Layout>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary>
-                <VStack id="walkthrough-container" w='full' maxW={'750px'} alignItems="flex-start" px="8" spacing="8">
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
-                        {/* <SimmpleBreadcrumbs
+                <VStack id="walkthrough-container" w='full' maxW={'750px'} alignItems="flex-start" p="8" spacing="8">
+                    {/* <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
+                        <SimmpleBreadcrumbs
                             breadcrumbs={[
                                 { label: 'F2', href: '/f2' },
                                 { label: `${f2market?.name || market} Market`, href: '#' },
                             ]}
-                        /> */}
-                    </Stack>
+                        />
+                    </Stack> */}
                     {
                         !f2market ? <Text>Market not found</Text>
                             : <F2Walkthrough market={f2market} />
