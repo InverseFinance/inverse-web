@@ -20,6 +20,7 @@ import { useRouter } from 'next/router'
 import { F2WalkthroughDebt } from './Debt'
 import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
+import { SubmitButton } from '@app/components/common/Button'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -80,7 +81,7 @@ export const F2Walkthrough = ({
     } = f2CalcNewHealth(market, deposits, debt, collateralAmount, 0, perc);
 
     useEffect(() => {
-        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc));    
+        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc));
     }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc]);
 
     const handleAction = (amount: BigNumber) => {
@@ -117,12 +118,42 @@ export const F2Walkthrough = ({
             setStep(parseInt(stepString));
         } else if (step !== 0) {
             setStep(0);
-        }        
+        }
     }, [router])
 
     useEffect(() => {
         window['walkthrough-container'].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
     }, [step, debtAmount, duration, collateralAmount]);
+
+    if (step === 0) {
+        return <VStack w='full' spacing="8">
+            <Text as='h1' fontSize='48px' fontWeight="extrabold">Markets V2</Text>
+            <VStack w='full' spacing='12'>
+                <VStack alignItems="flex-start" w='full' spacing='2'>
+                    <Text as='h2' fontSize='28px' fontWeight="extrabold">A new protocol built from scratch</Text>
+                    {/* <Text fontSize='18px'>An <b>Innovative Lending Protocol</b> built from scratch</Text> */}
+                    <Text fontSize='18px'>Focused on <b>Simplicity and Safety</b></Text>
+                    <Text fontSize='18px'><b>Isolated Markets</b> and Liquidity</Text>
+                    <Text fontSize='18px'><b>Flashloan protection</b></Text>
+                </VStack>
+                <VStack alignItems="flex-start" w='full' spacing='2'>
+                    <Text fontSize='28px' fontWeight="extrabold">Introducing the <b>DOLA Borrowing Rights</b> token</Text>
+                    <Text fontSize='18px'>
+                        Where DBR's purchase <b>price determines the Borrowing Rate</b>
+                    </Text>
+                    <Text fontSize='18px'>
+                        Get a <b>Fixed Borrow Rate for any amount time</b>
+                    </Text>
+                    <Text fontSize='18px'>
+                        <b>Fix a rate now</b> and borrow later, or <b>trade your rate</b>
+                    </Text>
+                </VStack>
+                <SubmitButton w='fit-content' fontSize='18px' p="8" onClick={() => setStep(1)}>
+                    Get Started
+                </SubmitButton>
+            </VStack>
+        </VStack>
+    }
 
     return <Container
         noPadding
@@ -190,7 +221,7 @@ export const F2Walkthrough = ({
                     }
                     {
                         step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
-                    }                    
+                    }
                 </VStack>
             }
         </F2MarketContext.Provider>
