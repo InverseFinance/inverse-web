@@ -5,9 +5,10 @@ import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import moment from 'moment'
 import { NavButtons } from '@app/components/common/Button'
 import ScannerLink from '@app/components/common/ScannerLink'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
+import { getRiskColor } from '@app/util/f2'
 
 type Data = {
     tooltip: string
@@ -20,6 +21,7 @@ type Data = {
 
 const Infos = ({ infos }: { infos: [Data, Data] }) => {
     const [left, right] = infos;
+
     return <Stack borderBottom="1px solid #cccccc66" w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
         <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
             <TextInfo message={left.tooltip}>
@@ -82,8 +84,21 @@ export const F2FormInfos = ({
     maxBorrowable,
     onHealthOpen = () => { },
     onDbrOpen = () => { },
-}) => {    
-    const [type, setType] = useState('Position Result');
+}) => {
+    const [now, setNow] = useState(Date.now());
+
+    useEffect(() => {
+        let interval = setInterval(() => {
+            setNow(Date.now());
+        });
+        return () => {
+            if(interval) {
+                clearInterval(interval);
+            }
+        };
+    }, [])
+
+    const [type, setType] = useState('Summary');
 
     const newDbrBalance = dbrBalance + (isAutoDBR ? isDeposit ? dbrCover : -dbrCover : 0);
 
@@ -173,8 +188,8 @@ export const F2FormInfos = ({
             },
             {
                 tooltip: "DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
-                title: 'Fees over time for this loan',
-                value: `${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})`,
+                title: 'DBR cost',
+                value: dbrCover > 0 && isDeposit ? `${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
             },
         ],
         [
@@ -184,14 +199,18 @@ export const F2FormInfos = ({
                 value: `-${newDailyDBRBurn ? `${shortenNumber(newDailyDBRBurn, 4)} (${shortenNumber(newDailyDBRBurn * dbrPrice, 2, true)})` : ''}`,
             },
             {
-                tooltip: "Date where you will run out of DBRs",
+                tooltip: "Date where you will run out of DBRs, it is recommended that you always have DBRs in your wallet as when you run out of DBRs someone can force top-up your balance and this will cost your additional debt",
                 title: 'DBR depletion date',
-                value: !!newDBRExpiryDate ? moment(newDBRExpiryDate).format('MMM Do, YYYY') : '-',
+                value: !!newDBRExpiryDate ? 
+                (newDBRExpiryDate - 86400000) <= now ? 
+                newDBRExpiryDate <= now ? 'Instant' : `~${moment(newDBRExpiryDate).from()}` 
+                : 
+                moment(newDBRExpiryDate).format('MMM Do, YYYY') : '-',
+                // <3 months: orange etc
+                color: newTotalDebt > 0 ? getRiskColor((newDBRExpiryDate - now) / (365 * 86400000) * 200) : undefined
             },
         ],
     ]
-
-    const remainingBorrowingPower = maxBorrowable - debtAmount;
 
     const positionInfos = [
         [
@@ -220,8 +239,8 @@ export const F2FormInfos = ({
         ],
         [
             {
-                tooltip: 'The total Borrowing Power given by your collaterals in USD',
-                title: 'Borrowing Power',
+                tooltip: '99% of your technical Max Borrowing Power, usually you would avoid being that close to the maximum',
+                title: 'Max borrow (99% of max)',
                 value: `${maxBorrowable ? `${shortenNumber(maxBorrowable, 0)} DOLA` : '-'}`,
             },
             {
@@ -241,22 +260,30 @@ export const F2FormInfos = ({
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
-                value: !!deposits || !!newDeposits ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
+                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
                 color: newDeposits > 0 ? riskColor : undefined,
             },
         ],
     ]
 
+    const keyInfos = [
+        positionInfos[0],
+        dbrInfos[2],
+        [positionInfos[2][0], dbrInfos[3][1]],
+        positionInfos[3],
+    ]
+
     const lists = {
-        'Position Result': positionInfos,
-        'DBR Infos': dbrInfos,
-        'Market Infos': marketInfos,
+        'Summary': keyInfos,
+        'Position Details': positionInfos,
+        'DBR Details': dbrInfos,
+        'Market Details': marketInfos,
     }
 
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={type}
-            options={['Position Result', 'DBR Infos', 'Market Infos']}
+            options={['Summary', 'Position Details', 'DBR Details', 'Market Details']}
             onClick={(v) => setType(v)}
         />
         <ListInfos listInfos={lists[type]} />
