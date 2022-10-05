@@ -44,11 +44,11 @@ export const F2Header = () => {
   const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
   const { value: isIntroDone, setter } = useStorage('f2-intro');
 
-  useDebouncedEffect(() => {
-    if(!isIntroDone) {
-      onIntroOpen();
-    }
-  }, [isIntroDone], 200)
+  // useDebouncedEffect(() => {
+  //   if(!isIntroDone) {
+  //     onIntroOpen();
+  //   }
+  // }, [isIntroDone], 200)
 
   const handleIntroClose = () => {
     setter('done');
@@ -67,7 +67,7 @@ export const F2Header = () => {
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <Modal header="New Fixed-Rate Lending Protocol!" minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}>
+      <Modal scrollBehavior="inside" header="New Fixed-Rate Lending Protocol!" h="95vh" maxH='700px' minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}>
         <VStack p='8'>
           <MarketsV2Hero onGetStarted={handleIntroClose} />
         </VStack>
