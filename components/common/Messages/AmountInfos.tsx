@@ -33,7 +33,7 @@ export const AmountInfos = ({
         </Text>      
         {
             (!!delta) &&
-            <Text {..._textProps}> {!!delta ? `${deltaSign}${!!value ? ' ' : ''}${formatFun(Math.abs(delta), 2, false)}${price ? ` (${formatFun(delta * price, 2, true)})` : ''} => ` : ''}{formatFun(newValue, 2, false)} {price ? `(${formatFun(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Debt = ${formatFun(dbrCover + newValue, 2)}` : ''}</Text>
+            <Text {..._textProps}> {!!delta ? `${deltaSign}${!!value ? ' ' : ''}${formatFun(Math.abs(delta), 2, false)}${price ? ` (${formatFun(delta * price, 2, true)})` : ''} => ` : ''}{formatFun(newValue, 2, false)} {price ? `(${formatFun(newValue * price, 2, true)})` : ''}{dbrCover ? ` + DBR Cost = ${formatFun(dbrCover + newValue, 2)}` : ''}</Text>
         }
     </HStack>
 }
