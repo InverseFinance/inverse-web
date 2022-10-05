@@ -3,6 +3,7 @@ import { F2Market } from "@app/types";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getNetworkConfigConstants } from "./networks";
+import moment from 'moment';
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -87,4 +88,16 @@ export const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collat
         return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax - 0.1, perc, isAutoDBR)
     }
     return naiveMax < 0 ? 0 : Math.floor(naiveMax);
+}
+
+export const getDepletionDate = (timestamp: number, comparedTo: number) => {
+    return !!timestamp ?
+    (timestamp - 86400000) <= comparedTo ?
+    timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).from()}`
+        :
+        moment(timestamp).format('MMM Do, YYYY') : '-'
+}
+
+export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
+    return getRiskColor((timestamp - comparedTo) / (365 * 86400000) * 200);
 }
