@@ -69,7 +69,7 @@ export const F2CombinedForm = ({
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
     const [maxBorrowable, setMaxBorrowable] = useState(0);
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [syncedMinH, setSyncedMinH] = useState(250);
     const [mode, setMode] = useState('Deposit & Borrow');
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt } = useAccountDBRMarket(f2market, account);
@@ -193,7 +193,13 @@ export const F2CombinedForm = ({
                 isAutoDBR,
             )
         );
-    }, [f2market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc, isAutoDBR]);
+        const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
+        const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
+        if((formHeight - recapHeight) < 50) {
+            setSyncedMinH(formHeight);
+        }
+        
+    }, [f2market, mode, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc, isAutoDBR]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
@@ -371,7 +377,7 @@ export const F2CombinedForm = ({
     </Stack>
 
     return <Stack
-        direction={{ base: 'column', lg: 'row' }}
+        direction={{ base: 'column', xl: 'row' }}
         w='full'
         spacing="4"
     >
@@ -386,12 +392,12 @@ export const F2CombinedForm = ({
             //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
             // }
             w='full'
-            contentProps={{ position: 'relative' }}
+            contentProps={{ minH: '230px', position: 'relative', id: 'f2-combined-form' }}
             {...props}
         >
-            <FormControl bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+            <FormControl boxShadow="0px 0px 2px 2px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
                 <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
-                    Withdraw
+                    Exit Mode?
                 </FormLabel>
                 <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
             </FormControl>
@@ -434,15 +440,16 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             w='full'
-            contentProps={{ minH: '543px' }}
+            // contentProps={{ minH: '543px' }}
+            contentProps={{ minH: syncedMinH, id: 'f2-recap-container' }}
             p="0"
             // pt="51px"
-            label={'Summary & Details'}
+            label={'Recap & Details'}
             description={`DBR's current price is the current Fixed APR - Learn More `}
             href="https://docs.inverse.finance/inverse-finance/about-inverse"
             image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         >
-            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="2">
+            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
                     newPerc={newPerc}
                     riskColor={riskColor}
@@ -458,7 +465,7 @@ export const F2CombinedForm = ({
                     onHealthOpen={onHealthOpen}
                     onDbrOpen={onDbrOpen}
                     collateralAmount={hasCollateralChange ? collateralAmount : 0}
-                    debtAmount={hasDebtChange ? debtAmount : 0}
+                    debtAmount={hasDebtChange ? isDeposit ? debtAmount : Math.min(debtAmount, debt) : 0}
                     isDeposit={isDeposit}
                     deposits={deposits}
                     debt={debt}
@@ -469,6 +476,8 @@ export const F2CombinedForm = ({
                     dbrBalance={dbrBalance}
                     isAutoDBR={isAutoDBR}
                     maxBorrowable={maxBorrowable}
+                    durationType={durationType}
+                    durationTypedValue={durationTypedValue}
                 />
                 {
                     disabledConditions[MODES[mode]] && (!!debtAmount || !!collateralAmount) && newPerc < 1 &&

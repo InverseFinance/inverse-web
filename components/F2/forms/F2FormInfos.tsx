@@ -1,14 +1,14 @@
-import { Stack, VStack, Text } from '@chakra-ui/react'
+import { Stack, VStack, Text, Divider } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
-import moment from 'moment'
 import { NavButtons } from '@app/components/common/Button'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
-import { getRiskColor } from '@app/util/f2'
+import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
+import { RecapInfos } from '../Infos/RecapInfos'
 
 type Data = {
     tooltip: string
@@ -47,7 +47,7 @@ const Infos = ({ infos }: { infos: [Data, Data] }) => {
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
-    return <VStack spacing="0" w='full'>
+    return <VStack spacing="0" w='full' h='350px'>
         {
             listInfos.map((infos, i) => {
                 return <Infos key={infos[0].title} infos={infos} />
@@ -58,33 +58,35 @@ const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
 
 const { DBR } = getNetworkConfigConstants();
 
-export const F2FormInfos = ({
-    newPerc,
-    riskColor,
-    isFormFilled,
-    newLiquidationPrice,
-    f2market,
-    dbrCoverDebt,
-    dbrCover,
-    duration,
-    dbrPrice,
-    newDailyDBRBurn,
-    newDBRExpiryDate,
-    collateralAmount,
-    debtAmount,
-    isDeposit,
-    deposits,
-    debt,
-    newDeposits,
-    newTotalDebt,
-    newCreditLimit,
-    newCreditLeft,
-    dbrBalance,
-    isAutoDBR,
-    maxBorrowable,
-    onHealthOpen = () => { },
-    onDbrOpen = () => { },
-}) => {
+export const F2FormInfos = (props) => {
+    const {
+        newPerc,
+        riskColor,
+        isFormFilled,
+        newLiquidationPrice,
+        f2market,
+        dbrCoverDebt,
+        dbrCover,
+        duration,
+        dbrPrice,
+        newDailyDBRBurn,
+        newDBRExpiryDate,
+        collateralAmount,
+        debtAmount,
+        isDeposit,
+        deposits,
+        debt,
+        newDeposits,
+        newTotalDebt,
+        newCreditLimit,
+        dbrBalance,
+        isAutoDBR,
+        maxBorrowable,
+        durationType,
+        durationTypedValue,
+        onHealthOpen = () => { },
+        onDbrOpen = () => { },
+    } = props;
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
@@ -92,13 +94,13 @@ export const F2FormInfos = ({
             setNow(Date.now());
         });
         return () => {
-            if(interval) {
+            if (interval) {
                 clearInterval(interval);
             }
         };
-    }, [])
+    }, []);
 
-    const [type, setType] = useState('Summary');
+    const [type, setType] = useState('Recap');
 
     const newDbrBalance = dbrBalance + (isAutoDBR ? isDeposit ? dbrCover : -dbrCover : 0);
 
@@ -158,14 +160,14 @@ export const F2FormInfos = ({
             {
                 tooltip: 'DBR Smart Contract',
                 title: 'DBR Contract',
-                value: <ScannerLink value={DBR} />,            
+                value: <ScannerLink value={DBR} />,
             },
             {
                 tooltip: 'Learn more about DBR',
                 title: 'DBR docs',
                 value: <Link textDecoration="underline" color="mainTextColor" href="https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38" isExternal target="_blank">
                     Learn More
-                </Link>,            
+                </Link>,
             },
         ],
         [
@@ -201,13 +203,8 @@ export const F2FormInfos = ({
             {
                 tooltip: "Date where you will run out of DBRs, it is recommended that you always have DBRs in your wallet as when you run out of DBRs someone can force top-up your balance and this will cost your additional debt",
                 title: 'DBR depletion date',
-                value: !!newDBRExpiryDate ? 
-                (newDBRExpiryDate - 86400000) <= now ? 
-                newDBRExpiryDate <= now ? 'Instant' : `~${moment(newDBRExpiryDate).from()}` 
-                : 
-                moment(newDBRExpiryDate).format('MMM Do, YYYY') : '-',
-                // <3 months: orange etc
-                color: newTotalDebt > 0 ? getRiskColor((newDBRExpiryDate - now) / (365 * 86400000) * 200) : undefined
+                value: getDepletionDate(newDBRExpiryDate, now),
+                color: newTotalDebt > 0 ? getDBRRiskColor(newDBRExpiryDate, now) : undefined
             },
         ],
     ]
@@ -280,12 +277,48 @@ export const F2FormInfos = ({
         'Market Details': marketInfos,
     }
 
+    const recapData = {
+        market: f2market,
+        dbrCover,
+        newLiquidationPrice,
+        durationTypedValue,
+        durationType,
+        dbrPrice,
+        riskColor,
+        newPerc,
+        dbrCoverDebt,
+        collateralAmount,
+        debtAmount,
+        duration,
+        isAutoDBR,
+        isTuto: false,
+        isDeposit,
+        newDBRExpiryDate,
+    }
+
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={type}
-            options={['Summary', 'Position Details', 'DBR Details', 'Market Details']}
+            options={['Recap', 'Position Details', 'DBR Details', 'Market Details']}
             onClick={(v) => setType(v)}
         />
-        <ListInfos listInfos={lists[type]} />
+        {
+            type === 'Recap' ?
+                <VStack
+                    spacing="4"
+                    w='full'
+                    pt='4'
+                    // h='350px'
+                    alignItem="center"
+                    justifyContent='center'
+                    justify='center'
+                >
+                    <RecapInfos
+                        {...recapData}
+                        spacing='4'
+                    />                    
+                </VStack>
+                : <ListInfos listInfos={lists[type]} />
+        }
     </VStack>
 }

@@ -65,7 +65,7 @@ export const F2WalkthroughDebt = ({
                 inputRight={<MarketImage ml="10px" pr="20px" image={dolaToken.image} size={40} />}
                 isError={debtAmount > maxBorrowable}
             />
-            <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} />
+            {/* <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} /> */}
             <InfoMessage
                 alertProps={{ w: 'full' }}
                 description={`Maximum Borrowing Power is ${preciseCommify(maxBorrowable, 0)} DOLA with current parameters`}
