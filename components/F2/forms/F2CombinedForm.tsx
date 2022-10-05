@@ -1,7 +1,7 @@
 import { Stack, VStack, Text, HStack, useMediaQuery, FlexProps, Divider, useDisclosure, Switch, FormControl, FormLabel, Flex } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
-import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
+import { parseEther } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
@@ -108,7 +108,7 @@ export const F2CombinedForm = ({
     } = f2CalcNewHealth(
         f2market,
         deposits,
-        debt + (isDeposit && isAutoDBR ? dbrCoverDebt : 0),
+        debt + (isDeposit && isAutoDBR && hasDebtChange ? dbrCoverDebt : 0),
         hasCollateralChange ? deltaCollateral : 0,
         hasDebtChange ? deltaDebt : 0,
         perc,
@@ -116,7 +116,14 @@ export const F2CombinedForm = ({
 
     const {
         newCreditLeft: maxBorrow
-    } = f2CalcNewHealth(f2market, deposits, debt, collateralAmount, 0, perc);
+    } = f2CalcNewHealth(
+        f2market,
+        deposits,
+        debt,
+        hasCollateralChange ? isDeposit ? collateralAmount : -collateralAmount : 0,
+        hasDebtChange ? isDeposit ? 0 : -(Math.min(debtAmount, debt)) : 0,
+        perc,
+    );
 
     const { dailyDebtAccrual: newDailyDBRBurn, dbrExpiryDate: newDBRExpiryDate } = useAccountDBR(account, newTotalDebt);
 
@@ -172,7 +179,20 @@ export const F2CombinedForm = ({
     }, [deltaDebt, onDebtChange]);
 
     useEffect(() => {
-        setMaxBorrowable(findMaxBorrow(f2market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc, isAutoDBR));
+        setMaxBorrowable(
+            findMaxBorrow(
+                f2market,
+                deposits,
+                debt,
+                dbrPrice,
+                duration,
+                isDeposit ? collateralAmount : -collateralAmount,
+                isDeposit ? 0 : -debtAmount,
+                maxBorrow,
+                perc,
+                isAutoDBR,
+            )
+        );
     }, [f2market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc, isAutoDBR]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
@@ -207,7 +227,7 @@ export const F2CombinedForm = ({
                             inputRight={<MarketImage pr="2" image={f2market.icon || f2market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmount > collateralBalance : collateralAmount > deposits}
                         />
-                        <AmountInfos label="Deposits" value={deposits} newValue={newDeposits} price={f2market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} />
+                        <AmountInfos label="Total Deposits" value={deposits} newValue={newDeposits} price={f2market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} />
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }
@@ -242,8 +262,8 @@ export const F2CombinedForm = ({
                                 isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
                             />
                             <AmountInfos
-                                dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : -dbrCoverDebt : 0}
-                                label="Debt"
+                                dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : 0 : 0}
+                                label="Total Debt"
                                 value={debt}
                                 newValue={newDebt}
                                 delta={deltaDebt}
@@ -280,7 +300,7 @@ export const F2CombinedForm = ({
 
     const durationPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
-            <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
+            <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
                 <Text fontSize='18px' color="mainTextColor"><b>Duration</b> of the Fixed-Rate, Loan is Stoppable at any time:</Text>
             </TextInfo>
             <F2DurationInput
@@ -417,7 +437,7 @@ export const F2CombinedForm = ({
             contentProps={{ minH: '543px' }}
             p="0"
             // pt="51px"
-            label={'Infos & Recap'}
+            label={'Summary & Details'}
             description={`DBR's current price is the current Fixed APR - Learn More `}
             href="https://docs.inverse.finance/inverse-finance/about-inverse"
             image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
@@ -438,7 +458,7 @@ export const F2CombinedForm = ({
                     onHealthOpen={onHealthOpen}
                     onDbrOpen={onDbrOpen}
                     collateralAmount={hasCollateralChange ? collateralAmount : 0}
-                    debtAmount={debtAmount}
+                    debtAmount={hasDebtChange ? debtAmount : 0}
                     isDeposit={isDeposit}
                     deposits={deposits}
                     debt={debt}

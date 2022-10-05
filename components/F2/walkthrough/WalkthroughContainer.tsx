@@ -81,7 +81,7 @@ export const F2Walkthrough = ({
     } = f2CalcNewHealth(market, deposits, debt, collateralAmount, 0, perc);
 
     useEffect(() => {
-        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc));
+        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, 0, maxBorrow, perc));
     }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc]);
 
     const handleAction = (amount: BigNumber) => {

@@ -39,7 +39,7 @@ export const f2CalcNewHealth = (
     debtDelta: number,
     perc: number,
 ) => {
-    const newDeposits = (deposits + (depositsDelta || 0));
+    const newDeposits = Math.max((deposits + (depositsDelta || 0)), 0);
     const newCreditLimit = newDeposits * market.collateralFactor * market.price;
     const newDebt = debt + debtDelta;
 
@@ -70,13 +70,21 @@ export const getDBRBuyLink = () => {
     return `https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`
 }
 
-export const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, perc, isAutoDBR = true): number => {
-    const dbrCoverDebt = isAutoDBR ? debtAmount * dbrPrice / (365 / duration) : 0;
+export const findMaxBorrow = (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax, perc, isAutoDBR = true): number => {
+    const dbrCoverDebt = isAutoDBR ? naiveMax * dbrPrice / (365 / duration) : 0;
+    
     const {
         newPerc
-    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
-    if(newPerc < 1) {        
-        return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount - 0.1, perc, isAutoDBR)
+    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt + debtAmount, collateralAmount, naiveMax, perc);
+
+    const {
+        newCreditLeft, 
+    } = f2CalcNewHealth(market, deposits, debt, collateralAmount, debtAmount, perc);
+
+    if(newCreditLeft <= 0) {
+        return 0;
+    } else if(newPerc < 1) {        
+        return findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax - 0.1, perc, isAutoDBR)
     }
-    return debtAmount < 0 ? 0 : Math.floor(debtAmount);
+    return naiveMax < 0 ? 0 : Math.floor(naiveMax);
 }
