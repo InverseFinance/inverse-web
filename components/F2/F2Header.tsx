@@ -1,4 +1,4 @@
-import { Text, Stack, Flex, SkeletonText } from '@chakra-ui/react'
+import { Text, Stack, Flex, SkeletonText, useDisclosure, VStack } from '@chakra-ui/react'
 import LinkButton from '@app/components/common/Button'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { useDOLA } from '@app/hooks/useDOLA'
@@ -6,9 +6,15 @@ import { usePrices } from '@app/hooks/usePrices'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify, shortenNumber } from '@app/util/markets'
 import { AnchorBigButton } from '../Anchor/AnchorBigButton'
-import { useDBRPrice } from '@app/hooks/useDBR'
+import { useAccountDBR, useDBRPrice } from '@app/hooks/useDBR'
 import { getDBRBuyLink } from '@app/util/f2'
 import { useRouter } from 'next/router'
+import useStorage from '@app/hooks/useStorage'
+import { useState } from 'react'
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
+import { Modal } from '@app/components/common/Modal'
+import { MarketsV2Hero } from './Infos/MarketsV2Hero'
+import { useAccount } from '@app/hooks/misc'
 
 const Btn = (props) => <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} {...props} />
 
@@ -32,6 +38,22 @@ export const F2Header = () => {
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { price: dbrPrice } = useDBRPrice();
+  const account = useAccount();
+  const { debt } = useAccountDBR(account);
+
+  const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
+  const { value: isIntroDone, setter } = useStorage('f2-intro');
+
+  useDebouncedEffect(() => {
+    if(!isIntroDone) {
+      onIntroOpen();
+    }
+  }, [isIntroDone], 200)
+
+  const handleIntroClose = () => {
+    setter('done');
+    onIntroClose();
+  }
 
   const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
 
@@ -45,7 +67,12 @@ export const F2Header = () => {
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <Stack w='full'  spacing={8} p={4} alignItems="flex-start">
+      <Modal header="New Fixed-Rate Lending Protocol!" minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}>
+        <VStack p='8'>
+          <MarketsV2Hero onGetStarted={handleIntroClose} />
+        </VStack>
+      </Modal>
+      <Stack w='full' spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
             <TextOrSkeleton value={prices && prices[RTOKEN_CG_ID]?.usd} text={`$${(prices[RTOKEN_CG_ID]?.usd || 0).toFixed(2)}`} />
@@ -100,16 +127,17 @@ export const F2Header = () => {
               subtitle={`${apy}% APY`}
             /> */}
             <AnchorBigButton
-              onClick={() => router.push('https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit')}
+              // onClick={() => router.push('https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit')}
+              onClick={() => onIntroOpen()}
               bg="url('/assets/stake-inv.png')"
               title="MarketsV2 & DBR"
               subtitle={`Learn More`}
             />
             <AnchorBigButton
-              onClick={() => router.push('f2/WETH')}
+              onClick={() => router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH')}
               bg="url('/assets/dola.png')"
               title="Borrow DOLA"
-              subtitle={`${shortenNumber(dbrPrice*100, 2)}% Fixed-Rate`}
+              subtitle={`${shortenNumber(dbrPrice * 100, 2)}% Fixed-Rate`}
             />
           </Stack>
         </Stack>
