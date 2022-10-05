@@ -11,7 +11,7 @@ export const MarketsV2Hero = ({
                 <Text as='h2' fontSize='28px' fontWeight="extrabold">A new protocol built from scratch</Text>
                 {/* <Text fontSize='18px'>An <b>Innovative Lending Protocol</b> built from scratch</Text> */}
                 <Text fontSize='18px'>Focused on <b>Simplicity and Safety</b></Text>
-                <Text fontSize='18px'><b>Isolated Markets</b> and Liquidity</Text>
+                <Text fontSize='18px'><b>Isolated Markets</b> and <b>Personal Escrows</b></Text>
                 <Text fontSize='18px'><b>Flashloan protection</b></Text>
             </VStack>
             <VStack alignItems="flex-start" w='full' spacing='2'>

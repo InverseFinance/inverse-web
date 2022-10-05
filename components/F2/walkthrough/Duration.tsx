@@ -44,7 +44,12 @@ export const F2WalkthroughDuration = ({
             <AmountInfos label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
             <InfoMessage
                 alertProps={{ w: 'full' }}
-                description={`Maximum Borrowing Power will be ${preciseCommify(maxBorrowable, 0)} DOLA`}
+                description={
+                    <VStack alignItems="flex-start">
+                        <Text>Maximum Borrowing Power will be {preciseCommify(maxBorrowable, 0)} DOLA</Text>
+                        <Text>Duration is for the Fixed-Rate, you can terminate the loan at any time</Text>
+                    </VStack>
+                }
             />
         </VStack>
         <HStack w='full' justify="flex-end" pt="4">

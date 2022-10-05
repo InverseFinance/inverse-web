@@ -1,4 +1,4 @@
-import { VStack, useMediaQuery, FlexProps, Progress, Text, Stack } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps, Progress, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -126,7 +126,11 @@ export const F2Walkthrough = ({
     }, [step, debtAmount, duration, collateralAmount]);
 
     if (step === 0) {
-        return <MarketsV2Hero onGetStarted={() => setStep(step+1)} />
+        return <MarketsV2Hero onGetStarted={() => {
+            setStep(step + 1);
+            handleStepChange(step + 1);
+        }}
+        />
     }
 
     return <Container
