@@ -2,7 +2,7 @@ import { Flex, Stack, Text } from "@chakra-ui/react"
 import Table from "@app/components/common/Table";
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
+import { useAccountDBR, useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
@@ -151,10 +151,11 @@ export const F2Markets = ({
     const { markets } = useDBRMarkets();
     const account = useAccount();
     const accountMarkets = useAccountF2Markets(markets, account);
+    const { debt } = useAccountDBR(account);
     const router = useRouter();
 
     const openMarket = (market: any) => {
-        router.push(`/f2/${market.name}`)
+        router.push(debt > 0 ? `/f2/${market.name}` : `/f2/walkthrough/${market.name}`)
     }
 
     return <Container
