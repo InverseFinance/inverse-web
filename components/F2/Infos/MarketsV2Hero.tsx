@@ -2,7 +2,8 @@ import LinkButton, { SubmitButton } from "@app/components/common/Button"
 import { VStack, Text, Stack } from "@chakra-ui/react"
 
 export const MarketsV2Hero = ({
-    onGetStarted = () => {}
+    onGetStarted = () => {},
+    showButtons = true,
 }) => {
     return <VStack w='full' spacing="8">
         <Text as='h1' fontSize='48px' fontWeight="extrabold">Markets V2</Text>
@@ -26,7 +27,8 @@ export const MarketsV2Hero = ({
                     <b>Fix a rate now and borrow later</b>, or <b>trade your rate</b>
                 </Text>
             </VStack>
-            <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify='center'>
+            {
+                showButtons && <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify='center'>
                 <LinkButton w='fit-content' p='0' flexProps={{ w: 'fit-content', px: '8', h: '70px', fontSize: '18px' }} href="https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit" isOutline={true}
                 >
                     Learn More
@@ -36,6 +38,7 @@ export const MarketsV2Hero = ({
                 </SubmitButton>
 
             </Stack>
+            }
         </VStack>
     </VStack>
 }
