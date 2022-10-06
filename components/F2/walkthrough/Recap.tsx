@@ -31,6 +31,7 @@ export const F2WalkthroughRecap = ({
         riskColor,
         newPerc,
         dbrCoverDebt,
+        newDBRExpiryDate,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -46,6 +47,7 @@ export const F2WalkthroughRecap = ({
         collateralAmount,
         debtAmount,
         duration,
+        newDBRExpiryDate,
     }
 
     return <>

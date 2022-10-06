@@ -5,7 +5,7 @@ import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
-import { useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
+import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import { TOKENS } from '@app/variables/tokens'
@@ -79,6 +79,8 @@ export const F2Walkthrough = ({
     const {
         newCreditLeft: maxBorrow
     } = f2CalcNewHealth(market, deposits, debt, collateralAmount, 0, perc);
+
+    const { dbrExpiryDate: newDBRExpiryDate } = useAccountDBR(account, newTotalDebt);
 
     useEffect(() => {
         setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, 0, maxBorrow, perc));
@@ -176,6 +178,7 @@ export const F2Walkthrough = ({
             newTotalDebt,
             newCreditLeft,
             maxBorrowable,
+            newDBRExpiryDate,
         }}>
             {
                 !!market && <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="flex-start" spacing="6">

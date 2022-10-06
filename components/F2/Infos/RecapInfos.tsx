@@ -57,13 +57,13 @@ export const RecapInfos = ({
             </TextInfo>
         }
         {
-            isAutoDBR && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate">
-                <Text>You will lock-In a Fixed-Rate of <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
+            !!debtAmount && <TextInfo message="The amount of DOLA you will receive">
+                <Text>You will {debtWording} <b>{shortenNumber(debtAmount, 2)} DOLA</b></Text>
             </TextInfo>
         }
         {
-            !!debtAmount && <TextInfo message="The amount of DOLA you will receive">
-                <Text>You will {debtWording} <b>{shortenNumber(debtAmount, 2)} DOLA</b></Text>
+            isAutoDBR && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate">
+                <Text>You will lock-In a Fixed-Rate of <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
             </TextInfo>
         }
         {
@@ -77,13 +77,15 @@ export const RecapInfos = ({
             </TextInfo>
         }
         {
-            newPerc !== 100 && !isTuto && <>
-                <TextInfo color={dbrRiskColor} message="Moment at which you will run out of DBR tokens to cover the loan duration, please top-up your DBR before it, otherwise your debt will increase">
-                    <Text fontWeight="bold" color={dbrRiskColor}>
-                        The DBR depletion date will be <b style={{ fontWeight: '1000' }}>{getDepletionDate(newDBRExpiryDate, now)}</b>
-                    </Text>
-                </TextInfo>
-                <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
+            newPerc !== 100 && <>
+                {
+                    !isTuto && <TextInfo color={dbrRiskColor} message="Moment at which you will run out of DBR tokens to cover the loan duration, please top-up your DBR before it, otherwise your debt will increase">
+                        <Text fontWeight="bold" color={dbrRiskColor}>
+                            The DBR depletion date will be <b style={{ fontWeight: '1000' }}>{getDepletionDate(newDBRExpiryDate, now)}</b>
+                        </Text>
+                    </TextInfo>
+                }
+                <TextInfo color={riskColor} message="How healthy is the loan in terms of collateral ratio relativly to the max collateral factor, 0% health means the LTV equals the max CF.">
                     <Text fontWeight="bold" color={riskColor}>The Collateral Health will be <b style={{ fontWeight: '1000' }}>{shortenNumber(newPerc, 2)}%</b></Text>
                 </TextInfo>
                 <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">

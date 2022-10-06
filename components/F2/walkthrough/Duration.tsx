@@ -46,7 +46,7 @@ export const F2WalkthroughDuration = ({
                 alertProps={{ w: 'full' }}
                 description={
                     <VStack alignItems="flex-start">
-                        <Text>Maximum Borrowing Power will be {preciseCommify(maxBorrowable, 0)} DOLA</Text>
+                        <Text>Maximum Borrowing Power will be <b>{preciseCommify(maxBorrowable, 0)} DOLA</b></Text>
                         <Text>Duration is for the Fixed-Rate, you can terminate the loan at any time</Text>
                     </VStack>
                 }

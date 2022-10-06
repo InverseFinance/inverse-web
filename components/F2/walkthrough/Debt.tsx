@@ -68,7 +68,7 @@ export const F2WalkthroughDebt = ({
             {/* <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} /> */}
             <InfoMessage
                 alertProps={{ w: 'full' }}
-                description={`Maximum Borrowing Power is ${preciseCommify(maxBorrowable, 0)} DOLA with current parameters`}
+                description={<Text>Maximum Borrowing Power is <b>{preciseCommify(maxBorrowable, 0)} DOLA</b> with current parameters</Text>}
             />
             {
                 debtAmount > maxBorrowable &&
