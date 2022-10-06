@@ -1,6 +1,5 @@
-import { Text, Stack, Flex, SkeletonText, useDisclosure, VStack } from '@chakra-ui/react'
+import { Text, Stack, Flex, SkeletonText, useDisclosure } from '@chakra-ui/react'
 import LinkButton from '@app/components/common/Button'
-import { useMarkets } from '@app/hooks/useMarkets'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
@@ -9,11 +8,8 @@ import { AnchorBigButton } from '../Anchor/AnchorBigButton'
 import { useAccountDBR, useDBRPrice } from '@app/hooks/useDBR'
 import { getDBRBuyLink } from '@app/util/f2'
 import { useRouter } from 'next/router'
-import useStorage from '@app/hooks/useStorage'
-import { useState } from 'react'
-import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
-import { Modal } from '@app/components/common/Modal'
-import { MarketsV2Hero } from './Infos/MarketsV2Hero'
+// import { useAccount } from '@app/hooks/misc'
+import { IntroModalCheck } from './Infos/IntroModalCheck'
 import { useAccount } from '@app/hooks/misc'
 
 const Btn = (props) => <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} {...props} />
@@ -32,30 +28,21 @@ const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
 }
 
 export const F2Header = () => {
-  const { markets } = useMarkets()
   const router = useRouter();
-  const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
+  const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
+  // const { markets } = useMarkets()
+  // const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { price: dbrPrice } = useDBRPrice();
   const account = useAccount();
   const { debt } = useAccountDBR(account);
 
-  const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
-  const { value: isIntroDone, setter } = useStorage('f2-intro');
-
-  // useDebouncedEffect(() => {
-  //   if(!isIntroDone) {
-  //     onIntroOpen();
-  //   }
-  // }, [isIntroDone], 200)
-
-  const handleIntroClose = () => {
-    setter('done');
-    onIntroClose();
+  const getStarted = () => {
+    router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH')
   }
 
-  const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
+  // const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
 
   return (
     <Flex
@@ -67,11 +54,7 @@ export const F2Header = () => {
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <Modal scrollBehavior="inside" header="New Fixed-Rate Lending Protocol!" h="95vh" maxH='700px' minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}>
-        <VStack p='8'>
-          <MarketsV2Hero onGetStarted={handleIntroClose} />
-        </VStack>
-      </Modal>
+      <IntroModalCheck isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} />
       <Stack w='full' spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
@@ -134,7 +117,7 @@ export const F2Header = () => {
               subtitle={`Learn More`}
             />
             <AnchorBigButton
-              onClick={() => router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH')}
+              onClick={getStarted}
               bg="url('/assets/dola.png')"
               title="Borrow DOLA"
               subtitle={`${shortenNumber(dbrPrice * 100, 2)}% Fixed-Rate`}

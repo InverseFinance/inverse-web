@@ -14,6 +14,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useState } from 'react'
+import { F2Header } from '@app/components/F2/F2Header'
 
 export const Anchor = () => {
   const [active, setActive] = useState('Supply');
@@ -30,7 +31,10 @@ export const Anchor = () => {
       <AppNav active="Frontier" activeSubmenu="Overview" />
       <ErrorBoundary>
         <Flex w={{ base: 'full' }} maxW="84rem" justify="flex-start">
-          <ErrorBoundary description="Failed to load header"><AnchorHeader /></ErrorBoundary>
+          <ErrorBoundary description="Failed to load header">
+            {/* <AnchorHeader /> */}
+            <F2Header />
+          </ErrorBoundary>
         </Flex>
         <Flex w={{ base: 'full' }} maxW="84rem" justify="center">
           <ErrorBoundary description="Failed to load borrow limits">

@@ -1,4 +1,4 @@
-import { Text, Stack, Flex, SkeletonText } from '@chakra-ui/react'
+import { Text, Stack, Flex, SkeletonText, useDisclosure } from '@chakra-ui/react'
 import LinkButton, { LinkOutlineButton } from '@app/components/common/Button'
 import { CheckIcon } from '@chakra-ui/icons'
 import { useMarkets } from '@app/hooks/useMarkets'
@@ -11,6 +11,7 @@ import { useMediaQuery } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify, shortenNumber } from '@app/util/markets'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
+import { IntroModalCheck } from '../F2/Infos/IntroModalCheck'
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   return <Flex maxH="36px" overflow="hidden">
@@ -32,6 +33,7 @@ export const AnchorHeader = () => {
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { data: tvlData } = useTVL()
+  const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
 
   const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
 
@@ -45,6 +47,7 @@ export const AnchorHeader = () => {
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
+      <IntroModalCheck isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} />
       <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
