@@ -52,6 +52,7 @@ const chainTokenAddresses = {
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+    LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -340,6 +341,18 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
       decimals: 18,
       coingeckoId: 'convex-finance',
+    },
+    [chainTokenAddresses["1"].LOCKEDDOLAFRAXBP]: {
+      address: chainTokenAddresses["1"].LOCKEDDOLAFRAXBP,
+      name: 'vlDOLA-FRAXBP',
+      symbol: 'vlDOLA-FRAXBP',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
+      convexInfos: {
+        account: '0x5170793C4D96f9ca058E2A581BADdA9413EF4b0d',
+        fromPrice: '0xE57180685E3348589E9521aa53Af0BCD497E884d',    
+      },      
     },
   },
   "250": {

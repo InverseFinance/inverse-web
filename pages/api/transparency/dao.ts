@@ -111,8 +111,15 @@ export default async function handler(req, res) {
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
         return Promise.all(
           chainFundsToCheck.map(tokenAddress => {
-            const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-            return contract.balanceOf(m.address);
+            const token = UNDERLYING[tokenAddress]
+            const isLockedConvexPool = !!token && !!token.convexInfos;
+            if(isLockedConvexPool) {
+              const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
+              return contract.balanceOf(token.convexInfos.account);
+            } else {
+              const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+              return contract.balanceOf(m.address);
+            }
           })
             .concat([
               provider.getBalance(m.address),

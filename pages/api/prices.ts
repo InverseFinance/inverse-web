@@ -80,7 +80,7 @@ export default async function handler(req, res) {
       .filter(([chainId]) => chainId !== '31337')
       .forEach(([chainId, tokenList]) => {
         Object.values(tokenList)
-          .filter(t => (t.pairs?.length > 0 || t.lpPrice || t.isCrvLP))
+          .filter(t => (t.pairs?.length > 0 || t.lpPrice || t.isCrvLP || t.convexInfos))
           .forEach(t => {
             lps.push({ token: t, chainId });
           })
