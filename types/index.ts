@@ -20,6 +20,10 @@ export interface Token {
     poolId: string
     vault: string
   }
+  convexInfos?: {
+    account: string
+    fromPrice: string
+  }
   pairs?: string[]
   badge?: {
     text: string

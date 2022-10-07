@@ -19,6 +19,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
     '0xcc180262347F84544c3a4854b87C34117ACADf94': 'Fed Yearn',
+    '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb': 'Fed Convex',
     // Cross-Chain Feds
     '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // dao members
