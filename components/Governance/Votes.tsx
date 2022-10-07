@@ -3,11 +3,11 @@ import { Avatar } from '@app/components/common/Avatar'
 import Container from '@app/components/common/Container'
 import { AgainstVotesModal, ForVotesModal } from '@app/components/Governance/GovernanceModals'
 import { SkeletonList } from '@app/components/common/Skeleton'
-import { OLD_QUORUM_VOTES, QUORUM_VOTES } from '@app/config/constants'
 import { ProposalStatus, ProposalVote, Proposal } from '@app/types'
 import NextLink from 'next/link'
 import { shortenNumber } from '@app/util/markets'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
+import { getHistoricalGovParams } from '@app/util/governance'
 
 const MAX_PREVIEW = 5
 
@@ -84,7 +84,7 @@ export const ForVotes = ({ proposal }: { proposal: Proposal }) => {
 
   const { forVotes, status, voters, startBlock } = proposal
 
-  const quorum = startBlock > 14834695 ? QUORUM_VOTES : OLD_QUORUM_VOTES;
+  const { quorum } = getHistoricalGovParams(startBlock);
 
   const forVoters = voters
     .filter(({ support }: ProposalVote) => support)
@@ -110,7 +110,6 @@ export const AgainstVotes = ({ proposal }: { proposal: Proposal }) => {
   }
 
   const { againstVotes, status, voters, startBlock } = proposal;
-  const quorum = startBlock > 14834695 ? QUORUM_VOTES : OLD_QUORUM_VOTES;
 
   const againstVoters = voters
     .filter(({ support }: ProposalVote) => !support)
