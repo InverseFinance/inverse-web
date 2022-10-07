@@ -177,6 +177,10 @@ const chainTokens = {
       image: '/assets/inv-square-dark.jpeg',
       decimals: 18,
       isLP: true,
+      balancerInfos: {
+        poolId: '0x441b8a1980f2f2e43a9397099d15cc2fe6d3625000020000000000000000035f',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
       pairs: [
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
