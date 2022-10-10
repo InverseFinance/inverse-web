@@ -43,7 +43,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number) =
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-policy-cache-v1.0.91`;
+  const cacheKey = `fed-policy-cache-v1.0.92`;
 
   try {
 
@@ -56,6 +56,12 @@ export default async function handler(req, res) {
     const rawEvents = await Promise.all([
       ...FEDS.map(fed => getEvents(fed.address, fed.abi, fed.chainId))
     ]);
+    // add old Convex Fed to Convex Fed
+    const convexFedIndex = FEDS.findIndex(f => f.name === 'Convex Fed');
+    const convexFed = FEDS[convexFedIndex];
+    const oldConvexFedEvents = await getEvents(convexFed.oldAddress, convexFed.abi, convexFed.chainId);            
+    rawEvents[convexFedIndex][0] = rawEvents[convexFedIndex][0].concat(oldConvexFedEvents[0]);
+    rawEvents[convexFedIndex][1] = rawEvents[convexFedIndex][1].concat(oldConvexFedEvents[1]);
 
     const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
 
