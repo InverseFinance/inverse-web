@@ -52,6 +52,7 @@ const chainTokenAddresses = {
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+    VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
     LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
@@ -341,6 +342,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
       decimals: 18,
       coingeckoId: 'convex-finance',
+    },
+    [chainTokenAddresses["1"].VLAURA]: {
+      address: chainTokenAddresses["1"].VLAURA,
+      name: 'vlAURA',
+      symbol: 'vlAURA',
+      image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
+      decimals: 18,
+      coingeckoId: 'aura-finance',
     },
     [chainTokenAddresses["1"].LOCKEDDOLAFRAXBP]: {
       address: chainTokenAddresses["1"].LOCKEDDOLAFRAXBP,

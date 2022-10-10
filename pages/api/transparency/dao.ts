@@ -113,7 +113,11 @@ export default async function handler(req, res) {
           chainFundsToCheck.map(tokenAddress => {
             const token = CHAIN_TOKENS[m.chainId][tokenAddress]
             const isLockedConvexPool = !!token && !!token.convexInfos;
-            if(isLockedConvexPool) {
+            // non-standard balance cases first
+            if(token.symbol === 'vlAURA') {
+              const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
+              return contract.balances(m.address);
+            } else if(isLockedConvexPool) {
               const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
               return contract.totalBalanceOf(token.convexInfos.account);
             } else {
@@ -126,7 +130,7 @@ export default async function handler(req, res) {
             ])
         )
       })
-    ])
+    ]);
 
     const multisigsAllowanceValues: BigNumber[][] =(await Promise.all([
       ...multisigsToShow.map((m) => {
@@ -149,7 +153,8 @@ export default async function handler(req, res) {
         const allowance = multisigsAllowanceValues[i][j]
         return {
           token,
-          balance: getBnToNumber(bn, token.decimals),
+          // handle non-standard vlAURA balance in array case
+          balance: getBnToNumber(Array.isArray(bn) ? bn[0] : bn, token.decimals),
           allowance: allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null,
         }
       })
