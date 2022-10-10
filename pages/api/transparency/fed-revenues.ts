@@ -71,7 +71,7 @@ export default async function handler(req, res) {
                     const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
                     if(['CRV', 'CVX'].includes(e.sender_contract_ticker_symbol)) {
                         const cgId = e.sender_contract_ticker_symbol === 'CVX' ? 'convex-finance' : 'curve-dao-token'
-                        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}?date=${histoDateDDMMYYYY}&localization=false`);
+                        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`);
                         const historicalData = await res.json();                        
                         const histoPrice = historicalData.market_data.current_price.usd;
                         revenues += histoPrice * amount;
