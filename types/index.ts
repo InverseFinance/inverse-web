@@ -403,6 +403,7 @@ export type Fed = {
   projectImage: string,
   isXchain?: boolean,
   supplyFuncName?: string
+  oldAddress?: string
 }
 
 export type FedWithData = Fed & {

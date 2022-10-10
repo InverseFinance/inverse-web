@@ -1,7 +1,7 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
+import { Fed, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getTxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
@@ -30,6 +30,53 @@ const deduceBridgeFees = (value: number, chainId: string) => {
     return value;
 }
 
+const getProfits = async (FEDS: Fed[], TREASURY) => {
+    const transfers = await Promise.all(
+        FEDS.map(fed => getTxsOf(fed.address, 1000, 0, fed.chainId))
+    )
+
+    return await Promise.all(transfers.map(async (r, i) => {
+        const fed = FEDS[i];
+        const toAddress = TREASURY.toLowerCase();
+        const eventName = fed.isXchain ? 'LogSwapout' : 'Transfer';
+
+        const items = r.data.items
+            .filter(item => item.successful)
+            .filter(item => !!item.log_events
+                .find(e => !!e.decoded && e.decoded.name === eventName
+                    && e.decoded.params[0].value.toLowerCase() == fed.address.toLowerCase()
+                    && e.decoded.params[1].value.toLowerCase() == toAddress
+                ))
+            .sort((a, b) => a.block_height - b.block_height);
+
+        return await Promise.all(items.map(async item => {
+            const filteredEvents = item.log_events.filter(e => e.decoded.name === eventName && e.decoded.params[0].value.toLowerCase() == fed.address.toLowerCase() && e.decoded.params[1].value.toLowerCase() == toAddress)                
+            let revenues = 0;
+            const timestamp = +(new Date(item.block_signed_at));
+            const dateSplit = item.block_signed_at.substring(0, 10).split('-');
+            const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
+            await Promise.all(filteredEvents.map(async e => {
+                const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
+                if(['CRV', 'CVX'].includes(e.sender_contract_ticker_symbol)) {
+                    const cgId = e.sender_contract_ticker_symbol === 'CVX' ? 'convex-finance' : 'curve-dao-token'
+                    const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`);
+                    const historicalData = await res.json();                        
+                    const histoPrice = historicalData.market_data.current_price.usd;
+                    revenues += histoPrice * amount;
+                } else {
+                    revenues += amount;
+                }
+            }))
+            return {
+                blockNumber: item.block_height,
+                timestamp,
+                profit: deduceBridgeFees(revenues, fed.chainId),
+                transactionHash: item.tx_hash,
+            }
+        }));
+    }));
+}
+
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -43,50 +90,12 @@ export default async function handler(req, res) {
             return
         }
 
-        const transfers = await Promise.all(
-            FEDS.map(fed => getTxsOf(fed.address, 1000, 0, fed.chainId))
-        )
-
-        const filteredTransfers = await Promise.all(transfers.map(async (r, i) => {
-            const fed = FEDS[i];
-            const toAddress = TREASURY.toLowerCase();
-            const eventName = fed.isXchain ? 'LogSwapout' : 'Transfer';
-
-            const items = r.data.items
-                .filter(item => item.successful)
-                .filter(item => !!item.log_events
-                    .find(e => !!e.decoded && e.decoded.name === eventName
-                        && e.decoded.params[0].value.toLowerCase() == fed.address.toLowerCase()
-                        && e.decoded.params[1].value.toLowerCase() == toAddress
-                    ))
-                .sort((a, b) => a.block_height - b.block_height);
-
-            return await Promise.all(items.map(async item => {
-                const filteredEvents = item.log_events.filter(e => e.decoded.name === eventName && e.decoded.params[0].value.toLowerCase() == fed.address.toLowerCase() && e.decoded.params[1].value.toLowerCase() == toAddress)                
-                let revenues = 0;
-                const timestamp = +(new Date(item.block_signed_at));
-                const dateSplit = item.block_signed_at.substring(0, 10).split('-');
-                const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
-                await Promise.all(filteredEvents.map(async e => {
-                    const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
-                    if(['CRV', 'CVX'].includes(e.sender_contract_ticker_symbol)) {
-                        const cgId = e.sender_contract_ticker_symbol === 'CVX' ? 'convex-finance' : 'curve-dao-token'
-                        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`);
-                        const historicalData = await res.json();                        
-                        const histoPrice = historicalData.market_data.current_price.usd;
-                        revenues += histoPrice * amount;
-                    } else {
-                        revenues += amount;
-                    }
-                }))
-                return {
-                    blockNumber: item.block_height,
-                    timestamp,
-                    profit: deduceBridgeFees(revenues, fed.chainId),
-                    transactionHash: item.tx_hash,
-                }
-            }));
-        }));
+        const filteredTransfers = await getProfits(FEDS, TREASURY);
+        // add old Convex Fed to Convex Fed
+        const convexFed = FEDS.find(f => f.name === 'Convex Fed')!;
+        const oldConvexFedProfits = await getProfits([{ ...convexFed, address: convexFed.oldAddress }], TREASURY);        
+        const convexFedIndex = FEDS.findIndex(f => f.name === 'Convex Fed');
+        filteredTransfers[convexFedIndex] = filteredTransfers[convexFedIndex].concat(oldConvexFedProfits[0]);
 
         const accProfits: { [key: string]: number } = {};
         let total = 0;
