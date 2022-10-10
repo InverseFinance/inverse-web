@@ -275,9 +275,5 @@ export const MENUS = {
       href: 'https://github.com/InverseFinance',
       image: '/assets/socials/github.svg',
     },
-    {
-      href: 'https://defipulse.com/inverse',
-      image: '/assets/socials/defipulse.svg',
-    },
   ]
 }
