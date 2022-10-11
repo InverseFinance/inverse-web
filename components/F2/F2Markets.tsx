@@ -155,7 +155,7 @@ export const F2Markets = ({
     const router = useRouter();
 
     const openMarket = (market: any) => {
-        router.push(debt > 0 ? `/f2/${market.name}` : `/f2/walkthrough/${market.name}`)
+        router.push(debt > 0 ? `/f2/${market.name}` : `/f2/walkthrough/${market.name}#step1`)
     }
 
     return <Container

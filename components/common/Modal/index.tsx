@@ -26,9 +26,11 @@ export const Modal = ({ isOpen, onClose, header, children, footer, scrollBehavio
     <ChakraModal onClose={onClose} isOpen={isOpen} isCentered scrollBehavior={_scrollBehavior}>
       <ModalOverlay />
       <ModalContent m={{ base: 4, sm: 32 }} bg="modalContentBg" color="mainTextColor"  {...props}>
-        <ModalHeader borderBottomWidth={2} borderBottomColor="primary.850">
-          {header}
-        </ModalHeader>
+        {
+          !!header && <ModalHeader borderBottomWidth={2} borderBottomColor="primary.850">
+            {header}
+          </ModalHeader>
+        }
         <ModalCloseButton />
         <ModalBody p={0}>{children}</ModalBody>
         {footer && <ModalFooter {...footerBorderProps}>

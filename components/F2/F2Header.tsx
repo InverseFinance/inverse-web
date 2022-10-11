@@ -27,7 +27,9 @@ const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   </Flex>
 }
 
-export const F2Header = () => {
+export const F2Header = ({
+  autoOpenIntroModal = false
+}) => {
   const router = useRouter();
   const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
   // const { markets } = useMarkets()
@@ -39,7 +41,7 @@ export const F2Header = () => {
   const { debt } = useAccountDBR(account);
 
   const getStarted = () => {
-    router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH')
+    router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH#step1')
   }
 
   // const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
@@ -54,7 +56,7 @@ export const F2Header = () => {
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <IntroModalCheck isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} />
+      <IntroModalCheck autoOpenIntroModal={autoOpenIntroModal} isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} />
       <Stack w='full' spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">

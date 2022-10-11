@@ -9,10 +9,12 @@ import { useAccount } from '@app/hooks/misc'
 import { MarketsV2Hero } from './MarketsV2Hero'
 
 export const IntroModalCheck = ({
+    autoOpenIntroModal = false,
     isIntroOpen,
     onIntroOpen,
     onIntroClose,
 }: {
+    autoOpenIntroModal?: boolean,
     isIntroOpen: boolean,
     onIntroOpen: () => void,
     onIntroClose: () => void,
@@ -23,7 +25,7 @@ export const IntroModalCheck = ({
     const { value: isIntroDone, setter } = useStorage('f2-intro');
 
     useDebouncedEffect(() => {
-        if (!isIntroDone) {
+        if (!isIntroDone && autoOpenIntroModal) {
             onIntroOpen();
         }
     }, [isIntroDone], 200)
@@ -37,7 +39,7 @@ export const IntroModalCheck = ({
         router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH#step1')
     }
 
-    return <Modal scrollBehavior="inside" header="New Fixed-Rate Lending Protocol!" h="95vh" maxH='700px' minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}
+    return <Modal scrollBehavior="inside" h="95vh" maxH='700px' minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}
         footer={
             <HStack w='full' justify="space-between">
                 <LinkButton
