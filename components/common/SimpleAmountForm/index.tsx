@@ -29,6 +29,7 @@ type Props = {
     hideButtons?: boolean
     hideInput?: boolean
     btnProps?: ButtonProps
+    ButtonComp?: React.ReactNode
     showBalance?: boolean
     isError?: boolean
     inputRight?: any
@@ -76,6 +77,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         hideButtons = false,
         hideInput = false,
         btnProps,
+        ButtonComp = SubmitButton,
         showBalance,
         inputRight,
         inputProps,
@@ -161,7 +163,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                     /> :
                     !onlyShowApproveBtn &&
                     <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
-                        <SubmitButton
+                        <ButtonComp
                             themeColor={btnThemeColor}
                             onClick={() => handleAction()}
                             refreshOnSuccess={true}
@@ -175,9 +177,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             {...btnProps}
                         >
                             {actionLabel}
-                        </SubmitButton>
+                        </ButtonComp>
                         {
-                            showMaxBtn && <SubmitButton
+                            showMaxBtn && <ButtonComp
                                 onSuccess={() => {
                                     handleChange('0');
                                     if (onSuccess) {
@@ -191,7 +193,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                                 {...btnProps}
                             >
                                 {maxActionLabel}
-                            </SubmitButton>
+                            </ButtonComp>
                         }
                     </Stack>
         }

@@ -75,18 +75,22 @@ export const Container = ({
 
   return (
     <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
-      <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
+      {
+        (!!title || !!desc || !!image) && <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
         <Stack direction="row" align="center" spacing={showImage ? undefined : 0}>
-          {<Box display={showImage ? 'inline-block' : 'none'}>
+          {!!image && <Box display={showImage ? 'inline-block' : 'none'}>
             {image}
           </Box>}
-          <Flex direction="column" justify="flex-end">
+          {
+            (!!title || !!desc) && <Flex direction="column" justify="flex-end">
             {title}
             {desc}
           </Flex>
+          }
         </Stack>
         {right}
       </Flex>
+      }
       {
         collapsable ?
           <ScaleFade in={!collapsed} unmountOnExit={true}>

@@ -60,8 +60,8 @@ export const F2CombinedForm = ({
 } & Partial<FlexProps>) => {
     const colDecimals = f2market.underlying.decimals;
     const [duration, setDuration] = useState(360);
-    const [durationType, setDurationType] = useState('years');
-    const [durationTypedValue, setDurationTypedValue] = useState('1');
+    const [durationType, setDurationType] = useState('months');
+    const [durationTypedValue, setDurationTypedValue] = useState('12');
     const [collateralAmount, setCollateralAmount] = useState(0);
     const [debtAmount, setDebtAmount] = useState(0);
     const [isDeposit, setIsDeposit] = useState(isDepositDefault);
@@ -307,7 +307,7 @@ export const F2CombinedForm = ({
     const durationPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> of the Fixed-Rate, Loan is Stoppable at any time:</Text>
+                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> to cover in DBR purchases:</Text>
             </TextInfo>
             <F2DurationInput
                 onChange={handleDurationChange}

@@ -12,6 +12,8 @@ import { F2MarketContext } from "./WalkthroughContainer"
 import { InfoMessage } from "@app/components/common/Messages"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
+import { StepNavBtn } from "./StepNavBtn"
+import { useAppTheme } from "@app/hooks/useAppTheme"
 
 export const F2WalkthroughDebt = ({
     onStepChange,
@@ -20,6 +22,7 @@ export const F2WalkthroughDebt = ({
     onStepChange: (step: number) => void
     onChange: (amount: number) => void
 }) => {
+    const { themeStyles } = useAppTheme();
     const {
         step,
         market,
@@ -46,7 +49,9 @@ export const F2WalkthroughDebt = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
-                <Text fontSize="20px" color="mainTextColor"><b>Borrow</b> DOLA:</Text>
+                <Text fontWeight="bold" fontSize="30px" color="mainTextColor">
+                    <b style={{ color: themeStyles.colors.accentTextColor }}>How much DOLA</b> do you want to borrow?
+                </Text>
             </TextInfo>
             <SimpleAmountForm
                 defaultAmount={debtAmount}
@@ -83,13 +88,13 @@ export const F2WalkthroughDebt = ({
                 />
             }
         </VStack>
-        <HStack w='full' justify="flex-end" pt="4">
-            <SubmitButton onClick={() => onStepChange(step - 1)}>
+        <HStack w='full' justify="space-between" pt="4">
+            <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
-            </SubmitButton>
-            <SubmitButton onClick={() => onStepChange(step + 1)} disabled={newPerc < 1 || !debtAmount}>
-                Continue <ChevronRightIcon fontSize="20px" />
-            </SubmitButton>
+            </StepNavBtn>
+            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={newPerc < 1 || !debtAmount}>
+                Next <ChevronRightIcon fontSize="20px" />
+            </StepNavBtn>
         </HStack>
     </>
 }

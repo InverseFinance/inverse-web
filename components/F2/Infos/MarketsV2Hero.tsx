@@ -6,7 +6,7 @@ export const MarketsV2Hero = ({
     showButtons = true,
 }) => {
     return <VStack w='full' spacing="8">
-        <Text as='h1' fontSize='48px' fontWeight="extrabold">Markets V2</Text>
+        <Text as='h1' fontSize='48px' fontWeight="extrabold">Markets V2 - BETA</Text>
         <VStack w='full' spacing='12'>
             <VStack alignItems="flex-start" w='full' spacing='2'>
                 <Text as='h2' fontSize='28px' fontWeight="extrabold">A new protocol built from scratch</Text>

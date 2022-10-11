@@ -5,6 +5,7 @@ import { HStack } from "@chakra-ui/react"
 import { useContext } from "react"
 import { F2MarketContext } from "./WalkthroughContainer"
 import { RecapInfos } from "../Infos/RecapInfos"
+import { StepNavBtn } from "./StepNavBtn"
 
 export const F2WalkthroughRecap = ({
     onStepChange,
@@ -52,10 +53,11 @@ export const F2WalkthroughRecap = ({
 
     return <>
         <RecapInfos {...recapData} />
-        <HStack w='full' justify="flex-end" pt="4">
-            <SubmitButton onClick={() => onStepChange(step - 1)}>
+        <HStack w='full' justify="space-between" pt="4">
+            <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
-            </SubmitButton>
+            </StepNavBtn>
+            <HStack>
             <SimpleAmountForm
                 defaultAmount={collateralAmount?.toString()}
                 address={market.collateral}
@@ -71,7 +73,9 @@ export const F2WalkthroughRecap = ({
                 hideInputIfNoAllowance={false}
                 hideInput={true}
                 hideButtons={false}
+                ButtonComp={StepNavBtn}
             />
+            </HStack>
         </HStack>
     </>
 }

@@ -21,6 +21,7 @@ import { F2WalkthroughDebt } from './Debt'
 import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
 import { MarketsV2Hero } from '../Infos/MarketsV2Hero'
+import { StepsBar } from './StepsBar'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -54,8 +55,8 @@ export const F2Walkthrough = ({
     const account = useAccount();
     const [step, setStep] = useState(0);
     const [duration, setDuration] = useState(365);
-    const [durationType, setDurationType] = useState('years');
-    const [durationTypedValue, setDurationTypedValue] = useState(1);
+    const [durationType, setDurationType] = useState('months');
+    const [durationTypedValue, setDurationTypedValue] = useState(12);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
@@ -123,9 +124,9 @@ export const F2Walkthrough = ({
         }
     }, [router])
 
-    useEffect(() => {
-        window['walkthrough-container'].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-    }, [step, debtAmount, duration, collateralAmount]);
+    // useEffect(() => {
+    //     window['walkthrough-container'].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+    // }, [step, debtAmount, duration, collateralAmount]);
 
     if (step === 0) {
         return <MarketsV2Hero onGetStarted={() => {
@@ -138,11 +139,13 @@ export const F2Walkthrough = ({
     return <Container
         noPadding
         p="0"
-        label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${market.name} and Borrow DOLA`}
-        description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
-        href="https://docs.inverse.finance/inverse-finance/about-inverse"
-        image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
+        m="0"
+        // label={`${market.name} Market`}
+        // description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
+        // href="https://docs.inverse.finance/inverse-finance/about-inverse"
+        // image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/f2/markets/${market.name}.png')`} h="50px" w="80px" />}
         w='full'
+        contentProps={{ bg: 'transparent', boxShadow: 'none', p: '0' }}
         {...props}
     >
         <F2MarketContext.Provider value={{
@@ -182,11 +185,17 @@ export const F2Walkthrough = ({
         }}>
             {
                 !!market && <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="flex-start" spacing="6">
-                    {
+                    {/* {
                         step > 0 && <VStack w='full'>
                             <Text>Step {step} / 4</Text>
                             <Progress w='full' value={(step) / 4 * 100} />
                         </VStack>
+                    } */}
+                    {
+                        step > 0 && <StepsBar
+                            step={step}
+                            onStepChange={handleStepChange}
+                        />
                     }
                     {
                         step === 0 && <F2WalkthroughIntro onStepChange={handleStepChange} />

@@ -13,9 +13,9 @@ import { useEffect, useState } from 'react'
 
 const multiplicators = {
     'days': 1,
-    'weeks': 7,
+    // 'weeks': 7,
     'months': 30,
-    'quarters': 90,
+    // 'quarters': 90,
     'years': 365,
 }
 
@@ -23,13 +23,13 @@ export const F2DurationInput = ({
     onChange,
     defaultValue = '12',
     defaultType = 'months',
-    isInPopover,
+    columnMode,
     inputProps,
 }: {
     onChange: (v: number, typedValue: number, type: string) => void,
     defaultValue?: string
     defaultType?: 'days' | 'weeks' | 'months' | 'quarters' | 'years'
-    isInPopover?: boolean
+    columnMode?: boolean
     inputProps?: InputProps
 }) => {
     const [durationType, setDurationType] = useState(defaultType);
@@ -45,18 +45,20 @@ export const F2DurationInput = ({
             onChange(0, inputValue, durationType);
             return
         }
-        const nbDays = multiplicators[durationType] * parseFloat(inputValue);
-        onChange(nbDays > 0 && !isNaN(nbDays) ? nbDays : 0, inputValue, durationType);
+        const value = parseFloat(inputValue);
+        const isTwelveMonthsModulo = durationType === 'months' && (value % 12 === 0);
+        const nbDays = isTwelveMonthsModulo ? 0 : multiplicators[durationType] * value;
+        onChange(nbDays > 0 && !isNaN(nbDays) ? nbDays : value/12 * 365, inputValue, durationType);
     }, [durationType, inputValue]);
 
-    const override = isInPopover ? 'full' : undefined;
+    const override = columnMode ? 'full' : undefined;
 
     return <VStack w='full' alignItems="flex-start" spacing="2">        
-        <Stack direction={isInPopover ? 'column' : { base: 'column', sm: 'row' }} w='full' spacing="4">
-            <Input py="0" h='48px' borderWidth='1' border={INPUT_BORDER} w={{ base: 'full', sm: override || '90px' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} {...inputProps} />
+        <Stack direction={columnMode ? 'column' : { base: 'column', sm: 'row' }} w='full' spacing="4">
+            <Input py="0" h='48px' borderWidth='1' border={INPUT_BORDER} w={{ base: 'full', sm: override || '50%' }} value={inputValue} defaultValue="12" onChange={(e) => handleChange(e.target.value)} {...inputProps} />
             <RadioCardGroup
                 wrapperProps={{
-                    w: { base: 'full' },
+                    w: { base: 'full', sm : '50%' },
                     justify: 'space-between',
                     display: { base: 'inline-block', sm: 'flex' }
                 }}
@@ -69,9 +71,9 @@ export const F2DurationInput = ({
                 radioCardProps={{ h: '48px', mt: { base: '2', sm: '0' }, w: { base: '60px', sm: '80px' }, fontSize: { base: '13px', sm: '14px' }, textAlign: 'center', px: { base: '1px', sm: '2px' }, position: 'relative', display: { base: 'inline-block', sm: 'block' } }}
                 options={[
                     { value: 'days', label: 'Days' },
-                    { value: 'weeks', label: 'Weeks' },
+                    // { value: 'weeks', label: 'Weeks' },
                     { value: 'months', label: 'Months' },
-                    { value: 'quarters', label: 'Quarters' },
+                    // { value: 'quarters', label: 'Quarters' },
                     { value: 'years', label: 'Years' },
                 ]}
             />
