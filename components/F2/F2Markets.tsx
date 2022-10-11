@@ -159,7 +159,7 @@ export const F2Markets = ({
     }
 
     return <Container
-        label="Fixed-Rate Markets"
+        label="MarketsV2 - BETA"
         description="Read more about Inverse's Fixed Rate Markets"
         href="https://docs.inverse.finance/"
         image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
