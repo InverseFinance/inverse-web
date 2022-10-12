@@ -258,6 +258,30 @@ export const BOND_ABI_VARIANT = BASE_BOND_ABI.concat([
 
 export const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
 
+/*
+address owner; // market owner. sends payout tokens, receives quote tokens (defaults to creator)
+ERC20 payoutToken; // token to pay depositors with
+ERC20 quoteToken; // token to accept as payment
+address callbackAddr; // address to call for any operations on bond purchase. Must inherit to IBondCallback.
+bool capacityInQuote; // capacity limit is in payment token (true) or in payout (false, default)
+uint256 capacity; // capacity remaining
+uint256 totalDebt; // total payout token debt from market
+uint256 minPrice; // minimum price (debt will stop decaying to maintain this)
+uint256 maxPayout; // max payout tokens out in one order
+uint256 sold; // payout tokens out
+uint256 purchased; // quote tokens in
+uint256 scale; // scaling factor for the market (see MarketParams struct)
+*/
+const BOND_MARKET = 'tuple(address, address, address, address, bool, uint, uint, uint, uint, uint, uint, uint)';
+export const BOND_V2_ABI = [
+  `function markets(uint) public view returns (${BOND_MARKET})`,
+  `function adjusments(uint) public view returns (uint change, uint lastAdjusment, uint timeToAdjusted, bool active)`,
+  `function marketPrice(uint) public view returns (uint)`,
+  `function payoutFor(uint amount, uint id, address referrer) public view returns (uint)`,
+  `function terms(uint) public view returns (uint controlVar, uint maxDebt, uint vesting, uint conclusion)`,
+  `function purchaseBond(uint id, uint amount, uint minAmountOut) public view returns (uint controlVar, uint maxDebt, uint vesting, uint conclusion)`,
+]
+
 export const VESTER_FACTORY_ABI = [
   "function vesters(uint256) public view returns (address)",
 ]
