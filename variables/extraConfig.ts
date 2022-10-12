@@ -112,4 +112,7 @@ const mainConfig = {
 export const EXTRA_CONFIG = {
     "1": mainConfig,
     "31337": mainConfig,
+    "5": {
+        ...mainConfig,
+    }
 }

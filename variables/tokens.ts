@@ -77,6 +77,10 @@ const chainTokenAddresses = {
   },
   "10": {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
+  },
+  "5": {
+    DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
+    WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
   }
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -396,6 +400,25 @@ const chainTokens = {
       ],
     },
   },
+  "5": {
+    [chainTokenAddresses["5"].DOLA]: {
+      address: chainTokenAddresses["5"].DOLA,
+      name: 'Dola',
+      symbol: 'DOLA',
+      coingeckoId: 'dola-usd',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      decimals: 18,
+    },
+    [chainTokenAddresses["5"].WETH]: {
+      address: chainTokenAddresses["5"].WETH,
+      name: 'Wrapped Ethereum',
+      symbol: 'WETH',
+      coingeckoId: 'weth',
+      image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
+      decimals: 18,
+      isWrappedChainCoin: true,
+    },
+  }
 }
 chainTokens["31337"] = chainTokens["1"];
 
@@ -450,6 +473,7 @@ copyToFtm.forEach(sym => {
 export const CHAIN_TOKENS: { [key: string]: TokenList } = { ...chainTokens, [process.env.NEXT_PUBLIC_CHAIN_ID!]: TOKENS };
 
 const toV1 = (token: Token) => {
+  if(!token) return {};
   return {
     ...token,
     symbol: `${token.symbol}-v1`,
