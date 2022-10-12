@@ -1,4 +1,5 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { BOND_V2_FIXED_TERM } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
 
 // TODO: Clean-up ABIs
@@ -409,6 +410,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [STABILIZER, STABILIZER_ABI],
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
+        [BOND_V2_FIXED_TERM, BOND_V2_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
