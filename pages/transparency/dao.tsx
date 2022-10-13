@@ -129,10 +129,12 @@ export const GovTransparency = () => {
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
                                 title="Voting Power Distribution"
+                                totalLabel="Total Distribution:"
                                 funds={votingPowerDist}
                                 type="balance"
                                 prices={{}}
                                 labelWithPercInChart={true}
+                                showAsAmountOnly={true}
                             />
                             <VStack w='full' justify="flex-start" alignItems="flex-start">
                                 <Text textAlign="left" mt="1" color="secondary" fontSize="20px" fontWeight="extrabold">
