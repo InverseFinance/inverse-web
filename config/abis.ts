@@ -288,6 +288,12 @@ export const BOND_V2_FIXED_TELLER_ABI = [
   `function purchase(address rec, address ref, uint id, uint amount, uint minAmountOut) external returns (uint, uint)`,
 ]
 
+export const BOND_V2_AGGREGATOR_ABI = [  
+  "function liveMarketsFor(address, bool isPayout) public view returns (uint256)",
+  `function getTeller(uint) public view returns (address)`,
+  `function marketPrice(uint) public view returns (uint)`,
+]
+
 export const VESTER_FACTORY_ABI = [
   "function vesters(uint256) public view returns (address)",
 ]
@@ -416,6 +422,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         [BOND_V2_FIXED_TERM, BOND_V2_ABI],
+        [BOND_V2_AGGREGATOR_ABI, BOND_V2_AGGREGATOR],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
