@@ -1,4 +1,4 @@
-import { Bond } from '@app/types'
+import { BondV2 } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { Divider, Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
@@ -9,7 +9,6 @@ import { BalanceInput } from '@app/components/common/Input'
 import { useEffect, useState } from 'react'
 import { roundFloorString } from '@app/util/misc'
 import { SubmitButton } from '@app/components/common/Button'
-import { bondDeposit } from '@app/util/contracts'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router'
@@ -18,14 +17,13 @@ import { BondSlippage } from './BondSlippage'
 import { useAllowances } from '@app/hooks/useApprovals'
 import { hasAllowance } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
-import { BondRedeem } from './BondRedeem'
 import { ArrowLeftIcon, ArrowRightIcon, TimeIcon } from '@chakra-ui/icons'
 import ScannerLink from '@app/components/common/ScannerLink'
-import { useBondPayoutFor } from '@app/hooks/useBonds'
 import Link from '@app/components/common/Link'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { useBondV2PayoutFor } from '@app/hooks/useBondsV2'
 import { bondV2Deposit } from '@app/util/bonds'
+import { InfoMessage } from '../common/Messages'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -38,7 +36,7 @@ export const BondSlide = ({
 }: {
     isOpen: boolean,
     onClose: () => void,
-    bonds: Bond[],
+    bonds: BondV2[],
     bondIndex: number,
     handleDetails: (i: number) => void,
 }) => {
@@ -63,7 +61,7 @@ export const BondSlide = ({
 
     const getMax = () => {
         const maxUser = parseFloat(bal);
-        const maxDeposit = bond.maxPayout * bond.marketPrice / bond.inputUsdPrice;
+        const maxDeposit = bond.maxPayout * bond.bondPrice / bond.inputUsdPrice;
         return maxUser > maxDeposit ? maxDeposit : bal;
     }
 
@@ -92,7 +90,7 @@ export const BondSlide = ({
                 </HStack>
                 <Divider />
                 <HStack w='full' justify="space-between" fontWeight="bold">
-                    <HStack>                        
+                    <HStack>
                         <MarketImage size={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
                         <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
                     </HStack>
@@ -100,7 +98,7 @@ export const BondSlide = ({
                     <Flex alignItems="center">
                         <TimeIcon fontSize="16px" />
                         <Text mx="2" fontWeight="extrabold">Wait {bond.vestingDays} days</Text>
-                        <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait ${bond.vestingDays} days to claim 100% of your INVs, you can also claim a proportional part before vesting completion`} />
+                        <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait ${bond.vestingDays} days before being able to redeem your INVs (no linear unlocking)`} />
                     </Flex>
                     <Text>=></Text>
                     <Stack direction="row" alignItems="center">
@@ -112,11 +110,11 @@ export const BondSlide = ({
                 <HStack w='full' justify="space-between" fontWeight="bold">
                     <Flex>
                         <Text fontWeight="normal" mr="1">Bond Price: </Text>
-                        <Text fontWeight="extrabold">{shortenNumber(bond.usdPrice, 2, true)}</Text>
+                        <Text fontWeight="extrabold">{shortenNumber(bond.bondPrice, 2, true)}</Text>
                     </Flex>
                     <Flex>
                         <Text fontWeight="normal" mr="1">Market Price: </Text>
-                        <Text fontWeight="extrabold">{shortenNumber(bond.marketPrice, 2, true)}</Text>
+                        <Text fontWeight="extrabold">{shortenNumber(bond.bondPrice, 2, true)}</Text>
                     </Flex>
                     <Text fontWeight="extrabold" textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
                         ROI: {shortenNumber(bond.roi, 2, false)}%
@@ -148,7 +146,15 @@ export const BondSlide = ({
                             Current Max Available Payout for this bond <AnimatedInfoTooltip type="tooltip" message="The number of INVs available in this bonding contract" />:
                         </Text>
                         <Text fontWeight="bold" textAlign="right">
-                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
+                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.bondPrice, 2, true)})
+                        </Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                        <Text>
+                            Remaining bond Capacity <AnimatedInfoTooltip type="tooltip" message="Once this reaches 0, the bond cannot be purchased anymore." />:
+                        </Text>
+                        <Text fontWeight="bold" textAlign="right">
+                            {bond.capacity}
                         </Text>
                     </HStack>
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
@@ -165,7 +171,7 @@ export const BondSlide = ({
                                 !isApproved ?
                                     <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
-                                    <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
+                                    <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount)} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit
                                     </SubmitButton>
                             }
@@ -174,6 +180,13 @@ export const BondSlide = ({
                     <HStack w='full'>
                         <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
                     </HStack>
+                    {
+                            parseFloat(amount) > 0 && !parseFloat(receiveAmount) &&
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                description="Payout amount is null with current conditions and parameters"
+                            />
+                        }
                     <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
                         <Text fontWeight="bold">
                             Estimated INV amount to receive:
@@ -183,8 +196,6 @@ export const BondSlide = ({
                         </Text>
                     </HStack>
                 </VStack>
-                <Divider />
-                <BondRedeem bond={bond} />
             </VStack>
         </VStack>
     </SlideModal>

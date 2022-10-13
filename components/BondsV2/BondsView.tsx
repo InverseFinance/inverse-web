@@ -12,7 +12,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import Link from '@app/components/common/Link';
-import { useBondsV2 } from '@app/hooks/useBondsV2';
+import { useAccountBonds, useBondsV2 } from '@app/hooks/useBondsV2';
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
     iconProps={{ ml: '2', fontSize: '12px', display: { base: 'none', sm: 'inline-block' } }}
@@ -22,10 +22,11 @@ const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
 export const BondsView = () => {
     const { account } = useWeb3React<Web3Provider>();
     const { prices: cgPrices } = usePrices();
-    const { bonds } = useBondsV2();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
     const [isNotConnected, setIsNotConnected] = useState(false);
+    // useAccountBonds(account, );
+    const { bonds } = useBondsV2();
 
     const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
@@ -51,17 +52,13 @@ export const BondsView = () => {
             <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="Get INV at a discount thanks to Bonds!" contentBgColor="gradient3">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text>
-                        Bonds allow users to get <b>INV at a discount</b> in exchange for another asset with a <b>linear unlocking</b>. It's a win-win situation as this lets Inverse Finance increase its <b>Protocol Owned Liquidity</b> instead of renting out its liquidity which is very expensive.
+                        Bonds allow users to get <b>INV at a discount</b> in exchange for another asset. It's a win-win situation as this lets Inverse Finance increase its <b>Protocol Owned Liquidity</b> instead of renting out its liquidity which is very expensive.
                     </Text>
                     <Flex w='full' pt="2" justify="space-between">
                         <Flex direction={{ base: 'column', sm: 'row' }} alignItems="flex-start">
                             <Text mr="1">INV Market Price:</Text>
                             <Text fontWeight="extrabold">{invCgPrice ? shortenNumber(invCgPrice, 2, true) : '-'}</Text>
                         </Flex>
-                        {/* <Flex direction={{ base: 'column', sm: 'row' }}>
-                            <Text mr="1">Oracle Market Price:</Text>
-                            <Text fontWeight="extrabold">{invOraclePrice ? shortenNumber(invOraclePrice, 2, true) : '-'}</Text>
-                        </Flex> */}
                     </Flex>
                 </VStack>
             </Container>
@@ -119,7 +116,7 @@ export const BondsView = () => {
                                 <Flex w='80px'></Flex>
                             </Stack>
                             {
-                                bonds.map((bond, i) => {
+                                bonds?.map((bond, i) => {
                                     return <BondListItem key={bond.bondContract} bond={bond} bondIndex={i} handleDetails={handleDetails} />
                                 })
                             }
