@@ -14,7 +14,7 @@ import { useRouter } from 'next/router';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
-import { BONDS_V2, BOND_V2_FIXED_TERM } from '@app/variables/bonds';
+import { BONDS_V2 } from '@app/variables/bonds';
 
 // controlVariable uint256, maxDebt uint256, vesting uint256, conclusion uint256
 const termsDefaults = [
@@ -52,19 +52,25 @@ export const useBondsV2 = (depositor?: string): SWR & { bonds: Bond[] } => {
 
   const { data: bondPrices, error: bondPricesError } = useEtherSWR([
     ...activeBonds.map(bond => {
-      return [BOND_V2_FIXED_TERM, 'marketPrice', bond.id]
+      return [bond.bondContract, 'marketPrice', bond.id]
+    }),
+  ]);  
+  
+  const { data: tellers, error: tellersError } = useEtherSWR([
+    ...activeBonds.map(bond => {
+      return [bond.bondContract, 'getTeller']
     }),
   ]);
 
   const { data: marketInfos, error: marketInfosError } = useEtherSWR([
     ...activeBonds.map(bond => {
-      return [BOND_V2_FIXED_TERM, 'markets', bond.id]
+      return [bond.bondContract, 'markets', bond.id]
     }),
   ]);
 
   const { data: bondTerms, error: bondTermsError } = useEtherSWR([
     ...activeBonds.map(bond => {
-      return [BOND_V2_FIXED_TERM, 'terms', bond.id]
+      return [bond.bondContract, 'terms', bond.id]
     }),
   ]);
 
@@ -106,7 +112,6 @@ export const useBondsV2 = (depositor?: string): SWR & { bonds: Bond[] } => {
 
   // the ROI calculation makes more sense with cg price
   const marketPrice = invCgPrice;
-  console.log(prices)
 
   const bonds = activeBonds.map((bond, i) => {
     const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 35) : 0
@@ -121,6 +126,7 @@ export const useBondsV2 = (depositor?: string): SWR & { bonds: Bond[] } => {
       conclusion: parseFloat(terms[i][3].toString())*1000,
       maxPayout: marketInfos ? getBnToNumber(marketInfos[i][8], 9) : 0,
       capacity: marketInfos ? getBnToNumber(marketInfos[i][5], 9) : 0,
+      teller: tellers ? tellers[i] : bond.bondContract,
       userInfos: {
         // payout: getBnToNumber(bondInfos[i][0], REWARD_TOKEN?.decimals),
         // vesting: getBnToNumber(bondInfos[i][1], 0),
@@ -139,11 +145,11 @@ export const useBondsV2 = (depositor?: string): SWR & { bonds: Bond[] } => {
   }
 }
 
-export const useBondPayoutFor = (bondContract: string, inputDecimals: number, amount: string, outputDecimals: number): { payout: string } => {
+export const useBondV2PayoutFor = (bondContract: string, id: string, inputDecimals: number, amount: string, outputDecimals: number, referrer = ''): { payout: string } => {
   const inputAmount = amount ? parseUnits(amount, inputDecimals) : '0';
 
-  const { data } = useEtherSWR([
-    bondContract, 'payoutFor', inputAmount.toString()
+  const { data, error } = useEtherSWR([
+    bondContract, 'payoutFor', inputAmount.toString(), id, referrer||bondContract
   ]);
 
   // handle abi variant

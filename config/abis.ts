@@ -275,12 +275,17 @@ uint256 scale; // scaling factor for the market (see MarketParams struct)
 */
 const BOND_MARKET = 'tuple(address, address, address, address, bool, uint, uint, uint, uint, uint, uint, uint)';
 export const BOND_V2_ABI = [
+  `function getTeller() public view returns (address)`,
   `function markets(uint) public view returns (${BOND_MARKET})`,
   `function adjusments(uint) public view returns (uint change, uint lastAdjusment, uint timeToAdjusted, bool active)`,
   `function marketPrice(uint) public view returns (uint)`,
   `function payoutFor(uint amount, uint id, address referrer) public view returns (uint)`,
   `function terms(uint) public view returns (uint controlVar, uint maxDebt, uint vesting, uint conclusion)`,
-  `function purchaseBond(uint id, uint amount, uint minAmountOut) public view returns (uint controlVar, uint maxDebt, uint vesting, uint conclusion)`,
+  `function purchaseBond(uint id, uint amount, uint minAmountOut) external returns (uint)`,
+]
+
+export const BOND_V2_FIXED_TELLER_ABI = [  
+  `function purchase(address rec, address ref, uint id, uint amount, uint minAmountOut) external returns (uint, uint)`,
 ]
 
 export const VESTER_FACTORY_ABI = [

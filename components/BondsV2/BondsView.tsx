@@ -137,15 +137,9 @@ export const BondsView = () => {
             >
                 <WarningMessage alertProps={{ fontSize: '12px' }} description={
                     <>
-                        Bots may attempt to take INV discounts just before you do by analyzing the public mempool, a type of "waiting area" for new Ethereum transactions. To reduce the chances of being front-run, we recommend following these steps:
-                        <Flex>
-                            <Text mr="1">- Use the</Text>
-                            <Link textDecoration="underline" isExternal href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787">
+                        Bots may attempt to take INV discounts just before you do by analyzing the public mempool, a type of "waiting area" for new Ethereum transactions. To reduce the chances of being front-run, we recommend using <Link display="inline-block" textDecoration="underline" isExternal href="https://medium.com/alchemistcoin/how-to-add-flashbots-protect-rpc-to-your-metamask-3f1412a16787">
                                 Flashbot RPC
-                            </Link>
-                        </Flex>
-                        <Text>- Acquire LP tokens and Approve them in advance</Text>
-                        <Text>- After approving the transaction, wait a random amount of time (e.g. 8 minutes) before completing your bond transaction</Text>
+                            </Link>                        
                     </>
                 } />
             </Container>

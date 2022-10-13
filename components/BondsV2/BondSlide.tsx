@@ -24,6 +24,8 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { useBondPayoutFor } from '@app/hooks/useBonds'
 import Link from '@app/components/common/Link'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
+import { useBondV2PayoutFor } from '@app/hooks/useBondsV2'
+import { bondV2Deposit } from '@app/util/bonds'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -49,9 +51,9 @@ export const BondSlide = ({
     const { balances } = useBalances([bond.input]);
     const [amount, setAmount] = useState('');
     const [maxSlippage, setMaxSlippage] = useState(1);
-    const { approvals } = useAllowances([bond.input], bond.bondContract);
+    const { approvals } = useAllowances([bond.input], bond.teller);
     const [isApproved, setIsApproved] = useState(hasAllowance(approvals, bond.input));
-    const { payout: receiveAmount } = useBondPayoutFor(bond.bondContract, bond.underlying.decimals, amount, REWARD_TOKEN!.decimals);
+    const { payout: receiveAmount } = useBondV2PayoutFor(bond.bondContract, bond.id, bond.underlying.decimals, amount, REWARD_TOKEN!.decimals, bond.referrer);
 
     useEffect(() => {
         setIsApproved(hasAllowance(approvals, bond.input));
@@ -71,7 +73,7 @@ export const BondSlide = ({
 
     const handleDeposit = () => {
         if (!library?.getSigner() || !userAddress) { return }
-        return bondDeposit(bond, library?.getSigner(), amount, maxSlippage, userAddress);
+        return bondV2Deposit(bond, library?.getSigner(), amount, maxSlippage, account);
     }
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
@@ -161,7 +163,7 @@ export const BondSlide = ({
                         <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
                             {
                                 !isApproved ?
-                                    <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
+                                    <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
                                     <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit
