@@ -538,6 +538,10 @@ export type UserBondV2 = {
   active: boolean
   expiry: number
   supply: number
+  underlying: Token
+  purchaseDate: number
+  vestingDays: number
+  percentVestedFor: number
 }
 
 export type DraftReview = {

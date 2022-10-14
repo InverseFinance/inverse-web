@@ -3,13 +3,15 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { BondV2, SWR, UserBondV2 } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
-import { REWARD_TOKEN } from '@app/variables/tokens'
+import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
 import { usePrices } from '@app/hooks/usePrices';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
 import { useContractEvents } from './useContractEvents';
-import { BOND_V2_FIXED_TELLER_ABI} from '@app/config/abis';
+import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
+import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
+import { useBlocksTimestamps } from './useBlockTimestamp';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
   const { data, error, isLoading } = useCustomSWR(`/api/bonds`, fetcher);
@@ -97,49 +99,67 @@ export const useBondV2PayoutFor = (bondContract: string, id: string, inputDecima
   }
 }
 
-export const useAccountBonds = (
+export const useAccountBondPurchases = (
   account: string,
-  bonds: BondV2[],
+  // bond: BondV2,
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
-  const teller = bonds.length > 0 ? bonds[0].teller : '';
-
   const { events } = useContractEvents(
-    teller,
-     BOND_V2_FIXED_TELLER_ABI,
-      'TransferSingle',
-      [undefined, undefined, account],
-      );
+    BOND_V2_FIXED_TERM_TELLER,
+    BOND_V2_FIXED_TELLER_ABI,
+    'TransferSingle',
+    [undefined, undefined, account],
+  );
 
-    const { data: balances } = useEtherSWR({
-      args: [
-        ...events.map(e => [teller, 'balanceOf', account, e.args.id])        
-      ],
-      abi: BOND_V2_FIXED_TELLER_ABI,
-    })
+  const { timestamps } = useBlocksTimestamps(events.map(e => e.blockNumber));
 
-    const { data: metadata } = useEtherSWR({
-      args: [
-        ...events.map(e => [teller, 'tokenMetadata', e.args.id])        
-      ],
-      abi: BOND_V2_FIXED_TELLER_ABI,
-    })
+  const { data: balances } = useEtherSWR({
+    args: [
+      ...events.map(e => [BOND_V2_FIXED_TERM_TELLER, 'balanceOf', account, e.args.id])
+    ],
+    abi: BOND_V2_FIXED_TELLER_ABI,
+  })
+
+  const { data: metadata } = useEtherSWR({
+    args: [
+      ...events.map(e => [BOND_V2_FIXED_TERM_TELLER, 'tokenMetadata', e.args.id])
+    ],
+    abi: BOND_V2_FIXED_TELLER_ABI,
+  })  
+
+  const now = Date.now();
 
   const userBonds = events?.map((e, i) => {
+    const purchaseDate = timestamps ? timestamps[i] : 0;
+    const expiry = metadata ? metadata[i][2] * 1000 : 0;
     return {
       txHash: e.transactionHash,
       blocknumber: e.blockNumber,
       payout: getBnToNumber(e.args.amount),
       id: e.args.id,
       currentBalance: balances ? getBnToNumber(balances[i]) : 0,
-      active: metadata ? metadata[i][0]: 0,
-      expiry: metadata ? metadata[i][2] * 1000: 0,
-      supply: metadata ? getBnToNumber(metadata[i][3]): 0,
+      active: metadata ? metadata[i][0] : 0,
+      output: metadata ? metadata[i][1] : '',
+      expiry: expiry,
+      supply: metadata ? getBnToNumber(metadata[i][3]) : 0,
+      underlying: getToken(TOKENS, metadata ? metadata[i][1] : ''),
+      purchaseDate,
+      vestingDays: Math.ceil((expiry - purchaseDate) / 84000000),
+      percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
     }
   })
 
   return {
     userBonds,
   }
+}
+
+export const useAccountBonds = (
+  account: string,
+  // bonds: BondV2[],
+): SWR & {
+  userBonds: UserBondV2[]
+} => {
+  return useAccountBondPurchases(account) 
 }
