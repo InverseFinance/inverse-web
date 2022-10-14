@@ -546,6 +546,7 @@ export type BondV2WithRoi = {
   vestingDays:     number;
   conclusion:      number;
   roi: number;
+  marketPrice: number;
   positiveRoi: boolean;
 }
 

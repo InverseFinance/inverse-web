@@ -1,4 +1,4 @@
-import { BondV2 } from '@app/types'
+import { BondV2, BondV2WithRoi } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { Divider, Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
@@ -36,7 +36,7 @@ export const BondSlide = ({
 }: {
     isOpen: boolean,
     onClose: () => void,
-    bonds: BondV2[],
+    bonds: BondV2WithRoi[],
     bondIndex: number,
     handleDetails: (i: number) => void,
 }) => {
@@ -114,7 +114,7 @@ export const BondSlide = ({
                     </Flex>
                     <Flex>
                         <Text fontWeight="normal" mr="1">Market Price: </Text>
-                        <Text fontWeight="extrabold">{shortenNumber(bond.bondPrice, 2, true)}</Text>
+                        <Text fontWeight="extrabold">{shortenNumber(bond.marketPrice, 2, true)}</Text>
                     </Flex>
                     <Text fontWeight="extrabold" textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
                         ROI: {shortenNumber(bond.roi, 2, false)}%
@@ -151,10 +151,10 @@ export const BondSlide = ({
                     </HStack>
                     <HStack w='full' justify="space-between">
                         <Text>
-                            Remaining bond Capacity <AnimatedInfoTooltip type="tooltip" message="Once this reaches 0, the bond cannot be purchased anymore." />:
+                            Remaining bond market Capacity <AnimatedInfoTooltip type="tooltip" message="Once this reaches 0, the bond cannot be purchased anymore." />:
                         </Text>
                         <Text fontWeight="bold" textAlign="right">
-                            {bond.capacity}
+                            {bond.capacity} {bond.capacityInQuote ? bond.underlying.symbol : 'INV'}
                         </Text>
                     </HStack>
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
