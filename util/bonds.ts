@@ -1,6 +1,6 @@
 import { BOND_V2_ABI, BOND_V2_FIXED_TELLER_ABI } from "@app/config/abis";
-import { Bond, BondV2 } from "@app/types";
-import { BOND_V2_REFERRER } from "@app/variables/bonds";
+import { Bond, BondV2, UserBondV2 } from "@app/types";
+import { BOND_V2_FIXED_TERM_TELLER, BOND_V2_REFERRER } from "@app/variables/bonds";
 import { JsonRpcSigner, Provider } from "@ethersproject/providers";
 import { parseUnits } from "@ethersproject/units";
 import { Contract } from "ethers";
@@ -28,4 +28,14 @@ export const bondV2Deposit = (
     const minAmountUint = parseUnits(minAmount.toFixed(bond.underlying.decimals), bond.underlying.decimals);
     
     return contract.purchase(recipient, BOND_V2_REFERRER, bond.id, amountUint, minAmountUint);
+}
+
+export const bondV2Redeem = (
+    bond: UserBondV2,
+    signer: JsonRpcSigner,
+    amount: string,
+) => {
+    const contract = getBondV2FixedTellerContract(BOND_V2_FIXED_TERM_TELLER, signer);
+    
+    return contract.redeem(bond.id, amount);
 }
