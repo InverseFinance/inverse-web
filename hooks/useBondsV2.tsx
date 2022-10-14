@@ -1,15 +1,15 @@
 
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { BondV2, SWR } from '@app/types'
+import { BondV2, SWR, UserBondV2 } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
-import { REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens'
+import { REWARD_TOKEN } from '@app/variables/tokens'
 import { usePrices } from '@app/hooks/usePrices';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
 import { useContractEvents } from './useContractEvents';
-import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
+import { BOND_V2_FIXED_TELLER_ABI} from '@app/config/abis';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
   const { data, error, isLoading } = useCustomSWR(`/api/bonds`, fetcher);
@@ -99,9 +99,47 @@ export const useBondV2PayoutFor = (bondContract: string, id: string, inputDecima
 
 export const useAccountBonds = (
   account: string,
-  teller: string,
+  bonds: BondV2[],
 ): SWR & {
-  
+  userBonds: UserBondV2[]
 } => {
-  return useContractEvents(teller, BOND_V2_FIXED_TELLER_ABI, 'TransferSingle', [undefined, undefined, account]);
+  const teller = bonds.length > 0 ? bonds[0].teller : '';
+
+  const { events } = useContractEvents(
+    teller,
+     BOND_V2_FIXED_TELLER_ABI,
+      'TransferSingle',
+      [undefined, undefined, account],
+      );
+
+    const { data: balances } = useEtherSWR({
+      args: [
+        ...events.map(e => [teller, 'balanceOf', account, e.args.id])        
+      ],
+      abi: BOND_V2_FIXED_TELLER_ABI,
+    })
+
+    const { data: metadata } = useEtherSWR({
+      args: [
+        ...events.map(e => [teller, 'tokenMetadata', e.args.id])        
+      ],
+      abi: BOND_V2_FIXED_TELLER_ABI,
+    })
+
+  const userBonds = events?.map((e, i) => {
+    return {
+      txHash: e.transactionHash,
+      blocknumber: e.blockNumber,
+      payout: getBnToNumber(e.args.amount),
+      id: e.args.id,
+      currentBalance: balances ? getBnToNumber(balances[i]) : 0,
+      active: metadata ? metadata[i][0]: 0,
+      expiry: metadata ? metadata[i][2] * 1000: 0,
+      supply: metadata ? getBnToNumber(metadata[i][3]): 0,
+    }
+  })
+
+  return {
+    userBonds,
+  }
 }

@@ -286,6 +286,9 @@ export const BOND_V2_ABI = [
 
 export const BOND_V2_FIXED_TELLER_ABI = [  
   `function purchase(address rec, address ref, uint id, uint amount, uint minAmountOut) external returns (uint, uint)`,
+  "function tokenMetadata(uint) public view returns (tuple(bool, address, uint, uint))",
+  "function balanceOf(address, uint) public view returns (uint)",
+  "event TransferSingle (address indexed operator, address indexed from, address indexed to, uint256 id, uint256 amount)",  
 ]
 
 export const BOND_V2_AGGREGATOR_ABI = [  

@@ -523,31 +523,21 @@ export type BondV2 = {
   conclusion:      number;
 }
 
-export type BondV2WithRoi = {
-  id:              string;
-  bondContract:    string;
-  output:          string;
-  bondPrice:       number;
-  inputUsdPrice:   number;
-  underlying:      Token;
-  howToGetLink:    string;
-  input:           string;
-  teller:          string;
-  capacityInQuote: boolean;
-  capacity:        number;
-  totalDebt:       number;
-  minPrice:        number;
-  maxPayout:       number;
-  sold:            number;
-  purchased:       number;
-  scale:           number;
-  controlVar:      string;
-  maxDebt:         number;
-  vestingDays:     number;
-  conclusion:      number;
+export type BondV2WithRoi = BondV2 & {
   roi: number;
   marketPrice: number;
   positiveRoi: boolean;
+}
+
+export type UserBondV2 = {
+  txHash: string
+  blocknumber: number
+  payout: number
+  id: string
+  currentBalance: number
+  active: boolean
+  expiry: number
+  supply: number
 }
 
 export type DraftReview = {
