@@ -12,7 +12,8 @@ export const BondsTabs = ({
         colorScheme="white"
         variant='solid-rounded'>
         <TabList justifyContent={{ base: 'flex-start', sm: 'center' }}>
-            <Tab as="a" href="/bonds" _focus={{ outline: 'none' }}>Bonds</Tab>
+            <Tab as="a" href="/bonds" _focus={{ outline: 'none' }}>Bond Markets</Tab>
+            <Tab as="a" href="/bonds/purchased" _focus={{ outline: 'none' }}>My V2 Bonds</Tab>
             <Tab as="a" href="/bonds/stats" _focus={{ outline: 'none' }}>Bonds Stats</Tab>
         </TabList>
     </Tabs>
