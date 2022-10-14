@@ -1,5 +1,5 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
-import { BOND_V2_FIXED_TERM } from '@app/variables/bonds';
+import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
 
 // TODO: Clean-up ABIs
