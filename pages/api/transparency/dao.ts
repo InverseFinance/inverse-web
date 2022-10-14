@@ -112,7 +112,7 @@ export default async function handler(req, res) {
         return Promise.all(
           chainFundsToCheck.map(tokenAddress => {
             const token = CHAIN_TOKENS[m.chainId][tokenAddress]
-            const isLockedConvexPool = !!token && !!token.convexInfos;
+            const isLockedConvexPool = !!token && !!token.convexInfos && m.shortName === 'TWG';
             // non-standard balance cases first
             if(token.symbol === 'vlAURA') {
               const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
