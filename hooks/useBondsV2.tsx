@@ -10,7 +10,7 @@ import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
 import { useContractEvents } from './useContractEvents';
 import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
-import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
+import { BOND_V2_FIXED_TERM_TELLER, BOND_V2_REFERRER } from '@app/variables/bonds';
 import { useBlocksTimestamps } from './useBlockTimestamp';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
@@ -101,7 +101,7 @@ export const useBondV2PayoutFor = (bondContract: string, id: string, inputDecima
 
 export const useAccountBondPurchases = (
   account: string,
-  // bond: BondV2,
+  bonds: BondV2[],
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
@@ -110,6 +110,13 @@ export const useAccountBondPurchases = (
     BOND_V2_FIXED_TELLER_ABI,
     'TransferSingle',
     [undefined, undefined, account],
+  );
+
+  const { events: bonded } = useContractEvents(
+    BOND_V2_FIXED_TERM_TELLER,
+    BOND_V2_FIXED_TELLER_ABI,
+    'Bonded',
+    [undefined, BOND_V2_REFERRER],
   );
 
   const { timestamps } = useBlocksTimestamps(events.map(e => e.blockNumber));
@@ -133,9 +140,14 @@ export const useAccountBondPurchases = (
   const userBonds = events?.map((e, i) => {
     const purchaseDate = timestamps ? timestamps[i] : 0;
     const expiry = metadata ? metadata[i][2] * 1000 : 0;
+    const bondedEvent = bonded?.find(be => be.transactionHash === e.transactionHash);
+    const bondMarket = bonds?.find(m => m.id.toString() === bondedEvent?.args?.id.toString());
     return {
       txHash: e.transactionHash,
       blocknumber: e.blockNumber,
+      marketId: bondedEvent ? getBnToNumber(bondedEvent.args.id) : 0,
+      bondedEvent,
+      amount: bondedEvent ? getBnToNumber(bondedEvent.args.amount) : 0,
       payout: getBnToNumber(e.args.amount),
       id: e.args.id,
       currentBalance: balances ? getBnToNumber(balances[i]) : 0,
@@ -143,7 +155,7 @@ export const useAccountBondPurchases = (
       output: metadata ? metadata[i][1] : '',
       expiry: expiry,
       supply: metadata ? getBnToNumber(metadata[i][3]) : 0,
-      underlying: getToken(TOKENS, metadata ? metadata[i][1] : ''),
+      underlying: bondMarket?.underlying || {},
       purchaseDate,
       vestingDays: Math.ceil((expiry - purchaseDate) / 84000000),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
@@ -157,9 +169,9 @@ export const useAccountBondPurchases = (
 
 export const useAccountBonds = (
   account: string,
-  // bonds: BondV2[],
+  bonds: BondV2[],
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
-  return useAccountBondPurchases(account) 
+  return useAccountBondPurchases(account, bonds) 
 }

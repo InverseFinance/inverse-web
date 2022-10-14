@@ -532,8 +532,10 @@ export type BondV2WithRoi = BondV2 & {
 export type UserBondV2 = {
   txHash: string
   blocknumber: number
+  amount: number
   payout: number
   id: string
+  marketId: number
   currentBalance: number
   active: boolean
   expiry: number

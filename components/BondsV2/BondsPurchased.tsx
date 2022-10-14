@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
-import { useAccountBonds } from '@app/hooks/useBondsV2';
+import { useAccountBonds, useBondsV2 } from '@app/hooks/useBondsV2';
 import { BondPurchaseItem } from './BondPurchaseItem';
 import { BondRedeemSlide } from './BondRedeemSlide';
 
@@ -21,8 +21,8 @@ export const BondsPurchased = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
     const [isNotConnected, setIsNotConnected] = useState(false);
-    // const { bonds } = useBondsV2();
-    const { userBonds } = useAccountBonds(account);
+    const { bonds } = useBondsV2();
+    const { userBonds } = useAccountBonds(account, bonds);
 
     const handleDetails = (bondIndex: number) => {
         setSelectedBondIndex(bondIndex);
