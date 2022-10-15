@@ -20,6 +20,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
     '0xcc180262347F84544c3a4854b87C34117ACADf94': 'Fed Yearn',
     '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb': 'Fed Convex',
+    '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d': 'Fed Velo',
     // Cross-Chain Feds
     '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // dao members
@@ -63,6 +64,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'yellowtail',
     '0xC253Af7B80F3DD3d469bf4b94AA9e3df59e71e43': 'yellowtail2',
     '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'CryptoHarry2',
+    '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a': 'HarryGasWallet',
     '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'CMeth',
     '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A': 'DebtConverter',
     '0x9eb6BF2E582279cfC1988d3F2043Ff4DF18fa6A0': 'DebtRepayer',
