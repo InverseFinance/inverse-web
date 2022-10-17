@@ -46,8 +46,8 @@ export const BondsPurchased = () => {
                 noPadding
                 contentProps={{ p: { base: '2', sm: '8' } }}
                 label="My Bonds"
-                contentBgColor="gradient3"
-            
+                description="Purchases are grouped by vesting date"
+                contentBgColor="gradient3"            
             >
                 {
                     !userBonds?.length && !!account ?

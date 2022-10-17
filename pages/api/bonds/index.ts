@@ -9,8 +9,8 @@ import { getBondV2Contract } from '@app/util/bonds'
 import { getBnToNumber } from '@app/util/markets'
 import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
 
-// const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
-const PAYOUT_TOKEN = '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6';
+const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
+// const PAYOUT_TOKEN = '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4';
 
 export default async function handler(req, res) {
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         // const data = await contract.liveMarketsFor(PAYOUT_TOKEN, true);
         // const liveMarketsForINV = Array.isArray(data) ? data : [data];
         // const liveMarketsIds = liveMarketsForINV.map(b => b.toString());
-        const liveMarketsIds = ['92', '101'];
+        const liveMarketsIds = ['102', '103'];
 
         const [
             prices,
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         const now = Date.now();
 
         const bonds = liveMarketsIds.map((id, i) => {
-            const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 35) : 0
+            const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 36) : 0
             const conclusion = parseFloat(terms[i][3].toString()) * 1000;
             return {
                 id,
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
                 output: PAYOUT_TOKEN,
                 bondPrice,
                 inputUsdPrice: 1,
-                underlying: getToken(TOKENS, 'WETH'),
+                underlying: getToken(TOKENS, marketInfos[i][2]),
                 howToGetLink: 'https://inverse.finance/swap',
                 input: marketInfos[i][2],
                 teller: tellers[i],

@@ -42,7 +42,8 @@ export const BondSlide = ({
     handleDetails: (i: number) => void,
 }) => {
     const { account, library } = useWeb3React<Web3Provider>();
-    const { query } = useRouter();
+    const router = useRouter();
+    const { query } = router;
     const userAddress = (query?.viewAddress as string) || account;
 
     const bond = bonds[bondIndex];
@@ -73,6 +74,11 @@ export const BondSlide = ({
     const handleDeposit = () => {
         if (!library?.getSigner() || !userAddress) { return }
         return bondV2Deposit(bond, library?.getSigner(), amount, maxSlippage, receiveAmount, account);
+    }
+
+    const handleSuccess = () => {
+        console.log('success')
+        router.push('/bonds/purchased')
     }
 
     const now = timestampToUTC(Date.now());
@@ -183,7 +189,7 @@ export const BondSlide = ({
                                 !isApproved ?
                                     <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!library?.getSigner())} />
                                     :
-                                    <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount)} onClick={handleDeposit} refreshOnSuccess={true}>
+                                    <SubmitButton onSuccess={() => handleSuccess()} isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount)} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Purchase
                                     </SubmitButton>
                             }

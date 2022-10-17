@@ -81,6 +81,7 @@ const chainTokenAddresses = {
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
     WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+    INV: '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4',
   }
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
