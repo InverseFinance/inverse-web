@@ -13,6 +13,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import Link from '@app/components/common/Link';
 import { useAccountBonds, useBondsV2 } from '@app/hooks/useBondsV2';
+import { BondsV1List } from './BondsV1List';
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
     iconProps={{ ml: '2', fontSize: '12px', display: { base: 'none', sm: 'inline-block' } }}
@@ -66,7 +67,7 @@ export const BondsView = () => {
             <Container
                 noPadding
                 contentProps={{ p: { base: '2', sm: '8' } }}
-                label="Available Bonds"
+                label="Available Bonds - V2"
                 contentBgColor="gradient3"
                 description="Get INV at a discount via Bond Protocol  - Learn More about bonds here"
                 href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
@@ -90,7 +91,7 @@ export const BondsView = () => {
                                         End Date
                                     </Text>
                                     <LocalTooltip>
-                                        Date where the bond will not allow purchases anymore 
+                                        Date where the bond will not allow purchases anymore, time is at end of day in UTC
                                     </LocalTooltip>
                                 </Flex>
                                 <Flex w="80px" alignItems="center" textAlign="left">
@@ -123,6 +124,8 @@ export const BondsView = () => {
                         </VStack>
                 }
             </Container>
+
+            <BondsV1List />
 
             <Container
                 contentProps={{ p: { base: '2', sm: '8' } }}
