@@ -21,7 +21,7 @@ export const BondPurchaseItem = ({ bond, bondIndex, handleDetails }: { bond: Use
                     {/* <UnderlyingItem Container={HStack} label={bond.underlying.symbol} imgSize={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage}
                         imgContainerProps={{ mr: '1' }}
                     /> */}
-                    <Text>{bond.name.replace(/inverse dao/i, 'INV')}</Text>
+                    <Text>{bond.name}</Text>
                     <Text maxW={{ base: "80px", sm: '200px' }} fontSize={{ base: '10px', sm: "14px" }} color="secondaryTextColor">{bond.vestingDays} days vesting</Text>
                 </VStack>
                 {/* </Link> */}

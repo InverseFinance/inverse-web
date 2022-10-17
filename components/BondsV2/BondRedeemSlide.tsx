@@ -4,6 +4,7 @@ import { Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { BondV2Redeem } from './BondV2Redeem'
+import { shortenNumber } from '@app/util/markets'
 
 export const BondRedeemSlide = ({
     isOpen,
@@ -30,16 +31,18 @@ export const BondRedeemSlide = ({
                         {/* <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} /> */}
                         <MarketImage size={30} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
                         <Text ml="2" textTransform="uppercase">
-                            {bond.underlying.name} BOND ({bond.vestingDays} days vesting)
+                            {bond.name} ({bond.vestingDays} days vesting)
                         </Text>
                     </Flex>
                     }
                     {bondIndex !== (userBonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                 </HStack>
                 <Divider />
-
                 {
-                    !!bond && <BondV2Redeem bond={bond} />
+                    bond?.supply === 0 && <Text>{shortenNumber(bond?.payout, 2)} INV Redeemed!</Text>
+                }
+                {
+                    !!bond && bond.supply > 0 && <BondV2Redeem bond={bond} />
                 }
             </VStack>
         </VStack>

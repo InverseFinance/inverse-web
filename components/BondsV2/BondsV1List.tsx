@@ -73,9 +73,10 @@ export const BondsV1List = () => {
                             <Flex w='80px'></Flex>
                         </Stack>
                         {
-                            bonds.map((bond, i) => {
+                            !!account ? bonds.map((bond, i) => {
                                 return <BondListItem key={bond.bondContract} bond={bond} bondIndex={i} handleDetails={handleDetails} />
                             })
+                            : <InfoMessage alertProps={{ w: 'full', fontSize: '12px' }} description="Please connect to see v1 bonds" />
                         }
                     </VStack>
             }

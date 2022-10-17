@@ -176,7 +176,7 @@ export const useAccountBondPurchases = (
       amount: bondedEvent ? getBnToNumber(bondedEvent.args.amount) : 0,
       payout: getBnToNumber(e.args.amount),
       id,
-      name: tokenNames ? tokenNames[index][0] : '',
+      name: tokenNames ? tokenNames[index][0].replace(/inverse dao/i, 'INV') : '',
       active: metadata ? metadata[0] : 0,
       output: metadata ? metadata[1] : '',
       expiry: expiry,
