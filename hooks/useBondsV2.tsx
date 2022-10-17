@@ -58,7 +58,7 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
   const prices = (bondPrices);
 
   // const invOraclePrice = oraclePrices && oraclePrices[XINV];
-  const invCgPrice = cgPrices && cgPrices['weth']?.usd;
+  const invCgPrice = cgPrices && cgPrices['inverse-finance']?.usd;
   // const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
 
   // the ROI calculation makes more sense with cg price
@@ -73,7 +73,7 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
   const now = Date.now();
 
   const bonds = activeBonds.map((bond, i) => {
-    const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 35) : activeBonds[i].bondPrice
+    const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 36) : activeBonds[i].bondPrice
     const conclusion = bondTerms ? parseFloat(bondTerms[i][3].toString()) * 1000 : activeBonds[i].conclusion;
     const capacity = marketInfos ? getBnToNumber(marketInfos[i][5], REWARD_TOKEN?.decimals) : activeBonds[i].capacity;
     return {
