@@ -30,12 +30,13 @@ export const bondV2Deposit = (
     return contract.purchase(recipient, BOND_V2_REFERRER, bond.id, amountUint, minAmountUint);
 }
 
-export const bondV2Redeem = (
+export const bondV2Redeem = async (
     bond: UserBondV2,
     signer: JsonRpcSigner,
-    amount: string,
+    amount?: string,
 ) => {
     const contract = getBondV2FixedTellerContract(BOND_V2_FIXED_TERM_TELLER, signer);
-    
-    return contract.redeem(bond.id, amount);
+    const account = await signer.getAddress();
+    const bal = await contract.balanceOf(account, bond.id);
+    return contract.redeem(bond.id, amount||bal);
 }

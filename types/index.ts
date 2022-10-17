@@ -509,6 +509,7 @@ export type BondV2 = {
   howToGetLink:    string;
   input:           string;
   teller:          string;
+  name:          string;
   capacityInQuote: boolean;
   capacity:        number;
   totalDebt:       number;

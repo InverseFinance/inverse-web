@@ -286,8 +286,10 @@ export const BOND_V2_ABI = [
 
 export const BOND_V2_FIXED_TELLER_ABI = [  
   `function purchase(address rec, address ref, uint id, uint amount, uint minAmountOut) external returns (uint, uint)`,
+  `function redeem(uint tokenId, uint amount) public`,
   "function tokenMetadata(uint) public view returns (tuple(bool, address, uint, uint))",
   "function balanceOf(address, uint) public view returns (uint)",
+  "function getTokenNameAndSymbol(uint) public view returns (string, string)",
   "event TransferSingle (address indexed operator, address indexed from, address indexed to, uint256 id, uint256 amount)",  
   "event Bonded (uint indexed id, address indexed ref, uint amount, uint payout)",  
 ]
