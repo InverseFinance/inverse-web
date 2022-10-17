@@ -18,7 +18,7 @@ export const BondsPage = () => {
             </Head>
             <AppNav active="Bonds" activeSubmenu="Bonds" />
             <Flex direction="column" w={{ base: 'full' }} pt={{ sm: '4' }} maxWidth="900px">
-                <BondsTabs />
+                <BondsTabs defaultIndex={1} />
                 <BondsPurchased />
             </Flex>
         </Layout>

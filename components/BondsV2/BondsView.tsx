@@ -71,7 +71,7 @@ export const BondsView = () => {
                 label="Available Bonds - V2"
                 contentBgColor="gradient3"
                 description="Get INV at a discount via Bond Protocol  - Learn More about bonds here"
-                href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
+                href="https://docs.bondprotocol.finance/basics/bonding"
             >
                 {
                     bondsPaused && !!account ?
@@ -89,10 +89,10 @@ export const BondsView = () => {
                                 </Flex>
                                 <Flex w="200px" alignItems="center">
                                     <Text>
-                                        Max End Date
+                                        Available until
                                     </Text>
                                     <LocalTooltip>
-                                        Date where the bond will not allow purchases anymore, time is at 02:00am in UTC. Bond offer can end before if the remaining capacity reaches 0
+                                        Date where the bond will not allow purchases anymore. Bond offer can end before if the remaining capacity reaches 0
                                     </LocalTooltip>
                                 </Flex>
                                 <Flex w="80px" alignItems="center" textAlign="left">
