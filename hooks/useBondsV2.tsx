@@ -66,11 +66,16 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
 
   const inputPrices = activeBonds.map((bond, i) => {
     if(bond.underlying.symbol === 'DOLA') return 1;
+    else if(bond.underlying.coingeckoId) return cgPrices[bond.underlying.coingeckoId]?.usd;
     return (lpInputPrices && lpInputPrices[lpInputs.map(lp => lp.symbol).indexOf(bond.underlying.symbol)]) || 0;
   })
 
+  const now = Date.now();
+
   const bonds = activeBonds.map((bond, i) => {
     const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 35) : activeBonds[i].bondPrice
+    const conclusion = bondTerms ? parseFloat(bondTerms[i][3].toString()) * 1000 : activeBonds[i].conclusion;
+    const capacity = marketInfos ? getBnToNumber(marketInfos[i][5], REWARD_TOKEN?.decimals) : activeBonds[i].capacity;
     return {
       ...bond,
       marketPrice,
@@ -79,12 +84,14 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
       inputUsdPrice: inputPrices[i],
       positiveRoi: bondPrice && marketPrice > bondPrice,
       vestingDays: bondTerms ? Math.round(parseFloat(bondTerms[i][2].toString()) / 86400) : activeBonds[i].vestingDays,
-      conclusion: bondTerms ? parseFloat(bondTerms[i][3].toString()) * 1000 : activeBonds[i].conclusion,
+      conclusion,
+      isNotConcluded: now < conclusion,
+      isPurchasable: now < conclusion && capacity > 0,
       maxPayout: marketInfos ? getBnToNumber(marketInfos[i][8], REWARD_TOKEN?.decimals) : activeBonds[i].maxPayout,
-      capacity: marketInfos ? getBnToNumber(marketInfos[i][5], REWARD_TOKEN?.decimals) : activeBonds[i].capacity,
+      capacity,
       teller: tellers ? tellers[i] : activeBonds[i].teller,
     }
-  })
+  });
 
   return {
     bonds,
@@ -157,7 +164,7 @@ export const useAccountBondPurchases = (
     const id = e.args.id.toString();
     const index = ids.indexOf(id)
     const metadata = metadatas ? metadatas[index] : undefined;
-    const purchaseDate = timestamps ? timestamps[index] : 0;
+    const purchaseDate = timestamps ? timestamps[i] : 0;
     const expiry = metadata ? metadata[2] * 1000 : 0;
     const bondedEvent = bonded?.find(be => be.transactionHash === e.transactionHash);
     const bondMarket = bonds?.find(m => m.id.toString() === bondedEvent?.args?.id.toString());

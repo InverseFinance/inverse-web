@@ -12,7 +12,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import Link from '@app/components/common/Link';
-import { useAccountBonds, useBondsV2 } from '@app/hooks/useBondsV2';
+import { useBondsV2 } from '@app/hooks/useBondsV2';
 import { BondsV1List } from './BondsV1List';
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
@@ -40,7 +40,8 @@ export const BondsView = () => {
         setIsNotConnected(!account);
     }, [account], !account, 1000, 0);
 
-    const bondsPaused = bonds?.length > 0 && bonds?.reduce((prev, curr) => prev + curr.maxPayout, 0) === 0;
+    const activeBonds = bonds?.filter(b => b.isNotConcluded);
+    const bondsPaused = activeBonds?.length > 0 && activeBonds?.reduce((prev, curr) => prev + curr.maxPayout, 0) === 0;
 
     return (
         <Stack w='full' color="mainTextColor">
@@ -49,7 +50,7 @@ export const BondsView = () => {
                     <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                 </Container>
             }
-            {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={bonds} bondIndex={selectedBondIndex} />}
+            {selectedBondIndex !== null && <BondSlide handleDetails={handleDetails} isOpen={isOpen} onClose={onClose} bonds={activeBonds} bondIndex={selectedBondIndex} />}
             <Container contentProps={{ p: { base: '2', sm: '8' } }} noPadding label="Get INV at a discount thanks to Bonds!" contentBgColor="gradient3">
                 <VStack fontSize={{ base: '12px', sm: '14px' }} w="full" justify="space-between">
                     <Text>
@@ -78,7 +79,7 @@ export const BondsView = () => {
                         :
                         <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
                             <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">
-                                <Flex w="180px" alignItems="center">
+                                <Flex w="200px" alignItems="center">
                                     <Text>
                                         Quote Token
                                     </Text>
@@ -86,12 +87,12 @@ export const BondsView = () => {
                                         This is the asset you give to get INV in exchange
                                     </LocalTooltip>
                                 </Flex>
-                                <Flex w="150px" alignItems="center">
+                                <Flex w="200px" alignItems="center">
                                     <Text>
-                                        End Date
+                                        Max End Date
                                     </Text>
                                     <LocalTooltip>
-                                        Date where the bond will not allow purchases anymore, time is at end of day in UTC
+                                        Date where the bond will not allow purchases anymore, time is at 02:00am in UTC. Bond offer can end before if the remaining capacity reaches 0
                                     </LocalTooltip>
                                 </Flex>
                                 <Flex w="80px" alignItems="center" textAlign="left">
@@ -117,7 +118,7 @@ export const BondsView = () => {
                                 <Flex w='80px'></Flex>
                             </Stack>
                             {
-                                bonds?.map((bond, i) => {
+                                activeBonds?.map((bond, i) => {
                                     return <BondListItem key={bond.bondContract} bond={bond} bondIndex={i} handleDetails={handleDetails} />
                                 })
                             }

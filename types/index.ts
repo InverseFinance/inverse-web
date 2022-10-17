@@ -521,6 +521,8 @@ export type BondV2 = {
   maxDebt:         number;
   vestingDays:     number;
   conclusion:      number;
+  isNotConcluded: boolean
+  isPurchasable: boolean
 }
 
 export type BondV2WithRoi = BondV2 & {

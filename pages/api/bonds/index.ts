@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         // const data = await contract.liveMarketsFor(PAYOUT_TOKEN, true);
         // const liveMarketsForINV = Array.isArray(data) ? data : [data];
         // const liveMarketsIds = liveMarketsForINV.map(b => b.toString());
-        const liveMarketsIds = ['92'];
+        const liveMarketsIds = ['92', '101'];
 
         const [
             prices,
@@ -42,10 +42,13 @@ export default async function handler(req, res) {
             Promise.all(liveMarketsIds.map(id => contract.getTeller(id))),
             Promise.all(liveMarketsIds.map(id => getBondV2Contract(BOND_V2_FIXED_TERM, provider).markets(id))),
             Promise.all(liveMarketsIds.map(id => getBondV2Contract(BOND_V2_FIXED_TERM, provider).terms(id))),
-        ]);                
+        ]);          
+        
+        const now = Date.now();
 
         const bonds = liveMarketsIds.map((id, i) => {
             const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 35) : 0
+            const conclusion = parseFloat(terms[i][3].toString()) * 1000;
             return {
                 id,
                 bondContract: BOND_V2_FIXED_TERM,
@@ -68,7 +71,8 @@ export default async function handler(req, res) {
                 controlVar: terms[i][0],
                 maxDebt: parseFloat(terms[i][1].toString()),
                 vestingDays: Math.round(parseFloat(terms[i][2].toString()) / 86400),
-                conclusion: parseFloat(terms[i][3].toString()) * 1000,
+                conclusion,
+                isNotConcluded: now < conclusion,
             }
         })
 
