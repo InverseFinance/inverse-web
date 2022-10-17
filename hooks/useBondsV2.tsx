@@ -4,7 +4,7 @@ import { BondV2, SWR, UserBondV2 } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
 import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
-import { usePrices } from '@app/hooks/usePrices';
+import { useLpPrices, usePrices } from '@app/hooks/usePrices';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
@@ -25,6 +25,9 @@ export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
 export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
   const { prices: cgPrices } = usePrices();
   const { bonds: activeBonds } = useBondsV2Api();
+
+  const lpInputs = activeBonds.filter(b => !b.inputPrice).map(b => b.underlying)
+  const { data: lpInputPrices } = useLpPrices(lpInputs, activeBonds.map(b => '1'));
 
   const { data: bondPrices, error: bondPricesError } = useEtherSWR([
     ...activeBonds.map(bond => {
@@ -61,6 +64,11 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
   // the ROI calculation makes more sense with cg price
   const marketPrice = invCgPrice;
 
+  const inputPrices = activeBonds.map((bond, i) => {
+    if(bond.underlying.symbol === 'DOLA') return 1;
+    return (lpInputPrices && lpInputPrices[lpInputs.map(lp => lp.symbol).indexOf(bond.underlying.symbol)]) || 0;
+  })
+
   const bonds = activeBonds.map((bond, i) => {
     const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 35) : activeBonds[i].bondPrice
     return {
@@ -68,7 +76,7 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
       marketPrice,
       roi: bondPrice ? (marketPrice / bondPrice - 1) * 100 : 0,
       bondPrice,
-      inputUsdPrice: 1,
+      inputUsdPrice: inputPrices[i],
       positiveRoi: bondPrice && marketPrice > bondPrice,
       vestingDays: bondTerms ? Math.round(parseFloat(bondTerms[i][2].toString()) / 86400) : activeBonds[i].vestingDays,
       conclusion: bondTerms ? parseFloat(bondTerms[i][3].toString()) * 1000 : activeBonds[i].conclusion,
@@ -121,25 +129,36 @@ export const useAccountBondPurchases = (
 
   const { timestamps } = useBlocksTimestamps(events.map(e => e.blockNumber));
 
-  const { data: balances } = useEtherSWR({
+  const ids: string[] = [];
+  events.forEach(e => {
+    const id = e.args.id.toString();
+    if(!ids.includes(id)){
+      ids.push(id);
+    }
+  })
+
+  const { data: metadatas } = useEtherSWR({
     args: [
-      ...events.map(e => [BOND_V2_FIXED_TERM_TELLER, 'balanceOf', account, e.args.id])
+      ...ids.map(id => [BOND_V2_FIXED_TERM_TELLER, 'tokenMetadata', id])
     ],
     abi: BOND_V2_FIXED_TELLER_ABI,
   })
 
-  const { data: metadata } = useEtherSWR({
+  const { data: tokenNames } = useEtherSWR({
     args: [
-      ...events.map(e => [BOND_V2_FIXED_TERM_TELLER, 'tokenMetadata', e.args.id])
+      ...ids.map(id => [BOND_V2_FIXED_TERM_TELLER, 'getTokenNameAndSymbol', id])
     ],
     abi: BOND_V2_FIXED_TELLER_ABI,
   })  
 
   const now = Date.now();
 
-  const userBonds = events?.map((e, i) => {
-    const purchaseDate = timestamps ? timestamps[i] : 0;
-    const expiry = metadata ? metadata[i][2] * 1000 : 0;
+  const bondEvents = events?.map((e, i) => {
+    const id = e.args.id.toString();
+    const index = ids.indexOf(id)
+    const metadata = metadatas ? metadatas[index] : undefined;
+    const purchaseDate = timestamps ? timestamps[index] : 0;
+    const expiry = metadata ? metadata[2] * 1000 : 0;
     const bondedEvent = bonded?.find(be => be.transactionHash === e.transactionHash);
     const bondMarket = bonds?.find(m => m.id.toString() === bondedEvent?.args?.id.toString());
     return {
@@ -149,21 +168,45 @@ export const useAccountBondPurchases = (
       bondedEvent,
       amount: bondedEvent ? getBnToNumber(bondedEvent.args.amount) : 0,
       payout: getBnToNumber(e.args.amount),
-      id: e.args.id,
-      currentBalance: balances ? getBnToNumber(balances[i]) : 0,
-      active: metadata ? metadata[i][0] : 0,
-      output: metadata ? metadata[i][1] : '',
+      id,
+      name: tokenNames ? tokenNames[index][0] : '',
+      active: metadata ? metadata[0] : 0,
+      output: metadata ? metadata[1] : '',
       expiry: expiry,
-      supply: metadata ? getBnToNumber(metadata[i][3]) : 0,
+      supply: metadata ? getBnToNumber(metadata[3]) : 0,
       underlying: bondMarket?.underlying || {},
       purchaseDate,
-      vestingDays: Math.ceil((expiry - purchaseDate) / 84000000),
+      vestingDays: Math.ceil(((expiry - purchaseDate) / 84000000) - 0.5),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
     }
   })
 
+  const userBonds = ids.map(id => {
+    const common = bondEvents.find(e => e.id === id);
+    const grouped = bondEvents.filter(e => e.id === id).reduce((prev, curr) => {
+      return {
+        ...common,
+        expiry: curr.expiry,
+        vestingDays: curr.vestingDays,
+        amount: prev.amount + curr.amount,
+        payout: prev.payout + curr.payout,
+        purchaseDate: Math.min(prev.purchaseDate, curr.purchaseDate),
+        percentVestedFor: Math.max(prev.percentVestedFor, curr.percentVestedFor),
+      }
+    }, {
+      underlying: {},
+      amount: 0,
+      payout: 0,
+      vestingDays: 0,
+      purchaseDate: Infinity,
+      percentVestedFor: 0,
+    });
+    return grouped;
+  })
+
   return {
     userBonds,
+    bondEvents,
   }
 }
 
