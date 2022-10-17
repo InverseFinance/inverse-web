@@ -25,18 +25,22 @@ export const BondRedeemSlide = ({
             <VStack maxW="700px" w='full' spacing="4">
                 <HStack fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">
                     {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
-                    <Flex>
+                    {
+                        !!bond && <Flex>
                         {/* <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} /> */}
                         <MarketImage size={30} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
                         <Text ml="2" textTransform="uppercase">
                             {bond.underlying.name} BOND ({bond.vestingDays} days vesting)
                         </Text>
                     </Flex>
+                    }
                     {bondIndex !== (userBonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                 </HStack>
                 <Divider />
 
-                <BondV2Redeem bond={userBonds[bondIndex]} />
+                {
+                    !!bond && <BondV2Redeem bond={bond} />
+                }
             </VStack>
         </VStack>
     </SlideModal>

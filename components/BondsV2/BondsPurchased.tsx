@@ -51,16 +51,16 @@ export const BondsPurchased = () => {
             >
                 {
                     !userBonds?.length && !!account ?
-                        <InfoMessage description="No active bonds" />
+                        <InfoMessage description="No active bonds" alertProps={{ w: 'full' }} />
                         :
                         <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
                             <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">
                                 <Flex w="180px" alignItems="center">
                                     <Text>
-                                        Quote Token
+                                        Bond Name
                                     </Text>
                                     <LocalTooltip>
-                                        This is the asset you give to get INV in exchange
+                                        Payout Token + vesting date
                                     </LocalTooltip>
                                 </Flex>
                                 <Flex w="170px" alignItems="center">
@@ -76,7 +76,7 @@ export const BondsPurchased = () => {
                                         Vesting Date
                                     </Text>
                                     <LocalTooltip>
-                                        Date where the bond will be redeemable
+                                        Date where the bond will be redeemable, time is always 00:00 UTC
                                     </LocalTooltip>
                                 </Flex>
                                 <Flex w="100px" alignItems="center" textAlign="left">
@@ -90,7 +90,7 @@ export const BondsPurchased = () => {
                             </Stack>
                             {
                                 userBonds?.map((bond, i) => {
-                                    return <BondPurchaseItem key={bond.id} bond={bond} bondIndex={i} handleDetails={handleDetails} />
+                                    return <BondPurchaseItem key={`${bond.name}-${bond.txHash}`} bond={bond} bondIndex={i} handleDetails={handleDetails} />
                                 })
                             }
                         </VStack>

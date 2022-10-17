@@ -509,7 +509,6 @@ export type BondV2 = {
   howToGetLink:    string;
   input:           string;
   teller:          string;
-  name:          string;
   capacityInQuote: boolean;
   capacity:        number;
   totalDebt:       number;
@@ -545,6 +544,7 @@ export type UserBondV2 = {
   purchaseDate: number
   vestingDays: number
   percentVestedFor: number
+  name: string
 }
 
 export type DraftReview = {
