@@ -16,7 +16,7 @@ export const SwapSlippage = ({
     onChange: (v: string) => void,
 }) => {
     const minReceived = toAmount === '' ? '0' : (parseFloat(toAmount) - (parseFloat(toAmount) * maxSlippage / 100)).toFixed(4)
-    const color = 'whiteAlpha.800'
+    const color = 'mainTextColor'
 
     return (
         <VStack direction="column" color={color} w='full' spacing="2">
@@ -26,7 +26,7 @@ export const SwapSlippage = ({
             </Text>
             <SlippageRadioGroup defaultValue={maxSlippage.toString()} onChange={onChange} />
             <Text color={color} display="flex" alignItems="center" justifyContent={{ base: 'center', sm: 'right' }} w="full" fontSize="12px" ml="2">
-                <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken.symbol} that you will receive`} />
+                <AnimatedInfoTooltip size="intermediary" message={`The minimum amount of ${toToken?.symbol} that you will receive`} />
                 Min. received&nbsp;:&nbsp;<b>{commify(minReceived)}</b>
             </Text>
         </VStack>

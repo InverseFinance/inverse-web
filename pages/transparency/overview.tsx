@@ -63,7 +63,7 @@ export const Overview = () => {
   const [xinvAdmin, xinvEscrow, comptroller, xinvUnderlying] = xinvData || [XINV_MANAGER, ESCROW, COMPTROLLER, INV]
 
   const { data: daoData } = useEtherSWR([
-    [xinvEscrow.toLowerCase(), 'governance'],
+    [xinvEscrow?.toLowerCase(), 'governance'],
     [comptroller, 'admin'],
     [comptroller, 'pauseGuardian'],
     [TREASURY, 'admin'],

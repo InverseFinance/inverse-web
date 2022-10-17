@@ -12,6 +12,9 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
+  if(!process.env.CONTENTFUL_SPACE_ID) {
+    return { paths: [], fallback: true }
+  }
   const allPosts = await getAllPostsWithSlug();
   const paths = [];
   BLOG_LOCALES.forEach(l => {
