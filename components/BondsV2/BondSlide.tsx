@@ -7,7 +7,7 @@ import { formatUnits } from '@ethersproject/units'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { BalanceInput } from '@app/components/common/Input'
 import { useEffect, useState } from 'react'
-import { roundFloorString } from '@app/util/misc'
+import { roundFloorString, timestampToUTC } from '@app/util/misc'
 import { SubmitButton } from '@app/components/common/Button'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
@@ -24,6 +24,7 @@ import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { useBondV2PayoutFor } from '@app/hooks/useBondsV2'
 import { bondV2Deposit } from '@app/util/bonds'
 import { InfoMessage } from '../common/Messages'
+import moment from 'moment';
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -62,7 +63,7 @@ export const BondSlide = ({
     const getMax = () => {
         const maxUser = parseFloat(bal);
         const maxDeposit = bond.maxPayout * bond.bondPrice / bond.inputUsdPrice;
-        return maxUser > maxDeposit ? maxDeposit : bal;
+        return maxUser > maxDeposit ? maxDeposit : maxUser > bond.capacity && bond.capacityInQuote ? bond.capacity : bal;
     }
 
     const handleMax = () => {
@@ -73,6 +74,10 @@ export const BondSlide = ({
         if (!library?.getSigner() || !userAddress) { return }
         return bondV2Deposit(bond, library?.getSigner(), amount, maxSlippage, account);
     }
+
+    const now = timestampToUTC(Date.now());
+    const split = now.split('-');
+    const vestingCompleteDate = Date.UTC(parseInt(split[0]), parseInt(split[1])-1, parseInt(split[2]) + bond.vestingDays, 0);
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
         <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
@@ -92,17 +97,17 @@ export const BondSlide = ({
                 <HStack w='full' justify="space-between" fontWeight="bold">
                     <HStack>
                         <MarketImage size={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
-                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
+                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Purchase</Text>
                     </HStack>
                     <Text>=></Text>
                     <Flex alignItems="center">
                         <TimeIcon fontSize="16px" />
-                        <Text mx="2" fontWeight="extrabold">Wait {bond.vestingDays} days</Text>
-                        <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait ${bond.vestingDays} days before being able to redeem your INVs (no linear unlocking)`} />
+                        <Text mx="2" fontWeight="extrabold">Wait ~{bond.vestingDays} days</Text>
+                        <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait around ${bond.vestingDays} days before being able to redeem your INVs (no linear unlocking)`} />
                     </Flex>
                     <Text>=></Text>
                     <Stack direction="row" alignItems="center">
-                        <Text display={{ base: 'none', sm: 'inline-block' }}>Claim</Text>
+                        <Text display={{ base: 'none', sm: 'inline-block' }}>Redeem</Text>
                         <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
                     </Stack>
                 </HStack>
@@ -121,9 +126,16 @@ export const BondSlide = ({
                     </Text>
                 </HStack>
                 <HStack fontSize="12px" w='full' justify="space-between">
-                    <Text>Bond Contract: </Text>
-                    <ScannerLink value={bond.bondContract} />
+                    <HStack fontSize="12px" w='50%' >
+                        <Text>Bond Market ID: </Text>
+                        <Text>{bond.id.toString()}</Text>
+                    </HStack>
+                    <HStack w='50%' justify="flex-end">
+                        <Text>Bond Contract: </Text>
+                        <ScannerLink value={bond.bondContract} />
+                    </HStack>
                 </HStack>
+
                 <Divider />
                 <VStack w='full' m="0" p="0" spacing="4" fontSize="14px">
                     <HStack w='full' justify="space-between">
@@ -172,7 +184,7 @@ export const BondSlide = ({
                                     <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={isApproved || (!library?.getSigner())} />
                                     :
                                     <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount)} onClick={handleDeposit} refreshOnSuccess={true}>
-                                        Deposit
+                                        Purchase
                                     </SubmitButton>
                             }
                         </Flex>
@@ -181,12 +193,17 @@ export const BondSlide = ({
                         <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
                     </HStack>
                     {
-                            parseFloat(amount) > 0 && !parseFloat(receiveAmount) &&
-                            <InfoMessage
-                                alertProps={{ w: 'full' }}
-                                description="Payout amount is null with current conditions and parameters"
-                            />
-                        }
+                        parseFloat(amount) > 0 && !parseFloat(receiveAmount) ?
+                        <InfoMessage
+                            alertProps={{ w: 'full' }}
+                            description="Payout amount is null with current conditions and parameters"
+                        />
+                         :
+                         <InfoMessage
+                            alertProps={{ w: 'full' }}
+                            description={`Vesting will be complete on ${moment(vestingCompleteDate).format('MMM Do YYYY, hh:mm a')}`}
+                        />
+                    }
                     <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
                         <Text fontWeight="bold">
                             Estimated INV amount to receive:

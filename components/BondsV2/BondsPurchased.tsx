@@ -55,7 +55,7 @@ export const BondsPurchased = () => {
                         :
                         <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
                             <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">
-                                <Flex w="180px" alignItems="center">
+                                <Flex w="200px" alignItems="center">
                                     <Text>
                                         Bond Name
                                     </Text>

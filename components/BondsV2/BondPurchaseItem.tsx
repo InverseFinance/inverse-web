@@ -15,7 +15,7 @@ export const BondPurchaseItem = ({ bond, bondIndex, handleDetails }: { bond: Use
             borderTop={{ base: bondIndex > 0 ? `1px solid #cccccc33` : 'none', sm: `1px solid #cccccc33` }}
             pt={{ base: bondIndex > 0 ? '2' : '0', sm: '2' }}
             direction="row" w='full' justify="space-between" fontWeight="bold">
-            <Flex w="180px" alignItems="center" position="relative">
+            <Flex w="200px" alignItems="center" position="relative">
                 {/* <Link textTransform="uppercase" textDecoration="none" isExternal href={bond.howToGetLink}> */}
                 <VStack alignItems="flex-start" textTransform="uppercase">
                     {/* <UnderlyingItem Container={HStack} label={bond.underlying.symbol} imgSize={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage}
