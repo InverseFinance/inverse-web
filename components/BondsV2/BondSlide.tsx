@@ -72,12 +72,12 @@ export const BondSlide = ({
 
     const handleDeposit = () => {
         if (!library?.getSigner() || !userAddress) { return }
-        return bondV2Deposit(bond, library?.getSigner(), amount, maxSlippage, account);
+        return bondV2Deposit(bond, library?.getSigner(), amount, maxSlippage, receiveAmount, account);
     }
 
     const now = timestampToUTC(Date.now());
     const split = now.split('-');
-    const vestingCompleteDate = Date.UTC(parseInt(split[0]), parseInt(split[1])-1, parseInt(split[2]) + bond.vestingDays, 0);
+    const vestingCompleteDate = Date.UTC(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]) + bond.vestingDays, 0);
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
         <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
@@ -97,7 +97,7 @@ export const BondSlide = ({
                 <HStack w='full' justify="space-between" fontWeight="bold">
                     <HStack>
                         <MarketImage size={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
-                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Purchase</Text>
+                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
                     </HStack>
                     <Text>=></Text>
                     <Flex alignItems="center">
@@ -181,7 +181,7 @@ export const BondSlide = ({
                         <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
                             {
                                 !isApproved ?
-                                    <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={isApproved || (!library?.getSigner())} />
+                                    <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!library?.getSigner())} />
                                     :
                                     <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount)} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Purchase
@@ -193,15 +193,10 @@ export const BondSlide = ({
                         <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
                     </HStack>
                     {
-                        parseFloat(amount) > 0 && !parseFloat(receiveAmount) ?
+                        parseFloat(amount) > 0 && !parseFloat(receiveAmount) &&
                         <InfoMessage
                             alertProps={{ w: 'full' }}
                             description="Payout amount is null with current conditions and parameters"
-                        />
-                         :
-                         <InfoMessage
-                            alertProps={{ w: 'full' }}
-                            description={`Vesting will be complete on ${moment(vestingCompleteDate).format('MMM Do YYYY, hh:mm a')}`}
                         />
                     }
                     <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
@@ -212,6 +207,10 @@ export const BondSlide = ({
                             {shortenNumber(parseFloat(receiveAmount), 4)}
                         </Text>
                     </HStack>
+                    <InfoMessage
+                        alertProps={{ w: 'full' }}
+                        description={`Vesting will be complete on ${moment(vestingCompleteDate).format('MMM Do YYYY, hh:mm a')}`}
+                    />
                 </VStack>
             </VStack>
         </VStack>

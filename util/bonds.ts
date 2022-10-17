@@ -18,16 +18,16 @@ export const bondV2Deposit = (
     signer: JsonRpcSigner,
     amount: string,
     maxSlippagePerc: number,
+    payout: number | string,
     recipient: string,
 ) => {
     const contract = getBondV2FixedTellerContract(bond.teller, signer);
 
-    const minAmount = parseFloat(amount) - maxSlippagePerc / 100 * parseFloat(amount);
+    const minAmountOut = parseFloat(payout) - maxSlippagePerc / 100 * parseFloat(payout);
 
     const amountUint = parseUnits(amount, bond.underlying.decimals);
-    const minAmountUint = parseUnits(minAmount.toFixed(bond.underlying.decimals), bond.underlying.decimals);
-    
-    return contract.purchase(recipient, BOND_V2_REFERRER, bond.id, amountUint, minAmountUint);
+    const minAmountOutUint = parseUnits(minAmountOut.toFixed(18), 18);
+    return contract.purchase(recipient, BOND_V2_REFERRER, bond.id, amountUint, minAmountOutUint);
 }
 
 export const bondV2Redeem = async (
