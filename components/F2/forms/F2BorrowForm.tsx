@@ -86,7 +86,7 @@ export const F2BorrowForm = ({
             _after: {
                 content: '""',
                 position: 'absolute',
-                backgroundImage: `url('/assets/f2/${isBorrow ? 'up-arrow' : 'down-arrow'}.svg')`,
+                backgroundImage: `url('/assets/firm/${isBorrow ? 'up-arrow' : 'down-arrow'}.svg')`,
                 backgroundPosition: '50% 25%',
                 backgroundSize: '100px',
                 backgroundRepeat: 'no-repeat',

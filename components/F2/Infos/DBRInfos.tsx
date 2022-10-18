@@ -6,7 +6,7 @@ export const DBRInfos = () => {
             What is DBR?
         </Text>
         <VStack w='full' bgColor="white" p="2" borderRadius="50px">
-            <Image src="/assets/f2/jogging-dbr.svg" w="full" h="100px" />
+            <Image src="/assets/firm/jogging-dbr.svg" w="full" h="100px" />
         </VStack>
         <Text textAlign="left">
             - DBR is like the <b>Stamina</b> you need to run a marathon.

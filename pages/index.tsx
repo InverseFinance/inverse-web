@@ -132,7 +132,7 @@ export const Landing = () => {
           </Flex>
           <Flex pt="4">
             <Flex w={32} m={2}>
-              <LinkButton flexProps={{ bgColor: 'primaryPlus' }} data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/f2/WETH">
+              <LinkButton flexProps={{ bgColor: 'primaryPlus' }} data-testid={TEST_IDS.landing.enterBtn} target="_self" href="/firm/WETH">
                 Enter App
               </LinkButton>
             </Flex>

@@ -74,7 +74,7 @@ export const F2CollateralForm = ({
             _after: {
                 content: '""',
                 position: 'absolute',
-                backgroundImage: `url('/assets/f2/${isDeposit ? 'down-arrow' : 'up-arrow'}.svg')`,
+                backgroundImage: `url('/assets/firm/${isDeposit ? 'down-arrow' : 'up-arrow'}.svg')`,
                 backgroundPosition: '50% 25%',
                 backgroundSize: '100px',
                 backgroundRepeat: 'no-repeat',
@@ -84,7 +84,7 @@ export const F2CollateralForm = ({
                 filter: 'hue-rotate(20deg)'
             },
         }}
-        image={<BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
+        image={<BigImageButton bg={`url('/assets/firm/markets/${f2market.name}.png')`} h="50px" w="80px" />}
         right={
             (deposits > 0 || !isDeposit) && <Text
                 mt={{ base: '2', sm: '0' }}

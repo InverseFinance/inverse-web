@@ -21,6 +21,9 @@ import { MarketInfos } from '@app/components/F2/Infos/MarketInfos'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal'
 import { useAccount } from '@app/hooks/misc'
+import { DBRInfos } from '@app/components/F2/Infos/DBRInfos'
+import { DBRShortDescription } from '@app/components/F2/Infos/DBRShortDescription'
+import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -58,7 +61,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
                         <SimmpleBreadcrumbs
                             breadcrumbs={[
-                                { label: 'F2', href: '/f2' },
+                                { label: 'FiRM', href: '/firm' },
                                 { label: `${f2market?.name || market} Market`, href: '#' },
                             ]}
                         />
@@ -119,6 +122,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     <F2CombinedForm
                                         {...combinedFormProps}
                                     />
+                                    {/* <DBRShortDescription /> */}
+                                    <FirmFAQ />
                                     {/* <MarketInfos account={account} market={f2market} /> */}
                                 </VStack>
 
@@ -145,7 +150,7 @@ export async function getStaticPaths() {
         return { paths: [], fallback: true }
     }
     return {
-        paths: F2_MARKETS.map(m => `/f2/${m.name}`),
+        paths: F2_MARKETS.map(m => `/firm/${m.name}`),
         fallback: true,
     }
 }

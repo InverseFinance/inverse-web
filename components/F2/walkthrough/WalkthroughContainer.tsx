@@ -143,7 +143,7 @@ export const F2Walkthrough = ({
         // label={`${market.name} Market`}
         // description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
         // href="https://docs.inverse.finance/inverse-finance/about-inverse"
-        // image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/f2/markets/${market.name}.png')`} h="50px" w="80px" />}
+        // image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/firm/markets/${market.name}.png')`} h="50px" w="80px" />}
         w='full'
         contentProps={{ bg: 'transparent', boxShadow: 'none', p: '0' }}
         {...props}

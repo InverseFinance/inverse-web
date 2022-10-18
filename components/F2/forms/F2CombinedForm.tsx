@@ -387,7 +387,7 @@ export const F2CombinedForm = ({
             label={`${f2market.name} Market`}
             description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
             href="https://docs.inverse.finance/inverse-finance/about-inverse"
-            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/f2/markets/${f2market.name}.png')`} h="50px" w="80px" />}
+            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/firm/markets/${f2market.name}.png')`} h="50px" w="80px" />}
             // right={
             //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
             // }

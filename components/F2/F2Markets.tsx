@@ -28,7 +28,7 @@ const columns = [
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name }) => {
             return <Cell minWidth="130px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('/assets/f2/markets/${name}.png')`} h="37px" w="60px" />
+                <BigImageButton bg={`url('/assets/firm/markets/${name}.png')`} h="37px" w="60px" />
                 <CellText>{name}</CellText>
             </Cell>
         },
@@ -155,12 +155,12 @@ export const F2Markets = ({
     const router = useRouter();
 
     const openMarket = (market: any) => {
-        router.push(debt > 0 ? `/f2/${market.name}` : `/f2/walkthrough/${market.name}#step1`)
+        router.push(debt > 0 ? `/firm/${market.name}` : `/firm/walkthrough/${market.name}#step1`)
     }
 
     return <Container
-        label="MarketsV2 - BETA"
-        description="Read more about Inverse's Fixed Rate Markets"
+        label="FiRM - BETA"
+        description="Read more about Inverse's Fixed-Rate Markets"
         href="https://docs.inverse.finance/"
         image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}

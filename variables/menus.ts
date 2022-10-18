@@ -2,15 +2,15 @@ export const MENUS = {
   "nav": [
     {
       label: 'Borrow',
-      href: '/f2',
+      href: '/firm',
       submenus: [
         {
-          label: 'Fixed Rate Markets',
-          href: '/f2',
+          label: 'FiRM',
+          href: '/firm',
         },
         {
           label: 'WETH Market',
-          href: '/f2/',
+          href: '/firm/WETH',
         },
         {
           label: 'Frontier (deprecated)',
@@ -217,7 +217,7 @@ export const MENUS = {
       items: [
         {
           label: 'Fixed Markets',
-          href: '/f2',
+          href: '/firm',
         },
         {
           label: 'Tokens',

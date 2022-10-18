@@ -1,6 +1,6 @@
 import { HStack, Text } from "@chakra-ui/react"
 
-const STEPS = ['1 Deposit', '2 Duration', '3 Borrow', '4 Recap'];
+const STEPS = ['Deposit', 'Duration', 'Borrow', 'Recap'];
 
 export const StepsBar = ({
     step,

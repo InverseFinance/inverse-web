@@ -299,7 +299,7 @@ export const F2FormInfos = (props) => {
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={type}
-            options={['Recap', 'Position Details', 'DBR Details', 'Market Details']}
+            options={['Recap', 'Summary', 'Position Details', 'DBR Details', 'Market Details']}
             onClick={(v) => setType(v)}
         />
         {

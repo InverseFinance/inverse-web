@@ -21,7 +21,7 @@ export const F2HealthInfosModal = ({
                 Price dips can damage your Collateral Health!
             </Text>
             <VStack w='full' bgColor="white" p="2" borderRadius="50px">
-                <Image src="/assets/f2/health.svg" w="full" h="100px" />
+                <Image src="/assets/firm/health.svg" w="full" h="100px" />
             </VStack>
             <Text textAlign="left">
                 - The Higher the Health the lesser is the chance of liquidations.

@@ -54,7 +54,7 @@ export async function getStaticPaths() {
         return { paths: [], fallback: true }
     }
     return {
-        paths: F2_MARKETS.map(m => `/f2/${m.name}`),
+        paths: F2_MARKETS.map(m => `/firm/${m.name}`),
         fallback: true,
     }
 }

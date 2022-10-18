@@ -33,7 +33,7 @@ export const MarketInfos = ({
         description={'See Contract'}
         href={`${getScanner(CHAIN_ID)}/address/${market.address}`}
         contentBgColor={'infoAlpha'}
-        image={<BigImageButton bg={`url('/assets/f2/markets/${market.name}.png')`} h="50px" w="80px" />}
+        image={<BigImageButton bg={`url('/assets/firm/markets/${market.name}.png')`} h="50px" w="80px" />}
         w='full'
         {...props}
     >

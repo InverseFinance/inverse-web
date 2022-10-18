@@ -115,7 +115,7 @@ export const F2Header = ({
               // onClick={() => router.push('https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit')}
               onClick={() => onIntroOpen()}
               bg="url('/assets/stake-inv.png')"
-              title="MarketsV2 & DBR"
+              title="FiRM & DBR"
               subtitle={`Learn More`}
             />
             <AnchorBigButton

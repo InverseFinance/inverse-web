@@ -9,6 +9,7 @@ import { F2Markets } from '@app/components/F2/F2Markets'
 import { useAccount } from '@app/hooks/misc'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { useAccountDBR } from '@app/hooks/useDBR'
+import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 
 export const F2PAGE = () => {
     const account = useAccount();
@@ -18,26 +19,16 @@ export const F2PAGE = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - F2</title>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM FAQ</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="Fixed Rate Markets" />
+            <AppNav active="Borrow" activeSubmenu="FiRM" />
             <F2DbrInfosModal
                 onClose={onDbrClose}
                 isOpen={isDbrOpen}
             />
             <ErrorBoundary>
-                <VStack w='full' maxW="84rem">
-                    <ErrorBoundary description="Failed to load header"><F2Header /></ErrorBoundary>
-                    {
-                        !!account && debt > 0 && <ErrorBoundary description="Failed to load Dbr Health">
-                            <VStack px='6' w='full'>
-                                <DbrHealth account={account} onModalOpen={onDbrOpen} />
-                            </VStack>
-                        </ErrorBoundary>
-                    }
-                    <ErrorBoundary description="Failed to Markets">
-                        <F2Markets />
-                    </ErrorBoundary>
+                <VStack w='full' maxW="64rem" mt="4">
+                    <FirmFAQ />
                 </VStack>
             </ErrorBoundary>
         </Layout>
