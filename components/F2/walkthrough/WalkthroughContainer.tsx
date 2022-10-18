@@ -1,4 +1,4 @@
-import { VStack, useMediaQuery, FlexProps, Progress, Text } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -7,7 +7,6 @@ import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useState } from 'react'
-import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
 
@@ -22,6 +21,7 @@ import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
 import { MarketsV2Hero } from '../Infos/MarketsV2Hero'
 import { StepsBar } from './StepsBar'
+import { FirmFAQ } from '../Infos/FirmFAQ'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -212,6 +212,8 @@ export const F2Walkthrough = ({
                     {
                         step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
                     }
+                    <Divider borderColor="#cccccc66" />
+                    <FirmFAQ collapsable={true} defaultCollapse={true} />
                 </VStack>
             }
         </F2MarketContext.Provider>

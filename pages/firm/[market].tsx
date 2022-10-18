@@ -1,4 +1,3 @@
-import { SimmpleBreadcrumbs } from '@app/components/common/Breadcrumbs'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 
@@ -15,15 +14,12 @@ import { CreditLimitBar } from '@app/components/F2/bars/CreditLimitBar'
 import { F2CollateralForm } from '@app/components/F2/forms/F2CollateralForm'
 import { F2BorrowForm } from '@app/components/F2/forms/F2BorrowForm'
 import { useState } from 'react'
-import { SettingsIcon } from '@chakra-ui/icons'
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
-import { MarketInfos } from '@app/components/F2/Infos/MarketInfos'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal'
 import { useAccount } from '@app/hooks/misc'
-import { DBRInfos } from '@app/components/F2/Infos/DBRInfos'
-import { DBRShortDescription } from '@app/components/F2/Infos/DBRShortDescription'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
+import { MarketBar } from '@app/components/F2/Infos/MarketBar'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -57,14 +53,14 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <VStack w='full' maxW={isAdvancedMode ? '84rem' : '1300px'} alignItems="flex-start" p="8" spacing="8">
+                <VStack w='full' maxW={isAdvancedMode ? '84rem' : '1300px'} alignItems="flex-start" px={{ base: '2', lg: '8' }} pb="8" spacing="8">
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
-                        <SimmpleBreadcrumbs
+                        {/* <SimmpleBreadcrumbs
                             breadcrumbs={[
                                 { label: 'FiRM', href: '/firm' },
                                 { label: `${f2market?.name || market} Market`, href: '#' },
                             ]}
-                        />
+                        /> */}
                         {/* <HStack onClick={() => setIsAdvancedMode(!isAdvancedMode)} color="mainTextColor" _hover={{ color: 'accentTextColor' }}>
                             <Text
                                 cursor="pointer"
@@ -114,16 +110,17 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                 </>
                                 :
                                 <VStack
-                                    alignItems="flex-start"
+                                    alignItems="center"
                                     w='full'
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
                                 >
+                                    <MarketBar market={f2market} isExtended={true} />
                                     <F2CombinedForm
                                         {...combinedFormProps}
                                     />
                                     {/* <DBRShortDescription /> */}
-                                    <FirmFAQ />
+                                    <FirmFAQ collapsable={true} defaultCollapse={true}  />
                                     {/* <MarketInfos account={account} market={f2market} /> */}
                                 </VStack>
 

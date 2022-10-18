@@ -307,7 +307,7 @@ export const F2CombinedForm = ({
     const durationPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> to cover in DBR purchases:</Text>
+                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> to cover:</Text>
             </TextInfo>
             <F2DurationInput
                 onChange={handleDurationChange}
@@ -384,10 +384,10 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             p="0"
-            label={`${f2market.name} Market`}
-            description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
-            href="https://docs.inverse.finance/inverse-finance/about-inverse"
-            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/firm/markets/${f2market.name}.png')`} h="50px" w="80px" />}
+            // label={`${f2market.name} Market`}
+            // description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
+            // href="https://docs.inverse.finance/inverse-finance/about-inverse"
+            // image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/firm/markets/${f2market.name}.png')`} h="50px" w="80px" />}
             // right={
             //     <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />
             // }
@@ -444,13 +444,14 @@ export const F2CombinedForm = ({
             contentProps={{ minH: syncedMinH, id: 'f2-recap-container' }}
             p="0"
             // pt="51px"
-            label={'Recap & Details'}
-            description={`DBR's current price is the current Fixed APR - Learn More `}
-            href="https://docs.inverse.finance/inverse-finance/about-inverse"
-            image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
+            // label={'Recap & Details'}
+            // description={`DBR's current price is the current Fixed APR - Learn More `}
+            // href="https://docs.inverse.finance/inverse-finance/about-inverse"
+            // image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
         >
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
+                    mode={mode}
                     newPerc={newPerc}
                     riskColor={riskColor}
                     isFormFilled={isFormFilled}
