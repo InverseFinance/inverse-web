@@ -1,4 +1,4 @@
-import { VStack, useMediaQuery, FlexProps } from '@chakra-ui/react'
+import { VStack, useMediaQuery, FlexProps, Divider } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -184,7 +184,7 @@ export const F2Walkthrough = ({
             newDBRExpiryDate,
         }}>
             {
-                !!market && <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="flex-start" spacing="6">
+                !!market && <VStack justify="space-between" position="relative" w='full' px='2%' pb="2" alignItems="flex-start" spacing="6">
                     {/* {
                         step > 0 && <VStack w='full'>
                             <Text>Step {step} / 4</Text>

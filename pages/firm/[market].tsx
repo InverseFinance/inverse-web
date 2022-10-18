@@ -115,7 +115,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
                                 >
-                                    <MarketBar market={f2market} isExtended={true} />
+                                    <MarketBar market={f2market} isExtended={true} isWalkthrough={false} />
                                     <F2CombinedForm
                                         {...combinedFormProps}
                                     />

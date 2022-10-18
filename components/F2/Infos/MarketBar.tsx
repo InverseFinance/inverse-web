@@ -8,9 +8,11 @@ import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery } f
 export const MarketBar = ({
     market,
     isExtended = false,
+    isWalkthrough = false,
     ...props
 }: {
-    isExtended: boolean
+    isExtended?: boolean
+    isWalkthrough?: boolean
     market: F2Market
 }) => {
     const { price: dbrPrice } = useDBRPrice();
@@ -66,7 +68,7 @@ export const MarketBar = ({
                 <FormLabel display="inline-block" color="mainTextColor" cursor="pointer" htmlFor='walkthrough-mode' mb='0'>
                     Walkthrough
                 </FormLabel>
-                <Switch isChecked={true} onChange={() => alert('Switch Feature available soon')} id='walkthrough-mode' />
+                <Switch isChecked={isWalkthrough} onChange={() => alert('Switch Feature available soon')} id='walkthrough-mode' />
             </FormControl>
         </HStack>
     </HStack>

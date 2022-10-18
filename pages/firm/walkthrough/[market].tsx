@@ -21,8 +21,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary>
                 <VStack pt="8" w='full' alignItems="center" px={{ base: '2', lg: '8' }} spacing="0">
-                    <MarketBar market={f2market} maxW='700px' alignItems="center" px="2" />
-                    <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" py="8" spacing="8">
+                    <MarketBar market={f2market} isWalkthrough={true} maxW='700px' alignItems="center" px="3" pt='0' />
+                    <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="8" spacing="8">
                         {
                             !f2market ? <Text>Market not found</Text>
                                 : <F2Walkthrough market={f2market} />
