@@ -46,7 +46,7 @@ export const F2WalkthroughDuration = ({
                     py: { base: '20px', md: '30px', lg: '40px' }
                 }}
             />
-            <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
+            {/* <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} /> */}
             <InfoMessage
                 alertProps={{ w: 'full' }}
                 description={
