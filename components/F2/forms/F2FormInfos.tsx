@@ -47,7 +47,7 @@ const Infos = ({ infos }: { infos: [Data, Data] }) => {
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
-    return <VStack spacing="0" w='full' h='350px'>
+    return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
                 return <Infos key={infos[0].title} infos={infos} />
@@ -84,6 +84,7 @@ export const F2FormInfos = (props) => {
         maxBorrowable,
         durationType,
         durationTypedValue,
+        mode,
         onHealthOpen = () => { },
         onDbrOpen = () => { },
     } = props;
@@ -100,7 +101,7 @@ export const F2FormInfos = (props) => {
         };
     }, []);
 
-    const [type, setType] = useState('Recap');
+    const [type, setType] = useState('Summary');
 
     const newDbrBalance = dbrBalance + (isAutoDBR ? isDeposit ? dbrCover : -dbrCover : 0);
 
@@ -261,14 +262,16 @@ export const F2FormInfos = (props) => {
                 color: newDeposits > 0 ? riskColor : undefined,
             },
         ],
-    ]
+    ];
 
     const keyInfos = [
         positionInfos[0],
-        dbrInfos[2],
         [positionInfos[2][0], dbrInfos[3][1]],
         positionInfos[3],
-    ]
+    ];
+    if(isAutoDBR && isDeposit && ['Deposit & Borrow', 'Borrow'].includes(mode)){
+        keyInfos.splice(1, 0, dbrInfos[2]);
+    }
 
     const lists = {
         'Summary': keyInfos,
@@ -299,7 +302,7 @@ export const F2FormInfos = (props) => {
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={type}
-            options={['Recap', 'Summary', 'Position Details', 'DBR Details', 'Market Details']}
+            options={['Summary', 'Position Details', 'DBR Details', 'Market Details']}
             onClick={(v) => setType(v)}
         />
         {
