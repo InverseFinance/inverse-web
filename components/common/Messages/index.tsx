@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex, useMediaQuery, AlertDescriptionProps, AlertTitleProps } from '@chakra-ui/react'
 import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@app/components/common/Animation'
-import { WarningIcon } from '@chakra-ui/icons';
+import { InfoIcon, WarningIcon } from '@chakra-ui/icons';
 
 type MessageProps = {
     status: AlertProps["status"],
@@ -17,7 +17,7 @@ type MessageProps = {
 }
 
 const statusAnims = {
-    info: InfoAnimIcon,
+    info: InfoIcon,
     success: SuccessAnimIcon,
     warning: WarningAnimIcon,
     error: ErrorAnimIcon,
@@ -30,11 +30,13 @@ export const StatusMessage = ({ title, description, status = 'info', iconStatus 
         ...alertProps,
     };
     const IconComp = statusAnims[iconStatus || status];
+    const icon = status === 'info' ? <IconComp color="blue.500" mr="4" />
+    : <IconComp boxProps={{ mr: '4' }} />
     return <Message status={status}
         title={title}
         showIcon={showIcon}
         description={description}
-        icon={<IconComp boxProps={{ mr: '2' }} />}
+        icon={icon}
         variant="solid"
         alertTitleProps={alertTitleProps}
         alertDescriptionProps={alertDescriptionProps}
