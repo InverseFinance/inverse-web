@@ -1,19 +1,16 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
-import { SubmitButton } from "@app/components/common/Button"
-import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
+import { VStack, Text, HStack } from "@chakra-ui/react"
 import { parseEther } from "@ethersproject/units"
-import { useContext, useEffect } from "react"
-import { F2FormInfos } from "../forms/F2FormInfos"
+import { useContext } from "react"
 import { F2MarketContext } from "./WalkthroughContainer"
 import { InfoMessage } from "@app/components/common/Messages"
-import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { StepNavBtn } from "./StepNavBtn"
 import { useAppTheme } from "@app/hooks/useAppTheme"
+import { shortenNumber } from "@app/util/markets"
 
 export const F2WalkthroughDebt = ({
     onStepChange,
@@ -29,11 +26,7 @@ export const F2WalkthroughDebt = ({
         signer,
         colDecimals,
         isDeposit,
-        debt,
-        newDebt,
-        dbrCoverDebt,
-        duration,
-        riskColor,
+        dolaLiquidity,
         newCreditLimit,
         bnDolaLiquidity,
         newPerc,
@@ -45,6 +38,8 @@ export const F2WalkthroughDebt = ({
         newCreditLeft,
         maxBorrowable,
     } = useContext(F2MarketContext);
+
+    const isDisabled = (debtAmount > dolaLiquidity && dolaLiquidity > 1) || (dolaLiquidity <= 1)
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
@@ -87,12 +82,34 @@ export const F2WalkthroughDebt = ({
                     }
                 />
             }
+            {
+                debtAmount > dolaLiquidity && dolaLiquidity > 1  &&
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description={
+                        <VStack w='full' alignItems="flex-start" spaing="0">
+                            <Text>There's only {shortenNumber(dolaLiquidity, 2)} DOLA liquidity available</Text>                            
+                        </VStack>
+                    }
+                />
+            }
+            {
+                dolaLiquidity <= 1  &&
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description={
+                        <VStack w='full' alignItems="flex-start" spaing="0">
+                            <Text>There's no DOLA liquidity at the moment</Text>
+                        </VStack>
+                    }
+                />
+            }
         </VStack>
         <HStack w='full' justify="space-between" pt="4">
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={newPerc < 1 || !debtAmount}>
+            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={newPerc < 1 || !debtAmount || isDisabled}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>
