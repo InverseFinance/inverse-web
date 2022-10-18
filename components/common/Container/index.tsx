@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex, FlexProps, ScaleFade, Stack, Text } from '@chakra-ui/react'
 import Link from '@app/components/common/Link'
 import { NotifBadge } from '../NotifBadge'
@@ -16,6 +16,7 @@ export const Container = ({
   contentBgColor,
   contentProps,
   collapsable = false,
+  defaultCollapse = false,
   headerProps,
   ...props
 }: Partial<Omit<FlexProps, "right">> & {
@@ -30,15 +31,16 @@ export const Container = ({
   contentProps?: FlexProps
   children?: React.ReactNode
   collapsable?: boolean,
+  defaultCollapse?: boolean,
   headerProps?: FlexProps
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(defaultCollapse);
   const [showImage, setShowImage] = useState(!!image);
   const title = (
     <Flex cursor={collapsable ? 'pointer' : undefined} onClick={collapsable ? () => setCollapsed(!collapsed) : undefined} position="relative" w="fit-content">
       {typeof label === 'string' ? (
         <Text as="h3" fontSize="xl" fontWeight="bold" position="relative">
-          {label}
+          {label}{collapsable ? collapsed ? <ChevronRightIcon /> : <ChevronDownIcon /> : null}
         </Text>
       ) : (
         label
