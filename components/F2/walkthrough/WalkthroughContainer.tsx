@@ -1,4 +1,4 @@
-import { VStack, FlexProps, Divider } from '@chakra-ui/react'
+import { VStack, FlexProps } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
@@ -12,7 +12,6 @@ import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
 import { MarketsV2Hero } from '../Infos/MarketsV2Hero'
 import { StepsBar } from './StepsBar'
-import { FirmFAQ } from '../Infos/FirmFAQ'
 import { F2MarketContext } from '../F2Contex'
 
 export const F2Walkthrough = ({
@@ -69,8 +68,6 @@ export const F2Walkthrough = ({
                 {
                     step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
                 }
-                <Divider borderColor="#cccccc66" />
-                <FirmFAQ collapsable={true} defaultCollapse={true} />
             </VStack>
         }
     </Container>

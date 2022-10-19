@@ -4,12 +4,12 @@ import { AppNav } from '@app/components/common/Navbar'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { HStack, Stack, VStack, Text, useDisclosure } from '@chakra-ui/react'
+import { HStack, Stack, VStack, Text, useDisclosure, Divider } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { DbrHealth } from '@app/components/F2/bars/DbrHealth'
 import { useWeb3React } from '@web3-react/core'
-import { Web3Provider } from '@ethersproject/providers'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { CreditLimitBar } from '@app/components/F2/bars/CreditLimitBar'
 import { F2CollateralForm } from '@app/components/F2/forms/F2CollateralForm'
 import { F2BorrowForm } from '@app/components/F2/forms/F2BorrowForm'
@@ -20,13 +20,17 @@ import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal
 import { useAccount } from '@app/hooks/misc'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import { MarketBar } from '@app/components/F2/Infos/MarketBar'
+import { F2Market } from '@app/types'
+import React from 'react'
+import { F2Context } from '@app/components/F2/F2Contex'
+import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const [newCollateralAmount, setNewCollateralAmount] = useState(0);
     const [newDebtAmount, setNewDebtAmount] = useState(0);
-    const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+    const [isWalkthrough, setIsWalkthrough] = useState(false);
     const { library } = useWeb3React<Web3Provider>();
     const account = useAccount();
     const { markets } = useDBRMarkets(market);
@@ -53,79 +57,51 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <VStack w='full' maxW={isAdvancedMode ? '84rem' : '1300px'} alignItems="flex-start" px={{ base: '2', lg: '8' }} pb="8" spacing="8">
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
-                        {/* <SimmpleBreadcrumbs
-                            breadcrumbs={[
-                                { label: 'FiRM', href: '/firm' },
-                                { label: `${f2market?.name || market} Market`, href: '#' },
-                            ]}
-                        /> */}
-                        {/* <HStack onClick={() => setIsAdvancedMode(!isAdvancedMode)} color="mainTextColor" _hover={{ color: 'accentTextColor' }}>
-                            <Text
-                                cursor="pointer"
-                                fontWeight="bold"
-                                color="inherit"
-                                _hover={{ color: 'accentTextColor' }}>
-                                Switch to {isAdvancedMode ? 'Simple' : 'Advanced'} Mode
-                            </Text>
-                            <SettingsIcon cursor="pointer" />
-                        </HStack> */}
-                    </Stack>
-
-                    {
-                        !f2market ? <Text>Market not found</Text>
-                            : isAdvancedMode ?
-                                <>
-                                    <Stack
-                                        alignItems="flex-start"
-                                        w='full'
-                                        direction={{ base: 'column', lg: 'row' }}
-                                        spacing="12"
-                                    >
-                                        <VStack w='full' spacing="4">
-                                            <F2CollateralForm
-                                                signer={library?.getSigner()}
-                                                f2market={f2market}
-                                                account={account}
-                                                onAmountChange={(floatAmount) => setNewCollateralAmount(floatAmount)}
-                                            />
-                                            <ErrorBoundary description="Failed to load Dbr Health">
-                                                <CreditLimitBar account={account} market={f2market} amountDelta={newCollateralAmount} debtDelta={newDebtAmount} onModalOpen={onHealthOpen} />
-                                            </ErrorBoundary>
-                                        </VStack>
-                                        <VStack w='full' spacing="4">
-                                            <F2BorrowForm
-                                                signer={library?.getSigner()}
-                                                f2market={f2market}
-                                                account={account}
-                                                onAmountChange={(floatAmount) => setNewDebtAmount(floatAmount)}
-                                                switchToSimpleMode={() => setIsAdvancedMode(false)}
-                                            />
-                                            <ErrorBoundary description="Failed to load Dbr Health">
-                                                <DbrHealth account={account} debtDelta={newDebtAmount} onModalOpen={onDbrOpen} />
-                                            </ErrorBoundary>
-                                        </VStack>
-                                    </Stack>
-                                </>
+                <F2Context market={f2market}>
+                    <VStack
+                        pt="5"
+                        w='full'
+                        maxW={isWalkthrough ? '700px' : 'full'}
+                        transitionProperty="width"
+                        transition="ease-in-out"
+                        transitionDuration="200ms"
+                        alignItems="center"
+                        px={{ base: '2', lg: '8' }}
+                        spacing="5"
+                    >
+                        <MarketBar
+                            market={f2market}
+                            isWalkthrough={isWalkthrough}
+                            setIsWalkthrough={setIsWalkthrough}
+                            w='full'
+                            h="64px"
+                            overflow="hidden"
+                            alignItems="center"
+                            pt='0'
+                        />
+                        {
+                            !f2market ? 
+                                <Text>Market not found</Text>
                                 :
-                                <VStack
+                                isWalkthrough ?
+                                <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="8" spacing="8">
+                                <F2Walkthrough market={f2market} />
+                            </VStack>
+                            :
+                            <VStack
                                     alignItems="center"
                                     w='full'
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
-                                >
-                                    <MarketBar market={f2market} isExtended={true} isWalkthrough={false} />
+                                >                                    
                                     <F2CombinedForm
                                         {...combinedFormProps}
-                                    />
-                                    {/* <DBRShortDescription /> */}
-                                    <FirmFAQ collapsable={true} defaultCollapse={true}  />
-                                    {/* <MarketInfos account={account} market={f2market} /> */}
+                                    />                                                                        
                                 </VStack>
-
-                    }
-                </VStack>
+                        }                        
+                        <FirmFAQ collapsable={true} defaultCollapse={true} />
+                    </VStack>
+                </F2Context>
             </ErrorBoundary>
         </Layout>
     )
