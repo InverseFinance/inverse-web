@@ -7,35 +7,43 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
             [
                 {
                     title: 'What is FiRM?',
-                    body: `FiRM is a new Fixed-Rate Market for borrowing DOLA thanks to DBR tokens and is focused on simplicity and safety. All markets are isolated and collaterals cannot be borrowed by others.`
+                    body: `FiRM is a new Fixed-Rate Market for borrowing DOLA using DBR tokens and it is focused on simplicity and safety. All markets are isolated and collateral cannot be borrowed by others.`
+                },
+                {
+                    title: 'How safe is FiRM?',
+                    body: `FiRM does not have shared collateral pools like traditional DeFi markets. FiRM uses Personal Collateral Escrows which ensures that deposits are not only isolated per collateral but also per user. FiRM also has flash loan protection and a limited amount of borrowable DOLA per market. FiRM has been audited by Code4arena.`
                 },
                 {
                     title: 'What is DBR?',
-                    body: `DBR is a token that serves as a Borrowing Right for the DOLA stablecoin`
+                    body: `DBR is a Borrowing Rights token. Holding it in your wallet gives you the right to borrow the DOLA stablecoin in FiRM.`
+                },
+                {
+                    title: 'What is DOLA?',
+                    body: 'DOLA is a stablecoin pegged to the US Dollar. This means it is designed to be valued as close to $1 as possible with minimal volatility. DOLA is debt-backed rather than algorithmic, meaning that DOLA is backed by retractable debt.',
                 },
                 {
                     title: 'How much can I borrow with one DBR?',
-                    body: `One DBR gives the right to borrow one DOLA for year (or 2 DOLA for 6 months, etc). This is assuming you have enough collateral deposited.`
+                    body: `One DBR gives the right to borrow 1 DOLA for 1 year (or 2 DOLA for 6 months, etc). This is assuming you have deposited enough collateral.`
                 },
                 {
                     title: 'Is DBR an ERC20 token?',
-                    body: `Yes but not a standard one: the balance decreases over time when having a loan`
+                    body: `Yes but not a standard one: your DBR wallet balance will decrease over time when you have an open loan position.`
                 },
                 {
                     title: 'How can I get DBR tokens?',
-                    body: `You can get DBRs automatically when using the auto-buy or walkthrough feature, DBRs are also available on uniswap.`
+                    body: `You can get DBRs as a part of the borrowing transaction when using the auto-buy or walkthrough feature. DBR is also available on sushiswap.`
                 },
                 {
                     title: 'Do I need to stake DBR?',
-                    body: `No, DBRs should stay in your wallet when you have a loan`
+                    body: `No, DBRs should stay in your wallet to pay the fee when you have a loan. Your DBR wallet balance will decrease only if you have a DOLA loan in FiRM.`
                 },
                 {
                     title: 'Why does my DBR balance decreases?',
-                    body: `DBRs are "burned" over time when you have a loan, the burn rate depends on your amount of debt. If you don't have a loan balance does not decrease.`
+                    body: `DBRs are "spent" over time when you have a loan, the rate depends on your amount of debt. If you don't have a loan the balance does not decrease.`
                 },
                 {
                     title: 'What happens if I run out of DBRs?',
-                    body: `If you have a DBR deficit and an active loan then someone can top-up your DBR balance with a higher price than the DBR market price, the cost of this forced top-up is added to your debt which can lead to liquidations if too high, so it is recommended that you top-up DBR yourself.`
+                    body: `If you have a DBR deficit and an active loan then someone can top-up your DBR balance, purchasing DBR at a higher price than the current DBR market price. The cost of this forced top-up is added to your debt which can lead to liquidations if left unchecked, so it is recommended that you top up your DBR wallet balance yourself before it runs out.`
                 },
             ]
         }
