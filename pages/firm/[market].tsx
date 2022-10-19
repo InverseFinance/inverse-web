@@ -61,7 +61,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                     <VStack
                         pt="5"
                         w='full'
-                        maxW={isWalkthrough ? '700px' : 'full'}
+                        maxW={isWalkthrough ? '750px' : 'full'}
                         transitionProperty="width"
                         transition="ease-in-out"
                         transitionDuration="200ms"
