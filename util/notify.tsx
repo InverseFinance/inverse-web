@@ -1,11 +1,10 @@
 import { UseToastOptions, createStandaloneToast } from '@chakra-ui/react'
 import { ToastId } from '@chakra-ui/react';
 import { Notification } from '@app/components/common/Notification';
-import theme from '@app/variables/theme';
 import { CustomToastOptions } from '@app/types';
 import { capitalize } from './misc';
 
-const toast = createStandaloneToast({ theme })
+const toast = createStandaloneToast({})
 let toastCounter = 0;
 
 const toastRefs: { [key: string]: ToastId } = {}

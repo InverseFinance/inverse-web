@@ -102,8 +102,6 @@ export const lightTheme = extendTheme({
   },
 });
 
-export default lightTheme
-// import { extendTheme } from '@chakra-ui/react'
 export const darkTheme = extendTheme({
   colors: {
     mainBackgroundColor: '#2a2557',
