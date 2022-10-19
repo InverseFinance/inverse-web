@@ -3,7 +3,6 @@ import { VictoryChart, VictoryLabel, VictoryAxis, VictoryPie, VictoryTheme, Vict
 import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
-import theme from '@app/variables/theme';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: string, y: number, perc?: number }[]
@@ -199,21 +198,21 @@ export const PieChart = ({
                     style={{
                         data: {
                             fillOpacity: 0.9,
-                            stroke: theme.colors.mainTextColor,
+                            stroke: themeStyles.colors.mainTextColor,
                             strokeWidth: 1,
                             cursor: ({ datum }) => datum.fund?.drill ? 'pointer' : 'normal',
                             fill: ({ datum }) => datum.fill || _colorScale[datum._x - 1],
                         },
                         labels: {
                             fontSize: 12,
-                            fill: ({ datum }) => datum.labelFill || theme.colors.mainTextColor,
+                            fill: ({ datum }) => datum.labelFill || themeStyles.colors.mainTextColor,
                             cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
                         },
                     }}
                 />
                 {
                     showTotalUsd && <text
-                        fill={theme.colors.mainTextColor}
+                        fill={themeStyles.colors.mainTextColor}
                         dominantBaseline="middle"
                         textAnchor="middle"
                         x="50%"
