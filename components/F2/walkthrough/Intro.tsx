@@ -3,7 +3,7 @@ import { InfoMessage } from "@app/components/common/Messages"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { DBRShortDescription } from "@app/components/F2/Infos/DBRShortDescription"
 import { useContext } from "react"
-import { F2MarketContext } from "./WalkthroughContainer"
+import { F2MarketContext } from "@app/components/F2/F2Contex"
 
 export const F2WalkthroughIntro = ({    
     onStepChange,

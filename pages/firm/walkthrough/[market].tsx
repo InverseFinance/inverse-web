@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 import { MarketBar } from '@app/components/F2/Infos/MarketBar'
+import { F2Context } from '@app/components/F2/F2Contex'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -20,15 +21,17 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         <Layout>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary>
-                <VStack pt="8" w='full' alignItems="center" px={{ base: '2', lg: '8' }} spacing="0">
-                    <MarketBar market={f2market} isWalkthrough={true} maxW='700px' alignItems="center" px="3" pt='0' />
-                    <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="8" spacing="8">
-                        {
-                            !f2market ? <Text>Market not found</Text>
-                                : <F2Walkthrough market={f2market} />
-                        }
+                <F2Context market={f2market}>
+                    <VStack pt="8" w='full' alignItems="center" px={{ base: '2', lg: '8' }} spacing="0">
+                        <MarketBar market={f2market} isWalkthrough={true} maxW='700px' alignItems="center" px="3" pt='0' />
+                        <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="8" spacing="8">
+                            {
+                                !f2market ? <Text>Market not found</Text>
+                                    : <F2Walkthrough market={f2market} />
+                            }
+                        </VStack>
                     </VStack>
-                </VStack>
+                </F2Context>
             </ErrorBoundary>
         </Layout>
     )

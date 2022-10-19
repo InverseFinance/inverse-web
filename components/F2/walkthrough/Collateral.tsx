@@ -7,8 +7,8 @@ import { useAppTheme } from "@app/hooks/useAppTheme"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { useContext } from "react"
+import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { StepNavBtn } from "./StepNavBtn"
-import { F2MarketContext } from "./WalkthroughContainer"
 import { WalkthroughInput } from "./WalkthroughInput"
 
 export const F2WalkthroughCollateral = ({

@@ -1,132 +1,34 @@
-import { VStack, useMediaQuery, FlexProps, Divider } from '@chakra-ui/react'
+import { VStack, FlexProps, Divider } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
-import { JsonRpcSigner } from '@ethersproject/providers'
-import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
-import { BigNumber } from 'ethers'
-import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
-import { useEffect, useState } from 'react'
-import { TOKENS } from '@app/variables/tokens'
-import { getNetworkConfigConstants } from '@app/util/networks'
+import { useContext } from 'react'
 
 import { F2WalkthroughIntro } from './Intro'
 import { F2WalkthroughCollateral } from './Collateral'
-import { useWeb3React } from '@web3-react/core'
-import { useAccount } from '@app/hooks/misc'
 import React from 'react'
-import { useRouter } from 'next/router'
 import { F2WalkthroughDebt } from './Debt'
 import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
 import { MarketsV2Hero } from '../Infos/MarketsV2Hero'
 import { StepsBar } from './StepsBar'
 import { FirmFAQ } from '../Infos/FirmFAQ'
-
-const { DOLA } = getNetworkConfigConstants();
-
-const dolaToken = TOKENS[DOLA];
-
-export const F2MarketContext = React.createContext<{
-    market: F2Market,
-    colDecimals: number,
-    account: string,
-    signer: JsonRpcSigner,
-    step: number,
-    duration: number,
-    collateralAmount: number,
-    debtAmount: number,
-    dbrPrice: number,
-    isSmallerThan728: boolean,
-    isDeposit: boolean,
-}>({
-
-});
+import { F2MarketContext } from '../F2Contex'
 
 export const F2Walkthrough = ({
-    market,
     ...props
 }: {
     market: F2Market
 } & Partial<FlexProps>) => {
-    const router = useRouter();
-    const colDecimals = market.underlying.decimals;
-    const { library } = useWeb3React();
-    const account = useAccount();
-    const [step, setStep] = useState(0);
-    const [duration, setDuration] = useState(365);
-    const [durationType, setDurationType] = useState('months');
-    const [durationTypedValue, setDurationTypedValue] = useState(12);
-    const [collateralAmount, setCollateralAmount] = useState('');
-    const [debtAmount, setDebtAmount] = useState('');
-    const [isDeposit, setIsDeposit] = useState(true);
-    const [maxBorrowable, setMaxBorrowable] = useState(0);
-    const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
-    const { price: dbrPrice } = useDBRPrice();
-
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance } = useAccountDBRMarket(market, account);
-
-    const dbrCover = debtAmount / (365 / duration);
-    const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
-
     const {
-        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees
-    } = f2CalcNewHealth(market, deposits, debt, collateralAmount, debtAmount, perc);
-
-    const {
-        newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt, newCreditLeft
-    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
-
-    const {
-        newCreditLeft: maxBorrow
-    } = f2CalcNewHealth(market, deposits, debt, collateralAmount, 0, perc);
-
-    const { dbrExpiryDate: newDBRExpiryDate } = useAccountDBR(account, newTotalDebt);
-
-    useEffect(() => {
-        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, 0, maxBorrow, perc));
-    }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc]);
-
-    const handleAction = (amount: BigNumber) => {
-        if (!library?.getSigner()) { return }
-        alert('Simple-Mode Contract is not implemented yet - Please use Advanced-Mode for now');
-    }
-
-    const handleCollateralChange = (floatNumber: number) => {
-        setCollateralAmount(floatNumber)
-    }
-
-    const handleDebtChange = (floatNumber: number) => {
-        setDebtAmount(floatNumber)
-    }
-
-    const handleDurationChange = (duration: number, typedValue: number, type: string) => {
-        setDurationTypedValue(typedValue);
-        setDurationType(type);
-        setDuration(duration);
-    }
-
-    const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
-    const btnMaxlabel = `${btnLabel} Max`;
-    const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
-    const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
-
-    const handleStepChange = (newStep: number) => {
-        router.push({ hash: `step${newStep}` });
-    }
-
-    useEffect(() => {
-        const stepString = location.hash.replace(/#step/, '');
-        if (stepString && !isNaN(parseInt(stepString))) {
-            setStep(parseInt(stepString));
-        } else if (step !== 0) {
-            setStep(0);
-        }
-    }, [router])
-
-    // useEffect(() => {
-    //     window['walkthrough-container'].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-    // }, [step, debtAmount, duration, collateralAmount]);
+        market,
+        step,
+        setStep,
+        handleStepChange,
+        handleDurationChange,
+        handleDebtChange,
+        handleCollateralChange,
+    } = useContext(F2MarketContext);
 
     if (step === 0) {
         return <MarketsV2Hero onGetStarted={() => {
@@ -140,82 +42,36 @@ export const F2Walkthrough = ({
         noPadding
         p="0"
         m="0"
-        // label={`${market.name} Market`}
-        // description={`Quick and Easy Fixed-Rate Borrowing - Learn More`}
-        // href="https://docs.inverse.finance/inverse-finance/about-inverse"
-        // image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/firm/markets/${market.name}.png')`} h="50px" w="80px" />}
         w='full'
         contentProps={{ bg: 'transparent', boxShadow: 'none', p: '0' }}
         {...props}
     >
-        <F2MarketContext.Provider value={{
-            market,
-            colDecimals,
-            account,
-            signer: library?.getSigner(),
-            step,
-            duration,
-            collateralAmount,
-            debtAmount,
-            dbrPrice,
-            dbrCoverDebt,
-            isSmallerThan728,
-            isDeposit,
-            collateralBalance,
-            bnDeposits,
-            bnWithdrawalLimit,
-            bnCollateralBalance,
-            deposits,
-            newDeposits,
-            dolaToken,
-            newPerc,
-            debt,
-            newDebt,
-            bnDolaLiquidity,
-            newCreditLimit,
-            durationType,
-            durationTypedValue,
-            riskColor,
-            dbrCover,
-            newLiquidationPrice,
-            newTotalDebt,
-            newCreditLeft,
-            maxBorrowable,
-            newDBRExpiryDate,
-        }}>
-            {
-                !!market && <VStack justify="space-between" position="relative" w='full' px='2%' pb="2" alignItems="flex-start" spacing="6">
-                    {/* {
-                        step > 0 && <VStack w='full'>
-                            <Text>Step {step} / 4</Text>
-                            <Progress w='full' value={(step) / 4 * 100} />
-                        </VStack>
-                    } */}
-                    {
-                        step > 0 && <StepsBar
-                            step={step}
-                            onStepChange={handleStepChange}
-                        />
-                    }
-                    {
-                        step === 0 && <F2WalkthroughIntro onStepChange={handleStepChange} />
-                    }
-                    {
-                        step === 1 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
-                    }
-                    {
-                        step === 2 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
-                    }
-                    {
-                        step === 3 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
-                    }
-                    {
-                        step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
-                    }
-                    <Divider borderColor="#cccccc66" />
-                    <FirmFAQ collapsable={true} defaultCollapse={true} />
-                </VStack>
-            }
-        </F2MarketContext.Provider>
+        {
+            !!market && <VStack justify="space-between" position="relative" w='full' px='2%' pb="2" alignItems="flex-start" spacing="6">
+                {
+                    step > 0 && <StepsBar
+                        step={step}
+                        onStepChange={handleStepChange}
+                    />
+                }
+                {
+                    step === 0 && <F2WalkthroughIntro onStepChange={handleStepChange} />
+                }
+                {
+                    step === 1 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
+                }
+                {
+                    step === 2 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
+                }
+                {
+                    step === 3 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
+                }
+                {
+                    step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
+                }
+                <Divider borderColor="#cccccc66" />
+                <FirmFAQ collapsable={true} defaultCollapse={true} />
+            </VStack>
+        }
     </Container>
 }

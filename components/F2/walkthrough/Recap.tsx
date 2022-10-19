@@ -3,7 +3,7 @@ import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm"
 import { ChevronLeftIcon } from "@chakra-ui/icons"
 import { HStack } from "@chakra-ui/react"
 import { useContext } from "react"
-import { F2MarketContext } from "./WalkthroughContainer"
+import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { RecapInfos } from "../Infos/RecapInfos"
 import { StepNavBtn } from "./StepNavBtn"
 
