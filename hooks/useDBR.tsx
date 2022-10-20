@@ -19,6 +19,7 @@ const oneYear = oneDay * 365;
 export const useAccountDBR = (
   account: string | undefined | null,
   previewDebt?: number,
+  deltaDBR = 0
 ): SWR & {
   balance: number,
   debt: number,
@@ -45,8 +46,9 @@ export const useAccountDBR = (
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
   const dailyDebtAccrual = (oneDay * _debt / oneYear);
+  const balanceWithDelta = signedBalance+deltaDBR;
   // at current debt accrual rate, when will DBR be depleted?
-  const dbrNbDaysExpiry = dailyDebtAccrual ? balance / dailyDebtAccrual : 0;
+  const dbrNbDaysExpiry = dailyDebtAccrual ? balanceWithDelta <= 0 ? 0 : balanceWithDelta / dailyDebtAccrual : 0;
   const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
@@ -54,7 +56,7 @@ export const useAccountDBR = (
     balance,
     debt: _debt,
     interests,
-    signedBalance,
+    signedBalance: balanceWithDelta,
     dailyDebtAccrual,
     dbrNbDaysExpiry,
     dbrExpiryDate,

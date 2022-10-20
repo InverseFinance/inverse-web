@@ -118,7 +118,7 @@ export const F2Context = ({
     );
 
     const { signedBalance: dbrBalance } = useAccountDBR(account);
-    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn, } = useAccountDBR(account, newTotalDebt);
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn, } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
 
     useEffect(() => {
         if(isWalkthrough){
