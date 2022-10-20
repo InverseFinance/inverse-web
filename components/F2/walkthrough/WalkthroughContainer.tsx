@@ -29,13 +29,13 @@ export const F2Walkthrough = ({
         handleCollateralChange,
     } = useContext(F2MarketContext);
 
-    if (step === 0) {
-        return <MarketsV2Hero onGetStarted={() => {
-            setStep(step + 1);
-            handleStepChange(step + 1);
-        }}
-        />
-    }
+    // if (step === 0) {
+    //     return <MarketsV2Hero onGetStarted={() => {
+    //         setStep(step + 1);
+    //         handleStepChange(step + 1);
+    //     }}
+    //     />
+    // }
 
     return <Container
         noPadding
@@ -53,9 +53,9 @@ export const F2Walkthrough = ({
                         onStepChange={handleStepChange}
                     />
                 }
-                {
+                {/* {
                     step === 0 && <F2WalkthroughIntro onStepChange={handleStepChange} />
-                }
+                } */}
                 {
                     step === 1 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
                 }
