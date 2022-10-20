@@ -10,7 +10,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
-import theme from '@app/variables/theme'
+import { darkTheme } from '@app/variables/theme'
 
 const projects = [
   '/assets/projects/Scream.webp',
@@ -113,7 +113,7 @@ export const Landing = () => {
               textAlign="center"
             >
               <Text as="h1" maxW="710px">
-                Master the Game Of <b style={{ color: theme.colors.secondaryPlus }}>Positive Sum DeFi</b>
+                Master the Game Of <b style={{ color: darkTheme.colors.secondaryPlus }}>Positive Sum DeFi</b>
               </Text>
             </Flex>
           </Flex>
@@ -182,10 +182,10 @@ export const Landing = () => {
               <Box h="240px" borderRadius={16} zIndex="1" position="absolute" top="0" bottom="0" left="0" right="0" margin="auto"
                 background="verticalGradientGray" />
               <VStack position="relative" zIndex="2">
-                <Text fontSize="2xl" fontWeight="bold" textShadow={`2px 2px ${theme.colors.darkPrimary}`}>
+                <Text fontSize="2xl" fontWeight="bold" textShadow={`2px 2px ${darkTheme.colors.darkPrimary}`}>
                   {title}
                 </Text>
-                <Text as="h5" w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium" textShadow={`1px 1px ${theme.colors.darkPrimary}`}>
+                <Text as="h5" w={{ base: 56, lg: 64 }} h={12} whiteSpace="pre-line" fontSize="sm" fontWeight="medium" textShadow={`1px 1px ${darkTheme.colors.darkPrimary}`}>
                   {description}
                 </Text>
                 <Spacer />
