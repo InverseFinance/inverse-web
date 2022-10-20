@@ -66,11 +66,12 @@ export const F2CombinedForm = ({
         mode,
         setMode,
         isWalkthrough,
+        infoTab,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
     
-    const [syncedMinH, setSyncedMinH] = useState(250);    
+    const [syncedMinH, setSyncedMinH] = useState('230px');    
 
     const deltaCollateral = isDeposit ? collateralAmount : -collateralAmount;
     const deltaDebt = isDeposit ? debtAmount : -debtAmount;
@@ -123,18 +124,22 @@ export const F2CombinedForm = ({
     }
 
     useEffect(() => {
-        const adapt = () => {            
-            const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
-            const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
-            if((formHeight - recapHeight) < 50) {
-                setSyncedMinH(formHeight);
-            }
+        const adapt = (reset = true) => {            
+            if(reset && (infoTab === 'Summary' || !['Deposit & Borrow', 'Repay & Withdraw'].includes(mode))) {
+                setSyncedMinH('230px');
+            } else {
+                const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
+                const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
+                if(formHeight && recapHeight && Math.abs(formHeight - recapHeight) <= 50) {
+                    setSyncedMinH(Math.max(formHeight, recapHeight));
+                }
+            }            
         }
-        adapt();
+        adapt(true);
         setTimeout(() => {
-            adapt();
-        }, 50)
-    }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough]);
+            adapt(false);
+        }, 1)
+    }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough, infoTab]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
@@ -227,10 +232,10 @@ export const F2CombinedForm = ({
                         alertProps={{ w: 'full' }}
                         description={
                             <Flex display="inline-block">
-                                To borrow DOLA you need to <Link display="inline-block" href={getDBRBuyLink()} isExternal target="_blank">
+                                To borrow DOLA you need to <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={getDBRBuyLink()} isExternal target="_blank">
                                     buy DBR tokens
                                 </Link>
-                                &nbsp;or use the auto-buy option
+                                &nbsp;beforehand or use the auto-buy option
                             </Flex>
                         }
                     />
@@ -309,7 +314,7 @@ export const F2CombinedForm = ({
             noPadding
             p="0"
             w='full'
-            contentProps={{ minH: '230px', position: 'relative', id: 'f2-combined-form' }}
+            contentProps={{ minH: syncedMinH, position: 'relative', id: 'f2-combined-form' }}
             {...props}
         >
             <FormControl boxShadow="0px 0px 2px 2px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
@@ -340,7 +345,7 @@ export const F2CombinedForm = ({
         </Container>
         <Container
             noPadding
-            w='full'            
+            w='full'
             contentProps={{ minH: syncedMinH, id: 'f2-recap-container' }}
             p="0"            
         >

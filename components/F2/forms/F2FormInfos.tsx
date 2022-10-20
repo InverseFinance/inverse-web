@@ -4,11 +4,13 @@ import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import { NavButtons } from '@app/components/common/Button'
 import ScannerLink from '@app/components/common/ScannerLink'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
 import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
 import { RecapInfos } from '../Infos/RecapInfos'
+import { InfoMessage } from '@app/components/common/Messages'
+import { F2MarketContext } from '../F2Contex'
 
 type Data = {
     tooltip: string
@@ -88,6 +90,12 @@ export const F2FormInfos = (props) => {
         onHealthOpen = () => { },
         onDbrOpen = () => { },
     } = props;
+
+    const {
+        infoTab,
+        setInfoTab,
+    } = useContext(F2MarketContext);
+
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
@@ -100,8 +108,6 @@ export const F2FormInfos = (props) => {
             }
         };
     }, []);
-
-    const [type, setType] = useState('Summary');
 
     const newDbrBalance = dbrBalance + (isAutoDBR ? isDeposit ? dbrCover : -dbrCover : 0);
 
@@ -269,8 +275,14 @@ export const F2FormInfos = (props) => {
         [positionInfos[2][0], dbrInfos[3][1]],
         positionInfos[3],
     ];
-    if(isAutoDBR && isDeposit && ['Deposit & Borrow', 'Borrow'].includes(mode)){
+    if(isAutoDBR && isDeposit && !!debtAmount && ['Deposit & Borrow', 'Borrow'].includes(mode)){
         keyInfos.splice(1, 0, dbrInfos[2]);
+    }
+    if(!debtAmount  && !collateralAmount){
+        keyInfos.splice(0, 1);
+    }
+    if(deposits > 0 || debt > 0){
+        keyInfos.splice(1, 0, positionInfos[1]);
     }
 
     const lists = {
@@ -299,14 +311,16 @@ export const F2FormInfos = (props) => {
         newDBRExpiryDate,
     }
 
+    const tabItems = lists[infoTab];
+
     return <VStack spacing="0" w='full'>
         <NavButtons
-            active={type}
+            active={infoTab}
             options={['Summary', 'Position Details', 'DBR Details', 'Market Details']}
-            onClick={(v) => setType(v)}
+            onClick={(v) => setInfoTab(v)}
         />
         {
-            type === 'Recap' ?
+            infoTab === 'Recap' ?
                 <VStack
                     spacing="4"
                     w='full'
@@ -321,7 +335,22 @@ export const F2FormInfos = (props) => {
                         spacing='4'
                     />                    
                 </VStack>
-                : <ListInfos listInfos={lists[type]} />
+                : 
+                    tabItems.length <= 2 ?
+                    <VStack pt="4" w='full'>
+                            <InfoMessage
+                    alertProps={{ w: 'full' }} 
+                    description={
+                        <VStack alignItems="flex-start">
+                            <Text>You don't have a position yet in this market, the easiest to get started is to use the Walkthrough mode</Text>
+                        </VStack>
+                    }
+                     />
+                        </VStack>
+                    :
+                    <ListInfos listInfos={tabItems} />
+
+                
         }
     </VStack>
 }

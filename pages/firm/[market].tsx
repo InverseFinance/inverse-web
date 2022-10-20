@@ -45,7 +45,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <F2Context market={f2market} isWalkthrough={isWalkthrough}>
+                <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
                     <VStack
                         pt="4"                    
                         w='full'
@@ -63,9 +63,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                 <Text _hover={{ color: 'inherit' }} color="inherit">Back</Text>
                             </HStack>
                             <MarketBar
-                                market={f2market}
-                                isWalkthrough={isWalkthrough}
-                                setIsWalkthrough={setIsWalkthrough}
                                 w='full'
                                 h="64px"
                                 overflow="hidden"

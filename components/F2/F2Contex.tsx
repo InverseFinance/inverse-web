@@ -45,10 +45,12 @@ const MODES = {
 export const F2Context = ({
     market,
     isWalkthrough,
+    setIsWalkthrough,
     ...props
 }: {
     market: F2Market
     isWalkthrough: boolean
+    setIsWalkthrough: (v: boolean) => void
 } & Partial<FlexProps>) => {
     const router = useRouter();
     const colDecimals = market.underlying.decimals;
@@ -63,6 +65,7 @@ export const F2Context = ({
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(true);    
     const [mode, setMode] = useState('Deposit & Borrow');
+    const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
@@ -219,6 +222,9 @@ export const F2Context = ({
         mode,
         newDailyDBRBurn,
         isWalkthrough,
+        infoTab,
+        setInfoTab,
+        setIsWalkthrough,
         setMode,
         setIsAutoDBR,
         setStep,
