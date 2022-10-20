@@ -89,7 +89,7 @@ export const RecapInfos = ({
                     <Text  fontSize={fontSize} fontWeight="bold" color={riskColor}>The collateral health will be <b style={{ fontWeight: '1000' }}>{shortenNumber(newPerc, 2)}%</b></Text>
                 </TextInfo>
                 <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
-                    <Text  fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)} (current price is {preciseCommify(market.price, 0, true)})</b></Text>
+                    <Text  fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)}</b></Text>
                 </TextInfo>
             </>
         }

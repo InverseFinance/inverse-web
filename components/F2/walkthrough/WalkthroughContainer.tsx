@@ -46,7 +46,7 @@ export const F2Walkthrough = ({
         {...props}
     >
         {
-            !!market && <VStack justify="space-between" position="relative" w='full' px='2%' pb="2" alignItems="flex-start" spacing="6">
+            !!market && <VStack justify="space-between" position="relative" w='full' pb="2" alignItems="flex-start" spacing="6">
                 {
                     step > 0 && <StepsBar
                         step={step}

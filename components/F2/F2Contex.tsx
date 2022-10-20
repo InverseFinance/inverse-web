@@ -33,11 +33,22 @@ export const F2MarketContext = React.createContext<{
 
 });
 
+const MODES = {
+    'Deposit & Borrow': 'd&b',
+    'Deposit': 'deposit',
+    'Borrow': 'borrow',
+    'Repay & Withdraw': 'r&w',
+    'Repay': 'repay',
+    'Withdraw': 'withdraw',
+}
+
 export const F2Context = ({
     market,
+    isWalkthrough,
     ...props
 }: {
     market: F2Market
+    isWalkthrough: boolean
 } & Partial<FlexProps>) => {
     const router = useRouter();
     const colDecimals = market.underlying.decimals;
@@ -50,32 +61,87 @@ export const F2Context = ({
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
+    const [isAutoDBR, setIsAutoDBR] = useState(true);    
+    const [mode, setMode] = useState('Deposit & Borrow');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance } = useAccountDBRMarket(market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt } = useAccountDBRMarket(market, account);
 
-    const dbrCover = debtAmount / (365 / duration);
-    const dbrCoverDebt = debtAmount * dbrPrice / (365 / duration);
+    const debtAmountNum = parseFloat(debtAmount||'0');
+    const collateralAmountNum = parseFloat(collateralAmount||'0');
+
+    const dbrCover = debtAmountNum / (365 / duration);
+    const dbrCoverDebt = debtAmountNum * dbrPrice / (365 / duration);
+
+    const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
+    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
+
+    const deltaCollateral = isDeposit ? collateralAmountNum : -collateralAmountNum;
+    const deltaDebt = isDeposit ? debtAmountNum : -debtAmountNum;
 
     const {
-        newDebt, newDeposits, newCreditLimit: creditLimitWithNoFees
-    } = f2CalcNewHealth(market, deposits, debt, collateralAmount, debtAmount, perc);
+        newDebt
+    } = f2CalcNewHealth(
+        market,
+        deposits,
+        debt,
+        deltaCollateral,
+        deltaDebt,
+        perc,
+    );
 
     const {
-        newPerc, newLiquidationPrice, newCreditLimit, newDebt: newTotalDebt, newCreditLeft
-    } = f2CalcNewHealth(market, deposits, debt + dbrCoverDebt, collateralAmount, debtAmount, perc);
+        newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newDebt: newTotalDebt,
+    } = f2CalcNewHealth(
+        market,
+        deposits,
+        debt + (isDeposit && isAutoDBR && hasDebtChange ? dbrCoverDebt : 0),
+        hasCollateralChange ? deltaCollateral : 0,
+        hasDebtChange ? deltaDebt : 0,
+        perc,
+    );
 
     const {
         newCreditLeft: maxBorrow
-    } = f2CalcNewHealth(market, deposits, debt, collateralAmount, 0, perc);
+    } = f2CalcNewHealth(
+        market,
+        deposits,
+        debt,
+        hasCollateralChange ? deltaCollateral : 0,
+        hasDebtChange ? isDeposit ? 0 : -(Math.min(debtAmountNum, debt)) : 0,
+        perc,
+    );
 
-    const { dbrExpiryDate: newDBRExpiryDate } = useAccountDBR(account, newTotalDebt);
+    const { signedBalance: dbrBalance } = useAccountDBR(account);
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn, } = useAccountDBR(account, newTotalDebt);
 
     useEffect(() => {
-        setMaxBorrowable(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, 0, maxBorrow, perc));
-    }, [market, deposits, debt, dbrPrice, duration, collateralAmount, maxBorrow, perc]);
+        if(isWalkthrough){
+            setIsDeposit(true);
+            setIsAutoDBR(true);
+            setMode('Deposit & Borrow');
+            setStep(1);
+        }
+    }, [isWalkthrough]);
+
+    useEffect(() => {
+        setMaxBorrowable(
+            findMaxBorrow(
+                market,
+                deposits,
+                debt,
+                dbrPrice,
+                duration,
+                deltaCollateral,
+                isDeposit ? 0 : -debtAmountNum,
+                maxBorrow,
+                perc,
+                isAutoDBR,
+            )
+        );
+    }, [market, deposits, debt, debtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
     const handleCollateralChange = (floatNumber: number) => {
         setCollateralAmount(floatNumber)
@@ -128,6 +194,7 @@ export const F2Context = ({
         isDeposit,
         collateralBalance,
         bnDeposits,
+        bnDebt,
         bnWithdrawalLimit,
         bnCollateralBalance,
         deposits,
@@ -147,7 +214,14 @@ export const F2Context = ({
         newCreditLeft,
         maxBorrowable,
         newDBRExpiryDate,
+        isAutoDBR,
+        dbrBalance,
+        mode,
+        newDailyDBRBurn,
+        setMode,
+        setIsAutoDBR,
         setStep,
+        setIsDeposit,
         handleStepChange,
         handleDurationChange,
         handleDebtChange,
