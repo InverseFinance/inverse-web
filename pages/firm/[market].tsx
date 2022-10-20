@@ -4,15 +4,12 @@ import { AppNav } from '@app/components/common/Navbar'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { HStack, Stack, VStack, Text, useDisclosure, Divider } from '@chakra-ui/react'
+import { VStack, Text, useDisclosure } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
-import { DbrHealth } from '@app/components/F2/bars/DbrHealth'
 import { useWeb3React } from '@web3-react/core'
-import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { CreditLimitBar } from '@app/components/F2/bars/CreditLimitBar'
-import { F2CollateralForm } from '@app/components/F2/forms/F2CollateralForm'
-import { F2BorrowForm } from '@app/components/F2/forms/F2BorrowForm'
+import { Web3Provider } from '@ethersproject/providers'
+
 import { useState } from 'react'
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
@@ -20,7 +17,6 @@ import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal
 import { useAccount } from '@app/hooks/misc'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import { MarketBar } from '@app/components/F2/Infos/MarketBar'
-import { F2Market } from '@app/types'
 import React from 'react'
 import { F2Context } from '@app/components/F2/F2Contex'
 import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
@@ -28,25 +24,11 @@ import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContain
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
-    const [newCollateralAmount, setNewCollateralAmount] = useState(0);
-    const [newDebtAmount, setNewDebtAmount] = useState(0);
     const [isWalkthrough, setIsWalkthrough] = useState(false);
-    const { library } = useWeb3React<Web3Provider>();
-    const account = useAccount();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 ? markets[0] : undefined;
     const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
     const { isOpen: isHealthOpen, onOpen: onHealthOpen, onClose: onHealthClose } = useDisclosure();
-
-    const combinedFormProps = {
-        signer: library?.getSigner(),
-        f2market,
-        account,
-        onDepositChange: (floatAmount) => setNewCollateralAmount(floatAmount),
-        onDebtChange: (floatAmount) => setNewDebtAmount(floatAmount),
-        onDbrOpen,
-        onHealthOpen,
-    }
 
     return (
         <Layout>
@@ -57,7 +39,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <F2Context market={f2market}>
+                <F2Context market={f2market} isWalkthrough={isWalkthrough}>
                     <VStack
                         pt="5"
                         w='full'
@@ -94,9 +76,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     direction={{ base: 'column', lg: 'row' }}
                                     spacing="12"
                                 >                                    
-                                    <F2CombinedForm
-                                        {...combinedFormProps}
-                                    />                                                                        
+                                    <F2CombinedForm />                                                                        
                                 </VStack>
                         }                        
                         <FirmFAQ collapsable={true} defaultCollapse={true} />
