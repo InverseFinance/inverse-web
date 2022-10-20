@@ -10,6 +10,7 @@ import { useContext } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { StepNavBtn } from "./StepNavBtn"
 import { WalkthroughInput } from "./WalkthroughInput"
+import { useRouter } from "next/router"
 
 export const F2WalkthroughCollateral = ({
     onStepChange,
@@ -18,6 +19,7 @@ export const F2WalkthroughCollateral = ({
     onStepChange: (step: number) => void
     onChange: (amount: number) => void
 }) => {
+    const router = useRouter();
     const { themeStyles } = useAppTheme();
     const {
         step,
@@ -39,7 +41,7 @@ export const F2WalkthroughCollateral = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo color="accentTextColor" message="The more you deposit, the more you can borrow against">
-                <Text fontWeight="bold" fontSize="30px" color="mainTextColor">
+                <Text fontWeight="bold" fontSize={{ base: '20px', md: '30px' }} color="mainTextColor">
                     <b style={{ color: themeStyles.colors.accentTextColor }}>How much {market.name}</b> do you want to deposit?
                 </Text>
             </TextInfo>
@@ -65,7 +67,7 @@ export const F2WalkthroughCollateral = ({
             }
         </VStack>
         <HStack w='full' justify="space-between" pt="4">
-            <StepNavBtn onClick={() => onStepChange(step - 1)}>
+            <StepNavBtn onClick={() => router.push('/firm')}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
             <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={collateralAmount <= 0 || collateralAmount > collateralBalance}>

@@ -44,7 +44,7 @@ export const F2WalkthroughDebt = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
-                <Text fontWeight="bold" fontSize="30px" color="mainTextColor">
+                <Text fontWeight="bold" fontSize={{ base: '20px', md: '30px' }} color="mainTextColor">
                     <b style={{ color: themeStyles.colors.accentTextColor }}>How much DOLA</b> do you want to borrow?
                 </Text>
             </TextInfo>
