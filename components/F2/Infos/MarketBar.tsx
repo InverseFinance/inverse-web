@@ -88,10 +88,14 @@ export const MarketBar = ({
                     htmlFor='walkthrough-mode'
                     textAlign="right"
                     mb='0'
+                    
                 >
-                    Deposit & Borrow Walkthrough mode
+                    <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
+                    <Text color="inherit">Deposit & Borrow</Text>
+                        <Text color="inherit">Walkthrough mode</Text>                        
+                    </VStack>
                 </FormLabel>
-                <Switch isChecked={isWalkthrough} onChange={() => setIsWalkthrough(!isWalkthrough)} id='walkthrough-mode' mr="1" />
+                <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => setIsWalkthrough(!isWalkthrough)} id='walkthrough-mode' mr="1" />
             </FormControl>
         </HStack>
     </HStack>

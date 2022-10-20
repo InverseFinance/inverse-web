@@ -218,6 +218,7 @@ export const F2Context = ({
         dbrBalance,
         mode,
         newDailyDBRBurn,
+        isWalkthrough,
         setMode,
         setIsAutoDBR,
         setStep,

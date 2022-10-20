@@ -65,6 +65,7 @@ export const F2CombinedForm = ({
         newDBRExpiryDate,
         mode,
         setMode,
+        isWalkthrough,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
@@ -122,12 +123,18 @@ export const F2CombinedForm = ({
     }
 
     useEffect(() => {
-        const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
-        const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
-        if((formHeight - recapHeight) < 50) {
-            setSyncedMinH(formHeight);
+        const adapt = () => {            
+            const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
+            const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
+            if((formHeight - recapHeight) < 50) {
+                setSyncedMinH(formHeight);
+            }
         }
-    }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR]);
+        adapt();
+        setTimeout(() => {
+            adapt();
+        }, 50)
+    }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;

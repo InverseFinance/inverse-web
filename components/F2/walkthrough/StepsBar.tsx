@@ -14,9 +14,9 @@ export const StepsBar = ({
         {STEPS.map((name, i) => {
             const isActive = _step === i;
             const isEnabled = i < _step;
-            return <HStack>
+            return <HStack key={name}>
                 <Text
-                    fontSize="18px"
+                    fontSize={{ base: '14px', md: '18px' }}
                     onClick={ isEnabled && !isActive ? () => onStepChange(step-1) : undefined }
                     cursor={ isEnabled && !isActive ? 'pointer' : 'default' }
                     fontWeight={isActive ? '1000' : '600'}

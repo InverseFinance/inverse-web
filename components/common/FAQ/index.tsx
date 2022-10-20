@@ -20,7 +20,8 @@ export const FAQ = ({
 }: FAQType) => {
     return <Container
         label={label}
-        noPadding p="0"
+        noPadding 
+        p="0"
         collapsable={collapsable}
         defaultCollapse={defaultCollapse}
     >
