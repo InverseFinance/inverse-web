@@ -90,8 +90,8 @@ export const MarketBar = ({
                     <Title as='h2'>
                         {market.name} Market
                     </Title>
-                    <SubTitle>
-                        {shortenNumber(market.dolaLiquidity, 2)} DOLA liquidity
+                    <SubTitle fontWeight={market.dolaLiquidity === 0 ? 'bold' : undefined} color={market.dolaLiquidity === 0 ? 'warning' : 'secondaryTextColor'}>
+                        {market.dolaLiquidity ? shortenNumber(market.dolaLiquidity, 2, false, true) : 'No'} DOLA liquidity
                     </SubTitle>
                 </VStack>
             </HStack>

@@ -39,7 +39,8 @@ export const F2WalkthroughDebt = ({
         maxBorrowable,
     } = useContext(F2MarketContext);
 
-    const isDisabled = (debtAmount > dolaLiquidity && dolaLiquidity > 1) || (dolaLiquidity <= 1)
+    const notEnoughLiq = debtAmount > dolaLiquidity && dolaLiquidity > 0;
+    const isDisabled = notEnoughLiq || (dolaLiquidity === 0)
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
@@ -83,7 +84,7 @@ export const F2WalkthroughDebt = ({
                 />
             }
             {
-                debtAmount > dolaLiquidity && dolaLiquidity > 1  &&
+                notEnoughLiq  &&
                 <InfoMessage
                     alertProps={{ w: 'full' }}
                     description={
@@ -93,23 +94,14 @@ export const F2WalkthroughDebt = ({
                     }
                 />
             }
-            {
-                dolaLiquidity <= 1  &&
-                <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    description={
-                        <VStack w='full' alignItems="flex-start" spaing="0">
-                            <Text>There's no DOLA liquidity at the moment</Text>
-                        </VStack>
-                    }
-                />
-            }
         </VStack>
         <HStack w='full' justify="space-between" pt="4">
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={newPerc < 1 || !debtAmount || isDisabled}>
+            <StepNavBtn 
+                onClick={() => onStepChange(step + 1)}
+                disabled={newPerc < 1 || !debtAmount || isDisabled || !market.dolaLiquidity}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>

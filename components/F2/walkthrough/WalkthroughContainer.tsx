@@ -4,15 +4,15 @@ import Container from '@app/components/common/Container'
 import { F2Market } from '@app/types'
 import { useContext } from 'react'
 
-import { F2WalkthroughIntro } from './Intro'
 import { F2WalkthroughCollateral } from './Collateral'
 import React from 'react'
 import { F2WalkthroughDebt } from './Debt'
 import { F2WalkthroughDuration } from './Duration'
 import { F2WalkthroughRecap } from './Recap'
-import { MarketsV2Hero } from '../Infos/MarketsV2Hero'
+
 import { StepsBar } from './StepsBar'
 import { F2MarketContext } from '../F2Contex'
+import { WarningMessage } from '@app/components/common/Messages'
 
 export const F2Walkthrough = ({
     ...props
@@ -29,13 +29,6 @@ export const F2Walkthrough = ({
         handleCollateralChange,
     } = useContext(F2MarketContext);
 
-    // if (step === 0) {
-    //     return <MarketsV2Hero onGetStarted={() => {
-    //         setStep(step + 1);
-    //         handleStepChange(step + 1);
-    //     }}
-    //     />
-    // }
 
     return <Container
         noPadding
@@ -53,9 +46,6 @@ export const F2Walkthrough = ({
                         onStepChange={handleStepChange}
                     />
                 }
-                {/* {
-                    step === 0 && <F2WalkthroughIntro onStepChange={handleStepChange} />
-                } */}
                 {
                     step === 1 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
                 }
@@ -67,6 +57,9 @@ export const F2Walkthrough = ({
                 }
                 {
                     step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
+                }
+                {
+                    !market.dolaLiquidity && <WarningMessage alertProps={{w:'full'}} description="No DOLA liquidity at the moment" />
                 }
             </VStack>
         }

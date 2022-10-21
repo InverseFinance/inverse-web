@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2borrow, f2CalcNewHealth, f2deposit, f2repay, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2repay, f2withdraw, getRiskColor } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -89,11 +89,12 @@ export const F2CombinedForm = ({
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
+    const isBorrowCase = ['borrow', 'd&b'].includes(MODES[mode]);
 
     const handleAction = () => {
         if (!signer) { return }
         const action = MODES[mode]
-        if (['deposit', 'borrow'].includes(action) && isAutoDBR) {
+        if (['borrow'].includes(action) && isAutoDBR) {
             alert('AlphaPhase: auto-buying DBR is not supported yet, disable the option to proceed :)');
         }
         // else if (['withdraw', 'repay'].includes(action) && isAutoDBR) {
@@ -107,6 +108,8 @@ export const F2CombinedForm = ({
             return f2withdraw(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
         } else if (action === 'repay') {
             return f2repay(signer, market.address, getNumberToBn(debtAmount, market.underlying.decimals));
+        } else if(action === 'd&b' && !isAutoDBR) {
+            return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount, market.underlying.decimals));
         } else {
             alert('AlphaPhase: Contract is not implemented yet for this action');
         }
@@ -260,7 +263,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': collateralAmount <= 0,
-        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0),
+        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.dolaLiquidity,
         'repay': debtAmount <= 0 || debtAmount > debt,
         'withdraw': collateralAmount <= 0 || collateralAmount > deposits || newPerc < 1,
     }
@@ -386,6 +389,12 @@ export const F2CombinedForm = ({
                         alertProps={{ w: 'full' }}
                         description="The resulting Collateral Health is too low to proceed"
                     />
+                }
+                {
+                    !market.dolaLiquidity && isBorrowCase && <WarningMessage alertProps={{ w:'full' }} description="No DOLA liquidity at the moment" />
+                }
+                {
+                    isBorrowCase && market.dolaLiquidity > 0 && deltaDebt > 0 && market.dolaLiquidity < deltaDebt && <WarningMessage alertProps={{ w:'full' }} description="Not enough DOLA liquidity" />
                 }
                 {bottomPart}
             </VStack>

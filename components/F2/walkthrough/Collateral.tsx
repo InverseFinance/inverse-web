@@ -42,7 +42,7 @@ export const F2WalkthroughCollateral = ({
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo color="accentTextColor" message="The more you deposit, the more you can borrow against">
                 <Text fontWeight="bold" fontSize={{ base: '20px', md: '30px' }} color="mainTextColor">
-                    <b style={{ color: themeStyles.colors.accentTextColor }}>How much {market.name}</b> do you want to deposit?
+                    <b style={{ color: themeStyles.colors.accentTextColor }}>How much {market.underlying.symbol}</b> do you want to deposit?
                 </Text>
             </TextInfo>
             <WalkthroughInput
@@ -70,7 +70,9 @@ export const F2WalkthroughCollateral = ({
             <StepNavBtn onClick={() => router.push('/firm')}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={collateralAmount <= 0 || collateralAmount > collateralBalance}>
+            <StepNavBtn 
+                onClick={() => onStepChange(step + 1)} 
+                disabled={collateralAmount <= 0 || collateralAmount > collateralBalance || !market.dolaLiquidity}>
                 NEXT <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>
