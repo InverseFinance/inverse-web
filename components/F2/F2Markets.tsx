@@ -26,9 +26,9 @@ const columns = [
         label: 'Market',
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
-        value: ({ name }) => {
+        value: ({ name, icon, marketIcon }) => {
             return <Cell minWidth="130px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('/assets/firm/markets/${name}.png')`} h="37px" w="60px" />
+                <BigImageButton bg={`url('${marketIcon||icon}')`} h="40px" w="60px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 <CellText>{name}</CellText>
             </Cell>
         },

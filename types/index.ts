@@ -623,4 +623,5 @@ export type F2Market = {
   replenishmentIncentive: number
   liquidationIncentive: number
   icon?: string
+  marketIcon?: string
 }
