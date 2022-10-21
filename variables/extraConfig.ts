@@ -118,12 +118,20 @@ export const EXTRA_CONFIG = {
         ...mainConfig,
         dbr: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
         f2Oracle: '0x65C5967a121B1e8bF0277702819DA49816B6d54f',
-        f2markets: [{
+        f2markets: [
+            {
             name: 'WETH',
             // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
             address: '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710',
             icon: '/assets/projects/Ether.png',
-        }],
+            },{
+                name: 'WETH v2',
+                // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+                address: '0xb83e64295A4941d21Bc5f3a5e1D406aC7753Ed05',
+                icon: '/assets/projects/Ether.png',
+            },
+    ],
     }
 }

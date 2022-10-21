@@ -7,9 +7,10 @@ import moment from 'moment';
 
 const { DBR } = getNetworkConfigConstants();
 
-export const f2deposit = (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
+export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
+    const account = await signer.getAddress();
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    return contract.deposit(amount);
+    return contract.deposit(account, amount);
 }
 
 export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, to?: string) => {
@@ -35,6 +36,8 @@ export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposi
 
 export const f2repayAndWithdraw = (signer: JsonRpcSigner, market: string, repay: string | BigNumber, withdraw: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
+    console.log(repay.toString())
+    console.log(withdraw.toString())
     return contract.repayAndWithdraw(repay, withdraw);
 }
 

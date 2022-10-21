@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2repay, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2repay, f2repayAndWithdraw, f2withdraw, getRiskColor } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -90,6 +90,7 @@ export const F2CombinedForm = ({
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
     const isBorrowCase = ['borrow', 'd&b'].includes(MODES[mode]);
+    const isRepayCase = ['repay', 'r&w'].includes(MODES[mode]);
 
     const handleAction = () => {
         if (!signer) { return }
@@ -108,8 +109,10 @@ export const F2CombinedForm = ({
             return f2withdraw(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
         } else if (action === 'repay') {
             return f2repay(signer, market.address, getNumberToBn(debtAmount, market.underlying.decimals));
-        } else if(action === 'd&b' && !isAutoDBR) {
-            return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount, market.underlying.decimals));
+        } else if(action === 'd&b' && !isAutoDBR && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
+            return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount));
+        } else if(action === 'r&w' && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
+            return f2repayAndWithdraw(signer, market.address, getNumberToBn(debtAmount), getNumberToBn(collateralAmount, market.underlying.decimals));
         } else {
             alert('AlphaPhase: Contract is not implemented yet for this action');
         }
@@ -153,7 +156,7 @@ export const F2CombinedForm = ({
         {
             ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
                 <TextInfo message="The more you deposit, the more you can borrow against">
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {market.name}:</Text>
+                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {market.underlying.symbol}:</Text>
                 </TextInfo>
                 {
                     deposits > 0 || isDeposit ? <>
@@ -273,7 +276,7 @@ export const F2CombinedForm = ({
     const actionBtn = <HStack>
         <SimpleAmountForm
             defaultAmount={collateralAmount?.toString()}
-            address={market.collateral}
+            address={isRepayCase ? DOLA : market.collateral}
             destination={market.address}
             signer={signer}
             decimals={colDecimals}
