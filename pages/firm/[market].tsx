@@ -64,7 +64,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             </HStack>
                             <MarketBar
                                 w='full'
-                                h="64px"
+                                minH="64px"
                                 overflow="hidden"
                                 alignItems="center"
                                 pt='0'

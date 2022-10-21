@@ -5,9 +5,12 @@ import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getDBRBuyLink } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery, StackProps } from "@chakra-ui/react"
+import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery, StackProps, TextProps } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
+
+const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '20px' }} {...props} />;
+const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
 
 export const MarketBar = ({
     ...props
@@ -15,6 +18,7 @@ export const MarketBar = ({
 } & Partial<StackProps>) => {
     const { price: dbrPrice } = useDBRPrice();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
+    const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const [effectEnded, setEffectEnded] = useState(true);
 
     const {
@@ -35,71 +39,74 @@ export const MarketBar = ({
 
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
 
-    return <HStack w='full' justify="space-between" {...props}>
+    const otherInfos = <>
+    <VStack spacing="1" alignItems="flex-start">
+        <Title>
+            Collateral Factor
+        </Title>
+        <SubTitle color="secondaryTextColor">
+            {preciseCommify(market.collateralFactor * 100, 2)}%
+        </SubTitle>
+    </VStack>
+    <VStack spacing="1" alignItems="flex-start">
+        <Title>
+            DBR Price
+        </Title>
+        <SubTitle color="secondaryTextColor">
+            {preciseCommify(dbrPrice, 4, true)}
+        </SubTitle>
+    </VStack>
+    <VStack spacing="1" alignItems="flex-start">
+        <Title>
+            DBR Balance
+        </Title>
+
+        <Link color={ needTopUp ? 'error' : 'secondaryTextColor' } href={getDBRBuyLink()} isExternal target='_blank'>
+            {
+                dbrBalance > 0 && <SubTitle color="inherit">
+                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
+                </SubTitle>
+            }
+            {
+                dbrBalance === 0 && !debt && <SubTitle color="inherit">
+                    Buy now
+                </SubTitle>
+            }
+            {
+                needTopUp && <SubTitle color="inherit">
+                    {shortenNumber(dbrBalance, 2)} Top-up now
+                </SubTitle>
+            }
+        </Link>
+    </VStack>
+</>;
+
+    return <VStack w='full' {...props}>
+        <HStack w='full' justify="space-between">
         <HStack spacing={{ base: '2', md: '8' }}>
             <HStack spacing={{ base: '1', md: '2' }}>
                 <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
                 <VStack spacing="1" alignItems="flex-start">
-                    <Text as='h2' fontWeight="extrabold" fontSize={{ base: '14px', md: '20px' }}>
+                    <Title as='h2'>
                         {market.name} Market
-                    </Text>
-                    <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }}>
+                    </Title>
+                    <SubTitle>
                         {shortenNumber(market.dolaLiquidity, 2)} DOLA liquidity
-                    </Text>
+                    </SubTitle>
                 </VStack>
             </HStack>
             {
                 isLargerThan && <VStack spacing="1" alignItems="flex-start">
-                    <Text fontWeight="extrabold" fontSize="20px">
+                    <Title>
                         Oracle Price
-                    </Text>
-                    <Text color="secondaryTextColor">
+                    </Title>
+                    <SubTitle>
                         {preciseCommify(market.price, 2, true)}
-                    </Text>
+                    </SubTitle>
                 </VStack>
             }
             {
-                !isWalkthrough && effectEnded && isLargerThan && <>
-                    <VStack spacing="1" alignItems="flex-start">
-                        <Text fontWeight="extrabold" fontSize="20px">
-                            Collateral Factor
-                        </Text>
-                        <Text color="secondaryTextColor">
-                            {preciseCommify(market.collateralFactor * 100, 2)}%
-                        </Text>
-                    </VStack>
-                    <VStack spacing="1" alignItems="flex-start">
-                        <Text fontWeight="extrabold" fontSize="20px">
-                            DBR Price
-                        </Text>
-                        <Text color="secondaryTextColor">
-                            {preciseCommify(dbrPrice, 4, true)}
-                        </Text>
-                    </VStack>
-                    <VStack spacing="1" alignItems="flex-start">
-                        <Text fontWeight="extrabold" fontSize="20px">
-                            DBR Balance
-                        </Text>
-
-                        <Link color={ needTopUp ? 'error' : 'secondaryTextColor' } href={getDBRBuyLink()} isExternal target='_blank'>
-                            {
-                                dbrBalance > 0 && <Text color="inherit">
-                                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
-                                </Text>
-                            }
-                            {
-                                dbrBalance === 0 && !debt && <Text color="inherit">
-                                    Buy now
-                                </Text>
-                            }
-                            {
-                                needTopUp && <Text color="inherit">
-                                    {shortenNumber(dbrBalance, 2)} Top-up now
-                                </Text>
-                            }
-                        </Link>
-                    </VStack>
-                </>
+                !isWalkthrough && effectEnded && isLargerThan1000 && otherInfos
             }
         </HStack>
         <HStack>
@@ -127,4 +134,13 @@ export const MarketBar = ({
             </FormControl>
         </HStack>
     </HStack>
+    {
+        !isWalkthrough && effectEnded && !isLargerThan1000 && <HStack
+         w='full'
+         justify="space-between"
+          overflow="auto">
+            {otherInfos}
+        </HStack>
+    }
+    </VStack>
 }
