@@ -1,4 +1,4 @@
-import { F2_MARKET_ABI } from "@app/config/abis";
+import { F2_MARKET_ABI, F2_SIMPLE_ESCROW } from "@app/config/abis";
 import { F2Market } from "@app/types";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -26,6 +26,26 @@ export const f2repay = async (signer: JsonRpcSigner, market: string, amount: str
     const contract = new Contract(market, F2_MARKET_ABI, signer);
     const _to = to ? to : await signer.getAddress();
     return contract.repay(_to, amount);
+}
+
+export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposit: string | BigNumber, borrow: string | BigNumber) => {
+    const contract = new Contract(market, F2_MARKET_ABI, signer);
+    return contract.depositAndBorrow(deposit, borrow);
+}
+
+export const f2repayAndWithdraw = (signer: JsonRpcSigner, market: string, repay: string | BigNumber, withdraw: string | BigNumber) => {
+    const contract = new Contract(market, F2_MARKET_ABI, signer);
+    return contract.repayAndWithdraw(repay, withdraw);
+}
+
+export const f2exitMarket = async (signer: JsonRpcSigner, market: string) => {
+    const account = await signer.getAddress();
+    const marketContract = new Contract(market, F2_MARKET_ABI, signer);
+    const escrow = await marketContract.escrows(account);
+    const escrowContract = new Contract(escrow, F2_SIMPLE_ESCROW, signer);
+    const balance = await escrowContract.balance();
+    const debt = await marketContract.debts(account);
+    return marketContract.repayAndWithdraw(debt, balance);
 }
 
 const betweenZeroAnd100 = (v: number) => {

@@ -369,7 +369,16 @@ export const F2_MARKET_ABI = [
   "function borrow(uint amount) public",
   "function withdraw(uint amount) public",
   "function repay(address user, uint amount) public",
+  "function repayAndWithdraw(uint repayAmount, uint withdrawAmount) public",
+  "function depositAndBorrow(uint amountDeposit, uint amountBorrow) public",
   "function forceReplenish(address user) public",
+  "event Deposit(address indexed account, uint amount)",
+  "event Borrow(address indexed account, uint amount)",
+  "event Withdraw(address indexed account, address indexed to, uint amount)",
+  "event Repay(address indexed account, address indexed repayer, uint amount)",
+  "event ForceReplenish(address indexed account, address indexed replenisher, uint deficit, uint replenishmentCost, uint replenisherReward)",
+  "event Liquidate(address indexed account, address indexed liquidator, uint repaidDebt, uint liquidatorReward)",
+  "event CreateEscrow(address indexed user, address escrow)",
 ];
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
