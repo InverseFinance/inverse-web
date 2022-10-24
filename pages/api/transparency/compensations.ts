@@ -68,20 +68,28 @@ export default async function handler(req, res) {
         currentVesters.push({ address: v });
       }
     })
-    const [vesterRecipients, vesterInitialInv] = await Promise.all([
+    const [xinvExRateBn, vesterRecipients, initialXinvVestedBn] = await Promise.all([
+      new Contract(XINV, XINV_ABI, provider).exchangeRateStored(),
       Promise.all(currentVesters.map(v => (new Contract(v.address, VESTER_ABI, provider)).recipient())),
-      Promise.all(currentVesters.map(v => invContract.queryFilter(invContract.filters.Transfer(TREASURY, v.address)))),
+      Promise.all(currentVesters.map(v => (new Contract(v.address, VESTER_ABI, provider)).vestingXinvAmount())),
+      // Promise.all(currentVesters.map(v => invContract.queryFilter(invContract.filters.Transfer(TREASURY, v.address)))),
     ]);
 
     // founder: initial amount was 8k, current vester is just part of it
     const founderRecipient = '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb';
+    const founderInitialAmount = 8000;
+    const founderNewVesterAmount = 3333.33;
+    const xinvExRate = getBnToNumber(xinvExRateBn);
 
     currentVesters.forEach((v, i) => {
+      const isFounder = vesterRecipients[i].toLowerCase() === founderRecipient.toLowerCase();
+      const scaledAmount = Math.round(xinvExRate * getBnToNumber(initialXinvVestedBn[i]));
       currentVesters[i] = {
         ...v,
         recipient: vesterRecipients[i],
-        amount: vesterRecipients[i].toLowerCase() === founderRecipient.toLowerCase() ?
-          8000 : getBnToNumber(vesterInitialInv[i][0].args[2])
+        amount: isFounder ? scaledAmount+(founderInitialAmount-founderNewVesterAmount) : scaledAmount ,
+        // originalInvAmount: isFounder ?
+        // founderInitialAmount : getBnToNumber(vesterInitialInv[i][0].args[2])
       }
     })
 
