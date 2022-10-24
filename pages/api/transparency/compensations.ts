@@ -41,14 +41,14 @@ export default async function handler(req, res) {
       }
     }, {})).filter(v => !!v);
 
-    const pendingPayments = await Promise.all(currentPayrolls.map(p => {      
+    const unclaimeds = await Promise.all(currentPayrolls.map(p => {      
       return payrollContract.balanceOf(p.recipient);
     }));
 
-    pendingPayments.forEach((bn, i) => {
-      currentPayrolls[i].pendingPayment = getBnToNumber(pendingPayments[i]);
+    unclaimeds.forEach((bn, i) => {
+      currentPayrolls[i].unclaimed = getBnToNumber(unclaimeds[i]);
     })
-    const currentLiabilities = currentPayrolls.reduce((prev, curr) => prev+curr.pendingPayment, 0);
+    const currentLiabilities = currentPayrolls.reduce((prev, curr) => prev+curr.unclaimed, 0);
 
     // vesters
     const vestersToCheck = [...Array(currentPayrolls.length * 2 + 20).keys()];
