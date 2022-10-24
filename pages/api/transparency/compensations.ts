@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { DOLA_PAYROLL_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI } from '@app/config/abis'
+import { DOLA_PAYROLL_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -9,8 +9,8 @@ import { getBnToNumber } from '@app/util/markets'
 
 export default async function handler(req, res) {
 
-  const { INV, TREASURY, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v1.2.0`;
+  const { INV, TREASURY, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const cacheKey = `compensations-cache-v1.2.1`;
 
   try {
 
@@ -40,6 +40,15 @@ export default async function handler(req, res) {
           { recipient: curr.args[0], amount: getBnToNumber(curr.args[1]) } : undefined
       }
     }, {})).filter(v => !!v);
+
+    const pendingPayments = await Promise.all(currentPayrolls.map(p => {      
+      return payrollContract.balanceOf(p.recipient);
+    }));
+
+    pendingPayments.forEach((bn, i) => {
+      currentPayrolls[i].pendingPayment = getBnToNumber(pendingPayments[i]);
+    })
+    const currentLiabilities = currentPayrolls.reduce((prev, curr) => prev+curr.pendingPayment, 0);
 
     // vesters
     const vestersToCheck = [...Array(currentPayrolls.length * 2 + 20).keys()];
@@ -77,6 +86,7 @@ export default async function handler(req, res) {
     })
 
     const resultData = {
+      currentLiabilities,
       currentPayrolls,
       currentVesters,
     }
@@ -92,9 +102,12 @@ export default async function handler(req, res) {
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
+      } else {
+        res.status(500).json({ error: true })
       }
     } catch (e) {
       console.error(e);
+      res.status(500).json({ error: true })
     }
   }
 }
