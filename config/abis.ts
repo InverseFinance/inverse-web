@@ -365,6 +365,7 @@ export const F2_MARKET_ABI = [
   "function predictEscrow(address user) public view returns (address)",
   "function getCreditLimit(address user) public view returns (uint)",
   "function getWithdrawalLimit(address user) public view returns (uint)",
+  "function getCollateralValue(address user) public view returns (uint)",
   // "function deposit(uint amount) public",
   "function deposit(address user, uint amount) public",
   "function borrow(uint amount) public",
