@@ -36,8 +36,6 @@ export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposi
 
 export const f2repayAndWithdraw = (signer: JsonRpcSigner, market: string, repay: string | BigNumber, withdraw: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    console.log(repay.toString())
-    console.log(withdraw.toString())
     return contract.repayAndWithdraw(repay, withdraw);
 }
 
@@ -59,15 +57,15 @@ export const f2CalcNewHealth = (
     market: F2Market,
     deposits: number,
     debt: number,
-    depositsDelta: number,
-    debtDelta: number,
-    perc: number,
+    depositsDelta = 0,
+    debtDelta = 0,
+    perc?: number,
 ) => {
     const newDeposits = Math.max((deposits + (depositsDelta || 0)), 0);
     const newCreditLimit = newDeposits * market.collateralFactor * market.price;
     const newDebt = debt + debtDelta;
 
-    const newPerc = !depositsDelta && !debtDelta ?
+    const newPerc = !depositsDelta && !debtDelta && perc !== undefined ?
         perc : betweenZeroAnd100(
             newCreditLimit > 0 ?
                 ((newCreditLimit - newDebt) / newCreditLimit) * 100
