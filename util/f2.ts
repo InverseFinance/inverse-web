@@ -4,6 +4,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getNetworkConfigConstants } from "./networks";
 import moment from 'moment';
+import { getBnToNumber } from "./markets";
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -47,6 +48,11 @@ export const f2exitMarket = async (signer: JsonRpcSigner, market: string) => {
     const balance = await escrowContract.balance();
     const debt = await marketContract.debts(account);
     return marketContract.repayAndWithdraw(debt, balance);
+}
+
+export const f2liquidate = async (signer: JsonRpcSigner, borrower: string, market: string, repay: string | BigNumber) => {
+    const contract = new Contract(market, F2_MARKET_ABI, signer);
+    return contract.liquidate(borrower, repay);
 }
 
 const betweenZeroAnd100 = (v: number) => {

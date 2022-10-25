@@ -1,17 +1,19 @@
 import { Flex, HStack, Stack, Text } from "@chakra-ui/react"
 import Table from "@app/components/common/Table";
-import { shortenNumber } from "@app/util/markets";
+import { getNumberToBn, shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
-import { getRiskColor } from "@app/util/f2";
+import { f2liquidate, getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import { useFirmPositions } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { preciseCommify } from "@app/util/misc";
+import { useWeb3React } from "@web3-react/core";
+import { parseEther } from "@ethersproject/units";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -80,31 +82,42 @@ const columns = [
     {
         field: 'debt',
         label: 'Debt',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ debt }) => {
-            return <Cell minWidth="150px" justify="center" >
+            return <Cell minWidth="100px" justify="center" >
                 <CellText>{shortenNumber(debt, 2, true)}</CellText>
             </Cell>
         },
     },
+    // {
+    //     field: 'liquidationPrice',
+    //     label: 'Liq. price',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ liquidationPrice }) => {
+    //         return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+    //             <CellText>{preciseCommify(liquidationPrice, 2, true)}</CellText>                
+    //         </Cell>
+    //     },
+    // },
     {
-        field: 'liquidationPrice',
-        label: 'Liq. price',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ liquidationPrice }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{preciseCommify(liquidationPrice, 2, true)}</CellText>                
+        field: 'liquidatableDebt',
+        label: 'Seizable',
+        header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
+        value: ({ liquidatableDebt, market }) => {
+            return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
+                <CellText>{shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
+                <CellText>for {shortenNumber(liquidatableDebt + market.liquidationIncentive*liquidatableDebt, 2, true)}</CellText>
             </Cell>
         },
     },
     {
         field: 'perc',
         label: 'Loan Health',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
         value: ({ perc, debt }) => {
             const color = getRiskColor(perc);
-            return <Cell minWidth="150px" justify="flex-end" >
-                <CellText color={perc && debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(perc, 2)}%` : '-'}</CellText>
+            return <Cell minWidth="100px" justify="flex-end" >
+                <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(perc, 2)}%` : '-'}</CellText>
             </Cell>
         },
     },
@@ -114,8 +127,13 @@ export const FirmPositions = ({
 
 }: {
 
-    }) => {    
+    }) => {
+    const { library } = useWeb3React();
     const { positions } = useFirmPositions();
+
+    // const testLiq = async (data) => {
+    //     return f2liquidate(library?.getSigner(), data.user, data.market.address, repay);
+    // }
 
     return <Container
         label="FiRM Positions"
@@ -126,7 +144,7 @@ export const FirmPositions = ({
             noDataMessage="Loading..."
             columns={columns}
             items={positions}
-            // onClick={openMarket}
+            // onClick={testLiq}
             defaultSort="perc"
             defaultSortDir="asc"
         />
