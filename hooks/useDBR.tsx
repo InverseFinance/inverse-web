@@ -9,6 +9,7 @@ import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { useLpPrice } from "./usePrices";
 import { CHAIN_ID } from "@app/config/constants";
+import { f2CalcNewHealth } from "@app/util/f2";
 
 const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
@@ -170,10 +171,7 @@ export const useAccountDBRMarket = (
 
   const hasDebt = !!deposits && !!withdrawalLimit && deposits > 0 && deposits !== withdrawalLimit;
   const debt = bnDebt ? getBnToNumber(bnDebt) : 0;
-  const perc = Math.max(hasDebt ? withdrawalLimit / deposits * 100 : deposits ? 100 : 0, 0);
-
-  const creditLeft = withdrawalLimit * market?.price * market.collateralFactor;
-  const liquidationPrice = hasDebt ? debt / (market.collateralFactor * deposits) : null;
+  const { newPerc: perc, newCreditLeft: creditLeft, newLiquidationPrice: liquidationPrice } = f2CalcNewHealth(market, deposits, debt);  
 
   return {
     ...market,
