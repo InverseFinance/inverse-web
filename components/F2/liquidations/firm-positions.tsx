@@ -85,7 +85,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ debt }) => {
             return <Cell minWidth="100px" justify="center" >
-                <CellText>{shortenNumber(debt, 2, true)}</CellText>
+                <CellText>{shortenNumber(debt, 2)}</CellText>
             </Cell>
         },
     },
@@ -105,8 +105,8 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
         value: ({ liquidatableDebt, market }) => {
             return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
-                <CellText>{shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
-                <CellText>for {shortenNumber(liquidatableDebt + market.liquidationIncentive*liquidatableDebt, 2, true)}</CellText>
+                <CellText>{shortenNumber(liquidatableDebt + market.liquidationIncentive*liquidatableDebt, 2, true)}</CellText>
+                <CellText>for {shortenNumber(liquidatableDebt, 2)} DOLA</CellText>                
             </Cell>
         },
     },

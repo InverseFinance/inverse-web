@@ -26,7 +26,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [inited, setInited] = useState(false);
     const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
-    const f2market = markets.length > 0 ? markets[0] : undefined;
+    const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
     const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
     const { isOpen: isHealthOpen, onOpen: onHealthOpen, onClose: onHealthClose } = useDisclosure();
 
@@ -34,7 +34,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         if (inited) { return }
         setIsWalkthrough(router.asPath.includes('#step'))
         setInited(true);
-    }, [router, inited])
+    }, [router, inited]);
 
     return (
         <Layout>
@@ -45,7 +45,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
-                <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
+                {
+                    !f2market || !market ? <Text mt="8">
+                        {!f2market ? 'Loading...' : 'Market not found!'}
+                    </Text>
+                    : <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
                     <VStack
                         pt="4"                    
                         w='full'
@@ -57,7 +61,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         px={{ base: '2', lg: '8' }}
                         spacing={{ base: '2', md: '5' }}
                     >
-                        <VStack alignItems="flex-start" w='full' spacing="1">
+                        <VStack alignItems="flex-start" w='full' spacing="3">
                             <HStack transition="color ease-in-out 200ms" _hover={{ color: 'mainTextColor' }} color="secondaryTextColor" cursor="pointer" spacing="2" onClick={() => router.push('/firm')}>
                                 <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
                                 <Text _hover={{ color: 'inherit' }} color="inherit">Back</Text>
@@ -92,6 +96,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         <FirmFAQ collapsable={true} defaultCollapse={true} />
                     </VStack>
                 </F2Context>
+                }
             </ErrorBoundary>
         </Layout>
     )
