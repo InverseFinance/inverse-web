@@ -359,6 +359,14 @@ const chainTokens = {
     },
   },
   "5": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'Ether',
+      symbol: 'ETH',
+      coingeckoId: 'ethereum',
+      image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+      decimals: 18,
+    },
     [chainTokenAddresses["5"].DOLA]: {
       address: chainTokenAddresses["5"].DOLA,
       name: 'Dola',
