@@ -2,40 +2,49 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { Modal } from "@app/components/common/Modal"
 import ScannerLink from "@app/components/common/ScannerLink";
 import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm";
+import { F2_MARKET_ABI } from "@app/config/abis";
 import { useAccountDBRMarket } from "@app/hooks/useDBR";
+import { useTransactionCost } from "@app/hooks/usePrices";
 import { f2liquidate } from "@app/util/f2";
 import { shortenNumber } from "@app/util/markets";
+import { roundFloorString } from "@app/util/misc";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { HStack, VStack, Text } from "@chakra-ui/react";
+import { parseEther } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { useEffect, useState } from "react";
 
 const { DOLA } = getNetworkConfigConstants();
 
 export const FirmLiquidationModal = ({
     position,
-    onOpen,
     onClose,
     isOpen,
 }: {
     position: any,
-    onOpen: () => void,
     onClose: () => void,
     isOpen: boolean,
 }) => {
     const { library, account } = useWeb3React();
 
-    const liveData = useAccountDBRMarket(position.market, position.user);
-
-    const debt = liveData.debt ?? position.debt;
-    const liquidatableDebt = liveData.liquidatableDebt ?? position.liquidatableDebt;
-    const seizable = liveData.seizable ?? position.seizable;
-    const seizableWorth = liveData.seizableWorth ?? position.seizableWorth;
-
     const [repayAmount, setRepayAmount] = useState('');
     const [seizeAmount, setSeizeAmount] = useState(0);
     const [seizeWorth, setSeizeWorth] = useState(0);
+
+    const { costEth, costUsd } = useTransactionCost(
+        new Contract(position.market.address, F2_MARKET_ABI, library?.getSigner()),
+        'liquidate',
+        [
+            position.user,
+            repayAmount ? parseEther(roundFloorString(repayAmount, 18)) : '1',
+        ],
+    );
+
+    const liveData = useAccountDBRMarket(position.market, position.user);
+    const dataSource = !!account && !!liveData ? liveData : position;
+    const { debt, liquidatableDebt, seizable, seizableWorth } = dataSource;
+    const estimatedProfit = seizeWorth - costUsd;
 
     const handleLiquidation = async (repayAmountBn: BigNumber) => {
         return f2liquidate(library?.getSigner(), position.user, position.market.address, repayAmountBn);
@@ -117,6 +126,10 @@ export const FirmLiquidationModal = ({
                             seizeAmount > 0 ? `You will seize: ${shortenNumber(seizeAmount, 4)} (${shortenNumber(seizeWorth, 2, true)})` : 'Repay a DOLA amount to seize collateral'
                         }
                     />
+                    <HStack w='full' justify="space-between">                        
+                        <Text>Tx cost: ~{shortenNumber(costEth, 4)} ({shortenNumber(costUsd, 2, true)})</Text>
+                        <Text color={ estimatedProfit > 0 ? 'success' : 'error' }>Profit: {shortenNumber(estimatedProfit, 2, true)}</Text>
+                    </HStack>
                 </VStack>
             }
         </VStack>

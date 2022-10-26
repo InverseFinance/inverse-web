@@ -152,7 +152,7 @@ export const FirmPositions = ({
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >
         {
-            !!position && <FirmLiquidationModal onOpen={onOpen} onClose={onClose} isOpen={isOpen} position={position} />
+            !!position && <FirmLiquidationModal onClose={onClose} isOpen={isOpen} position={position} />
         }
         <Table
             keyName="key"
