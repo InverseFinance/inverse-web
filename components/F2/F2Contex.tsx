@@ -4,7 +4,7 @@ import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
 import { BigNumber } from 'ethers'
 import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
 
@@ -52,8 +52,7 @@ export const F2Context = ({
     isWalkthrough: boolean
     setIsWalkthrough: (v: boolean) => void
 } & Partial<FlexProps>) => {
-    const router = useRouter();
-    const colDecimals = market.underlying.decimals;
+    const router = useRouter();    
     const { library } = useWeb3React();
     const account = useAccount();
     const [step, setStep] = useState(0);
@@ -69,6 +68,8 @@ export const F2Context = ({
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
+    const isMountedRef = useRef(true)
+    const colDecimals = market.underlying.decimals;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt } = useAccountDBRMarket(market, account);
 
@@ -121,6 +122,12 @@ export const F2Context = ({
     const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn, } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
 
     useEffect(() => {
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
         if(isWalkthrough){
             setIsDeposit(true);
             setIsAutoDBR(true);
@@ -130,8 +137,8 @@ export const F2Context = ({
     }, [isWalkthrough]);
 
     useEffect(() => {
-        setMaxBorrowable(
-            findMaxBorrow(
+        const init = async () => {
+            const newMaxBorrowable = await findMaxBorrow(
                 market,
                 deposits,
                 debt,
@@ -142,8 +149,13 @@ export const F2Context = ({
                 maxBorrow,
                 perc,
                 isAutoDBR,
-            )
-        );
+            );
+            if(!isMountedRef.current) {
+                return
+            }
+            setMaxBorrowable(newMaxBorrowable);
+        }
+        init();
     }, [market, deposits, debt, debtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
     const handleCollateralChange = (floatNumber: number) => {
