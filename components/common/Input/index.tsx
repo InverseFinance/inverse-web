@@ -1,4 +1,5 @@
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { shortenNumber } from '@app/util/markets'
 import { Flex, Input as ChakraInput, Text, Textarea as ChakraTextarea, InputProps, FlexProps, TextProps } from '@chakra-ui/react'
 
 export const Input = (props: any) => (
@@ -72,7 +73,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
         {...inputLeftProps}
       >
         {
-          showBalance ? `Bal ${balance}` : 'MAX'
+          showBalance ? `Bal ${shortenNumber(balance, 2, false, true)}` : 'MAX'
         }        
       </Flex>
       <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />
