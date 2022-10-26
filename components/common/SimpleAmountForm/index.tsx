@@ -10,6 +10,7 @@ import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
 import { SubmitButton } from "@app/components/common/Button";
 import { BalanceInput } from "@app/components/common//Input"
+import { roundFloorString } from "@app/util/misc";
 
 type Props = {
     defaultAmount?: string
@@ -28,6 +29,7 @@ type Props = {
     hideInputIfNoAllowance?: boolean
     hideButtons?: boolean
     hideInput?: boolean
+    includeBalanceInMax?: boolean
     btnProps?: ButtonProps
     ButtonComp?: React.ReactNode
     showBalance?: boolean
@@ -76,6 +78,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         hideInputIfNoAllowance = true,
         hideButtons = false,
         hideInput = false,
+        includeBalanceInMax = false,
         btnProps,
         ButtonComp = SubmitButton,
         showBalance,
@@ -92,8 +95,12 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
-    const balance = balances ? getBnToNumber(balances[address], decimals) : 0;
+    const balanceBn = balances && balances[address] ? balances[address] : zeroBn;
+    const balance = getBnToNumber(balanceBn, decimals);  
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
+    if(maxAmountFrom && includeBalanceInMax) {
+        maxBn.push(balanceBn);
+    }
     maxBn.sort((a, b) => getBnToNumber(a) > getBnToNumber(b) ? 1 : -1);
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
 
@@ -112,7 +119,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }
 
     const handleAction = (isMax = false) => {
-        const bnAmount = isMax ? maxBn[0] : parseUnits((amount || '0'), decimals);
+        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(amount, decimals) || '0'), decimals);
         const params = {
             bnAmount,
             floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,
@@ -149,7 +156,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
             />
         }
         {
-            hideButtons ? null :
+            hideButtons && !onlyShowApproveBtn ? null :
                 !tokenApproved ?
                     <ApproveButton
                         w='full'

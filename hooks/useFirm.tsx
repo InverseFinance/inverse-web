@@ -4,9 +4,11 @@ import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
+import { getNumberToBn } from "@app/util/markets";
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
-  positions: any
+  positions: any,
+  timestamp: number,
 } => {
   const { data, error } = useCustomSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher);
   const { markets } = useDBRMarkets();
@@ -16,8 +18,13 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   const positionsWithMarket = positions?.map(p => {
     const market = markets[p.marketIndex];
     const { newPerc, newCreditLimit, newLiquidationPrice, newCreditLeft } = f2CalcNewHealth(market, p.deposits, p.debt);
+    const seizableWorth = p.liquidatableDebt + market.liquidationIncentive*p.liquidatableDebt;
     return {
       ...p,
+      seizable: seizableWorth / market.price,
+      seizableWorth,
+      liquidatableDebtBn: getNumberToBn(p.liquidatableDebt), 
+      isLiquidatable: p.liquidatableDebt > 0 ? 'Yes' : 'No',
       marketName: market.name,
       market,
       perc: newPerc,
@@ -30,6 +37,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
 
   return {
     positions: positionsWithMarket,
+    timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,
   }
