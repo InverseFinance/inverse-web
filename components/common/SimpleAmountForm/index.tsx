@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { SubmitButton } from "@app/components/common/Button";
 import { BalanceInput } from "@app/components/common//Input"
 import { roundFloorString } from "@app/util/misc";
+import { InfoMessage } from "../Messages";
 
 type Props = {
     defaultAmount?: string
@@ -30,6 +31,7 @@ type Props = {
     hideButtons?: boolean
     hideInput?: boolean
     includeBalanceInMax?: boolean
+    showNotEnoughTokenMsg?: boolean
     btnProps?: ButtonProps
     ButtonComp?: React.ReactNode
     showBalance?: boolean
@@ -79,6 +81,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         hideButtons = false,
         hideInput = false,
         includeBalanceInMax = false,
+        showNotEnoughTokenMsg = false,
         btnProps,
         ButtonComp = SubmitButton,
         showBalance,
@@ -203,6 +206,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             </ButtonComp>
                         }
                     </Stack>
+        }
+        {
+            showNotEnoughTokenMsg && balance < parseFloat(amount) && <InfoMessage description="Not Enough tokens" alertProps={{ w: 'full' }} />
         }
     </VStack>
 }

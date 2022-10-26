@@ -136,6 +136,10 @@ type AccountDBRMarket = F2Market & {
   collateralBalance: number
   hasDebt: boolean
   liquidationPrice: number | null
+  liquidatableDebtBn: BigNumber
+  liquidatableDebt: number
+  seizableWorth: number,
+  seizable: number,
 }
 
 export const useAccountDBRMarket = (
@@ -147,13 +151,14 @@ export const useAccountDBRMarket = (
     [market.address, 'getCreditLimit', account],
     [market.address, 'getWithdrawalLimit', account],
     [market.address, 'debts', account],
+    [market.address, 'getLiquidatableDebt', account],
   ]);
 
   const { data: balances } = useEtherSWR([
     [market.collateral, 'balanceOf', account],
   ]);
 
-  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
+  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt, liquidatableDebtBn] = accountMarketData || [undefined, zero, zero, zero];
   const [bnCollateralBalance]: BigNumber[] = balances || [zero];
 
   const { data: escrowData } = useEtherSWR({
@@ -173,6 +178,9 @@ export const useAccountDBRMarket = (
   const debt = bnDebt ? getBnToNumber(bnDebt) : 0;
   const { newPerc: perc, newCreditLeft: creditLeft, newLiquidationPrice: liquidationPrice } = f2CalcNewHealth(market, deposits, debt);  
 
+  const liquidatableDebt = liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0;
+  const seizableWorth = liquidatableDebt + market.liquidationIncentive * liquidatableDebt;
+
   return {
     ...market,
     account,
@@ -191,6 +199,10 @@ export const useAccountDBRMarket = (
     liquidationPrice,
     bnCollateralBalance,
     collateralBalance: (bnCollateralBalance ? getBnToNumber(bnCollateralBalance, decimals) : 0),
+    liquidatableDebtBn,
+    liquidatableDebt: liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0,
+    seizableWorth,
+    seizable: seizableWorth / market.price,
   }
 }
 
