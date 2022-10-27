@@ -19,10 +19,11 @@ import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
 import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
+import { NavButtons } from '@app/components/common/Button'
 
 const columns = [
   {
@@ -148,8 +149,8 @@ export interface YearnFedData {
 }
 
 export interface Curve {
-  pool: Pool;
-  gauge_votes: GaugeVote[];
+  pools: { [key: string]: Pool };
+  gauge_votes: { [key: string]: GaugeVote[] };
 }
 
 export interface GaugeVote {
@@ -291,6 +292,70 @@ export interface Vault {
   management_fee: number;
 }
 
+const CurvePool = ({
+  pool,
+  poolAddress,
+}: {
+  pool: Pool
+  poolAddress: string
+}) => {
+  return <Container
+  label="Curve Pool Assets"
+  description={
+    <Box color="secondaryTextColor" display="inline-block">
+      <Link style={{ textDecoration: 'underline' }} href="https://curve.fi/factory/27" isExternal>
+        See Pool on Curve <ExternalLinkIcon />
+      </Link> | <ScannerLink
+        color="secondaryTextColor"
+        value={poolAddress}
+        label={<>See Contract <ExternalLinkIcon /></>} />
+    </Box>
+  }
+  m="0"
+  p="0"
+  contentProps={{ px: { lg: '8' } }}
+>
+  <Stack direction={{ base: 'column-reverse', lg: 'row' }} alignItems="center" justifyContent="space-between" w='full'>
+    <VStack w={{ base: '100%', lg: '500px' }} alignItems="flex-start">
+      <Funds
+        showTotal={true}
+        showAsAmountOnly={true}
+        totalLabel={`${pool.coins[0].symbol} + ${pool.coins[1].symbol} Total:`}
+        funds={pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))}
+        type='balance'
+      />
+      <HStack justifyContent="space-between" w='full'>
+        <Text fontWeight="bold">Pool Dominance:</Text>
+        <Text fontWeight="bold">{shortenNumber(pool.dominance * 100, 2)}%</Text>
+      </HStack>
+      <Stack direction={{ base: 'column', md: 'row' }} pt="4" borderTop="1px solid #ccc" w="full">
+        {pool.coins.map(({ symbol, slippage_deposit_1M, slippage_withdraw_1M }) => {
+          return <InfoMessage
+            key={symbol}
+            title={`${symbol.toUpperCase()} Slippages`}
+            alertProps={{ w: { base: '100%', md: '50%' } }}
+            description={
+              <VStack spacing="0" fontSize="12px" key={symbol}>
+                <HStack w='full' justifyContent="space-between">
+                  <Text>1M Deposit:</Text>
+                  <Text>{shortenNumber(slippage_deposit_1M * 100, 4)}%</Text>
+                </HStack>
+                <HStack w='full' justifyContent="space-between">
+                  <Text>1M Withdraw:</Text>
+                  <Text>{shortenNumber(slippage_withdraw_1M * 100, 4)}%</Text>
+                </HStack>
+              </VStack>
+            }
+          />
+        })}
+      </Stack>
+    </VStack>
+    <VStack fontWeight="bold" pr={{ base: '0', lg: '100px' }}>
+      <Funds showAsAmountOnly={true} labelWithPercInChart={true} showTotal={false} showChartTotal={true} chartMode={true} funds={pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} type='balance' />
+    </VStack>
+  </Stack>
+</Container>
+}
 
 export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedData }) => {
   const { data: fresherYearnFedData } = useCustomSWR('/api/transparency/yearn-fed');
@@ -299,6 +364,8 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   const { totalEvents: policyEvents, isLoading: isPolicyLoading } = useFedHistory();
   const { totalEvents: profitsEvents, isLoading: isProfitsLoading } = useFedRevenues();
   const [detailsType, setDetailsType] = useState('gauges');
+  const [activePool, setActivePool] = useState('3Crv');
+  const [activePoolAddress, setActivePoolAddress] = useState('0xAA5A67c256e27A5d80712c51971408db3370927D');
 
   const chosenFedIndex = feds.findIndex(f => f.address === '0xcc180262347F84544c3a4854b87C34117ACADf94');
   const yearnFed = feds[chosenFedIndex];
@@ -325,6 +392,14 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
 
     return aggreg;
   });
+
+  useEffect(() => {
+    if(!yearnFedData?.curve?.pools) { return }
+    const poolAddress = Object.entries(yearnFedData?.curve?.pools)
+      .find(([ad, pool]) => pool.coins[1].symbol === activePool)[0];
+
+    setActivePoolAddress(poolAddress);
+  }, [yearnFedData, activePool]);
 
   return (
     <Layout>
@@ -370,62 +445,18 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                     </HStack>
                   </HStack>
                 </Container>
-                <Container
-                  label="Curve Pool Assets"
-                  description={
-                    <Box color="secondaryTextColor" display="inline-block">
-                      <Link style={{ textDecoration: 'underline' }} href="https://curve.fi/factory/27" isExternal>
-                        See Pool on Curve <ExternalLinkIcon />
-                      </Link> | <ScannerLink
-                        color="secondaryTextColor"
-                        value={"0xAA5A67c256e27A5d80712c51971408db3370927D"}
-                        label={<>See Contract <ExternalLinkIcon /></>} />
-                    </Box>
-                  }
-                  m="0"
-                  p="0"
-                  contentProps={{ px: { lg: '8' } }}
-                >
-                  <Stack direction={{ base: 'column-reverse', lg: 'row' }} alignItems="center" justifyContent="space-between" w='full'>
-                    <VStack w={{ base: '100%', lg: '500px' }} alignItems="flex-start">
-                      <Funds
-                        showTotal={true}
-                        showAsAmountOnly={true}
-                        totalLabel="DOLA + 3CRV Total:"
-                        funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))}
-                        type='balance'
-                      />
-                      <HStack justifyContent="space-between" w='full'>
-                        <Text fontWeight="bold">Pool Dominance:</Text>
-                        <Text fontWeight="bold">{shortenNumber(yearnFedData.curve.pool.dominance * 100, 2)}%</Text>
-                      </HStack>
-                      <Stack direction={{ base: 'column', md: 'row' }} pt="4" borderTop="1px solid #ccc" w="full">
-                        {yearnFedData.curve.pool.coins.map(({ symbol, slippage_deposit_1M, slippage_withdraw_1M }) => {
-                          return <InfoMessage
-                            key={symbol}
-                            title={`${symbol.toUpperCase()} Slippages`}
-                            alertProps={{ w: { base: '100%', md: '50%' } }}
-                            description={
-                              <VStack spacing="0" fontSize="12px" key={symbol}>
-                                <HStack w='full' justifyContent="space-between">
-                                  <Text>1M Deposit:</Text>
-                                  <Text>{shortenNumber(slippage_deposit_1M * 100, 4)}%</Text>
-                                </HStack>
-                                <HStack w='full' justifyContent="space-between">
-                                  <Text>1M Withdraw:</Text>
-                                  <Text>{shortenNumber(slippage_withdraw_1M * 100, 4)}%</Text>
-                                </HStack>
-                              </VStack>
-                            }
-                          />
-                        })}
-                      </Stack>
-                    </VStack>
-                    <VStack fontWeight="bold" pr={{ base: '0', lg: '100px' }}>
-                      <Funds showAsAmountOnly={true} labelWithPercInChart={true} showTotal={false} showChartTotal={true} chartMode={true} funds={yearnFedData.curve.pool.coins.map(c => ({ ...c, token: getToken(TOKENS, c.token_address) }))} type='balance' />
-                    </VStack>
-                  </Stack>
-                </Container>
+                
+                <NavButtons onClick={(v) => setActivePool(v)} active={activePool} options={
+                  !yearnFedData?.curve?.pools ? ['3Crv'] : Object.values(yearnFedData?.curve?.pools).map((pool => {
+                    return pool.coins[1].symbol
+                  }))
+                }
+                />
+
+                { 
+                !!yearnFedData?.curve?.pools && yearnFedData?.curve?.pools[activePoolAddress] &&
+                  <CurvePool pool={yearnFedData?.curve?.pools[activePoolAddress]} poolAddress={activePoolAddress} />
+                }
 
                 <Container
                   label="Vault Strategies"
@@ -524,12 +555,15 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       p="0"
                       m="0"
                     >
-                      <Table
+                      {
+                        !!yearnFedData?.curve?.gauge_votes && !!yearnFedData?.curve?.gauge_votes[activePoolAddress] &&
+                        <Table
                         keyName="txn_hash"
                         defaultSort="current_timestamp"
                         defaultSortDir="desc"
                         columns={columns}
-                        items={yearnFedData.curve.gauge_votes} />
+                        items={yearnFedData.curve.gauge_votes[activePoolAddress]} />
+                      }
                     </Container>
                   </>
                 }
@@ -552,7 +586,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                         columns={reportsColumn}
                         items={
                           yearnFedData.yearn.strategies
-                            .filter(s => s.vault_address === '0x67B9F46BCbA2DF84ECd41cC6511ca33507c9f4E9')
+                            .filter(s => s.vault_address === yearnFedData.yearn.vaults.find(v => v.want_address == activePoolAddress).address)
                             .map(s => {
                               return s.reports
                                 .map((r) => ({
