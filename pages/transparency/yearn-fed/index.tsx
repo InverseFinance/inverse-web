@@ -439,7 +439,9 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
     .flat();
 
     setHarvests(data)    
-    setGaugeVotes(yearnFedData.curve.gauge_votes);
+    setGaugeVotes(yearnFedData.curve.gauge_votes.map((v,i) => {
+      return { ...v, key: `${v.block}-${i}` }
+    }));
   }, [yearnFedData, activePoolAddress])
 
   return (
@@ -599,7 +601,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       {
                         !gaugeVotes?.length ? <Text>No gauge vote yet</Text> : 
                         <Table
-                        keyName="txn_hash"
+                        keyName="key"
                         defaultSort="current_timestamp"
                         defaultSortDir="desc"
                         columns={gaugeColumns}
