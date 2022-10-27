@@ -25,7 +25,7 @@ import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTabl
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
 import { NavButtons } from '@app/components/common/Button'
 
-const columns = [
+const gaugeColumns = [
   {
     field: 'current_timestamp',
     label: 'Time',
@@ -47,6 +47,14 @@ const columns = [
     header: ({ ...props }) => <Flex minW="120px" {...props} />,
     value: ({ txn_hash }) => <Flex minW="120px">
       <ScannerLink value={txn_hash} type="tx" />
+    </Flex>,
+  },
+  {
+    field: 'gauge',
+    label: 'Gauge',
+    header: ({ ...props }) => <Flex minW="120px" {...props} />,
+    value: ({ gauge }) => <Flex minW="120px">
+      <ScannerLink value={gauge} type="address" />
     </Flex>,
   },
   {
@@ -112,6 +120,14 @@ const reportsColumn = [
     header: ({ ...props }) => <Flex minW="120px" {...props} />,
     value: ({ txn_hash }) => <Flex minW="120px">
       <ScannerLink value={txn_hash} type="tx" />
+    </Flex>,
+  },
+  {
+    field: 'vault_address',
+    label: 'Vault',
+    header: ({ ...props }) => <Flex minW="120px" {...props} />,
+    value: ({ vault_address }) => <Flex minW="120px">
+      <ScannerLink value={vault_address} type="address" />
     </Flex>,
   },
   {
@@ -292,6 +308,11 @@ export interface Vault {
   management_fee: number;
 }
 
+const curveFactoryLinks = {
+  '0xAA5A67c256e27A5d80712c51971408db3370927D': 'https://curve.fi/factory/27',
+  '0xE57180685E3348589E9521aa53Af0BCD497E884d': 'https://curve.fi/factory/176',
+}
+
 const CurvePool = ({
   pool,
   poolAddress,
@@ -303,7 +324,7 @@ const CurvePool = ({
   label="Curve Pool Assets"
   description={
     <Box color="secondaryTextColor" display="inline-block">
-      <Link style={{ textDecoration: 'underline' }} href="https://curve.fi/factory/27" isExternal>
+      <Link style={{ textDecoration: 'underline' }} href={curveFactoryLinks[poolAddress]} isExternal>
         See Pool on Curve <ExternalLinkIcon />
       </Link> | <ScannerLink
         color="secondaryTextColor"
@@ -366,6 +387,8 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   const [detailsType, setDetailsType] = useState('gauges');
   const [activePool, setActivePool] = useState('3Crv');
   const [activePoolAddress, setActivePoolAddress] = useState('0xAA5A67c256e27A5d80712c51971408db3370927D');
+  const [harvests, setHarvests] = useState([]);
+  const [gaugeVotes, setGaugeVotes] = useState([]);
 
   const chosenFedIndex = feds.findIndex(f => f.address === '0xcc180262347F84544c3a4854b87C34117ACADf94');
   const yearnFed = feds[chosenFedIndex];
@@ -398,8 +421,26 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
     const poolAddress = Object.entries(yearnFedData?.curve?.pools)
       .find(([ad, pool]) => pool.coins[1].symbol === activePool)[0];
 
-    setActivePoolAddress(poolAddress);
+    setActivePoolAddress(poolAddress);    
   }, [yearnFedData, activePool]);
+
+  useEffect(() => {
+    if(!yearnFedData?.curve?.pools) { return }
+    const vaultAddresses = yearnFedData.yearn.vaults.filter(v => v.want_symbol !== 'DOLA').map(v => v.address);
+    const data = yearnFedData.yearn.strategies
+    .filter(s => vaultAddresses.includes(s.vault_address))
+    .map(s => {
+      return s.reports
+        .map((r) => ({
+          ...r,
+          net_debt_added: (parseFloat(r.debt_added) - parseFloat(r.debt_paid)) * parseFloat(r.want_price_at_block),
+        }))
+    })
+    .flat();
+
+    setHarvests(data)    
+    setGaugeVotes(yearnFedData.curve.gauge_votes);
+  }, [yearnFedData, activePoolAddress])
 
   return (
     <Layout>
@@ -411,7 +452,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
       </Head>
       <AppNav active="Transparency" activeSubmenu="Treasury" />
       {
-        !yearnFedData ?
+        !yearnFedData?.yearn ?
           <WarningMessage alertProps={{ mt: "8" }} description="Could not fetch data form API" />
           :
           <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
@@ -445,13 +486,13 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                     </HStack>
                   </HStack>
                 </Container>
-                
+
                 <NavButtons onClick={(v) => setActivePool(v)} active={activePool} options={
-                  !yearnFedData?.curve?.pools ? ['3Crv'] : Object.values(yearnFedData?.curve?.pools).map((pool => {
-                    return pool.coins[1].symbol
-                  }))
-                }
-                />
+                    !yearnFedData?.curve?.pools ? ['3Crv'] : Object.values(yearnFedData?.curve?.pools).map((pool => {
+                      return pool.coins[1].symbol
+                    }))
+                  }
+                  />
 
                 { 
                 !!yearnFedData?.curve?.pools && yearnFedData?.curve?.pools[activePoolAddress] &&
@@ -469,7 +510,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       const { management_fee, deposit_limit, vault_performance_fee } = yearnFedData.yearn.vaults.find(v => v.address === s.vault_address);
                       return <InfoMessage
                         alertProps={{ w: { base: '100%', lg: '50%' }, textAlign: 'left', fontSize: '14px' }}
-                        title={<Text fontWeight="extrabold" fontSize="16px">{s.name}</Text>}
+                        title={<Text fontWeight="extrabold" fontSize="14px">{s.name}</Text>}
                         description={
                           <VStack pt="2" spacing="1" w='full' alignItems="flex-start">
                             <HStack w='full' justifyContent="space-between">
@@ -509,7 +550,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                               <Text>{shortenNumber(s.max_slippage_in / 100, 2)}% / {shortenNumber(s.max_slippage_out / 100, 2)}%</Text>
                             </HStack>
                             <HStack w='full' justifyContent="space-between">
-                              <Text>Performance Fee / Management Fee:</Text>
+                              <Text>Perf. Fee / Manag. Fee:</Text>
                               <Text>{(s.strat_performance_fee + vault_performance_fee) / 100}% / {management_fee / 100}%</Text>
                             </HStack>
                           </VStack>
@@ -556,13 +597,13 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       m="0"
                     >
                       {
-                        !!yearnFedData?.curve?.gauge_votes && !!yearnFedData?.curve?.gauge_votes[activePoolAddress] &&
+                        !gaugeVotes?.length ? <Text>No gauge vote yet</Text> : 
                         <Table
                         keyName="txn_hash"
                         defaultSort="current_timestamp"
                         defaultSortDir="desc"
-                        columns={columns}
-                        items={yearnFedData.curve.gauge_votes[activePoolAddress]} />
+                        columns={gaugeColumns}
+                        items={gaugeVotes} />
                       }
                     </Container>
                   </>
@@ -579,23 +620,17 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       p="0"
                       m="0"
                     >
-                      <Table
+                      {
+                        !harvests?.length ? <Text>No harvest yet</Text>
+                        : <Table
                         keyName="id"
                         defaultSort="timestamp"
                         defaultSortDir="desc"
                         columns={reportsColumn}
                         items={
-                          yearnFedData.yearn.strategies
-                            .filter(s => s.vault_address === yearnFedData.yearn.vaults.find(v => v.want_address == activePoolAddress).address)
-                            .map(s => {
-                              return s.reports
-                                .map((r) => ({
-                                  ...r,
-                                  net_debt_added: (parseFloat(r.debt_added) - parseFloat(r.debt_paid)) * parseFloat(r.want_price_at_block),
-                                }))
-                            })
-                            .flat()
+                          harvests
                         } />
+                      }
                     </Container>
                   </>
                 }
