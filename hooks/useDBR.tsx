@@ -1,14 +1,12 @@
 import { F2_SIMPLE_ESCROW } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
-import { getBnToNumber } from "@app/util/markets";
+import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { getToken, TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
-import { useLpPrice } from "./usePrices";
-import { CHAIN_ID } from "@app/config/constants";
 import { f2CalcNewHealth } from "@app/util/f2";
 
 const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
@@ -90,7 +88,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
-      return [F2_ORACLE, 'getPrice', m.collateral]
+      return [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
     }),
     ...markets.map(m => {
       return [m.address, 'collateralFactorBps']

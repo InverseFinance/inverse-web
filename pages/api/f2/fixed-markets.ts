@@ -11,7 +11,7 @@ import { CHAIN_ID } from '@app/config/constants';
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2markets-v1.0.0`;
+  const cacheKey = `f2markets-v1.0.1`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
     const bnPrices = await Promise.all(
       oracles.map((o, i) => {
         const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-        return oracle.getPrice(F2_MARKETS[i].collateral)
+        return oracle.viewPrice(F2_MARKETS[i].collateral, bnCollateralFactors[i]);
       }),
     );
 
