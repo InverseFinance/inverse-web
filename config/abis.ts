@@ -353,8 +353,10 @@ export const F2_SIMPLE_ESCROW = [
   "function balance() public view returns (uint)",
 ];
 
-export const F2_BORROW_CONTROLLER = [
+export const F2_CONTROLLER_ABI = [
   "function borrowAllowed(address borrower, address, uint amount) public returns (bool) ",
+  "function dailyLimits(address market) public returns (uint) ",
+  "function dailyBorrows(address market, uint day) public returns (uint) ",
 ];
 
 export const F2_MARKET_ABI = [
@@ -419,6 +421,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     DEBT_CONVERTER,
     DBR,
     F2_ORACLE,
+    F2_CONTROLLER,
     F2_MARKETS,
   } = getNetworkConfigConstants(networkConfig);
 
@@ -446,6 +449,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         [DBR, DBR_ABI],
         [F2_ORACLE, F2_ORACLE_ABI],
+        [F2_CONTROLLER, F2_CONTROLLER_ABI],
         ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),

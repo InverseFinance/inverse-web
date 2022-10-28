@@ -240,3 +240,31 @@ export const useDBRPrice = (): { price: number } => {
     price: ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
   }
 }
+
+export const useBorrowAllowed = (market: F2Market, borrower: string, amount: string | BigNumber) => {
+  const { data } = useEtherSWR([market.borrowController, 'borrowAllowed', borrower, borrower, amount]);
+  return data === undefined ? true : !!data;
+}
+
+export const useBorrowLimits = (market: F2Market) => {
+  const d = new Date();
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay / 1000);
+
+  const { data } = useEtherSWR([
+    [market.borrowController, 'dailyLimits', market.address],
+    [market.borrowController, 'dailyBorrows', market.address, dayIndexUtc],
+    [DOLA, 'balanceOf', market.address],
+  ]);
+
+  const dailyLimit = data ? getBnToNumber(data[0]) : 0;
+  const dailyBorrows = data ? getBnToNumber(data[1]) : 0;
+  const dolaLiquidity = data ? getBnToNumber(data[2]) : 0;
+  const leftToBorrow = data && dailyLimit !== 0 ? dailyLimit - dailyBorrows : dolaLiquidity;
+
+  return {
+    dailyLimit,
+    dailyBorrows,
+    leftToBorrow,
+    dolaLiquidity,
+  }
+}
