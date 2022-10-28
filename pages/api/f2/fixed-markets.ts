@@ -1,17 +1,17 @@
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DOLA_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
+import { DOLA_ABI, F2_CONTROLLER_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from '@app/util/markets'
-import { CHAIN_ID } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2markets-v1.0.1`;
+  const cacheKey = `f2markets-v1.0.2`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);
@@ -31,6 +31,7 @@ export default async function handler(req, res) {
       replenishmentIncentives,
       liquidationIncentives,
       borrowControllers,
+      borrowPaused,
     ] = await Promise.all([
       Promise.all(
         F2_MARKETS.map(m => {
@@ -73,7 +74,42 @@ export default async function handler(req, res) {
           return market.borrowController();
         })
       ),
-    ]);
+      Promise.all(
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return market.borrowPaused();
+        })
+      ),
+    ]); 
+
+    const dailyLimits = await Promise.all(
+      borrowControllers.map((bc, i) => {
+        if(bc === BURN_ADDRESS) {
+          return new Promise(resolve => resolve(BigNumber.from('0')));
+        } else {
+          const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
+          return bcContract.dailyLimits(F2_MARKETS[i].address);
+        }
+      })
+    );
+
+    const today = new Date();
+    const dayIndexUtc = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0) / 86400000);
+
+    const dailyBorrows = await Promise.all(
+      borrowControllers.map((bc, i) => {
+        if(bc === BURN_ADDRESS) {
+          return new Promise(resolve => resolve(BigNumber.from('0')));
+        } else {
+          const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
+          return bcContract.dailyBorrows(F2_MARKETS[i].address, dayIndexUtc);
+        }
+      })
+    );
+
+    const leftToBorrowBn = borrowControllers.map((bc, i) => {
+      return bc === BURN_ADDRESS ? bnDola : dailyLimits[i].sub(dailyBorrows[i]);
+    });
 
     const bnPrices = await Promise.all(
       oracles.map((o, i) => {
@@ -96,6 +132,10 @@ export default async function handler(req, res) {
         replenishmentIncentive: getBnToNumber(replenishmentIncentives[i], 4),
         liquidationIncentive: getBnToNumber(liquidationIncentives[i], 4),
         borrowController: borrowControllers[i],
+        borrowPaused: borrowPaused[i],
+        dailyLimit: getBnToNumber(dailyLimits[i]),
+        dailyBorrows: getBnToNumber(dailyBorrows[i]),
+        leftToBorrow: getBnToNumber(leftToBorrowBn[i]),
         supplyApy: 0,
       }
     })

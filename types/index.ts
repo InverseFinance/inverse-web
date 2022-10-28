@@ -622,6 +622,9 @@ export type F2Market = {
   dolaLiquidity: number
   replenishmentIncentive: number
   liquidationIncentive: number
+  dailyLimit: number
+  dailyBorrows: number
+  leftToBorrow: number
   borrowController: string
   icon?: string
   marketIcon?: string

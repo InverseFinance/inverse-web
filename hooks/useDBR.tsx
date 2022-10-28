@@ -87,6 +87,9 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const nbMarkets = markets.length;
 
+  const d = new Date();
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay);
+
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
       return [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
@@ -98,12 +101,31 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return [m.address, 'totalDebt']
     }),
     ...markets.map(m => {
+      return [m.address, 'borrowController']
+    }),
+    ...markets.map(m => {
       return [DOLA, 'balanceOf', m.address]
+    }),
+  ]);
+
+  const { data: limits } = useEtherSWR([
+    ...markets.map((m, i) => {
+      const bc = data ? data[i+3*nbMarkets] : BURN_ADDRESS;
+      const noBorrowController = bc === BURN_ADDRESS;
+      return data && !noBorrowController ? [bc, 'dailyLimits', m.address] : [];
+    }),
+    ...markets.map((m, i) => {
+      const bc = data ? data[i+3*nbMarkets] : BURN_ADDRESS;
+      const noBorrowController = bc === BURN_ADDRESS;
+      return data && !noBorrowController ? [bc, 'dailyBorrows', m.address, dayIndexUtc] : [];
     }),
   ]);
 
   return {
     markets: markets.map((m, i) => {
+      const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i].dailyLimit ?? 0;
+      const dailyBorrows = limits ? getBnToNumber(limits[i+nbMarkets]) : cachedMarkets[i].dailyBorrows ?? 0;
+      const dolaLiquidity = data ? getBnToNumber(data[i+4*nbMarkets]) : cachedMarkets[i].dolaLiquidity ?? 0;
       return {
         ...m,
         ...cachedMarkets[i],
@@ -111,8 +133,11 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         price: data ? getBnToNumber(data[i]) : cachedMarkets[i].price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i+nbMarkets], 4) : cachedMarkets[i].collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i+2*nbMarkets]) : cachedMarkets[i].totalDebt ?? 0,
-        bnDolaLiquidity: data ? data[i+3*nbMarkets] : cachedMarkets[i].bnDolaLiquidity ?? 0,
-        dolaLiquidity: data ? getBnToNumber(data[i+3*nbMarkets]) : cachedMarkets[i].dolaLiquidity ?? 0,
+        bnDolaLiquidity: data ? data[i+4*nbMarkets] : cachedMarkets[i].bnDolaLiquidity ?? 0,
+        dolaLiquidity,
+        dailyLimit,
+        dailyBorrows,
+        leftToBorrow: limits ? dailyLimit === 0 ? dolaLiquidity : dailyLimit - dailyBorrows : cachedMarkets[i].leftToBorrow ?? 0,
       }
     }),
   }
