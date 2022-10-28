@@ -353,13 +353,13 @@ export const F2_SIMPLE_ESCROW = [
   "function balance() public view returns (uint)",
 ];
 
-export const F2_CONTROLLER_ABI = [
-  "function borrowAllowed(address borrower, address, uint amount) public returns (bool) ",
-  "function dailyLimits(address market) public returns (uint) ",
-  "function dailyBorrows(address market, uint day) public returns (uint) ",
+export const F2_CONTROLLER_ABI = [  
+  "function dailyLimits(address market) public view returns (uint) ",
+  "function dailyBorrows(address market, uint day) public view returns (uint) ",
 ];
 
 export const F2_MARKET_ABI = [
+  "function borrowController() public view returns (address)",
   "function collateral() public view returns (address)",
   "function collateralFactorBps() public view returns (uint)",
   "function replenishmentIncentiveBps() public view returns (uint)",
