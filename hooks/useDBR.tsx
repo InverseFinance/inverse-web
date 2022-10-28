@@ -8,6 +8,7 @@ import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
@@ -69,7 +70,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
-  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets`, fetcher);
+  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v3`, fetcher);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
@@ -241,24 +242,25 @@ export const useDBRPrice = (): { price: number } => {
   }
 }
 
-export const useBorrowAllowed = (market: F2Market, borrower: string, amount: string | BigNumber) => {
-  const { data } = useEtherSWR([market.borrowController, 'borrowAllowed', borrower, borrower, amount]);
-  return data === undefined ? true : !!data;
-}
-
 export const useBorrowLimits = (market: F2Market) => {
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay / 1000);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay);
 
-  const { data } = useEtherSWR([
+  const noBorrowController = market.borrowController === BURN_ADDRESS;
+
+  const dataToGet = noBorrowController ? [
+    [DOLA, 'balanceOf', market.address],
+  ]: [
+    [DOLA, 'balanceOf', market.address],
     [market.borrowController, 'dailyLimits', market.address],
     [market.borrowController, 'dailyBorrows', market.address, dayIndexUtc],
-    [DOLA, 'balanceOf', market.address],
-  ]);
+  ];
 
-  const dailyLimit = data ? getBnToNumber(data[0]) : 0;
-  const dailyBorrows = data ? getBnToNumber(data[1]) : 0;
-  const dolaLiquidity = data ? getBnToNumber(data[2]) : 0;
+  const { data } = useEtherSWR(dataToGet);
+
+  const dolaLiquidity = data ? getBnToNumber(data[0]) : 0;
+  const dailyLimit = !noBorrowController && data ? getBnToNumber(data[1]) : 0;
+  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;  
   const leftToBorrow = data && dailyLimit !== 0 ? dailyLimit - dailyBorrows : dolaLiquidity;
 
   return {
