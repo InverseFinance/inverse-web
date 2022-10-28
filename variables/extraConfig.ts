@@ -117,7 +117,8 @@ export const EXTRA_CONFIG = {
     "5": {
         ...mainConfig,
         dbr: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
-        f2Oracle: '0x65C5967a121B1e8bF0277702819DA49816B6d54f',
+        f2Oracle: '0x406869Ba5f89702cda416E0DF2550596E5a5aD2D',
+        f2controller: '0xE5898929cF6d708394fb4C2a93A9499d3bA8497d',
         f2markets: [
             // {
             // name: 'WETH',

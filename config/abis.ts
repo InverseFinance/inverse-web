@@ -345,11 +345,16 @@ export const DBR_ABI = ERC20_ABI.concat([
 ]);
 
 export const F2_ORACLE_ABI = [
-  "function getPrice(address) public view returns (uint)",
+  "function getPrice(address collateral, uint collateralFactorBps) external returns (uint)",
+  "function viewPrice(address collateral, uint collateralFactorBps) public view returns (uint)",
 ];
 
 export const F2_SIMPLE_ESCROW = [
   "function balance() public view returns (uint)",
+];
+
+export const F2_BORROW_CONTROLLER = [
+  "function borrowAllowed(address borrower, address, uint amount) public returns (bool) ",
 ];
 
 export const F2_MARKET_ABI = [
