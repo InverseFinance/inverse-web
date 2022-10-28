@@ -179,7 +179,7 @@ export const F2CombinedForm = ({
                             inputRight={<MarketImage pr="2" image={market.icon || market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmount > collateralBalance : collateralAmount > deposits}
                         />
-                        <AmountInfos label="Total Deposits" value={deposits} newValue={newDeposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} />
+                        <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} />
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }
@@ -217,7 +217,6 @@ export const F2CombinedForm = ({
                                 dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : 0 : 0}
                                 label="Total Debt"
                                 value={debt}
-                                newValue={newDebt}
                                 delta={deltaDebt}
                                 textProps={{ fontSize: '14px' }} />
                         </>
