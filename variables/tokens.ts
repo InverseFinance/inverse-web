@@ -66,6 +66,7 @@ const chainTokenAddresses = {
     YVCRV3CRYPTO: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+    FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -267,6 +268,15 @@ const chainTokens = {
       symbol: '3CRV',
       coingeckoId: 'lp-3pool-curve',
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].FRAXUSDC]: {
+      address: chainTokenAddresses["1"].FRAXUSDC,
+      name: 'crvFRAX',
+      symbol: 'crvFRAX',
+      coingeckoId: 'curve-fi-frax-usdc',
+      image: 'https://assets.coingecko.com/coins/images/13422/small/frax_logo.png?1608476506',
+      protocolImage: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png?1547042389',
       decimals: 18,
     },
     [chainTokenAddresses["1"].FLOKI]: {
