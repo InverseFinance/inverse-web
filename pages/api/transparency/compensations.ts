@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { DOLA_PAYROLL_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI } from '@app/config/abis'
+import { DOLA_PAYROLL_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -9,8 +9,8 @@ import { getBnToNumber } from '@app/util/markets'
 
 export default async function handler(req, res) {
 
-  const { INV, TREASURY, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v1.2.0`;
+  const { INV, TREASURY, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const cacheKey = `compensations-cache-v1.2.1`;
 
   try {
 
@@ -41,6 +41,15 @@ export default async function handler(req, res) {
       }
     }, {})).filter(v => !!v);
 
+    const unclaimeds = await Promise.all(currentPayrolls.map(p => {      
+      return payrollContract.balanceOf(p.recipient);
+    }));
+
+    unclaimeds.forEach((bn, i) => {
+      currentPayrolls[i].unclaimed = getBnToNumber(unclaimeds[i]);
+    })
+    const currentLiabilities = currentPayrolls.reduce((prev, curr) => prev+curr.unclaimed, 0);
+
     // vesters
     const vestersToCheck = [...Array(currentPayrolls.length * 2 + 20).keys()];
 
@@ -59,24 +68,33 @@ export default async function handler(req, res) {
         currentVesters.push({ address: v });
       }
     })
-    const [vesterRecipients, vesterInitialInv] = await Promise.all([
+    const [xinvExRateBn, vesterRecipients, initialXinvVestedBn] = await Promise.all([
+      new Contract(XINV, XINV_ABI, provider).exchangeRateStored(),
       Promise.all(currentVesters.map(v => (new Contract(v.address, VESTER_ABI, provider)).recipient())),
-      Promise.all(currentVesters.map(v => invContract.queryFilter(invContract.filters.Transfer(TREASURY, v.address)))),
+      Promise.all(currentVesters.map(v => (new Contract(v.address, VESTER_ABI, provider)).vestingXinvAmount())),
+      // Promise.all(currentVesters.map(v => invContract.queryFilter(invContract.filters.Transfer(TREASURY, v.address)))),
     ]);
 
     // founder: initial amount was 8k, current vester is just part of it
     const founderRecipient = '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb';
+    const founderInitialAmount = 8000;
+    const founderNewVesterAmount = 3333.33;
+    const xinvExRate = getBnToNumber(xinvExRateBn);
 
     currentVesters.forEach((v, i) => {
+      const isFounder = vesterRecipients[i].toLowerCase() === founderRecipient.toLowerCase();
+      const scaledAmount = Math.round(xinvExRate * getBnToNumber(initialXinvVestedBn[i]));
       currentVesters[i] = {
         ...v,
         recipient: vesterRecipients[i],
-        amount: vesterRecipients[i].toLowerCase() === founderRecipient.toLowerCase() ?
-          8000 : getBnToNumber(vesterInitialInv[i][0].args[2])
+        amount: isFounder ? scaledAmount+(founderInitialAmount-founderNewVesterAmount) : scaledAmount ,
+        // originalInvAmount: isFounder ?
+        // founderInitialAmount : getBnToNumber(vesterInitialInv[i][0].args[2])
       }
     })
 
     const resultData = {
+      currentLiabilities,
       currentPayrolls,
       currentVesters,
     }
@@ -92,9 +110,12 @@ export default async function handler(req, res) {
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
+      } else {
+        res.status(500).json({ error: true })
       }
     } catch (e) {
       console.error(e);
+      res.status(500).json({ error: true })
     }
   }
 }

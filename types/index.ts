@@ -563,7 +563,7 @@ export type Vester = {
   amount: number 
 }
 
-export type Payroll = { recipient: string, amount: number }
+export type Payroll = { recipient: string, amount: number, unclaimed: number }
 
 export type LiquidationEvent = {
   id: string,
