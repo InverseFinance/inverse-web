@@ -3,6 +3,16 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
+      source: '/whitepaper:slug*',
+      destination: '/Fixed_Rate_Markets_FiRM_Whitepaper_v1.03.pdf',
+      permanent: false,
+    },
+    {
+      source: '/firm/whitepaper:slug*',
+      destination: '/Fixed_Rate_Markets_FiRM_Whitepaper_v1.03.pdf',
+      permanent: false,
+    },
+    {
       source: '/positions',
       destination: '/transparency/shortfalls',
       permanent: true,
