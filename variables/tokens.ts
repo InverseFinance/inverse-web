@@ -229,7 +229,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DOLAWETHLP,
       name: 'DOLA-WETH',
       symbol: 'DOLA-WETH',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      image: '/assets/v2/dola-small.png',
       decimals: 18,
       isLP: true,
       balancerInfos: {
@@ -250,7 +250,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isCrvLP: true,
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'
+      image: '/assets/v2/dola-small.png'
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDC,
@@ -260,7 +260,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isCrvLP: true,
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'
+      image: '/assets/v2/dola-small.png'
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
@@ -365,7 +365,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].LOCKEDDOLAFRAXBP,
       name: 'vlDOLA-FRAXBP',
       symbol: 'vlDOLA-FRAXBP',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      image: '/assets/v2/dola-small.png',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
       convexInfos: {
@@ -444,7 +444,7 @@ export const TOKENS: TokenList = {
     name: 'Dola',
     symbol: 'DOLA',
     coingeckoId: 'dola-usd',
-    image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+    image: '/assets/v2/dola-small.png',
     decimals: 18,
   },
 };
