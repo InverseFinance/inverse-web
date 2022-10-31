@@ -4,12 +4,12 @@ const redirects = async () => {
   return [
     {
       source: '/whitepaper:slug*',
-      destination: '/Fixed_Rate_Markets_FiRM_Whitepaper_v1.03.pdf',
+      destination: '/firm.pdf',
       permanent: false,
     },
     {
       source: '/firm/whitepaper:slug*',
-      destination: '/Fixed_Rate_Markets_FiRM_Whitepaper_v1.03.pdf',
+      destination: '/firm.pdf',
       permanent: false,
     },
     {
