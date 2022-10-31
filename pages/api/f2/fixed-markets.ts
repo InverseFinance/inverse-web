@@ -135,7 +135,7 @@ export default async function handler(req, res) {
         borrowPaused: borrowPaused[i],
         dailyLimit: getBnToNumber(dailyLimits[i]),
         dailyBorrows: getBnToNumber(dailyBorrows[i]),
-        leftToBorrow: getBnToNumber(leftToBorrowBn[i]),
+        leftToBorrow: Math.min(getBnToNumber(leftToBorrowBn[i]), getBnToNumber(bnDola[i])),
         supplyApy: 0,
       }
     })

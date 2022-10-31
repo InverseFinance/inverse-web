@@ -28,7 +28,7 @@ const columns = [
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon }) => {
             return <Cell minWidth="130px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon||icon}')`} h="40px" w="60px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <BigImageButton bg={`url('${marketIcon||icon}')`} h="30px" w="30px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 <CellText>{name}</CellText>
             </Cell>
         },
@@ -72,6 +72,23 @@ const columns = [
         value: ({ dolaLiquidity }) => {
             return <Cell minWidth="100px" justify="center" >
                 <CellText>{shortenNumber(dolaLiquidity, 2, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'leftToBorrow',
+        label: "Today's liquidity",
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        tooltip: 'Markets can have daily borrow limits, this shows the remain liquidity left to borrow for the day (UTC timezone)',
+        value: ({ leftToBorrow, dailyBorrows, dailyLimit }) => {
+            return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0" >
+                {/* <CellText>{dailyLimit > 0 ? shortenNumber(dailyLimit, 2, true) : 'None'}</CellText> */}
+                <CellText>{dailyLimit > 0 ? shortenNumber(leftToBorrow, 2, true) : 'No Daily Limit'}</CellText>
+                {/* {
+                    dailyLimit > 0 && <CellText>                        
+                        {shortenNumber(leftToBorrow, 2, true)}
+                    </CellText>
+                } */}
             </Cell>
         },
     },
@@ -132,11 +149,11 @@ const columns = [
     {
         field: 'perc',
         label: 'Loan Health',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
         tooltip: 'Remaining Collateral Health',
         value: ({ perc, hasDebt }) => {
             const color = getRiskColor(perc);
-            return <Cell minWidth="150px" justify="flex-end" >
+            return <Cell minWidth="120px" justify="flex-end" >
                 <CellText color={perc && hasDebt ? color : undefined}>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</CellText>
             </Cell>
         },
