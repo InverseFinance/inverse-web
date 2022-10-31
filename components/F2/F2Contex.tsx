@@ -71,7 +71,7 @@ export const F2Context = ({
     const isMountedRef = useRef(true)
     const colDecimals = market.underlying.decimals;
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt } = useAccountDBRMarket(market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow } = useAccountDBRMarket(market, account);
 
     const debtAmountNum = parseFloat(debtAmount||'0');
     const collateralAmountNum = parseFloat(collateralAmount||'0');
@@ -220,6 +220,8 @@ export const F2Context = ({
         newDebt,
         bnDolaLiquidity,
         newCreditLimit,
+        bnLeftToBorrow,
+        leftToBorrow,
         durationType,
         durationTypedValue,
         riskColor,

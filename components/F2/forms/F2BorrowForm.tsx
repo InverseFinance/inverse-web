@@ -38,7 +38,7 @@ export const F2BorrowForm = ({
     const colDecimals = f2market.underlying.decimals;
 
     const { balance: dbrBalance, debt, bnDebt } = useAccountDBR(account);
-    const { withdrawalLimit, deposits, debt: marketDebt, bnDolaLiquidity, dolaLiquidity } = useAccountDBRMarket(f2market, account);
+    const { withdrawalLimit, deposits, debt: marketDebt, bnDolaLiquidity, dolaLiquidity, bnLeftToBorrow } = useAccountDBRMarket(f2market, account);
 
     const { balances: dolaBalances } = useBalances([DOLA], 'balanceOf');
     const dolaBalance = dolaBalances ? getBnToNumber(dolaBalances[DOLA]) : 0;
@@ -95,7 +95,7 @@ export const F2BorrowForm = ({
                 zIndex: -1,
             },
         }}
-        image={<BigImageButton bg="url('/assets/dola.png')" h="50px" w="80px" />}
+        image={<BigImageButton bg="url('/assets/v2/dola.png')" h="50px" w="80px" />}
         right={
             (debt > 0 || !isBorrow) && <Text
                 mt={{ base: '2', sm: '0' }}
@@ -147,7 +147,7 @@ export const F2BorrowForm = ({
                         destination={f2market.address}
                         signer={signer}
                         decimals={colDecimals}
-                        maxAmountFrom={isBorrow ? [bnDolaLiquidity, bnMaxNewBorrow] : [bnDolaBalance, bnDebt]}
+                        maxAmountFrom={isBorrow ? [bnLeftToBorrow, bnMaxNewBorrow] : [bnDolaBalance, bnDebt]}
                         onAction={({ bnAmount }) => handleAction(bnAmount)}
                         onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                         actionLabel={btnlabel}

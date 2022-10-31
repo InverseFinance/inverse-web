@@ -69,7 +69,7 @@ export const F2WalkthroughRecap = ({
                 onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
                 actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
                 showMaxBtn={false}
-                isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0 || !market.dolaLiquidity}
+                isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0 || !market.leftToBorrow}
                 hideInputIfNoAllowance={false}
                 hideInput={true}
                 hideButtons={false}

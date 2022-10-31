@@ -120,7 +120,7 @@ export const F2Header = ({
             />
             <AnchorBigButton
               onClick={getStarted}
-              bg="url('/assets/dola.png')"
+              bg="url('/assets/v2/dola.png')"
               title="Borrow DOLA"
               subtitle={`${shortenNumber(dbrPrice * 100, 2)}% Fixed-Rate`}
             />

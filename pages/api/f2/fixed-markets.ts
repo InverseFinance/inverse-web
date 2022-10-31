@@ -107,7 +107,7 @@ export default async function handler(req, res) {
       })
     );
 
-    const leftToBorrowBn = borrowControllers.map((bc, i) => {
+    const bnLeftToBorrow = borrowControllers.map((bc, i) => {
       return bc === BURN_ADDRESS ? bnDola : dailyLimits[i].sub(dailyBorrows[i]);
     });
 
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
         borrowPaused: borrowPaused[i],
         dailyLimit: getBnToNumber(dailyLimits[i]),
         dailyBorrows: getBnToNumber(dailyBorrows[i]),
-        leftToBorrow: Math.min(getBnToNumber(leftToBorrowBn[i]), getBnToNumber(bnDola[i])),
+        leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
         supplyApy: 0,
       }
     })

@@ -96,7 +96,7 @@ export const F2CombinedFormSimplest = ({
         label={isSmallerThan728 ? 'Deposit & Borrow' : `Deposit ${f2market.name} and Borrow DOLA`}
         description={`Quick and Easy Fixed-Rate Borrowing`}
         contentBgColor={'lightPrimaryAlpha'}
-        image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" /> }
+        image={isSmallerThan728 ? undefined : <BigImageButton bg={`url('/assets/v2/dola.png')`} h="50px" w="80px" /> }
         right={
             <F2SettingsPopover duration={duration} onDurationChange={(v) => setDuration(v)} />
             // <F2DurationSlider duration={duration} onChange={(v) => setDuration(v)} />

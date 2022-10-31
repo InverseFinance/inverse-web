@@ -68,7 +68,7 @@ const columns = [
         field: 'dolaLiquidity',
         label: 'Liquidity',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        tooltip: 'Remaining borrowable DOLA liquidity',
+        tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
         value: ({ dolaLiquidity }) => {
             return <Cell minWidth="100px" justify="center" >
                 <CellText>{shortenNumber(dolaLiquidity, 2, true)}</CellText>

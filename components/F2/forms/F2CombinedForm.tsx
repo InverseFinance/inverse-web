@@ -67,7 +67,7 @@ export const F2CombinedForm = ({
         setMode,
         isWalkthrough,
         infoTab,
-        deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt,
+        deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
     
@@ -200,7 +200,7 @@ export const F2CombinedForm = ({
                                 destination={market.address}
                                 signer={signer}
                                 decimals={colDecimals}
-                                maxAmountFrom={isDeposit ? [bnDolaLiquidity, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
+                                maxAmountFrom={isDeposit ? [bnLeftToBorrow, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
                                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                                 actionLabel={btnLabel}
@@ -221,6 +221,12 @@ export const F2CombinedForm = ({
                                 textProps={{ fontSize: '14px' }} />
                         </>
                         : <Text>Nothing to repay</Text>
+                }
+                {
+                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < deltaDebt 
+                    && <WarningMessage alertProps={{ w:'full' }} description={
+                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment`
+                    } />
                 }
                 {
                     isDeposit && <FormControl w='fit-content' display='flex' alignItems='center'>
@@ -393,10 +399,7 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    !market.dolaLiquidity && isBorrowCase && <WarningMessage alertProps={{ w:'full' }} description="No DOLA liquidity at the moment" />
-                }
-                {
-                    isBorrowCase && market.dolaLiquidity > 0 && deltaDebt > 0 && market.dolaLiquidity < deltaDebt && <WarningMessage alertProps={{ w:'full' }} description="Not enough DOLA liquidity" />
+                    !market.leftToBorrow && isBorrowCase && <WarningMessage alertProps={{ w:'full' }} description="No DOLA liquidity at the moment" />
                 }
                 {bottomPart}
             </VStack>

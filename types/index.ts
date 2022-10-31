@@ -625,6 +625,7 @@ export type F2Market = {
   dailyLimit: number
   dailyBorrows: number
   leftToBorrow: number
+  bnLeftToBorrow: number
   borrowController: string
   icon?: string
   marketIcon?: string

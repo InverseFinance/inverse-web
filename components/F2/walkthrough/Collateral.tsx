@@ -65,6 +65,12 @@ export const F2WalkthroughCollateral = ({
                     description="Not enough balance"
                 />
             }
+            {
+                !market.leftToBorrow && <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description="No DOLA borrowable at the moment"
+                />
+            }
         </VStack>
         <HStack w='full' justify="space-between" pt="4">
             <StepNavBtn onClick={() => router.push('/firm')}>
@@ -72,7 +78,7 @@ export const F2WalkthroughCollateral = ({
             </StepNavBtn>
             <StepNavBtn 
                 onClick={() => onStepChange(step + 1)} 
-                disabled={collateralAmount <= 0 || collateralAmount > collateralBalance || !market.dolaLiquidity}>
+                disabled={collateralAmount <= 0 || collateralAmount > collateralBalance || !market.leftToBorrow}>
                 NEXT <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>

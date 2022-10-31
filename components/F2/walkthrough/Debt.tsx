@@ -37,10 +37,11 @@ export const F2WalkthroughDebt = ({
         collateralAmount,
         newCreditLeft,
         maxBorrowable,
+        leftToBorrow,
     } = useContext(F2MarketContext);
 
-    const notEnoughLiq = debtAmount > dolaLiquidity && dolaLiquidity > 0;
-    const isDisabled = notEnoughLiq || (dolaLiquidity === 0)
+    const notEnoughLiq = debtAmount > leftToBorrow && leftToBorrow > 0;
+    const isDisabled = notEnoughLiq || (leftToBorrow === 0)
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
@@ -89,7 +90,7 @@ export const F2WalkthroughDebt = ({
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' alignItems="flex-start" spaing="0">
-                            <Text>There's only {shortenNumber(dolaLiquidity, 2)} DOLA liquidity available</Text>                            
+                            <Text>There's only {shortenNumber(leftToBorrow, 2)} DOLA liquidity available</Text>                            
                         </VStack>
                     }
                 />
@@ -101,7 +102,7 @@ export const F2WalkthroughDebt = ({
             </StepNavBtn>
             <StepNavBtn 
                 onClick={() => onStepChange(step + 1)}
-                disabled={newPerc < 1 || !debtAmount || isDisabled || !market.dolaLiquidity}>
+                disabled={newPerc < 1 || !debtAmount || isDisabled || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>
