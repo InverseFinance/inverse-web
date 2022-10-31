@@ -256,7 +256,7 @@ export const F2FormInfos = (props) => {
         [
             {
                 tooltip: '99% of your technical Max Borrowing Power, usually you would avoid being that close to the maximum',
-                title: 'Max borrow (99% of max)',
+                title: 'Your borrowing power',
                 value: `${maxBorrowable ? `${shortenNumber(maxBorrowable, 0)} DOLA` : '-'}`,
             },
             {
