@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
+import { getNetworkConfigConstants } from '@app/util/networks';
 
 // controlVariable uint256, vestingTerm uint256, minimumPrice uint256, maxPayout uint256, maxDebt uint256
 const termsDefaults = [
@@ -33,6 +34,8 @@ const bondInfoDefaults = [
 
 const activeBonds = BONDS.filter(b => !b.disabled);
 
+const { OP_BOND_MANAGER, INV } = getNetworkConfigConstants();
+
 export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   const lpInputs = activeBonds.filter(b => !b.inputPrice).map(b => b.underlying)
   const { data: lpInputPrices } = useLpPrices(lpInputs, ["1", "1"]);
@@ -41,6 +44,10 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   const { query } = useRouter();
 
   const userAddress = depositor || (query?.viewAddress as string) || account;
+
+  const { data: invBalBn, error: bibi } = useEtherSWR([
+    INV, 'balanceOf', OP_BOND_MANAGER
+  ]);
 
   const { data: bondPrices, error: bondPricesError } = useEtherSWR([
     ...activeBonds.map(bond => {
@@ -105,6 +112,8 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
   // the ROI calculation makes more sense with cg price
   const marketPrice = invCgPrice;
 
+  const invBal = invBalBn ? getBnToNumber(invBalBn) : 0;
+
   const bonds = activeBonds.map((bond, i) => {
     return {
       ...bond,
@@ -114,7 +123,7 @@ export const useBonds = (depositor?: string): SWR & { bonds: Bond[] } => {
       inputUsdPrice: inputPrices[i],
       positiveRoi: marketPrice > trueBondPrices[i],
       vestingDays: Math.round(parseFloat(terms[i][1].toString()) / BLOCKS_PER_DAY),
-      maxPayout: bondMaxPayouts ? getBnToNumber(bondMaxPayouts[i], REWARD_TOKEN?.decimals) : 0,
+      maxPayout: bondMaxPayouts ? Math.min(getBnToNumber(bondMaxPayouts[i], REWARD_TOKEN?.decimals), invBal) : 0,
       userInfos: {
         payout: getBnToNumber(bondInfos[i][0], REWARD_TOKEN?.decimals),
         vesting: getBnToNumber(bondInfos[i][1], 0),
