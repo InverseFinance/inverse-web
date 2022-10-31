@@ -630,17 +630,17 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
 
 export default YearnFed
 
-export async function getStaticProps() {
-  try {
-    const cachedYearnFedData = await fetchJson('http://34.205.72.180:4444/api');
-    return {
-      props: { cachedYearnFedData }
-    }
-  } catch (e) {
-    console.log(e)
-    return {
-      props: { cachedYearnFedData: undefined },
-      revalidate: 600,
-    }
-  }
-}
+// export async function getStaticProps() {
+//   try {
+//     const cachedYearnFedData = await fetchJson('http://34.205.72.180:4444/api');
+//     return {
+//       props: { cachedYearnFedData }
+//     }
+//   } catch (e) {
+//     console.log(e)
+//     return {
+//       props: { cachedYearnFedData: undefined },
+//       revalidate: 600,
+//     }
+//   }
+// }
