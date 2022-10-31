@@ -5,16 +5,18 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useDAO } from '@app/hooks/useDAO'
+import { useCompensations, useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { CHAIN_TOKENS, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
+import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
   const { themeStyles }= useAppTheme();
   const { treasury, anchorReserves, bonds, multisigs, pols } = useDAO();
+  const { currentPayrolls } = useCompensations();
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
   const TWGFtmfunds = multisigs?.find(m => m.shortName === 'TWG on FTM')?.funds || [];
@@ -59,7 +61,9 @@ export const Overview = () => {
               <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
               <FundsDetails title="Multisigs's Holdings & Allowances from Treasury" funds={totalMultisigs} prices={prices} />
               <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} />
-              <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} />
+              <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} />              
+              <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} title="DOLA Monthly Payrolls" />
+              <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} title="Unclaimed Payrolls" toMonthly={false} />
               <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} />

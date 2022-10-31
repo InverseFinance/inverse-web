@@ -25,8 +25,8 @@ const FilterItem = ({ ...props }) => {
 }
 
 const poolLinks = {
-    '0x28368D7090421Ca544BC89799a2Ea8489306E3E5-fantom': 'https://ftm.curve.fi/factory/14/deposit',
-    '0xAA5A67c256e27A5d80712c51971408db3370927D-ethereum': 'https://curve.fi/factory/27/deposit',
+    '2cb9f208-36e7-4505-be1c-9010c5d65317': 'https://ftm.curve.fi/factory/14/deposit',
+    'a6aee229-3a38-47a1-a664-d142a4184ec9': 'https://curve.fi/factory/27/deposit',
     '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352': 'https://v2.info.uniswap.org/pair/0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
 }
 
@@ -39,6 +39,8 @@ const projectLinks = {
     'uniswap': 'https://info.uniswap.org/#/pools',
     'sushiswap': 'https://app.sushi.com/farm?chainId=1',
     'convex-finance': 'https://www.convexfinance.com/stake',
+    'aura': 'https://app.aura.finance',
+    'stakedao': 'https://lockers.stakedao.org',
 }
 
 const getPoolLink = (project, pool) => {

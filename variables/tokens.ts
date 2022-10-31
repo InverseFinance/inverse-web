@@ -40,6 +40,7 @@ const chainTokenAddresses = {
     WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
     STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
+    INVDOLAAURA: '0xA615a41C019AE402c1B7cA9D3d600763e0909A92',
     INVDOLAULP: '0xb268c1c44a349d06a42cf24988162dadc48d839e',
     INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
     INVETHLP: '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
@@ -51,6 +52,8 @@ const chainTokenAddresses = {
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+    VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
+    LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
     DBR: '0x',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
@@ -63,6 +66,8 @@ const chainTokenAddresses = {
     YVCRVIB: '0x27b7b1ad7288079A66d12350c828D3C00A6F07d7',
     YVCRV3CRYPTO: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
+    DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+    FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -173,6 +178,22 @@ const chainTokens = {
       ],
       protocolImage: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688',
     },
+    [chainTokenAddresses["1"].INVDOLAAURA]: {
+      address: chainTokenAddresses["1"].INVDOLAAURA,
+      name: 'INV-DOLA AURA',
+      symbol: 'INV-DOLA-AURA',
+      image: '/assets/inv-square-dark.jpeg',
+      decimals: 18,
+      isLP: true,
+      balancerInfos: {
+        poolId: '0x441b8a1980f2f2e43a9397099d15cc2fe6d3625000020000000000000000035f',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
+      ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
+    },
     [chainTokenAddresses["1"].INVDOLAULP]: {
       address: chainTokenAddresses["1"].INVDOLAULP,
       name: 'INV-DOLA LP',
@@ -213,7 +234,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DOLAWETHLP,
       name: 'DOLA-WETH',
       symbol: 'DOLA-WETH',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      image: '/assets/v2/dola-small.png',
       decimals: 18,
       isLP: true,
       balancerInfos: {
@@ -234,7 +255,17 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isCrvLP: true,
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'
+      image: '/assets/v2/dola-small.png'
+    },
+    [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
+      address: chainTokenAddresses["1"].DOLAFRAXUSDC,
+      name: 'DOLA-FRAX-USDC',
+      symbol: 'DOLA-FRAX-USDC',      
+      protocolImage: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      image: '/assets/v2/dola-small.png'
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
@@ -242,6 +273,15 @@ const chainTokens = {
       symbol: '3CRV',
       coingeckoId: 'lp-3pool-curve',
       image: 'https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039',
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].FRAXUSDC]: {
+      address: chainTokenAddresses["1"].FRAXUSDC,
+      name: 'crvFRAX',
+      symbol: 'crvFRAX',
+      coingeckoId: 'curve-fi-frax-usdc',
+      image: 'https://assets.coingecko.com/coins/images/13422/small/frax_logo.png?1608476506',
+      protocolImage: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png?1547042389',
       decimals: 18,
     },
     [chainTokenAddresses["1"].FLOKI]: {
@@ -325,6 +365,26 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
       decimals: 18,
     }
+    [chainTokenAddresses["1"].VLAURA]: {
+      address: chainTokenAddresses["1"].VLAURA,
+      name: 'vlAURA',
+      symbol: 'vlAURA',
+      image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
+      decimals: 18,
+      coingeckoId: 'aura-finance',
+    },
+    [chainTokenAddresses["1"].LOCKEDDOLAFRAXBP]: {
+      address: chainTokenAddresses["1"].LOCKEDDOLAFRAXBP,
+      name: 'vlDOLA-FRAXBP',
+      symbol: 'vlDOLA-FRAXBP',
+      image: '/assets/v2/dola-small.png',
+      decimals: 18,
+      protocolImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
+      convexInfos: {
+        account: '0x5170793C4D96f9ca058E2A581BADdA9413EF4b0d',
+        fromPrice: '0xE57180685E3348589E9521aa53Af0BCD497E884d',    
+      },      
+    },
   },
   "250": {
     CHAIN_COIN: {
@@ -423,7 +483,7 @@ export const TOKENS: TokenList = {
     name: 'Dola',
     symbol: 'DOLA',
     coingeckoId: 'dola-usd',
-    image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+    image: '/assets/v2/dola-small.png',
     decimals: 18,
   },
 };

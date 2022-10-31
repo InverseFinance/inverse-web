@@ -6,7 +6,7 @@ import { useAnchorRewards } from '@app/hooks/useAnchorRewards'
 import { commify, formatUnits } from 'ethers/lib/utils'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { TEST_IDS } from '@app/config/test-ids'
-import { useBorrowBalances, useSupplyBalances } from '@app/hooks/useBalances';
+import { useBorrowBalances, useSuppliedBalances, useSupplyBalances } from '@app/hooks/useBalances';
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { useAccountMarkets, useMarkets } from '@app/hooks/useMarkets'
 import { Interests } from '@app/types'
@@ -21,6 +21,7 @@ import { PositionSlideWrapper } from '@app/components/Positions/PositionSlideWra
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { useState } from 'react'
 import { InfoMessage, WarningMessage } from '../common/Messages'
+import Link from '@app/components/common/Link'
 
 export const AnchorOverview = () => {
   const { account } = useWeb3React<Web3Provider>()
@@ -28,6 +29,7 @@ export const AnchorOverview = () => {
   const { markets: accountMarkets } = useAccountMarkets()
   const { rewards } = useAnchorRewards()
   const { balances: supplyBalances } = useSupplyBalances()
+  const suppliedBalances = useSuppliedBalances()
   const { balances: borrowBalances } = useBorrowBalances()
   const { markets } = useMarkets()
   const { exchangeRates } = useExchangeRatesV2()
@@ -49,6 +51,7 @@ export const AnchorOverview = () => {
 
   const hasCollaterals = accountMarkets.length > 0;
   const pausedCollaterals = accountMarkets.filter(m => m.collateralGuardianPaused);
+  const hasStuckTokens = !!suppliedBalances.find(m => m.underlying.symbol.endsWith('-v1') && m.supplied > 0);
 
   if (!hasCollaterals) {
     badgeColorScheme = 'gray'
@@ -184,7 +187,7 @@ export const AnchorOverview = () => {
       </Container>
       {
         pausedCollaterals?.length > 0 &&
-        <Box px="6" w='full'>
+        <Stack px="6" w='full'>
           {
             pausedCollaterals.length === 1 && pausedCollaterals[0].underlying.symbol === RTOKEN_SYMBOL ?
               <InfoMessage
@@ -212,7 +215,18 @@ export const AnchorOverview = () => {
                 }
               />
           }
-        </Box>
+          {
+            hasStuckTokens && <InfoMessage
+              alertProps={{ w: 'full' }}
+              title="Bad Debt Repayment Contracts now Available"
+              description={
+                <Box display="inline-block">
+                  Since <Link display="inline-block" href="https://www.inverse.finance/governance/proposals/mills/57" textDecoration="underline">Proposal Mills #57</Link> you can use the <Link textDecoration="underline" display="inline-block" href="/frontier/debt-converter">DebtConverter</Link> and <Link textDecoration="underline" display="inline-block" href="/frontier/debt-repayer">DebtRepayer</Link> to Convert or Sell your v-1 tokens that are stuck due to the bad debts.
+                </Box>
+              }
+            />
+          }
+        </Stack>
       }
     </VStack>
   )

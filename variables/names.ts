@@ -19,6 +19,8 @@ const namedAddresses: { [key: string]: string } = {
     '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
     '0xcc180262347F84544c3a4854b87C34117ACADf94': 'Fed Yearn',
+    '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb': 'Fed Convex',
+    '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d': 'Fed Velo',
     // Cross-Chain Feds
     '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // dao members
@@ -42,6 +44,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xE58ED128325A33afD08e90187dB0640619819413': 'PatB',
     '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'PatB GWG',
     '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Nakamomo',
+    '0xCf9aa49C83a4c4b465152877e95B2e8c4e995587': 'Nakamomo2',
     '0xad4a190d4aea2180b66906537f1fd9700c83842a': 'N3bs',
     '0xee568534d6f6181a933d46748426f82f970eebf4': 'N3bs2',
     '0x962228a90eac69238c7d1f216d80037e61ea9255': 'CryptoHarry',
@@ -54,18 +57,23 @@ const namedAddresses: { [key: string]: string } = {
     '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE': 'Naoufel',
     '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb': 'Nour',
     '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Edo',
+    '0x52f63971afd2a32524c859c29943f9bea38ca907': 'Edo2',
     '0x8E199c07E9c8D5CCbCA86fF5665A5b171b20D5E7': 'Marshmellow',
     '0x27b8D1347bE36Ff697b48d1D74323E6a9f28eA6D': 'Ishita',
     '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': '0xMT',
     '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'yellowtail',
     '0xC253Af7B80F3DD3d469bf4b94AA9e3df59e71e43': 'yellowtail2',
     '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'CryptoHarry2',
+    '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a': 'HarryGasWallet',
     '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'CMeth',
+    '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A': 'DebtConverter',
+    '0x9eb6BF2E582279cfC1988d3F2043Ff4DF18fa6A0': 'DebtRepayer',
 }
 
 export const ADDRESS_ROLES = {
     '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'Treasury',
     '0x962228a90eac69238c7d1f216d80037e61ea9255': 'Treasury',
+    '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'Treasury',
     '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'Engineering',
     '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': 'Engineering',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'Engineering',

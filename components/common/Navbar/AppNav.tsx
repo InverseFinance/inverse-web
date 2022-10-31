@@ -54,7 +54,7 @@ import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
 import { switchTheme } from '@app/util/theme'
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
-
+import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay'
 const NAV_ITEMS = MENUS.nav
 
 const NavBadge = (props: any) => {
@@ -398,6 +398,15 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <ViewOffIcon color="blue.600" boxSize={3} />
                 <Text fontWeight="semibold">Clear View Address</Text>
               </ConnectionMenuItem>
+            }
+            {
+              !!account &&
+              <CoinbasePayButton account={account}>
+                <ConnectionMenuItem>
+                  <Image w={'12px'} h={'12px'} src="/assets/projects/coinbase.svg" />
+                  <Text fontWeight="semibold">Coinbase Pay</Text>
+                </ConnectionMenuItem>
+              </CoinbasePayButton>
             }
             <ConnectionMenuItem
               onClick={() => switchTheme()}

@@ -13,7 +13,7 @@ export const GovernanceRules = () => {
       ]);
     
       const [quorumVotes, proposalThreshold] =
-        otherData || [parseEther('7000'), parseEther('1400')];
+        otherData || [parseEther('9500'), parseEther('1900')];
 
     return <ShrinkableInfoMessage
         title="🏛️ Governance Rules"

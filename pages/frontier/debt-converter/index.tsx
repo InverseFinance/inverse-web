@@ -19,7 +19,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { roundFloorString } from '@app/util/misc'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { dollarify, getBnToNumber, getMonthlyRate, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
 import { useAllowances } from '@app/hooks/useApprovals'
@@ -36,6 +36,7 @@ import { useRouter } from 'next/router'
 import { parseEther } from 'ethers/lib/utils';
 import Link from '@app/components/common/Link'
 import { UNDERLYING } from '@app/variables/tokens'
+import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
@@ -55,7 +56,8 @@ export const DebtConverterPage = () => {
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
     const { exchangeRates } = useExchangeRatesV2();
-    const { exchangeRate: exRateIOU, apr } = useDebtConverter();
+    const { exchangeRate: exRateIOU, apr, outstandingDebt } = useDebtConverter();
+    const { usdShortfall } = useAccountLiquidity();
     const { IOUbalance } = useIOUbalance(userAddress);
 
     const tokens: { [key: string]: TokenWithCtoken } = v1markets?.reduce((prev, curr) => ({ ...prev, [curr.ctoken]: { ...curr.underlying, ctoken: curr.ctoken } }), {});
@@ -67,7 +69,8 @@ export const DebtConverterPage = () => {
     const [collateralMarket, setCollateralMarket] = useState<Partial<Market>>({})
     const { price } = useOraclePrice(collateralMarket?.ctoken);
     const { maxUnderlyingPrice } = useDebtConverterMaxUnderlyingPrice(collateralMarket?.ctoken);
-    const maxPrice = (maxUnderlyingPrice !== null ? maxUnderlyingPrice : price)||0;
+
+    const maxPrice = (maxUnderlyingPrice !== 0 && maxUnderlyingPrice !== null ? maxUnderlyingPrice : price) || 0;
 
     const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
@@ -86,8 +89,9 @@ export const DebtConverterPage = () => {
     }, [v1markets, collateralMarket])
 
     useEffect(() => {
-        setOutputAmount(parseFloat(collateralAmount || 0) * maxPrice);
-    }, [collateralAmount, maxPrice])
+        const outputPrice = Math.min(price || 0, maxPrice);
+        setOutputAmount(parseFloat(collateralAmount || 0) * outputPrice);
+    }, [collateralAmount, price, maxPrice])
 
     const changeCollateral = (v: TokenWithCtoken) => {
         setCollateralMarket(v1markets.find(m => m.ctoken === v.ctoken)!);
@@ -108,7 +112,7 @@ export const DebtConverterPage = () => {
             library?.getSigner(),
             collateralMarket.ctoken,
             (isAllCase ? '0' : antokenAmount),
-            parseEther(minOutput.toString()),
+            parseEther(minOutput.toFixed(2)),
         );
     }
 
@@ -155,8 +159,11 @@ export const DebtConverterPage = () => {
                                                         <b>Convert</b> your v1 Frontier stuck tokens (ETH-V1, WBTC-v1 or YFI-V1) into DOLA IOUs.
                                                     </Text>
                                                     <Text>
-                                                        NB: you will be able to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each time the Inverse Treasury makes a Debt Repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract.
+                                                        NB: you will be able to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each time the Inverse Treasury makes a Debt Repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
                                                     </Text>
+                                                    <Link isExternal target="_blank" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/using-frontier/debt-converter-and-repayer">
+                                                        Learn more in the docs
+                                                    </Link>
                                                 </VStack>
                                             }
                                         />
@@ -174,32 +181,12 @@ export const DebtConverterPage = () => {
                                         <VStack w='full' spacing="4">
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
-                                                    <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
-                                                    <Text>
-                                                        {collateralMarket.underlying.symbol} Oracle Price:
-                                                    </Text>
-                                                </HStack>
-                                                <Text>{price ? dollarify(price, 2) : '-'}</Text>
-                                            </Stack>
-                                            {
-                                                price !== null && maxPrice <= (0.7 * price) && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                                    <HStack>
-                                                        <AnimatedInfoTooltip message="For safety reasons a maximum price is set for the asset" />
-                                                        <Text>
-                                                            {collateralMarket.underlying.symbol} Max accepted Price:
-                                                        </Text>
-                                                    </HStack>
-                                                    <Text>{dollarify(maxPrice, 2)}</Text>
-                                                </Stack>
-                                            }
-                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
-                                                <HStack>
                                                     <AnimatedInfoTooltip message="Exchange Rate between IOUs and DOLA, increases over time." />
                                                     <Text>
                                                         Current IOU Exchange Rate:
                                                     </Text>
                                                 </HStack>
-                                                <Text>1 IOU => {shortenNumber(exRateIOU, 2)} DOLA</Text>
+                                                <Text fontWeight="bold">1 IOU => {shortenNumber(exRateIOU, 4)} DOLA</Text>
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
@@ -212,7 +199,38 @@ export const DebtConverterPage = () => {
                                                         Current Interest Rate:
                                                     </Text>
                                                 </HStack>
-                                                <Text>{shortenNumber(apr, 2)}%</Text>
+                                                <Text>{shortenNumber(apr, 4)}%</Text>
+                                            </Stack>
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Remaining Bad Debt in the chosen market" />
+                                                    <Text>
+                                                        {collateralMarket.underlying.symbol} Oracle Price:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>{price ? dollarify(price, 2) : '-'}</Text>
+                                            </Stack>
+                                            {
+                                                price !== null && maxPrice <= (0.7 * price) && <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                    <HStack>
+                                                        <AnimatedInfoTooltip message="The max price is set to the price during the exploit" />
+                                                        <Text>
+                                                            {collateralMarket.underlying.symbol} Max accepted Price:
+                                                        </Text>
+                                                    </HStack>
+                                                    <Text>{dollarify(maxPrice, 2)}</Text>
+                                                </Stack>
+                                            }
+                                            <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
+                                                <HStack>
+                                                    <AnimatedInfoTooltip message="Current amount of DOLA-denominated debt accrued by the DebtConverter contract" />
+                                                    <Text>
+                                                        Current Outstanding Debt in Contract:
+                                                    </Text>
+                                                </HStack>
+                                                <Text>
+                                                    ~{shortenNumber(outstandingDebt, 2)}
+                                                </Text>
                                             </Stack>
                                             <Stack w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }} >
                                                 <HStack>
@@ -236,30 +254,37 @@ export const DebtConverterPage = () => {
                                                     ~{shortenNumber(minOutput, 2)}
                                                 </Text>
                                             </Stack>
-                                            <HStack w='full' pt="4">
-                                                {
-                                                    !hasAllowance(approvals, collateralMarket?.ctoken) ?
-                                                        <ApproveButton
-                                                            tooltipMsg=""
-                                                            isDisabled={false}
-                                                            address={collateralMarket?.ctoken}
-                                                            toAddress={DEBT_CONVERTER}
-                                                            signer={library?.getSigner()}
-                                                        />
-                                                        :
-                                                        <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
-                                                            <SubmitButton
-                                                                disabled={!collateralAmount || !parseFloat(collateralAmount)}
-                                                                onClick={() => handleConvert(false)}
-                                                                refreshOnSuccess={true}>
-                                                                convert
-                                                            </SubmitButton>
-                                                            <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
-                                                                convert all
-                                                            </SubmitButton>
-                                                        </Stack>
-                                                }
-                                            </HStack>
+                                            {
+                                                usdShortfall > 0 ? <WarningMessage
+                                                    alertProps={{ w: 'full' }}
+                                                    description="Cannot use while being in Shortfall, please repay your debts first"
+                                                /> :
+                                                    <HStack w='full' pt="4">
+                                                        {
+                                                            !hasAllowance(approvals, collateralMarket?.ctoken) ?
+                                                                <ApproveButton
+                                                                    tooltipMsg=""
+                                                                    isDisabled={false}
+                                                                    address={collateralMarket?.ctoken}
+                                                                    toAddress={DEBT_CONVERTER}
+                                                                    signer={library?.getSigner()}
+                                                                />
+                                                                :
+                                                                <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
+                                                                    <SubmitButton
+                                                                        disabled={!collateralAmount || !parseFloat(collateralAmount)}
+                                                                        onClick={() => handleConvert(false)}
+                                                                        refreshOnSuccess={true}>
+                                                                        convert
+                                                                    </SubmitButton>
+                                                                    <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
+                                                                        convert all
+                                                                    </SubmitButton>
+                                                                </Stack>
+                                                        }
+                                                    </HStack>
+                                            }
+
                                         </VStack>
                                     </VStack>
                                 </Container>

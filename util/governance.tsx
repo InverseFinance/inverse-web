@@ -537,3 +537,12 @@ export const triggerProposalUpdate = async (
         return { status: 'warning', message: e.message || 'An error occured' }
     }
 }
+
+export const getHistoricalGovParams = (block: number) => {
+    if(block > 15666400) {
+        return { quorum: 9500, threshold: 1900 };
+    } else if(block > 14834695) {
+        return { quorum: 7000, threshold: 1400 };
+    }
+    return { quorum: 4000, threshold: 1000 };
+}

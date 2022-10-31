@@ -61,7 +61,7 @@ const columns = [
         tooltip: 'The amount of asset exchanged for IOUs',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="flex-end"  {...props} />,
         value: ({ underlyingAmount }) => <Cell minWidth="140px" justify="flex-end" >
-            <Text>{shortenNumber(underlyingAmount, 2)}</Text>
+            <Text>{shortenNumber(underlyingAmount, 4)}</Text>
         </Cell>,
     },
     {
@@ -135,7 +135,8 @@ export const DebtConversions = ({
             title={`Confirm Redeem IOU`}
             onClose={onClose}
             onCancel={onClose}
-            onOk={handleRedeem}
+            onOk={conversion?.currentlyRedeemableIOUs > 0 ? handleRedeem : onClose}
+            cancelLabel={conversion?.currentlyRedeemableIOUs > 0 ? 'Cancel' : ''}
             isOpen={isOpen}
         >
             <VStack my="4" mx="2">
@@ -143,14 +144,21 @@ export const DebtConversions = ({
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack alignItems="flex-start" w='full'>
-                            <HStack w='full' justifyContent="space-between">
-                                <Text>This will redeem:</Text>
-                                <Text>~{shortenNumber(conversion?.currentlyRedeemableIOUs, 2)} IOUs</Text>
-                            </HStack>
-                            <HStack w='full' justifyContent="space-between">
-                                <Text>You will get:</Text>
-                                <Text>~{shortenNumber(conversion?.currentlyRedeemableDOLAs, 2)} DOLA</Text>
-                            </HStack>
+                            {
+                                conversion?.currentlyRedeemableIOUs === 0
+                                    ? <Text fontWeight="bold">Nothing to redeem at the moment</Text>
+                                    :
+                                    <>
+                                        <HStack w='full' justifyContent="space-between">
+                                            <Text>This will redeem:</Text>
+                                            <Text>~{shortenNumber(conversion?.currentlyRedeemableIOUs, 2)} IOUs</Text>
+                                        </HStack>
+                                        <HStack w='full' justifyContent="space-between">
+                                            <Text>You will get:</Text>
+                                            <Text>~{shortenNumber(conversion?.currentlyRedeemableDOLAs, 2)} DOLA</Text>
+                                        </HStack>
+                                    </>
+                            }
                         </VStack>
                     }
                 />

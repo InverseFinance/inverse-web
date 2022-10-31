@@ -20,6 +20,7 @@
   "dependencies": {
     "@chakra-ui/icons": "^1.0.13",
     "@chakra-ui/react": "^1.6.3",
+    "@coinbase/cbpay-js": "^1.4.0",
     "@contentful/rich-text-plain-text-renderer": "^15.12.0",
     "@contentful/rich-text-react-renderer": "^15.4.0",
     "@emotion/react": "^11.4.0",

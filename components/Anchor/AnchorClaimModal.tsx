@@ -47,7 +47,7 @@ export const AnchorClaimModal = ({
         setCheckedMarkets(marketAddresses)
     }
 
-    const hadRewardsInThePast = ['xSUSHI', 'WBTC-v1', 'YFI-v1', 'FLOKI', 'ETH-v1', 'DOLA-3POOL'];
+    const hadRewardsInThePast = ['xSUSHI', 'WBTC-v1', 'YFI-v1', 'FLOKI', 'ETH-v1', 'DOLA-3POOL', 'INV-DOLA-SLP'];
     const checkboxesWithBalance = markets
         .filter(market => (market.rewardApr > 0 || hadRewardsInThePast.includes(market.underlying.symbol)) && getParsedBalance(supplyBalances, market.token, market.underlying.decimals) > 0)
         .map(market => <Checkbox w='200px' key={market.token} value={market.token}>

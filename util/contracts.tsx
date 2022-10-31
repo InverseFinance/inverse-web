@@ -262,6 +262,8 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
   else if (LPToken.isCrvLP) {
     return getBnToNumber(await (new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+  } else if(LPToken.convexInfos) {
+    return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   }
 
   let lpPrice = 0

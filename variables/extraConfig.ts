@@ -33,6 +33,7 @@ const mainConfig = {
         { chainId: NetworkIds.mainnet, address: '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C', name: '0xb1 Fed', projectImage: 'https://unavatar.io/twitter/0x_b1' },
         { chainId: NetworkIds.mainnet, address: '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36', name: 'Fuse24 Fed', projectImage: '/assets/projects/Fuse.png' },
         { chainId: NetworkIds.mainnet, address: '0xcc180262347F84544c3a4854b87C34117ACADf94', name: 'Yearn Fed', projectImage: '/assets/projects/YFI.svg' },
+        { chainId: NetworkIds.mainnet, address: '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb', oldAddress: '0x57d59a73cdc15fe717d2f1d433290197732659e2', name: 'Convex Fed', projectImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328', supplyFuncName: 'dolaSupply' },
         { chainId: NetworkIds.ftm, isXchain: true, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
     ],
     multisigs: [

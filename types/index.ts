@@ -20,6 +20,10 @@ export interface Token {
     poolId: string
     vault: string
   }
+  convexInfos?: {
+    account: string
+    fromPrice: string
+  }
   pairs?: string[]
   badge?: {
     text: string
@@ -399,6 +403,8 @@ export type Fed = {
   name: string,
   projectImage: string,
   isXchain?: boolean,
+  supplyFuncName?: string
+  oldAddress?: string
 }
 
 export type FedWithData = Fed & {
@@ -558,7 +564,7 @@ export type Vester = {
   amount: number 
 }
 
-export type Payroll = { recipient: string, amount: number }
+export type Payroll = { recipient: string, amount: number, unclaimed: number }
 
 export type LiquidationEvent = {
   id: string,

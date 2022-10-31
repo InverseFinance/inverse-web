@@ -19,7 +19,13 @@ import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(CHAIN_ID, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.3`;
+  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.4`;
+
+  if(CHAIN_ID === '5') {
+    const r = await fetch('https://www.inverse.finance/api/markets');
+    res.status(200).send(await r.json());    
+    return;
+  }
 
   if(CHAIN_ID === '5') {
     const r = await fetch('https://www.inverse.finance/api/markets');
@@ -151,7 +157,7 @@ export default async function handler(req, res) {
       getYearnVaults(),
       getStethData(),
       getXSushiData(),
-      getPoolYield('0xAA5A67c256e27A5d80712c51971408db3370927D-ethereum'),
+      getPoolYield('a6aee229-3a38-47a1-a664-d142a4184ec9'),
     ]);
 
     const [yearnVaults, stethData, xSushiData, dola3poolYield] = externalYieldResults.map(r => {

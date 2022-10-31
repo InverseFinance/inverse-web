@@ -14,6 +14,7 @@ import { Fund } from '@app/components/Transparency/Funds'
 import { useProposals } from '@app/hooks/useProposals'
 import { ProposalBarChart } from '@app/components/Transparency/fed/ProposalBarChart'
 import { DaoOperationsTable } from '@app/components/Transparency/DaoOperations'
+import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -50,29 +51,12 @@ export const GovTransparency = () => {
 
     const teamPerc = teamPower / (teamPower + nonTeamPower) * 100
     const otherPerc = nonTeamPower / (teamPower + nonTeamPower) * 100
-    const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev + curr.amount / 12, 0);
     const totalVested = currentVesters.reduce((prev, curr) => prev + curr.amount / 12, 0);
 
     const votingPowerDist = [
         { label: `Active Contributors`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
         { label: `Others`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
     ];
-
-    const payrollsWithRoles = currentPayrolls.map(p => {
-        return { role: namedRoles(p.recipient), label: namedAddress(p.recipient), balance: p.amount / 12, usdPrice: 1 }
-    })
-
-    const roleCosts = Object.entries(payrollsWithRoles.reduce((prev, curr) => {
-        return { ...prev, [curr.role]: curr.balance + (prev[curr.role] || 0) }
-    }, {})).map(([key, v]) => {
-        return {
-            label: key,
-            balance: v,
-            perc: v / totalDolaMonthly * 100,
-            usdPrice: prices && prices['dola-usd'] ? prices['dola-usd'].usd : 1,
-            drill: payrollsWithRoles.filter(p => p.role === key),
-        }
-    }) as Fund[];
 
     const vestersByRecipients = Object.entries(currentVesters.reduce((prev, curr) => {
         return { ...prev, [curr.recipient]: curr.amount + (prev[curr.recipient] || 0) }
@@ -129,10 +113,12 @@ export const GovTransparency = () => {
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
                                 title="Voting Power Distribution"
+                                totalLabel="Total Distribution:"
                                 funds={votingPowerDist}
                                 type="balance"
                                 prices={{}}
                                 labelWithPercInChart={true}
+                                showAsAmountOnly={true}
                             />
                             <VStack w='full' justify="flex-start" alignItems="flex-start">
                                 <Text textAlign="left" mt="1" color="accentTextColor" fontSize="20px" fontWeight="extrabold">
@@ -140,15 +126,9 @@ export const GovTransparency = () => {
                                 </Text>
                                 <ProposalBarChart maxChartWidth={450} chartData={chartData} />
                             </VStack>
+                            <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} />
                             <FundsDetails
-                                title="DOLA Monthly costs"
-                                funds={roleCosts}
-                                type="balance"
-                                prices={{}}
-                                labelWithPercInChart={false}
-                            />
-                            <FundsDetails
-                                title="INV Granted (2 years linear vesting)"
+                                title="INV Granted (xInv scaled, 2y vesting)"
                                 funds={vestersByRole}
                                 type="balance"
                                 prices={{}}
