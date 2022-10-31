@@ -106,6 +106,9 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
     ...markets.map(m => {
       return [DOLA, 'balanceOf', m.address]
     }),
+    ...markets.map(m => {
+      return [m.address, 'borrowPaused']
+    }),
   ]);
 
   const { data: limits } = useEtherSWR([
@@ -126,7 +129,9 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i].dailyLimit ?? 0;
       const dailyBorrows = limits ? getBnToNumber(limits[i+nbMarkets]) : cachedMarkets[i].dailyBorrows ?? 0;
       const dolaLiquidity = data ? getBnToNumber(data[i+4*nbMarkets]) : cachedMarkets[i].dolaLiquidity ?? 0;
-      const leftToBorrow = limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i].leftToBorrow ?? 0;
+      const borrowPaused =  data ? data[i+5*nbMarkets] : cachedMarkets[i].borrowPaused ?? false;
+      const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i].leftToBorrow ?? 0;
+      
       return {
         ...m,
         ...cachedMarkets[i],
@@ -140,6 +145,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         dailyBorrows,
         leftToBorrow,
         bnLeftToBorrow: getNumberToBn(leftToBorrow),
+        borrowPaused,
       }
     }),
   }

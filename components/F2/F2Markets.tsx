@@ -179,7 +179,7 @@ export const F2Markets = ({
         label="FiRM - BETA"
         description="Read more about Inverse's Fixed-Rate Markets"
         href="https://docs.inverse.finance/"
-        image={<BigImageButton bg={`url('/assets/dola.png')`} h="50px" w="80px" />}
+        image={<BigImageButton bg={`url('/assets/firm/firm-transparent.png')`} h="40px" w="100px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >
         <Table
