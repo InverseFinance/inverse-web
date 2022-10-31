@@ -140,12 +140,24 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'The current DOLA liquidity available to borrow in this market',
                 title: 'Market DOLA liquidity',
-                value: `${shortenNumber(f2market.dolaLiquidity, 2)}`,
+                value: `${shortenNumber(f2market.dolaLiquidity, 2, true)}`,
             },
             {
                 tooltip: 'Total amount of DOLA already borrowed from this market',
                 title: 'Total Already Borrowed',
                 value: `${shortenNumber(f2market.totalDebt, 2, true)}`,
+            },
+        ],
+        [
+            {
+                tooltip: 'The daily limit of borrowable DOLAs in the market (UTC timezone)',
+                title: 'Daily Borrow Limit',
+                value: f2market.dailyLimit > 0 ? `${shortenNumber(f2market.dailyLimit, 2, true)}` : 'No daily limit',
+            },
+            {
+                tooltip: 'The remaining DOLA borrowable today (UTC timezone)',
+                title: 'Remaining Daily Limit',
+                value: f2market.dailyLimit > 0  ? `${shortenNumber(f2market.leftToBorrow, 2, true)}` : 'No daily limit',
             },
         ],
         [
