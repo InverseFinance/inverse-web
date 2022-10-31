@@ -362,9 +362,9 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DBR,
       name: 'DBR',
       symbol: 'DBR',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      image: '/assets/v2/dola-small.png',
       decimals: 18,
-    }
+    },
     [chainTokenAddresses["1"].VLAURA]: {
       address: chainTokenAddresses["1"].VLAURA,
       name: 'vlAURA',
@@ -432,7 +432,7 @@ const chainTokens = {
       name: 'Dola',
       symbol: 'DOLA',
       coingeckoId: 'dola-usd',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      image: '/assets/v2/dola-small.png',
       decimals: 18,
     },
     [chainTokenAddresses["5"].WETH]: {
