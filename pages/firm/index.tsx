@@ -4,11 +4,12 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { F2Header } from '@app/components/F2/F2Header'
-import { DbrHealth } from '@app/components/F2/bars/DbrHealth'
+import { DbrHeader } from '@app/components/F2/bars/DbrHeader'
 import { F2Markets } from '@app/components/F2/F2Markets'
 import { useAccount } from '@app/hooks/misc'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { useAccountDBR } from '@app/hooks/useDBR'
+import { DbrBar } from '@app/components/F2/Infos/InfoBar'
 
 export const F2PAGE = () => {
     const account = useAccount();
@@ -31,7 +32,8 @@ export const F2PAGE = () => {
                     {
                         !!account && debt > 0 && <ErrorBoundary description="Failed to load Dbr Health">
                             <VStack px='6' w='full'>
-                                <DbrHealth account={account} onModalOpen={onDbrOpen} />
+                                {/* <DbrHeader account={account} onModalOpen={onDbrOpen} /> */}
+                                <DbrBar account={account} />
                             </VStack>
                         </ErrorBoundary>
                     }

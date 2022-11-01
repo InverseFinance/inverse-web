@@ -8,7 +8,7 @@ import { VStack, Text } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
-import { MarketBar } from '@app/components/F2/Infos/MarketBar'
+import { MarketBar } from '@app/components/F2/Infos/InfoBar'
 import { F2Context } from '@app/components/F2/F2Contex'
 
 const { F2_MARKETS } = getNetworkConfigConstants();

@@ -1,6 +1,6 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import Link from "@app/components/common/Link"
-import { useDBRPrice } from "@app/hooks/useDBR"
+import { useAccountDBR, useDBRPrice } from "@app/hooks/useDBR"
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getDBRBuyLink } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
@@ -8,6 +8,7 @@ import { preciseCommify } from "@app/util/misc"
 import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery, StackProps, TextProps } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
+import moment from 'moment'
 
 const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '20px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
@@ -149,5 +150,94 @@ export const MarketBar = ({
                 {otherInfos}
             </HStack>
         }
+    </VStack>
+}
+
+export const DbrBar = ({
+    account,
+    ...props
+}: {
+} & Partial<StackProps>) => {
+    const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);    
+
+    const hasDebt = dailyDebtAccrual !== 0;
+
+    const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
+
+    const { price: dbrPrice } = useDBRPrice();
+    const [isLargerThan] = useMediaQuery('(min-width: 600px)');
+    const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
+
+    const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
+
+    const dbrBalanceInfos = <VStack spacing="1" alignItems="flex-start">
+        <Title>
+            DBR Balance
+        </Title>
+
+        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={getDBRBuyLink()} isExternal target='_blank'>
+            {
+                dbrBalance > 0 && <SubTitle color="inherit">
+                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
+                </SubTitle>
+            }
+            {
+                dbrBalance === 0 && !debt && <SubTitle color="inherit">
+                    Buy now
+                </SubTitle>
+            }
+            {
+                needTopUp && <SubTitle color="inherit">
+                    {shortenNumber(dbrBalance, 2)} Top-up now
+                </SubTitle>
+            }
+        </Link>
+    </VStack>
+
+    return <VStack w='full' {...props}>
+        <HStack w='full' justify="space-between">
+            <HStack justify="space-between">
+                <MarketImage pr="2" image={`/assets/v2/dbr.png`} size={isLargerThan ? 40 : 30} />
+                <HStack spacing="4">
+                    {
+                        dbrBalanceInfos
+                    }
+                    <VStack spacing="1" alignItems="flex-start">
+                        <Title>
+                            Total Debt
+                        </Title>
+                        <SubTitle color="secondaryTextColor">
+                            {preciseCommify(debt, 2, true)}
+                        </SubTitle>
+                    </VStack>
+                    <VStack spacing="1" alignItems="flex-start">
+                        <Title>
+                            Daily Burn Rate
+                        </Title>
+                        <SubTitle color="secondaryTextColor">
+                            {preciseCommify(-dailyDebtAccrual, 2, false)} DBR
+                        </SubTitle>
+                    </VStack>                    
+                </HStack>
+            </HStack>
+            <HStack spacing={{ base: '2', md: '8' }}>
+            <VStack spacing="1" alignItems="flex-start">
+                        <Title>
+                            Depletion Time
+                        </Title>
+                        <SubTitle color="secondaryTextColor">
+                            {moment(dbrExpiryDate).fromNow()}
+                        </SubTitle>
+                    </VStack>
+                    <VStack spacing="1" alignItems="flex-start">
+                        <Title>
+                        Depletion Date
+                        </Title>
+                        <SubTitle color="secondaryTextColor">
+                            {moment(dbrExpiryDate).format('MMM Mo, YYYY')}
+                        </SubTitle>
+                    </VStack>
+            </HStack>
+        </HStack>
     </VStack>
 }
