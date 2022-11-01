@@ -617,7 +617,7 @@ export const AnchorBorrow = ({ paused, modalOnly }: { paused?: boolean, modalOnl
       description="Borrow against your supplied collateral"
       href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
-      <Table noDataMessage="DOLA borrowing will be back soon" columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
+      <Table noDataMessage="DOLA borrowing is now available on FiRM our new lending market!" columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
