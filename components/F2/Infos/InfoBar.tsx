@@ -5,7 +5,7 @@ import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getDBRBuyLink } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery, StackProps, TextProps } from "@chakra-ui/react"
+import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
@@ -158,7 +158,7 @@ export const DbrBar = ({
     ...props
 }: {
 } & Partial<StackProps>) => {
-    const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);    
+    const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);
 
     const hasDebt = dailyDebtAccrual !== 0;
 
@@ -195,10 +195,12 @@ export const DbrBar = ({
     </VStack>
 
     return <VStack w='full' {...props}>
-        <HStack w='full' justify="space-between">
-            <HStack justify="space-between">
-                <MarketImage pr="2" image={`/assets/v2/dbr.png`} size={isLargerThan ? 40 : 30} />
-                <HStack spacing="4">
+        <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
+            <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
+                {
+                    isLargerThan && <MarketImage pr="2" image={`/assets/v2/dbr.png`} size={40} />
+                }
+                <HStack spacing="4" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     {
                         dbrBalanceInfos
                     }
@@ -210,34 +212,34 @@ export const DbrBar = ({
                             {preciseCommify(debt, 2, true)}
                         </SubTitle>
                     </VStack>
-                    <VStack spacing="1" alignItems="flex-start">
+                    <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'flex-start' }}>
                         <Title>
                             Daily Burn Rate
                         </Title>
                         <SubTitle color="secondaryTextColor">
                             {preciseCommify(-dailyDebtAccrual, 2, false)} DBR
                         </SubTitle>
-                    </VStack>                    
+                    </VStack>
                 </HStack>
             </HStack>
-            <HStack spacing={{ base: '2', md: '8' }}>
-            <VStack spacing="1" alignItems="flex-start">
-                        <Title>
-                            Depletion Time
-                        </Title>
-                        <SubTitle color="secondaryTextColor">
-                            {moment(dbrExpiryDate).fromNow()}
-                        </SubTitle>
-                    </VStack>
-                    <VStack spacing="1" alignItems="flex-start">
-                        <Title>
+            <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
+                <VStack spacing="1" alignItems="flex-start">
+                    <Title>
+                        Depletion Time
+                    </Title>
+                    <SubTitle color="secondaryTextColor">
+                        {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
+                    </SubTitle>
+                </VStack>
+                <VStack spacing="1" alignItems='flex-end'>
+                    <Title>
                         Depletion Date
-                        </Title>
-                        <SubTitle color="secondaryTextColor">
-                            {moment(dbrExpiryDate).format('MMM Mo, YYYY')}
-                        </SubTitle>
-                    </VStack>
+                    </Title>
+                    <SubTitle color="secondaryTextColor">
+                        {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Mo, YYYY')}
+                    </SubTitle>
+                </VStack>
             </HStack>
-        </HStack>
+        </Stack>
     </VStack>
 }
