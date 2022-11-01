@@ -1,16 +1,13 @@
-import { Flex, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Flex, Stack, Text, useDisclosure } from "@chakra-ui/react"
 import Table from "@app/components/common/Table";
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { getRiskColor } from "@app/util/f2";
-import { BigImageButton } from "@app/components/common/Button/BigImageButton";
-import { useDBRShortfalls, useFirmPositions } from "@app/hooks/useFirm";
+import { useDBRShortfalls } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
 import moment from 'moment'
 import { useState } from "react";
-import { FirmLiquidationModal } from "./FirmLiquidationModal";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
 
 const ColHeader = ({ ...props }) => {
@@ -94,7 +91,7 @@ export const DbrShortfalls = ({
     >        
         <Table
             keyName="key"
-            noDataMessage="Loading..."
+            noDataMessage="No DBR shortfalls in last update"
             columns={columns}
             items={positions}
             // onClick={(v) => openLiquidation(v)}

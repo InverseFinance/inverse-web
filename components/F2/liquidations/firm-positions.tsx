@@ -156,7 +156,7 @@ export const FirmPositions = ({
         }
         <Table
             keyName="key"
-            noDataMessage="Loading..."
+            noDataMessage="No live positions in last update"
             columns={columns}
             items={positions}
             onClick={(v) => openLiquidation(v)}
