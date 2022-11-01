@@ -42,3 +42,30 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
     isError: error,
   }
 }
+
+export const useDBRShortfalls = (): SWR & {
+  positions: any,
+  timestamp: number,
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/dbr-shortfalls`, fetcher);
+  const { positions: firmPositions } = useFirmPositions();
+
+  const dbrShortfalls = data ? data.shortfalls : [];
+
+  const dbrDetailedShortfalls = dbrShortfalls.map(s => {
+    const userPositions = firmPositions?.filter(p => p.user === s.account) || [];
+    const marketIcons = userPositions.map(p => p.market.underlying.image);
+    return {
+      ...s,
+      userPositions,
+      marketIcons,
+    }
+  });
+
+  return {
+    positions: dbrDetailedShortfalls,
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
