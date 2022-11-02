@@ -43,9 +43,9 @@ const columns = [
     {
         field: 'user',
         label: 'Borrower',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="120px" />,
         value: ({ user }) => {
-            return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+            return <Cell w="120px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
                 <Link isExternal href={`/firm?viewAddress=${user}`}>
                     <ViewIcon color="blue.600" boxSize={3} />
                 </Link>
@@ -114,8 +114,12 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
         value: ({ seizableWorth, liquidatableDebt }) => {
             return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
-                <CellText>{shortenNumber(seizableWorth, 2, true)}</CellText>
-                <CellText>for {shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
+                {
+                    liquidatableDebt > 0 ? <>
+                    <CellText>{shortenNumber(seizableWorth, 2, true)}</CellText>
+                    <CellText>for {shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
+                    </> : <CellText>-</CellText>
+                }
             </Cell>
         },
     },

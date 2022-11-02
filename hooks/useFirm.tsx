@@ -53,11 +53,11 @@ export const useDBRShortfalls = (): SWR & {
   const dbrShortfalls = data ? data.shortfalls : [];
 
   const dbrDetailedShortfalls = dbrShortfalls.map(s => {
-    const userPositions = firmPositions?.filter(p => p.user === s.account) || [];
-    const marketIcons = userPositions.map(p => p.market.underlying.image);
+    const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
+    const marketIcons = marketPositions.map(p => p.market.underlying.image);
     return {
       ...s,
-      userPositions,
+      marketPositions,
       marketIcons,
     }
   });
