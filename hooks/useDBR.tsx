@@ -70,7 +70,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
-  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v4`, fetcher);
+  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v5`, fetcher);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
@@ -250,28 +250,28 @@ export const useAccountF2Markets = (
 
 export const useDBRPrice = (): { price: number } => {
   const weth = getToken(TOKENS, 'WETH')
-  const { data } = useEtherSWR({
-    args: [      
-        [
-          // sushi
-          '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
-          'getAmountsOut',
-          '1000000000000000000',
-          [weth.address, DBR],
-        ],      
-    ],
-    abi: ['function getAmountsOut(uint256, address[]) public view returns (uint256[])']
-  })
-  const { data: ethPrice } = useEtherSWR({
-    args: [
-      ['0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', 'latestAnswer'],
-    ],
-    abi: ['function latestAnswer() public view returns (uint256)'],
-  });
-  const out = data && data[0] ? getBnToNumber(data[0][1]) : 0;
+  // const { data } = useEtherSWR({
+  //   args: [      
+  //       [
+  //         // sushi
+  //         '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+  //         'getAmountsOut',
+  //         '1000000000000000000',
+  //         [weth.address, DBR],
+  //       ],      
+  //   ],
+  //   abi: ['function getAmountsOut(uint256, address[]) public view returns (uint256[])']
+  // })
+  // const { data: ethPrice } = useEtherSWR({
+  //   args: [
+  //     ['0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', 'latestAnswer'],
+  //   ],
+  //   abi: ['function latestAnswer() public view returns (uint256)'],
+  // });
+  // const out = data && data[0] ? getBnToNumber(data[0][1]) : 0;
   // use coingecko as fallback when ready
   return {
-    price: ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
+    price: 0.05,//ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
   }
 }
 
@@ -301,5 +301,19 @@ export const useBorrowLimits = (market: F2Market) => {
     dailyBorrows,
     leftToBorrow,
     dolaLiquidity,
+  }
+}
+
+export const useDBRReplenishmentPrice = (): SWR & {
+  replenishmentPrice: number,
+} => {
+  const { data, error } = useEtherSWR([
+    DBR, 'replenishmentPriceBps',
+  ]);
+  
+  return {
+    replenishmentPrice: data ? getBnToNumber(data, 4) : 0,
+    isLoading: !error && !data,
+    isError: error,
   }
 }

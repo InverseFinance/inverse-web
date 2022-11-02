@@ -10,8 +10,8 @@ import { CHAIN_ID } from '@app/config/constants';
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2dbr-v1.0.0`;
-  const uniqueUsersCache = `f2unique-users-v1.0.4`;
+  const cacheKey = `f2dbr-v1.0.2`;
+  const uniqueUsersCache = `f2unique-users-v1.0.7`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);
@@ -39,20 +39,25 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [signedBalances, debts] = await Promise.all([
-      Promise.all(dbrUsers.map(u => {
-        return dbrContract.signedBalanceOf(u);
-      })),
-      Promise.all(
-        dbrUsers.map(u => {
-          return dbrContract.debts(u);
-        })
-      ),
-    ]);
+    const deficitsBn = await Promise.all(
+      dbrUsers.map(u => {
+        return dbrContract.deficitOf(u);
+      })
+    )
 
-    const shortfalls = signedBalances.map((bn, i) => {
-      return { balance: getBnToNumber(bn), debt: getBnToNumber(debts[i]), account: dbrUsers[i] };
-    }).filter(p => p.balance < 0);
+    const usersWithDeficits = deficitsBn.map((bn, i) => {
+      return { deficit: getBnToNumber(bn), user: dbrUsers[i] }
+    }).filter(d => d.deficit > 0);
+
+    const debts = await Promise.all(
+      usersWithDeficits.map(d => {
+        return dbrContract.debts(d.user);
+      })
+    )
+
+    const shortfalls = usersWithDeficits.map((d, i) => {
+      return { ...d, debt: getBnToNumber(debts[i]) };
+    })
     
     const resultData = {
       dbrUsers,
