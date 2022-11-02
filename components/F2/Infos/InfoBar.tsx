@@ -227,7 +227,7 @@ export const DbrBar = ({
                     <Title>
                         Depletion Time
                     </Title>
-                    <SubTitle color="secondaryTextColor">
+                    <SubTitle fontWeight={ needsRechargeSoon ? 'bold' : 'inherit' } color={ needsRechargeSoon ? 'warning' : 'secondaryTextColor' }>
                         {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
                     </SubTitle>
                 </VStack>
@@ -235,7 +235,7 @@ export const DbrBar = ({
                     <Title>
                         Depletion Date
                     </Title>
-                    <SubTitle color="secondaryTextColor">
+                    <SubTitle fontWeight={ needsRechargeSoon ? 'bold' : 'inherit' } color={ needsRechargeSoon ? 'warning' : 'secondaryTextColor' }>
                         {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Mo, YYYY')}
                     </SubTitle>
                 </VStack>
