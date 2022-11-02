@@ -11,8 +11,8 @@ import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2shortfalls-v1.0.0`;
-  const uniqueUsersCache = `f2unique-users-v1.0.4`;
+  const cacheKey = `f2shortfalls-v1.0.2`;
+  const uniqueUsersCache = `f2unique-users-v1.0.7`;
   const isShortfallOnly = req.query?.shortfallOnly === 'true';
 
   try {

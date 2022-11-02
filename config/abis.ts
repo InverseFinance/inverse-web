@@ -336,14 +336,14 @@ export const BALANCER_VAULT_ABI = [
 
 export const DBR_ABI = ERC20_ABI.concat([
   "function balances(address) public view returns (uint)",
-  "function totalDueTokensAccrued() public view returns (uint)",
-  "function replenishmentPriceBps() public view returns (uint)",
+  "function totalDueTokensAccrued() public view returns (uint)",  
   "function markets(address) public view returns (bool)",
   "function debts(address) public view returns (uint)",
   "function dueTokensAccrued(address) public view returns (uint)",
   "function lastUpdated(address) public view returns (uint)",
   "function deficitOf(address) public view returns (uint)",
   "function signedBalanceOf(address) public view returns (int)",
+  "function replenishmentPriceBps() public view returns (uint)",
 ]);
 
 export const F2_ORACLE_ABI = [
@@ -383,7 +383,7 @@ export const F2_MARKET_ABI = [
   "function repay(address user, uint amount) public",
   "function repayAndWithdraw(uint repayAmount, uint withdrawAmount) public",
   "function depositAndBorrow(uint amountDeposit, uint amountBorrow) public",
-  "function forceReplenish(address user) public",
+  "function forceReplenish(address user, uint amount) public",
   "function liquidate(address user, uint repaidDebt) public",
   "event Deposit(address indexed account, uint amount)",
   "event Borrow(address indexed account, uint amount)",

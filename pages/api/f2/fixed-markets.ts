@@ -11,7 +11,7 @@ import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2markets-v1.0.2`;
+  const cacheKey = `f2markets-v1.0.4`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);

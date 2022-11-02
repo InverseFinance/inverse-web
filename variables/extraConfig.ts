@@ -117,8 +117,8 @@ export const EXTRA_CONFIG = {
     "31337": mainConfig,
     "5": {
         ...mainConfig,
-        dbr: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
-        f2Oracle: '0x406869Ba5f89702cda416E0DF2550596E5a5aD2D',
+        dbr: '0x853914C030CCbffDd9052AE4E00f564BDA68C79e',
+        f2Oracle: '0x406869Ba5f89702cda416E0DF2550596E5a5aD2D',        
         f2controller: '0xE5898929cF6d708394fb4C2a93A9499d3bA8497d',
         f2markets: [
             // {
@@ -135,11 +135,18 @@ export const EXTRA_CONFIG = {
             //     address: '0xb83e64295A4941d21Bc5f3a5e1D406aC7753Ed05',
             //     icon: '/assets/projects/Ether.png',
             // },
+            // {
+            //     name: 'WETH v3',
+            //     // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            //     collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+            //     address: '0xb85453c56f315F8f60e3c8e542C8528213550cBF',
+            //     icon: '/assets/projects/Ether.png',
+            // },
             {
-                name: 'WETH v3',
+                name: 'WETH (dbr v2)',
                 // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
                 collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
-                address: '0xb85453c56f315F8f60e3c8e542C8528213550cBF',
+                address: '0x0610F1783ACB513a96050008f1Dfd47B1025B17A',
                 icon: '/assets/projects/Ether.png',
             },
     ],
