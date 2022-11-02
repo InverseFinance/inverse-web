@@ -55,6 +55,11 @@ export const f2liquidate = async (signer: JsonRpcSigner, borrower: string, marke
     return contract.liquidate(borrower, repay);
 }
 
+export const f2replenish = async (signer: JsonRpcSigner, borrower: string, market: string, amount: string | BigNumber) => {
+    const contract = new Contract(market, F2_MARKET_ABI, signer);    
+    return contract.forceReplenish(borrower, amount);
+}
+
 const betweenZeroAnd100 = (v: number) => {
     return Math.min(Math.max(v, 0), 100);
 }
