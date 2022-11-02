@@ -91,6 +91,7 @@ export const F2CombinedForm = ({
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
     const isBorrowCase = ['borrow', 'd&b'].includes(MODES[mode]);
     const isRepayCase = ['repay', 'r&w'].includes(MODES[mode]);
+    const isBorrowOnlyCase = 'borrow' === MODES[mode];
 
     const handleAction = () => {
         if (!signer) { return }
@@ -192,7 +193,7 @@ export const F2CombinedForm = ({
                     <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA:</Text>
                 </TextInfo>
                 {
-                    debt > 0 || isDeposit ?
+                    (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) ?
                         <>
                             <SimpleAmountForm
                                 defaultAmount={debtAmount}
@@ -220,7 +221,7 @@ export const F2CombinedForm = ({
                                 delta={deltaDebt}
                                 textProps={{ fontSize: '14px' }} />
                         </>
-                        : <Text>Nothing to repay</Text>
+                        : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
                     isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < deltaDebt 
