@@ -272,7 +272,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': collateralAmount <= 0,
-        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.dolaLiquidity,
+        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
         'repay': debtAmount <= 0 || debtAmount > debt,
         'withdraw': collateralAmount <= 0 || collateralAmount > deposits || newPerc < 1,
     }
