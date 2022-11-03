@@ -32,6 +32,7 @@ export interface Token {
   isInPausedSection?: boolean,
   protocolImage?: string,
   order?: number
+  veNftId?: string
 }
 
 export interface TokenWithBalance extends Token {
@@ -404,6 +405,9 @@ export type Fed = {
   isXchain?: boolean,
   supplyFuncName?: string
   oldAddress?: string
+  revenueChainId?: string
+  revenueSrcAd?: string
+  revenueTargetAd?: string
 }
 
 export type FedWithData = Fed & {
