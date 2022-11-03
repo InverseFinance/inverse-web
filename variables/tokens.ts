@@ -78,6 +78,8 @@ const chainTokenAddresses = {
   },
   "10": {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
+    VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
+    VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
   }
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -404,6 +406,33 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["250"].DOLA, chainTokenAddresses["250"].WFTM
       ],
+    },
+  },
+  "10": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'Ether',
+      symbol: 'ETH',
+      coingeckoId: 'ethereum',
+      image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+      decimals: 18,
+    },
+    [chainTokenAddresses["10"].VELO]: {
+      address: chainTokenAddresses["10"].VELO,
+      name: 'VELO',
+      symbol: 'VELO',
+      image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
+      decimals: 18,
+      coingeckoId: 'velodrome-finance',
+    },
+    [chainTokenAddresses["10"].VEVELO]: {
+      address: chainTokenAddresses["10"].VEVELO,
+      name: 'veVELO',
+      symbol: 'veVELO',
+      image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
+      decimals: 18,
+      coingeckoId: 'velodrome-finance',
+      veNftId: '4',
     },
   },
 }
