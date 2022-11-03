@@ -10,7 +10,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 
 export default async function handler(req, res) {
-  const cacheKey = `prices-v1.0.2`;
+  const cacheKey = `prices-v1.0.3`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 600);
