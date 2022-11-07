@@ -24,7 +24,7 @@ export type AreaChartProps = {
     showMaxY?: boolean,
     interpolation?: VictoryAreaProps["interpolation"],
     axisStyle?: VictoryAxisProps["style"],
-    domainYpadding?: number,
+    domainYpadding?: number | 'auto',
     isDollars?: boolean,
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
@@ -49,6 +49,8 @@ export const AreaChart = ({
     const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
     const { themeStyles } = useAppTheme();
+
+    const _yPad = domainYpadding === 'auto' ? maxY * 0.1 : domainYpadding;
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
@@ -94,7 +96,7 @@ export const AreaChart = ({
                 <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
                 <VictoryAxis style={_axisStyle} />
                 <VictoryArea
-                    domain={{ y: [0, maxY + domainYpadding] }}
+                    domain={{ y: [0, maxY + _yPad] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}
                     labelComponent={
