@@ -159,8 +159,8 @@ export const AnchorOverview = () => {
               <AnimatedInfoTooltip message="Your borrow limit represents the maximum amount that you're allowed to borrow across all tokens. If you reach 100% of your borrow limit, you will get liquidated." />
               <Text>{`${borrowLimitPercent}%`}</Text>
             </Stack>
-            <Flex w="full" h={1} borderRadius={8} bgColor="navBarBackgroundColor">
-              <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="secondaryTextColor"></Flex>
+            <Flex w="full" h={1} borderRadius={8} bgColor="barUnfilledColor">
+              <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="barFilledColor"></Flex>
             </Flex>
             <Stack direction="row" align="center">
               <Text>{`$${borrowTotal ? commify((borrowTotal).toFixed(2)) : '0.00'}`}</Text>

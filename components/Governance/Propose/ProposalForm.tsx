@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure } from '@chakra-ui/react';
+import { Flex, FormControl, FormLabel, Stack, Text, Box, useDisclosure, VStack } from '@chakra-ui/react';
 import { Textarea } from '@app/components/common/Input';
 import { formatUnits, FunctionFragment } from 'ethers/lib/utils';
 import { GovEra, Proposal, ProposalFormFields, ProposalStatus, TemplateProposalFormActionFields } from '@app/types';
@@ -23,6 +23,7 @@ import { namedAddress } from '@app/util';
 import { DRAFT_WHITELIST } from '@app/config/constants';
 import { handleApiResponse } from '@app/util/misc';
 import { InfoMessage } from '@app/components/common/Messages';
+import Container from '@app/components/common/Container';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -276,22 +277,24 @@ export const ProposalForm = ({
                     </Flex>
                     :
                     <>
-                        <Box bg="gradient2" borderRadius="5" p="4" color="mainTextColor">
-                            <FormControl>
-                                <FormLabel>Title</FormLabel>
-                                <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
-                            </FormControl>
-                            <FormControl mt="2">
-                                <FormLabel>
-                                    Details (Markdown <Link isExternal href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">
-                                        cheatsheet
-                                    </Link>, Excel table to markdown <Link isExternal href="https://tabletomarkdown.com/convert-spreadsheet-to-markdown/">
-                                        table converter
-                                    </Link>)
-                                </FormLabel>
-                                <Textarea minHeight="400px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder={"Proposal's description and summary of main actions"} />
-                            </FormControl>
-                        </Box>
+                        <Container noPadding borderRadius="5" p="0" color="mainTextColor">
+                            <VStack w='full'>
+                                <FormControl>
+                                    <FormLabel>Title</FormLabel>
+                                    <ProposalInput onChange={(e) => handleChange('title', e)} value={form.title} fontSize="14" placeholder="Proposal's title" />
+                                </FormControl>
+                                <FormControl mt="2">
+                                    <FormLabel>
+                                        Details (Markdown <Link isExternal href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">
+                                            cheatsheet
+                                        </Link>, Excel table to markdown <Link isExternal href="https://tabletomarkdown.com/convert-spreadsheet-to-markdown/">
+                                            table converter
+                                        </Link>)
+                                    </FormLabel>
+                                    <Textarea minHeight="400px" resize="vertical" onChange={(e: any) => handleChange('description', e)} value={form.description} fontSize="14" placeholder={"Proposal's description and summary of main actions"} />
+                                </FormControl>
+                            </VStack>
+                        </Container>
                         {
                             form.title && form.description ? actionSubForms : null
                         }
