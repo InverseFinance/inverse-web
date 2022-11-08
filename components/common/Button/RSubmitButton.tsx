@@ -7,7 +7,7 @@ export const RSubmitButton = (props: ButtonProps) => {
 }
 
 export const LandingSubmitButton = (props: ButtonProps) => {
-    return <RSubmitButton textTransform="inherit" px="40px" {...props} />
+    return <RSubmitButton boxShadow="none" textTransform="inherit" px="40px" {...props} />
 }
 
 export const LandingOutlineButton = (props: ButtonProps) => {
