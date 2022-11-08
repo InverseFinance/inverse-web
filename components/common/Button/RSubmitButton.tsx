@@ -7,9 +7,9 @@ export const RSubmitButton = (props: ButtonProps) => {
 }
 
 export const LandingSubmitButton = (props: ButtonProps) => {
-    return <RSubmitButton px="40px" {...props} />
+    return <RSubmitButton textTransform="inherit" px="40px" {...props} />
 }
 
 export const LandingOutlineButton = (props: ButtonProps) => {
-    return <RSubmitButton color={lightTheme.colors.mainTextColor} border={`1px solid ${lightTheme.colors.mainTextColor}`} bgColor="white" px="40px" {...props} />
+    return <LandingSubmitButton color={lightTheme.colors.mainTextColor} border={`1px solid ${lightTheme.colors.mainTextColor}`} bgColor="white" {...props} />
 }
