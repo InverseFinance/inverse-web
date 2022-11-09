@@ -1,4 +1,4 @@
-import { getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag } from './api';
+import { getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag, getLandingPosts } from './api';
 import { BLOG_PAGINATION_SIZE } from './constants';
 
 export const getBlogContext = (context) => {
@@ -25,6 +25,15 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
 
     return {
         props: { preview: isPreview, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts },
+    }
+}
+
+export const getLandingProps = async ({ preview = false, ...context }) => {
+    const { isPreviewUrl } = getBlogContext(context);
+    const isPreview = preview || isPreviewUrl;
+    const posts = await getLandingPosts({ isPreview }) ?? [];
+    return {
+        props: { preview: isPreview, posts },
     }
 }
 
