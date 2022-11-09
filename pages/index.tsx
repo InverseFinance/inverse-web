@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Box, Flex, HStack, Image, UnorderedList, ListItem, Spacer, Stack, Text, VStack, SimpleGrid, StackProps } from '@chakra-ui/react'
+import { Box, Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import LinkButton from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
@@ -9,11 +9,14 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
-import { darkTheme, lightTheme } from '@app/variables/theme'
+import { lightTheme } from '@app/variables/theme'
 import { SplashedText } from '@app/components/common/SplashedText'
-import { LandingOutlineButton, LandingSubmitButton, RSubmitButton } from '@app/components/common/Button/RSubmitButton'
+import { LandingOutlineButton, LandingSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { shortenNumber } from '@app/util/markets'
+import { getLandingProps } from '@app/blog/lib/utils'
+import LightPostPreview from '@app/blog/components/light-post-preview'
+import { useDBRPrice } from '@app/hooks/useDBR'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -62,45 +65,30 @@ const cards = [
   },
 ]
 
-const formatStat = ({ value, showDollar, showPercentage }: any): string => {
-  const _value = value || 0
-
-  if (showPercentage) {
-    return `${(_value * 100).toFixed(0)}%`
-  }
-
-  let display = _value.toLocaleString()
-  if (_value >= Math.pow(10, 9)) {
-    display = `${(_value / Math.pow(10, 9)).toFixed(2)}b`
-  } else if (_value >= Math.pow(10, 6)) {
-    display = `${(_value / Math.pow(10, 6)).toFixed(2)}m`
-  } else if (_value >= Math.pow(10, 4)) {
-    display = `${(_value / Math.pow(10, 3)).toFixed(0)}k`
-  }
-
-  return `${showDollar ? '$' : ''}${display}`
-}
-
-export const Landing = () => {
-  const { totalSupply } = useDOLA()
-  const { prices } = usePrices()
-  const { tvl } = useTVL()
+export const Landing = ({ posts }: {
+  posts: any[]
+}) => {
+  const { totalSupply } = useDOLA();
+  const { prices } = usePrices();
+  const { price: dbrPrice } = useDBRPrice();
+  const { tvl } = useTVL();
 
   const stats = [
     {
-      label: 'TVL',
-      value: tvl,
-      showDollar: true,
-    },
-    {
-      label: 'DOLA Supply',
+      name: 'DOLA Circulation',
       value: totalSupply,
-      showDollar: true,
     },
     {
-      label: '$INV Price',
+      name: 'INV price',
       value: prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0,
-      showDollar: true,
+    },
+    {
+      name: 'TVL',
+      value: tvl,
+    },
+    {
+      name: 'DBR price',
+      value: dbrPrice,
     },
   ]
 
@@ -332,7 +320,7 @@ export const Landing = () => {
           </ResponsiveStack>
         </VStack>
       </Flex>
-      <Flex px="8%" py="10" w="full" bgColor={lightTheme.colors.mainTextColor} direction="column" position="relative">
+      <Flex zIndex="1" px="8%" py="10" w="full" bgColor={lightTheme.colors.mainTextColor} direction="column" position="relative">
           <ResponsiveStack justify="space-between">
             <Text color="white" maxW="600px">
               Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
@@ -342,8 +330,14 @@ export const Landing = () => {
             </LandingOutlineButton>
           </ResponsiveStack>
       </Flex>
-      <VStack spacing="20" px="8%" py="20" w="full" bgImage="/assets/v2/landing/wall.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column" position="relative">
-        <VStack alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">         
+      <VStack spacing="20" px="8%" py="20" w="full" bgImage="/assets/v2/landing/wall.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column" position="relative">        
+        <VStack alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
+          <SplashedText            
+            splash="cross-dirty"
+            containerProps={{ top: '-160px', zIndex: '0', right: '-150px', left: 'inherit', position: "absolute" }}
+            splashProps={{ bgColor: lightTheme?.colors.secAccentTextColor, right: 0, left: 'inherit', bottom: '-10px', top: 'inherit', height: '600px', width: '400px' }}
+          >              
+          </SplashedText>
           <ResponsiveStack w='full' alignItems="center">
             <SplashedText
               as="h3"
@@ -354,7 +348,7 @@ export const Landing = () => {
               splashProps={{ right: 0, left: 'inherit', bottom: '-10px', top: 'inherit' }}
             >
               Our Ecosystem
-            </SplashedText>
+            </SplashedText>            
             <LandingSubmitButton w='200px'>
               Become a Partner
             </LandingSubmitButton>
@@ -363,7 +357,7 @@ export const Landing = () => {
             Tabs
           </Text>
         </VStack>
-        <VStack alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">         
+        <VStack alignItems="flex-start" spacing="2" w='full' py="20" bgImage="/assets/v2/landing/part2.png" position="relative">         
           <ResponsiveStack w='full' alignItems="center">
             <SplashedText
               as="h3"
@@ -383,13 +377,10 @@ export const Landing = () => {
             Inverse Finance DAO operates unmatched transparency into its operation and governance
           </Text>
           <ResponsiveStack pt="8" w='full' alignItems="center">
-            <Stat value={43000000} name="DOLA circulation" />
-            <Stat value={69} name="INV price" />
-            <Stat value={0} name="TVL" />
-            <Stat value={0.05} name="DBR price" />
+            {stats.map(stat => <Stat key={stat.name} {...stat} />)}
           </ResponsiveStack>
         </VStack>
-        <VStack alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">         
+        <VStack alignItems="flex-start" spacing="2" w='full' position="relative">
           <ResponsiveStack w='full' alignItems="center">
             <SplashedText
               as="h3"
@@ -407,6 +398,12 @@ export const Landing = () => {
           </ResponsiveStack>
           <ResponsiveStack pt="8" w='full' alignItems="center" justify="space-around">
             <SimpleCard p="0">
+            <SplashedText            
+              splash="cross-dirty"
+              containerProps={{ top: '-60px', left: '-120px', zIndex: '-1', position: "absolute" }}
+              splashProps={{ bgColor: lightTheme?.colors.secAccentTextColor, left: 'inherit', height: '600px', width: '400px' }}
+            >              
+            </SplashedText>
               <Image src="/assets/v2/landing/inverse-light.gif" h="300px" w="360px" />
             </SimpleCard>
             <VStack w='40%' alignItems="flex-start" spacing='4'>
@@ -431,9 +428,51 @@ export const Landing = () => {
             </VStack>
           </ResponsiveStack>
         </VStack>
+        <VStack alignItems="flex-start" spacing="4" w='full' position="relative">
+          <ResponsiveStack w='full' alignItems="center">
+            <SplashedText
+              as="h3"
+              color={`${lightTheme?.colors.mainTextColor}`}
+              fontSize="36px"
+              fontWeight="extrabold"
+              splash="horizontal-rl"
+              splashProps={{ w: '400px', h: '40px', right: '-20px', left: 'inherit', bottom: '-10px', top: 'inherit' }}
+            >
+              Check Out Our The Latest Alpha...
+            </SplashedText>
+            <HStack>
+              <LandingSubmitButton w='200px'>
+                <Image src="/assets/socials/twitter.svg" h='10px' mr="1" />
+                Follow on Twitter
+              </LandingSubmitButton>
+              <LandingSubmitButton w='200px'>
+              View Blog
+            </LandingSubmitButton>
+            </HStack>
+          </ResponsiveStack>
+          <ResponsiveStack overflow="visible" spacing="6">
+            {posts.map(post => {
+              return <LightPostPreview key={post.slug} w='300px' {...post} />
+            })}
+          </ResponsiveStack>
+        </VStack>
       </VStack>
     </Layout>
   )
 }
 
-export default Landing
+export default Landing;
+
+export async function getStaticProps(context) {
+  return { ...await getLandingProps(context), revalidate: 1500 }
+}
+
+// export async function getStaticPaths() {
+//   if(!process.env.CONTENTFUL_SPACE_ID) {
+//     return { paths: [], fallback: true }
+//   }
+//   return {
+//     // paths: ['/'],
+//     fallback: true,
+//   }
+// }
