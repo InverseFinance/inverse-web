@@ -102,17 +102,17 @@ export const Landing = ({ posts }: {
         <LandingNav />
         <VStack w='full' pt="50px">
           <Stack position="relative" direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" alignItems="space-between">
-            <VStack alignItems="flex-start" maxW={{ base: 'full', md: '450px', '2xl': '900px' }}>
+            <VStack pt={{ base: 0, md: '10vh' }} alignItems="flex-start" maxW={{ base: 'full', md: '450px', '2xl': '900px' }}>
               <SplashedText
                 as="h1"
                 color={`${lightTheme?.colors.mainTextColor}`}
-                fontSize={{ base: '44px', '2xl': '5vw' }}
+                fontSize={{ base: '50px', '2xl': '4vw' }}
                 fontWeight="extrabold"
               >
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
               <VStack spacing="4" alignItems="flex-start">
-                <Text fontSize={{ base: '20px', '2xl': '2vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
+                <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW="40vw" as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <HStack>
