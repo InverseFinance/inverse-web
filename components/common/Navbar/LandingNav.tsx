@@ -35,18 +35,18 @@ export const LandingNav = () => {
         zIndex="docked"
       >
         <Stack direction="row" align="center">
-          <Logo boxSize={10} />
+          <Logo boxSize={10} noFilter={true} />
         </Stack>
         <Stack direction="row" spacing={12} fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
           {INVERSE_NAV.map(({ label, href }, i) => (
-            <Link key={i} fontWeight="medium" href={href} isExternal>
+            <Link key={i} fontWeight="medium" href={href} isExternal color={lightTheme.colors.mainTextColor}>
               {label}
             </Link>
           ))}
           <Flex w={28}>
             <LinkButton 
             flexProps={{ bgColor: 'white', borderColor: lightTheme.colors.mainTextColor, color: lightTheme.colors.mainTextColor }}
-             href="/firm/WETH">Enter App</LinkButton>
+             href="/firm">Enter App</LinkButton>
           </Flex>
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
