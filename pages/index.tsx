@@ -116,10 +116,10 @@ export const Landing = ({ posts }: {
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <HStack>
-                  <LandingSubmitButton>
+                  <LandingSubmitButton href="/firm">
                     Try Beta
                   </LandingSubmitButton>
-                  <LandingOutlineButton>
+                  <LandingOutlineButton href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
                     Learn More
                   </LandingOutlineButton>
                 </HStack>
@@ -145,7 +145,7 @@ export const Landing = ({ posts }: {
           >
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
-          <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w='250px' h="250px" />
+          <Image borderRadius="999px" src="/assets/v2/dbr.svg" w='200px' h="200px" />
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
@@ -163,10 +163,10 @@ export const Landing = ({ posts }: {
             DOLA Borrowing Rights (DBRs) allow you to fix a rate today and borrow later
           </Text>
           <HStack>
-            <LandingSubmitButton>
+            <LandingSubmitButton href="/firm">
               Try Beta
             </LandingSubmitButton>
-            <LandingOutlineButton>
+            <LandingOutlineButton href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
               Learn More
             </LandingOutlineButton>
           </HStack>
@@ -187,7 +187,7 @@ export const Landing = ({ posts }: {
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
         <ResponsiveStack justify="center" alignItems="space-between" w='full'>
           <VStack justify="center" w='50%' h="260px">
-            <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w='260px' h="260px" />
+            <Image borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" />
           </VStack>
           <VStack spacing="4" justify="center" w='50%' alignItems="flex-start">
             <VStack w='full' spacing="0" alignItems="flex-start">
@@ -219,7 +219,7 @@ export const Landing = ({ posts }: {
                 Highly customizable
               </ListItem>
             </UnorderedList>
-            <LandingSubmitButton maxW='200px' bgColor="white" color={lightTheme.colors.mainTextColor}>
+            <LandingSubmitButton maxW='200px' bgColor="white" color={lightTheme.colors.mainTextColor} href="/whitepaper" target="_blank">
               View Whitepaper
             </LandingSubmitButton>
           </VStack>
@@ -250,7 +250,7 @@ export const Landing = ({ posts }: {
                   Borrow DOLA for a fixed-rate for an unlimited duration with DOLA Borrowing Rights.
                 </Text>
             </VStack>            
-            <LandingSubmitButton>
+            <LandingSubmitButton href="/firm">
               I want to Borrow
             </LandingSubmitButton>
           </SimpleCard>
@@ -262,7 +262,7 @@ export const Landing = ({ posts }: {
                 Earn attractive returns when you provide liquidity to a trading pair on Curve, Convex, Balancer and others.
               </Text>
             </VStack>
-            <LandingSubmitButton>
+            <LandingSubmitButton href="/yield-opportunities">
               I want to Earn
             </LandingSubmitButton>
           </SimpleCard>
@@ -274,7 +274,7 @@ export const Landing = ({ posts }: {
                 Buy INV and stake on Frontier with high APY. Participate in Governance.
               </Text>
             </VStack>
-            <LandingSubmitButton>
+            <LandingSubmitButton href="/frontier">
               I want to Stake INV
             </LandingSubmitButton>
           </SimpleCard>          
@@ -313,7 +313,7 @@ export const Landing = ({ posts }: {
               <Text fontSize="20px">
                 We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
-              <LandingOutlineButton w='200px'>
+              <LandingOutlineButton w='200px' href="https://docs.inverse.finance/" target="_blank">
                 Learn More
               </LandingOutlineButton>
             </VStack>
@@ -325,7 +325,7 @@ export const Landing = ({ posts }: {
             <Text color="white" maxW="600px">
               Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
             </Text>
-            <LandingOutlineButton w='200px' boxShadow="none">
+            <LandingOutlineButton w='200px' boxShadow="none" href="https://docs.inverse.finance/" target="_blank">
               Bug Bounty Program
             </LandingOutlineButton>
           </ResponsiveStack>
@@ -349,7 +349,7 @@ export const Landing = ({ posts }: {
             >
               Our Ecosystem
             </SplashedText>            
-            <LandingSubmitButton w='200px'>
+            <LandingSubmitButton w='200px' href="https://discord.gg/YpYJC7R5nv" target="_blank">
               Become a Partner
             </LandingSubmitButton>
           </ResponsiveStack>
@@ -369,7 +369,7 @@ export const Landing = ({ posts }: {
             >
               The Stats
             </SplashedText>
-            <LandingSubmitButton w='200px'>
+            <LandingSubmitButton w='200px' href="/analytics">
               DAO Analytics
             </LandingSubmitButton>
           </ResponsiveStack>
@@ -392,12 +392,12 @@ export const Landing = ({ posts }: {
             >
               Built For You, Governed By You
             </SplashedText>
-            <LandingSubmitButton w='200px'>
+            <LandingSubmitButton w='200px' href="/transparency">
               DAO Transparency
             </LandingSubmitButton>
           </ResponsiveStack>
           <ResponsiveStack pt="8" w='full' alignItems="center" justify="space-around">
-            <SimpleCard p="0">
+            <SimpleCard spacing="0" p="0">
             <SplashedText            
               splash="cross-dirty"
               containerProps={{ top: '-60px', left: '-120px', zIndex: '-1', position: "absolute" }}
@@ -413,23 +413,23 @@ export const Landing = ({ posts }: {
               <Text fontSize="20px">
                 We are the most transparent DAO in DeFi with unprecedented levels of operational visibility. 
               </Text>
-              <Link fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
+              <Link href="https://www.inverse.finance/blog/posts/en-US/dola-borrowing-rights-dbr-airdrop" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
                 Airdrop Info >>
               </Link>
               <ResponsiveStack>
-                <LandingSubmitButton w='200px'>
+                <LandingSubmitButton w='200px' href="https://discord.gg/YpYJC7R5nv" target="_blank">
                   <Image src="/assets/socials/discord.svg" h='10px' mr="1" />
                   Join our Discord
                 </LandingSubmitButton>
-                <LandingOutlineButton w='200px'>
+                <LandingOutlineButton w='200px' href="/governance">
                   View Proposals
                 </LandingOutlineButton>
               </ResponsiveStack>
             </VStack>
           </ResponsiveStack>
         </VStack>
-        <VStack alignItems="flex-start" spacing="4" w='full' position="relative">
-          <ResponsiveStack w='full' alignItems="center">
+        <VStack alignItems="flex-start" spacing="8" w='full' position="relative">
+          <ResponsiveStack w='full' alignItems="center" justify="space-between">
             <SplashedText
               as="h3"
               color={`${lightTheme?.colors.mainTextColor}`}
@@ -441,13 +441,13 @@ export const Landing = ({ posts }: {
               Check Out Our The Latest Alpha...
             </SplashedText>
             <HStack>
-              <LandingSubmitButton w='200px'>
+              <LandingSubmitButton w='200px' href="https://twitter.com/InverseFinance" target="_blank">
                 <Image src="/assets/socials/twitter.svg" h='10px' mr="1" />
                 Follow on Twitter
               </LandingSubmitButton>
-              <LandingSubmitButton w='200px'>
-              View Blog
-            </LandingSubmitButton>
+              <LandingSubmitButton w='120px' href="/blog">
+                View Blog
+              </LandingSubmitButton>
             </HStack>
           </ResponsiveStack>
           <ResponsiveStack overflow="visible" spacing="6">

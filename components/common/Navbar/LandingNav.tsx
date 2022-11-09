@@ -4,6 +4,7 @@ import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
 import { useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
+import { lightTheme } from '@app/variables/theme';
 
 const INVERSE_NAV = [
   {
@@ -43,7 +44,9 @@ export const LandingNav = () => {
             </Link>
           ))}
           <Flex w={28}>
-            <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="/firm/WETH">Enter App</LinkButton>
+            <LinkButton 
+            flexProps={{ bgColor: 'white', borderColor: lightTheme.colors.mainTextColor, color: lightTheme.colors.mainTextColor }}
+             href="/firm/WETH">Enter App</LinkButton>
           </Flex>
         </Stack>
         <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>

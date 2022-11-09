@@ -3,6 +3,7 @@ import DateComponent from '../components/date'
 import BlogText from './common/text'
 import CoverImage from './cover-image'
 import { SimpleCard } from '@app/components/common/Cards/Simple'
+import { useRouter } from 'next/router'
 
 export default function LightPostPreview({
   title,
@@ -13,6 +14,8 @@ export default function LightPostPreview({
   ...props
 }) {
   const url = `/blog/posts/en-US/${slug}`;
+  const router = useRouter();
+
   return (
     <SimpleCard
       cursor="pointer"
@@ -21,7 +24,9 @@ export default function LightPostPreview({
       spacing="4"
       alignItems="flex-start"
       justifyContent="space-between"
-      {...props}>
+      onClick={() => router.push(url)}
+      {...props}
+      >
       {
         !!coverImage?.url && <CoverImage title={title} slug={slug} url={coverImage.url} />
       }
