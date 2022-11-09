@@ -108,6 +108,7 @@ export const Landing = ({ posts }: {
                 color={`${lightTheme?.colors.mainTextColor}`}
                 fontSize={{ base: '50px', '2xl': '4vw' }}
                 fontWeight="extrabold"
+                lineHeight="1.3"
               >
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
