@@ -93,7 +93,7 @@ export const Landing = ({ posts }: {
   ]
 
   return (
-    <Layout pt="0">
+    <Layout pt="0" overflowX="hidden">
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE}</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/home.png" />
@@ -128,8 +128,8 @@ export const Landing = ({ posts }: {
           </Stack>
         </VStack>
       </Flex>
-      <Flex px="8%" py="20" w="full" minH="100vh" bgImage="/assets/v2/landing/part2.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
-        <VStack spacing="8" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
+      <Flex px="8%" py="20" w="full" bgImage="/assets/v2/landing/part2.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
+        <VStack spacing="8" w='full' position="relative">
           <SplashedText
             splash="cross-dirty"
             containerProps={{ position: 'absolute', left: 0, top: 0 }}
@@ -145,7 +145,7 @@ export const Landing = ({ posts }: {
           >
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
-          <Image borderRadius="999px" src="/assets/v2/dbr.svg" w='200px' h="200px" />
+          <Image zIndex="2" borderRadius="999px" src="/assets/v2/dbr.svg" w='200px' h="200px" />
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
@@ -185,11 +185,11 @@ export const Landing = ({ posts }: {
         ></SplashedText>
       </Flex>
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
-        <ResponsiveStack justify="center" alignItems="space-between" w='full'>
-          <VStack justify="center" w='50%' h="260px">
+        <ResponsiveStack justifyContent="space-evenly" w='full'>
+          <VStack justify="center"  h="260px">
             <Image borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" />
           </VStack>
-          <VStack spacing="4" justify="center" w='50%' alignItems="flex-start">
+          <VStack spacing="4" justify="center"  alignItems="flex-start">
             <VStack w='full' spacing="0" alignItems="flex-start">
               <Text
                 fontWeight="extrabold"
@@ -241,8 +241,8 @@ export const Landing = ({ posts }: {
             Put our protocol to work for you
           </Text>
         </VStack>
-        <ResponsiveStack mt="4" justify="space-between" w='full' spacing="8">
-          <SimpleCard minH="470px" w='33%' justify="space-between">
+        <ResponsiveStack mt="4" justify="space-between" w='full' spacing="8" alignItems={{ base: 'center', md: 'unset' }}>
+          <SimpleCard minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
             <VStack w='full'>
               <Image src="/assets/v2/landing/borrow.png?1" width="full" w="160px" h="150px" mt="6" />
                 <Text fontWeight="extrabold" fontSize="30px">Borrow</Text>
@@ -254,7 +254,7 @@ export const Landing = ({ posts }: {
               I want to Borrow
             </LandingSubmitButton>
           </SimpleCard>
-          <SimpleCard minH="470px" w='33%' justify="space-between">
+          <SimpleCard minH="470px" w={{ base: 'full', md: '33%' }}  maxW="600px" alignItems="center" justify="space-between">
             <VStack w='full'>
               <Image src="/assets/v2/landing/earn.png" width="full" w="150px" h="150px" mt="6" />            
               <Text fontWeight="extrabold" fontSize="30px">Earn</Text>
@@ -266,7 +266,7 @@ export const Landing = ({ posts }: {
               I want to Earn
             </LandingSubmitButton>
           </SimpleCard>
-          <SimpleCard minH="470px" w='33%' justify="space-between">
+          <SimpleCard minH="470px" w={{ base: 'full', md: '33%' }}  maxW="600px" alignItems="center" justify="space-between">
             <VStack w='full'>
               <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
               <Text fontWeight="extrabold" fontSize="30px">Stake</Text>
@@ -292,7 +292,7 @@ export const Landing = ({ posts }: {
               Meet our security partners
           </SplashedText>
           <ResponsiveStack pt="4" justify="center" alignItems="center">
-            <SimpleGrid columns={2} gap={4} w='60%'>
+            <SimpleGrid columns={{ base: 1, sm: 2 }} gap={4} w={{ base: 'full', md: '60%' }} maxW="800px">
               <VStack w="250px" h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
               </VStack>
@@ -306,7 +306,7 @@ export const Landing = ({ posts }: {
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
             </SimpleGrid>
-            <VStack w='40%' alignItems="flex-start" spacing='4'>
+            <VStack w={{ base: 'full', md: '40%' }} alignItems="flex-start" spacing='4' pt={{ base: '4', md: '0' }}>
               <Text fontWeight="bold" fontSize="24px">
                 Designed from the ground up with security in mind and now backing it up with third party security professionals
               </Text>
@@ -321,7 +321,7 @@ export const Landing = ({ posts }: {
         </VStack>
       </Flex>
       <Flex zIndex="1" px="8%" py="10" w="full" bgColor={lightTheme.colors.mainTextColor} direction="column" position="relative">
-          <ResponsiveStack justify="space-between">
+          <ResponsiveStack justify={{ base: 'space-between', '2xl': 'space-evenly' }}>
             <Text color="white" maxW="600px">
               Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
             </Text>
@@ -406,7 +406,7 @@ export const Landing = ({ posts }: {
             </SplashedText>
               <Image src="/assets/v2/landing/inverse-light.gif" h="300px" w="360px" />
             </SimpleCard>
-            <VStack w='40%' alignItems="flex-start" spacing='4'>
+            <VStack w={{ base: 'full', md: '40%' }} alignItems="flex-start" spacing='4' pt={{ base: '4', md: '0' }}>
               <Text fontWeight="bold" fontSize="24px">
               Inverse Finance DAO operates using a 100% on-chain governance voting model that avoids the pitfalls of centralized DAO governance. 
               </Text>
@@ -436,7 +436,7 @@ export const Landing = ({ posts }: {
               fontSize="36px"
               fontWeight="extrabold"
               splash="horizontal-rl"
-              splashProps={{ w: '400px', h: '40px', right: '-20px', left: 'inherit', bottom: '-10px', top: 'inherit' }}
+              splashProps={{ w: { base: '100px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit' }}
             >
               Check Out Our The Latest Alpha...
             </SplashedText>
@@ -450,7 +450,7 @@ export const Landing = ({ posts }: {
               </LandingSubmitButton>
             </HStack>
           </ResponsiveStack>
-          <ResponsiveStack overflow="visible" spacing="6">
+          <ResponsiveStack overflow="visible" spacing="6" w={{ base: 'full', md: 'auto' }} alignItems={{ base: 'center', md: 'unset' }}>
             {posts.map(post => {
               return <LightPostPreview key={post.slug} w='300px' {...post} />
             })}
