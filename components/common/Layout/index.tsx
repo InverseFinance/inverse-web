@@ -1,10 +1,11 @@
 import { Flex, FlexProps } from '@chakra-ui/react'
 import Footer from '@app/components/common/Footer'
 
-export const Layout = ({ children, bgColor = 'mainBackgroundColor', bg = 'mainBackground', ...props }: {
+export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', bg = 'mainBackground', ...props }: {
   children?: React.ReactNode,
   bgColor?: FlexProps["bgColor"],
   bg?: FlexProps["bg"],
+  isLanding?: boolean
 }) => (
   <Flex w="full" minH="100vh" bgColor={bgColor} background={bg} direction="column" align="center" pt="74px" {...props}>
     <Flex
@@ -19,7 +20,7 @@ export const Layout = ({ children, bgColor = 'mainBackgroundColor', bg = 'mainBa
     >
       {children}
     </Flex>
-    <Footer />
+    <Footer isLanding={isLanding} />
   </Flex>
 )
 
