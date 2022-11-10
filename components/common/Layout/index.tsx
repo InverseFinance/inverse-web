@@ -1,5 +1,7 @@
-import { Flex, FlexProps } from '@chakra-ui/react'
+import { Flex, FlexProps, Stack } from '@chakra-ui/react'
 import Footer from '@app/components/common/Footer'
+import { lightTheme } from '@app/variables/theme'
+import { LandingNav } from '../Navbar'
 
 export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', bg = 'mainBackground', ...props }: {
   children?: React.ReactNode,
@@ -15,12 +17,34 @@ export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', b
       direction="column"
       align="center"
       borderColor={`mainTextColorAlpha`}
-      borderBottomWidth={1}
+      borderBottomWidth={isLanding ? 0 : 1}
       pb={6}
     >
       {children}
     </Flex>
-    <Footer isLanding={isLanding} />
+    {
+      isLanding ?
+        <Stack
+          bgColor={lightTheme.colors.accentTextColor}
+          borderLeftRadius="50px"
+          borderRightRadius="50px"
+          w='full'
+          spacing="0"
+        >
+          <Stack
+            alignItems="center"                        
+            direction={{ base: 'column', md: 'row' }}
+            px="7vw"
+            py="8"
+            spacing={2}
+          >
+            <LandingNav isBottom={true} />
+          </Stack>
+          <Footer isLanding={isLanding} />
+        </Stack>
+        :
+        <Footer isLanding={isLanding} />
+    }
   </Flex>
 )
 
