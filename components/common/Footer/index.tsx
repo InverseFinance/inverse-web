@@ -16,9 +16,16 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
   const secTextColor = isLight ? lightTheme.colors.secContrastMainTextColor : undefined;
   const bgColor = isLight ? lightTheme.colors.mainTextColor : 'transparent';
 
-  return <Stack bgColor={bgColor} w="full" direction={{ base: 'column', lg: 'row' }} spacing={8} p={8} justify="space-around" color="mainTextColor">
+  return <Stack
+    bgColor={bgColor}
+    w="full"
+    direction={{ base: 'column', lg: 'row' }}
+    spacing={8}
+    p={8}
+    justify="space-around" color="mainTextColor"
+  >
     <Stack width={{ base: 'full', lg: 72 }} spacing={1}>
-      <Stack direction="row" align="center">        
+      <Stack direction="row" align="center">
         <Text fontWeight="bold" color={textColor}>Keep in touch</Text>
       </Stack>
       <Text fontSize="13px" color={secTextColor}>
@@ -36,13 +43,20 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
       direction="row"
       wrap="wrap"
       shouldWrapChildren
-      zIndex="0"      
+      zIndex="0"
     >
       {LINK_GROUPS.map(({ groupLabel, items }) => (
         <Stack key={groupLabel} w={24} spacing="1">
           <Text fontSize="14px" fontWeight="bold" color={textColor}>{groupLabel}</Text>
           {items.map(({ label, href }, i) => (
-            <Link color={secTextColor} key={i} href={href} fontSize="13px" as="a">
+            <Link
+              _hover={{ color: secTextColor, textDecoration: 'underline' }}
+              color={secTextColor}
+              key={i}
+              href={href}
+              fontSize="13px"
+              as="a"
+            >
               {label}
             </Link>
           ))}
@@ -53,11 +67,11 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
           Social
         </Text>
         <Stack direction="row">
-        {SOCIALS.map(({ href, image }, i) => (
-          <Link key={i} href={href} as="a">
-            <Image width="24px" height="20px" src={image} alt="Social" />
-          </Link>
-        ))}
+          {SOCIALS.map(({ href, image }, i) => (
+            <Link key={i} href={href} as="a">
+              <Image width="24px" height="20px" src={image} alt="Social" />
+            </Link>
+          ))}
         </Stack>
       </Stack>
     </Stack>

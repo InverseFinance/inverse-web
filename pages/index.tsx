@@ -1,7 +1,6 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Box, Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps } from '@chakra-ui/react'
+import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
-import LinkButton from '@app/components/common/Button'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
 import { useDOLA } from '@app/hooks/useDOLA'
@@ -109,19 +108,19 @@ export const Landing = ({ posts }: {
                 fontSize={{ base: '44px', sm: '66px' }}
                 fontWeight="extrabold"
                 lineHeight="1"
-                splashProps={{ h: '30px', w: '300px', left: '-30px', top: '35px' }}
+                splashProps={{ h: '30px', w: { base: '200px', sm: '300px' }, left: '-30px', top: { base: '10px', sm: '35px' } }}
               >
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
               <VStack spacing="4" alignItems="flex-start">
-                <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW="40vw" as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
+                <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', sm: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <HStack>
-                  <LandingSubmitButton href="/firm">
+                  <LandingSubmitButton h='50px' fontSize="18px" href="/firm">
                     Try Beta
                   </LandingSubmitButton>
-                  <LandingOutlineButton href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
+                  <LandingOutlineButton h='50px' fontSize="18px" href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
                     Learn More
                   </LandingOutlineButton>
                 </HStack>

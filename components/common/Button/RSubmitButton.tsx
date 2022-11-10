@@ -11,7 +11,7 @@ export const RSubmitButton = (props: Props) => {
     if(_props?.href) {
         const { target, ...btnProps } = _props;
         return <NextLink href={_props.href} passHref>
-            <Link target={target}>
+            <Link target={target} textDecoration="none" _hover={{ textDecoration: 'none' }}>
                 <SubmitButton {...btnProps} />
             </Link>
         </NextLink>
