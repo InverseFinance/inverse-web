@@ -38,6 +38,9 @@ export const Landing = ({  }: {
   const { price: dbrPrice } = useDBRPrice();
   const { tvl } = useTVL();
 
+  const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
+  const dolaPrice = prices['dola-usd'] ? prices['dola-usd'].usd : 0;
+
   const stats = [
     {
       name: 'DOLA Circulation',
@@ -45,7 +48,7 @@ export const Landing = ({  }: {
     },
     {
       name: 'INV price',
-      value: prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0,
+      value: invPrice,
     },
     {
       name: 'TVL',
@@ -63,8 +66,27 @@ export const Landing = ({  }: {
         <title>{process.env.NEXT_PUBLIC_TITLE}</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/home.png" />
       </Head>
-      <Flex px="8%" py="0px" w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
-        <LandingNav />
+      <Flex px="8%" pb="0px" pt="12" w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
+        <VStack w='full' alignItems="flex-end">
+          <HStack spacing="6">
+            <HStack>
+              <Image borderRadius='50px' height="20px" src="/assets/v2/dola.png" />
+              <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
+              <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
+            </HStack>
+            <HStack>
+              <Image borderRadius='50px' height="20px" src="/assets/v2/dbr.svg" />
+              <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
+              <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
+            </HStack>
+            <HStack>
+              <Image borderRadius='50px' height="20px" src="/assets/inv-square-dark.jpeg" />
+              <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
+              <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
+            </HStack>
+          </HStack>
+          <LandingNav />
+        </VStack>
         <VStack w='full' pt="50px">
           <Stack position="relative" direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" alignItems="space-between">
             <VStack pt={{ base: 0, md: '10vh' }} alignItems="flex-start" maxW={{ base: 'full', md: '450px', '2xl': '900px' }}>
@@ -78,7 +100,7 @@ export const Landing = ({  }: {
               >
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
-              <VStack spacing="4" alignItems="flex-start">
+              <VStack spacing="4" alignItems="flex-start" zIndex="1">
                 <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', sm: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>

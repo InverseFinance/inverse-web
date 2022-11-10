@@ -41,8 +41,7 @@ export const LandingNav = ({
               {label}
             </Link>
           ))}
-          <Flex w={28}>
-            <Btn
+          <Btn
               href="/firm"
               fontWeight="bold"
               fontSize="16px"
@@ -54,7 +53,6 @@ export const LandingNav = ({
             >
               Enter App
             </Btn>
-          </Flex>
         </Stack>
       </Flex>
     </>
