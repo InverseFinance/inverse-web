@@ -216,20 +216,24 @@ export const MENUS = {
       groupLabel: 'Products',
       items: [
         {
-          label: 'Fixed Markets',
-          href: '/firm',
+          label: 'DOLA',
+          href: '/tokens/DOLA',
         },
         {
-          label: 'Tokens',
-          href: '/tokens',
+          label: 'DBR',
+          href: '/tokens/DBR',
+        },
+        {
+          label: 'INV',
+          href: '/tokens/INV',
+        },
+        {
+          label: 'FiRM',
+          href: '/frontier',
         },
         {
           label: 'Bonds',
           href: '/bonds',
-        },
-        {
-          label: 'Frontier',
-          href: '/frontier',
         },
       ],
     },
@@ -265,11 +269,19 @@ export const MENUS = {
           label: 'Github',
           href: 'https://github.com/InverseFinance',
         },
+        {
+          label: 'Whitepaper',
+          href: '/whitepaper',
+        },
       ],
     },
     {
       groupLabel: 'Community',
       items: [
+        {
+          label: 'Bug Bounty',
+          href: 'https://discord.gg/YpYJC7R5nv',
+        },
         {
           label: 'Discord',
           href: 'https://discord.gg/YpYJC7R5nv',
@@ -279,28 +291,15 @@ export const MENUS = {
           href: 'https://t.me/InverseFinance',
         },
         {
+          label: 'Blog',
+          href: '/blog',
+        },
+        {
           label: 'Newsletter',
           href: '/newsletter',
         },
       ],
-    },
-    {
-      groupLabel: 'Social',
-      items: [
-        {
-          label: 'Twitter',
-          href: 'https://twitter.com/InverseFinance',
-        },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
-        // {
-        //   label: 'Medium',
-        //   href: 'https://medium.com/inverse-finance',
-        // },
-      ],
-    },
+    },    
   ],
   "socials": [
     {
@@ -315,17 +314,9 @@ export const MENUS = {
       href: 'https://t.me/InverseFinance',
       image: '/assets/socials/telegram.svg',
     },
-    // {
-    //   href: 'https://medium.com/inverse-finance',
-    //   image: '/assets/socials/medium.svg',
-    // },
     {
       href: 'https://github.com/InverseFinance',
       image: '/assets/socials/github.svg',
-    },
-    {
-      href: 'https://defipulse.com/inverse',
-      image: '/assets/socials/defipulse.svg',
     },
   ]
 }
