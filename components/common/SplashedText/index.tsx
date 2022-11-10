@@ -22,9 +22,9 @@ export const SplashedText = ({
             top="20px"
             left="-25px"
             bgColor={'success'}
-            mask={`url(${splashSrc}) no-repeat center / contain`}
+            mask={`url(${splashSrc}) no-repeat center / cover`}
             sx={{
-                '-webkit-mask': `url(${splashSrc}) no-repeat center / contain`
+                '-webkit-mask': `url(${splashSrc}) no-repeat 0 0/100% 100%`
             }}            
             position="absolute"
             zIndex="0"

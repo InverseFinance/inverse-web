@@ -106,9 +106,10 @@ export const Landing = ({ posts }: {
               <SplashedText
                 as="h1"
                 color={`${lightTheme?.colors.mainTextColor}`}
-                fontSize={{ base: '50px', '2xl': '4vw' }}
+                fontSize={{ base: '44px', sm: '66px' }}
                 fontWeight="extrabold"
-                lineHeight="1.3"
+                lineHeight="1"
+                splashProps={{ h: '30px', w: '300px', left: '-30px', top: '35px' }}
               >
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
@@ -188,7 +189,7 @@ export const Landing = ({ posts }: {
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
         <ResponsiveStack justifyContent="space-evenly" w='full'>
           <VStack justify="center" h="260px">
-            <Image borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" />
+            <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w='200px' h="200px" />
           </VStack>
           <VStack spacing="4" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="0" alignItems="flex-start">
