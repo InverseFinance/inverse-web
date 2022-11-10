@@ -16,6 +16,7 @@ import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
 import LightPostPreview from '@app/blog/components/light-post-preview'
 import { useDBRPrice } from '@app/hooks/useDBR'
+import { Ecosystem } from '@app/components/Landing/Ecosystem'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -376,9 +377,7 @@ export const Landing = ({ posts }: {
               Become a Partner
             </LandingSubmitButton>
           </ResponsiveStack>
-          <Text fontWeight="bold" fontSize="20px">
-            Tabs
-          </Text>
+          <Ecosystem />
         </VStack>
         <VStack alignItems="flex-start" spacing="2" w='full' py="20"  position="relative">
           <ResponsiveStack w='full' alignItems="center">
