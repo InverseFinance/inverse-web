@@ -169,18 +169,18 @@ const data = [
             }
         ],
     },
-]
+];
 
 export const Ecosystem = () => {
     const [tab, setTab] = useState(0);
     
     return <Tabs zIndex='1' variant="unstyled" px='0' onChange={(index) => setTab(index)} >
     <TabList position="relative">
-      {data.map((tab, i) => <Tab {...tabProps} pl={i === 0 ? '0': 4}>{tab.tab}</Tab>)}
+      {data.map((tab, i) => <Tab key={tab.tab} {...tabProps} pl={i === 0 ? '0': 4}>{tab.tab}</Tab>)}
     </TabList>
   
     <HStack spacing="6" mt='8'>
-        {data[tab]?.elements.map(el => <EcoElement {...el} />)}
+        {data[tab]?.elements.map(el => <EcoElement key={el.label} {...el} />)}
     </HStack>
   </Tabs>
 }
