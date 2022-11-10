@@ -27,47 +27,12 @@ const Stat = ({ value, name }: { value: number, name: string }) => {
   </VStack>
 }
 
-const projects = [
-  '/assets/projects/Scream.webp',
-  '/assets/projects/Fantom.png',
-  '/assets/projects/Olympus.png',
-  '/assets/projects/Ether.png',
-  '/assets/projects/YFI.svg',
-  '/assets/projects/Sushiswap.png',
-  '/assets/projects/Lido.png',
-  '/assets/projects/Anyswap.png',
-]
+const tempData =  require('./temp.json');
 
-const cards = [
-  {
-    title: 'INV',
-    description: 'Scale your earnings with Positive Sum Rewards & revenue sharing',
-    label: 'Buy and Stake INV',
-    image: '/assets/products/vaults.png',
-    href: '/frontier',
-    bg: "url('/assets/stake-inv.png')",
-  },
-  {
-    title: 'Frontier',
-    description: 'Earn more with decentralized, capital-efficient lending, borrowing',
-    label: 'Lend & Borrow',
-    image: '/assets/products/anchor.png',
-    href: '/frontier',
-    bg: "url('/assets/frontier.png')",
-  },
-  {
-    title: 'DOLA',
-    description: 'Borrow our fully-collateralized, low-interest stablecoin',
-    label: 'Swap DOLA',
-    image: '/assets/products/dola.png',
-    href: '/stabilizer',
-    bg: "url('/assets/dola.png')",
-  },
-]
-
-export const Landing = ({ posts }: {
+export const Landing = ({  }: {
   posts: any[]
 }) => {
+  const { posts } = tempData;
   const { totalSupply } = useDOLA();
   const { prices } = usePrices();
   const { price: dbrPrice } = useDBRPrice();
@@ -498,9 +463,9 @@ export const Landing = ({ posts }: {
 
 export default Landing;
 
-export async function getStaticProps(context) {
-  return { ...await getLandingProps(context), revalidate: 60 }
-}
+// export async function getStaticProps(context) {
+//   return { ...await getLandingProps(context), revalidate: 60 }
+// }
 
 // export async function getStaticPaths() {
 //   if(!process.env.CONTENTFUL_SPACE_ID) {
