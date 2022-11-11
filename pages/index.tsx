@@ -142,7 +142,34 @@ export const Landing = ({  }: {
           >
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
-          <Image zIndex="2" borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" />
+          
+          <VStack spacing="0" pt="250px" alignItems="center" w='200px' position="relative">
+          <SplashedText
+            splash="horizontal-sym2"
+            zIndex="1"            
+            animation="1.5s text-highlight linear infinite"
+            zIndex="1"
+            color={lightTheme.colors.secAccentTextColor}
+            fontWeight="bold"
+            fontSize="100px"
+            splashProps={{
+              left: '-180px',
+              top: '-130px',
+              w: '500px',
+              h: '400px',
+              zIndex: '0',
+              opacity: 0.8,              
+              bgColor: `${lightTheme?.colors.accentTextColor}`,
+            }}
+          >
+            0%
+          </SplashedText>
+            {/* <Text animation="2s text-highlight linear infinite" zIndex="1" color={lightTheme.colors.accentTextColor} fontWeight="bold" fontSize="100px">
+              0%
+            </Text> */}
+            {/* <Image zIndex="2" borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" /> */}           
+          </VStack>
+          
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
