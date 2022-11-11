@@ -64,7 +64,7 @@ export const Landing = ({  }: {
     <Layout isLanding={true} pt="0" overflow="hidden">
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE}</title>
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/home.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
       </Head>
       <video autoPlay muted loop style={{
         position: 'absolute',        
