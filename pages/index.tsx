@@ -488,7 +488,7 @@ export const Landing = ({  }: {
               splash="horizontal-rl"
               splashProps={{ w: { base: '100px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit' }}
             >
-              Check Out Our The Latest Alpha...
+              Check Out The Latest Alpha...
             </SplashedText>
             <HStack>
               <LandingSubmitButton w='200px' href="https://twitter.com/InverseFinance" target="_blank">
