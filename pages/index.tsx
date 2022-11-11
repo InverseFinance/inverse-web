@@ -66,8 +66,16 @@ export const Landing = ({  }: {
         <title>{process.env.NEXT_PUBLIC_TITLE}</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/home.png" />
       </Head>
+      <video autoPlay muted loop style={{
+        position: 'absolute',        
+        width: '100vw',
+        top: 0,
+        left: 0,
+      }}>
+        <source src="/assets/v2/landing/landing-anim.mp4" type="video/mp4" />
+      </video>
       <Flex px="8%" pb="0px" pt="12" w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
-        <VStack w='full' alignItems="flex-end">
+        <VStack w='full' alignItems="flex-end" zIndex="1">
           <HStack spacing="6">
             <HStack>
               <Image borderRadius='50px' height="20px" src="/assets/v2/dola.png" />
@@ -89,7 +97,7 @@ export const Landing = ({  }: {
         </VStack>
         <VStack w='full' pt="50px">
           <Stack position="relative" direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" alignItems="space-between">
-            <VStack pt={{ base: 0, md: '10vh' }} alignItems="flex-start" maxW={{ base: 'full', md: '450px', '2xl': '900px' }}>
+            <VStack pt={{ base: '10vh', md: '10vh' }} alignItems="flex-start" maxW={{ base: 'full', md: '450px', '2xl': '900px' }}>
               <SplashedText
                 as="h1"
                 color={`${lightTheme?.colors.mainTextColor}`}
@@ -134,7 +142,7 @@ export const Landing = ({  }: {
           >
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
-          <Image zIndex="2" borderRadius="999px" src="/assets/v2/dbr.svg" w='200px' h="200px" />
+          <Image zIndex="2" borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" />
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
@@ -175,8 +183,9 @@ export const Landing = ({  }: {
       </Flex>
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
         <ResponsiveStack justifyContent="space-evenly" w='full'>
-          <VStack justify="center" h="260px">
+          <VStack justify="center" h="260px" position="relative">
             <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w='200px' h="200px" />
+            <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left="-60px" />
           </VStack>
           <VStack spacing="4" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="0" alignItems="flex-start">
