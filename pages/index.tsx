@@ -74,22 +74,22 @@ export const Landing = ({  }: {
       }}>
         <source src="/assets/v2/landing/landing-anim.mp4" type="video/mp4" />
       </video>
-      <Flex px="8%" pb="0px" pt="12" w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
-        <VStack w='full' alignItems="flex-end" zIndex="1">
+      <Flex px="8%" pb="0px" pt={{ base: 6, sm: 12 }} w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
+        <VStack w='full' alignItems={{ base: 'center', sm: 'flex-end' }} zIndex="1">
           <HStack spacing="6">
             <HStack>
-              <Image borderRadius='50px' height="20px" src="/assets/v2/dola.jpg" />
-              <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
+              <Image borderRadius='50px' height="24px" src="/assets/v2/dola.jpg" />
+              <Text display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
               <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' height="20px" src="/assets/v2/dbr.jpg" />
-              <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
+              <Image borderRadius='50px' height="24px" src="/assets/v2/dbr.jpg" />
+              <Text display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
               <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' height="20px" src="/assets/v2/inv.jpg" />
-              <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
+              <Image borderRadius='50px' height="24px" src="/assets/v2/inv.jpg" />
+              <Text display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
               <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
             </HStack>
           </HStack>
@@ -101,7 +101,7 @@ export const Landing = ({  }: {
               <SplashedText
                 as="h1"
                 color={`${lightTheme?.colors.mainTextColor}`}
-                fontSize={{ base: '44px', sm: '66px' }}
+                fontSize={{ base: '50px', sm: '66px' }}
                 fontWeight="extrabold"
                 lineHeight="1"
                 splashProps={{ h: '30px', w: { base: '200px', sm: '300px' }, left: '-30px', top: { base: '10px', sm: '35px' } }}
@@ -109,17 +109,17 @@ export const Landing = ({  }: {
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
               <VStack spacing="4" alignItems="flex-start" zIndex="1">
-                <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', sm: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
+                <Text fontSize={{ base: '26px', '2xl': '1.5vw' }} maxW={{ base: 'none', md: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
-                <HStack>
-                  <LandingSubmitButton h='50px' fontSize="18px" href="/firm">
+                <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
+                  <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} p={{ base: '2', md: '30px' }}  h='50px' fontSize="18px" href="/firm">
                     Try Beta
                   </LandingSubmitButton>
-                  <LandingOutlineButton h='50px' fontSize="18px" href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
+                  <LandingOutlineButton  w={{ base: 'full', sm: 'auto' }} p={{ base: '2', md: '30px' }}  h='50px' fontSize="18px" href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
                     Learn More
                   </LandingOutlineButton>
-                </HStack>
+                </Stack>
               </VStack>
             </VStack>
           </Stack>
@@ -143,7 +143,7 @@ export const Landing = ({  }: {
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
           
-          <VStack spacing="0" pt="0" pb="6" alignItems="center" w='200px' position="relative">
+          <VStack spacing="0" pt="0" pb="8" alignItems="center" w='200px' position="relative">
             <SplashedText
               splash="large"
               zIndex="1"            
@@ -172,27 +172,28 @@ export const Landing = ({  }: {
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
-            fontSize="44px"
+            fontSize={{ base: '30px', sm: '36px' }}
             fontWeight="extrabold"
             splash="horizontal-wave"
-            splashProps={{ right: '-30px', left: 'inherit', bottom: 0, top: 'inherit' }}
+            textAlign="center"
+            splashProps={{ right: { base: '0', sm: '-30px' }, left: 'inherit', bottom: 0, top: 'inherit' }}
           >
             Never Pay Interest Again
           </SplashedText>
-          <Text textAlign="center" fontWeight="bold" fontSize="20px" maxW='350px'>
+          <Text zIndex="2" textAlign="center" fontWeight="bold" fontSize="20px" maxW='350px'>
             High-volatility interest rates don't work for long-term borrowers.
           </Text>
-          <Text textAlign="center" fontSize="18px" maxW='350px'>
+          <Text zIndex="2" textAlign="center" fontSize="18px" maxW='350px'>
             DOLA Borrowing Rights (DBRs) allow you to fix a rate today and borrow later
           </Text>
-          <HStack>
-            <LandingSubmitButton href="/firm">
+          <Stack zIndex="2" direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
+            <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} p={{ base: '2', MD: '40px' }} href="/firm">
               Try Beta
             </LandingSubmitButton>
-            <LandingOutlineButton href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
+            <LandingOutlineButton  w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
               Learn More
             </LandingOutlineButton>
-          </HStack>
+          </Stack>
         </VStack>
         <SplashedText
           splash="circle-dirty"
@@ -243,7 +244,12 @@ export const Landing = ({  }: {
                 Highly customizable
               </ListItem>
             </UnorderedList>
-            <LandingSubmitButton maxW='200px' bgColor="white" color={lightTheme.colors.mainTextColor} href="/whitepaper" target="_blank">
+            <LandingSubmitButton
+              w={{ base: 'full', sm: 'auto' }}
+              maxW={{ sm: '200px' }}
+              bgColor="white"
+              color={lightTheme.colors.mainTextColor}
+              href="/whitepaper" target="_blank">
               View Whitepaper
             </LandingSubmitButton>
           </VStack>
@@ -254,7 +260,7 @@ export const Landing = ({  }: {
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
-            fontSize="36px"
+            fontSize={{ base: '30px', sm: '36px' }}
             fontWeight="extrabold"
             splash="horizontal-wave"
             splashProps={{ right: '-30px', left: 'inherit', bottom: 0, top: 'inherit' }}
@@ -316,36 +322,36 @@ export const Landing = ({  }: {
           <SplashedText
             as="h4"
             color={`${lightTheme?.colors.mainTextColor}`}
-            fontSize="36px"
+            fontSize={{ base: '30px', sm: '36px' }}
             fontWeight="extrabold"
             splash="horizontal-lr2"
             splashProps={{ w: '400px', h: '100px', left: '-20px', top: '-20px' }}
           >
             Meet our security partners
           </SplashedText>
-          <ResponsiveStack pt="4" justify="center" alignItems="center">
+          <ResponsiveStack pt="4" justify="center"  alignItems={{ base: 'center', sm: 'flex-start' }}>
             <SimpleGrid columns={{ base: 1, sm: 2 }} gap={4} w={{ base: 'full', md: '60%' }} maxW="800px">
-              <VStack w="250px" h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack w={{ base: 'full', sm: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
               </VStack>
-              <VStack w="250px" h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack w={{ base: 'full', sm: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/hats.png" />
               </VStack>
-              <VStack w="250px" h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack w={{ base: 'full', sm: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/defimoon.png" />
               </VStack>
-              <VStack w="250px" h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack w={{ base: 'full', sm: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
             </SimpleGrid>
-            <VStack w={{ base: 'full', md: '40%' }} alignItems="flex-start" spacing='4' pt={{ base: '4', md: '0' }}>
+            <VStack alignItems={{ base: 'center', sm: 'flex-start' }} w={{ base: 'full', md: '40%' }} spacing='4' pt={{ base: '4', md: '0' }}>
               <Text fontWeight="bold" fontSize="24px">
                 Designed from the ground up with security in mind and now backing it up with third party security professionals
               </Text>
               <Text fontSize="20px">
                 We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
-              <LandingOutlineButton w='200px' href="https://docs.inverse.finance/" target="_blank">
+              <LandingOutlineButton w={{ base: 'full', sm: '200px' }} href="https://docs.inverse.finance/" target="_blank">
                 Learn More
               </LandingOutlineButton>
             </VStack>
@@ -353,11 +359,11 @@ export const Landing = ({  }: {
         </VStack>
       </Flex>
       <Flex zIndex="1" px="8%" py="10" w="full" bgColor={lightTheme.colors.mainTextColor} direction="column" position="relative">
-        <ResponsiveStack justify={{ base: 'space-between', '2xl': 'space-evenly' }}>
+        <ResponsiveStack spacing="4" alignItems="center" justify={{ base: 'space-between', '2xl': 'space-evenly' }}>
           <Text fontSize="18px" color="white" maxW="600px">
             Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
           </Text>
-          <LandingOutlineButton w='200px' boxShadow="none" href="https://docs.inverse.finance/" target="_blank">
+          <LandingOutlineButton w={{ base: 'full', sm: '200px' }} boxShadow="none" href="https://docs.inverse.finance/" target="_blank">
             Bug Bounty Program
           </LandingOutlineButton>
         </ResponsiveStack>
@@ -384,36 +390,36 @@ export const Landing = ({  }: {
             splashProps={{ bgColor: lightTheme?.colors.secAccentTextColor, right: 0, left: 'inherit', bottom: '-10px', top: 'inherit', height: '600px', width: '400px' }}
           >
           </SplashedText>
-          <ResponsiveStack w='full' alignItems="center">
+          <ResponsiveStack w='full' alignItems="flex-start">
             <SplashedText
               as="h3"
               color={`${lightTheme?.colors.mainTextColor}`}
-              fontSize="36px"
+              fontSize={{ base: '30px', sm: '36px' }}
               fontWeight="extrabold"
               splash="horizontal-rl"
               splashProps={{ right: 0, left: 'inherit', bottom: '-10px', top: 'inherit' }}
             >
               Our Ecosystem
             </SplashedText>
-            <LandingSubmitButton w='200px' href="https://discord.gg/YpYJC7R5nv" target="_blank">
+            <LandingSubmitButton w={{ base: 'full', sm: '200px' }} href="https://discord.gg/YpYJC7R5nv" target="_blank">
               Become a Partner
             </LandingSubmitButton>
           </ResponsiveStack>
           <Ecosystem />
         </VStack>
         <VStack alignItems="flex-start" spacing="2" w='full' py="20"  position="relative">
-          <ResponsiveStack w='full' alignItems="center">
+          <ResponsiveStack w='full' alignItems={{ base: 'flex-start', sm: 'flex-start' }}>
             <SplashedText
               as="h3"
               color={`${lightTheme?.colors.mainTextColor}`}
-              fontSize="36px"
+              fontSize={{ base: '30px', sm: '36px' }}
               fontWeight="extrabold"
               splash="circle"
               splashProps={{ right: '-60px', h: '80px', left: 'inherit', bottom: '-10px', top: 'inherit' }}
             >
               The Stats
             </SplashedText>
-            <LandingSubmitButton w='200px' href="/analytics">
+            <LandingSubmitButton w={{ base: 'full', sm: '200px' }} href="/analytics">
               DAO Analytics
             </LandingSubmitButton>
           </ResponsiveStack>
@@ -426,18 +432,23 @@ export const Landing = ({  }: {
         </VStack>
         <VStack alignItems="flex-start" spacing="2" w='full' position="relative">
           <VStack w='full'>
-            <ResponsiveStack w='full' alignItems="center" zIndex="1">
+            <ResponsiveStack w='full' alignItems="center" zIndex="2">
               <SplashedText
                 as="h3"
                 color={`${lightTheme?.colors.mainTextColor}`}
-                fontSize="36px"
+                fontSize={{ base: '30px', sm: '36px' }}
                 fontWeight="extrabold"
                 splash="horizontal-wave"
-                splashProps={{ w: '600px', h: '50px', right: '-200px', left: 'inherit', bottom: 0, top: 'inherit' }}
+                splashProps={{ 
+                  w: '600px',
+                   h: '50px',
+                    right: '-200px', 
+                left: 'inherit',
+                 bottom: 0, top: 'inherit' }}
               >
                 Built For You, Governed By You
               </SplashedText>
-              <LandingSubmitButton w='200px' href="/transparency">
+              <LandingSubmitButton w={{ base: 'full', sm: '200px' }} href="/transparency">
                 DAO Transparency
               </LandingSubmitButton>
             </ResponsiveStack>
@@ -455,7 +466,9 @@ export const Landing = ({  }: {
               </SimpleCard>
               <SplashedText
                   splash="cross-dirty"
-                  containerProps={{ top: '-60px', left: '-120px', zIndex: '0', position: "absolute" }}
+                  containerProps={{ top: '-60px', left: '-120px', zIndex: '0', position: "absolute", display: {
+                    // base: 'none', md: 'inline-block'
+                  } }}
                   splashProps={{ bgColor: lightTheme?.colors.accentTextColor, left: 'inherit', height: '600px', width: '400px' }}
                 >
                 </SplashedText>
@@ -470,12 +483,12 @@ export const Landing = ({  }: {
               <Link href="https://www.inverse.finance/blog/posts/en-US/dola-borrowing-rights-dbr-airdrop" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
                 Airdrop Info >>
               </Link>
-              <ResponsiveStack>
-                <LandingSubmitButton w='200px' href="https://discord.gg/YpYJC7R5nv" target="_blank">
+              <ResponsiveStack w={{ base: 'full', sm: 'auto' }}>
+                <LandingSubmitButton w={{ base: 'full', sm: '200px' }} href="https://discord.gg/YpYJC7R5nv" target="_blank">
                   <Image src="/assets/socials/discord.svg" h='10px' mr="1" />
                   Join our Discord
                 </LandingSubmitButton>
-                <LandingOutlineButton w='200px' href="/governance">
+                <LandingOutlineButton w={{ base: 'full', sm: '200px' }} href="/governance">
                   View Proposals
                 </LandingOutlineButton>
               </ResponsiveStack>
@@ -487,22 +500,22 @@ export const Landing = ({  }: {
             <SplashedText
               as="h3"
               color={`${lightTheme?.colors.mainTextColor}`}
-              fontSize="36px"
+              fontSize={{ base: '30px', sm: '36px' }}
               fontWeight="extrabold"
               splash="horizontal-rl"
               splashProps={{ w: { base: '100px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit' }}
             >
               Check Out The Latest Alpha...
             </SplashedText>
-            <HStack>
-              <LandingSubmitButton w='200px' href="https://twitter.com/InverseFinance" target="_blank">
+            <ResponsiveStack w={{ base: 'full', sm: 'auto' }}>
+              <LandingSubmitButton w={{ base: 'full', sm: '200px' }} href="https://twitter.com/InverseFinance" target="_blank">
                 <Image src="/assets/socials/twitter.svg" h='10px' mr="1" />
                 Follow on Twitter
               </LandingSubmitButton>
-              <LandingSubmitButton w='120px' href="/blog">
+              <LandingSubmitButton w={{ base: 'full', md: '120px' }} href="/blog">
                 View Blog
               </LandingSubmitButton>
-            </HStack>
+            </ResponsiveStack>
           </ResponsiveStack>
           <VStack spacing="0" w='full' alignItems="flex-start">
             <ResponsiveStack overflow="visible" spacing="6" w={{ base: 'full', md: 'auto' }} alignItems={{ base: 'center', md: 'unset' }}>

@@ -9,9 +9,9 @@ type Props = ButtonProps & { href?: string, target?: string }
 export const RSubmitButton = (props: Props) => {
     const _props = { borderLeftRadius: '50px', borderRightRadius: '50px' ,...props }
     if(_props?.href) {
-        const { target, ...btnProps } = _props;
+        const { target, w, width, ...btnProps } = _props;
         return <NextLink href={_props.href} passHref>
-            <Link target={target} textDecoration="none" _hover={{ textDecoration: 'none' }}>
+            <Link w={w} width={width} target={target} textDecoration="none" _hover={{ textDecoration: 'none' }}>
                 <SubmitButton {...btnProps} />
             </Link>
         </NextLink>
