@@ -126,7 +126,7 @@ export const Landing = ({  }: {
         </VStack>
       </Flex>
       <Flex px="8%" py="20" w="full" bgImage="/assets/v2/landing/part2.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
-        <VStack spacing="8" w='full' position="relative">
+        <VStack mt="10" spacing="8" w='full' position="relative">
           <SplashedText
             splash="cross-dirty"
             containerProps={{ position: 'absolute', left: 0, top: 0 }}
@@ -143,27 +143,26 @@ export const Landing = ({  }: {
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
           
-          <VStack spacing="0" pt="250px" alignItems="center" w='200px' position="relative">
-          <SplashedText
-            splash="horizontal-sym2"
-            zIndex="1"            
-            animation="1.5s text-highlight linear infinite"
-            zIndex="1"
-            color={lightTheme.colors.secAccentTextColor}
-            fontWeight="bold"
-            fontSize="100px"
-            splashProps={{
-              left: '-180px',
-              top: '-130px',
-              w: '500px',
-              h: '400px',
-              zIndex: '0',
-              opacity: 0.8,              
-              bgColor: `${lightTheme?.colors.accentTextColor}`,
-            }}
-          >
-            0%
-          </SplashedText>
+          <VStack spacing="0" pt="0" pb="6" alignItems="center" w='200px' position="relative">
+            <SplashedText
+              splash="large"
+              zIndex="1"            
+              animation="1.5s text-highlight linear infinite"
+              zIndex="3"
+              color={lightTheme.colors.secAccentTextColor}
+              fontWeight="bold"
+              fontSize="100px"
+              splashProps={{
+                left: '-140px',
+                top: '-130px',
+                w: '400px',
+                h: '400px',
+                zIndex: '2',          
+                bgColor: `${lightTheme?.colors.accentTextColor}`,
+              }}
+            >
+              0%
+            </SplashedText>
             {/* <Text animation="2s text-highlight linear infinite" zIndex="1" color={lightTheme.colors.accentTextColor} fontWeight="bold" fontSize="100px">
               0%
             </Text> */}
