@@ -198,7 +198,7 @@ export const DbrBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 {
-                    isLargerThan && <MarketImage pr="2" image={`/assets/v2/dbr.png`} size={40} />
+                    isLargerThan && <MarketImage pr="2" image={`/assets/v2/dbr-512.jpg`} size={40} imgProps={{ borderRadius: '100px' }} />
                 }
                 <HStack spacing="4" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     {

@@ -78,17 +78,17 @@ export const Landing = ({  }: {
         <VStack w='full' alignItems="flex-end" zIndex="1">
           <HStack spacing="6">
             <HStack>
-              <Image borderRadius='50px' height="20px" src="/assets/v2/dola.png" />
+              <Image borderRadius='50px' height="20px" src="/assets/v2/dola.jpg" />
               <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
               <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' height="20px" src="/assets/v2/dbr.svg" />
+              <Image borderRadius='50px' height="20px" src="/assets/v2/dbr.jpg" />
               <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
               <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' height="20px" src="/assets/inv-square-dark.jpeg" />
+              <Image borderRadius='50px' height="20px" src="/assets/v2/inv.jpg" />
               <Text fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
               <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
             </HStack>
@@ -445,8 +445,13 @@ export const Landing = ({  }: {
           </VStack>
           <ResponsiveStack pt="8" w='full' alignItems="center" justify="space-around" zIndex="1">
             <VStack spacing="0">
-              <SimpleCard zIndex="1" spacing="0" p="0">              
-                <Image src="/assets/v2/landing/inverse-light.gif" h="300px" w="360px" />
+              <SimpleCard zIndex="1" spacing="0" p="0">                
+                <video autoPlay muted loop style={{     
+                  width: '360px',
+                  height: '300px',
+                }}>
+                  <source src="/assets/v2/landing/dao.mp4" type="video/mp4" />
+                </video>
               </SimpleCard>
               <SplashedText
                   splash="cross-dirty"

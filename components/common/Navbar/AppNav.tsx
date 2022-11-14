@@ -554,7 +554,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
       >
         <Stack direction="row" align="center" spacing={5}>
           <Link href="/">
-            <Logo boxSize={10} />
+            <Logo boxSize={10} noFilter={true} />
           </Link>
           <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
