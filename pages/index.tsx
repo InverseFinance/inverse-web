@@ -150,7 +150,7 @@ export const Landing = ({  }: {
               animation="1.5s text-highlight linear infinite"
               zIndex="3"
               color={lightTheme.colors.secAccentTextColor}
-              fontWeight="bold"
+              fontWeight="900"
               fontSize="100px"
               splashProps={{
                 left: '-140px',
@@ -182,7 +182,7 @@ export const Landing = ({  }: {
           <Text textAlign="center" fontWeight="bold" fontSize="20px" maxW='350px'>
             High-volatility interest rates don't work for long-term borrowers.
           </Text>
-          <Text textAlign="center" fontSize="16px" maxW='350px'>
+          <Text textAlign="center" fontSize="18px" maxW='350px'>
             DOLA Borrowing Rights (DBRs) allow you to fix a rate today and borrow later
           </Text>
           <HStack>
@@ -226,7 +226,7 @@ export const Landing = ({  }: {
                 Introducing Personal Collateral Escrows
               </Text>
             </VStack>
-            <UnorderedList color="white" pl="5">
+            <UnorderedList fontSize="18px" color="white" pl="5">
               <ListItem>
                 Isolates deposits by user
               </ListItem>
@@ -354,7 +354,7 @@ export const Landing = ({  }: {
       </Flex>
       <Flex zIndex="1" px="8%" py="10" w="full" bgColor={lightTheme.colors.mainTextColor} direction="column" position="relative">
         <ResponsiveStack justify={{ base: 'space-between', '2xl': 'space-evenly' }}>
-          <Text color="white" maxW="600px">
+          <Text fontSize="18px" color="white" maxW="600px">
             Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
           </Text>
           <LandingOutlineButton w='200px' boxShadow="none" href="https://docs.inverse.finance/" target="_blank">
