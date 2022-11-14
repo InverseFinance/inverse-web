@@ -34,7 +34,7 @@ export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', b
           <Stack
             alignItems="center"                        
             direction={{ base: 'column', md: 'row' }}
-            px="7vw"
+            px="8%"
             py="8"
             spacing={2}
           >

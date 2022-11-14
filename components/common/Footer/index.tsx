@@ -22,7 +22,9 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
     direction={{ base: 'column', lg: 'row' }}
     spacing={8}
     p={8}
-    justify="space-around" color="mainTextColor"
+    px="8%"
+    justify="space-between"
+    color="mainTextColor"
   >
     <Stack width={{ base: 'full', lg: 72 }} spacing={1}>
       <Stack direction="row" align="center">
@@ -31,7 +33,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
       <Text fontSize="13px" color={secTextColor}>
         Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can participate in the decision-making process. Join us!
       </Text>
-      <Stack pt="3">
+      <Stack pt="3" alignItems={{ base: 'center', sm: 'flex-start' }}>
         <LandingOutlineButton w='150px'>
           Subscribe Now
         </LandingOutlineButton>
