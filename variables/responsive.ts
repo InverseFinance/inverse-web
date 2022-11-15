@@ -1,0 +1,12 @@
+export const biggestSize = { base: '40px', '2xl': '4vw' };
+export const biggerSize = { base: '30px', sm: '36px', '2xl': '2vw' };
+export const slightlyBiggerSize3 = { base: '26px', '2xl': '1.4vw' };
+export const slightlyBiggerSize2 = { base: '24px', '2xl': '1.3vw' };
+export const slightlyBiggerSize = { base: '22px', '2xl': '1.2vw' };
+export const normalSize = { base: '20px', '2xl': '1vw' };
+export const smallerSize = { base: '18px', '2xl': '0.9vw' };
+export const smallerSize2 = { base: '16px', '2xl': '0.75vw' };
+export const smallerSize3 = { base: '14px', '2xl': '0.6vw' };
+export const smallerSize4 = { base: '13px', '2xl': '0.5vw' };
+export const smallerSize5 = { base: '12px', '2xl': '0.4vw' };
+export const btnIconSize = { base: '10px', '2xl': '0.5vw' };

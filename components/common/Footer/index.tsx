@@ -4,6 +4,7 @@ import Link from '@app/components/common/Link'
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { lightTheme } from '@app/variables/theme';
 import { LandingOutlineButton } from '../Button/RSubmitButton';
+import { smallerSize2, smallerSize3, smallerSize4 } from '@app/variables/responsive';
 
 const SOCIALS = MENUS.socials;
 
@@ -28,13 +29,13 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
   >
     <Stack width={{ base: 'full', lg: 72 }} spacing={1}>
       <Stack direction="row" align="center">
-        <Text fontWeight="bold" color={textColor}>Keep in touch</Text>
+        <Text fontSize={smallerSize3} fontWeight="bold" color={textColor}>Keep in touch</Text>
       </Stack>
-      <Text fontSize="13px" color={secTextColor}>
+      <Text fontSize={smallerSize4} color={secTextColor}>
         Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can participate in the decision-making process. Join us!
       </Text>
       <Stack pt="3" alignItems={{ base: 'center', sm: 'flex-start' }}>
-        <LandingOutlineButton w='150px'>
+        <LandingOutlineButton w={{ base: '150px', '2xl': 'auto' }} fontSize={smallerSize2} py="0" px="1vw">
           Subscribe Now
         </LandingOutlineButton>
       </Stack>
@@ -48,15 +49,15 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
       zIndex="0"
     >
       {LINK_GROUPS.map(({ groupLabel, items }) => (
-        <Stack key={groupLabel} w={24} spacing="1">
-          <Text fontSize="14px" fontWeight="bold" color={textColor}>{groupLabel}</Text>
+        <Stack key={groupLabel} w={{ base: 24, '2xl': 48 }} spacing="1">
+          <Text fontSize={smallerSize3} fontWeight="bold" color={textColor}>{groupLabel}</Text>
           {items.map(({ label, href }, i) => (
             <Link
               _hover={{ color: secTextColor, textDecoration: 'underline' }}
               color={secTextColor}
               key={i}
               href={href}
-              fontSize="13px"
+              fontSize={smallerSize4}
               as="a"
             >
               {label}
@@ -65,7 +66,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
         </Stack>
       ))}
       <Stack direction="column" spacing={2} align="flex-start">
-        <Text fontSize="14px" fontWeight="bold" color={textColor}>
+        <Text fontSize={smallerSize3} fontWeight="bold" color={textColor}>
           Social
         </Text>
         <Stack direction="row">

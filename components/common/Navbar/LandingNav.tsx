@@ -4,6 +4,7 @@ import Logo from '@app/components/common/Logo'
 import { lightTheme } from '@app/variables/theme';
 import { MENUS } from '@app/variables/menus'
 import { LandingOutlineButton, LandingSubmitButton } from '../Button/RSubmitButton'
+import { biggerSize, slightlyBiggerSize, slightlyBiggerSize3, normalSize, slightlyBiggerSize2 } from '@app/variables/responsive';
 
 const NAV_ITEMS = MENUS.nav
 
@@ -24,9 +25,13 @@ export const LandingNav = ({
         px={0}
         zIndex="docked"
       >
-        <Stack spacing="1vw" direction="row" align="center">
-          <Logo boxSize={isBottom ? '3vmax' : '4vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
-          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} fontWeight="bold" fontSize="1.5vmax">Inverse Finance</Text>
+        <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
+          <Logo minH="30px" minW="30px" boxSize={isBottom ? '2vmax' : '4vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
+          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} 
+            fontWeight="bold"
+            fontSize={isBottom ? normalSize : slightlyBiggerSize2}>
+            Inverse Finance
+          </Text>
         </Stack>
         <Stack spacing="2vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
           {NAV_ITEMS.map(({ label, href }, i) => (
@@ -37,7 +42,7 @@ export const LandingNav = ({
               isExternal
               color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               _hover={{ textDecoration: 'underline' }}
-              fontSize="1.3vw"
+              fontSize={isBottom ? slightlyBiggerSize : slightlyBiggerSize3}
             >
               {label}
             </Link>
