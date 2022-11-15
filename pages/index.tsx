@@ -74,49 +74,54 @@ export const Landing = ({ }: {
       }}>
         <source src="/assets/v2/landing/landing-anim.mp4" type="video/mp4" />
       </video>
-      <Flex px="8%" pb="0px" pt={{ base: 6, sm: 12 }} w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
+      <Flex px="8%" pb="0px" pt={{ base: 6, sm: '7vh' }} w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
         <VStack w='full' alignItems={{ base: 'center', sm: 'flex-end' }} zIndex="1">
-          <HStack spacing="6">
+          <HStack spacing="2.5vw">
             <HStack>
-              <Image borderRadius='50px' height="24px" src="/assets/v2/dola.jpg" />
-              <Text display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
-              <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
+              <Image borderRadius='50px' height="2vmax" src="/assets/v2/dola.jpg" />
+              <Text fontSize="1.2vmax" display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
+              <Text fontSize="1.2vmax" color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' height="24px" src="/assets/v2/dbr.jpg" />
-              <Text display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
-              <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
+              <Image borderRadius='50px' height="2vmax" src="/assets/v2/dbr.jpg" />
+              <Text fontSize="1.2vmax" display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
+              <Text fontSize="1.2vmax" color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' height="24px" src="/assets/v2/inv.jpg" />
-              <Text display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
-              <Text color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
+              <Image borderRadius='50px' height="2vmax" src="/assets/v2/inv.jpg" />
+              <Text fontSize="1.2vmax" display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
+              <Text fontSize="1.2vmax" color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
             </HStack>
           </HStack>
           <LandingNav />
         </VStack>
-        <VStack w='full' pt="50px">
+        <VStack w='full' pt={{ base: '50px', md: '5vh' }}>
           <Stack position="relative" direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" alignItems="space-between">
-            <VStack pt={{ base: '10vh', md: '10vh' }} alignItems="flex-start" maxW={{ base: 'full', md: '450px', '2xl': '900px' }}>
+            <VStack 
+              pt={{ base: '10vh', md: '10vh' }}
+              alignItems="flex-start"
+              maxW={{ base: 'full', md: '50%' }}
+              spacing="2vh"
+            >
               <SplashedText
                 as="h1"
                 color={`${lightTheme?.colors.mainTextColor}`}
-                fontSize={{ base: '50px', sm: '66px' }}
+                fontSize={{ base: '50px', sm: '66px', '2xl': "5vw" }}
                 fontWeight="extrabold"
                 lineHeight="1"
-                splashProps={{ h: '30px', w: { base: '200px', sm: '300px' }, left: '-30px', top: { base: '10px', sm: '35px' } }}
+                splashProps={{ minH: '35px', h: '3vw', w: { base: '220px', sm: '40vw', md: '33vw', lg: "25vw" }, left: '-3vw', top: { base: '10px', sm: '2vmax' } }}
               >
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
-              <VStack spacing="4" alignItems="flex-start" zIndex="1">
+              <VStack spacing="2vh" alignItems="flex-start" zIndex="1">
                 <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', md: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
-                  <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} p={{ base: '2', md: '30px' }} h='50px' fontSize="18px" href="/firm">
+                  <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} p={{ base: '2', sm: '30px', '2xl': '4.5vh' }} h='50px' fontSize={{ base: '18px', '2xl': '1.5vw' }} href="/firm">
                     Try Beta
                   </LandingSubmitButton>
-                  <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} p={{ base: '2', md: '30px' }} h='50px' fontSize="18px" href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
+                  <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} p={{ base: '2', sm: '30px', '2xl': '4.5vh'  }} h='50px' fontSize={{ base: '18px', '2xl': '1.5vw' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
                     Learn More
                   </LandingOutlineButton>
                 </Stack>

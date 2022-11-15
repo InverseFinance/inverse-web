@@ -6,7 +6,7 @@ export const Logo = ({
   noFilter,
   ...props
 }: {
-  boxSize: number,
+  boxSize: number | string,
   noFilter?: boolean,
 } & ImageProps) => {
   const { themeName } = useAppTheme();

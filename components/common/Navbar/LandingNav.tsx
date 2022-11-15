@@ -20,15 +20,15 @@ export const LandingNav = ({
         bgColor="transparent"
         justify="space-between"
         align="center"
-        py={isBottom ? 0 : 4}
+        py={isBottom ? 0 : '4vh'}
         px={0}
         zIndex="docked"
       >
-        <Stack spacing="3" direction="row" align="center">
-          <Logo boxSize={isBottom ? 30 : 50} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
-          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} fontWeight="bold" fontSize="18px">Inverse Finance</Text>
+        <Stack spacing="1vw" direction="row" align="center">
+          <Logo boxSize={isBottom ? '3vmax' : '4vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
+          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} fontWeight="bold" fontSize="1.5vmax">Inverse Finance</Text>
         </Stack>
-        <Stack spacing="6" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
+        <Stack spacing="2vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
           {NAV_ITEMS.map(({ label, href }, i) => (
             <Link
               key={i}
@@ -37,6 +37,7 @@ export const LandingNav = ({
               isExternal
               color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               _hover={{ textDecoration: 'underline' }}
+              fontSize="1.3vw"
             >
               {label}
             </Link>
@@ -44,10 +45,12 @@ export const LandingNav = ({
           <Btn
               href="/firm"
               fontWeight="bold"
-              fontSize="16px"
-              borderWidth="2px"
+              fontSize="1.4vw"
+              borderWidth="0.2vmax"
               bgColor={isBottom ? 'transparent' : 'white'}
               h="50px"
+              py="1.8vmax"
+              px="3vmax"
               transition="transform ease-in-out 200ms"
               _hover={{ transform: 'scale(1.03)' }}
             >

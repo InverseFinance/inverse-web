@@ -7,7 +7,7 @@ import { lightTheme } from '@app/variables/theme'
 type Props = ButtonProps & { href?: string, target?: string }
 
 export const RSubmitButton = (props: Props) => {
-    const _props = { borderLeftRadius: '50px', borderRightRadius: '50px' ,...props }
+    const _props = { borderLeftRadius: '50vmax', borderRightRadius: '50vmax' ,...props }
     if(_props?.href) {
         const { target, w, width, ...btnProps } = _props;
         return <NextLink href={_props.href} passHref>
