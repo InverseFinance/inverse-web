@@ -4,7 +4,7 @@ import Logo from '@app/components/common/Logo'
 import { lightTheme } from '@app/variables/theme';
 import { MENUS } from '@app/variables/menus'
 import { LandingOutlineButton, LandingSubmitButton } from '../Button/RSubmitButton'
-import { biggerSize, slightlyBiggerSize, slightlyBiggerSize3, normalSize, slightlyBiggerSize2 } from '@app/variables/responsive';
+import { biggerSize, slightlyBiggerSize, slightlyBiggerSize3, normalSize, slightlyBiggerSize2, smallerSize } from '@app/variables/responsive';
 
 const NAV_ITEMS = MENUS.nav
 
@@ -42,7 +42,7 @@ export const LandingNav = ({
               isExternal
               color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               _hover={{ textDecoration: 'underline' }}
-              fontSize={isBottom ? slightlyBiggerSize : slightlyBiggerSize3}
+              fontSize={isBottom ? smallerSize : normalSize}
             >
               {label}
             </Link>
