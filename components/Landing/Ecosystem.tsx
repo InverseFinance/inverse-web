@@ -34,7 +34,7 @@ const EcoElement = ({
     label: string,
     href: string,
 }) => {
-    return <SimpleCard w='230px' px="8" py='10' maxH='120px'>
+    return <SimpleCard minW="230px" w='230px' px="8" py='10' maxH='120px'>
         <HStack w='full' justify="center">
             <Image src={image} height='40px' />
             <Text color={lightTheme.colors.mainTextColor} fontWeight='bold' fontSize='16px'>
@@ -171,15 +171,22 @@ const data = [
     },
 ];
 
+const responsiveProps = {
+    transform: 'translateX(-8%)',
+    px: '8%',
+    overflowX:{ base: 'auto', md: 'inherit' },
+    w: '100vw',
+}
+
 export const Ecosystem = () => {
     const [tab, setTab] = useState(0);
     
     return <Tabs zIndex='1' variant="unstyled" px='0' onChange={(index) => setTab(index)} >
-    <TabList position="relative">
+    <TabList position="relative" {...responsiveProps}>
       {data.map((tab, i) => <Tab key={tab.tab} {...tabProps} pl={i === 0 ? '0': 4}>{tab.tab}</Tab>)}
     </TabList>
   
-    <HStack spacing="6" mt='8'>
+    <HStack spacing="6" pb="2" mt='8' {...responsiveProps}>
         {data[tab]?.elements.map(el => <EcoElement key={el.label} {...el} />)}
     </HStack>
   </Tabs>
