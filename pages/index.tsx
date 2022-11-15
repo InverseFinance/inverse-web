@@ -109,7 +109,7 @@ export const Landing = ({ }: {
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
               <VStack spacing="4" alignItems="flex-start" zIndex="1">
-                <Text fontSize={{ base: '26px', '2xl': '1.5vw' }} maxW={{ base: 'none', md: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
+                <Text fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', md: '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
