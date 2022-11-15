@@ -460,8 +460,7 @@ export const Landing = ({ }: {
             <VStack spacing="0">
               <SimpleCard zIndex="1" spacing="0" p="0">
                 <video autoPlay muted loop style={{
-                  width: '360px',
-                  height: '300px',
+                  width: '360px',                  
                 }}>
                   <source src="/assets/v2/landing/dao.mp4" type="video/mp4" />
                 </video>
