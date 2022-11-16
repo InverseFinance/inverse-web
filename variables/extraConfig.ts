@@ -143,7 +143,7 @@ export const EXTRA_CONFIG = {
             //     icon: '/assets/projects/Ether.png',
             // },
             {
-                name: 'WETH (dbr v2)',
+                name: 'WETH DBRv2',
                 // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
                 collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
                 address: '0x0610F1783ACB513a96050008f1Dfd47B1025B17A',
