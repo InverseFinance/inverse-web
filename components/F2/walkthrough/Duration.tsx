@@ -31,7 +31,7 @@ export const F2WalkthroughDuration = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="This will lock-in a Borrow Rate for the desired duration, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text fontWeight="bold" fontSize={{ base: '20px', md: '30px' }} color="mainTextColor">
+                <Text fontWeight="bold" fontSize={{ base: '16px', sm: '20px', md: '30px' }} color="mainTextColor">
                     <b style={{ color: themeStyles.colors.accentTextColor }}>How long</b> do you intend to borrow?
                 </Text>
             </TextInfo>

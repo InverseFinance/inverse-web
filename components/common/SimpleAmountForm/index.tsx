@@ -12,6 +12,7 @@ import { SubmitButton } from "@app/components/common/Button";
 import { BalanceInput } from "@app/components/common//Input"
 import { roundFloorString } from "@app/util/misc";
 import { InfoMessage } from "../Messages";
+import { RSubmitButton } from "../Button/RSubmitButton";
 
 type Props = {
     defaultAmount?: string
@@ -59,6 +60,8 @@ export type SimpleAmountFormProps = Props & {
 
 const zeroBn = BigNumber.from('0');
 
+const Btn = (props) => <RSubmitButton px="8" {...props} />
+
 export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const {
         defaultAmount = '',
@@ -83,7 +86,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         includeBalanceInMax = false,
         showNotEnoughTokenMsg = false,
         btnProps,
-        ButtonComp = SubmitButton,
+        ButtonComp = Btn,
         showBalance,
         inputRight,
         inputProps,
@@ -99,9 +102,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
     const balanceBn = balances && balances[address] ? balances[address] : zeroBn;
-    const balance = getBnToNumber(balanceBn, decimals);  
+    const balance = getBnToNumber(balanceBn, decimals);
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
-    if(maxAmountFrom && includeBalanceInMax) {
+    if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
     maxBn.sort((a, b) => getBnToNumber(a) > getBnToNumber(b) ? 1 : -1);
@@ -148,7 +151,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                 value={!amount ? '' : amount}
                 showBalance={showBalance}
                 balance={balance}
-                inputProps={{ fontSize: '24px', py: { base: '20px', sm: '24px' }, ...inputProps }}
+                inputProps={{
+                    fontSize: { base: '14px', sm: '20px', md: '22px', lg: '24px' },
+                    py: { base: '20px', sm: '24px' },
+                    ...inputProps
+                }}
                 inputRightProps={inputRightProps}
                 inputLeftProps={inputLeftProps}
                 onChange={(e: React.MouseEvent<HTMLInputElement>) => handleChange(e.target.value)}
@@ -169,6 +176,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         signer={signer}
                         isDisabled={balance <= 0}
                         onSuccess={() => setFreshTokenApproved(true)}
+                        ButtonComp={ButtonComp}
                         {...btnProps}
                     /> :
                     !onlyShowApproveBtn &&

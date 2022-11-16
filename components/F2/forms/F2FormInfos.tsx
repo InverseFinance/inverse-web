@@ -21,10 +21,10 @@ type Data = {
     value: string
 }
 
-const Infos = ({ infos }: { infos: [Data, Data] }) => {
+const Infos = ({ infos, index }: { infos: [Data, Data], index: number }) => {
     const [left, right] = infos;
 
-    return <Stack borderBottom="1px solid #cccccc66" w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
+    return <Stack borderTop={index > 0 ? '1px solid #cccccc66' : undefined} w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
         <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
             <TextInfo message={left.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={left.onClick ? 'pointer' : undefined} onClick={left.onClick} >
@@ -52,7 +52,7 @@ const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
-                return <Infos key={infos[0].title} infos={infos} />
+                return <Infos key={infos[0].title} infos={infos} index={i} />
             })
         }
     </VStack>

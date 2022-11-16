@@ -11,8 +11,15 @@ import { useRouter } from 'next/router'
 // import { useAccount } from '@app/hooks/misc'
 import { IntroModalCheck } from './Infos/IntroModalCheck'
 import { useAccount } from '@app/hooks/misc'
+import { RSubmitButton } from '../common/Button/RSubmitButton'
 
-const Btn = (props) => <LinkButton maxW="184px" flexProps={{ maxH: '42px' }} fontWeight={{ base: 'normal', sm: 'bold' }} fontSize={{ base: '12px', sm: '18px' }} {...props} />
+const Btn = (props) => <RSubmitButton 
+  maxW="184px"
+  w='100%'
+  fontWeight={{ base: 'normal', sm: 'bold' }}
+  fontSize={{ base: '12px', sm: '18px' }}
+  px="8"    
+   {...props} />
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   return <Flex maxH="36px" overflow="hidden">

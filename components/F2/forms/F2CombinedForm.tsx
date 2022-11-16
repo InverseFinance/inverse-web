@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
@@ -71,7 +71,8 @@ export const F2CombinedForm = ({
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
     
-    const [syncedMinH, setSyncedMinH] = useState('230px');    
+    const [syncedMinH, setSyncedMinH] = useState('230px');
+    const [isLargerThan] = useMediaQuery('(min-width: 1280px)')
 
     const deltaCollateral = isDeposit ? collateralAmount : -collateralAmount;
     const deltaDebt = isDeposit ? debtAmount : -debtAmount;
@@ -180,7 +181,7 @@ export const F2CombinedForm = ({
                             inputRight={<MarketImage pr="2" image={market.icon || market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmount > collateralBalance : collateralAmount > deposits}
                         />
-                        <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} />
+                        {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }
@@ -214,12 +215,12 @@ export const F2CombinedForm = ({
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
                                 isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
                             />
-                            <AmountInfos
+                            {/* <AmountInfos
                                 dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : 0 : 0}
                                 label="Total Debt"
                                 value={debt}
                                 delta={deltaDebt}
-                                textProps={{ fontSize: '14px' }} />
+                                textProps={{ fontSize: '14px' }} /> */}
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
@@ -251,7 +252,7 @@ export const F2CombinedForm = ({
                             </Flex>
                         }
                     />
-                }
+                }                
             </VStack>
         }
     </Stack>
@@ -305,17 +306,17 @@ export const F2CombinedForm = ({
             }} />
     </HStack>
 
-    const bottomPart = <Stack pt='4' position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
-        <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
-            <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate, directly linked to DBR price">
-                <Text color="accentTextColor">Current Fixed APR:</Text>
-            </TextInfo>
-            <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
-                {shortenNumber(dbrPrice * 100, 2)}%
-            </Text>
-        </VStack>
-        {actionBtn}
-    </Stack>
+    // const bottomPart = <Stack pt='4' position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
+    //     <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
+    //         <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate, directly linked to DBR price">
+    //             <Text color="accentTextColor">Current Fixed APR:</Text>
+    //         </TextInfo>
+    //         <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
+    //             {shortenNumber(dbrPrice * 100, 2)}%
+    //         </Text>
+    //     </VStack>
+    //     {actionBtn}
+    // </Stack>
 
     return <Stack
         direction={{ base: 'column', xl: 'row' }}
@@ -329,13 +330,15 @@ export const F2CombinedForm = ({
             contentProps={{ minH: syncedMinH, position: 'relative', id: 'f2-combined-form' }}
             {...props}
         >
-            <FormControl boxShadow="0px 0px 2px 2px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
-                <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
-                    Exit Mode?
-                </FormLabel>
-                <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
-            </FormControl>
-            <VStack position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">                
+            {
+                (deposits > 0 || debt > 0) && <FormControl boxShadow="0px 0px 2px 2px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+                    <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
+                        Exit Mode?
+                    </FormLabel>
+                    <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
+                </FormControl>
+            }
+            <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">                
                 <NavButtons
                     active={mode}
                     options={isDeposit ? inOptions : outOptions}
@@ -353,6 +356,8 @@ export const F2CombinedForm = ({
                         description="Not Enough collateral to deposit"
                     />
                 }
+                <Divider />
+                {actionBtn}
             </VStack>
         </Container>
         <Container
@@ -402,7 +407,10 @@ export const F2CombinedForm = ({
                 {
                     !market.leftToBorrow && isBorrowCase && <WarningMessage alertProps={{ w:'full' }} description="No DOLA liquidity at the moment" />
                 }
-                {bottomPart}
+                {/* {bottomPart} */}
+                {
+                    !isLargerThan && actionBtn
+                }
             </VStack>
         </Container>
     </Stack>

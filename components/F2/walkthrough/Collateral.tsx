@@ -41,7 +41,7 @@ export const F2WalkthroughCollateral = ({
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo color="accentTextColor" message="The more you deposit, the more you can borrow against">
-                <Text fontWeight="bold" fontSize={{ base: '20px', md: '30px' }} color="mainTextColor">
+                <Text fontWeight="bold" fontSize={{ base: '16px', sm: '20px', md: '30px' }} color="mainTextColor">
                     <b style={{ color: themeStyles.colors.accentTextColor }}>How much {market.underlying.symbol}</b> do you want to deposit?
                 </Text>
             </TextInfo>
@@ -57,7 +57,7 @@ export const F2WalkthroughCollateral = ({
                 isError={isNotEnoughBalance}
             />
             {
-                (deposits > 0 || !!collateralAmount) && <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price} textProps={{ fontSize: '14px' }} />
+                (deposits > 0 || !!collateralAmount) && <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price}/>
             }
             {
                 isNotEnoughBalance && <InfoMessage

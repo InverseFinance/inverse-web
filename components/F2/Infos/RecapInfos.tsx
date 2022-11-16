@@ -41,7 +41,7 @@ export const RecapInfos = ({
     const collateralWording = isDeposit ? 'deposit' : 'withdraw';
     const debtWording = isDeposit ? 'borrow' : 'repay';
     const dbrRiskColor = getDBRRiskColor(newDBRExpiryDate, now);
-    const fontSize = isTuto ? '20px' : '14px';
+    const fontSize = isTuto ? { base: '12px', sm: '14px', md: '20px' } : { base: '12px', sm: '14px' };
 
     return <VStack w='full' alignItems="flex-start" spacing="2" {...props}>
         {/* {

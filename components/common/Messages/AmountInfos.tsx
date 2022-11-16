@@ -19,7 +19,7 @@ export const AmountInfos = ({
     format?: boolean
     textProps?: Partial<TextProps>
 } & Partial<StackProps>) => {
-    const _textProps = { fontSize: '12px', color: 'secondaryTextColor', ...textProps }
+    const _textProps = { fontSize: { base: '11px', sm: '13px', md: '14px' }, color: 'secondaryTextColor', ...textProps }
     const formatFun = format ? shortenNumber : (v) => v;
     const deltaSign = (delta || 0) > 0 ? '+' : '-';
     const newValue = value + (delta || 0);
@@ -29,7 +29,7 @@ export const AmountInfos = ({
     const deltaUSD = price && delta ? ` (${formatFun(delta * price, 2, true)})` : ''
     const formattedDelta = delta ? formatFun(Math.abs(delta), 2, false) : '';
 
-    return <HStack spacing="1" justify="space-between" {...props}>
+    return <HStack fontSize="10px" spacing="1" justify="space-between" {...props}>
         <Text {..._textProps}>
             {label}: {!!value ?
                 formatFun(value, 2, false) : ''} {price && !!value ? `(${formatFun(value * price, 2, true)})`
