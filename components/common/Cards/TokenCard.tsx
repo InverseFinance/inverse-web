@@ -77,12 +77,12 @@ export const DBRTokenCard = ({
     clickable = true
 }) => <TokenCard
     name="DBR"
-    subtitle="DOLA Borrow Rights token"
+    subtitle="DOLA Borrowing Rights token"
     bg="url('/assets/v2/dbr-512.jpg')"
     href={ clickable ? "/tokens/dbr" : undefined }
     description={
         <VStack w='full' alignItems="flex-start">
-            <Text color="secondaryTextColor">- DOLA Borrow Rights Token</Text>
+            <Text color="secondaryTextColor">- DOLA Borrowing Rights Token</Text>
             <Text color="secondaryTextColor">- Lock-in a Borrow Rate for DOLA</Text>
             <Text color="secondaryTextColor">- Tradable Borrow Rate</Text>
             <Text color="secondaryTextColor">- On Ethereum</Text>
