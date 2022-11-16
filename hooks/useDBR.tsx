@@ -126,20 +126,20 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   return {
     markets: markets.map((m, i) => {
-      const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i].dailyLimit ?? 0;
-      const dailyBorrows = limits ? getBnToNumber(limits[i+nbMarkets]) : cachedMarkets[i].dailyBorrows ?? 0;
-      const dolaLiquidity = data ? getBnToNumber(data[i+4*nbMarkets]) : cachedMarkets[i].dolaLiquidity ?? 0;
-      const borrowPaused =  data ? data[i+5*nbMarkets] : cachedMarkets[i].borrowPaused ?? false;
-      const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i].leftToBorrow ?? 0;
+      const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
+      const dailyBorrows = limits ? getBnToNumber(limits[i+nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
+      const dolaLiquidity = data ? getBnToNumber(data[i+4*nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
+      const borrowPaused =  data ? data[i+5*nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
+      const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
       
       return {
         ...m,
         ...cachedMarkets[i],
         supplyApy: 0,
-        price: data ? getBnToNumber(data[i]) : cachedMarkets[i].price ?? 0,
-        collateralFactor: data ? getBnToNumber(data[i+nbMarkets], 4) : cachedMarkets[i].collateralFactor ?? 0,
-        totalDebt: data ? getBnToNumber(data[i+2*nbMarkets]) : cachedMarkets[i].totalDebt ?? 0,
-        bnDolaLiquidity: data ? data[i+4*nbMarkets] : cachedMarkets[i].bnDolaLiquidity ?? 0,
+        price: data ? getBnToNumber(data[i]) : cachedMarkets[i]?.price ?? 0,
+        collateralFactor: data ? getBnToNumber(data[i+nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
+        totalDebt: data ? getBnToNumber(data[i+2*nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
+        bnDolaLiquidity: data ? data[i+4*nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
         dolaLiquidity,
         dailyLimit,
         dailyBorrows,
