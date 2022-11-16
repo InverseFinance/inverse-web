@@ -174,19 +174,43 @@ const data = [
 const responsiveProps = {
     transform: 'translateX(-8%)',
     px: '8%',
-    overflowX:{ base: 'auto', md: 'inherit' },
+    overflowX:{ base: 'auto' },
     w: '100vw',
 }
 
 export const Ecosystem = () => {
     const [tab, setTab] = useState(0);
+    const [mouseDown, setMouseDown] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+
+    const startDragging = function (e) {
+        const slider = document.querySelector('#ecosystem-cards');
+        setMouseDown(true);
+        setStartX(e.pageX);
+        setStartX(e.pageX - slider.offsetLeft);
+        setScrollLeft(slider.scrollLeft);
+    };
+
+    const stopDragging = function () {
+        setMouseDown(false)
+    };
+
+    const mouseMove = (e) => {        
+        e.preventDefault();
+        if(!mouseDown) { return; }
+        const slider = document.querySelector('#ecosystem-cards');
+        const x = e.pageX - slider.offsetLeft;
+        const scroll = x - startX;
+        slider.scrollLeft = scrollLeft - scroll;
+    }
     
     return <Tabs zIndex='1' variant="unstyled" px='0' onChange={(index) => setTab(index)} >
     <TabList position="relative" {...responsiveProps}>
       {data.map((tab, i) => <Tab key={tab.tab} {...tabProps} pl={i === 0 ? '0': 4}>{tab.tab}</Tab>)}
     </TabList>
   
-    <HStack spacing="6" pb="2" mt='8' {...responsiveProps}>
+    <HStack cursor={ mouseDown ? 'grabbing' : 'default' } onMouseMove={mouseMove} onMouseDown={startDragging} onMouseUp={stopDragging} onMouseLeave={stopDragging} id="ecosystem-cards" spacing="6" pb="2" mt='8' {...responsiveProps}>
         {data[tab]?.elements.map(el => <EcoElement key={el.label} {...el} />)}
     </HStack>
   </Tabs>
