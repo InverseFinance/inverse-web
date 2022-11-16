@@ -48,7 +48,7 @@ export const F2Header = ({
   const { debt } = useAccountDBR(account);
 
   const getStarted = () => {
-    router.push(debt > 0 ? 'f2/WETH' : 'f2/WETH#step1')
+    router.push(debt > 0 ? 'firm/WETH DBRv2' : 'firm/WETH DBRv2#step1')
   }
 
   // const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
