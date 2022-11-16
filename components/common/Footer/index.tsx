@@ -35,7 +35,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
         Inverse is building a suite of DeFi tools. Everything we do is a community effort, which means you too can participate in the decision-making process. Join us!
       </Text>
       <Stack pt="3" alignItems={{ base: 'center', sm: 'flex-start' }}>
-        <LandingOutlineButton w={{ base: '150px', '2xl': 'auto' }} fontSize={smallerSize2} py="0" px="1vw">
+        <LandingOutlineButton href="/newsletter" w={{ base: '150px', '2xl': 'auto' }} fontSize={smallerSize2} py="0" px="1vw">
           Subscribe Now
         </LandingOutlineButton>
       </Stack>
