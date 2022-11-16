@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from "@chakra-ui/react"
+import { Flex, Stack, Text, VStack } from "@chakra-ui/react"
 import Table from "@app/components/common/Table";
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "../common/Button/BigImageButton";
+import TableV2 from "../common/Table/TableV2";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -28,7 +29,9 @@ const columns = [
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon }) => {
             return <Cell minWidth="130px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon||icon}')`} h="30px" w="30px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                {/* <VStack h="30px" w="30px" bgColor="white" borderRadius="50px" alignItems="center" justify="center"> */}
+                    <BigImageButton bg={`url('${marketIcon||icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                {/* </VStack> */}
                 <CellText>{name}</CellText>
             </Cell>
         },
@@ -182,7 +185,7 @@ export const F2Markets = ({
         image={<BigImageButton bg={`url('/assets/firm/firm-transparent.png')`} h="40px" w="100px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
     >
-        <Table
+        <TableV2
             keyName="address"
             noDataMessage="Loading..."
             columns={columns}
