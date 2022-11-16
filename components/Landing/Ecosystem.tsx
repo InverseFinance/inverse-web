@@ -34,7 +34,7 @@ const EcoElement = ({
     label: string,
     href: string,
 }) => {
-    return <SimpleCard minW="230px" w='230px' px="8" py='10' maxH='120px'>
+    return <SimpleCard minW="200px" w='230px' px="8" py='10' maxH='120px'>
         <HStack w='full' justify="center">
             <Image src={image} height='40px' />
             <Text color={lightTheme.colors.mainTextColor} fontWeight='bold' fontSize='16px'>
