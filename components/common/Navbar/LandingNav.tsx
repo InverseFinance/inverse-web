@@ -33,7 +33,7 @@ export const LandingNav = ({
             Inverse Finance
           </Text>
         </Stack>
-        <Stack spacing="2vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
+        <Stack spacing="2vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
           {NAV_ITEMS.map(({ label, href }, i) => (
             <Link
               key={i}
@@ -50,11 +50,11 @@ export const LandingNav = ({
           <Btn
               href="/firm"
               fontWeight="bold"
-              fontSize="1.4vw"
+              fontSize={slightlyBiggerSize}
               borderWidth="0.2vmax"
               bgColor={isBottom ? 'transparent' : 'white'}
               h="50px"
-              py="1.8vmax"
+              py="2.2vmax"
               px="3vmax"
               transition="transform ease-in-out 200ms"
               _hover={{ transform: 'scale(1.03)' }}

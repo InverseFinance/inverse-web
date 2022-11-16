@@ -21,7 +21,7 @@ export const RSubmitButton = (props: Props) => {
 
 export const LandingSubmitButton = (props: Props) => {
     const px = !props?.px ? { base: '2', sm: '40px', '2xl': '3vw' } : props.px;
-    const py = !props?.py ? { base: '2', sm: '30px', '2xl': '2.5vh' } : props.py;
+    const py = !props?.py ? { base: '2', sm: '20px', '2xl': '2vmin' } : props.py;
     return <RSubmitButton
         boxShadow="none"
         textTransform="inherit"
@@ -29,7 +29,7 @@ export const LandingSubmitButton = (props: Props) => {
         px={px}
         py={py}
         h='50px'
-        fontSize={{ base: '18px', '2xl': '0.9vw' }}
+        fontSize={{ base: '16px', '2xl': '0.9vw' }}
         {...props} />
 }
 
