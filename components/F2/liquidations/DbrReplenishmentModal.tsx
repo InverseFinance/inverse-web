@@ -61,7 +61,7 @@ export const DbrReplenishmentModal = ({
     }, [deficit, position, chosenMarket, replenishmentPrice]);
 
     return  <Modal
-    header={`Liquidation Form`}
+    header={`Replenishment Form`}
     onClose={onClose}
     isOpen={isOpen}
 >
@@ -101,7 +101,7 @@ export const DbrReplenishmentModal = ({
                 !account && <InfoMessage alertProps={{ w: 'full' }} description="Please connect wallet" />
             }
             <SubmitButton refreshOnSuccess={true} onClick={handleLiquidation}>
-                FORCE TOP-UP
+                Replenishment
             </SubmitButton>
 
             {
