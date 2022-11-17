@@ -37,7 +37,7 @@ const EligibleComp = ({
             The DBR airdrop is a unique way to borrow at 0% interest
         </AirdropText>
         <VStack w='full' alignItems="center" pt='8'>
-            <RSubmitButton w='auto' px="10" py="8" fontSize={{ base: '16px', sm: '20px', md: '22px' }}>
+            <RSubmitButton onClick={() => alert('No contract yet')} w='auto' px="10" py="8" fontSize={{ base: '16px', sm: '20px', md: '22px' }}>
                 Claim {preciseCommify(amount, 0)} DBR
             </RSubmitButton>
         </VStack>
