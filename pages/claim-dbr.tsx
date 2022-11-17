@@ -24,7 +24,7 @@ const EligibleComp = ({
             Congratulations!
         </Text>
         <AirdropText >
-            Your <b>{shortenAddress(account)}</b> account is elgible to claim the DBR airdrop!
+            Your <b>{shortenAddress(account)}</b> account is eligible to claim the DBR airdrop!
         </AirdropText>
         <AirdropText >
             <b>By claiming DBR</b> you will be able to <b>borrow DOLA for free</b> and try out our new innovative lending product <b>FiRM</b>!
