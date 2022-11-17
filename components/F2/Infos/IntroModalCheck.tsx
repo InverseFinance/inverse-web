@@ -36,7 +36,7 @@ export const IntroModalCheck = ({
     }
 
     const getStarted = () => {
-        router.push(debt > 0 ? 'f2/WETH' : 'f2/walkthrough/WETH#step1')
+        router.push(debt > 0 ? 'firm/WETH DBRv2' : 'firm/WETH DBRv2#step1')
     }
 
     return <Modal scrollBehavior="inside" h="95vh" maxH='700px' minW={{ base: '98vw', lg: '800px' }} isOpen={isIntroOpen} onClose={handleIntroClose}
