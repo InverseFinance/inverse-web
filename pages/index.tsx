@@ -156,17 +156,17 @@ export const Landing = ({ }: {
           </SplashedText>
           <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
 
-          <VStack spacing="0" pt="0" pb="8" alignItems="center" w='200px' position="relative">
+          <VStack spacing="0" pt="0" pb="4" alignItems="center" w='200px' position="relative">
             <SplashedText
               splash="large"
               zIndex="1"
-              animation="1.5s text-highlight linear infinite"
+              // animation="1.5s text-highlight linear infinite"
               zIndex="3"
               color={lightTheme.colors.secAccentTextColor}
               fontWeight="900"
-              fontSize="100px"
+              fontSize="120px"
               splashProps={{
-                left: '-140px',
+                left: '-125px',
                 top: '-130px',
                 w: '400px',
                 h: '400px',
