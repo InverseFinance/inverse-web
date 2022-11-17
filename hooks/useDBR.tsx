@@ -317,3 +317,16 @@ export const useDBRReplenishmentPrice = (): SWR & {
     isError: error,
   }
 }
+
+export const useCheckDBRAirdrop = (account: string): SWR & {
+  eligible: boolean,
+  amount: number,
+} => {
+  
+  return {
+    eligible: true,
+    amount: 2000,
+    isLoading: false,
+    isError: false,
+  }
+}
