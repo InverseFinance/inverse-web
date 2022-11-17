@@ -167,7 +167,7 @@ export const Landing = ({ }: {
               fontSize="120px"
               splashProps={{
                 left: '-125px',
-                top: '-130px',
+                top: '-120px',
                 w: '400px',
                 h: '400px',
                 zIndex: '2',
