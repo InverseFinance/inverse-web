@@ -73,11 +73,11 @@ export const ClaimDbr = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - DBR token</title>
                 <meta name="og:title" content="Inverse Finance - DBR token" />                
             </Head>
-            <AppNav active="Tokens" activeSubmenu="Overview" />
+            <AppNav active="Tokens" activeSubmenu="Overview" isClaimPage={true} />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
                 <Stack alignItems="center" justify="center" mt="8" w='full' direction={{ base: 'column', lg: 'row' }} spacing="10">                    
                     <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }} h={{ base: '200px', sm: '500px' }}>
-                        <Image src="/assets/v2/dbr-airdrop.png" w="full" maxW='500px' maxH="500px" />
+                        <Image src="/assets/v2/dbr-airdrop.jpg" w="full" maxW='500px' maxH="500px" />
                     </VStack>
                     <VStack justify="center" spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
                         {

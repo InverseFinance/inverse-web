@@ -18,7 +18,7 @@ const Btn = (props) => <RSubmitButton
   w='100%'
   fontWeight={{ base: 'normal', sm: 'bold' }}
   fontSize={{ base: '12px', sm: '18px' }}
-  px="8"    
+  px={{ base: '2', sm: '8' }}  
    {...props} />
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {

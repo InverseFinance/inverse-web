@@ -324,7 +324,7 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
 } => {
   
   return {
-    eligible: true,
+    eligible: !!account,
     amount: 2000,
     isLoading: false,
     isError: false,

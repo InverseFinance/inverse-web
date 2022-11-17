@@ -55,6 +55,8 @@ import PostSearch from 'blog/components/post-search'
 import { switchTheme } from '@app/util/theme'
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay'
+import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
+import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
 const NAV_ITEMS = MENUS.nav
 
 const NavBadge = (props: any) => {
@@ -444,14 +446,16 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const { themeName } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
+  const { eligible } = useCheckDBRAirdrop(userAddress);
   const [showMobileNav, setShowMobileNav] = useState(false)
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
+  const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
 
@@ -539,6 +543,13 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
+      {
+        eligible && <AirdropModalCheck
+          isOpen={isAirdropOpen}
+          onOpen={onAirdropOpen}
+          onClose={onAirdropClose}
+        />
+      }
       <Flex
         w={isBlog ? '100vw' : '100vw'}
         background="navBarBackground"
