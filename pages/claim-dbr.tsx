@@ -8,6 +8,7 @@ import { useAccount } from '@app/hooks/misc';
 import { shortenAddress } from '@app/util';
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 import { preciseCommify } from '@app/util/misc';
+import { InfoMessage } from '@app/components/common/Messages';
 
 const AirdropText = (props: TextProps) => <Text fontSize={{ base: '16px', sm: '18px' }} {...props} />
 
@@ -34,7 +35,7 @@ const EligibleComp = ({
             Keep your DBRs for as long as you want and borrow later!
         </AirdropText>
         <AirdropText >
-            The DBR airdrop is a unique way to borrow at 0% interest
+            The DBR airdrop is a unique occasion to borrow at 0% interest
         </AirdropText>
         <VStack w='full' alignItems="center" pt='8'>
             <RSubmitButton onClick={() => alert('No contract yet')} w='auto' px="10" py="8" fontSize={{ base: '16px', sm: '20px', md: '22px' }}>
@@ -78,7 +79,14 @@ export const ClaimDbr = () => {
                     <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }}>
                         <Image src="/assets/v2/dbr-airdrop.png" w="full" maxW='500px' />
                     </VStack>
-                    <VStack spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
+                    <VStack alignItems="center" justify="center" spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
+                        {
+                            !account && <InfoMessage
+                                alertProps={{ fontSize: { base: '16px', sm: '18px' } }}
+                                title="DBR Airdrop Check"
+                                description="Please connect your wallet to check if you're eligible for the DBR airdrop"
+                            />
+                        }
                         {
                             !!account && eligible && <EligibleComp amount={amount} account={account} />
                         }
