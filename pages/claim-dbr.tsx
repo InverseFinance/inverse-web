@@ -75,11 +75,11 @@ export const ClaimDbr = () => {
             </Head>
             <AppNav active="Tokens" activeSubmenu="Overview" />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
-                <Stack mt="8" w='full' direction={{ base: 'column', lg: 'row' }} spacing="10">                    
-                    <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }}>
-                        <Image src="/assets/v2/dbr-airdrop.png" w="full" maxW='500px' />
+                <Stack alignItems="center" justify="center" mt="8" w='full' direction={{ base: 'column', lg: 'row' }} spacing="10">                    
+                    <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }} h={{ base: '200px', sm: '500px' }}>
+                        <Image src="/assets/v2/dbr-airdrop.png" w="full" maxW='500px' maxH="500px" />
                     </VStack>
-                    <VStack alignItems="center" justify="center" spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
+                    <VStack justify="center" spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
                         {
                             !account && <InfoMessage
                                 alertProps={{ fontSize: { base: '16px', sm: '18px' } }}
