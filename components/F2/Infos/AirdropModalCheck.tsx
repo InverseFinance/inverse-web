@@ -19,8 +19,8 @@ export const AirdropModalCheck = ({
 }) => {
     const account = useAccount();
     const router = useRouter();
-    const { eligible, amount } = useCheckDBRAirdrop(account);
-    const { value: isAlreadyShown, setter } = useStorage('dbr-airdrop3');
+    const { eligible } = useCheckDBRAirdrop(account);
+    const { value: isAlreadyShown, setter } = useStorage('dbr-airdrop');
 
     useDebouncedEffect(() => {
         if (!isAlreadyShown && eligible) {
@@ -39,9 +39,6 @@ export const AirdropModalCheck = ({
     }
 
     return <Flex>
-            <VStack position="fixed" top="0" zIndex="999">
-                <ConfettiAnim width={'100vw'} height={'100vh'} loop={false} />
-            </VStack>
             <Modal scrollBehavior="inside" isOpen={isOpen} onClose={handleClose}
             header={
                 <Text>You are eligible for the DBR Airdrop!</Text>
@@ -65,5 +62,10 @@ export const AirdropModalCheck = ({
                 />            
             </VStack>
         </Modal>
+        {
+            isOpen && <VStack position="fixed" top="0" left="0" zIndex="999">
+                <ConfettiAnim width={'100vw'} height={'100vh'} loop={false} />
+            </VStack>
+        }
     </Flex>
 }
