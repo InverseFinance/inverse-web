@@ -24,7 +24,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       seizable: seizableWorth / market.price,
       seizableWorth,
       liquidatableDebtBn: getNumberToBn(p.liquidatableDebt), 
-      isLiquidatable: p.liquidatableDebt > 0 ? 'Yes' : 'No',
+      isLiquidatable: p.liquidatableDebt > 0,
       marketName: market.name,
       market,
       perc: newPerc,
