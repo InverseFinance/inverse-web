@@ -7,7 +7,7 @@ import { useAccountDBRMarket } from "@app/hooks/useDBR";
 import { useTransactionCost } from "@app/hooks/usePrices";
 import { f2liquidate } from "@app/util/f2";
 import { shortenNumber } from "@app/util/markets";
-import { roundFloorString } from "@app/util/misc";
+import { preciseCommify, roundFloorString } from "@app/util/misc";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { HStack, VStack, Text } from "@chakra-ui/react";
 import { parseEther } from "@ethersproject/units";
@@ -43,7 +43,7 @@ export const FirmLiquidationModal = ({
 
     const liveData = useAccountDBRMarket(position.market, position.user);
     const dataSource = !!account && !!liveData ? liveData : position;
-    const { debt, liquidatableDebt, seizable, seizableWorth } = dataSource;
+    const { debt, liquidatableDebt, liquidatableDebtBn, seizable, seizableWorth, perc, deposits, liquidationPrice } = dataSource;
     const estimatedProfit = seizeWorth - costUsd;
 
     const handleLiquidation = async (repayAmountBn: BigNumber) => {
@@ -65,7 +65,7 @@ export const FirmLiquidationModal = ({
     }, [repayAmount, position]);
 
     return  <Modal
-    header={`Liquidation Form`}
+    header={liquidatableDebt > 0 ? `Liquidation Form` : 'Details'}
     onClose={onClose}
     isOpen={isOpen}
 >
@@ -77,12 +77,16 @@ export const FirmLiquidationModal = ({
                 <ScannerLink value={position.user} />
             </HStack>
             {
-                position?.liquidatableDebt !== debt &&
+                liquidatableDebt !== debt &&
                 <HStack w='full' justify="space-between">
                     <Text>Debt:</Text>
                     <Text fontWeight="bold">{shortenNumber(debt, 2)}</Text>
                 </HStack>
             }
+            <HStack w='full' justify="space-between">
+                <Text>Deposits:</Text>
+                <Text fontWeight="bold">{shortenNumber(deposits, 2)} {position?.market.underlying.symbol} ({shortenNumber(deposits * position?.market.price, 2, true)})</Text>
+            </HStack>
             <HStack w='full' justify="space-between">
                 <Text>Liquidable Debt:</Text>
                 <Text fontWeight="bold">{shortenNumber(liquidatableDebt, 2)}</Text>
@@ -92,17 +96,27 @@ export const FirmLiquidationModal = ({
                 <Text fontWeight="bold">{position?.market.liquidationIncentive * 100}%</Text>
             </HStack>
             <HStack w='full' justify="space-between">
+                <Text>Liquidation Price:</Text>
+                <Text fontWeight="bold">{preciseCommify(liquidationPrice, 2, true)}</Text>
+            </HStack>
+            <HStack w='full' justify="space-between">
+                <Text>Loan health:</Text>
+                <Text fontWeight="bold">{shortenNumber(perc, 2)}%</Text>
+            </HStack>
+            {
+                liquidatableDebt > 0 && <HStack w='full' justify="space-between">
                 <Text>Max Seizable:</Text>
                 <Text fontWeight="bold">
                     {shortenNumber(seizable, 4, false, true)} {position?.market.underlying.symbol} ({shortenNumber(seizableWorth, 2, true)})
                 </Text>
             </HStack>
+            }
             {
                 !account && <InfoMessage alertProps={{ w: 'full' }} description="Please connect wallet" />
             }
 
             {
-                position.isLiquidatable && !!account &&
+                liquidatableDebt > 0 && !!account &&
                 <VStack pt="4" w='full' alignItems="flex-start">
                     <Text fontWeight="bold">Amount to repay:</Text>
                     <SimpleAmountForm
@@ -112,7 +126,7 @@ export const FirmLiquidationModal = ({
                         signer={library?.getSigner()}
                         decimals={18}
                         hideInputIfNoAllowance={false}
-                        maxAmountFrom={[position?.liquidatableDebtBn]}
+                        maxAmountFrom={[liquidatableDebtBn]}
                         includeBalanceInMax={true}
                         onAction={({ bnAmount }) => handleLiquidation(bnAmount)}
                         onAmountChange={(v) => setRepayAmount(v)}
