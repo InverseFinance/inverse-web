@@ -54,6 +54,8 @@ const chainTokenAddresses = {
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
     VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
     LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
+    BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
+    AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -374,6 +376,22 @@ const chainTokens = {
         account: '0x5170793C4D96f9ca058E2A581BADdA9413EF4b0d',
         fromPrice: '0xE57180685E3348589E9521aa53Af0BCD497E884d',    
       },      
+    },
+    [chainTokenAddresses["1"].AURA]: {
+      address: chainTokenAddresses["1"].AURA,
+      name: 'AURA',
+      symbol: 'AURA',
+      coingeckoId: 'aura-finance',
+      image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',     
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].BAL]: {
+      address: chainTokenAddresses["1"].BAL,
+      name: 'BAL',
+      symbol: 'BAL',
+      coingeckoId: 'balancer',
+      image: 'https://assets.coingecko.com/coins/images/11683/small/Balancer.png?1592792958',     
+      decimals: 18,
     },
   },
   "250": {
