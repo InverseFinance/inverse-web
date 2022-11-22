@@ -9,12 +9,12 @@ import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.5`;
 
 export default async function handler(req, res) {
-  const cacheKey = `f2markets-v1.0.5`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 30);
+    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 30);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -145,14 +145,14 @@ export default async function handler(req, res) {
       timestamp: +(new Date()),
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);

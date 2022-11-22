@@ -9,14 +9,14 @@ import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.2'
 
 export default async function handler(req, res) {
-  const cacheKey = `f2shortfalls-v1.0.2`;
   const uniqueUsersCache = `f2unique-users-v1.0.7`;
   const isShortfallOnly = req.query?.shortfallOnly === 'true';
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 30);
+    const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, true, 30);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -111,18 +111,18 @@ export default async function handler(req, res) {
 
     const resultData = {
       positions,
-      marketUsersAndEscrows,
+      // marketUsersAndEscrows,
       timestamp: +(new Date()),
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(F2_POSITIONS_CACHE_KEY, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
