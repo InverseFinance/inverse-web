@@ -10,6 +10,8 @@ const COINGECKO_IDS = {
     'CRV': 'curve-dao-token',
     'CVX': 'convex-finance',
     'VELO': 'velodrome-finance',
+    'BAL': 'balancer',
+    'AURA': 'aura-finance',
 }
 
 // Crosschain Fee is 0.1 %, Minimum Crosschain Fee is 83 DOLA, Maximum Crosschain Fee is 1,040 DOLA
@@ -63,7 +65,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string) => {
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
             await Promise.all(filteredEvents.map(async e => {
                 const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
-                if(['CRV', 'CVX', 'VELO'].includes(e.sender_contract_ticker_symbol)) {
+                if(['CRV', 'CVX', 'VELO', 'BAL', 'AURA'].includes(e.sender_contract_ticker_symbol)) {
                     const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
                     const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`);
                     const historicalData = await res.json();                   
@@ -86,7 +88,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string) => {
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.9`;
+    const cacheKey = `revenues-v1.0.10`;
 
     try {
 
