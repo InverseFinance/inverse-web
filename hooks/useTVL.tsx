@@ -1,7 +1,5 @@
-import { SWR, TokenWithBalance } from '@app/types'
+import { F2Market, SWR, TokenWithBalance } from '@app/types'
 import { fetcher } from '@app/util/web3'
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
 import { useCustomSWR } from './useCustomSWR';
 
 type TVL = {
@@ -10,13 +8,27 @@ type TVL = {
 }
 
 export const useTVL = (): SWR & TVL => {
-  const { chainId } = useWeb3React<Web3Provider>()
-
-  const { data, error } = useCustomSWR(`/api/tvl?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/tvl}`, fetcher)
 
   return {
     tvl: data?.tvl,
     data: data || {},
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useFirmTVL = (): SWR & {
+  firmTotalTvl: number
+  timestamp: number
+  firmTvls: { tvl: number, market: F2Market }
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/tvl`, fetcher)
+
+  return {
+    firmTotalTvl: data?.firmTotalTvl,
+    firmTvls: data?.firmTvls || [],
+    timestamp: data?.timestamp,
     isLoading: !error && !data,
     isError: error,
   }
