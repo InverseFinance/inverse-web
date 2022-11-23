@@ -1,5 +1,4 @@
-import { Flex, Stack, Text, VStack } from "@chakra-ui/react"
-import Table from "@app/components/common/Table";
+import { Flex, Stack, Text } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
@@ -8,6 +7,7 @@ import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "../common/Button/BigImageButton";
 import TableV2 from "../common/Table/TableV2";
+import { useFirmTVL } from "@app/hooks/useTVL";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -30,7 +30,7 @@ const columns = [
         value: ({ name, icon, marketIcon }) => {
             return <Cell minWidth="130px" justify="flex-start" alignItems="center" >
                 {/* <VStack h="30px" w="30px" bgColor="white" borderRadius="50px" alignItems="center" justify="center"> */}
-                    <BigImageButton bg={`url('${marketIcon||icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <BigImageButton bg={`url('${marketIcon || icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 {/* </VStack> */}
                 <CellText>{name}</CellText>
             </Cell>
@@ -173,6 +173,7 @@ export const F2Markets = ({
     const accountMarkets = useAccountF2Markets(markets, account);
     const { debt } = useAccountDBR(account);
     const router = useRouter();
+    const { firmTotalTvl } = useFirmTVL();
 
     const openMarket = (market: any) => {
         router.push(debt > 0 ? `/firm/${market.name}` : `/firm/${market.name}#step1`)
@@ -180,10 +181,16 @@ export const F2Markets = ({
 
     return <Container
         label="FiRM - BETA"
-        description="Read more about Inverse's Fixed-Rate Markets"
+        description="Learn more"
         href="https://docs.inverse.finance/"
         image={<BigImageButton bg={`url('/assets/firm/firm-transparent.png')`} h="40px" w="100px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+        right={
+            <Stack spacing="0" alignItems="flex-end">
+                <Text fontWeight="bold" color="mainTextColor">TVL</Text>
+                <Text color="secondaryTextColor">{shortenNumber(firmTotalTvl, 2, true)}</Text>
+            </Stack>
+        }
     >
         <TableV2
             keyName="address"
