@@ -1,18 +1,18 @@
 
-import { Link, ButtonProps } from '@chakra-ui/react'
+import { Link, ButtonProps, LinkProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { SubmitButton } from "."
 import { lightTheme } from '@app/variables/theme'
 
-type Props = ButtonProps & { href?: string, target?: string }
+type Props = ButtonProps & { href?: string, target?: string, linkProps?: LinkProps }
 
 export const RSubmitButton = (props: Props) => {
     const _props = { borderLeftRadius: '50vmax', borderRightRadius: '50vmax', ...props }
     if (_props?.href) {
-        const { target, w, width, ...btnProps } = _props;
+        const { target, linkProps, ...btnProps } = _props;
         return <NextLink href={_props.href} passHref>
-            <Link w={w} width={width} target={target} textDecoration="none" _hover={{ textDecoration: 'none' }}>
-                <SubmitButton {...btnProps} />
+            <Link target={target} textDecoration="none" _hover={{ textDecoration: 'none' }} {...linkProps}>
+                <SubmitButton w='full' {...btnProps} />
             </Link>
         </NextLink>
     }

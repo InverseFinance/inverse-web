@@ -14,11 +14,11 @@ import { useAccount } from '@app/hooks/misc'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
 
 const Btn = (props) => <RSubmitButton 
-  maxW="184px"
   w='100%'
   fontWeight={{ base: 'normal', sm: 'bold' }}
   fontSize={{ base: '12px', sm: '18px' }}
   px={{ base: '2', sm: '8' }}  
+  linkProps={{ w: 'full', maxW: '184px' }}
    {...props} />
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
@@ -85,7 +85,7 @@ export const F2Header = ({
             </Text>
           </Flex>
         </Stack>
-        <Stack w='full' spacing={2} direction="row">
+        <Stack w='full' spacing={2} direction="row" alignItems="flex-start">
           <Btn
             href={'https://app.1inch.io/#/1/swap/DAI/INV'}
             target="_blank">
