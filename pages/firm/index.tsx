@@ -4,12 +4,12 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { F2Header } from '@app/components/F2/F2Header'
-import { DbrHeader } from '@app/components/F2/bars/DbrHeader'
 import { F2Markets } from '@app/components/F2/F2Markets'
 import { useAccount } from '@app/hooks/misc'
 import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { DbrBar } from '@app/components/F2/Infos/InfoBar'
+import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 
 export const F2PAGE = () => {
     const account = useAccount();
@@ -31,8 +31,7 @@ export const F2PAGE = () => {
                     <ErrorBoundary description="Failed to load header"><F2Header /></ErrorBoundary>
                     {
                         !!account && debt > 0 && <ErrorBoundary description="Failed to load Dbr Health">
-                            <VStack px='6' w='full'>
-                                {/* <DbrHeader account={account} onModalOpen={onDbrOpen} /> */}
+                            <VStack px='6' w='full'>                                
                                 <DbrBar account={account} />
                             </VStack>
                         </ErrorBoundary>
@@ -40,6 +39,9 @@ export const F2PAGE = () => {
                     <ErrorBoundary description="Failed to Markets">
                         <F2Markets />
                     </ErrorBoundary>
+                    <VStack py="6" px='6' w='full'>
+                        <FirmFAQ defaultCollapse={true} collapsable={true} />
+                    </VStack>                    
                 </VStack>
             </ErrorBoundary>
         </Layout>
