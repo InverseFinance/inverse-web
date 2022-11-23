@@ -5,7 +5,7 @@ import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
-import { useTVL } from '@app/hooks/useTVL'
+import { useFirmTVL, useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
 import { lightTheme } from '@app/variables/theme'
@@ -38,6 +38,7 @@ export const Landing = ({ }: {
   const { prices } = usePrices();
   const { price: dbrPrice } = useDBRPrice();
   const { tvl } = useTVL();
+  const { firmTotalTvl } = useFirmTVL();
 
   const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
   const dolaPrice = prices['dola-usd'] ? prices['dola-usd'].usd : 0;
@@ -53,7 +54,7 @@ export const Landing = ({ }: {
     },
     {
       name: 'TVL',
-      value: tvl,
+      value: firmTotalTvl+tvl,
     },
     {
       name: 'DBR price',
