@@ -1,5 +1,4 @@
-import { Flex, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
-import Table from "@app/components/common/Table";
+import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
@@ -11,6 +10,7 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import moment from 'moment'
 import { useState } from "react";
 import { FirmLiquidationModal } from "./FirmLiquidationModal";
+import TableV2 from "@app/components/common/Table/TableV2";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -116,8 +116,8 @@ const columns = [
             return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
                 {
                     liquidatableDebt > 0 ? <>
-                    <CellText>{shortenNumber(seizableWorth, 2, true)}</CellText>
-                    <CellText>for {shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
+                        <CellText>{shortenNumber(seizableWorth, 2, true)}</CellText>
+                        <CellText>for {shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
                     </> : <CellText>-</CellText>
                 }
             </Cell>
@@ -149,23 +149,50 @@ export const FirmPositions = ({
         setPosition(data);
         onOpen();
     }
+    
+    const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
+    const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
+    const avgHealth = positions?.length > 0 ? positions.reduce((prev, curr) => prev + curr.perc, 0) / positions?.length : 100;
+    const avgRiskColor = getRiskColor(avgHealth);
 
-    return <Container
-        label="FiRM Positions"
-        description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
-        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-    >
-        {
-            !!position && <FirmLiquidationModal onClose={onClose} isOpen={isOpen} position={position} />
-        }
-        <Table
-            keyName="key"
-            noDataMessage="No live positions in last update"
-            columns={columns}
-            items={positions}
-            onClick={(v) => openLiquidation(v)}
-            defaultSort="perc"
-            defaultSortDir="asc"
-        />
-    </Container>
+    return <VStack w='full'>
+        <Container
+            label="FiRM Positions"
+            description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
+            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+            headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+            }}
+            right={
+                <HStack justify="space-between" spacing="4">
+                    <VStack alignItems="flex-start">
+                        <Text fontWeight="bold">Avg Loan Health</Text>
+                        <Text color={avgRiskColor}>{shortenNumber(avgHealth, 2)}%</Text>
+                    </VStack>
+                    <VStack alignItems="flex-start">
+                        <Text fontWeight="bold">Total Value Locked</Text>
+                        <Text color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
+                    </VStack>
+                    <VStack alignItems="flex-end">
+                        <Text fontWeight="bold">Total Debt</Text>
+                        <Text color="secondaryTextColor">{shortenNumber(totalDebt, 2, true)}</Text>
+                    </VStack>
+                </HStack>
+            }
+        >
+            {
+                !!position && <FirmLiquidationModal onClose={onClose} isOpen={isOpen} position={position} />
+            }
+            <TableV2
+                keyName="key"
+                noDataMessage="No live positions in last update"
+                columns={columns}
+                items={positions}
+                onClick={(v) => openLiquidation(v)}
+                defaultSort="perc"
+                defaultSortDir="asc"
+            />
+        </Container>
+    </VStack>
 }

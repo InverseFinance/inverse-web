@@ -1,5 +1,4 @@
 import { Flex, Stack, Text, useDisclosure } from "@chakra-ui/react"
-import Table from "@app/components/common/Table";
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useDBRShortfalls } from "@app/hooks/useFirm";
@@ -10,6 +9,7 @@ import moment from 'moment'
 import { useState } from "react";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
+import TableV2 from "@app/components/common/Table/TableV2";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -93,7 +93,7 @@ export const DbrShortfalls = ({
         {
             !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} position={position} />
         }
-        <Table
+        <TableV2
             keyName="key"
             noDataMessage="No DBR shortfalls in last update"
             columns={columns}
