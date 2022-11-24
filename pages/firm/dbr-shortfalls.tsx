@@ -10,7 +10,7 @@ export const F2DbrShortfallsPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM DBR Shortfalls</title>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM DBR Deficits</title>
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>

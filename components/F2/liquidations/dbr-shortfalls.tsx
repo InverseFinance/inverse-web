@@ -78,7 +78,7 @@ export const DbrShortfalls = ({
     }) => {
     const { positions, timestamp } = useDBRShortfalls();
     const { onOpen, onClose, isOpen } = useDisclosure();
-    const [position, setPosition] = useState(null);    
+    const [position, setPosition] = useState(null);
 
     const openReplenish = async (data) => {
         setPosition(data);
@@ -90,7 +90,7 @@ export const DbrShortfalls = ({
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
     return <Container
-        label="DBR Shortfalls"
+        label="DBR Deficits"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
@@ -98,24 +98,24 @@ export const DbrShortfalls = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-<HStack justify="space-between" spacing="4">
-                    <VStack alignItems="flex-start">
-                        <Text fontWeight="bold">Total DBR Deficit</Text>
-                        <Text color="secondaryTextColor">{shortenNumber(totalDeficit, 2)}</Text>
-                    </VStack>
-                    <VStack alignItems="flex-end">
-                        <Text fontWeight="bold">Total Debt</Text>
-                        <Text color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
-                    </VStack>
-                </HStack>
+            <HStack justify="space-between" spacing="4">
+                <VStack alignItems="flex-start">
+                    <Text fontWeight="bold">Total DBR Deficit</Text>
+                    <Text color="secondaryTextColor">{shortenNumber(totalDeficit, 2)}</Text>
+                </VStack>
+                <VStack alignItems="flex-end">
+                    <Text fontWeight="bold">Total Debt</Text>
+                    <Text color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
+                </VStack>
+            </HStack>
         }
-    >        
+    >
         {
             !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} position={position} />
         }
         <TableV2
             keyName="key"
-            noDataMessage="No DBR shortfalls in last update"
+            noDataMessage="No DBR deficits in last update"
             columns={columns}
             items={positions}
             onClick={(v) => openReplenish(v)}
