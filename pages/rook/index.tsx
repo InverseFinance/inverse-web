@@ -1,4 +1,4 @@
-import { Flex, HStack, Text, VStack, Textarea, Code } from '@chakra-ui/react'
+import { Flex, HStack, Text, VStack, Textarea, Code, List, ListItem } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -9,7 +9,6 @@ import Container from '@app/components/common/Container';
 import { Input } from '@app/components/common/Input';
 import { useEffect, useState } from 'react';
 import { Contract } from 'ethers';
-const zeroXutils = require('@0x/protocol-utils')
 import { splitSignature } from 'ethers/lib/utils';
 
 const ZeroXProxyAbi = [{
@@ -25,11 +24,54 @@ const ZeroXProxyAbi = [{
 const ZeroXProxyAddress = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
 const EXCHANGE_PROXY_EIP712_DOMAIN_DEFAULT = {
-    chainId: 1,
-    verifyingContract: ZeroXProxyAddress,
+    chainId: '1',
+    verifyingContract: ZeroXProxyAddress.toLowerCase(),
     name: 'ZeroEx',
     version: '1.0.0',
 };
+const RFQ_ORDER_TYPE = [
+    {
+        "type": "address",
+        "name": "makerToken"
+    },
+    {
+        "type": "address",
+        "name": "takerToken"
+    },
+    {
+        "type": "uint128",
+        "name": "makerAmount"
+    },
+    {
+        "type": "uint128",
+        "name": "takerAmount"
+    },
+    {
+        "type": "address",
+        "name": "maker"
+    },
+    {
+        "type": "address",
+        "name": "taker"
+    },
+    {
+        "type": "address",
+        "name": "txOrigin"
+    },
+    {
+        "type": "bytes32",
+        "name": "pool"
+    },
+    {
+        "type": "uint64",
+        "name": "expiry"
+    },
+    {
+        "type": "uint256",
+        "name": "salt"
+    }
+];
+
 const hidingBookOrdersUrl = `https://hidingbook.rook.finance/api/v1/orders`;
 
 const postOrders = (payload) => {
@@ -47,6 +89,8 @@ export const RookPage = () => {
     const [addressToRegister, setAddressToRegister] = useState('');
     const [orderMessage, setOrderMessage] = useState('');
     const [editedMessage, setEditedMessage] = useState('');
+    const [results, setResults] = useState([]);
+    const [hasError, setHasError] = useState(false);
 
     const handleRegister = (allow = true) => {
         if (!library?.getSigner()) { return }
@@ -63,20 +107,20 @@ export const RookPage = () => {
         const domain = { ...EXCHANGE_PROXY_EIP712_DOMAIN_DEFAULT };
 
         const types = {
-            RfqOrder: zeroXutils.RfqOrder.STRUCT_ABI,
+            RfqOrder: RFQ_ORDER_TYPE,            
         }
 
         const lowerCaseValues = Object.entries(value).reduce((prev, entry) => {
-            return { ...prev, [entry[0]]: typeof entry[1] === 'string' ? entry[1].toLowerCase() : entry[1] }
+            return { ...prev, [entry[0]]: entry[1].toString().toLowerCase() }
         }, {})
+
         const signature = await signer._signTypedData(domain, types, lowerCaseValues);
         const splitSig = splitSignature(signature)
 
         const orderRes = await postOrders([
             {
-                ...lowerCaseValues,
-                expiry: parseInt(lowerCaseValues.expiry),
-                chainId: 1,
+                ...lowerCaseValues,                
+                chainId: '1',
                 verifyingContract: ZeroXProxyAddress.toLowerCase(),
                 signature: {
                     signatureType: 2,
@@ -86,7 +130,14 @@ export const RookPage = () => {
                 }
             }
         ]);
-        await orderRes.json();
+        const response = await orderRes.json();
+        
+        if (response?.message !== 'Ok' || response?.result.find((r) => r.code < 0)) {
+            setHasError(true);
+        } else {
+            setHasError(false);
+        }
+        setResults(response?.message === 'Ok' ? response.result : []);
     }
 
     useEffect(() => {
@@ -100,9 +151,9 @@ export const RookPage = () => {
             asObj['maker'] = TWG;
             setEditedMessage(JSON.stringify(asObj));
         } catch (e) {
-
+            console.log(e)
         }
-    }, [orderMessage]);
+    }, [orderMessage, account]);
 
     return (
         <Layout>
@@ -123,33 +174,65 @@ export const RookPage = () => {
                             3) Paste the copied order message below:
                         </Text>
                         <Textarea
+                            fontFamily="mono"
+                            fontSize="14px"
                             bgColor="primary.800"
                             borderColor="primary.700"
-                            h="300px"
+                            h="250px"
                             textAlign="left"
                             w='full'
                             placeholder="Use Rook.fi to generate an order message with a registered EOA and paste it here"
                             value={orderMessage}
                             onChange={(e) => setOrderMessage(e.target.value)}
                         />
-                        <Text>After the auto-edit (<i>maker</i> should be TWG and <i>txOrigin</i> your connected EOA that was registered):</Text>
-                        <Code
-                            bgColor="primary.800"
-                            p="2"
-                            color="mainTextColor"
-                            textAlign="left"
-                            w='full'
-                            placeholder="Edited order with multisig as maker"
-                            whiteSpace="pre"
-                        >
-                            {editedMessage.replace(/(,)/g, '$1\r\n\t').replace(/({)/g, '$1\n\t').replace(/(})/g, '\n$1')}
-                        </Code>
-                        <SubmitButton themeColor="green" w='140px' disabled={!editedMessage} onClick={() => handleSign()}>
-                            Sign & Submit
-                        </SubmitButton>
-                        <Text>
-                            4) Your order should now appear on Rook.fi and you can cancel it there with the EOA
-                        </Text>
+                        {
+                            !!orderMessage && <>
+                                <Text>After the auto-edit (<i>maker</i> should be TWG and <i>txOrigin</i> your connected EOA that was registered):</Text>
+                                <Code
+                                    bgColor="primary.800"
+                                    p="2"
+                                    color="mainTextColor"
+                                    textAlign="left"
+                                    w='full'
+                                    fontSize="14px"
+                                    placeholder="Edited order with multisig as maker"
+                                    whiteSpace="pre"
+                                >
+                                    {editedMessage.replace(/(,)/g, '$1\r\n\t').replace(/({)/g, '$1\n\t').replace(/(})/g, '\n$1')}
+                                </Code>
+                                <SubmitButton themeColor="green" w='140px' disabled={!editedMessage} onClick={() => handleSign()}>
+                                    Sign & Submit
+                                </SubmitButton>
+
+                                <Text>4) Results:</Text>
+                                <List w='full'>
+                                    {
+                                        results.map((r, i) => {
+                                            return <ListItem key={r.orderHash} w='full' p="2" border="1px solid #333" bgColor={hasError ? 'error' : 'success'}>
+                                                <VStack w='full' alignItems="flex-start">
+                                                    <HStack w='full'>
+                                                        <Text>
+                                                            <b>Order</b> #{i}
+                                                        </Text>
+                                                        <Text>
+                                                            <b>Code</b>: {r.code}
+                                                        </Text>
+                                                        {
+                                                            !!r.error && <Text>
+                                                                <b>Error</b>: {r.error}
+                                                            </Text>
+                                                        }
+                                                    </HStack>
+                                                    <Text>
+                                                        <b>Message</b>: {r.message}
+                                                    </Text>
+                                                </VStack>
+                                            </ListItem>
+                                        })
+                                    }
+                                </List>
+                            </>
+                        }
                     </VStack>
                 </Container>
                 <Container
