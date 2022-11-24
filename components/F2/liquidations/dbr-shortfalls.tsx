@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, useDisclosure } from "@chakra-ui/react"
+import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useDBRShortfalls } from "@app/hooks/useFirm";
@@ -85,10 +85,30 @@ export const DbrShortfalls = ({
         onOpen();
     }
 
+    console.log(positions)
+    const totalDeficit = positions.reduce((prev, curr) => prev + (curr.deficit), 0);
+    const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
+
     return <Container
         label="DBR Shortfalls"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+        right={
+<HStack justify="space-between" spacing="4">
+                    <VStack alignItems="flex-start">
+                        <Text fontWeight="bold">Total DBR Deficit</Text>
+                        <Text color="secondaryTextColor">{shortenNumber(totalDeficit, 2)}</Text>
+                    </VStack>
+                    <VStack alignItems="flex-end">
+                        <Text fontWeight="bold">Total Debt</Text>
+                        <Text color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
+                    </VStack>
+                </HStack>
+        }
     >        
         {
             !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} position={position} />
