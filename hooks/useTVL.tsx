@@ -8,7 +8,7 @@ type TVL = {
 }
 
 export const useTVL = (): SWR & TVL => {
-  const { data, error } = useCustomSWR(`/api/tvl}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/tvl`, fetcher)
 
   return {
     tvl: data?.tvl,
