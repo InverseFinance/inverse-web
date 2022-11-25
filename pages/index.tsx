@@ -226,7 +226,7 @@ export const Landing = ({ }: {
         <ResponsiveStack justifyContent="space-evenly" w='full'>
           <VStack justify="center" minH="260px" position="relative">
             <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w={{ base: '200px', '2xl': '300px' }} h={{ base: '200px', '2xl': '300px' }} />
-            <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left="-60px" />
+            <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left={{ base: 0, sm: '-60px' }} />
           </VStack>
           <VStack spacing="4" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="0" alignItems="flex-start">
@@ -491,7 +491,7 @@ export const Landing = ({ }: {
               >
               </SplashedText>
             </VStack>
-            <VStack w={{ base: 'full', md: '40%' }} alignItems="flex-start" spacing='4' pt={{ base: '4', md: '0' }}>
+            <VStack zIndex="1" w={{ base: 'full', md: '40%' }} alignItems="flex-start" spacing='4' pt={{ base: '4', md: '0' }}>
               <Text fontWeight="bold" fontSize={normalSize}>
                 Inverse uses 100% on-chain  voting  that avoids the pitfalls of centralized DAO governance.
               </Text>
