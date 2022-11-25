@@ -21,11 +21,11 @@ type Data = {
     value: string
 }
 
-const Infos = ({ infos, index }: { infos: [Data, Data], index: number }) => {
+const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, isLast: boolean }) => {
     const [left, right] = infos;
 
     return <Stack borderTop={index > 0 ? '1px solid #cccccc66' : undefined} w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
-        <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
+        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
             <TextInfo message={left.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={left.onClick ? 'pointer' : undefined} onClick={left.onClick} >
                     {left.title}:
@@ -35,7 +35,7 @@ const Infos = ({ infos, index }: { infos: [Data, Data], index: number }) => {
                 {left.value}
             </Text>
         </VStack>
-        <VStack py={{ base: '0', sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
+        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
             <TextInfo message={right.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={right.onClick ? 'pointer' : undefined} onClick={right.onClick} >
                     {right.title}:
@@ -49,10 +49,11 @@ const Infos = ({ infos, index }: { infos: [Data, Data], index: number }) => {
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
+    const lastIndex = listInfos.length-1;
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
-                return <Infos key={infos[0].title} infos={infos} index={i} />
+                return <Infos key={infos[0].title} infos={infos} index={i} isLast={i === lastIndex} />
             })
         }
     </VStack>
