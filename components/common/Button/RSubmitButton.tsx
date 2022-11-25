@@ -20,7 +20,7 @@ export const RSubmitButton = (props: Props) => {
 }
 
 export const LandingSubmitButton = (props: Props) => {
-    const px = !props?.px ? { base: '2', sm: '40px', '2xl': '3vw' } : props.px;
+    const px = !props?.px ? { base: '4', sm: '40px', '2xl': '3vw' } : props.px;
     const py = !props?.py ? { base: '2', sm: '20px', '2xl': '2vmin' } : props.py;
     return <RSubmitButton
         boxShadow="none"
