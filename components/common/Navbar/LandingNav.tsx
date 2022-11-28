@@ -4,7 +4,7 @@ import Logo from '@app/components/common/Logo'
 import { lightTheme } from '@app/variables/theme';
 import { MENUS } from '@app/variables/menus'
 import { LandingOutlineButton, LandingSubmitButton } from '../Button/RSubmitButton'
-import { biggerSize, slightlyBiggerSize, slightlyBiggerSize3, normalSize, slightlyBiggerSize2, smallerSize } from '@app/variables/responsive';
+import { biggerSize, slightlyBiggerSize, slightlyBiggerSize3, smallerSize2, normalSize, slightlyBiggerSize2, smallerSize } from '@app/variables/responsive';
 
 const NAV_ITEMS = MENUS.nav
 
@@ -29,7 +29,7 @@ export const LandingNav = ({
           <Logo minH="30px" minW="30px" boxSize={isBottom ? '2vmax' : '4vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
           <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} 
             fontWeight="bold"
-            fontSize={isBottom ? normalSize : slightlyBiggerSize2}>
+            fontSize={isBottom ? normalSize : slightlyBiggerSize}>
             Inverse Finance
           </Text>
         </Stack>
@@ -42,7 +42,7 @@ export const LandingNav = ({
               isExternal
               color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               _hover={{ textDecoration: 'underline' }}
-              fontSize={isBottom ? smallerSize : normalSize}
+              fontSize={isBottom ? smallerSize2 : smallerSize}
             >
               {label}
             </Link>
@@ -50,14 +50,17 @@ export const LandingNav = ({
           <Btn
               href="/firm"
               fontWeight="bold"
-              fontSize={slightlyBiggerSize}
-              borderWidth="0.2vmax"
+              // fontSize={slightlyBiggerSize}
+              outline={isBottom ? '2px solid white' : `2px solid ${lightTheme.colors.mainTextColor}`}
               bgColor={isBottom ? 'transparent' : 'white'}
-              h="50px"
-              py="2.2vmax"
-              px="3vmax"
+              // h="50px"
+              // py="2.2vmax"
+              // px="3vmax"
+              py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}
               transition="transform ease-in-out 200ms"
               _hover={{ transform: 'scale(1.03)' }}
+              maxW={{ base: '145px', '2xl': 'none' }}
+              fontSize={smallerSize2}
             >
               Enter App
             </Btn>

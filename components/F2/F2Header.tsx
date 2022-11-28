@@ -15,9 +15,9 @@ import { RSubmitButton } from '../common/Button/RSubmitButton'
 
 const Btn = (props) => <RSubmitButton 
   w='100%'
-  fontWeight={{ base: 'normal', sm: 'bold' }}
+  // fontWeight={{ base: 'normal', sm: 'bold' }}
   fontSize={{ base: '12px', sm: '18px' }}
-  px={{ base: '2', sm: '8' }}  
+  // px={{ base: '2', sm: '8' }}  
   linkProps={{ w: 'full', maxW: '184px' }}
    {...props} />
 

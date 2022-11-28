@@ -79,7 +79,7 @@ export const F2WalkthroughCollateral = ({
             <StepNavBtn 
                 onClick={() => onStepChange(step + 1)} 
                 disabled={collateralAmount <= 0 || collateralAmount > collateralBalance || !market.leftToBorrow}>
-                NEXT <ChevronRightIcon fontSize="20px" />
+                Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>
     </>
