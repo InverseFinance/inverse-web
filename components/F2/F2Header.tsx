@@ -63,7 +63,7 @@ export const F2Header = ({
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      <IntroModalCheck autoOpenIntroModal={autoOpenIntroModal} isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} />
+      {/* <IntroModalCheck autoOpenIntroModal={autoOpenIntroModal} isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} /> */}
       <Stack w='full' spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
