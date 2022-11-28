@@ -114,7 +114,7 @@ export const Table = ({
         fontSize="11px"
         fontWeight="semibold"
         justify="space-between"
-        textTransform="uppercase"
+        textTransform="capitalize"
         pb={2}
         pl={4}
         pr={4}
@@ -160,6 +160,7 @@ export const Table = ({
                     userSelect="none"
                     position="relative"
                     color="accentTextColor"
+                    fontSize="12px"
                     >
                     {col.label}
                     {
@@ -205,7 +206,7 @@ export const Table = ({
       {filteredItems?.map((item, i) => (
         <Flex
           key={item[keyName] ?? i}
-          bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
+          // bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
           justify="space-between"
           align="center"
           fontWeight="semibold"
