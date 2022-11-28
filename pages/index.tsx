@@ -297,7 +297,7 @@ export const Landing = ({ }: {
               <VStack w='full'>
                 <Image src="/assets/v2/landing/borrow.png?1" width="full" w="160px" h="150px" mt="6" />
                 <Text fontWeight="extrabold" fontSize={normalSize}>Borrow</Text>
-                <Text fontSize={smallerSize}>
+                <Text textAlign="center" fontSize={smallerSize}>
                   Borrow DOLA for a fixed-rate for an unlimited duration with DOLA Borrowing Rights.
                 </Text>
               </VStack>
@@ -309,7 +309,7 @@ export const Landing = ({ }: {
               <VStack w='full'>
                 <Image src="/assets/v2/landing/earn.png" width="full" w="150px" h="150px" mt="6" />
                 <Text fontWeight="extrabold" fontSize={normalSize}>Earn</Text>
-                <Text fontSize={smallerSize}>
+                <Text textAlign="center" fontSize={smallerSize}>
                   Earn attractive returns when you provide liquidity to a trading pair on Curve, Convex, Balancer and others.
                 </Text>
               </VStack>
@@ -321,7 +321,7 @@ export const Landing = ({ }: {
               <VStack w='full'>
                 <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
                 <Text fontWeight="extrabold" fontSize={normalSize}>Stake</Text>
-                <Text fontSize={smallerSize}>
+                <Text textAlign="center" fontSize={smallerSize}>
                   Buy INV and stake on Frontier with high APY. Participate in Governance.
                 </Text>
               </VStack>
@@ -513,7 +513,7 @@ export const Landing = ({ }: {
             </VStack>
           </ResponsiveStack>
         </VStack>
-        <VStack alignItems="flex-start" spacing="8" w='full' position="relative">
+        <VStack pt="200px" alignItems="flex-start" spacing="8" w='full' position="relative">
           <ResponsiveStack w='full' alignItems="center" justify="space-between">
             <SplashedText
               as="h3"
