@@ -8,12 +8,12 @@ import { InfoMessage } from '@app/components/common/Messages';
 import { TokenTemplate } from './templates/TokenTemplate';
 import { AnchorBoolTemplate } from './templates/AnchorBoolTemplate';
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { SubmitButton } from '@app/components/common/Button';
 import { AnchorPercTemplate } from './templates/AnchorPercTemplate';
 import { AnchorSupportMarketTemplate } from './templates/AnchorSupportMarkerTemplate';
 import { AnchorOracleTemplate } from './templates/AnchorOracleTemplate';
 import { DolaPayrollTemplate } from './templates/DolaPayrollTemplate';
 import { XinvVestor } from './templates/XinvVestor';
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 
 type Props = {
     isOpen: boolean
@@ -103,9 +103,9 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
                 </Stack>
             }
             footer={
-                <SubmitButton disabled={isDisabled || !action} onClick={handleSubmit}>
+                <RSubmitButton disabled={isDisabled || !action} onClick={handleSubmit}>
                     ADD ACTION
-                </SubmitButton>
+                </RSubmitButton>
             }
         >
             <Stack spacing={'4'} p={'5'} height={'fit-content'} minH='200px' overflowY="visible">

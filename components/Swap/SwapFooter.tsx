@@ -4,13 +4,13 @@ import { Text, TextProps, VStack, Flex, HStack, Switch, AlertProps } from '@chak
 import { Web3Provider } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
 import { Swappers, Token } from '@app/types';
-import { SubmitButton } from '@app/components/common/Button'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { StatusMessage } from '@app/components/common/Messages'
 import { SwapSlippage } from './SwapSlippage'
 import { ethereumReady } from '@app/util/web3';
 import { SwapRoute } from './SwapRoute';
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 
 const SwapInfoMessage = ({ description, height, status = 'info' }: { description: string, height?: string, status?: AlertProps["status"] }) => {
     return <StatusMessage status={status} alertProps={{ w: 'full', fontSize: '12px', height }} description={description} />
@@ -153,7 +153,7 @@ export const SwapFooter = ({
                         <SwapInfoMessage description="There is not enough DAI liquidity in the Stabilizer right now for this swap" />
                         :
                         <>
-                            <SubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
+                            <RSubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
                                 {
                                     notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Step 1/2 - Approve'
                                 }
@@ -161,7 +161,7 @@ export const SwapFooter = ({
                                     !isApproved ?
                                         <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
                                 }
-                            </SubmitButton>
+                            </RSubmitButton>
                         </>
             }
         </>

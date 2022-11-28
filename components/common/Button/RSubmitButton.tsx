@@ -4,6 +4,7 @@ import NextLink from 'next/link'
 import { SubmitButton } from "."
 import { lightTheme } from '@app/variables/theme'
 import { smallerSize } from '@app/variables/responsive'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 type Props = ButtonProps & { href?: string, target?: string, linkProps?: LinkProps }
 
@@ -18,6 +19,11 @@ export const RSubmitButton = (props: Props) => {
         </NextLink>
     }
     return <SubmitButton textTransform="inherit" {..._props} />
+}
+
+export const ROutlineButton = (props: Props) => {
+    const { themeStyles } = useAppTheme();
+    return <RSubmitButton color="mainTextColor" outline={`1px solid ${themeStyles.colors.mainTextColor}`} bgColor={'transparent'} {...props} />
 }
 
 export const LandingSubmitButton = (props: Props) => {
