@@ -64,7 +64,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         <VStack alignItems="flex-start" w='full' spacing="3">
                             <HStack transition="color ease-in-out 200ms" _hover={{ color: 'mainTextColor' }} color="secondaryTextColor" cursor="pointer" spacing="2" onClick={() => router.push('/firm')}>
                                 <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
-                                <Text _hover={{ color: 'inherit' }} color="inherit">Back</Text>
+                                <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                             </HStack>
                             <MarketBar
                                 w='full'
