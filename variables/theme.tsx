@@ -1,7 +1,18 @@
 import { extendTheme } from '@chakra-ui/react'
 
+const breakpoints = {
+  sm: '30em',
+  md: '48em',
+  lg: '62em',
+  xl: '80em',
+  '2xl': '96em',
+  '3xl': '110em',
+  '4xl': '124em',
+}
+
 export const lightTheme = extendTheme({
   initialColorMode: 'light',
+  breakpoints,
   colors: {
     mainBackgroundColor: '#FEFEFE',
     containerContentBackgroundAlpha: '#ffffffdd',//'linear-gradient(125deg, rgba(234,229,255,1) 0%, rgba(251,245,255,1) 50%, rgba(234,229,255,1) 100%);',
@@ -109,6 +120,7 @@ export const lightTheme = extendTheme({
 });
 
 export const darkTheme = extendTheme({
+  breakpoints,
   colors: {
     mainBackgroundColor: '#2a2557',
     containerContentBackgroundAlpha: '#2a2557aa',
