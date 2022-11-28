@@ -71,7 +71,7 @@ export const AnchorModal = ({
     switch (operation) {
       case AnchorOperations.supply:
         return balances
-          ? (formatUnits(balances[asset.underlying.address || 'CHAIN_COIN'], asset.underlying.decimals))
+          ? (formatUnits(balances[asset.underlying.address || 'CHAIN_COIN']|| BigNumber.from('0'), asset.underlying.decimals))
           : '0'
       case AnchorOperations.withdraw:
         const supply =

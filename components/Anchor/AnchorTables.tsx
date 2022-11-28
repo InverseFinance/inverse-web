@@ -432,7 +432,7 @@ export const AnchorSupply = ({ paused }: { paused?: boolean }) => {
     const { underlying, supplied, oraclePrice } = market;
     const balance = balances
       ? parseFloat(
-        formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.CHAIN_COIN, underlying.decimals)
+        formatUnits(underlying.address ? (balances[underlying.address] || BigNumber.from('0')) : balances.CHAIN_COIN|| BigNumber.from('0'), underlying.decimals)
       )
       : 0
     const suppliedUsd = supplied * oraclePrice;
