@@ -71,7 +71,7 @@ export const F2Context = ({
     const isMountedRef = useRef(true)
     const colDecimals = market.underlying.decimals;
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow } = useAccountDBRMarket(market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
 
     const debtAmountNum = parseFloat(debtAmount||'0');
     const collateralAmountNum = parseFloat(collateralAmount||'0');
@@ -130,7 +130,7 @@ export const F2Context = ({
     useEffect(() => {
         if(isWalkthrough){
             setIsDeposit(true);
-            setIsAutoDBR(true);
+            // setIsAutoDBR(true);
             setMode('Deposit & Borrow');
             setStep(1);
         }
@@ -237,6 +237,8 @@ export const F2Context = ({
         newDailyDBRBurn,
         isWalkthrough,
         infoTab,
+        liquidationPrice,
+        perc,
         setInfoTab,
         setIsWalkthrough,
         setMode,

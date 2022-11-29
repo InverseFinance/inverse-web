@@ -14,6 +14,9 @@ import { StepsBar } from './StepsBar'
 import { F2MarketContext } from '../F2Contex'
 import { WarningMessage } from '@app/components/common/Messages'
 
+export const STEPS = ['Deposit', 'Duration', 'Borrow', 'Recap'];
+export const STEPS_NO_HELPER = ['Deposit', 'Borrow', 'Duration', 'Recap'];
+
 export const F2Walkthrough = ({
     ...props
 }: {
@@ -29,39 +32,41 @@ export const F2Walkthrough = ({
         handleCollateralChange,
     } = useContext(F2MarketContext);
 
+    const steps = !!market?.helper ? STEPS : STEPS_NO_HELPER;
+    const stepCase = steps[step-1];
 
-    return <Container
+    return <VStack
         noPadding
         p="0"
         m="0"
-        w='full'
-        contentProps={{ bg: 'transparent', boxShadow: 'none', p: '0' }}
+        w='full'        
         {...props}
     >
         {
-            !!market && <VStack justify="space-between" position="relative" px="2" w='full' pb="2" alignItems="flex-start" spacing="6">
+            !!market && <VStack justify="space-between" position="relative" w='full' pb="2" alignItems="flex-start" spacing="6">
                 {
                     step > 0 && <StepsBar
                         step={step}
+                        steps={steps}
                         onStepChange={handleStepChange}
                     />
                 }
                 {
-                    step === 1 && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
+                    stepCase === 'Deposit' && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
                 }
                 {
-                    step === 2 && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
+                    stepCase === 'Duration' && <F2WalkthroughDuration onStepChange={handleStepChange} onChange={handleDurationChange} />
                 }
                 {
-                    step === 3 && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
+                    stepCase === 'Borrow' && <F2WalkthroughDebt onStepChange={handleStepChange} onChange={handleDebtChange} />
                 }
                 {
-                    step === 4 && <F2WalkthroughRecap onStepChange={handleStepChange} />
+                    stepCase === 'Recap' && <F2WalkthroughRecap onStepChange={handleStepChange} />
                 }
                 {
                     !market.dolaLiquidity && <WarningMessage alertProps={{w:'full'}} description="No DOLA liquidity at the moment" />
                 }
             </VStack>
         }
-    </Container>
+    </VStack>
 }

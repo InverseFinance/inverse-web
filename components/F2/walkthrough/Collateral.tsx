@@ -5,12 +5,13 @@ import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, Text, HStack } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack } from "@chakra-ui/react"
 import { useContext } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { StepNavBtn } from "./StepNavBtn"
 import { WalkthroughInput } from "./WalkthroughInput"
 import { useRouter } from "next/router"
+import { preciseCommify } from "@app/util/misc"
 
 export const F2WalkthroughCollateral = ({
     onStepChange,
@@ -34,6 +35,7 @@ export const F2WalkthroughCollateral = ({
         newDeposits,
         deposits,
         bnWithdrawalLimit,
+        maxBorrowable,
     } = useContext(F2MarketContext);
 
     const isNotEnoughBalance = collateralAmount > collateralBalance;
@@ -57,7 +59,22 @@ export const F2WalkthroughCollateral = ({
                 isError={isNotEnoughBalance}
             />
             {
-                (deposits > 0 || !!collateralAmount) && <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price}/>
+                // (deposits > 0 || !!collateralAmount) && <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price} />
+            }
+            <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
+                <Text color="secondaryTextColor">{market.underlying.symbol} Oracle Price: {preciseCommify(market.price, 2, true)}</Text>
+                <Text color="secondaryTextColor">Collateral Factor: {preciseCommify(market.collateralFactor*100, 2)}%</Text>
+            </Stack>
+            {
+                !market.helper &&
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description={
+                        <VStack alignItems="flex-start">
+                            <Text>Maximum Borrowing Power will be <b>{preciseCommify(maxBorrowable, 0)} DOLA</b></Text>
+                        </VStack>
+                    }
+                />
             }
             {
                 isNotEnoughBalance && <InfoMessage
@@ -72,12 +89,12 @@ export const F2WalkthroughCollateral = ({
                 />
             }
         </VStack>
-        <HStack w='full' justify="space-between" pt="4">
+        <HStack w='full' justify="space-between">
             <StepNavBtn onClick={() => router.push('/firm')}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn 
-                onClick={() => onStepChange(step + 1)} 
+            <StepNavBtn
+                onClick={() => onStepChange(step + 1)}
                 disabled={collateralAmount <= 0 || collateralAmount > collateralBalance || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>

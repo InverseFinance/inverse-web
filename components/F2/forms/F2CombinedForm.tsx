@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { parseEther } from '@ethersproject/units'
@@ -235,7 +235,12 @@ export const F2CombinedForm = ({
                         <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
                             Auto-{isDeposit ? 'buy' : 'sell'} DBR?
                         </FormLabel>
-                        <Switch onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+                        <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+                        {
+                            !market.helper && <Badge ml="2">
+                            Coming soon
+                        </Badge>
+                        }
                     </FormControl>
                 }
                 {
