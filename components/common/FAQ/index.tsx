@@ -24,6 +24,7 @@ export const FAQ = ({
         p="0"
         collapsable={collapsable}
         defaultCollapse={defaultCollapse}
+        lineHeight="0"
     >
         <Accordion w='full' allowMultiple>
             {

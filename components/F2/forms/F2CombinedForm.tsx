@@ -363,7 +363,7 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             w='full'
-            contentProps={{ minH: syncedMinH, id: 'f2-recap-container', h: '100%' }}
+            contentProps={{ minH: syncedMinH, id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
             p="0"            
         >
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
