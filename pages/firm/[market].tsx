@@ -18,6 +18,7 @@ import { F2Context } from '@app/components/F2/F2Contex'
 import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -59,7 +60,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         transitionDuration="200ms"
                         alignItems="center"
                         px={{ base: '2', lg: '8' }}
-                        spacing={{ base: '2', md: '5' }}
+                        spacing={{ base: '4', md: '5' }}
                     >
                         <VStack alignItems="flex-start" w='full' spacing="3">
                             <HStack transition="color ease-in-out 200ms" _hover={{ color: 'mainTextColor' }} color="secondaryTextColor" cursor="pointer" spacing="2" onClick={() => router.push('/firm')}>
@@ -93,6 +94,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         <F2CombinedForm />
                                     </VStack>
                         }
+                        <InfoMessage
+                            title="Disclaimer"
+                            description="FiRM is currently activated in beta mode and while its smart contract code has been heavily tested and audited, it is experimental software and is not recommended for novice DeFi users."
+                        />
                         <FirmFAQ collapsable={true} defaultCollapse={true} />
                     </VStack>
                 </F2Context>
