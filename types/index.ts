@@ -636,4 +636,5 @@ export type F2Market = {
   borrowController: string
   icon?: string
   marketIcon?: string
+  helper?: string
 }

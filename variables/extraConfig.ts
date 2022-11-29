@@ -148,6 +148,7 @@ export const EXTRA_CONFIG = {
                 collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
                 address: '0x0610F1783ACB513a96050008f1Dfd47B1025B17A',
                 icon: '/assets/projects/Ether.png',
+                helper: '',
             },
     ],
     }
