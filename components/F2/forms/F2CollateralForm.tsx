@@ -63,7 +63,7 @@ export const F2CollateralForm = ({
         noPadding
         p="0"
         label={`${btnLabel} Collateral`}
-        description={isDeposit ? `To be able to Borrow` : `This will reduce the Collateral Health`}
+        description={isDeposit ? `To be able to Borrow` : `This will reduce the Loan Health`}
         headerProps={{
             direction: { base: 'column', sm: 'row' },
             align: { base: 'flex-start', sm: 'flex-end' },

@@ -9,7 +9,7 @@ export const F2HealthInfosModal = ({
     isOpen: boolean
 }) => {
     return <InfoModal
-        title={`What is the Collateral Health?`}
+        title={`What is the Loan Health?`}
         onClose={onClose}
         onOk={onClose}
         isOpen={isOpen}
@@ -18,7 +18,7 @@ export const F2HealthInfosModal = ({
     >
         <VStack w='full' py="4" px="8" alignItems="flex-start" spacing="4">
             <Text fontSize="18px" fontWeight="bold">
-                Price dips can damage your Collateral Health!
+                Price dips can damage your Loan Health!
             </Text>
             <VStack w='full' bgColor="white" p="2" borderRadius="50px">
                 <Image src="/assets/firm/health.svg" w="full" h="100px" />

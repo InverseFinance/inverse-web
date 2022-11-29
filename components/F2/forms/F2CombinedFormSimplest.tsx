@@ -145,7 +145,7 @@ export const F2CombinedFormSimplest = ({
                     <Stack pt="2" w='full' justify="space-between" direction={{ base: 'column', lg: 'row' }}>
                         <TextInfo color={riskColor} message="Percentage of the loan covered by the collateral worth">
                             <Text cursor="pointer" onClick={() => onHealthOpen()} color={riskColor} fontWeight={newPerc <= 25 ? 'bold' : undefined}>
-                                Collateral Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
+                                Loan Health: {isFormFilled ? `${shortenNumber(newPerc, 2)}%` : '-'}
                             </Text>
                         </TextInfo>
                         <TextInfo color={riskColor} message="Minimum Collateral Price before liquidations can happen">

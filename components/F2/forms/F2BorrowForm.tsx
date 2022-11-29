@@ -79,7 +79,7 @@ export const F2BorrowForm = ({
             direction: { base: 'column', sm: 'row' },
             align: { base: 'flex-start', sm: 'flex-end' },
         }}
-        description={isBorrow ? `Against your deposited collateral` : `This will improve the Collateral Health`}
+        description={isBorrow ? `Against your deposited collateral` : `This will improve the Loan Health`}
         contentProps={{
             position: 'relative',
             backgroundColor: `containerContentBackgroundAlpha`,//'lightPrimaryAlpha',

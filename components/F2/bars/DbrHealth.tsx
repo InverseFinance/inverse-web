@@ -37,7 +37,7 @@ export const DbrHealth = ({
           tooltipTitle={hasDebt || isPreviewing ? "Enough DBR until" : ''}
           // color={riskColor}
           tooltip={
-            hasDebt || isPreviewing ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a forced top-up of your DBR, which will cause your debt to increase and damage the Collateral Health."
+            hasDebt || isPreviewing ? "Date where you will be in deficit of DBR tokens (Exhaustion state), someone can then do a forced top-up of your DBR, which will cause your debt to increase and damage the Loan Health."
               : ''
           }
         />
@@ -69,7 +69,7 @@ export const DbrHealth = ({
               `${moment(dbrExpiryDate).fromNow(true)} before Exhaust`
               :
               hasDebt ?
-                'Exhausted! Collateral Health may get damaged'
+                'Exhausted! Loan Health may get damaged'
                 :
                 signedBalance === 0 ?
                   'Get DBR tokens to hold loans over time'
@@ -86,7 +86,7 @@ export const DbrHealth = ({
           nullPlaceholder="no more loan"
           tooltipTitle="Time before Depletion"
           tooltip={
-            hasDebt ? "Remaining time before you become in deficit of DBR tokens (Exhaustion state), a state  where someone can do a forced top-up of your DBR, which will cause your debt to increase and damage the Collateral Health."
+            hasDebt ? "Remaining time before you become in deficit of DBR tokens (Exhaustion state), a state  where someone can do a forced top-up of your DBR, which will cause your debt to increase and damage the Loan Health."
               : ''
           }
         />

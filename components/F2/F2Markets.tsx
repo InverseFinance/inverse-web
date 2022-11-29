@@ -153,7 +153,7 @@ const columns = [
         field: 'perc',
         label: 'Loan Health',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
-        tooltip: 'Remaining Collateral Health',
+        tooltip: 'Remaining Loan Health',
         value: ({ perc, hasDebt }) => {
             const color = getRiskColor(perc);
             return <Cell minWidth="120px" justify="flex-end" >

@@ -24,8 +24,8 @@ type Data = {
 const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, isLast: boolean }) => {
     const [left, right] = infos;
 
-    return <Stack borderTop={index > 0 ? '1px solid #cccccc66' : undefined} w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
-        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={{ base: 'center', sm: 'flex-start' }}>
+    return <Stack py={{ base: '2', sm: '0' }} borderTop={index > 0 ? '1px solid #cccccc66' : undefined} w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
+        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={ 'flex-start' }>
             <TextInfo message={left.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={left.onClick ? 'pointer' : undefined} onClick={left.onClick} >
                     {left.title}:
@@ -35,7 +35,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                 {left.value}
             </Text>
         </VStack>
-        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'center', sm: 'flex-end' }}>
+        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
             <TextInfo message={right.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={right.onClick ? 'pointer' : undefined} onClick={right.onClick} >
                     {right.title}:
@@ -269,8 +269,8 @@ export const F2FormInfos = (props) => {
         ],
         [
             {
-                tooltip: 'Percentage of the loan covered by the collateral worth',
-                title: 'Collateral Health',
+                tooltip: 'Percentage of the loan covered by the collateral worth (taking into account collateral factor)',
+                title: 'Loan Health',
                 value: !!deposits || !!newDeposits ? `${shortenNumber(newPerc, 2)}%` : '-',
                 color: newDeposits > 0 ? riskColor : undefined,
             },

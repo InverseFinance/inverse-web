@@ -62,7 +62,7 @@ export const CreditLimitBar = ({
         }
       </HStack>
       <QuantityBar
-        title="Collateral Health"
+        title="Loan Health"
         perc={perc}
         previewPerc={newPerc}
         hasError={(!!hasDebt || !!isPreviewing) && newPerc <= 0}
