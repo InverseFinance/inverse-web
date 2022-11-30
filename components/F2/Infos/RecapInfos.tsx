@@ -85,11 +85,11 @@ export const RecapInfos = ({
                         </Text>
                     </TextInfo>
                 }
-                <TextInfo color={riskColor} message="How healthy is the loan in terms of collateral ratio relativly to the max collateral factor, 0% health means the LTV equals the max CF.">
+                <TextInfo color={riskColor} message="How healthy is the loan in terms of collateral ratio relatively to the max collateral factor, 0% health means the LTV equals the max CF.">
                     <Text  fontSize={fontSize} fontWeight="bold" color={riskColor}>The Loan Health will be <b style={{ fontWeight: '1000' }}>{shortenNumber(newPerc, 2)}%</b></Text>
                 </TextInfo>
                 <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
-                    <Text  fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)}</b></Text>
+                    <Text  fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)}</b> (current price is {preciseCommify(market.price, 0, true)})</Text>
                 </TextInfo>
             </>
         }
