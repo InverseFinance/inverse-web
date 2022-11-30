@@ -17,7 +17,7 @@ export const StepsBar = ({
             return <HStack key={name}>
                 <Text
                     fontSize={{ base: '14px', md: '20px' }}
-                    onClick={ isEnabled && !isActive ? () => onStepChange(step-1) : undefined }
+                    onClick={ isEnabled && !isActive ? () => onStepChange(i+1) : undefined }
                     cursor={ isEnabled && !isActive ? 'pointer' : 'default' }
                     fontWeight={isActive ? '1000' : '600'}
                     color={isActive ? 'accentTextColor' : 'mainTextColor'}
