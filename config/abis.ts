@@ -274,6 +274,7 @@ uint256 purchased; // quote tokens in
 uint256 scale; // scaling factor for the market (see MarketParams struct)
 */
 const BOND_MARKET = 'tuple(address, address, address, address, bool, uint, uint, uint, uint, uint, uint, uint)';
+// Auctioneer
 export const BOND_V2_ABI = [
   `function getTeller() public view returns (address)`,
   `function markets(uint) public view returns (${BOND_MARKET})`,
