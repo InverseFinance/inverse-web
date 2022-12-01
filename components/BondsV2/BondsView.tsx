@@ -41,7 +41,7 @@ export const BondsView = () => {
     }, [account], !account, 1000, 0);
 
     const activeBonds = bonds?.filter(b => b.isNotConcluded);
-    const bondsPaused = activeBonds?.length > 0 && activeBonds?.reduce((prev, curr) => prev + curr.maxPayout, 0) === 0;
+    const bondsPaused = activeBonds?.length === 0 || (activeBonds?.length > 0 && activeBonds?.reduce((prev, curr) => prev + curr.maxPayout, 0) === 0);
 
     return (
         <Stack w='full' color="mainTextColor">
@@ -75,7 +75,7 @@ export const BondsView = () => {
             >
                 {
                     bondsPaused && !!account ?
-                        <InfoMessage description="Bonds are paused at the moment" />
+                        <InfoMessage description="Bonds V2 are paused at the moment" />
                         :
                         <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
                             <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">

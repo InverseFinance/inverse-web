@@ -38,7 +38,7 @@ export const BondsV1List = () => {
         >
             {
                 bondsPaused && !!account ?
-                    <InfoMessage description="Bonds are paused at the moment" />
+                    <InfoMessage description="Bonds V1 are paused at the moment" />
                     :
                     <VStack w='full' fontSize={{ base: '12px', sm: '20px' }}>
                         <Stack display={{ base: 'none', sm: 'inline-flex' }} direction="row" w='full' justify="space-between" fontWeight="bold">
