@@ -3,6 +3,16 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
+      source: '/whitepaper:slug*',
+      destination: '/firm.pdf',
+      permanent: false,
+    },
+    {
+      source: '/firm/whitepaper:slug*',
+      destination: '/firm.pdf',
+      permanent: false,
+    },
+    {
       source: '/positions',
       destination: '/transparency/shortfalls',
       permanent: true,

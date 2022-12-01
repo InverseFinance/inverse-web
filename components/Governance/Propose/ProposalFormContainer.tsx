@@ -14,7 +14,7 @@ import ScannerLink from '@app/components/common/ScannerLink';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { useRouter } from 'next/dist/client/router';
 
-const DEFAULT_REQUIRED_VOTING_POWER = 1400;
+const DEFAULT_REQUIRED_VOTING_POWER = 1900;
 const { GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 export const ProposalFormContainer = ({

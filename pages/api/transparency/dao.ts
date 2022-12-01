@@ -16,7 +16,7 @@ const formatBn = (bn: BigNumber, token: Token) => {
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.2`;
+  const cacheKey = `dao-cache-v1.2.5`;
 
   try {
 
@@ -103,6 +103,7 @@ export default async function handler(req, res) {
     const multisigsFundsToCheck = {
       [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet]).filter(key => isAddress(key)),
       [NetworkIds.ftm]: Object.keys(CHAIN_TOKENS[NetworkIds.ftm]).filter(key => isAddress(key)),
+      [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
     }
 
     const multisigsBalanceValues: BigNumber[][] = await Promise.all([
@@ -112,9 +113,12 @@ export default async function handler(req, res) {
         return Promise.all(
           chainFundsToCheck.map(tokenAddress => {
             const token = CHAIN_TOKENS[m.chainId][tokenAddress]
-            const isLockedConvexPool = !!token && !!token.convexInfos;
+            const isLockedConvexPool = !!token && !!token.convexInfos && m.shortName === 'TWG';
             // non-standard balance cases first
-            if(token.symbol === 'vlAURA') {
+            if(!!token.veNftId) {              
+              const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
+              return contract.balanceOfNFT(token.veNftId);
+            } else if(token.symbol === 'vlAURA') {
               const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
               return contract.balances(m.address);
             } else if(isLockedConvexPool) {
@@ -182,6 +186,7 @@ export default async function handler(req, res) {
     const chainTWG: { [key: string]: Multisig } = {
       [NetworkIds.mainnet]: multisigsToShow.find(m => m.shortName === 'TWG')!,
       [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
+      [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
     }
 
     const getPol = async (lp: { address: string, chainId: string }) => {

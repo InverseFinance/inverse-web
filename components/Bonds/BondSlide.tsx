@@ -52,6 +52,7 @@ export const BondSlide = ({
     const { approvals } = useAllowances([bond.input], bond.bondContract);
     const [isApproved, setIsApproved] = useState(hasAllowance(approvals, bond.input));
     const { payout: receiveAmount } = useBondPayoutFor(bond.bondContract, bond.underlying.decimals, amount, REWARD_TOKEN!.decimals);
+    const maxReceiveAmount = Math.min(parseFloat(receiveAmount), bond.maxPayout);
 
     useEffect(() => {
         setIsApproved(hasAllowance(approvals, bond.input));
@@ -61,7 +62,7 @@ export const BondSlide = ({
 
     const getMax = () => {
         const maxUser = parseFloat(bal);
-        const maxDeposit = bond.maxPayout * bond.marketPrice / bond.inputUsdPrice;
+        const maxDeposit = bond.maxPayout * bond.usdPrice / bond.inputUsdPrice;
         return maxUser > maxDeposit ? maxDeposit : bal;
     }
 
@@ -170,14 +171,14 @@ export const BondSlide = ({
                         </Flex>
                     </Stack>
                     <HStack w='full'>
-                        <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
+                        <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={maxReceiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
                     </HStack>
                     <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
                         <Text fontWeight="bold">
                             Estimated INV amount to receive:
                         </Text>
                         <Text fontWeight="extrabold">
-                            {shortenNumber(parseFloat(receiveAmount), 4)}
+                            {shortenNumber(parseFloat(maxReceiveAmount), 4)}
                         </Text>
                     </HStack>
                 </VStack>

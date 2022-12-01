@@ -141,7 +141,7 @@ export const FedPolicyPage = () => {
                                             title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(chartDataPolicies[chartDataPolicies.length - 1].y, 1) : 0})`}
                                             fed={chosenFed}
                                             chartData={chartDataPolicies}
-                                            domainYpadding={5000000}
+                                            domainYpadding={'auto'}
                                         />
                                         :
                                         <>
