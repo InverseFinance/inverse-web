@@ -14,7 +14,7 @@ import { BOND_V2_FIXED_TERM_TELLER, BOND_V2_REFERRER } from '@app/variables/bond
 import { useBlocksTimestamps } from './useBlockTimestamp';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
-  const { data, error, isLoading } = useCustomSWR(`/api/bonds`, fetcher);
+  const { data, error, isLoading } = useCustomSWR(`/api/bonds?`, fetcher);
 
   return {
     bonds: data ? data.bonds : [],

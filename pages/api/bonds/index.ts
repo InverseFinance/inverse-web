@@ -14,7 +14,7 @@ const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
 
 export default async function handler(req, res) {
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-    const cacheKey = `${networkConfig.chainId}-bonds-v2.0.0`;
+    const cacheKey = `${networkConfig.chainId}-bonds-v2.0.1`;
 
     try {
         const validCache = await getCacheFromRedis(cacheKey, true, 30);
