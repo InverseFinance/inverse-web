@@ -25,11 +25,16 @@ export default async function handler(req, res) {
 
         const provider = getProvider(networkConfig.chainId);
         const contract = new Contract(BOND_V2_AGGREGATOR, BOND_V2_AGGREGATOR_ABI, provider);
-
-        // todo: register with aggregator
-        const data = await contract.liveMarketsFor(PAYOUT_TOKEN, true);
-        const liveMarketsForINV = Array.isArray(data) ? data : [data];
-        const liveMarketsIds = liveMarketsForINV.map(b => b.toString());    
+        
+        const envBondsIds = process.env.NEXT_PUBLIC_BONDS_IDS;
+        let liveMarketsIds: string[];
+        if(!envBondsIds) {
+            const data = await contract.liveMarketsFor(PAYOUT_TOKEN, true);
+            const liveMarketsForINV = Array.isArray(data) ? data : [data];
+            liveMarketsIds = liveMarketsForINV.map(b => b.toString());    
+        } else {
+            liveMarketsIds = envBondsIds.replace(/\s+/g, '').split(',');
+        }
 
         const [
             prices,
