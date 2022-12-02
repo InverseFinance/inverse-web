@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         const envBondsIds = process.env.NEXT_PUBLIC_BONDS_IDS;
         let liveMarketsIds: string[];
         if(!envBondsIds) {
-            const data = await contract.marketsFor(PAYOUT_TOKEN, true);
+            const data = await contract.liveMarketsFor(PAYOUT_TOKEN, true);
             const liveMarketsForINV = Array.isArray(data) ? data : [data];
             liveMarketsIds = liveMarketsForINV.map(b => b.toString());    
         } else {
