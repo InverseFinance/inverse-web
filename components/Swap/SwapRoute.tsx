@@ -3,7 +3,7 @@ import { Badge, Box, Image, Text } from '@chakra-ui/react';
 import { getNetworkConfigConstants } from '@app/util/networks';
 
 const { TOKENS } = getNetworkConfigConstants();
-const chainCoin = TOKENS.CHAIN_COIN.symbol[0] + TOKENS.CHAIN_COIN.symbol.substring(1, 20).toLowerCase();
+const chainCoin = TOKENS?.CHAIN_COIN ? TOKENS.CHAIN_COIN.symbol[0] + TOKENS.CHAIN_COIN.symbol.substring(1, 20).toLowerCase() : 'eth';
 
 export const SwapRoute = ({
     label,

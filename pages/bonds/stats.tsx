@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { BondsStatsView } from '@app/components/Bonds/BondsStatsView';
-import { BondsTabs } from '@app/components/Bonds/BondsTabs';
+import { BondsTabs } from '@app/components/BondsV2/BondsTabs';
 
 export const BondsPage = () => {
     return (
@@ -17,7 +17,7 @@ export const BondsPage = () => {
             </Head>
             <AppNav active="Bonds" activeSubmenu="Bonds Stats" />
             <Flex direction="column" w={{ base: 'full' }} pt={{ sm: '4' }} maxWidth="1200px">
-                <BondsTabs defaultIndex={1} />
+                <BondsTabs defaultIndex={2} />
                 <BondsStatsView />
             </Flex>
         </Layout>

@@ -18,6 +18,9 @@ for (let token of supportedTokens) {
 }
 
 export async function getStaticPaths() {
+  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+    return { paths: [], fallback: true }
+  }
   return {
     paths: possiblePaths,
     fallback: true,
@@ -38,6 +41,9 @@ export async function getStaticProps({ params }: { params: Params }) {
 }
 
 export const Swap = ({ from, to }: { from?: string, to?: string }) => {
+  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+    return <Text>Network not supported</Text>
+  }
   return (
     <Layout>
       <Head>
@@ -63,7 +69,7 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
               <Stack>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
                 <Text mt="">
-                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum, Fantom and Optimism.                  
+                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum, Fantom and Optimism.
                 </Text>
               </Stack>
             }

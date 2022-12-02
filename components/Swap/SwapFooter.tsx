@@ -77,6 +77,10 @@ export const SwapFooter = ({
         init()
     }, [])
 
+    if (!fromToken?.symbol || !toToken?.symbol) {
+        return <></>
+    }
+
     const routeRadioOptions = routes.map((route) => {
         return {
             value: route.value,
@@ -100,15 +104,15 @@ export const SwapFooter = ({
         :
         <SwapSlippage onChange={(v: string) => onMaxSlippageChange(parseFloat(v))} toToken={toToken} toAmount={toAmount} maxSlippage={maxSlippage} />
 
-    const exRate = exRates && exRates[chosenRoute] ? exRates[chosenRoute][fromToken.symbol + toToken.symbol]?.toFixed(4) || '' : '';
+    const exRate = exRates && exRates[chosenRoute] ? exRates[chosenRoute][fromToken?.symbol + toToken?.symbol]?.toFixed(4) || '' : '';
 
     return (
         <>
-            <HStack h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
+            <HStack spacing="1" alignItems="center" h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
+                <AnimatedInfoTooltip
+                    size="intermediary"
+                    message="If enabled (Recommended): calculates the Best Route in total USD terms, meaning it includes the USD worth of the Eth Gas Fees needed for the transaction with the current gas price. Gas Fees are estimations only, check the real cost in your wallet." />
                 <Text color="secondaryTextColor">
-                    <AnimatedInfoTooltip
-                        size="intermediary"
-                        message="If enabled (Recommended): calculates the Best Route in total USD terms, meaning it includes the USD worth of the Eth Gas Fees needed for the transaction with the current gas price. Gas Fees are estimations only, check the real cost in your wallet." />
                     Best Rate Including Swap Gas Fees
                 </Text>
                 <Switch value="true" isChecked={includeCostInBestRate} onChange={onIncludeTxCostChange} />
@@ -132,7 +136,7 @@ export const SwapFooter = ({
                                 !exRate ?
                                     isStabilizer ? '' : 'Fetching rates...'
                                     :
-                                    `Exchange Rate : 1 ${fromToken.symbol} = ${exRate} ${toToken.symbol}`
+                                    `Exchange Rate : 1 ${fromToken?.symbol} = ${exRate} ${toToken?.symbol}`
                         }
                     </SwapText>
                 </VStack>
