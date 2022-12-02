@@ -14,7 +14,7 @@ import { BONDS_V2_API_CACHE_KEY } from '../bonds';
 
 export default async function handler(req, res) {
 
-    const cacheKey = `bonds-cache-v1.0.1`;
+    const cacheKey = `bonds-cache-v1.0.2`;
 
     try {
 
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
         // bonds V2 with bond protocol
         const v2bondsCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, false);
-        let bondsV2: BondV2[] = [];
+        let bondsV2: BondV2[] = [];        
         if(v2bondsCache?.bonds?.length > 0) {
             bondsV2 = v2bondsCache.bonds;
         }
