@@ -12,12 +12,13 @@ import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
 const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
 // const PAYOUT_TOKEN = '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4';
 
+export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.1'
+
 export default async function handler(req, res) {
     const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-    const cacheKey = `${networkConfig.chainId}-bonds-v2.0.1`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, true, 30);
+        const validCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, true, 30);
         if(validCache) {
           res.status(200).send(validCache);
           return
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
         const envBondsIds = process.env.NEXT_PUBLIC_BONDS_IDS;
         let liveMarketsIds: string[];
         if(!envBondsIds) {
-            const data = await contract.liveMarketsFor(PAYOUT_TOKEN, true);
+            const data = await contract.marketsFor(PAYOUT_TOKEN, true);
             const liveMarketsForINV = Array.isArray(data) ? data : [data];
             liveMarketsIds = liveMarketsForINV.map(b => b.toString());    
         } else {
@@ -84,14 +85,14 @@ export default async function handler(req, res) {
             bonds,
         }
 
-        await redisSetWithTimestamp(cacheKey, result);
+        await redisSetWithTimestamp(BONDS_V2_API_CACHE_KEY, result);
 
         res.status(200).send(result);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(cacheKey, false);
+            const cache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);
