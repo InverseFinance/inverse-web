@@ -68,7 +68,7 @@ export const BondSlide = ({
     }
 
     const handleMax = () => {
-        setAmount(roundFloorString(getMax(), bond.underlying.decimals));
+        setAmount(roundFloorString(getMax(), 0));
     }
 
     const handleDeposit = () => {
