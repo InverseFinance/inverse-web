@@ -25,6 +25,7 @@ import { useBondV2PayoutFor } from '@app/hooks/useBondsV2'
 import { bondV2Deposit } from '@app/util/bonds'
 import { InfoMessage } from '../common/Messages'
 import moment from 'moment';
+import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -132,14 +133,18 @@ export const BondSlide = ({
                     </Text>
                 </HStack>
                 <HStack fontSize="12px" w='full' justify="space-between">
-                    <HStack fontSize="12px" w='50%' >
+                    <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='33%' >
                         <Text>Bond Market ID: </Text>
                         <Text>{bond.id.toString()}</Text>
-                    </HStack>
-                    <HStack w='50%' justify="flex-end">
+                    </Stack>
+                    <Stack direction={{ base: 'column', sm: 'row' }} w='33%' alignItems="center" justify="center">
+                        <Text>Teller Contract: </Text>
+                        <ScannerLink value={BOND_V2_FIXED_TERM_TELLER} />
+                    </Stack>
+                    <Stack direction={{ base: 'column', sm: 'row' }} w='33%' alignItems="center" justify="flex-end">
                         <Text>Bond Contract: </Text>
                         <ScannerLink value={bond.bondContract} />
-                    </HStack>
+                    </Stack>
                 </HStack>
 
                 <Divider />
