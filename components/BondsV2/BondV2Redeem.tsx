@@ -5,8 +5,9 @@ import { SubmitButton } from '@app/components/common/Button'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { TimeIcon } from '@chakra-ui/icons';
-import { Timestamp } from '../common/BlockTimestamp/Timestamp';
+import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
 import { bondV2Redeem } from '@app/util/bonds';
+import ScannerLink from '@app/components/common/ScannerLink';
 
 export const BondV2Redeem = ({ bond }: { bond: UserBondV2 }) => {
     const { library, account } = useWeb3React<Web3Provider>();
@@ -29,6 +30,16 @@ export const BondV2Redeem = ({ bond }: { bond: UserBondV2 }) => {
             <Divider />
             <HStack w='full' justify="space-between">
                 <Flex>
+                    <Text mr="1">{bond.underlying.symbol} cost:</Text>
+                    <Text fontWeight="extrabold">{bond.amount > 0 ? shortenNumber(bond.amount, 2) : '-'}</Text>
+                </Flex>
+                <Flex alignItems="center">
+                    <Text mr="1">Tx:</Text>
+                    <ScannerLink type="tx" value={bond.txHash} />
+                </Flex>
+            </HStack>
+            <HStack w='full' justify="space-between">
+                <Flex>
                     <Text mr="1">INV to redeem:</Text>
                     <Text fontWeight="extrabold">{bond.payout > 0 ? shortenNumber(bond.payout, 4) : '-'}</Text>
                 </Flex>
@@ -42,7 +53,7 @@ export const BondV2Redeem = ({ bond }: { bond: UserBondV2 }) => {
             <HStack w='full' justify="center">
                 {
                     bond.active ?
-                        <SubmitButton isDisabled={bond.percentVestedFor < 100 || !bond.active} w="120px" onClick={handleClaim} refreshOnSuccess={true}>
+                        <SubmitButton isLoading={!bond.bondedEvent} isDisabled={bond.percentVestedFor < 100 || !bond.active} w="120px" onClick={handleClaim} refreshOnSuccess={true}>
                             Redeem
                         </SubmitButton>
                         : <Text>Redeemed!</Text>
