@@ -186,7 +186,7 @@ export const useAccountBondPurchases = (
       vestingDays: Math.ceil(((expiry - purchaseDate) / 84000000) - 0.5),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
     }
-  })
+  });
 
   const userBonds = ids.map(id => {
     const common = bondEvents.find(e => e.id === id);
@@ -210,6 +210,7 @@ export const useAccountBondPurchases = (
     });
     return grouped;
   })
+  .filter(ub => ub.output.toLowerCase() === REWARD_TOKEN.address.toLowerCase())
 
   return {
     userBonds,
