@@ -14,7 +14,7 @@ import { BONDS_V2_API_CACHE_KEY } from '../bonds';
 
 export default async function handler(req, res) {
 
-    const cacheKey = `bonds-cache-v1.0.2`;
+    const cacheKey = `bonds-cache-v1.0.3`;
 
     try {
 
@@ -42,8 +42,8 @@ export default async function handler(req, res) {
 
         const depositsV2 = await Promise.all(
             bondsV2.map(bondV2 => {
-                const contract = new Contract(BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI, provider);
-                return contract.queryFilter(contract.filters.Bonded(bondV2.id));
+                const contract = new Contract(BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI, provider);                
+                return contract.queryFilter(contract.filters.Bonded(parseInt(bondV2.id)));
             })
         );        
 

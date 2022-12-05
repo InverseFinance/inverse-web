@@ -35,11 +35,12 @@ export const BondsBarChart = ({
             const filterMonth = new Date(date).getMonth();
             const filterYear = new Date(date).getFullYear();
             const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.amount, 0);
-
+            const bondVersion = type.indexOf('-v2') !== -1 ? 2 : 1;
             return {
-                label: `${type.replace(/(-)([0-9]+$)/, ' ($2 days vesting)')}: ${shortenNumber(y, 2, false)}`,
+                label: `${type.replace(/-v2/, '')
+                    .replace(/(-)([0-9]+$)/, ` - V${bondVersion} bond\n \n$2 days vesting`)}\n \n${shortenNumber(y, 2, false)}`,
                 x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
-                y,
+                y,                
             }
         });
     })
