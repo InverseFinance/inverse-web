@@ -30,9 +30,9 @@ export const useContractEvents = (address: string, abi: string[], method: string
 }
 
 export const useMultiContractEvents = (params: any[], swrKey: string): MultiContractEvents => {
-    const { library } = useWeb3React<Web3Provider>();
+    const { account, library } = useWeb3React<Web3Provider>();
    
-    const { data, error } = useSWR(swrKey, async () => {
+    const { data, error } = useSWR(`${swrKey}--${account}`, async () => {
         return await Promise.allSettled(
             params.map(p => {
                 const [address, abi, method, args, ignoreIfArgsUndefined] = p;
