@@ -3,14 +3,14 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { BondV2, SWR, UserBondV2 } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
-import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
+import { REWARD_TOKEN } from '@app/variables/tokens'
 import { useLpPrices, usePrices } from '@app/hooks/usePrices';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
-import { useContractEvents } from './useContractEvents';
+import { useContractEvents, useMultiContractEvents } from './useContractEvents';
 import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
-import { BOND_V2_FIXED_TERM_TELLER, BOND_V2_REFERRER } from '@app/variables/bonds';
+import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { useBlocksTimestamps } from './useBlockTimestamp';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
@@ -120,49 +120,55 @@ export const useAccountBondPurchases = (
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
-  const { events } = useContractEvents(
+  const { events: transferSingleEvents } = useContractEvents(
     BOND_V2_FIXED_TERM_TELLER,
     BOND_V2_FIXED_TELLER_ABI,
     'TransferSingle',
     [undefined, undefined, account],
   );
 
-  const { events: bonded } = useContractEvents(
-    BOND_V2_FIXED_TERM_TELLER,
-    BOND_V2_FIXED_TELLER_ABI,
-    'Bonded',
-    ['3', BOND_V2_REFERRER],
-  );
+  const bondIds = bonds.map(b => b.id);  
+  const eventsToQuery = bondIds.map(bondId => {
+    return [
+      BOND_V2_FIXED_TERM_TELLER,
+      BOND_V2_FIXED_TELLER_ABI,
+      'Bonded',
+      [parseInt(bondId)],
+    ];
+  });
 
-  const { timestamps } = useBlocksTimestamps(events.map(e => e.blockNumber));
+  const { groupedEvents, error } = useMultiContractEvents(eventsToQuery, `multi-bond-query-${account}-${bondIds.join('-')}`);
+  const bonded = groupedEvents.flat();
 
-  const ids: string[] = [];
-  events.forEach(e => {
+  const { timestamps } = useBlocksTimestamps(transferSingleEvents.map(e => e.blockNumber));
+
+  const purchaseIds: string[] = [];
+  transferSingleEvents.forEach(e => {
     const id = e.args.id.toString();
-    if(!ids.includes(id)){
-      ids.push(id);
+    if(!purchaseIds.includes(id)){
+      purchaseIds.push(id);
     }
-  })
+  });
 
   const { data: metadatas } = useEtherSWR({
     args: [
-      ...ids.map(id => [BOND_V2_FIXED_TERM_TELLER, 'tokenMetadata', id])
+      ...purchaseIds.map(id => [BOND_V2_FIXED_TERM_TELLER, 'tokenMetadata', id])
     ],
     abi: BOND_V2_FIXED_TELLER_ABI,
   })
 
   const { data: tokenNames } = useEtherSWR({
     args: [
-      ...ids.map(id => [BOND_V2_FIXED_TERM_TELLER, 'getTokenNameAndSymbol', id])
+      ...purchaseIds.map(id => [BOND_V2_FIXED_TERM_TELLER, 'getTokenNameAndSymbol', id])
     ],
     abi: BOND_V2_FIXED_TELLER_ABI,
   })  
 
   const now = Date.now();
 
-  const bondEvents = events?.map((e, i) => {
+  const bondEvents = transferSingleEvents?.map((e, i) => {
     const id = e.args.id.toString();
-    const index = ids.indexOf(id)
+    const index = purchaseIds.indexOf(id)
     const metadata = metadatas ? metadatas[index] : undefined;
     const purchaseDate = timestamps ? timestamps[i] : 0;
     const expiry = metadata ? metadata[3] * 1000 : 0;
@@ -171,7 +177,7 @@ export const useAccountBondPurchases = (
     return {
       txHash: e.transactionHash,
       blocknumber: e.blockNumber,
-      marketId: bondedEvent ? getBnToNumber(bondedEvent.args.id) : 0,
+      marketId: bondedEvent ? getBnToNumber(bondedEvent.args.id, 0) : 0,
       bondedEvent,
       amount: bondedEvent ? getBnToNumber(bondedEvent.args.amount) : 0,
       payout: getBnToNumber(e.args.amount),
@@ -188,7 +194,7 @@ export const useAccountBondPurchases = (
     }
   });
 
-  const userBonds = ids.map(id => {
+  const userBonds = purchaseIds.map(id => {
     const common = bondEvents.find(e => e.id === id);
     const grouped = bondEvents.filter(e => e.id === id).reduce((prev, curr) => {
       return {
@@ -210,8 +216,7 @@ export const useAccountBondPurchases = (
     });
     return grouped;
   })
-  .filter(ub => ub.output.toLowerCase() === REWARD_TOKEN.address.toLowerCase())
-
+  .filter(ub => ub.output.toLowerCase() === REWARD_TOKEN.address.toLowerCase());  
   return {
     userBonds,
     bondEvents,
