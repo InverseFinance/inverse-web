@@ -131,7 +131,7 @@ export const useAccountBondPurchases = (
     BOND_V2_FIXED_TERM_TELLER,
     BOND_V2_FIXED_TELLER_ABI,
     'Bonded',
-    [undefined, BOND_V2_REFERRER],
+    ['3', BOND_V2_REFERRER],
   );
 
   const { timestamps } = useBlocksTimestamps(events.map(e => e.blockNumber));
@@ -165,7 +165,7 @@ export const useAccountBondPurchases = (
     const index = ids.indexOf(id)
     const metadata = metadatas ? metadatas[index] : undefined;
     const purchaseDate = timestamps ? timestamps[i] : 0;
-    const expiry = metadata ? metadata[2] * 1000 : 0;
+    const expiry = metadata ? metadata[3] * 1000 : 0;
     const bondedEvent = bonded?.find(be => be.transactionHash === e.transactionHash);
     const bondMarket = bonds?.find(m => m.id.toString() === bondedEvent?.args?.id.toString());
     return {
@@ -180,7 +180,7 @@ export const useAccountBondPurchases = (
       active: metadata ? metadata[0] : 0,
       output: metadata ? metadata[1] : '',
       expiry: expiry,
-      supply: metadata ? getBnToNumber(metadata[3]) : 0,
+      supply: metadata ? getBnToNumber(metadata[4]) : 0,
       underlying: bondMarket?.underlying || {},
       purchaseDate,
       vestingDays: Math.ceil(((expiry - purchaseDate) / 84000000) - 0.5),
