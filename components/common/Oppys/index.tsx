@@ -84,10 +84,10 @@ const columns = [
     {
         field: 'symbol',
         label: 'Pool Type',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="250px" justify="flex-start"  {...props} />,
         value: ({ symbol, pool, project }) => {
             const link = getPoolLink(project, pool);
-            return <Cell justify="flex-start" minWidth="200px">
+            return <Cell justify="flex-start" minWidth="250px" maxWidth="250px" overflow="hidden" whiteSpace="nowrap">
                 <VStack borderBottom={ !link ? undefined : "1px solid #fff" }>
                     {
                         !!link ?
