@@ -10,6 +10,7 @@ import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import { useAccountBonds, useBondsV2 } from '@app/hooks/useBondsV2';
 import { BondPurchaseItem } from './BondPurchaseItem';
 import { BondRedeemSlide } from './BondRedeemSlide';
+import { useRouter } from 'next/router';
 
 const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
     iconProps={{ ml: '2', fontSize: '12px', display: { base: 'none', sm: 'inline-block' } }}
@@ -18,11 +19,13 @@ const LocalTooltip = ({ children }) => <AnimatedInfoTooltip
 
 export const BondsPurchased = () => {
     const { account } = useWeb3React<Web3Provider>();
+    const router = useRouter();
+    const userAddress = router?.query?.viewAddress || account;
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
     const [isNotConnected, setIsNotConnected] = useState(false);
     const { bonds } = useBondsV2();
-    const { userBonds } = useAccountBonds(account, bonds);
+    const { userBonds } = useAccountBonds(userAddress, bonds);
 
     const handleDetails = (bondIndex: number) => {
         setSelectedBondIndex(bondIndex);
