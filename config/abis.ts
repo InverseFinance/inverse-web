@@ -283,6 +283,7 @@ export const BOND_V2_ABI = [
   `function payoutFor(uint amount, uint id, address referrer) public view returns (uint)`,
   `function terms(uint) public view returns (uint controlVar, uint maxDebt, uint vesting, uint conclusion)`,
   `function purchaseBond(uint id, uint amount, uint minAmountOut) external returns (uint)`,
+  `event MarketCreated (uint indexed id, address indexed payoutToken, address indexed quoteToken, uint vesting, uint initialPrice)`,
 ]
 
 export const BOND_V2_FIXED_TELLER_ABI = [  
