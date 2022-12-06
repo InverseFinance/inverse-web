@@ -3,7 +3,7 @@ import { Bond, BondV2, UserBondV2 } from "@app/types";
 import { BOND_V2_FIXED_TERM_TELLER, BOND_V2_REFERRER } from "@app/variables/bonds";
 import { JsonRpcSigner, Provider } from "@ethersproject/providers";
 import { parseUnits } from "@ethersproject/units";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 
 export const getBondV2Contract = (bondAddress: string, signer:  | Provider) => {
     return new Contract(bondAddress, BOND_V2_ABI, signer);
@@ -31,12 +31,12 @@ export const bondV2Deposit = (
 }
 
 export const bondV2Redeem = async (
-    bond: UserBondV2,
+    bondId: string | BigNumber,
     signer: JsonRpcSigner,
     amount?: string,
 ) => {
     const contract = getBondV2FixedTellerContract(BOND_V2_FIXED_TERM_TELLER, signer);
     const account = await signer.getAddress();
-    const bal = await contract.balanceOf(account, bond.id);
-    return contract.redeem(bond.id, amount||bal);
+    const bal = await contract.balanceOf(account, bondId);
+    return contract.redeem(bondId, amount||bal);
 }

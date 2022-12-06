@@ -7,7 +7,7 @@ import { isAddress } from 'ethers/lib/utils';
 export const getToken = (tokens: TokenList, symbolOrAddress: string, extend = {}) => {
   const t = Object.entries(tokens)
     .map(([address, token]) => token)
-    .find(token => isAddress(symbolOrAddress) ? token.address.toLowerCase() === symbolOrAddress.toLowerCase() : token.symbol.toLowerCase() === symbolOrAddress.toLowerCase())
+    .find(token => isAddress(symbolOrAddress) ? token?.address?.toLowerCase() === symbolOrAddress?.toLowerCase() : token?.symbol?.toLowerCase() === symbolOrAddress?.toLowerCase())
   return { ...t, ...extend }
 }
 

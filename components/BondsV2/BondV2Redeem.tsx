@@ -14,7 +14,7 @@ export const BondV2Redeem = ({ bond }: { bond: UserBondV2 }) => {
 
     const handleClaim = () => {
         if (!library?.getSigner() || !account) { return }
-        return bondV2Redeem(bond, library?.getSigner())
+        return bondV2Redeem(bond.id, library?.getSigner())
     }
 
     return (

@@ -3,7 +3,7 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { BondV2, SWR, UserBondV2 } from '@app/types'
 import { getBnToNumber } from '@app/util/markets';
 
-import { REWARD_TOKEN } from '@app/variables/tokens'
+import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
 import { useLpPrices, usePrices } from '@app/hooks/usePrices';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useCustomSWR } from './useCustomSWR';
@@ -13,18 +13,20 @@ import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
 import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { useBlocksTimestamps } from './useBlockTimestamp';
 
-export const useBondsV2Api = (): SWR & { bonds: BondV2[] } => {
+export const useBondsV2Api = (): SWR & { bonds: BondV2[], allMarketIds: string[] } => {
   const { data, error, isLoading } = useCustomSWR(`/api/bonds?`, fetcher);
 
   return {
     bonds: data ? data.bonds : [],
-    error,
+    allMarketIds: data ? data.allMarketIds : [],
+    isError: !!error,
+    isLoading,
   }
 }
 
-export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
+export const useBondsV2 = (): SWR & { bonds: BondV2[], allMarketIds: string[] } => {
   const { prices: cgPrices } = usePrices();
-  const { bonds: activeBonds } = useBondsV2Api();
+  const { bonds: activeBonds, allMarketIds } = useBondsV2Api();
 
   const lpInputs = activeBonds.filter(b => !b.inputPrice).map(b => b.underlying)
   const { data: lpInputPrices } = useLpPrices(lpInputs, activeBonds.map(b => '1'));
@@ -95,6 +97,7 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[] } => {
 
   return {
     bonds,
+    allMarketIds,
     isError: error,
   }
 }
@@ -116,7 +119,7 @@ export const useBondV2PayoutFor = (bondContract: string, id: string, inputDecima
 
 export const useAccountBondPurchases = (
   account: string,
-  bonds: BondV2[],
+  allMarketIds: string[],
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
@@ -127,8 +130,7 @@ export const useAccountBondPurchases = (
     [undefined, undefined, account],
   );
 
-  const bondIds = bonds.map(b => b.id);  
-  const eventsToQuery = bondIds.map(bondId => {
+  const eventsToQuery = allMarketIds.map(bondId => {
     return [
       BOND_V2_FIXED_TERM_TELLER,
       BOND_V2_FIXED_TELLER_ABI,
@@ -137,7 +139,7 @@ export const useAccountBondPurchases = (
     ];
   });
 
-  const { groupedEvents, error } = useMultiContractEvents(eventsToQuery, `multi-bond-query-${account}-${bondIds.join('-')}`);
+  const { groupedEvents, error } = useMultiContractEvents(eventsToQuery, `multi-bond-query-${account}-${allMarketIds.join('-')}`);
   const bonded = groupedEvents.flat();
 
   const { timestamps } = useBlocksTimestamps(transferSingleEvents.map(e => e.blockNumber));
@@ -172,8 +174,7 @@ export const useAccountBondPurchases = (
     const metadata = metadatas ? metadatas[index] : undefined;
     const purchaseDate = timestamps ? timestamps[i] : 0;
     const expiry = metadata ? metadata[3] * 1000 : 0;
-    const bondedEvent = bonded?.find(be => be.transactionHash === e.transactionHash);
-    const bondMarket = bonds?.find(m => m.id.toString() === bondedEvent?.args?.id.toString());
+    const bondedEvent = bonded?.find(be => be.transactionHash === e.transactionHash);    
     return {
       txHash: e.transactionHash,
       blocknumber: e.blockNumber,
@@ -187,12 +188,13 @@ export const useAccountBondPurchases = (
       output: metadata ? metadata[1] : '',
       expiry: expiry,
       supply: metadata ? getBnToNumber(metadata[4]) : 0,
-      underlying: bondMarket?.underlying || {},
+      underlying: metadata ? getToken(TOKENS, metadata[1]) : {},
       purchaseDate,
       vestingDays: Math.ceil(((expiry - purchaseDate) / 84000000) - 0.5),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
     }
   });
+  
 
   const userBonds = purchaseIds.map(id => {
     const common = bondEvents.find(e => e.id === id);
@@ -224,10 +226,10 @@ export const useAccountBondPurchases = (
 }
 
 export const useAccountBonds = (
-  account: string,
-  bonds: BondV2[],
+  account: string,  
+  allMarketIds: string[],  
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
-  return useAccountBondPurchases(account, bonds) 
+  return useAccountBondPurchases(account, allMarketIds) 
 }

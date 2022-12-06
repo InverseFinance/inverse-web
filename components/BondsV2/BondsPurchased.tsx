@@ -24,8 +24,8 @@ export const BondsPurchased = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
     const [isNotConnected, setIsNotConnected] = useState(false);
-    const { bonds } = useBondsV2();
-    const { userBonds } = useAccountBonds(userAddress, bonds);
+    const { allMarketIds } = useBondsV2();    
+    const { userBonds } = useAccountBonds(userAddress, allMarketIds);
 
     const handleDetails = (bondIndex: number) => {
         setSelectedBondIndex(bondIndex);
