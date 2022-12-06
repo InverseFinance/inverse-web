@@ -1,7 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
 import { BOND_V2_AGGREGATOR_ABI } from '@app/config/abis'
-import { getNetworkConfig } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM } from '@app/variables/bonds'
@@ -10,13 +9,11 @@ import { getBnToNumber } from '@app/util/markets'
 import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
 
 const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
-// const PAYOUT_TOKEN = '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4';
 
-export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.1'
+export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.2'
+export const BONDS_V2_IDS_API_CACHE_KEY = 'bonds-ids-v1.0.0'
 
 export default async function handler(req, res) {
-    const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-
     try {
         const validCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, true, 30);
         if(validCache) {
@@ -24,7 +21,7 @@ export default async function handler(req, res) {
           return
         }
 
-        const provider = getProvider(networkConfig.chainId);
+        const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!);
         const contract = new Contract(BOND_V2_AGGREGATOR, BOND_V2_AGGREGATOR_ABI, provider);
         
         const envBondsIds = process.env.NEXT_PUBLIC_BONDS_IDS;
@@ -81,10 +78,20 @@ export default async function handler(req, res) {
             }
         })
 
+        // includes closed markets
+        const allMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || [];
+        bonds.forEach(b => {
+            if(!allMarketIds.includes(b.id)) {
+                allMarketIds.push(b.id);
+            }
+        });
+
         const result = {
             bonds,
+            allMarketIds,
         }
 
+        await redisSetWithTimestamp(BONDS_V2_IDS_API_CACHE_KEY, allMarketIds);
         await redisSetWithTimestamp(BONDS_V2_API_CACHE_KEY, result);
 
         res.status(200).send(result);
