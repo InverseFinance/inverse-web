@@ -26,7 +26,6 @@ export const BondsView = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedBondIndex, setSelectedBondIndex] = useState<number | null>(null);
     const [isNotConnected, setIsNotConnected] = useState(false);
-    // useAccountBonds(account, );
     const { bonds } = useBondsV2();
 
     const invCgPrice = cgPrices && cgPrices[RTOKEN_CG_ID]?.usd;
