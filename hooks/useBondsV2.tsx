@@ -10,7 +10,7 @@ import { useCustomSWR } from './useCustomSWR';
 import { fetcher } from '@app/util/web3';
 import { useContractEvents, useMultiContractEvents } from './useContractEvents';
 import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
-import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
+import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { useBlocksTimestamps } from './useBlockTimestamp';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[], allMarketIds: string[] } => {
@@ -119,7 +119,7 @@ export const useBondV2PayoutFor = (bondContract: string, id: string, inputDecima
 
 export const useAccountBondPurchases = (
   account: string,
-  allMarketIds: string[],
+  allMarketIds: string[] = [],
 ): SWR & {
   userBonds: UserBondV2[]
 } => {
@@ -138,6 +138,18 @@ export const useAccountBondPurchases = (
       [parseInt(bondId)],
     ];
   });
+
+  const { data: auctioneers } = useEtherSWR([
+    ...allMarketIds.map(bondId => {
+      return [BOND_V2_AGGREGATOR, 'getAuctioneer', bondId]
+    }),
+  ]);
+
+  const { data: marketInfos, error: marketInfosError } = useEtherSWR([
+    ...allMarketIds.map((bondId, i) => {
+      return [auctioneers && auctioneers[i] ? auctioneers[i] : BOND_V2_FIXED_TERM, 'markets', bondId]
+    }),
+  ]);
 
   const { groupedEvents, error } = useMultiContractEvents(eventsToQuery, `multi-bond-query-${account}-${allMarketIds.join('-')}`);
   const bonded = groupedEvents.flat();
@@ -188,19 +200,20 @@ export const useAccountBondPurchases = (
       output: metadata ? metadata[1] : '',
       expiry: expiry,
       supply: metadata ? getBnToNumber(metadata[4]) : 0,
-      underlying: metadata ? getToken(TOKENS, metadata[1]) : {},
       purchaseDate,
       vestingDays: Math.ceil(((expiry - purchaseDate) / 84000000) - 0.5),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
     }
   });
   
-
   const userBonds = purchaseIds.map(id => {
     const common = bondEvents.find(e => e.id === id);
+    const marketIndex = allMarketIds.indexOf(common.marketId.toString());
+    const marketInfo = marketInfos ? marketInfos[marketIndex] : undefined;
     const grouped = bondEvents.filter(e => e.id === id).reduce((prev, curr) => {
       return {
         ...common,
+        underlying: marketInfo ? getToken(TOKENS, marketInfo[2]) : {},
         expiry: curr.expiry,
         vestingDays: curr.vestingDays,
         amount: prev.amount + curr.amount,
@@ -218,7 +231,8 @@ export const useAccountBondPurchases = (
     });
     return grouped;
   })
-  .filter(ub => ub.output.toLowerCase() === REWARD_TOKEN.address.toLowerCase());  
+  .filter(ub => ub.output.toLowerCase() === REWARD_TOKEN.address.toLowerCase());
+  
   return {
     userBonds,
     bondEvents,

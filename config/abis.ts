@@ -300,6 +300,7 @@ export const BOND_V2_AGGREGATOR_ABI = [
   "function liveMarketsFor(address, bool isPayout) public view returns (uint256[])",
   "function marketsFor(address, address) public view returns (uint256[])",
   `function getTeller(uint) public view returns (address)`,
+  `function getAuctioneer(uint) public view returns (address)`,
   `function marketPrice(uint) public view returns (uint)`,
 ]
 
