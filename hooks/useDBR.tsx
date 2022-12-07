@@ -271,7 +271,7 @@ export const useDBRPrice = (): { price: number } => {
   // const out = data && data[0] ? getBnToNumber(data[0][1]) : 0;
   // use coingecko as fallback when ready
   return {
-    price: 0.05,//ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
+    price: 0.04,//ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
   }
 }
 
