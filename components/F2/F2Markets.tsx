@@ -5,8 +5,8 @@ import { useAccountDBR, useAccountF2Markets, useDBRMarkets } from '@app/hooks/us
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
-import { BigImageButton } from "../common/Button/BigImageButton";
-import TableV2 from "../common/Table/TableV2";
+import { BigImageButton } from "@app/components/common/Button/BigImageButton";
+import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 
 const ColHeader = ({ ...props }) => {
@@ -28,10 +28,8 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon }) => {
-            return <Cell minWidth="130px" justify="flex-start" alignItems="center" >
-                {/* <VStack h="30px" w="30px" bgColor="white" borderRadius="50px" alignItems="center" justify="center"> */}
-                <BigImageButton bg={`url('${marketIcon || icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                {/* </VStack> */}
+            return <Cell minWidth="130px" justify="flex-start" alignItems="center" >                
+                <BigImageButton bg={`url('${marketIcon || icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
                 <CellText>{name}</CellText>
             </Cell>
         },
@@ -112,7 +110,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         tooltip: 'Collateral balance in your wallet',
         value: ({ collateralBalance, price, account }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account ? <>
                         <CellText>{shortenNumber(collateralBalance, 2)}</CellText>
@@ -128,7 +126,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         tooltip: 'Amount of Collateral you deposited in the Market',
         value: ({ deposits, price, account }) => {
-            return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0">
+            return <Cell minWidth="150px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account ? <>
                         <CellText>{shortenNumber(deposits, 2)}</CellText>
@@ -192,7 +190,7 @@ export const F2Markets = ({
         //     </Stack>
         // }
     >
-        <TableV2
+        <Table
             keyName="address"
             noDataMessage="Loading..."
             columns={columns}
@@ -200,6 +198,8 @@ export const F2Markets = ({
             onClick={openMarket}
             defaultSort="address"
             defaultSortDir="desc"
+            enableMobileRender={true}
+            mobileClickBtnLabel={'View Market'}
         />
     </Container>
 }
