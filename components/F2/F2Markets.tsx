@@ -185,12 +185,12 @@ export const F2Markets = ({
         href="https://docs.inverse.finance/"
         image={<BigImageButton bg={`url('/assets/firm/firm-transparent.png')`} h="40px" w="100px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        right={
-            <Stack spacing="0" alignItems="flex-end">
-                <Text fontWeight="bold" color="mainTextColor">TVL</Text>
-                <Text color="secondaryTextColor">{shortenNumber(firmTotalTvl, 2, true)}</Text>
-            </Stack>
-        }
+        // right={
+        //     <Stack spacing="0" alignItems="flex-end">
+        //         <Text fontWeight="bold" color="mainTextColor">TVL</Text>
+        //         <Text color="secondaryTextColor">{shortenNumber(firmTotalTvl, 2, true)}</Text>
+        //     </Stack>
+        // }
     >
         <TableV2
             keyName="address"
