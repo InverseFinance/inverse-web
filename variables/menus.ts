@@ -38,6 +38,14 @@ export const MENUS = {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
+        {
+          label: 'Liquidate Loans',
+          href: '/firm/positions',
+        },
+        {
+          label: 'Replenish DBR',
+          href: '/firm/dbr-deficits',
+        },
       ],
     },
     // {
