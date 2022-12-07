@@ -1,7 +1,7 @@
 import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useDBRShortfalls } from "@app/hooks/useFirm";
+import { useDBRDeficits } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
@@ -71,12 +71,12 @@ const columns = [
     },
 ]
 
-export const DbrShortfalls = ({
+export const DbrDeficits = ({
 
 }: {
 
     }) => {
-    const { positions, timestamp } = useDBRShortfalls();
+    const { positions, timestamp } = useDBRDeficits();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
@@ -84,8 +84,7 @@ export const DbrShortfalls = ({
         setPosition(data);
         onOpen();
     }
-
-    console.log(positions)
+    
     const totalDeficit = positions.reduce((prev, curr) => prev + (curr.deficit), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 

@@ -3,23 +3,23 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { DbrShortfalls } from '@app/components/F2/liquidations/dbr-shortfalls'
+import { DbrDeficits } from '@app/components/F2/liquidations/dbr-deficits'
 
-export const F2DbrShortfallsPage = () => {
+export const F2DbrDeficitsPage = () => {
 
     return (
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM DBR Deficits</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="FiRM" />
+            <AppNav active="Earn" activeSubmenu="Replenish DBR" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
-                    <DbrShortfalls />
+                    <DbrDeficits />
                 </VStack>
             </ErrorBoundary>
         </Layout>
     )
 }
 
-export default F2DbrShortfallsPage
+export default F2DbrDeficitsPage

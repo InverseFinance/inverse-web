@@ -43,11 +43,11 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   }
 }
 
-export const useDBRShortfalls = (): SWR & {
+export const useDBRDeficits = (): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/dbr-shortfalls`, fetcher);
+  const { data, error } = useCustomSWR(`/api/f2/dbr-deficits`, fetcher);
   const { positions: firmPositions } = useFirmPositions();
 
   const dbrShortfalls = data ? data.shortfalls : [];

@@ -12,7 +12,7 @@ export const F2PositionsPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM Positions</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="FiRM" />
+            <AppNav active="Earn" activeSubmenu="Liquidate Loans" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
                     <FirmPositions />
