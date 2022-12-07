@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box, VStack, IconProps, BoxProps } from '@chakra-ui/react'
+import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text } from '@chakra-ui/react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
@@ -9,6 +9,8 @@ import { isAddress } from 'ethers/lib/utils';
 import { namedAddress } from '@app/util';
 import { uniqueBy } from '@app/util/misc';
 import { AutocompleteProps } from '@app/types';
+import React from 'react';
+import { RSubmitButton } from '../Button/RSubmitButton';
 
 export type Column = {
   label: string
@@ -35,9 +37,69 @@ type TableProps = {
   defaultFilters?: { [key: string]: any }
   sortChevronProps?: IconProps
   colBoxProps?: BoxProps
+  enableMobileRender?: boolean
+  mobileClickBtnLabel?: string
 }
 
 const emptyObj = {};
+
+export const MobileTable = ({
+  keyName,
+  filteredItems,
+  columns,
+  mobileClickBtnLabel,
+  onClick,
+}: {
+  keyName: TableProps["keyName"],
+  filteredItems: TableProps["items"],
+  columns: TableProps["columns"],
+  mobileClickBtnLabel: TableProps["mobileClickBtnLabel"],
+  onClick: TableProps["onClick"],
+}) => {
+  return <VStack spacing="4" w='full'>
+    {
+      filteredItems?.map((item, i) => {
+        const isNotFirst = i > 0;
+        return <VStack
+          key={item[keyName] ?? i}
+          w='full'
+          spacing="4"
+          borderTop={isNotFirst ? '1px solid #cccccc' : undefined}
+          pt={isNotFirst ? '4' : undefined}
+        >
+          <VStack w='full' spacing="2">
+            {
+              columns.map((col: Column, j) => {
+                const Value = col.value(item, i);
+                const Temp = () => React.cloneElement(Value, {
+                  minWidth: '0',
+                  minW: '0',
+                  textAlign: 'right',
+                  justify: 'flex-end',
+                  alignItems: 'flex-end',
+                }, <>{Value.props.children}</>);
+                return <HStack spacing="0" key={j} w='full' justify={j > 0 ? 'space-between' : 'center'}>
+                  <HStack display={j > 0 ? 'inline-flex' : 'none'}>
+                    {
+                      col.tooltip ?
+                        <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
+                        : null
+                    }
+                    <Text>{col.label}</Text>
+                  </HStack>
+                  <Temp />
+                </HStack>
+              })
+            }
+          </VStack>
+          <RSubmitButton onClick={onClick ? (e) => onClick(item, e) : undefined} fontSize='16px'>
+            {mobileClickBtnLabel}
+          </RSubmitButton>
+        </VStack>
+      })
+    }
+  </VStack>
+}
 
 export const Table = ({
   columns,
@@ -52,8 +114,11 @@ export const Table = ({
   onFilter,
   sortChevronProps,
   colBoxProps,
+  enableMobileRender = false,
+  mobileClickBtnLabel = 'View Details',
   ...props
 }: TableProps) => {
+  const [isLargerThan] = useMediaQuery('(min-width: 400px)');
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState(defaultFilters);
@@ -107,6 +172,16 @@ export const Table = ({
 
   const chevronProps = { color: 'accentTextColor', w: 4, h: 4, ...sortChevronProps };
 
+  if (!isLargerThan && enableMobileRender) {
+    return <MobileTable
+      keyName={keyName}
+      filteredItems={filteredItems}
+      columns={columns}
+      mobileClickBtnLabel={mobileClickBtnLabel}
+      onClick={onClick}
+    />
+  }
+
   return (
     <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
       <Flex
@@ -148,7 +223,7 @@ export const Table = ({
                     <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
                     : null
                 }
-                <VStack alignItems={ i === 0  ? 'flex-start' : i === (columns.length -1) ? 'flex-end' : 'center' } justifyContent="flex-start" cursor="pointer">
+                <VStack alignItems={i === 0 ? 'flex-start' : i === (columns.length - 1) ? 'flex-end' : 'center'} justifyContent="flex-start" cursor="pointer">
                   <Box
                     data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
                     onClick={(e) => {
@@ -161,7 +236,7 @@ export const Table = ({
                     position="relative"
                     color="accentTextColor"
                     fontSize="12px"
-                    >
+                  >
                     {col.label}
                     {
                       sortBy === col.field ?
