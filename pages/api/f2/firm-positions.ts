@@ -9,10 +9,10 @@ import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.2'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.3'
+export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.8'
 
-export default async function handler(req, res) {
-  const uniqueUsersCache = `f2unique-users-v1.0.7`;
+export default async function handler(req, res) {  
   const isShortfallOnly = req.query?.shortfallOnly === 'true';
 
   try {
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const provider = getProvider(CHAIN_ID);
 
-    const uniqueUsersCacheData = (await getCacheFromRedis(uniqueUsersCache, false)) || {
+    const uniqueUsersCacheData = (await getCacheFromRedis(F2_UNIQUE_USERS_CACHE_KEY, false)) || {
       latestBlockNumber: undefined,
       marketUsersAndEscrows: {  }, // with marketAddress: { users: [], escrows: [] }
     };
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
       });
     });
 
-    await redisSetWithTimestamp(uniqueUsersCache, { latestBlockNumber: latestBlockNumber, marketUsersAndEscrows });
+    await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: latestBlockNumber, marketUsersAndEscrows });
 
     const usedMarkets = Object.keys(marketUsersAndEscrows);
 

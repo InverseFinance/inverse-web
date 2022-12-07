@@ -6,12 +6,12 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
+import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2dbr-v1.0.2`;
-  const uniqueUsersCache = `f2unique-users-v1.0.7`;
+  const cacheKey = `f2dbr-v1.0.3`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
     const provider = getProvider(CHAIN_ID);
 
-    const uniqueUsersCacheData = (await getCacheFromRedis(uniqueUsersCache, false)) || null;
+    const uniqueUsersCacheData = (await getCacheFromRedis(F2_UNIQUE_USERS_CACHE_KEY, false)) || null;
     if(!uniqueUsersCacheData) {
       return res.json({});
     }
