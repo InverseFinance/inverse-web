@@ -11,7 +11,7 @@ import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
 import Container from "@app/components/common/Container"
 
-const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '20px' }} {...props} />;
+const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
 
 export const MarketBar = ({
