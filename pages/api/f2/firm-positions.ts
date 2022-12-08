@@ -17,10 +17,10 @@ export default async function handler(req, res) {
 
   try {
     const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, true, 30);
-    if (validCache) {
-      res.status(200).json(validCache);
-      return
-    }
+    // if (validCache) {
+    //   res.status(200).json(validCache);
+    //   return
+    // }
 
     const provider = getProvider(CHAIN_ID);
 
