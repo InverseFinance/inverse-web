@@ -117,7 +117,7 @@ export const EXTRA_CONFIG = {
     "31337": mainConfig,
     "5": {
         ...mainConfig,
-        dbr: '0x82E12e4b0011F0248DC6413a838C5B5956bBdECf',
+        dbr: '0x7F51228934F1E8a5f09C4dBC1E249Cf6581976f2',
         f2Oracle: '0x214c60045e8d1D79c1Cb5C8053EcB27393DC4C78',        
         f2controller: '0x5efE6C540fA6495DCD129c34a019f9E6C31a81fB',
         f2markets: [            
@@ -125,14 +125,14 @@ export const EXTRA_CONFIG = {
                 name: 'WETH',
                 // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
                 collateral: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
-                address: '0xF220B733606F625178cf2A9D8AE46BC6095A275e',
+                address: '0xE2b4cb4d44Bf51D44F963D7A1Ba77dC275717415',
                 icon: '/assets/projects/Ether.png',
                 helper: '',
             },
             {
                 name: 'WBTC',                
                 collateral: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
-                address: '0x1574257d3e741fAA145BFF6fa1B351faE33bC687',
+                address: '0x1A0A98db3D0A1fa19dA3b833f4feCc987e0bb296',
                 icon: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png',
                 helper: '',
             },
