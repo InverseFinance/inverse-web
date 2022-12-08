@@ -108,7 +108,7 @@ export default async function handler(req, res) {
     );
 
     const bnLeftToBorrow = borrowControllers.map((bc, i) => {
-      return bc === BURN_ADDRESS ? bnDola : dailyLimits[i].sub(dailyBorrows[i]);
+      return bc === BURN_ADDRESS ? bnDola[i] : dailyLimits[i].sub(dailyBorrows[i]);
     });
 
     const bnPrices = await Promise.all(
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
         leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
         supplyApy: 0,
       }
-    })
+    });
 
     const resultData = {
       markets,

@@ -29,6 +29,9 @@ const getArgs = (...args) => args;
 
 // [contractAddres, function, ...parameters] or [[contractAddres, function, ...parameters], etc] or { args: sameAsBefore, abi }
 function useEtherSWR(..._args) {
+  if(!_args || !_args?.length || (_args?.length === 1 && !_args[0]?.length)) {
+    return useSWR(null);
+  }
   const { library, chainId } = useWeb3React<Web3Provider>()
 
   const withCustomAbiParam = _args.length > 0 && _args[0].args;
