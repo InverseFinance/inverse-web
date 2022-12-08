@@ -70,16 +70,19 @@ export const MobileTable = ({
           <VStack w='full' spacing="2">
             {
               columns.map((col: Column, j) => {
+                const isNotFirstCol = j > 0;
                 const Value = col.value(item, i);
-                const Temp = () => React.cloneElement(Value, {
+
+                const MobileAdaptedValue = () => React.cloneElement(Value, {
                   minWidth: '0',
                   minW: '0',
                   textAlign: 'right',
-                  justify: 'flex-end',
                   alignItems: 'flex-end',
+                  onClick: (isNotFirstCol || !onClick) ? undefined : (e) => onClick(item, e),
                 }, <>{Value.props.children}</>);
-                return <HStack spacing="0" key={j} w='full' justify={j > 0 ? 'space-between' : 'center'}>
-                  <HStack display={j > 0 ? 'inline-flex' : 'none'}>
+
+                return <HStack spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
+                  <HStack display={isNotFirstCol ? 'inline-flex' : 'none'}>
                     {
                       col.tooltip ?
                         <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
@@ -87,14 +90,16 @@ export const MobileTable = ({
                     }
                     <Text>{col.label}</Text>
                   </HStack>
-                  <Temp />
+                  <MobileAdaptedValue />
                 </HStack>
               })
             }
           </VStack>
-          <RSubmitButton onClick={onClick ? (e) => onClick(item, e) : undefined} fontSize='16px'>
-            {mobileClickBtnLabel}
-          </RSubmitButton>
+          {
+            !!onClick && <RSubmitButton onClick={onClick ? (e) => onClick(item, e) : undefined} fontSize='16px'>
+              {mobileClickBtnLabel}
+            </RSubmitButton>
+          }
         </VStack>
       })
     }
