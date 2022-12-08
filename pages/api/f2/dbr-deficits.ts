@@ -11,7 +11,7 @@ import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2dbr-v1.0.3`;
+  const cacheKey = `f2dbr-v1.0.4`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);
