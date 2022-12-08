@@ -292,10 +292,11 @@ export const Table = ({
           fontWeight="semibold"
           fontSize="sm"
           cursor={!!onClick ? 'pointer' : undefined}
-          p={2.5}
+          py={2.5}
           pl={4}
           pr={4}
           minW='fit-content'
+          w="full"
           borderRadius={8}
           onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
             if (!!e && e?.target?.id.startsWith('popover-')) {

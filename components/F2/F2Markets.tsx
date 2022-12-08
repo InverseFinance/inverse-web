@@ -25,10 +25,10 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon }) => {
-            return <Cell minWidth="130px" justify="flex-start" alignItems="center" >                
+            return <Cell minWidth="150px" justify="flex-start" alignItems="center" >                
                 <BigImageButton bg={`url('${marketIcon || icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
                 <CellText>{name}</CellText>
             </Cell>
@@ -200,6 +200,7 @@ export const F2Markets = ({
             defaultSortDir="desc"
             enableMobileRender={true}
             mobileClickBtnLabel={'View Market'}
+            spacing="0"
         />
     </Container>
 }
