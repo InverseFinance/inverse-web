@@ -106,11 +106,11 @@ export const F2CombinedForm = ({
         else if (action === 'deposit') {
             return f2deposit(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
         } else if (action === 'borrow') {
-            return f2borrow(signer, market.address, getNumberToBn(debtAmount, market.underlying.decimals));
+            return f2borrow(signer, market.address, getNumberToBn(debtAmount));
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
         } else if (action === 'repay') {
-            return f2repay(signer, market.address, getNumberToBn(debtAmount, market.underlying.decimals));
+            return f2repay(signer, market.address, getNumberToBn(debtAmount));
         } else if(action === 'd&b' && !isAutoDBR && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
             return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount));
         } else if(action === 'r&w' && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
