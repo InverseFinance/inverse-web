@@ -231,6 +231,20 @@ export const F2CombinedForm = ({
                     } />
                 }
                 {
+                    isDeposit && !isAutoDBR && dbrBalance <= 0 &&
+                    <InfoMessage
+                        title="No DBRs in wallet"
+                        alertProps={{ w: 'full' }}
+                        description={
+                            <Flex display="inline-block">
+                                To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={getDBRBuyLink()} isExternal target="_blank">
+                                    buy DBR tokens
+                                </Link> OR use the auto-buy option which adds the DBR cost to your DOLA loan.
+                            </Flex>
+                        }
+                    />
+                }
+                {
                     isDeposit && <FormControl w='fit-content' display='flex' alignItems='center'>
                         <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
                             Auto-{isDeposit ? 'buy' : 'sell'} DBR?
@@ -242,22 +256,7 @@ export const F2CombinedForm = ({
                         </Badge>
                         }
                     </FormControl>
-                }
-                {
-                    isDeposit && !isAutoDBR && dbrBalance <= 0 &&
-                    <InfoMessage
-                        title="No DBRs in wallet"
-                        alertProps={{ w: 'full' }}
-                        description={
-                            <Flex display="inline-block">
-                                To borrow DOLA you need to <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={getDBRBuyLink()} isExternal target="_blank">
-                                    buy DBR tokens
-                                </Link>
-                                &nbsp;beforehand or use the auto-buy option
-                            </Flex>
-                        }
-                    />
-                }                
+                }                             
             </VStack>
         }
     </Stack>
