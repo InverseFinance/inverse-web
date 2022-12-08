@@ -9,7 +9,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.5`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.8`;
 
 export default async function handler(req, res) {
 
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
 
     const dailyLimits = await Promise.all(
       borrowControllers.map((bc, i) => {
-        if(bc === BURN_ADDRESS) {
+        if(!bc || bc === BURN_ADDRESS) {
           return new Promise(resolve => resolve(BigNumber.from('0')));
         } else {
           const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
@@ -119,12 +119,13 @@ export default async function handler(req, res) {
     );
 
     const markets = F2_MARKETS.map((m, i) => {
+      const underlying = TOKENS[m.collateral];
       return {
         ...m,
         bnTotalDebts,
         oracle: oracles[i],
         underlying: TOKENS[m.collateral],
-        price: getBnToNumber(bnPrices[i]),
+        price: getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
         totalDebt: getBnToNumber(bnTotalDebts[i]),
         collateralFactor: getBnToNumber(bnCollateralFactors[i], 4),
         dolaLiquidity: getBnToNumber(bnDola[i]),

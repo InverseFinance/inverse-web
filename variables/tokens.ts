@@ -83,6 +83,7 @@ const chainTokenAddresses = {
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
     WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+    WBTC: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
   }
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -443,6 +444,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
       decimals: 18,
       isWrappedChainCoin: true,
+    },
+    [chainTokenAddresses["5"].WBTC]: {
+      address: chainTokenAddresses["5"].WBTC,
+      name: 'Wrapped Bitcoin',
+      symbol: 'WBTC',
+      coingeckoId: 'wrapped-bitcoin',
+      image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
+      decimals: 8,
     },
   }
 }

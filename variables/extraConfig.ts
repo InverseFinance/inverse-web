@@ -158,6 +158,13 @@ export const EXTRA_CONFIG = {
                 icon: '/assets/projects/Ether.png',
                 helper: '',
             },
+            {
+                name: 'WBTC',                
+                collateral: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
+                address: '0xa9caD2Ab70D16Ed2f6d069F343C5b31e7d3B349c',
+                icon: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png',
+                helper: '',
+            },
     ],
     }
 }

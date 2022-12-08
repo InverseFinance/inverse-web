@@ -136,7 +136,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         ...m,
         ...cachedMarkets[i],
         supplyApy: 0,
-        price: data ? getBnToNumber(data[i]) : cachedMarkets[i]?.price ?? 0,
+        price: data ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i+nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i+2*nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
         bnDolaLiquidity: data ? data[i+4*nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
