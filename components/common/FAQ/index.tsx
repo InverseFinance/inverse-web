@@ -38,7 +38,7 @@ export const FAQ = ({
                                 <AccordionIcon />
                             </AccordionButton>
                         </h2>
-                        <AccordionPanel pb={4} color="secondaryTextColor">
+                        <AccordionPanel lineHeight="normal" pb={4} color="secondaryTextColor">
                             {item.body}
                         </AccordionPanel>
                     </AccordionItem>
