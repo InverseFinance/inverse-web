@@ -216,8 +216,8 @@ export const F2FormInfos = (props) => {
         ],
         [
             {
-                tooltip: 'The total number of DBRs that will be burned every day',
-                title: 'Total daily DBR burn',
+                tooltip: 'The total number of DBRs that will be spent every day',
+                title: 'Total daily DBR spend',
                 value: `-${newDailyDBRBurn ? `${shortenNumber(newDailyDBRBurn, 4)} (${shortenNumber(newDailyDBRBurn * dbrPrice, 2, true)})` : ''}`,
             },
             {

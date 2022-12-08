@@ -17,7 +17,7 @@ export const DBRShortDescription = () => {
                 - DBRs remain in your wallet, they are not staked
             </Text>
             <Text>
-                - DBRs are burned over time when you have a DOLA loan (no gas cost as a borrower)
+                - DBRs are spent over time when you have a DOLA loan (no gas cost as a borrower)
             </Text>
             <Text>
                 - If you run out of DBR while having a debt to repay, someone can top-up your DBR balance at a higher price than the DBR market price

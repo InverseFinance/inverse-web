@@ -65,7 +65,7 @@ export const F2WalkthroughDuration = ({
                         </VStack>
                         :
                         <VStack alignItems="flex-start">
-                            <Text><b>{shortenNumber(dbrCover, 2)} DBRs</b> will be burnt over time from your wallet to cover the loan duration.</Text>                            
+                            <Text><b>{shortenNumber(dbrCover, 2)} DBRs</b> will be spent over time from your wallet to cover the loan duration.</Text>                            
                             <Text>You can have the full amount up-front or top-up your DBRs regularly.</Text>                      
                             {
                                 dbrBalance > 0 ? <Text>Your current DBR balance is {shortenNumber(dbrBalance, 2)}.</Text>

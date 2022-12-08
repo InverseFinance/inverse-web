@@ -72,7 +72,7 @@ export const RecapInfos = ({
             </TextInfo>
         }
         {
-            isAutoDBR && hasHelper && <TextInfo message="DBRs will be burned over time as fees to cover the loan, they should stay in your wallet while the loan is active">
+            isAutoDBR && hasHelper && <TextInfo message="DBRs will be spent over time as fees to cover the loan, they should stay in your wallet while the loan is active">
                 <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs ({shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
             </TextInfo>
         }
