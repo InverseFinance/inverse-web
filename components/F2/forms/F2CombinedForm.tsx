@@ -70,7 +70,7 @@ export const F2CombinedForm = ({
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
-    
+
     const [syncedMinH, setSyncedMinH] = useState('230px');
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)')
 
@@ -111,9 +111,9 @@ export const F2CombinedForm = ({
             return f2withdraw(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
         } else if (action === 'repay') {
             return f2repay(signer, market.address, getNumberToBn(debtAmount));
-        } else if(action === 'd&b' && !isAutoDBR && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
+        } else if (action === 'd&b' && !isAutoDBR && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
             return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount));
-        } else if(action === 'r&w' && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
+        } else if (action === 'r&w' && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
             return f2repayAndWithdraw(signer, market.address, getNumberToBn(debtAmount), getNumberToBn(collateralAmount, market.underlying.decimals));
         } else {
             alert('AlphaPhase: Contract is not implemented yet for this action');
@@ -132,16 +132,16 @@ export const F2CombinedForm = ({
     }
 
     useEffect(() => {
-        const adapt = (reset = true) => {            
-            if(reset && (infoTab === 'Summary' || !['Deposit & Borrow', 'Repay & Withdraw'].includes(mode))) {
+        const adapt = (reset = true) => {
+            if (reset && (infoTab === 'Summary' || !['Deposit & Borrow', 'Repay & Withdraw'].includes(mode))) {
                 setSyncedMinH('230px');
             } else {
                 const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
                 const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
-                if(formHeight && recapHeight && Math.abs(formHeight - recapHeight) <= 50) {
+                if (formHeight && recapHeight && Math.abs(formHeight - recapHeight) <= 50) {
                     setSyncedMinH(Math.max(formHeight, recapHeight));
                 }
-            }            
+            }
         }
         adapt(true);
         setTimeout(() => {
@@ -152,7 +152,7 @@ export const F2CombinedForm = ({
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
     const isFormFilled = true//(!!collateralAmount && !!debtAmount);
-    const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);    
+    const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -184,6 +184,12 @@ export const F2CombinedForm = ({
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
                     </>
                         : <Text>Nothing to withdraw</Text>
+                }
+                {
+                    dbrBalance < 0 && !isDeposit && <WarningMessage
+                        alertProps={{ w: 'full' }}
+                        description="Can not withdraw when there is a DBR deficit"
+                    />
                 }
             </VStack>
         }
@@ -225,8 +231,8 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < deltaDebt 
-                    && <WarningMessage alertProps={{ w:'full' }} description={
+                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < deltaDebt
+                    && <WarningMessage alertProps={{ w: 'full' }} description={
                         `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment`
                     } />
                 }
@@ -252,11 +258,11 @@ export const F2CombinedForm = ({
                         <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
                         {
                             !market.helper && <Badge ml="2">
-                            Coming soon
-                        </Badge>
+                                Coming soon
+                            </Badge>
                         }
                     </FormControl>
-                }                             
+                }
             </VStack>
         }
     </Stack>
@@ -342,7 +348,7 @@ export const F2CombinedForm = ({
                     <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
                 </FormControl>
             }
-            <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">                
+            <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
                 <NavButtons
                     active={mode}
                     options={isDeposit ? inOptions : outOptions}
@@ -368,7 +374,7 @@ export const F2CombinedForm = ({
             noPadding
             w='full'
             contentProps={{ minH: syncedMinH, id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
-            p="0"            
+            p="0"
         >
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
@@ -409,7 +415,7 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    !market.leftToBorrow && isBorrowCase && <WarningMessage alertProps={{ w:'full' }} description="No DOLA liquidity at the moment" />
+                    !market.leftToBorrow && isBorrowCase && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
                 }
                 {/* {bottomPart} */}
                 {
