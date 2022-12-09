@@ -184,7 +184,7 @@ export const DbrBar = ({
         <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={getDBRBuyLink()} isExternal target='_blank'>
             {
                 dbrBalance > 0 && <SubTitle color="inherit">
-                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
+                    {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true, true)})`}
                 </SubTitle>
             }
             {
@@ -220,7 +220,7 @@ export const DbrBar = ({
                     </VStack>
                     <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'flex-start' }}>
                         <Title>
-                            Daily Burn Rate
+                            Daily Spend Rate
                         </Title>
                         <SubTitle color="secondaryTextColor">
                             {preciseCommify(-dailyDebtAccrual, 2, false)} DBR
