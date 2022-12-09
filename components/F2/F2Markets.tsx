@@ -152,10 +152,10 @@ const columns = [
         label: 'Loan Health',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
         tooltip: 'Remaining Loan Health',
-        value: ({ perc, hasDebt }) => {
+        value: ({ perc, debt }) => {
             const color = getRiskColor(perc);
             return <Cell minWidth="120px" justify="flex-end" >
-                <CellText color={perc && hasDebt ? color : undefined}>{hasDebt ? `${shortenNumber(perc, 2)}%` : '-'}</CellText>
+                <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(perc, 2)}%` : '-'}</CellText>
             </Cell>
         },
     },

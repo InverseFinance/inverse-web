@@ -6,7 +6,7 @@ import { F2_MARKET_ABI } from "@app/config/abis";
 import { useAccountDBRMarket } from "@app/hooks/useDBR";
 import { useTransactionCost } from "@app/hooks/usePrices";
 import { f2liquidate } from "@app/util/f2";
-import { shortenNumber } from "@app/util/markets";
+import { getNumberToBn, shortenNumber } from "@app/util/markets";
 import { preciseCommify, roundFloorString } from "@app/util/misc";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { HStack, VStack, Text } from "@chakra-ui/react";
@@ -64,6 +64,11 @@ export const FirmLiquidationModal = ({
         setSeizeAmount(seizeWorth / position.market.price);
     }, [repayAmount, position]);
 
+    const depositWorth = deposits * position?.market.price;
+    const maxLiquidable = Math.min(liquidatableDebt, depositWorth) * (1-position?.market.liquidationIncentive);
+    const maxSeizable = Math.min(seizable, deposits);
+    const maxSeizableWorth = maxSeizable * position?.market.price;
+
     return  <Modal
     header={liquidatableDebt > 0 ? `Liquidation Form` : 'Details'}
     onClose={onClose}
@@ -85,11 +90,15 @@ export const FirmLiquidationModal = ({
             }
             <HStack w='full' justify="space-between">
                 <Text>Deposits:</Text>
-                <Text fontWeight="bold">{shortenNumber(deposits, 2)} {position?.market.underlying.symbol} ({shortenNumber(deposits * position?.market.price, 2, true)})</Text>
+                <Text fontWeight="bold">{shortenNumber(deposits, 4)} {position?.market.underlying.symbol} ({shortenNumber(depositWorth, 2, true)})</Text>
             </HStack>
             <HStack w='full' justify="space-between">
-                <Text>Liquidable Debt:</Text>
-                <Text fontWeight="bold">{shortenNumber(liquidatableDebt, 2)}</Text>
+                <Text>Deposits worth (with {shortenNumber(position?.market.collateralFactor*100, 0)}% CF):</Text>
+                <Text fontWeight="bold">{shortenNumber(depositWorth*position?.market.collateralFactor, 2, true)}</Text>
+            </HStack>
+            <HStack w='full' justify="space-between">
+                <Text>Max Liquidable Debt:</Text>
+                <Text fontWeight="bold">{shortenNumber(maxLiquidable, 2, false, true)}</Text>
             </HStack>
             <HStack w='full' justify="space-between">
                 <Text>Liquidation Incentive:</Text>
@@ -107,7 +116,7 @@ export const FirmLiquidationModal = ({
                 liquidatableDebt > 0 && <HStack w='full' justify="space-between">
                 <Text>Max Seizable:</Text>
                 <Text fontWeight="bold">
-                    {shortenNumber(seizable, 4, false, true)} {position?.market.underlying.symbol} ({shortenNumber(seizableWorth, 2, true)})
+                    {shortenNumber(maxSeizable, 4, false, true)} {position?.market.underlying.symbol} ({shortenNumber(maxSeizableWorth, 2, true)})
                 </Text>
             </HStack>
             }
@@ -126,7 +135,7 @@ export const FirmLiquidationModal = ({
                         signer={library?.getSigner()}
                         decimals={18}
                         hideInputIfNoAllowance={false}
-                        maxAmountFrom={[liquidatableDebtBn]}
+                        maxAmountFrom={[getNumberToBn(maxLiquidable)]}
                         includeBalanceInMax={true}
                         onAction={({ bnAmount }) => handleLiquidation(bnAmount)}
                         onAmountChange={(v) => setRepayAmount(v)}
