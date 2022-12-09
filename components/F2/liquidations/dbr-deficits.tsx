@@ -9,7 +9,7 @@ import moment from 'moment'
 import { useState } from "react";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
-import TableV2 from "@app/components/common/Table/TableV2";
+import Table from "@app/components/common/Table";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -112,8 +112,8 @@ export const DbrDeficits = ({
         {
             !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} position={position} />
         }
-        <TableV2
-            keyName="key"
+        <Table
+            keyName="user"
             noDataMessage="No DBR deficits in last update"
             columns={columns}
             items={positions}
