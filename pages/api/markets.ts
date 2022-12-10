@@ -15,6 +15,8 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber, getPoolYield, getStethData, getXSushiData, getYearnVaults, toApr, toApy } from '@app/util/markets';
 import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
+const NB_DAYS_MONTH = 365/12;
+
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
@@ -136,7 +138,7 @@ export default async function handler(req, res) {
     });
 
     const rewardsPerMonth = speeds.map((speed, i) => {
-      return getBnToNumber(speed) * BLOCKS_PER_DAY * 30 * getBnToNumber(xinvExRate);
+      return getBnToNumber(speed) * BLOCKS_PER_DAY * NB_DAYS_MONTH * getBnToNumber(xinvExRate);
     });
 
     // external yield bearing apys
@@ -237,7 +239,7 @@ export default async function handler(req, res) {
         collateralFactor: parseFloat(formatUnits(collateralFactor[1])),
         supplied: parsedExRate * parseFloat(formatUnits(totalSupply)),
         rewardApr: 0,
-        rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * 30,
+        rewardsPerMonth: rewardPerBlock / ETH_MANTISSA * BLOCKS_PER_DAY * NB_DAYS_MONTH,
         priceUsd: prices[xinvAddress] / parsedExRate,
         oraclePrice: prices[xinvAddress],
         oracleFeed: oracleFeeds[addresses.indexOf(xinvAddress)],
