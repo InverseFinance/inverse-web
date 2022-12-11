@@ -69,6 +69,7 @@ const chainTokenAddresses = {
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
+    DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -361,6 +362,13 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
       decimals: 18,
       coingeckoId: 'convex-finance',
+    },
+    [chainTokenAddresses["1"].DBR]: {
+      address: chainTokenAddresses["1"].DBR,
+      name: 'DBR',
+      symbol: 'DBR',
+      image: '/assets/v2/dbr-small.png',
+      decimals: 18,
     },
     [chainTokenAddresses["1"].VLAURA]: {
       address: chainTokenAddresses["1"].VLAURA,
