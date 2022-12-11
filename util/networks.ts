@@ -162,6 +162,7 @@ export const getNetworkConfigConstants = (
         DEBT_REPAYER: config.debtRepayer,
         DEBT_CONVERTER: config.debtConverter,
         DBR: config.dbr,
+        DBR_AIRDROP: config.dbrAirdrop,
         F2_CONTROLLER: config.f2controller,
         F2_ORACLE: config.f2Oracle,
         F2_MARKETS: config.f2markets||[],

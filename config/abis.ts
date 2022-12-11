@@ -394,6 +394,10 @@ export const F2_MARKET_ABI = [
   "event CreateEscrow(address indexed user, address escrow)",
 ];
 
+export const MERKLE_DROP_ABI = [
+  "function (address, uint256, uint256, bytes32[]) public view returns (bool)",
+]
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -422,6 +426,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     DEBT_REPAYER,
     DEBT_CONVERTER,
     DBR,
+    DBR_AIRDROP,
     F2_ORACLE,
     F2_CONTROLLER,
     F2_MARKETS,
@@ -450,6 +455,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
         [DBR, DBR_ABI],
+        [DBR_AIRDROP, MERKLE_DROP_ABI],
         [F2_ORACLE, F2_ORACLE_ABI],
         [F2_CONTROLLER, F2_CONTROLLER_ABI],
         ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),

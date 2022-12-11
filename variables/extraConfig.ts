@@ -117,6 +117,7 @@ export const EXTRA_CONFIG = {
     "31337": mainConfig,
     "5": {
         ...mainConfig,
+        dbrAirdrop: '0x80819e03829A71FeE5fDcA95acbC006e2eBF91F0',
         dbr: '0x7F51228934F1E8a5f09C4dBC1E249Cf6581976f2',
         f2Oracle: '0x214c60045e8d1D79c1Cb5C8053EcB27393DC4C78',        
         f2controller: '0x5efE6C540fA6495DCD129c34a019f9E6C31a81fB',
