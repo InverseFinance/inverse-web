@@ -2,7 +2,7 @@ import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { RTOKEN_SYMBOL, UNDERLYING } from './tokens'
 
 const namedAddresses: { [key: string]: string } = {
-    '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'Oracle',
+    '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'FrontierOracle',
     '0x0000000000000000000000000000000000000000': 'BurnAddress',
     '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89': 'ETHDOLAStakingPool',
     '0xFBAB1B85A145Cd648374aCebf84cDD0247268587': 'Vester',
@@ -69,6 +69,15 @@ const namedAddresses: { [key: string]: string } = {
     '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'CMeth',
     '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A': 'DebtConverter',
     '0x9eb6BF2E582279cfC1988d3F2043Ff4DF18fa6A0': 'DebtRepayer',
+    // FiRM
+    '0xAD038Eb671c44b853887A7E32528FaB35dC5D710': 'DBR',
+    '0x4C7b266B4bf0A8758fa85E69292eE55c212236cF': 'MerkleDrop',
+    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': 'WETH',
+    '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',
+    '0x63Df5e23Db45a2066508318f172bA45B9CD37035': 'FiRMWethMarket',
+    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',
+    '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'FiRMFed',
+    '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
 }
 
 export const ADDRESS_ROLES = {
