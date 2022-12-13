@@ -1,12 +1,13 @@
 
-import { Link, ButtonProps, LinkProps } from '@chakra-ui/react'
+import { Link, LinkProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { SubmitButton } from "."
 import { lightTheme } from '@app/variables/theme'
 import { smallerSize } from '@app/variables/responsive'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { SmartButtonProps } from '@app/types'
 
-type Props = ButtonProps & { href?: string, target?: string, linkProps?: LinkProps }
+type Props = SmartButtonProps & { href?: string, target?: string, linkProps?: LinkProps }
 
 export const RSubmitButton = (props: Props) => {
     const _props = { borderLeftRadius: { base: '30px', '2xl': '50vmax' }, borderRightRadius: { base: '30px', '2xl': '50vmax' }, ...props }

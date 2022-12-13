@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex, useMediaQuery, AlertDescriptionProps, AlertTitleProps } from '@chakra-ui/react'
-import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@app/components/common/Animation'
+import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon, AnimIconProps } from '@app/components/common/Animation'
 import { InfoIcon, WarningIcon } from '@chakra-ui/icons';
 
 type MessageProps = {
@@ -14,6 +14,7 @@ type MessageProps = {
     alertDescriptionProps?: AlertDescriptionProps,
     showIcon?: boolean,
     iconStatus?: 'info' | 'success' | 'warning' | 'error' | 'danger',
+    iconProps?: AnimIconProps
 }
 
 const statusAnims = {
@@ -24,14 +25,14 @@ const statusAnims = {
     danger: WarningAnimIcon,
 }
 
-export const StatusMessage = ({ title, description, status = 'info', iconStatus ,showIcon, alertProps, alertDescriptionProps, alertTitleProps }: Partial<MessageProps>) => {
+export const StatusMessage = ({ title, description, status = 'info', iconStatus ,showIcon, alertProps, alertDescriptionProps, alertTitleProps, iconProps }: Partial<MessageProps>) => {
     const alertPropsExtended = {
         className: `blurred-container ${status}-bg compat-mode`,
         ...alertProps,
     };
     const IconComp = statusAnims[iconStatus || status];
-    const icon = status === 'info' ? <IconComp color="blue.500" mr="4" />
-    : <IconComp boxProps={{ mr: '4' }} />
+    const icon = status === 'info' ? <IconComp color="blue.500" mr="4" {...iconProps} />
+    : <IconComp boxProps={{ mr: '4' }} {...iconProps} />
     return <Message status={status}
         title={title}
         showIcon={showIcon}
