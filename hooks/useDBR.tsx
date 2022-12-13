@@ -9,8 +9,9 @@ import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { parseUnits } from "@ethersproject/units";
 
-const { DBR, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
+const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
 const oneDay = 86400000;
@@ -319,14 +320,25 @@ export const useDBRReplenishmentPrice = (): SWR & {
 }
 
 export const useCheckDBRAirdrop = (account: string): SWR & {
-  eligible: boolean,
+  isEligible: boolean,
+  hasClaimed: boolean,
   amount: number,
+  airdropData: { [key: string]: string },
 } => {
-  
+  const { data: airdropData, error: airdropDataErr } = useCustomSWR('/assets/firm/dbr/airdrop.json', fetcher);
+  const { data: hasClaimed, error: hasClaimErr } = useEtherSWR([
+    DBR_AIRDROP, 'hasClaimed', account, '0'
+  ]);
+
+  const isEligible = !!account && !!airdropData && !!airdropData[account];
+  const amount = isEligible ? getBnToNumber(parseUnits(airdropData[account], 0)) : 0;
+
   return {
-    eligible: !!account,
-    amount: 2000,
-    isLoading: false,
-    isError: false,
+    isEligible,
+    hasClaimed,
+    amount,
+    airdropData,
+    isLoading: !airdropData,
+    isError: !!airdropDataErr || !!hasClaimErr,
   }
 }

@@ -395,8 +395,11 @@ export const F2_MARKET_ABI = [
 ];
 
 export const MERKLE_DROP_ABI = [
-  "function (address, uint256, uint256, bytes32[]) public view returns (bool)",
-]
+  "function verifyClaim(address, uint256, uint256, bytes32[]) public view returns (bool)",
+  "function hasClaimed(address, uint256) public view returns (bool)",
+  "function claimTranche(address, uint256, uint256, bytes32[]) public",
+  "function claimTranches(address, uint256[], uint256[], bytes32[][]) public",
+];
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;

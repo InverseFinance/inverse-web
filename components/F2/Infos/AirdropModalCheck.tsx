@@ -19,14 +19,14 @@ export const AirdropModalCheck = ({
 }) => {
     const account = useAccount();
     const router = useRouter();
-    const { eligible } = useCheckDBRAirdrop(account);
+    const { isEligible, hasClaimed } = useCheckDBRAirdrop(account);
     const { value: isAlreadyShown, setter } = useStorage('dbr-airdrop');
 
     useDebouncedEffect(() => {
-        if (!isAlreadyShown && eligible) {
+        if (!isAlreadyShown && isEligible && !hasClaimed) {
             onOpen();
         }
-    }, [isAlreadyShown, eligible], 200)
+    }, [isAlreadyShown, isEligible, hasClaimed], 200)
 
     const handleClose = async () => {
         setter('done');

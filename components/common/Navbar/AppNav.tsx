@@ -452,7 +452,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { themeName } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
-  const { eligible } = useCheckDBRAirdrop(userAddress);
+  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
   const [showMobileNav, setShowMobileNav] = useState(false)
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
@@ -544,7 +544,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         onClose={onWrongNetClose}
       />
       {
-        eligible && <AirdropModalCheck
+        isEligible && !hasClaimed && <AirdropModalCheck
           isOpen={isAirdropOpen}
           onOpen={onAirdropOpen}
           onClose={onAirdropClose}

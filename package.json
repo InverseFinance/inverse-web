@@ -42,6 +42,7 @@
     "ganache": "^7.0.3",
     "handy-redis": "^2.2.2",
     "localforage": "^1.10.0",
+    "merkletreejs": "^0.2.32",
     "moment": "^2.29.1",
     "next": "^12.0.7",
     "node-fetch": "^2.6.1",
