@@ -28,8 +28,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [inited, setInited] = useState(false);
     const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
-    const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
-    const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
+    const f2market = markets.length > 0 && !!market ? markets[0] : undefined;    
     const { isOpen: isHealthOpen, onOpen: onHealthOpen, onClose: onHealthClose } = useDisclosure();
 
     useEffect(() => {
@@ -41,10 +40,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     return (
         <Layout>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
-            <F2DbrInfosModal
-                onClose={onDbrClose}
-                isOpen={isDbrOpen}
-            />
             <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
             <ErrorBoundary>
                 {

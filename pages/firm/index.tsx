@@ -6,7 +6,6 @@ import Head from 'next/head'
 import { F2Header } from '@app/components/F2/F2Header'
 import { F2Markets } from '@app/components/F2/F2Markets'
 import { useAccount } from '@app/hooks/misc'
-import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { DbrBar } from '@app/components/F2/Infos/InfoBar'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
@@ -14,18 +13,12 @@ import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 export const F2PAGE = () => {
     const account = useAccount();
     const { debt } = useAccountDBR(account);
-    const { isOpen: isDbrOpen, onOpen: onDbrOpen, onClose: onDbrClose } = useDisclosure();
-    
     return (
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
-            <F2DbrInfosModal
-                onClose={onDbrClose}
-                isOpen={isDbrOpen}
-            />
             <ErrorBoundary>
                 <VStack w='full' maxW="84rem">
                     <ErrorBoundary description="Failed to load header"><F2Header /></ErrorBoundary>

@@ -88,8 +88,6 @@ export const F2FormInfos = (props) => {
         durationType,
         durationTypedValue,
         mode,
-        onHealthOpen = () => { },
-        onDbrOpen = () => { },
     } = props;
 
     const {
