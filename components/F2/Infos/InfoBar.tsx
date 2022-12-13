@@ -109,9 +109,9 @@ export const MarketBar = ({
                 }
             </Link>
         </VStack>
-        {
+        {/* {
             debt > 0 && isLargerThan1000 && loanInfos
-        }
+        } */}
     </>;
 
     return <Container noPadding p="0">
