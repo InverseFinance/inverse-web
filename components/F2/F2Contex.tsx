@@ -12,6 +12,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useAccount } from '@app/hooks/misc'
 import React from 'react'
 import { useRouter } from 'next/router'
+import { useDOLABalance } from '@app/hooks/useDOLA'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -72,6 +73,7 @@ export const F2Context = ({
     const colDecimals = market.underlying.decimals;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
+    const { balance: dolaBalance } = useDOLABalance(account);
 
     const debtAmountNum = parseFloat(debtAmount||'0');
     const collateralAmountNum = parseFloat(collateralAmount||'0');
@@ -241,6 +243,7 @@ export const F2Context = ({
         perc,
         borrowLimit: 100-perc,
         newBorrowLimit: 100-newPerc,
+        dolaBalance,
         setInfoTab,
         setIsWalkthrough,
         setMode,

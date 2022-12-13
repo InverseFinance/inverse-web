@@ -67,6 +67,7 @@ export const F2CombinedForm = ({
         setMode,
         isWalkthrough,
         infoTab,
+        dolaBalance,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
@@ -157,7 +158,11 @@ export const F2CombinedForm = ({
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
             ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
-                <TextInfo message="The more you deposit, the more you can borrow against">
+                <TextInfo message={
+                    isDeposit ?
+                        "The more you deposit, the more you can borrow against"
+                        : "Withdrawing collateral will reduce borrowing power"
+                }>
                     <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {market.underlying.symbol}:</Text>
                 </TextInfo>
                 {
@@ -191,12 +196,25 @@ export const F2CombinedForm = ({
                         description="Can not withdraw when there is a DBR deficit"
                     />
                 }
+                {
+                    !isDeposit && <HStack w='full' justify="space-between">
+                        <AmountInfos
+                            label="Deposits"
+                            value={deposits}
+                            textProps={{ fontSize: '14px' }}
+                        />
+                    </HStack>
+                }
             </VStack>
         }
         {['d&b', 'r&w'].includes(MODES[mode]) && <Divider borderColor="#cccccc66" />}
         {
             ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
-                <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
+                <TextInfo
+                    message={
+                        `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
+                    }
+                >
                     <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA:</Text>
                 </TextInfo>
                 {
@@ -221,12 +239,22 @@ export const F2CombinedForm = ({
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
                                 isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
                             />
-                            {/* <AmountInfos
-                                dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : 0 : 0}
-                                label="Total Debt"
-                                value={debt}
-                                delta={deltaDebt}
-                                textProps={{ fontSize: '14px' }} /> */}
+                            {
+                                !isDeposit && <HStack w='full' justify="space-between">
+                                    <AmountInfos
+                                        dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : 0 : 0}
+                                        label="Debt"
+                                        value={debt}
+                                        delta={deltaDebt}
+                                        textProps={{ fontSize: '14px' }}
+                                    />
+                                    <AmountInfos
+                                        label="DOLA bal."
+                                        value={dolaBalance}
+                                        textProps={{ fontSize: '14px' }}
+                                    />
+                                </HStack>
+                            }
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
