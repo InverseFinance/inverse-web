@@ -18,31 +18,31 @@ import { useEffect, useState } from "react";
 const { DBR } = getNetworkConfigConstants();
 
 export const DbrReplenishmentModal = ({
-    position,
+    userData,
     onClose,
     isOpen,
 }: {
-    position: any,
+    userData: any,
     onClose: () => void,
     isOpen: boolean,
 }) => {
     const { library, account } = useWeb3React();
 
     const [repayAmount, setRepayAmount] = useState('');
-    const [chosenMarket, setChosenMarket] = useState(position.marketPositions?.[0]?.market);
+    const [chosenPosition, setChosenPosition] = useState(userData.marketPositions?.[0]);
     const [dolaReward, setDolaReward] = useState(0);
     const { replenishmentPrice } = useDBRReplenishmentPrice();
 
-    const liveData = useAccountDBR(position.user);
-    const dataSource = !!account && !!liveData ? liveData : position;
+    const liveData = useAccountDBR(userData.user);
+    const dataSource = !!account && !!liveData ? liveData : userData;
     const { signedBalance, debt } = dataSource;
     const deficit = signedBalance < 0 ? Math.abs(signedBalance) : 0;
 
     const { costEth, costUsd } = useTransactionCost(
-        new Contract(chosenMarket?.address, F2_MARKET_ABI, library?.getSigner()),
+        new Contract(chosenPosition?.market?.address, F2_MARKET_ABI, library?.getSigner()),
         'forceReplenish',
         [
-            position.user,
+            userData.user,
             repayAmount ? parseEther(roundFloorString(Math.abs(signedBalance), 18)) : '1',
         ],
     );
@@ -50,20 +50,20 @@ export const DbrReplenishmentModal = ({
     const estimatedProfit = dolaReward - costUsd;
 
     const handleLiquidation = async () => {
-        const deficit = await (new Contract(DBR, DBR_ABI, library?.getSigner())).deficitOf(position.user);
-        return f2replenish(library?.getSigner(), position.user, chosenMarket.address, deficit);
+        const deficit = await (new Contract(DBR, DBR_ABI, library?.getSigner())).deficitOf(userData.user);
+        return f2replenish(library?.getSigner(), userData.user, chosenPosition?.market?.address, deficit);
     }
 
-    const handleMarketSelect = (v) => {        
-        const i = position.marketPositions.findIndex(mp => mp.market.address === v);        
-        setChosenMarket(position.marketPositions?.[i]?.market);
+    const handleMarketSelect = (v) => {
+        const i = userData.marketPositions.findIndex(mp => mp.market.address === v);        
+        setChosenPosition(userData.marketPositions?.[i]);
     }
 
     useEffect(() => {
-        if (!position) { return }
-        const reward = deficit * replenishmentPrice * chosenMarket.replenishmentIncentive;
+        if (!userData) { return }
+        const reward = deficit * replenishmentPrice * chosenPosition?.market.replenishmentIncentive;
         setDolaReward(reward);
-    }, [deficit, position, chosenMarket, replenishmentPrice]);
+    }, [deficit, userData, chosenPosition, replenishmentPrice]);
 
     return <Modal
         header={`Replenishment Form`}
@@ -71,31 +71,35 @@ export const DbrReplenishmentModal = ({
         isOpen={isOpen}
     >
         {
-            !!position &&
+            !!userData &&
             <VStack w='full' p="4">
                 <HStack w='full' justify="space-between">
                     <Text>Borrower:</Text>
-                    <ScannerLink value={position.user} />
+                    <ScannerLink value={userData.user} />
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Market to add cost:</Text>
                     <Select minW='fit-content' maxW='100px' onChange={(e) => handleMarketSelect(e.target.value)}>
-                        {position?.marketPositions?.map(mp => <option value={mp.market.address}>
+                        {userData?.marketPositions?.map(mp => <option value={mp.market.address}>
                             {mp.market.name}
                         </option>)}
                     </Select>
                 </HStack>
                 <Divider />
+                <HStack w='full' justify="space-between">
+                    <Text>Market's Debt:</Text>
+                    <Text fontWeight="bold">{shortenNumber(chosenPosition.debt, 2)} DOLA</Text>
+                </HStack>
                 {
-                    position?.liquidatableDebt !== debt &&
+                    userData?.liquidatableDebt !== debt &&
                     <HStack w='full' justify="space-between">
-                        <Text>Debt:</Text>
-                        <Text fontWeight="bold">{shortenNumber(debt, 2)}</Text>
+                        <Text>Total Debt:</Text>
+                        <Text fontWeight="bold">{shortenNumber(debt, 2)} DOLA</Text>
                     </HStack>
                 }
                 <HStack w='full' justify="space-between">
                     <Text>Replenishment Possible:</Text>
-                    <Text fontWeight="bold">{shortenNumber(deficit, 4, false, true)}</Text>
+                    <Text fontWeight="bold">{shortenNumber(deficit, 4, false, true)} DBR</Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Replenishment Price:</Text>
@@ -107,12 +111,12 @@ export const DbrReplenishmentModal = ({
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Replenishment Incentive:</Text>
-                    <Text fontWeight="bold">{chosenMarket.replenishmentIncentive * 100}%</Text>
+                    <Text fontWeight="bold">{chosenPosition?.market.replenishmentIncentive * 100}%</Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
-                    <Text>DOLA reward for you:</Text>
+                    <Text>Your reward:</Text>
                     <Text fontWeight="bold">
-                        {shortenNumber(dolaReward, 2, false, true)}
+                        {shortenNumber(dolaReward, 2, false, true)} DOLA
                     </Text>
                 </HStack>
                 {

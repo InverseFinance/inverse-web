@@ -110,7 +110,7 @@ export const DbrDeficits = ({
         }
     >
         {
-            !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} position={position} />
+            !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} userData={position} />
         }
         <Table
             keyName="user"
