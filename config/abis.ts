@@ -379,7 +379,7 @@ export const F2_MARKET_ABI = [
   "function deposit(address user, uint amount) public",
   "function borrow(uint amount) public",
   "function withdraw(uint amount) public",
-  "function getLiquidatableDebt(address user) public view returns (uint)",
+  "function liquidationFactorBps() public view returns (uint)",
   "function repay(address user, uint amount) public",
   "function repayAndWithdraw(uint repayAmount, uint withdrawAmount) public",
   "function depositAndBorrow(uint amountDeposit, uint amountBorrow) public",

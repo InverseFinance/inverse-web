@@ -183,16 +183,16 @@ export const useAccountDBRMarket = (
     [market.address, 'escrows', account],
     [market.address, 'getCreditLimit', account],
     [market.address, 'getWithdrawalLimit', account],
-    [market.address, 'debts', account],
-    [market.address, 'getLiquidatableDebt', account],
+    [market.address, 'debts', account],    
   ]);
 
   const { data: balances } = useEtherSWR([
     [market.collateral, 'balanceOf', account],
   ]);
 
-  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt, liquidatableDebtBn] = accountMarketData || [undefined, zero, zero, zero];
+  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
   const [bnCollateralBalance]: BigNumber[] = balances || [zero];
+  const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
@@ -211,7 +211,8 @@ export const useAccountDBRMarket = (
   const debt = bnDebt ? getBnToNumber(bnDebt) : 0;
   const { newPerc: perc, newCreditLeft: creditLeft, newLiquidationPrice: liquidationPrice } = f2CalcNewHealth(market, deposits, debt);  
 
-  const liquidatableDebt = liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0;
+  const liquidatableDebt = creditLimit >= debt ? 0 : debt * market.liquidationFactor;
+  const liquidatableDebtBn = getNumberToBn(liquidatableDebt);
   const seizableWorth = liquidatableDebt + market.liquidationIncentive * liquidatableDebt;
 
   return {
@@ -220,7 +221,7 @@ export const useAccountDBRMarket = (
     escrow,
     deposits,
     bnDeposits,
-    creditLimit: bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0,
+    creditLimit,
     bnCreditLimit,
     withdrawalLimit,
     bnWithdrawalLimit,

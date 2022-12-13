@@ -32,6 +32,7 @@ export default async function handler(req, res) {
       liquidationIncentives,
       borrowControllers,
       borrowPaused,
+      liquidationFactors,
     ] = await Promise.all([
       Promise.all(
         F2_MARKETS.map(m => {
@@ -78,6 +79,12 @@ export default async function handler(req, res) {
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
           return market.borrowPaused();
+        })
+      ),
+      Promise.all(
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return market.liquidationFactorBps();
         })
       ),
     ]); 
@@ -132,6 +139,7 @@ export default async function handler(req, res) {
         bnDolaLiquidity: bnDola[i],
         replenishmentIncentive: getBnToNumber(replenishmentIncentives[i], 4),
         liquidationIncentive: getBnToNumber(liquidationIncentives[i], 4),
+        liquidationFactor: getBnToNumber(liquidationFactors[i], 4),
         borrowController: borrowControllers[i],
         borrowPaused: borrowPaused[i],
         dailyLimit: getBnToNumber(dailyLimits[i]),
