@@ -4,13 +4,11 @@ import { AppNav } from '@app/components/common/Navbar'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, useDisclosure, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
+import { VStack, Text, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { useEffect, useState } from 'react'
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
-import { F2DbrInfosModal } from '@app/components/F2/Modals/F2DbrInfosModal'
-import { F2HealthInfosModal } from '@app/components/F2/Modals/F2HealthInfosModal'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import { MarketBar } from '@app/components/F2/Infos/InfoBar'
 import React from 'react'
@@ -19,7 +17,6 @@ import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContain
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@app/components/common/Messages'
-import { useAccount } from '@app/hooks/misc'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -29,7 +26,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;    
-    const { isOpen: isHealthOpen, onOpen: onHealthOpen, onClose: onHealthClose } = useDisclosure();
 
     useEffect(() => {
         if (inited) { return }
@@ -39,8 +35,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     return (
         <Layout>
-            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
-            <F2HealthInfosModal onClose={onHealthClose} isOpen={isHealthOpen} />
+            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />            
             <ErrorBoundary>
                 {
                     !f2market || !market ? <Text mt="8">

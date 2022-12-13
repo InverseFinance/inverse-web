@@ -409,7 +409,7 @@ export const F2CombinedForm = ({
                     disabledConditions[MODES[mode]] && (!!debtAmount || !!collateralAmount) && newPerc < 1 &&
                     <WarningMessage
                         alertProps={{ w: 'full' }}
-                        description="The resulting Loan Health is too low to proceed"
+                        description="The resulting Borrow Limit is too high"
                     />
                 }
                 {

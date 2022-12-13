@@ -87,12 +87,13 @@ export const F2FormInfos = (props) => {
         maxBorrowable,
         durationType,
         durationTypedValue,
-        mode,
+        mode,        
     } = props;
 
     const {
         infoTab,
         setInfoTab,
+        newBorrowLimit,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
@@ -267,9 +268,9 @@ export const F2FormInfos = (props) => {
         ],
         [
             {
-                tooltip: 'Percentage of the loan covered by the collateral worth (taking into account collateral factor)',
-                title: 'Loan Health',
-                value: !!deposits || !!newDeposits ? `${shortenNumber(newPerc, 2)}%` : '-',
+                tooltip: 'Percentage of the borrow capacity used, should not reach 100%',
+                title: 'Borrow Limit',
+                value: !!deposits || !!newDeposits ? `${shortenNumber(newBorrowLimit, 2)}%` : '-',
                 color: newDeposits > 0 ? riskColor : undefined,
             },
             {

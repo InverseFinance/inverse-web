@@ -78,7 +78,7 @@ export const F2WalkthroughDebt = ({
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' alignItems="flex-start" spaing="0">
-                            <Text>Loan Health is less than 1%</Text>
+                            <Text>Borrow Limit is higher than 99%</Text>
                             <Text>Please borrow less or add more collateral</Text>
                         </VStack>
                     }

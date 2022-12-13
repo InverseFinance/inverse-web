@@ -109,8 +109,8 @@ export const FirmLiquidationModal = ({
                 <Text fontWeight="bold">{preciseCommify(liquidationPrice, 2, true)}</Text>
             </HStack>
             <HStack w='full' justify="space-between">
-                <Text>Loan health:</Text>
-                <Text fontWeight="bold">{shortenNumber(perc, 2)}%</Text>
+                <Text>Borrow limit:</Text>
+                <Text fontWeight="bold">{shortenNumber(100-perc, 2)}%</Text>
             </HStack>
             {
                 liquidatableDebt > 0 && <HStack w='full' justify="space-between">

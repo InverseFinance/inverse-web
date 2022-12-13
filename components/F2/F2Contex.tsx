@@ -239,6 +239,8 @@ export const F2Context = ({
         infoTab,
         liquidationPrice,
         perc,
+        borrowLimit: 100-perc,
+        newBorrowLimit: 100-newPerc,
         setInfoTab,
         setIsWalkthrough,
         setMode,
