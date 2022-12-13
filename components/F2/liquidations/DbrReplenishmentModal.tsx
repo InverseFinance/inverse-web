@@ -2,10 +2,10 @@ import { SubmitButton } from "@app/components/common/Button";
 import { InfoMessage } from "@app/components/common/Messages";
 import { Modal } from "@app/components/common/Modal"
 import ScannerLink from "@app/components/common/ScannerLink";
-import { DBR_ABI, F2_MARKET_ABI } from "@app/config/abis";
+import { F2_MARKET_ABI } from "@app/config/abis";
 import { useAccountDBR, useDBRReplenishmentPrice } from "@app/hooks/useDBR";
 import { useTransactionCost } from "@app/hooks/usePrices";
-import { f2replenish } from "@app/util/f2";
+import { f2replenishAll } from "@app/util/f2";
 import { shortenNumber } from "@app/util/markets";
 import { roundFloorString } from "@app/util/misc";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -14,8 +14,6 @@ import { parseEther } from "@ethersproject/units";
 import { useWeb3React } from "@web3-react/core";
 import { Contract } from "ethers";
 import { useEffect, useState } from "react";
-
-const { DBR } = getNetworkConfigConstants();
 
 export const DbrReplenishmentModal = ({
     userData,
@@ -49,13 +47,12 @@ export const DbrReplenishmentModal = ({
 
     const estimatedProfit = dolaReward - costUsd;
 
-    const handleLiquidation = async () => {
-        const deficit = await (new Contract(DBR, DBR_ABI, library?.getSigner())).deficitOf(userData.user);
-        return f2replenish(library?.getSigner(), userData.user, chosenPosition?.market?.address, deficit);
+    const handleReplenish = async () => {
+        return f2replenishAll(library?.getSigner(), userData.user, chosenPosition?.market?.address);
     }
 
     const handleMarketSelect = (v) => {
-        const i = userData.marketPositions.findIndex(mp => mp.market.address === v);        
+        const i = userData.marketPositions.findIndex(mp => mp.market.address === v);
         setChosenPosition(userData.marketPositions?.[i]);
     }
 
@@ -122,10 +119,9 @@ export const DbrReplenishmentModal = ({
                 {
                     !account && <InfoMessage alertProps={{ w: 'full' }} description="Please connect wallet" />
                 }
-                <SubmitButton refreshOnSuccess={true} onClick={handleLiquidation}>
-                    Replenishment
+                <SubmitButton refreshOnSuccess={true} onClick={handleReplenish}>
+                    Replenish
                 </SubmitButton>
-
                 {
                     !!account &&
                     <VStack pt="4" w='full' alignItems="flex-start">

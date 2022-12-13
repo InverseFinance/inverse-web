@@ -384,6 +384,7 @@ export const F2_MARKET_ABI = [
   "function repayAndWithdraw(uint repayAmount, uint withdrawAmount) public",
   "function depositAndBorrow(uint amountDeposit, uint amountBorrow) public",
   "function forceReplenish(address user, uint amount) public",
+  "function forceReplenishAll(address user) public",
   "function liquidate(address user, uint repaidDebt) public",
   "event Deposit(address indexed account, uint amount)",
   "event Borrow(address indexed account, uint amount)",

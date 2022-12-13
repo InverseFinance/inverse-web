@@ -60,6 +60,11 @@ export const f2replenish = async (signer: JsonRpcSigner, borrower: string, marke
     return contract.forceReplenish(borrower, amount);
 }
 
+export const f2replenishAll = async (signer: JsonRpcSigner, borrower: string, market: string) => {
+    const contract = new Contract(market, F2_MARKET_ABI, signer);    
+    return contract.forceReplenishAll(borrower);
+}
+
 const betweenZeroAnd100 = (v: number) => {
     return Math.min(Math.max(v, 0), 100);
 }
