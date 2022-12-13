@@ -25,10 +25,10 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon }) => {
-            return <Cell minWidth="150px" justify="flex-start" alignItems="center" >                
+            return <Cell minWidth="200px" justify="flex-start" alignItems="center" >                
                 <BigImageButton bg={`url('${marketIcon || icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
                 <CellText>{name}</CellText>
             </Cell>
@@ -65,31 +65,25 @@ const columns = [
             </Cell>
         },
     },
-    {
-        field: 'dolaLiquidity',
-        label: 'Liquidity',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
-        value: ({ dolaLiquidity }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText>{shortenNumber(dolaLiquidity, 2, true)}</CellText>
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'dolaLiquidity',
+    //     label: 'Liquidity',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
+    //     value: ({ dolaLiquidity }) => {
+    //         return <Cell minWidth="100px" justify="center" >
+    //             <CellText>{shortenNumber(dolaLiquidity, 2, true)}</CellText>
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'leftToBorrow',
-        label: "Today's liquidity",
+        label: "Liquidity",
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the remain liquidity left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow, dailyBorrows, dailyLimit }) => {
+        value: ({ leftToBorrow }) => {
             return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0" >
-                {/* <CellText>{dailyLimit > 0 ? shortenNumber(dailyLimit, 2, true) : 'None'}</CellText> */}
-                <CellText>{dailyLimit > 0 ? shortenNumber(leftToBorrow, 2, true) : 'No Daily Limit'}</CellText>
-                {/* {
-                    dailyLimit > 0 && <CellText>                        
-                        {shortenNumber(leftToBorrow, 2, true)}
-                    </CellText>
-                } */}
+                <CellText>{shortenNumber(leftToBorrow, 2, true)}</CellText>
             </Cell>
         },
     },

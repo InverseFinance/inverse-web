@@ -5,11 +5,12 @@ import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getDBRBuyLink, getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { HStack, VStack, Text, FormControl, FormLabel, Switch, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
+import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
 import Container from "@app/components/common/Container"
+import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
 
 const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
@@ -32,13 +33,19 @@ export const MarketBar = ({
         perc,
     } = useContext(F2MarketContext);
 
+    const [liquidity, setLiquidity] = useState(market.dolaLiquidity);
+
     useEffect(() => {
         setEffectEnded(false);
     }, [isWalkthrough])
 
     useDualSpeedEffect(() => {
         setEffectEnded(true);
-    }, [isWalkthrough], !isWalkthrough, 200, 50);
+    }, [isWalkthrough], !isWalkthrough, 200, 50);   
+    
+    useDebouncedEffect(() => {
+        setLiquidity(market.leftToBorrow);
+    }, [market.dolaLiquidity, market.leftToBorrow], 500);
 
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
     const riskColor = getRiskColor(perc);
@@ -123,8 +130,8 @@ export const MarketBar = ({
                                         Paused
                                     </SubTitle>
                                     :
-                                    <SubTitle fontWeight={market.leftToBorrow === 0 ? 'bold' : undefined} color={market.leftToBorrow === 0 ? 'warning' : 'secondaryTextColor'}>
-                                        {market.leftToBorrow ? shortenNumber(market.leftToBorrow, 0, false, true) : 'No'} DOLA borrowable
+                                    <SubTitle fontWeight={liquidity === 0 ? 'bold' : undefined} color={liquidity === 0 ? 'warning' : 'secondaryTextColor'}>
+                                        {liquidity ? shortenNumber(liquidity, 0, false, true) : 'No'} DOLA liquidity
                                     </SubTitle>
                             }
                         </VStack>
