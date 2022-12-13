@@ -231,6 +231,20 @@ export const F2FormInfos = (props) => {
     const positionInfos = [
         [
             {
+                tooltip: 'Percentage of the borrow capacity used, should not reach 100%',
+                title: 'Borrow Limit',
+                value: !!deposits || !!newDeposits ? `${shortenNumber(newBorrowLimit, 2)}%` : '-',
+                color: newDeposits > 0 ? riskColor : undefined,
+            },
+            {
+                tooltip: 'Minimum Collateral Price before liquidations can happen',
+                title: 'Liquidation Price',
+                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
+                color: newDeposits > 0 ? riskColor : undefined,
+            },
+        ],
+        [
+            {
                 tooltip: `Amouunt of Collateral that you are ${isDeposit ? 'depositing' : 'withdrawing'}`,
                 title: isDeposit ? 'Depositing' : 'Withdrawing',
                 value: `${collateralAmount > 0 ? `${shortenNumber(collateralAmount, 4)} ${f2market.underlying.symbol} (${shortenNumber(collateralAmount * f2market.price, 2, true)})` : '-'}`,
@@ -266,40 +280,29 @@ export const F2FormInfos = (props) => {
                 color: newCreditLimit <= 0 && newDeposits > 0 ? 'error' : undefined
             },
         ],
-        [
-            {
-                tooltip: 'Percentage of the borrow capacity used, should not reach 100%',
-                title: 'Borrow Limit',
-                value: !!deposits || !!newDeposits ? `${shortenNumber(newBorrowLimit, 2)}%` : '-',
-                color: newDeposits > 0 ? riskColor : undefined,
-            },
-            {
-                tooltip: 'Minimum Collateral Price before liquidations can happen',
-                title: 'Liquidation Price',
-                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
-                color: newDeposits > 0 ? riskColor : undefined,
-            },
-        ],
     ];
 
     const keyInfos = [
         positionInfos[0],
-        [positionInfos[2][0], dbrInfos[3][1]],
+        dbrInfos[3],
+        // positionInfos[1],
+        positionInfos[2],
+        // [positionInfos[2][0], dbrInfos[3][1]],
         positionInfos[3],
     ];
-    if(isAutoDBR && isDeposit && !!debtAmount && ['Deposit & Borrow', 'Borrow'].includes(mode)){
-        keyInfos.splice(1, 0, dbrInfos[2]);
-    }
-    if(!debtAmount  && !collateralAmount){
-        keyInfos.splice(0, 1);
-    }
-    if(deposits > 0 || debt > 0){
-        keyInfos.splice(1, 0, positionInfos[1]);
-    }
+    // if(isAutoDBR && isDeposit && !!debtAmount && ['Deposit & Borrow', 'Borrow'].includes(mode)){
+    //     keyInfos.splice(1, 0, dbrInfos[2]);
+    // }
+    // if(!debtAmount  && !collateralAmount){
+    //     keyInfos.splice(1, 1);
+    // }
+    // if(deposits > 0 || debt > 0){
+    //     keyInfos.splice(1, 0, positionInfos[1]);
+    // }
 
     const lists = {
         'Summary': keyInfos,
-        'Position Details': positionInfos,
+        // 'Position': positionInfos,
         'DBR Details': dbrInfos,
         'Market Details': marketInfos,
     }
@@ -328,7 +331,7 @@ export const F2FormInfos = (props) => {
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={infoTab}
-            options={['Summary', 'Position Details', 'DBR Details', 'Market Details']}
+            options={['Summary', 'DBR Details', 'Market Details']}
             onClick={(v) => setInfoTab(v)}
         />
         {
