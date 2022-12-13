@@ -275,7 +275,7 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
-                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? newLiquidationPrice >= f2market.price ? 'Instant' : `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
+                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
                 color: newDeposits > 0 ? riskColor : undefined,
             },
         ],
