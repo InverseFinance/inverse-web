@@ -100,7 +100,7 @@ export const DbrReplenishmentModal = ({
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Replenishment Price:</Text>
-                    <Text fontWeight="bold">{shortenNumber(replenishmentPrice, 2)} DOLA</Text>
+                    <Text fontWeight="bold">{shortenNumber(replenishmentPrice, 2)} DOLA per DBR</Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Replenishment Cost to borrower:</Text>
