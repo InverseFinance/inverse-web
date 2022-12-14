@@ -35,7 +35,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                 {left.value}
             </Text>
         </VStack>
-        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={{ base: 'flex-start', sm: 'flex-end' }}>
+        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} pl={{ base: 0, sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={'flex-start'}>
             <TextInfo message={right.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={right.onClick ? 'pointer' : undefined} onClick={right.onClick} >
                     {right.title}:
