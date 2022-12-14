@@ -1,7 +1,7 @@
 import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
-import { parseEther } from '@ethersproject/units'
+import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2repay, f2repayAndWithdraw, f2withdraw, getRiskColor } from '@app/util/f2'
 
@@ -51,6 +51,10 @@ export const F2CombinedForm = ({
         durationTypedValue,
         collateralAmount,
         debtAmount,
+        collateralAmountNum,
+        debtAmountNum,
+        deltaCollateral,
+        deltaDebt,
         isDeposit,
         setIsDeposit,
         isAutoDBR,
@@ -68,26 +72,13 @@ export const F2CombinedForm = ({
         isWalkthrough,
         infoTab,
         dolaBalance,
+        riskColor,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
-    const [isLargerThan] = useMediaQuery('(min-width: 1280px)')
-
-    const deltaCollateral = isDeposit ? collateralAmount : -collateralAmount;
-    const deltaDebt = isDeposit ? debtAmount : -debtAmount;
-
-    const {
-        newDebt
-    } = f2CalcNewHealth(
-        market,
-        deposits,
-        debt,
-        deltaCollateral,
-        deltaDebt,
-        perc,
-    );
+    const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
@@ -105,17 +96,17 @@ export const F2CombinedForm = ({
         //     alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
         // } 
         else if (action === 'deposit') {
-            return f2deposit(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
+            return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
         } else if (action === 'borrow') {
-            return f2borrow(signer, market.address, getNumberToBn(debtAmount));
+            return f2borrow(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'withdraw') {
-            return f2withdraw(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals));
+            return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
         } else if (action === 'repay') {
-            return f2repay(signer, market.address, getNumberToBn(debtAmount));
-        } else if (action === 'd&b' && !isAutoDBR && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
-            return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount));
-        } else if (action === 'r&w' && market.address !== '0xF80d8B7647E7CFd4E47B4C463cb8f2c3A9EfF710') {
-            return f2repayAndWithdraw(signer, market.address, getNumberToBn(debtAmount), getNumberToBn(collateralAmount, market.underlying.decimals));
+            return f2repay(signer, market.address, parseUnits(debtAmount));
+        } else if (action === 'd&b' && !isAutoDBR) {
+            return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
+        } else if (action === 'r&w') {
+            return f2repayAndWithdraw(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
         } else {
             alert('AlphaPhase: Contract is not implemented yet for this action');
         }
@@ -152,8 +143,6 @@ export const F2CombinedForm = ({
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
-    const isFormFilled = true//(!!collateralAmount && !!debtAmount);
-    const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -184,7 +173,7 @@ export const F2CombinedForm = ({
                             hideButtons={true}
                             showBalance={isDeposit}
                             inputRight={<MarketImage pr="2" image={market.icon || market.underlying.image} size={25} />}
-                            isError={isDeposit ? collateralAmount > collateralBalance : collateralAmount > deposits}
+                            isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
                     </>
@@ -237,15 +226,13 @@ export const F2CombinedForm = ({
                                 hideInputIfNoAllowance={false}
                                 hideButtons={true}
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
-                                isError={isDeposit ? debtAmount > 0 && newPerc < 1 : debtAmount > debt}
+                                isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}
                             />
                             {
                                 !isDeposit && <HStack w='full' justify="space-between">
-                                    <AmountInfos
-                                        dbrCover={isAutoDBR ? isDeposit ? dbrCoverDebt : 0 : 0}
+                                    <AmountInfos                                        
                                         label="Debt"
-                                        value={debt}
-                                        delta={deltaDebt}
+                                        value={debt}                                        
                                         textProps={{ fontSize: '14px' }}
                                     />
                                     <AmountInfos
@@ -310,17 +297,17 @@ export const F2CombinedForm = ({
     </VStack>
 
     const disabledConditions = {
-        'deposit': collateralAmount <= 0,
-        'borrow': duration <= 0 || debtAmount <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
-        'repay': debtAmount <= 0 || debtAmount > debt,
-        'withdraw': collateralAmount <= 0 || collateralAmount > deposits || newPerc < 1 || dbrBalance < 0,
+        'deposit': collateralAmountNum <= 0,
+        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
+        'repay': debtAmountNum <= 0 || debtAmountNum > debt,
+        'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
     }
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow']
     disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw']
 
     const actionBtn = <HStack>
         <SimpleAmountForm
-            defaultAmount={collateralAmount?.toString()}
+            defaultAmount={collateralAmount}
             address={isRepayCase ? DOLA : market.collateral}
             destination={market.address}
             signer={signer}
@@ -343,18 +330,6 @@ export const F2CombinedForm = ({
                 fontSize: '18px'
             }} />
     </HStack>
-
-    // const bottomPart = <Stack pt='4' position="relative" alignItems="center" justify="space-between" spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
-    //     <VStack alignItems={{ base: 'center', sm: 'flex-start' }}>
-    //         <TextInfo color="accentTextColor" message="The Fixed Annual Borrowing Rate, directly linked to DBR price">
-    //             <Text color="accentTextColor">Current Fixed APR:</Text>
-    //         </TextInfo>
-    //         <Text color="accentTextColor" fontWeight="extrabold" fontSize="24px">
-    //             {shortenNumber(dbrPrice * 100, 2)}%
-    //         </Text>
-    //     </VStack>
-    //     {actionBtn}
-    // </Stack>
 
     return <Stack
         direction={{ base: 'column', xl: 'row' }}
@@ -388,7 +363,7 @@ export const F2CombinedForm = ({
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && durationPart}
                 </Stack>
                 {
-                    parseFloat(collateralAmount) > collateralBalance && isDeposit &&
+                    collateralAmountNum > collateralBalance && isDeposit &&
                     <InfoMessage
                         alertProps={{ w: 'full' }}
                         description="Not Enough collateral to deposit"
@@ -409,7 +384,6 @@ export const F2CombinedForm = ({
                     mode={mode}
                     newPerc={newPerc}
                     riskColor={riskColor}
-                    isFormFilled={isFormFilled}
                     newLiquidationPrice={newLiquidationPrice}
                     f2market={market}
                     dbrCoverDebt={dbrCoverDebt}
@@ -418,8 +392,8 @@ export const F2CombinedForm = ({
                     dbrPrice={dbrPrice}
                     newDailyDBRBurn={newDailyDBRBurn}
                     newDBRExpiryDate={newDBRExpiryDate}
-                    collateralAmount={hasCollateralChange ? collateralAmount : 0}
-                    debtAmount={hasDebtChange ? isDeposit ? debtAmount : Math.min(debtAmount, debt) : 0}
+                    collateralAmount={hasCollateralChange ? collateralAmountNum : 0}
+                    debtAmount={hasDebtChange ? isDeposit ? debtAmountNum : Math.min(debtAmountNum, debt) : 0}
                     isDeposit={isDeposit}
                     deposits={deposits}
                     debt={debt}
@@ -434,7 +408,7 @@ export const F2CombinedForm = ({
                     durationTypedValue={durationTypedValue}
                 />
                 {
-                    disabledConditions[MODES[mode]] && (!!debtAmount || !!collateralAmount) && newPerc < 1 &&
+                    disabledConditions[MODES[mode]] && (!!debtAmountNum || !!collateralAmountNum) && newPerc < 1 &&
                     <WarningMessage
                         alertProps={{ w: 'full' }}
                         description="The resulting Borrow Limit is too high"

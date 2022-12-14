@@ -10,6 +10,7 @@ import { getNumberToBn } from "@app/util/markets"
 import { SuccessMessage } from "@app/components/common/Messages"
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
+import { parseUnits } from "@ethersproject/units"
 
 export const F2WalkthroughRecap = ({
     onStepChange,
@@ -25,8 +26,10 @@ export const F2WalkthroughRecap = ({
         signer,
         colDecimals,
         collateralAmount,
+        collateralAmountNum,
         duration,
         debtAmount,
+        debtAmountNum,
         isDeposit,
         bnCollateralBalance,
         bnDeposits,
@@ -57,6 +60,8 @@ export const F2WalkthroughRecap = ({
         dbrCoverDebt,
         collateralAmount,
         debtAmount,
+        collateralAmountNum,
+        debtAmountNum,
         duration,
         newDBRExpiryDate,
     }
@@ -65,7 +70,7 @@ export const F2WalkthroughRecap = ({
         if(market.helper) {
             alert('Not implemented yet');
         } else {
-            return f2depositAndBorrow(signer, market.address, getNumberToBn(collateralAmount, market.underlying.decimals), getNumberToBn(debtAmount));
+            return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         }        
     }
 
@@ -79,6 +84,7 @@ export const F2WalkthroughRecap = ({
         return <SuccessMessage
             title="Borrowing complete!"
             alertProps={{ w: 'full' }}
+            iconProps={{ height: 50, width: 50 }}
             description={
                 <Stack direction={{ base: 'column', sm: 'row' }} mt="4">
                     <RSubmitButton onClick={() => router.replace('/firm')}>
@@ -100,17 +106,17 @@ export const F2WalkthroughRecap = ({
             </StepNavBtn>
             <HStack>
             <SimpleAmountForm
-                defaultAmount={collateralAmount?.toString()}
+                defaultAmount={collateralAmount}
                 address={market.collateral}
                 destination={market.address}
                 signer={signer}
                 decimals={colDecimals}
                 maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
-                onAction={({ bnAmount }) => handleAction(bnAmount)}
+                onAction={({ bnAmount }) => handleAction()}
                 onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
                 actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
                 showMaxBtn={false}
-                isDisabled={duration <= 0 || debtAmount <= 0 || collateralAmount <= 0 || !market.leftToBorrow}
+                isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}
                 hideInputIfNoAllowance={false}
                 hideInput={true}
                 hideButtons={false}

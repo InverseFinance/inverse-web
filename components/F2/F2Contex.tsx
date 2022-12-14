@@ -25,8 +25,10 @@ export const F2MarketContext = React.createContext<{
     signer: JsonRpcSigner,
     step: number,
     duration: number,
-    collateralAmount: number,
-    debtAmount: number,
+    collateralAmount: string,
+    debtAmount: string,
+    collateralAmountNum: number,
+    debtAmountNum: number,
     dbrPrice: number,
     isSmallerThan728: boolean,
     isDeposit: boolean,
@@ -160,12 +162,12 @@ export const F2Context = ({
         init();
     }, [market, deposits, debt, debtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
-    const handleCollateralChange = (floatNumber: number) => {
-        setCollateralAmount(floatNumber)
+    const handleCollateralChange = (stringNumber: string, floatNumber: number) => {
+        setCollateralAmount(stringNumber);
     }
 
-    const handleDebtChange = (floatNumber: number) => {
-        setDebtAmount(floatNumber)
+    const handleDebtChange = (stringNumber: string, floatNumber: number) => {
+        setDebtAmount(stringNumber);
     }
 
     const handleDurationChange = (duration: number, typedValue: number, type: string) => {
@@ -187,11 +189,6 @@ export const F2Context = ({
         }
     }, [router])
 
-    const handleAction = (amount: BigNumber) => {
-        if (!library?.getSigner()) { return }
-        alert('Simple-Mode Contract is not implemented yet - Please use Advanced-Mode for now');
-    }
-
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
@@ -205,6 +202,10 @@ export const F2Context = ({
         duration,
         collateralAmount,
         debtAmount,
+        debtAmountNum,
+        collateralAmountNum,
+        deltaCollateral,
+        deltaDebt,
         dbrPrice,
         dbrCoverDebt,
         isSmallerThan728,

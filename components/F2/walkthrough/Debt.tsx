@@ -17,7 +17,7 @@ export const F2WalkthroughDebt = ({
     onChange,
 }: {
     onStepChange: (step: number) => void
-    onChange: (amount: number) => void
+    onChange: (amount: string) => void
 }) => {
     const { themeStyles } = useAppTheme();
     const {
@@ -32,6 +32,7 @@ export const F2WalkthroughDebt = ({
         newPerc,
         dolaToken,
         debtAmount,
+        debtAmountNum,
         dbrCover,
         newLiquidationPrice,
         collateralAmount,
@@ -40,7 +41,7 @@ export const F2WalkthroughDebt = ({
         leftToBorrow,
     } = useContext(F2MarketContext);
 
-    const notEnoughLiq = debtAmount > leftToBorrow && leftToBorrow > 0;
+    const notEnoughLiq = debtAmountNum > leftToBorrow && leftToBorrow > 0;
     const isDisabled = notEnoughLiq || (leftToBorrow === 0)
 
     return <>
@@ -65,7 +66,7 @@ export const F2WalkthroughDebt = ({
                 isDisabled={newPerc < 1}
                 inputProps={{ autoFocus: true, fontSize: '50px', py: '40px', px: '20px' }}
                 inputRight={<MarketImage ml="10px" pr="20px" image={dolaToken.image} size={40} />}
-                isError={debtAmount > maxBorrowable}
+                isError={debtAmountNum > maxBorrowable}
             />
             {/* <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} /> */}
             <InfoMessage
@@ -73,7 +74,7 @@ export const F2WalkthroughDebt = ({
                 description={<Text>Maximum Borrowing Power is <b>{preciseCommify(maxBorrowable, 0)} DOLA</b> with current parameters</Text>}
             />
             {
-                debtAmount > maxBorrowable &&
+                debtAmountNum > maxBorrowable &&
                 <InfoMessage
                     alertProps={{ w: 'full' }}
                     description={
@@ -102,7 +103,7 @@ export const F2WalkthroughDebt = ({
             </StepNavBtn>
             <StepNavBtn 
                 onClick={() => onStepChange(step + 1)}
-                disabled={newPerc < 1 || !debtAmount || isDisabled || !market.leftToBorrow}>
+                disabled={newPerc < 1 || !debtAmountNum || isDisabled || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>

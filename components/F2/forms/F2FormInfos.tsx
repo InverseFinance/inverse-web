@@ -25,7 +25,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
     const [left, right] = infos;
 
     return <Stack py={{ base: '2', sm: '0' }} borderTop={index > 0 ? '1px solid #cccccc66' : undefined} w='full' direction={{ base: 'column', sm: 'row' }} justify="space-between">
-        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={ 'flex-start' }>
+        <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} w={{ base: 'full', sm: '50%' }} spacing="0" alignItems={'flex-start'}>
             <TextInfo message={left.tooltip}>
                 <Text fontSize="18px" color="mainTextColor" cursor={left.onClick ? 'pointer' : undefined} onClick={left.onClick} >
                     {left.title}:
@@ -49,7 +49,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
-    const lastIndex = listInfos.length-1;
+    const lastIndex = listInfos.length - 1;
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
@@ -65,7 +65,6 @@ export const F2FormInfos = (props) => {
     const {
         newPerc,
         riskColor,
-        isFormFilled,
         newLiquidationPrice,
         f2market,
         dbrCoverDebt,
@@ -87,7 +86,7 @@ export const F2FormInfos = (props) => {
         maxBorrowable,
         durationType,
         durationTypedValue,
-        mode,        
+        mode,
     } = props;
 
     const {
@@ -157,7 +156,7 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'The remaining DOLA borrowable today (UTC timezone)',
                 title: 'Remaining Daily Limit',
-                value: f2market.dailyLimit > 0  ? `${shortenNumber(f2market.leftToBorrow, 2, true)}` : 'No daily limit',
+                value: f2market.dailyLimit > 0 ? `${shortenNumber(f2market.leftToBorrow, 2, true)}` : 'No daily limit',
             },
         ],
         [
@@ -287,43 +286,15 @@ export const F2FormInfos = (props) => {
         dbrInfos[3],
         // positionInfos[1],
         positionInfos[2],
-        // [positionInfos[2][0], dbrInfos[3][1]],
         positionInfos[3],
     ];
-    // if(isAutoDBR && isDeposit && !!debtAmount && ['Deposit & Borrow', 'Borrow'].includes(mode)){
-    //     keyInfos.splice(1, 0, dbrInfos[2]);
-    // }
-    // if(!debtAmount  && !collateralAmount){
-    //     keyInfos.splice(1, 1);
-    // }
-    // if(deposits > 0 || debt > 0){
-    //     keyInfos.splice(1, 0, positionInfos[1]);
-    // }
+
 
     const lists = {
         'Summary': keyInfos,
         // 'Position': positionInfos,
         'DBR Details': dbrInfos,
         'Market Details': marketInfos,
-    }
-
-    const recapData = {
-        market: f2market,
-        dbrCover,
-        newLiquidationPrice,
-        durationTypedValue,
-        durationType,
-        dbrPrice,
-        riskColor,
-        newPerc,
-        dbrCoverDebt,
-        collateralAmount,
-        debtAmount,
-        duration,
-        isAutoDBR,
-        isTuto: false,
-        isDeposit,
-        newDBRExpiryDate,
     }
 
     const tabItems = lists[infoTab];
@@ -335,37 +306,19 @@ export const F2FormInfos = (props) => {
             onClick={(v) => setInfoTab(v)}
         />
         {
-            infoTab === 'Recap' ?
-                <VStack
-                    spacing="4"
-                    w='full'
-                    pt='4'
-                    // h='350px'
-                    alignItem="center"
-                    justifyContent='center'
-                    justify='center'
-                >
-                    <RecapInfos
-                        {...recapData}
-                        spacing='4'
-                    />                    
+            !debtAmount && !collateralAmount && !debt ?
+                <VStack pt="4" w='full'>
+                    <InfoMessage
+                        alertProps={{ w: 'full' }}
+                        description={
+                            <VStack alignItems="flex-start">
+                                <Text>You don't have a position yet in this market, the easiest to get started is to use the Walkthrough mode</Text>
+                            </VStack>
+                        }
+                    />
                 </VStack>
-                : 
-                    tabItems.length <= 2 ?
-                    <VStack pt="4" w='full'>
-                            <InfoMessage
-                    alertProps={{ w: 'full' }} 
-                    description={
-                        <VStack alignItems="flex-start">
-                            <Text>You don't have a position yet in this market, the easiest to get started is to use the Walkthrough mode</Text>
-                        </VStack>
-                    }
-                     />
-                        </VStack>
-                    :
-                    <ListInfos listInfos={tabItems} />
-
-                
+                :
+                <ListInfos listInfos={tabItems} />
         }
     </VStack>
 }

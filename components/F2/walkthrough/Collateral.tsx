@@ -18,7 +18,7 @@ export const F2WalkthroughCollateral = ({
     onChange,
 }: {
     onStepChange: (step: number) => void
-    onChange: (amount: number) => void
+    onChange: (amount: string) => void
 }) => {
     const router = useRouter();
     const { themeStyles } = useAppTheme();
@@ -29,6 +29,7 @@ export const F2WalkthroughCollateral = ({
         colDecimals,
         isDeposit,
         collateralAmount,
+        collateralAmountNum,
         collateralBalance,
         bnDeposits,
         bnCollateralBalance,
@@ -38,7 +39,7 @@ export const F2WalkthroughCollateral = ({
         maxBorrowable,
     } = useContext(F2MarketContext);
 
-    const isNotEnoughBalance = collateralAmount > collateralBalance;
+    const isNotEnoughBalance = collateralAmountNum > collateralBalance;
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
@@ -95,7 +96,7 @@ export const F2WalkthroughCollateral = ({
             </StepNavBtn>
             <StepNavBtn
                 onClick={() => onStepChange(step + 1)}
-                disabled={collateralAmount <= 0 || collateralAmount > collateralBalance || !market.leftToBorrow}>
+                disabled={collateralAmountNum <= 0 || collateralAmountNum > collateralBalance || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>

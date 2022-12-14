@@ -1,4 +1,3 @@
-import { SubmitButton } from "@app/components/common/Button"
 import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
@@ -30,7 +29,7 @@ export const F2WalkthroughDuration = ({
         duration,
         newCreditLeft,
         maxBorrowable,
-        dbrCover,        
+        dbrCover,
         dbrCoverDebt,
         dbrPrice,
         dbrBalance,
@@ -56,7 +55,7 @@ export const F2WalkthroughDuration = ({
             />
             {/* <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} /> */}
             <InfoMessage
-                alertProps={{ w: 'full' }}
+                alertProps={{ w: 'full' }}                
                 description={
                     !!market.helper ?
                         <VStack alignItems="flex-start">
@@ -65,15 +64,17 @@ export const F2WalkthroughDuration = ({
                         </VStack>
                         :
                         <VStack alignItems="flex-start">
-                            <Text><b>{shortenNumber(dbrCover, 2)} DBRs</b> will be spent over time from your wallet to cover the loan duration.</Text>                            
-                            <Text>You can have the full amount up-front or top-up your DBRs regularly.</Text>                      
+                            <Text><b>{shortenNumber(dbrCover, 2)} DBRs</b> will be spent over time from your wallet to cover the loan duration.</Text>
+                            <Text>You can have the full amount up-front or top-up your DBRs regularly.</Text>
                             {
-                                dbrBalance > 0 ? <Text>Your current DBR balance is {shortenNumber(dbrBalance, 2)}.</Text>
-                                :
-                                <Text fontWeight="bold" color="warning">You don't have any DBRs in your wallet.<br />Please have at least part of the DBR cost in your wallet to start with.</Text>
+                                dbrBalance > 0 ? <Text>
+                                    <b>Your current DBR balance is {shortenNumber(dbrBalance, 2)}</b>, {dbrBalance < dbrCover ? "which is lower than what's required for the chosen loan duration, you can continue but we recommend you to get more DBRs." : "which is enough to cover the loan duration."}
+                                </Text>
+                                    :
+                                    <Text fontWeight="bold" color="warning">You don't have any DBRs in your wallet.<br />Please have at least part of the DBR cost in your wallet to start with.</Text>
                             }
                             {
-                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={getDBRBuyLink()}>Buy {dbrBalance > 0 ? ' more ':''} DBR</Link>
+                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={getDBRBuyLink()}>Buy {dbrBalance > 0 ? ' more ' : ''} DBR</Link>
                             }
                         </VStack>
                 }
@@ -83,7 +84,7 @@ export const F2WalkthroughDuration = ({
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={duration <= 0 || !dbrBalance}>
+            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={duration <= 0 || dbrBalance <= 0}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>

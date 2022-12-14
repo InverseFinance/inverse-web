@@ -16,8 +16,10 @@ export const RecapInfos = ({
     riskColor,
     newPerc,
     dbrCoverDebt,
+    collateralAmountNum,
     collateralAmount,
     debtAmount,
+    debtAmountNum,
     duration,
     isAutoDBR = true,
     isTuto = true,
@@ -43,7 +45,7 @@ export const RecapInfos = ({
     const dbrRiskColor = getDBRRiskColor(newDBRExpiryDate, now);
     const fontSize = isTuto ? { base: '12px', sm: '14px', md: '20px' } : { base: '12px', sm: '14px' };
     const hasHelper = !!market?.helper;
-    const worth = collateralAmount * market.price * market.collateralFactor;
+    const worth = collateralAmountNum * market.price * market.collateralFactor;
 
     return <VStack w='full' alignItems="flex-start" spacing="2" {...props}>
         {/* {
@@ -54,16 +56,16 @@ export const RecapInfos = ({
             </>
         } */}
         {
-            !!collateralAmount && <TextInfo message="The more you deposit the more you can borrow">
-                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmount, 2)} {market.underlying.symbol} ({shortenNumber(collateralAmount * market.price, 2, true)})</b></Text>
+            !!collateralAmountNum && <TextInfo message="The more you deposit the more you can borrow">
+                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 2)} {market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
             </TextInfo>
         }
         <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
             <Text fontSize={fontSize}>With the collateral factor of {shortenNumber(market.collateralFactor*100, 0)}% your deposit is worth {shortenNumber(worth, 2, true)}</Text>
         </TextInfo>
         {
-            !!debtAmount && <TextInfo message="The amount of DOLA you will receive">
-                <Text fontSize={fontSize}>You will {debtWording} <b>{shortenNumber(debtAmount, 2)} DOLA</b></Text>
+            !!debtAmountNum && <TextInfo message="The amount of DOLA you will receive">
+                <Text fontSize={fontSize}>You will {debtWording} <b>{shortenNumber(debtAmountNum, 2)} DOLA</b></Text>
             </TextInfo>
         }
         {
@@ -78,7 +80,7 @@ export const RecapInfos = ({
         }
         {
             isAutoDBR && hasHelper && <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
-                <Text fontSize={fontSize}>Your total loan amount including DBR will be <b>{shortenNumber(debtAmount + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
+                <Text fontSize={fontSize}>Your total loan amount including DBR will be <b>{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
             </TextInfo>
         }
         {

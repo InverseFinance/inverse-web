@@ -55,7 +55,7 @@ type ActionProps = Props & {
 export type SimpleAmountFormProps = Props & {
     onAction: (p: ActionProps) => void
     onMaxAction: (p: ActionProps) => void
-    onAmountChange?: (v: number) => void
+    onAmountChange?: (v: string, s: number) => void
 }
 
 const zeroBn = BigNumber.from('0');
@@ -101,6 +101,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
+
     const balanceBn = balances && balances[address] ? balances[address] : zeroBn;
     const balance = getBnToNumber(balanceBn, decimals);
     const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
@@ -119,13 +120,13 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }, [approvals, address, freshTokenApproved]);
 
     const setToMaxDeposit = () => {
-        const max = formatUnits(maxBn[0], decimals);
+        const max = formatUnits(maxBn[0], decimals);        
         setAmount(max);
         handleChange(max);
     }
 
     const handleAction = (isMax = false) => {
-        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(amount, decimals) || '0'), decimals);
+        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(amount, decimals) || '0'), decimals);        
         const params = {
             bnAmount,
             floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,
@@ -136,11 +137,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }
 
     const handleChange = (value: string) => {
-        const num = value.replace(/[^0-9.]/, '')
-        setAmount(num);
-        if (onAmountChange && !num.endsWith('.')) {
-            const floatAmount = parseFloat(num) || 0;
-            onAmountChange(floatAmount);
+        const stringAmount = value.replace(/[^0-9.]/, '')
+        setAmount(stringAmount);
+        if (onAmountChange && !stringAmount.endsWith('.')) {
+            const floatAmount = parseFloat(stringAmount) || 0;
+            onAmountChange(stringAmount, floatAmount);
         }
     }
 
