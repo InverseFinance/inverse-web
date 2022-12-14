@@ -64,7 +64,8 @@ export const F2WalkthroughCollateral = ({
             }
             <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
                 <Text color="secondaryTextColor">{market.underlying.symbol} Oracle Price: {preciseCommify(market.price, 2, true)}</Text>
-                <Text color="secondaryTextColor">Collateral Factor: {preciseCommify(market.collateralFactor*100, 2)}%</Text>
+                <Text color="secondaryTextColor">Deposit Worth: {preciseCommify(market.price * collateralAmountNum, 2, true)}</Text>
+                {/* <Text color="secondaryTextColor">Collateral Factor: {preciseCommify(market.collateralFactor*100, 2)}%</Text> */}
             </Stack>
             {
                 !market.helper &&
