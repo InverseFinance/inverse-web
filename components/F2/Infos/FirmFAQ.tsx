@@ -31,7 +31,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'How can I get DBR tokens?',
-                    body: `You can get DBRs as a part of the borrowing transaction when using the auto-buy or walkthrough feature. DBR is also available on sushiswap.`
+                    body: `Either via the airdrop if you're eligible or on Balancer. In the future an auto-buy DBR feature will be available.`
                 },
                 {
                     title: 'Do I need to stake DBR?',
@@ -44,6 +44,10 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 {
                     title: 'What happens if I run out of DBRs?',
                     body: `If you have a DBR deficit and an active loan then someone can top-up your DBR balance, purchasing DBR at a higher price than the current DBR market price. The cost of this forced top-up is added to your debt which can lead to liquidations if left unchecked, so it is recommended that you top up your DBR wallet balance yourself before it runs out.`
+                },
+                {
+                    title: 'Can I borrow DOLA with my INV tokens?',
+                    body: `Not at the moment but the INV market will be added soon.`
                 },
             ]
         }
