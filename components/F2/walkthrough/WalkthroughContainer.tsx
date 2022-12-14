@@ -1,5 +1,4 @@
 import { VStack, FlexProps } from '@chakra-ui/react'
-import Container from '@app/components/common/Container'
 
 import { F2Market } from '@app/types'
 import { useContext } from 'react'
@@ -33,24 +32,21 @@ export const F2Walkthrough = ({
     } = useContext(F2MarketContext);
 
     const steps = !!market?.helper ? STEPS : STEPS_NO_HELPER;
-    const stepCase = steps[step-1];
+    const stepCase = steps[step - 1];
 
     return <VStack
-        noPadding
         p="0"
         m="0"
-        w='full'        
+        w='full'
         {...props}
-    >
+    >        
         {
             !!market && <VStack justify="space-between" position="relative" w='full' pb="2" alignItems="flex-start" spacing="6">
-                {
-                    step > 0 && <StepsBar
-                        step={step}
-                        steps={steps}
-                        onStepChange={handleStepChange}
-                    />
-                }
+                <StepsBar
+                    step={step}
+                    steps={steps}
+                    onStepChange={handleStepChange}
+                />
                 {
                     stepCase === 'Deposit' && <F2WalkthroughCollateral onStepChange={handleStepChange} onChange={handleCollateralChange} />
                 }
@@ -64,7 +60,7 @@ export const F2Walkthrough = ({
                     stepCase === 'Recap' && <F2WalkthroughRecap onStepChange={handleStepChange} />
                 }
                 {
-                    !market.dolaLiquidity && <WarningMessage alertProps={{w:'full'}} description="No DOLA liquidity at the moment" />
+                    !market.dolaLiquidity && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
                 }
             </VStack>
         }

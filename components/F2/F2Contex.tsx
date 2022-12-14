@@ -58,7 +58,7 @@ export const F2Context = ({
     const router = useRouter();    
     const { library } = useWeb3React();
     const account = useAccount();
-    const [step, setStep] = useState(0);
+    const [step, setStep] = useState(1);
     const [duration, setDuration] = useState(365);
     const [durationType, setDurationType] = useState('months');
     const [durationTypedValue, setDurationTypedValue] = useState(12);
@@ -182,12 +182,19 @@ export const F2Context = ({
 
     useEffect(() => {
         const stepString = location.hash.replace(/#step/, '');
-        if (stepString && !isNaN(parseInt(stepString))) {
-            setStep(parseInt(stepString));
-        } else if (step !== 0) {
-            setStep(0);
+        if(!isWalkthrough) { return }
+        if(!collateralAmount && parseInt(stepString) !== 1){
+            console.log('here')
+            setStep(1);            
+            router.replace({ hash: `step1`, query: { market: router.query.market } });
+        } else {        
+            if (stepString && !isNaN(parseInt(stepString))) {
+                setStep(parseInt(stepString));
+            } else if (step !== 1) {
+                setStep(1);
+            }
         }
-    }, [router])
+    }, [router, collateralAmount, isWalkthrough])
 
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
