@@ -8,13 +8,13 @@ const tabs = [
     { page: 'treasury', label: 'Treasury' },
     { page: 'dao', label: 'DAO' },
     { page: 'inv', label: 'INV' },
-    { page: 'dola', label: 'DOLA & the Feds' },
+    // { page: 'dola', label: 'DOLA & the Feds' },
     { page: 'feds', label: 'Feds' },
-    { page: 'interest-model', label: 'Interest Rates' },
+    // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
-    { page: 'shortfalls', label: 'Shortfalls' },
-    { page: 'liquidations', label: 'Liquidations' },    
+    { page: 'shortfalls', label: 'Frontier Shortfalls' },
+    { page: 'liquidations', label: 'Frontier Liquidations' },    
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {
