@@ -260,6 +260,37 @@ export const DbrBar = ({
     </VStack>
 }
 
+const BarBlock = ({
+    isLargerThan,
+    imgSrc,
+    price,
+    href,
+    vstackProps,
+}: {
+    isLargerThan: boolean,
+    imgSrc: string,
+    price: number,
+    href: string,
+    vstackProps?: StackProps,
+}) => {
+    return <HStack spacing="4">
+        {
+            isLargerThan && <Link href={href} isExternal target='_blank'>
+                <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
+            </Link>
+        }
+        <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
+            <Link fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
+                Buy DBR
+            </Link>
+
+            <Link textAlign="left" href={href} isExternal target='_blank'>
+                {shortenNumber(price, 2, true)}
+            </Link>
+        </VStack>
+    </HStack>
+}
+
 export const FirmBar = ({
     ...props
 }: {
@@ -270,58 +301,13 @@ export const FirmBar = ({
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
 
-    const dbrPriceInfos = <VStack spacing="1" alignItems="flex-start">
-        <Title>
-            DBR Price
-        </Title>
-
-        <Link textAlign="left" href={getDBRBuyLink()} isExternal target='_blank'>
-            {shortenNumber(dbrPrice, 2, true)}
-        </Link>
-    </VStack>
-
-    const dolaPriceInfos = <VStack spacing="1" alignItems={{ base: 'center', md: 'flex-start' }}>
-        <Title>
-            DOLA Price
-        </Title>
-
-        <Link href={'/swap'} isExternal target='_blank'>
-            {shortenNumber(prices?.['dola-usd']?.usd, 2, true)}
-        </Link>
-    </VStack>
-
-    const invPriceInfos = <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'flex-start' }}>
-        <Title>
-            INV Price
-        </Title>
-
-        <Link href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} isExternal target='_blank'>
-            {shortenNumber(prices?.['inverse-finance']?.usd, 2, true)}
-        </Link>
-    </VStack>
-
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
-                <HStack spacing="4" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    {
-                        isLargerThan && <MarketImage image={`/assets/v2/dbr-512.jpg`} size={40} imgProps={{ borderRadius: '100px' }} />
-                    }
-                    {
-                        dbrPriceInfos
-                    }
-                    {
-                        isLargerThan && <MarketImage image={`/assets/v2/dola-512.jpg`} size={40} imgProps={{ borderRadius: '100px' }} />
-                    }
-                    {
-                        dolaPriceInfos
-                    }
-                    {
-                        isLargerThan && <MarketImage image={`/assets/inv-square-dark.jpeg`} size={40} imgProps={{ borderRadius: '100px' }} />
-                    }
-                    {
-                        invPriceInfos
-                    }
+                <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
+                    <BarBlock isLargerThan={isLargerThan} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr-512.jpg`} />
+                    <BarBlock isLargerThan={isLargerThan} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
+                    <BarBlock isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems:{ base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
