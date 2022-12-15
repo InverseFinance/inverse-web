@@ -12,6 +12,7 @@ import { StepNavBtn } from "./StepNavBtn"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 import { shortenNumber } from "@app/util/markets"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
+import { PercentagesOfMax } from "../forms/PercentagesOfMax"
 
 export const F2WalkthroughDebt = ({
     onStepChange,
@@ -49,10 +50,6 @@ export const F2WalkthroughDebt = ({
     const notEnoughLiq = debtAmountNum > leftToBorrow && leftToBorrow > 0;
     const isDisabled = notEnoughLiq || (leftToBorrow === 0)
 
-    const quarterMax = Math.floor(0.25 * maxBorrow);
-    const halfMax = Math.floor(0.50 * maxBorrow);
-    const threeQuarterMax = Math.floor(0.75 * maxBorrow);
-
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
             <TextInfo message="The amount of DOLA stablecoin you wish to borrow">
@@ -78,12 +75,7 @@ export const F2WalkthroughDebt = ({
                 isError={debtAmountNum > maxBorrowable}
             />
             {/* <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} /> */}
-            <HStack w='full' justify="space-between">
-                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~25%`} format={false} value={quarterMax} textProps={{ fontSize: '14px', onClick: () => onChange(quarterMax.toFixed(0)) }} />
-                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~50%`} format={false} value={halfMax} textProps={{ fontSize: '14px', onClick: () => onChange(halfMax.toFixed(0)) }} />
-                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~75%`} format={false} value={threeQuarterMax} textProps={{ fontSize: '14px', onClick: () => onChange(threeQuarterMax.toFixed(0)) }} />
-                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~99%`} format={false} value={maxBorrowable} textProps={{ fontSize: '14px', onClick: () => onChange(maxBorrowable.toFixed(0)) }} />
-            </HStack>
+            <PercentagesOfMax max={maxBorrow} usableMax={maxBorrowable} isSmallerThan728={isSmallerThan728} onChange={onChange} />
             <InfoMessage
                 alertProps={{ w: 'full' }}
                 description={<Text>Maximum Borrowing Power is <b>~{preciseCommify(maxBorrow, 0)} DOLA</b> with current parameters.</Text>}
