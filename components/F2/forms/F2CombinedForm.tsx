@@ -219,7 +219,7 @@ export const F2CombinedForm = ({
                                 address={market.collateral}
                                 destination={market.address}
                                 signer={signer}
-                                decimals={colDecimals}
+                                decimals={18}
                                 maxAmountFrom={isDeposit ? [bnLeftToBorrow, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
                                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
@@ -241,7 +241,7 @@ export const F2CombinedForm = ({
                                         textProps={{
                                             cursor: 'pointer',
                                             fontSize: '14px',
-                                            onClick: () => handleDebtChange(formatUnits(bnDebt, market.underlying.decimals))
+                                            onClick: () => handleDebtChange(formatUnits(bnDebt, 18))
                                         }}
                                     />
                                     <AmountInfos

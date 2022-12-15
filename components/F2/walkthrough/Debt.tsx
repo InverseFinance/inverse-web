@@ -25,8 +25,7 @@ export const F2WalkthroughDebt = ({
     const {
         step,
         market,
-        signer,
-        colDecimals,
+        signer,    
         isDeposit,
         dolaLiquidity,
         newCreditLimit,
@@ -62,7 +61,7 @@ export const F2WalkthroughDebt = ({
                 address={market.collateral}
                 destination={market.address}
                 signer={signer}
-                decimals={colDecimals}
+                decimals={18}
                 maxAmountFrom={isDeposit ? [bnDolaLiquidity, parseEther((newCreditLimit * 0.99).toFixed(0))] : []}
                 onAmountChange={onChange}
                 showMax={false}
