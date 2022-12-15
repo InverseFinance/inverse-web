@@ -10,13 +10,11 @@ export default function BlogFooter({ includeNewsletter = true }) {
   // translateY is to hide substack mention
   return (
     <Flex direction="column" as="footer" alignItems="center" justifyContent="center">
-      { includeNewsletter && <Newsletter /> }
+      {includeNewsletter && <Newsletter />}
       <Box w='full' alignItems="center" justifyContent="center" bgColor={
         themeName === 'dark' ? BLOG_THEME.colors.secondaryTextColor : undefined
       }>
-        <Container>
-          <Footer />
-        </Container>
+        <Footer />
       </Box>
     </Flex>
   )

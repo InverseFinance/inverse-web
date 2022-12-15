@@ -4,7 +4,7 @@ import Link from '@app/components/common/Link'
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { lightTheme } from '@app/variables/theme';
 import { LandingOutlineButton } from '../Button/RSubmitButton';
-import { smallerSize2, smallerSize3, smallerSize4 } from '@app/variables/responsive';
+import { smallerSize2, smallerSize3, smallerSize4, smallerSize5 } from '@app/variables/responsive';
 
 const SOCIALS = MENUS.socials;
 
@@ -49,7 +49,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
       zIndex="0"
     >
       {LINK_GROUPS.map(({ groupLabel, items }) => (
-        <Stack key={groupLabel} w={{ base: 24, '2xl': 48 }} spacing="1">
+        <Stack mt={{ base: '4', sm: '0' }} key={groupLabel} w={{ base: 28, '2xl': 48 }} spacing="1">
           <Text fontSize={smallerSize3} fontWeight="bold" color={textColor}>{groupLabel}</Text>
           {items.map(({ label, href }, i) => (
             <Link
@@ -57,7 +57,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
               color={secTextColor}
               key={i}
               href={href}
-              fontSize={smallerSize4}
+              fontSize={smallerSize5}
               as="a"
             >
               {label}
