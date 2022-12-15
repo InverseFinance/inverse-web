@@ -86,6 +86,11 @@ export const DOLA_ABI = ERC20_ABI.concat([
   "function operator() public view returns(address)",
 ])
 
+export const WETH_ABI = ERC20_ABI.concat([
+  "function deposit() public payable",
+  "function withdraw(uint) public",
+])
+
 export const FAUCET_ABI = [
   // will depend on contract
 ];
