@@ -314,7 +314,7 @@ export const F2FormInfos = (props) => {
                         alertProps={{ w: 'full' }}
                         description={
                             <VStack alignItems="flex-start">
-                                <Text>You don't have a position yet in this market, the easiest to get started is to use the Walkthrough mode</Text>
+                                <Text>You don't have a position in this market yet, the easiest to get started is to use the Walkthrough mode</Text>
                             </VStack>
                         }
                     />
