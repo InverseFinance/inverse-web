@@ -48,7 +48,7 @@ export const F2Header = ({
   const { debt } = useAccountDBR(account);
 
   const getStarted = () => {
-    router.push(debt > 0 ? 'firm/WETH DBRv2' : 'firm/WETH DBRv2#step1')
+    router.push(debt > 0 ? 'firm/WETH' : 'firm/WETH#step1')
   }
 
   // const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
@@ -119,8 +119,8 @@ export const F2Header = ({
               subtitle={`${apy}% APY`}
             /> */}
             <AnchorBigButton
-              // onClick={() => router.push('https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38/edit')}
-              onClick={() => onIntroOpen()}
+              onClick={() => router.push('https://docs.inverse.finance/inverse-finance/firm')}
+              // onClick={() => onIntroOpen()}
               bg="url('/assets/stake-inv.png')"
               title="FiRM & DBR"
               subtitle={`Learn More`}

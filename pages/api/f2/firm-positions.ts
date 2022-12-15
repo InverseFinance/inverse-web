@@ -9,8 +9,8 @@ import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.4'
-export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.9'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.5'
+export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export default async function handler(req, res) {  
   const isShortfallOnly = req.query?.shortfallOnly === 'true';

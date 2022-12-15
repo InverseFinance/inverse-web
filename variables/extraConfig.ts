@@ -23,9 +23,19 @@ const mainConfig = {
     disperseApp: '0xD152f549545093347A162Dce210e7293f1452150',
     debtRepayer: '0x9eb6BF2E582279cfC1988d3F2043Ff4DF18fa6A0',
     debtConverter: '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A',
-    dbr: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
-    f2Oracle: '0x20534D6A84C08e86B7700FE943880f30a6A36189',
-    f2markets: [],
+    dbrAirdrop: '0x80819e03829A71FeE5fDcA95acbC006e2eBF91F0',
+    dbr: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
+    f2Oracle: '0xaBe146CF570FD27ddD985895ce9B138a7110cce8',
+    f2controller: '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D',
+    f2markets: [
+        {
+            name: 'WETH',
+            collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+            address: '0x63Df5e23Db45a2066508318f172bA45B9CD37035',
+            icon: '/assets/projects/Ether.png',
+            helper: '',
+        },
+    ],
     feds: [
         { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
         { chainId: NetworkIds.mainnet, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
@@ -33,7 +43,7 @@ const mainConfig = {
         { chainId: NetworkIds.mainnet, address: '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C', name: '0xb1 Fed', projectImage: 'https://unavatar.io/twitter/0x_b1' },
         { chainId: NetworkIds.mainnet, address: '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36', name: 'Fuse24 Fed', projectImage: '/assets/projects/Fuse.png' },
         { chainId: NetworkIds.mainnet, address: '0xcc180262347F84544c3a4854b87C34117ACADf94', name: 'Yearn Fed', projectImage: '/assets/projects/YFI.svg' },
-        { chainId: NetworkIds.mainnet, address: '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb', oldAddress: '0x57d59a73cdc15fe717d2f1d433290197732659e2', name: 'Convex Fed', projectImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328', supplyFuncName: 'dolaSupply' },        
+        { chainId: NetworkIds.mainnet, address: '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb', oldAddress: '0x57d59a73cdc15fe717d2f1d433290197732659e2', name: 'Convex Fed', projectImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328', supplyFuncName: 'dolaSupply' },
         { chainId: NetworkIds.ftm, isXchain: true, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
         { chainId: NetworkIds.mainnet, address: '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d', name: 'Velo Fed', projectImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png', supplyFuncName: 'dolaSupply', revenueChain: NetworkIds.optimism, revenueSrcAd: '0xFED67cC40E9C5934F157221169d772B328cb138E', revenueTargetAd: '0xa283139017a2f5BAdE8d8e25412C600055D318F8' },
         { chainId: NetworkIds.mainnet, address: '0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364', name: 'Aura Fed', projectImage: 'https://assets.coingecko.com/coins/images/25942/small/logo.png', supplyFuncName: 'dolaSupply' },
@@ -129,9 +139,9 @@ export const EXTRA_CONFIG = {
         ...mainConfig,
         dbrAirdrop: '0x80819e03829A71FeE5fDcA95acbC006e2eBF91F0',
         dbr: '0x7F51228934F1E8a5f09C4dBC1E249Cf6581976f2',
-        f2Oracle: '0x214c60045e8d1D79c1Cb5C8053EcB27393DC4C78',        
+        f2Oracle: '0x214c60045e8d1D79c1Cb5C8053EcB27393DC4C78',
         f2controller: '0x5efE6C540fA6495DCD129c34a019f9E6C31a81fB',
-        f2markets: [            
+        f2markets: [
             {
                 name: 'WETH',
                 // collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -141,12 +151,12 @@ export const EXTRA_CONFIG = {
                 helper: '',
             },
             {
-                name: 'WBTC',                
+                name: 'WBTC',
                 collateral: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
                 address: '0x1A0A98db3D0A1fa19dA3b833f4feCc987e0bb296',
                 icon: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png',
                 helper: '',
             },
-    ],
+        ],
     }
 }
