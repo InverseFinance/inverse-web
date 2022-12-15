@@ -136,7 +136,8 @@ export const F2Context = ({
             setIsDeposit(true);
             // setIsAutoDBR(true);
             setMode('Deposit & Borrow');
-            setStep(1);
+            setStep(1);            
+            handleDebtChange('');
         }
     }, [isWalkthrough]);
 
@@ -162,11 +163,11 @@ export const F2Context = ({
         init();
     }, [market, deposits, debt, debtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
-    const handleCollateralChange = (stringNumber: string, floatNumber: number) => {
+    const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
     }
 
-    const handleDebtChange = (stringNumber: string, floatNumber: number) => {
+    const handleDebtChange = (stringNumber: string) => {
         setDebtAmount(stringNumber);
     }
 
@@ -183,8 +184,7 @@ export const F2Context = ({
     useEffect(() => {
         const stepString = location.hash.replace(/#step/, '');
         if(!isWalkthrough) { return }
-        if(!collateralAmount && parseInt(stepString) !== 1){
-            console.log('here')
+        if(!collateralAmount && parseInt(stepString) !== 1){            
             setStep(1);            
             router.replace({ hash: `step1`, query: { market: router.query.market } });
         } else {        
@@ -239,6 +239,9 @@ export const F2Context = ({
         newLiquidationPrice,
         newTotalDebt,
         newCreditLeft,
+        // 100% max
+        maxBorrow,
+        // 99% max
         maxBorrowable,
         newDBRExpiryDate,
         isAutoDBR,

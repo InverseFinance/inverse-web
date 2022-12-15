@@ -37,6 +37,7 @@ export const F2WalkthroughCollateral = ({
         deposits,
         bnWithdrawalLimit,
         maxBorrowable,
+        maxBorrow,
     } = useContext(F2MarketContext);
 
     const isNotEnoughBalance = collateralAmountNum > collateralBalance;
@@ -73,7 +74,7 @@ export const F2WalkthroughCollateral = ({
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack alignItems="flex-start">
-                            <Text>Maximum Borrowing Power will be <b>{preciseCommify(maxBorrowable, 0)} DOLA</b></Text>
+                            <Text>Maximum Borrowing Power will be <b>~{preciseCommify(maxBorrow, 0)} DOLA</b></Text>
                         </VStack>
                     }
                 />

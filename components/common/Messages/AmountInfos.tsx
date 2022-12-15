@@ -20,6 +20,11 @@ export const AmountInfos = ({
     textProps?: Partial<TextProps>
 } & Partial<StackProps>) => {
     const _textProps = { fontSize: { base: '11px', sm: '13px', md: '14px' }, color: 'secondaryTextColor', ...textProps }
+    if(textProps?.onClick){
+        // _textProps.textDecoration = 'underline'
+        _textProps.cursor = 'pointer';
+        _textProps._hover = { filter: 'brightness(1.5)' };
+    }
     const formatFun = format ? shortenNumber : (v) => v;
     const deltaSign = (delta || 0) > 0 ? '+' : '-';
     const newValue = value + (delta || 0);

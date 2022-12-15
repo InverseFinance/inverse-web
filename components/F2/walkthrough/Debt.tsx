@@ -11,6 +11,7 @@ import { preciseCommify } from "@app/util/misc"
 import { StepNavBtn } from "./StepNavBtn"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 import { shortenNumber } from "@app/util/markets"
+import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 
 export const F2WalkthroughDebt = ({
     onStepChange,
@@ -37,12 +38,20 @@ export const F2WalkthroughDebt = ({
         newLiquidationPrice,
         collateralAmount,
         newCreditLeft,
+        // 99%
         maxBorrowable,
+        // 100%
+        maxBorrow,
         leftToBorrow,
+        isSmallerThan728,
     } = useContext(F2MarketContext);
 
     const notEnoughLiq = debtAmountNum > leftToBorrow && leftToBorrow > 0;
     const isDisabled = notEnoughLiq || (leftToBorrow === 0)
+
+    const quarterMax = Math.floor(0.25 * maxBorrow);
+    const halfMax = Math.floor(0.50 * maxBorrow);
+    const threeQuarterMax = Math.floor(0.75 * maxBorrow);
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
@@ -69,9 +78,15 @@ export const F2WalkthroughDebt = ({
                 isError={debtAmountNum > maxBorrowable}
             />
             {/* <AmountInfos dbrCover={dbrCoverDebt} label="Debt" value={debt} delta={debtAmount} textProps={{ fontSize: '14px' }} /> */}
+            <HStack w='full' justify="space-between">
+                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~25%`} format={false} value={quarterMax} textProps={{ fontSize: '14px', onClick: () => onChange(quarterMax.toFixed(0)) }} />
+                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~50%`} format={false} value={halfMax} textProps={{ fontSize: '14px', onClick: () => onChange(halfMax.toFixed(0)) }} />
+                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~75%`} format={false} value={threeQuarterMax} textProps={{ fontSize: '14px', onClick: () => onChange(threeQuarterMax.toFixed(0)) }} />
+                <AmountInfos label={`${!isSmallerThan728 ? 'Borrow ' : ''}~99%`} format={false} value={maxBorrowable} textProps={{ fontSize: '14px', onClick: () => onChange(maxBorrowable.toFixed(0)) }} />
+            </HStack>
             <InfoMessage
                 alertProps={{ w: 'full' }}
-                description={<Text>Maximum Borrowing Power is <b>{preciseCommify(maxBorrowable, 0)} DOLA</b> with current parameters</Text>}
+                description={<Text>Maximum Borrowing Power is <b>~{preciseCommify(maxBorrow, 0)} DOLA</b> with current parameters.</Text>}
             />
             {
                 debtAmountNum > maxBorrowable &&
@@ -86,12 +101,12 @@ export const F2WalkthroughDebt = ({
                 />
             }
             {
-                notEnoughLiq  &&
+                notEnoughLiq &&
                 <InfoMessage
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' alignItems="flex-start" spaing="0">
-                            <Text>There's only {shortenNumber(leftToBorrow, 2)} DOLA liquidity available</Text>                            
+                            <Text>There's only {shortenNumber(leftToBorrow, 2)} DOLA liquidity available</Text>
                         </VStack>
                     }
                 />
@@ -101,7 +116,7 @@ export const F2WalkthroughDebt = ({
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn 
+            <StepNavBtn
                 onClick={() => onStepChange(step + 1)}
                 disabled={newPerc < 1 || !debtAmountNum || isDisabled || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />
