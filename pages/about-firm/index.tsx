@@ -43,9 +43,6 @@ export const AboutFirm = () => {
           maxW="1000px"
           src="/assets/firm/infographic.jpg"
         />
-        <Link as="a" color="mainTextColor" isExternal target="_blank" fontSize="22px" mt="10" textDecoration="underline" href="/assets/firm/FiRM-Infographic.pdf">
-          Download PDF version
-        </Link>
       </Flex>
     </Layout>
   )
