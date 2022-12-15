@@ -191,6 +191,7 @@ export const F2CombinedForm = ({
                         <AmountInfos
                             label="Deposits"
                             value={deposits}
+                            price={market.price}
                             textProps={{
                                 cursor: 'pointer',
                                 fontSize: '14px',
