@@ -12,6 +12,7 @@ export const AboutFirm = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - About FiRM</title>
         <meta name="og:title" content="Inverse Finance - About FiRM" />
         <meta name="description" content="Everything you need to know about FiRM, Inverse Finance's Fixed Rate Market, that introduces the DOLA Borrowing Rights token DBR and solves major DeFi issues. Rethink the way you borrow!" />
+        <meta name="og:description" content="Everything you need to know about FiRM, Inverse Finance's Fixed Rate Market, that introduces the DOLA Borrowing Rights token DBR and solves major DeFi issues. Rethink the way you borrow!" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/everything-about-firm.png" />
         <meta name="keywords" content="Inverse Finance, FiRM, Fixed Rate, Fixed Rate Market, DOLA Borrowing Right, DBR, DeFi, DOLA, Personal Collateral Escrow, PCE, Borrowing, stablecoin, DAO, fixed rate DeFi, fixed rate loans, fixed rate lending, fixed rate borrowing" />
       </Head>
@@ -36,7 +37,7 @@ export const AboutFirm = () => {
         <Link isExternal target="_blank" transition="all 500ms" _hover={{ transform: 'scale(1.1)' }} mt="10" href="/assets/firm/FiRM-Infographic.pdf">
           <Image cursor="pointer" borderRadius="50px" src="/assets/firm/firm2.png" w="500px" />
         </Link>
-        <Link color="mainTextColor" isExternal target="_blank" transition="all 500ms" _hover={{ transform: 'scale(1.1)' }} fontSize="22px" mt="10" textDecoration="underline" as="h3" href="/assets/firm/FiRM-Infographic.pdf">
+        <Link as="a" color="mainTextColor" isExternal target="_blank" transition="all 500ms" _hover={{ transform: 'scale(1.1)' }} fontSize="22px" mt="10" textDecoration="underline" href="/assets/firm/FiRM-Infographic.pdf">
           Download the FiRM Infographic
         </Link>
       </Flex>
