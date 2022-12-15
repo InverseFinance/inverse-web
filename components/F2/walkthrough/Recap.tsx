@@ -6,7 +6,6 @@ import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { RecapInfos } from "../Infos/RecapInfos"
 import { StepNavBtn } from "./StepNavBtn"
 import { f2depositAndBorrow } from "@app/util/f2"
-import { getNumberToBn } from "@app/util/markets"
 import { SuccessMessage } from "@app/components/common/Messages"
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
@@ -56,7 +55,7 @@ export const F2WalkthroughRecap = ({
         durationType,
         dbrPrice,
         riskColor,
-        newPerc,        
+        newPerc,
         dbrCoverDebt,
         collateralAmount,
         debtAmount,
@@ -67,20 +66,24 @@ export const F2WalkthroughRecap = ({
     }
 
     const handleAction = () => {
-        if(market.helper) {
+        if (market.helper) {
             alert('Not implemented yet');
         } else {
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
-        }        
+        }
     }
 
     const handleSuccess = () => {
         setIsDone(true);
-        handleDebtChange('');
-        handleCollateralChange(''); 
     }
 
-    if(isDone) {
+    const gotoLoan = () => {
+        setIsWalkthrough(false);
+        handleDebtChange('');
+        handleCollateralChange('');
+    }
+
+    if (isDone) {
         return <SuccessMessage
             title="Borrowing complete!"
             alertProps={{ w: 'full' }}
@@ -90,7 +93,7 @@ export const F2WalkthroughRecap = ({
                     <RSubmitButton onClick={() => router.replace('/firm')}>
                         Go Back to Markets
                     </RSubmitButton>
-                    <RSubmitButton onClick={() => setIsWalkthrough(false)}>
+                    <RSubmitButton onClick={() => gotoLoan()}>
                         Go to Loan
                     </RSubmitButton>
                 </Stack>
@@ -105,24 +108,24 @@ export const F2WalkthroughRecap = ({
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
             <HStack>
-            <SimpleAmountForm
-                defaultAmount={collateralAmount}
-                address={market.collateral}
-                destination={market.address}
-                signer={signer}
-                decimals={colDecimals}
-                maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
-                onAction={({ bnAmount }) => handleAction()}
-                onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
-                actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
-                showMaxBtn={false}
-                isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}
-                hideInputIfNoAllowance={false}
-                hideInput={true}
-                hideButtons={false}
-                ButtonComp={StepNavBtn}
-                onSuccess={() => handleSuccess()}
-            />
+                <SimpleAmountForm
+                    defaultAmount={collateralAmount}
+                    address={market.collateral}
+                    destination={market.address}
+                    signer={signer}
+                    decimals={colDecimals}
+                    maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
+                    onAction={({ bnAmount }) => handleAction()}
+                    onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
+                    actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
+                    showMaxBtn={false}
+                    isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}
+                    hideInputIfNoAllowance={false}
+                    hideInput={true}
+                    hideButtons={false}
+                    ButtonComp={StepNavBtn}
+                    onSuccess={() => handleSuccess()}
+                />
             </HStack>
         </HStack>
     </>
