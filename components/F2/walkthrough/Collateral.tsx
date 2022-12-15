@@ -5,13 +5,14 @@ import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, Text, HStack, Stack } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, useDisclosure } from "@chakra-ui/react"
 import { useContext } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { StepNavBtn } from "./StepNavBtn"
 import { WalkthroughInput } from "./WalkthroughInput"
 import { useRouter } from "next/router"
 import { preciseCommify } from "@app/util/misc"
+import WethModal from "@app/components/common/Modal/WethModal"
 
 export const F2WalkthroughCollateral = ({
     onStepChange,
@@ -22,6 +23,7 @@ export const F2WalkthroughCollateral = ({
 }) => {
     const router = useRouter();
     const { themeStyles } = useAppTheme();
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const {
         step,
         market,
@@ -44,6 +46,7 @@ export const F2WalkthroughCollateral = ({
 
     return <>
         <VStack w='full' alignItems="flex-start" spacing="4">
+            <WethModal isOpen={isOpen} onClose={onClose} />
             <TextInfo color="accentTextColor" message="The more you deposit, the more you can borrow against">
                 <Text fontWeight="bold" fontSize={{ base: '16px', sm: '20px', md: '30px' }} color="mainTextColor">
                     <b style={{ color: themeStyles.colors.accentTextColor }}>How much {market.underlying.symbol}</b> do you want to deposit?
@@ -60,6 +63,12 @@ export const F2WalkthroughCollateral = ({
                 inputRight={<MarketImage ml="10px" pr="20px" image={market.icon || market.underlying.image} size={40} />}
                 isError={isNotEnoughBalance}
             />
+            {
+                !collateralBalance && market.underlying.symbol === 'WETH' &&
+                <Text cursor="pointer" textDecoration="underline" onClick={onOpen}>
+                    No WETH? Easily Convert ETH to WETH
+                </Text>
+            }
             {
                 // (deposits > 0 || !!collateralAmount) && <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price} />
             }
