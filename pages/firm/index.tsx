@@ -20,8 +20,7 @@ export const F2PAGE = () => {
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>
-                <VStack pt="4" w='full' maxW="84rem">
-                    {/* <ErrorBoundary description="Failed to load header"><F2Header /></ErrorBoundary> */}
+                <VStack pt="4" w='full' maxW="84rem">                    
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
                             <FirmBar />

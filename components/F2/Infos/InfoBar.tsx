@@ -275,7 +275,8 @@ const BarBlock = ({
 }) => {
     return <HStack spacing="4">
         {
-            isLargerThan && <Link href={href} isExternal target='_blank'>
+            isLargerThan && 
+                <Link href={href} isExternal target='_blank'>
                 <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
             </Link>
         }

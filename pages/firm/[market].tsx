@@ -25,7 +25,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [inited, setInited] = useState(false);
     const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
-    const f2market = markets.length > 0 && !!market ? markets[0] : undefined;    
+    const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
 
     useEffect(() => {
         if (inited) { return }
@@ -35,8 +35,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     return (
         <Layout>
-            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />            
-            <ErrorBoundary>
+            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
+            <ErrorBoundary description="Error in the market page, please try reloading">
                 {
                     !f2market || !market ? <Text mt="8">
                         {!f2market ? 'Loading...' : 'Market not found!'}
@@ -84,7 +84,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             </FormControl>
                                         </HStack>
                                     </HStack>
-                                    
+
                                     {
                                         !isWalkthrough && <MarketBar
                                             w='full'
@@ -94,7 +94,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             pt='0'
                                         />
                                     }
-                                    
+
                                 </VStack>
 
                                 {
@@ -103,7 +103,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         :
                                         isWalkthrough ?
                                             <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="0" spacing="8">
-                                                <F2Walkthrough market={f2market} />
+                                                <ErrorBoundary description="Error in the walkthrough mode, please try reloading">
+                                                    <F2Walkthrough market={f2market} />
+                                                </ErrorBoundary>
                                             </VStack>
                                             :
                                             <VStack
@@ -112,9 +114,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 direction={{ base: 'column', lg: 'row' }}
                                                 spacing="12"
                                             >
-                                                <F2CombinedForm />
+                                                <ErrorBoundary description="Error in the standard mode, please try reloading">
+                                                    <F2CombinedForm />
+                                                </ErrorBoundary>
                                             </VStack>
-                                }                                
+                                }
                                 <FirmFAQ collapsable={true} defaultCollapse={true} />
                                 <InfoMessage
                                     title="Disclaimer"
