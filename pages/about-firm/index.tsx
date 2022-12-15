@@ -25,20 +25,26 @@ export const AboutFirm = () => {
         direction="column"
         w={{ base: 'full' }}
         alignItems="center"
-        h="100vh"
         pt="10"
       >
-        <Text as="h1" fontSize="40px" fontWeight="extrabold">
-          Everything you need to know about FiRM!
+        <Text as="h1" fontSize={{ base: '26px', sm: '40px' }} fontWeight="extrabold">
+          Everything about FiRM!
         </Text>
         <Text color="secondaryTextColor" as="h2" fontSize="20px" fontWeight="bold">
           Inverse Finance's Fixed Rate Market
         </Text>
-        <Link isExternal target="_blank" transition="all 500ms" _hover={{ transform: 'scale(1.1)' }} mt="10" href="/assets/firm/FiRM-Infographic.pdf">
-          <Image cursor="pointer" borderRadius="50px" src="/assets/firm/firm2.png" w="500px" />
-        </Link>
-        <Link as="a" color="mainTextColor" isExternal target="_blank" transition="all 500ms" _hover={{ transform: 'scale(1.1)' }} fontSize="22px" mt="10" textDecoration="underline" href="/assets/firm/FiRM-Infographic.pdf">
-          Download the FiRM Infographic
+        <Text transform="translateY(100px)">
+          Loading...
+        </Text>
+        <Image
+          zIndex="1"
+          mt="10"
+          width="100%"
+          maxW="1000px"
+          src="/assets/firm/infographic.jpg"
+        />
+        <Link as="a" color="mainTextColor" isExternal target="_blank" fontSize="22px" mt="10" textDecoration="underline" href="/assets/firm/FiRM-Infographic.pdf">
+          Download PDF version
         </Link>
       </Flex>
     </Layout>

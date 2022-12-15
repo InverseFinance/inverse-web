@@ -520,7 +520,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         onClose={onWrongNetClose}
       />
       <Flex
-        w={isBlog ? '100vw' : '99vw'}
+        w={'100vw'}
         backgroundColor="navBarBackground"
         borderColor="navBarBorderColor"
         borderBottomWidth={showMobileNav ? 0 : 1}
