@@ -61,6 +61,7 @@ const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
 
 const { DBR } = getNetworkConfigConstants();
 
+// TODO: clean this mess
 export const F2FormInfos = (props) => {
     const {
         newPerc,
@@ -93,6 +94,7 @@ export const F2FormInfos = (props) => {
         infoTab,
         setInfoTab,
         newBorrowLimit,
+        maxBorrow,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
@@ -225,7 +227,7 @@ export const F2FormInfos = (props) => {
                 color: newTotalDebt > 0 ? getDBRRiskColor(newDBRExpiryDate, now) : undefined
             },
         ],
-    ]
+    ];
 
     const positionInfos = [
         [
@@ -233,13 +235,13 @@ export const F2FormInfos = (props) => {
                 tooltip: 'Percentage of the borrow capacity used, should not reach 100%',
                 title: 'Borrow Limit',
                 value: !!deposits || !!newDeposits ? `${shortenNumber(newBorrowLimit, 2)}%` : '-',
-                color: newDeposits > 0 ? riskColor : undefined,
+                color: newDeposits > 0 || newTotalDebt > 0 ? riskColor : undefined,
             },
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
                 value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
-                color: newDeposits > 0 ? riskColor : undefined,
+                color: newDeposits > 0 || newTotalDebt > 0 ? riskColor : undefined,
             },
         ],
         [
@@ -268,9 +270,9 @@ export const F2FormInfos = (props) => {
         ],
         [
             {
-                tooltip: '99% of your technical Max Borrowing Power, usually you would avoid being that close to the maximum',
+                tooltip: 'Technical Max Borrowing Power, usually you would avoid borrowing the maximum to reduce liquidation risk',
                 title: 'Your borrowing power',
-                value: `${maxBorrowable ? `${shortenNumber(maxBorrowable, 2)} DOLA` : '-'}`,
+                value: `${maxBorrow ? `${shortenNumber(maxBorrow, 2)} DOLA` : '-'}`,
             },
             {
                 tooltip: 'Max debt before liquidation',
