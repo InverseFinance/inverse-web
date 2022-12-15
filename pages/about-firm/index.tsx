@@ -1,10 +1,10 @@
 import Layout from '@app/components/common/Layout';
-import Link from '@app/components/common/Link';
 import { AppNav } from '@app/components/common/Navbar';
-import { Flex, Text, Image } from '@chakra-ui/react'
+import { Flex, Text, Image, useMediaQuery } from '@chakra-ui/react'
 import Head from 'next/head';
 
 export const AboutFirm = () => {
+  const [isLargerThan] = useMediaQuery('(min-width: 768px)')
 
   return (
     <Layout>
@@ -41,7 +41,7 @@ export const AboutFirm = () => {
           mt="10"
           width="100%"
           maxW="1000px"
-          src="/assets/firm/infographic.jpg"
+          src={isLargerThan ? "/assets/firm/infographic-optimized.jpg" : "/assets/firm/infographic-mobile.jpg"}
         />
       </Flex>
     </Layout>
