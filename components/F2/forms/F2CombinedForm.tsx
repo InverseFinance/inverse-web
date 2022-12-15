@@ -1,7 +1,7 @@
 import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
-import { parseEther, parseUnits } from '@ethersproject/units'
+import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2repay, f2repayAndWithdraw, f2withdraw, getRiskColor } from '@app/util/f2'
 
@@ -85,6 +85,7 @@ export const F2CombinedForm = ({
     const isBorrowCase = ['borrow', 'd&b'].includes(MODES[mode]);
     const isRepayCase = ['repay', 'r&w'].includes(MODES[mode]);
     const isBorrowOnlyCase = 'borrow' === MODES[mode];
+    const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
 
     const handleAction = () => {
         if (!signer) { return }
@@ -162,7 +163,7 @@ export const F2CombinedForm = ({
                             destination={market.address}
                             signer={signer}
                             decimals={colDecimals}
-                            maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits/*, bnWithdrawalLimit*/]}
+                            maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits].concat(isWithdrawOnlyCase ? [bnWithdrawalLimit] : [])}
                             onAction={handleAction}
                             onMaxAction={handleAction}
                             actionLabel={btnLabel}
@@ -190,7 +191,11 @@ export const F2CombinedForm = ({
                         <AmountInfos
                             label="Deposits"
                             value={deposits}
-                            textProps={{ fontSize: '14px' }}
+                            textProps={{
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                onClick: () => handleCollateralChange(formatUnits(bnDeposits, market.underlying.decimals))
+                            }}
                         />
                     </HStack>
                 }
@@ -230,10 +235,14 @@ export const F2CombinedForm = ({
                             />
                             {
                                 !isDeposit && <HStack w='full' justify="space-between">
-                                    <AmountInfos                                        
+                                    <AmountInfos
                                         label="Debt"
-                                        value={debt}                                        
-                                        textProps={{ fontSize: '14px' }}
+                                        value={debt}
+                                        textProps={{
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            onClick: () => handleDebtChange(formatUnits(bnDebt, market.underlying.decimals))
+                                        }}
                                     />
                                     <AmountInfos
                                         label="DOLA bal."
