@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
@@ -19,6 +19,7 @@ import { NavButtons } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
 import { getDBRBuyLink } from '@app/util/f2'
 import { F2MarketContext } from '../F2Contex'
+import WethModal from '@app/components/common/Modal/WethModal'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -79,6 +80,7 @@ export const F2CombinedForm = ({
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
@@ -176,6 +178,17 @@ export const F2CombinedForm = ({
                             inputRight={<MarketImage pr="2" image={market.icon || market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
+                        {
+                            isDeposit && market.underlying.symbol === 'WETH' && !collateralBalance && <Text
+                                color="secondaryTextColor"
+                                textDecoration="underline"
+                                cursor="pointer"
+                                onClick={onOpen}
+                                fontSize="14px"
+                            >
+                                Need WETH? Easily convert ETH to WETH
+                            </Text>
+                        }
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
                     </>
                         : <Text>Nothing to withdraw</Text>
@@ -346,6 +359,7 @@ export const F2CombinedForm = ({
         w='full'
         spacing="4"
     >
+        <WethModal isOpen={isOpen} onClose={onClose} />
         <Container
             noPadding
             p="0"
