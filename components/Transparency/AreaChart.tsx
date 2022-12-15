@@ -60,6 +60,8 @@ export const AreaChart = ({
         }
     }
 
+    const _yPad = domainYpadding === 'auto' ? maxY * 0.1 : domainYpadding;
+
     useEffect(() => {
         setRightPadding(isLargerThan ? 50 : 20)
     }, [isLargerThan]);

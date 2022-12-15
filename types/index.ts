@@ -32,6 +32,7 @@ export interface Token {
   isInPausedSection?: boolean,
   protocolImage?: string,
   order?: number
+  veNftId?: string
 }
 
 export interface TokenWithBalance extends Token {
@@ -405,6 +406,9 @@ export type Fed = {
   isXchain?: boolean,
   supplyFuncName?: string
   oldAddress?: string
+  revenueChainId?: string
+  revenueSrcAd?: string
+  revenueTargetAd?: string
 }
 
 export type FedWithData = Fed & {
@@ -498,6 +502,56 @@ export type Bond = {
     percentVestedFor: number,
     pendingPayoutFor: number,
   }
+}
+
+export type BondV2 = {
+  id:              string;
+  bondContract:    string;
+  output:          string;
+  bondPrice:       number;
+  inputUsdPrice:   number;
+  underlying:      Token;
+  howToGetLink:    string;
+  input:           string;
+  teller:          string;
+  capacityInQuote: boolean;
+  capacity:        number;
+  totalDebt:       number;
+  minPrice:        number;
+  maxPayout:       number;
+  sold:            number;
+  purchased:       number;
+  scale:           number;
+  controlVar:      string;
+  maxDebt:         number;
+  vestingDays:     number;
+  conclusion:      number;
+  isNotConcluded: boolean
+  isPurchasable: boolean
+}
+
+export type BondV2WithRoi = BondV2 & {
+  roi: number;
+  marketPrice: number;
+  positiveRoi: boolean;
+}
+
+export type UserBondV2 = {
+  txHash: string
+  blocknumber: number
+  amount: number
+  payout: number
+  id: string
+  marketId: number
+  currentBalance: number
+  active: boolean
+  expiry: number
+  supply: number
+  underlying: Token
+  purchaseDate: number
+  vestingDays: number
+  percentVestedFor: number
+  name: string
 }
 
 export type DraftReview = {

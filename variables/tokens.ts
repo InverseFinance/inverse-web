@@ -7,7 +7,7 @@ import { isAddress } from 'ethers/lib/utils';
 export const getToken = (tokens: TokenList, symbolOrAddress: string, extend = {}) => {
   const t = Object.entries(tokens)
     .map(([address, token]) => token)
-    .find(token => isAddress(symbolOrAddress) ? token.address.toLowerCase() === symbolOrAddress.toLowerCase() : token.symbol.toLowerCase() === symbolOrAddress.toLowerCase())
+    .find(token => isAddress(symbolOrAddress) ? token?.address?.toLowerCase() === symbolOrAddress?.toLowerCase() : token?.symbol?.toLowerCase() === symbolOrAddress?.toLowerCase())
   return { ...t, ...extend }
 }
 
@@ -55,6 +55,8 @@ const chainTokenAddresses = {
     VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
     LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
     DBR: '0x',
+    BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
+    AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -68,6 +70,7 @@ const chainTokenAddresses = {
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
+    DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -79,11 +82,14 @@ const chainTokenAddresses = {
   },
   "10": {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
+    VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
+    VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
     WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
     WBTC: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
+    INV: '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4',
   }
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -363,7 +369,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DBR,
       name: 'DBR',
       symbol: 'DBR',
-      image: '/assets/v2/dola-small.png',
+      image: '/assets/v2/dbr-small.png',
       decimals: 18,
     },
     [chainTokenAddresses["1"].VLAURA]: {
@@ -385,6 +391,22 @@ const chainTokens = {
         account: '0x5170793C4D96f9ca058E2A581BADdA9413EF4b0d',
         fromPrice: '0xE57180685E3348589E9521aa53Af0BCD497E884d',    
       },      
+    },
+    [chainTokenAddresses["1"].AURA]: {
+      address: chainTokenAddresses["1"].AURA,
+      name: 'AURA',
+      symbol: 'AURA',
+      coingeckoId: 'aura-finance',
+      image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',     
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].BAL]: {
+      address: chainTokenAddresses["1"].BAL,
+      name: 'BAL',
+      symbol: 'BAL',
+      coingeckoId: 'balancer',
+      image: 'https://assets.coingecko.com/coins/images/11683/small/Balancer.png?1592792958',     
+      decimals: 18,
     },
   },
   "250": {
@@ -433,7 +455,7 @@ const chainTokens = {
       name: 'Dola',
       symbol: 'DOLA',
       coingeckoId: 'dola-usd',
-      image: '/assets/v2/dola-small.png',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
       decimals: 18,
     },
     [chainTokenAddresses["5"].WETH]: {
@@ -453,7 +475,34 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
       decimals: 8,
     },
-  }
+  },
+  "10": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'Ether',
+      symbol: 'ETH',
+      coingeckoId: 'ethereum',
+      image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+      decimals: 18,
+    },
+    [chainTokenAddresses["10"].VELO]: {
+      address: chainTokenAddresses["10"].VELO,
+      name: 'VELO',
+      symbol: 'VELO',
+      image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
+      decimals: 18,
+      coingeckoId: 'velodrome-finance',
+    },
+    [chainTokenAddresses["10"].VEVELO]: {
+      address: chainTokenAddresses["10"].VEVELO,
+      name: 'veVELO',
+      symbol: 'veVELO',
+      image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
+      decimals: 18,
+      coingeckoId: 'velodrome-finance',
+      veNftId: '4',
+    },
+  },
 }
 chainTokens["31337"] = chainTokens["1"];
 

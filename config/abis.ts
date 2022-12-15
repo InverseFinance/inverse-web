@@ -1,4 +1,5 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
+import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
 
 // TODO: Clean-up ABIs
@@ -263,6 +264,51 @@ export const BOND_ABI_VARIANT = BASE_BOND_ABI.concat([
 
 export const BONDS_ABIS = [BOND_ABI, BOND_ABI_VARIANT];
 
+/*
+address owner; // market owner. sends payout tokens, receives quote tokens (defaults to creator)
+ERC20 payoutToken; // token to pay depositors with
+ERC20 quoteToken; // token to accept as payment
+address callbackAddr; // address to call for any operations on bond purchase. Must inherit to IBondCallback.
+bool capacityInQuote; // capacity limit is in payment token (true) or in payout (false, default)
+uint256 capacity; // capacity remaining
+uint256 totalDebt; // total payout token debt from market
+uint256 minPrice; // minimum price (debt will stop decaying to maintain this)
+uint256 maxPayout; // max payout tokens out in one order
+uint256 sold; // payout tokens out
+uint256 purchased; // quote tokens in
+uint256 scale; // scaling factor for the market (see MarketParams struct)
+*/
+const BOND_MARKET = 'tuple(address, address, address, address, bool, uint, uint, uint, uint, uint, uint, uint)';
+// Auctioneer
+export const BOND_V2_ABI = [
+  `function getTeller() public view returns (address)`,
+  `function markets(uint) public view returns (${BOND_MARKET})`,
+  `function adjusments(uint) public view returns (uint change, uint lastAdjusment, uint timeToAdjusted, bool active)`,
+  `function marketPrice(uint) public view returns (uint)`,
+  `function payoutFor(uint amount, uint id, address referrer) public view returns (uint)`,
+  `function terms(uint) public view returns (uint controlVar, uint maxDebt, uint vesting, uint conclusion)`,
+  `function purchaseBond(uint id, uint amount, uint minAmountOut) external returns (uint)`,
+  `event MarketCreated (uint indexed id, address indexed payoutToken, address indexed quoteToken, uint vesting, uint initialPrice)`,
+]
+
+export const BOND_V2_FIXED_TELLER_ABI = [  
+  `function purchase(address rec, address ref, uint id, uint amount, uint minAmountOut) external returns (uint, uint)`,
+  `function redeem(uint tokenId, uint amount) public`,
+  "function tokenMetadata(uint) public view returns (tuple(bool, address, uint, uint, uint))",
+  "function balanceOf(address, uint) public view returns (uint)",
+  "function getTokenNameAndSymbol(uint) public view returns (string, string)",
+  "event TransferSingle (address indexed operator, address indexed from, address indexed to, uint256 id, uint256 amount)",  
+  "event Bonded (uint indexed id, address indexed ref, uint amount, uint payout)",  
+]
+
+export const BOND_V2_AGGREGATOR_ABI = [  
+  "function liveMarketsFor(address, bool isPayout) public view returns (uint256[])",
+  "function marketsFor(address, address) public view returns (uint256[])",
+  `function getTeller(uint) public view returns (address)`,
+  `function getAuctioneer(uint) public view returns (address)`,
+  `function marketPrice(uint) public view returns (uint)`,
+]
+
 export const VESTER_FACTORY_ABI = [
   "function vesters(uint256) public view returns (address)",
 ]
@@ -468,6 +514,9 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [F2_ORACLE, F2_ORACLE_ABI],
         [F2_CONTROLLER, F2_CONTROLLER_ABI],
         ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
+        [BOND_V2_FIXED_TERM, BOND_V2_ABI],
+        [BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI],
+        [BOND_V2_AGGREGATOR, BOND_V2_AGGREGATOR_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

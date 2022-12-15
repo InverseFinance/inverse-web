@@ -6,6 +6,14 @@ import { getBnToNumber } from '@app/util/markets'
 import { getTxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 
+const COINGECKO_IDS = {
+    'CRV': 'curve-dao-token',
+    'CVX': 'convex-finance',
+    'VELO': 'velodrome-finance',
+    'BAL': 'balancer',
+    'AURA': 'aura-finance',
+}
+
 // Crosschain Fee is 0.1 %, Minimum Crosschain Fee is 83 DOLA, Maximum Crosschain Fee is 1,040 DOLA
 const bridgeFees: { [key: string]: { fee: number, min: number, max: number } } = {
     [NetworkIds.ftm]: {
@@ -30,14 +38,14 @@ const deduceBridgeFees = (value: number, chainId: string) => {
     return value;
 }
 
-const getProfits = async (FEDS: Fed[], TREASURY) => {
+const getProfits = async (FEDS: Fed[], TREASURY: string) => {
     const transfers = await Promise.all(
-        FEDS.map(fed => getTxsOf(fed.address, 1000, 0, fed.chainId))
+        FEDS.map(fed => getTxsOf(fed.revenueSrcAd||fed.address, 1000, 0, fed.revenueChainId||fed.chainId))
     )
 
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
-        const toAddress = TREASURY.toLowerCase();
+        const toAddress = (fed.revenueTargetAd||TREASURY).toLowerCase();
         const eventName = fed.isXchain ? 'LogSwapout' : 'Transfer';
 
         const items = r.data.items
@@ -57,10 +65,10 @@ const getProfits = async (FEDS: Fed[], TREASURY) => {
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
             await Promise.all(filteredEvents.map(async e => {
                 const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
-                if(['CRV', 'CVX'].includes(e.sender_contract_ticker_symbol)) {
-                    const cgId = e.sender_contract_ticker_symbol === 'CVX' ? 'convex-finance' : 'curve-dao-token'
+                if(['CRV', 'CVX', 'VELO', 'BAL', 'AURA'].includes(e.sender_contract_ticker_symbol)) {
+                    const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
                     const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`);
-                    const historicalData = await res.json();                        
+                    const historicalData = await res.json();                   
                     const histoPrice = historicalData.market_data.current_price.usd;
                     revenues += histoPrice * amount;
                 } else {
@@ -80,7 +88,7 @@ const getProfits = async (FEDS: Fed[], TREASURY) => {
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.8`;
+    const cacheKey = `revenues-v1.0.10`;
 
     try {
 

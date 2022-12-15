@@ -42,7 +42,7 @@ export const getNetworkConfigConstants = (
         getNetworkConfig(configOrChainId, true)! :
         isSupportedNetwork(configOrChainId.chainId) ?
             configOrChainId : getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!)!;
-            
+
     if(!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID) && config === undefined) {
         config = { anchor: {} };
     }

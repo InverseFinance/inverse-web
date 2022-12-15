@@ -2,8 +2,9 @@ import { Flex } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { BondsView } from '@app/components/BondsV2/BondsView';
+
 import { BondsTabs } from '@app/components/BondsV2/BondsTabs';
+import { BondsPurchased } from '@app/components/BondsV2/BondsPurchased';
 
 export const BondsPage = () => {
     return (
@@ -17,8 +18,8 @@ export const BondsPage = () => {
             </Head>
             <AppNav active="Bonds" activeSubmenu="Bonds" />
             <Flex direction="column" w={{ base: 'full' }} pt={{ sm: '4' }} maxWidth="900px">
-                <BondsTabs />
-                <BondsView />
+                <BondsTabs defaultIndex={1} />
+                <BondsPurchased />
             </Flex>
         </Layout>
     )

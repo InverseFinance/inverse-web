@@ -1,18 +1,20 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { BONDS_ABIS } from '@app/config/abis'
+import { BONDS_ABIS, BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis'
 
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
+import { BondV2, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { BONDS } from '@app/variables/tokens';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { BLOCKS_PER_DAY } from '@app/config/constants';
+import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
+import { BONDS_V2_API_CACHE_KEY } from '../bonds';
 
 export default async function handler(req, res) {
 
-    const cacheKey = `bonds-cache-v1.0.0`;
+    const cacheKey = `bonds-cache-v1.0.3`;
 
     try {
 
@@ -24,21 +26,37 @@ export default async function handler(req, res) {
 
         const provider = getProvider(NetworkIds.mainnet);
 
-        const deposits = await Promise.all(
+        const depositsV1 = await Promise.all(
             BONDS.map(b => {
                 const contract = new Contract(b.bondContract, BONDS_ABIS[b.abiType], provider)
                 return contract.queryFilter(contract.filters.BondCreated())
             })
-        )
+        );
 
-        const blocks = deposits.map(d => d.map(e => e.blockNumber)).flat();
+        // bonds V2 with bond protocol
+        const v2bondsCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, false);
+        let bondsV2: BondV2[] = [];        
+        if(v2bondsCache?.bonds?.length > 0) {
+            bondsV2 = v2bondsCache.bonds;
+        }
+
+        const depositsV2 = await Promise.all(
+            bondsV2.map(bondV2 => {
+                const contract = new Contract(BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI, provider);                
+                return contract.queryFilter(contract.filters.Bonded(parseInt(bondV2.id)));
+            })
+        );        
+
+        const blocks = depositsV1.map(d => d.map(e => e.blockNumber)).flat()
+            .concat(depositsV2.map(d => d.map(e => e.blockNumber)).flat());
+
         await addBlockTimestamps(
             blocks,
             NetworkIds.mainnet,
         );
         const timestamps = await getCachedBlockTimestamps();
 
-        const formattedDeposits = deposits.map((d, i) => {
+        const formattedDepositsV1 = depositsV1.map((d, i) => {
             const bond = BONDS[i];
             return d.map(e => {
                 const expires = getBnToNumber(e.args[2], 0);
@@ -54,6 +72,23 @@ export default async function handler(req, res) {
                 }
             })
         }).flat();
+
+        const formattedDepositsV2 = depositsV2.map((d, i) => {
+            const bond = bondsV2[i];
+            return d.map(e => {
+                return {
+                    timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
+                    input: bond.underlying.symbol,
+                    duration: bond.vestingDays,
+                    type: `${bond.underlying.symbol}-${bond.vestingDays}-v2`,
+                    inputAmount: getBnToNumber(e.args.amount),
+                    outputAmount: getBnToNumber(e.args.payout),
+                    txHash: e.transactionHash,
+                }
+            })
+        }).flat();
+
+        const formattedDeposits = formattedDepositsV1.concat(formattedDepositsV2);
         formattedDeposits.sort((a, b) => a.timestamp - b.timestamp);
 
         const acc = { 'output': 0 };
