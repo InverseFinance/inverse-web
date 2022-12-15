@@ -138,6 +138,7 @@ export const F2Context = ({
             setMode('Deposit & Borrow');
             setStep(1);            
             handleDebtChange('');
+            router.replace({ hash: `step1`, query: { market: router.query.market } });
         }
     }, [isWalkthrough]);
 
