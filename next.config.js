@@ -57,11 +57,11 @@ const redirects = async () => {
       destination: '/frontier',
       permanent: true,
     },
-    // {
-    //   source: '/stake',
-    //   destination: '/frontier',
-    //   permanent: true,
-    // },
+    {
+      source: '/stake',
+      destination: '/frontier',
+      permanent: true,
+    },
     {
       source: '/anchor',
       destination: '/frontier',
