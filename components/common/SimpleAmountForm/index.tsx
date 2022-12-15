@@ -37,6 +37,7 @@ type Props = {
     ButtonComp?: React.ReactNode
     showBalance?: boolean
     isError?: boolean
+    noApprovalNeeded?: boolean
     inputRight?: any
     inputProps?: InputProps
     showMax?: boolean
@@ -80,6 +81,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         btnThemeColor,
         showMaxBtn = true,
         onlyShowApproveBtn = false,
+        noApprovalNeeded = false,
         hideInputIfNoAllowance = true,
         hideButtons = false,
         hideInput = false,
@@ -104,14 +106,14 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     const balanceBn = balances && balances[address] ? balances[address] : zeroBn;
     const balance = getBnToNumber(balanceBn, decimals);
-    const maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
+    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
     
     maxBn.sort((a, b) => getBnToNumber(a) > getBnToNumber(b) ? 1 : -1);
-    if(!maxBn.length){
-        maxBn.push(zeroBn);
+    if(!maxBn.length || !maxBn[0]){
+        maxBn = [zeroBn];
     }
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
 
@@ -172,7 +174,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         }
         {
             hideButtons && !onlyShowApproveBtn ? null :
-                !tokenApproved ?
+                !tokenApproved && !noApprovalNeeded ?
                     <ApproveButton
                         w='full'
                         themeColor={btnThemeColor}
