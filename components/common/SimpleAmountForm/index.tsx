@@ -108,7 +108,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
+    
     maxBn.sort((a, b) => getBnToNumber(a) > getBnToNumber(b) ? 1 : -1);
+    if(!maxBn.length){
+        maxBn.push(zeroBn);
+    }
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
 
     useEffect(() => {
