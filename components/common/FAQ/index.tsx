@@ -32,7 +32,7 @@ export const FAQ = ({
                     return <AccordionItem border="none" borderBottom={i < (items.length - 1) ? '1px solid #eee' : 'none'} key={item.title}>
                         <h2>
                             <AccordionButton >
-                                <Box flex='1' textAlign='left' color="mainTextColor" fontWeight="bold" fontSize="lg">
+                                <Box flex='1' lineHeight="normal" textAlign='left' color="mainTextColor" fontWeight="bold" fontSize="lg">
                                     {item.title}
                                 </Box>
                                 <AccordionIcon />
