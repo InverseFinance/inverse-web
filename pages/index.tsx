@@ -28,12 +28,9 @@ const Stat = ({ value, name }: { value: number, name: string }) => {
   </VStack>
 }
 
-const tempData = require('./temp.json');
-
-export const Landing = ({ }: {
+export const Landing = ({ posts }: {
   posts: any[]
-}) => {
-  const { posts } = tempData;
+}) => {  
   const { totalSupply } = useDOLA();
   const { prices } = usePrices();
   const { price: dbrPrice } = useDBRPrice();
@@ -498,7 +495,7 @@ export const Landing = ({ }: {
               <Text fontSize={smallerSize}>
                 We are the most transparent DAO in DeFi with unprecedented levels of operational visibility.
               </Text>
-              <Link fontSize={smallerSize} href="https://www.inverse.finance/blog/posts/en-US/dola-borrowing-rights-dbr-airdrop" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
+              <Link fontSize={smallerSize} href="/claim-dbr" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
                 Airdrop Info >>
               </Link>
               <ResponsiveStack justify={{ base: 'center', md: 'flex-start' }} direction={{ base: 'column', sm:'row', md: 'column', lg: 'row' }} w={{ base: 'full', lg: 'auto' }}>
@@ -556,16 +553,16 @@ export const Landing = ({ }: {
 
 export default Landing;
 
-// export async function getStaticProps(context) {
-//   return { ...await getLandingProps(context), revalidate: 60 }
-// }
+export async function getStaticProps(context) {
+  return { ...await getLandingProps(context), revalidate: 1800 }
+}
 
 // export async function getStaticPaths() {
 //   if(!process.env.CONTENTFUL_SPACE_ID) {
 //     return { paths: [], fallback: true }
 //   }
 //   return {
-//     // paths: ['/'],
+//     paths: ['/'],
 //     fallback: true,
 //   }
 // }
