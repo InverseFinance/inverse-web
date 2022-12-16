@@ -74,7 +74,7 @@ export const F2WalkthroughDuration = ({
                                     <Text fontWeight="bold" color="warning">You don't have any DBRs in your wallet.<br />Please have at least part of the DBR cost in your wallet to start with.</Text>
                             }
                             {
-                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={getDBRBuyLink()}>Buy {dbrBalance > 0 ? ' more ' : ''} DBR</Link>
+                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">Buy {dbrBalance > 0 ? ' more ' : ''} DBR</Link>
                             }
                         </VStack>
                 }
