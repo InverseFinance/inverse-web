@@ -88,7 +88,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string) => {
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.10`;
+    const cacheKey = `revenues-v1.0.11`;
 
     try {
 
