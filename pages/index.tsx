@@ -23,8 +23,8 @@ const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column
 
 const Stat = ({ value, name }: { value: number, name: string }) => {
   return <VStack>
-    <Text fontSize={biggestSize} fontWeight="bold">{shortenNumber(value, 2, true)}</Text>
-    <Text fontSize={smallerSize}>{name}</Text>
+    <Text color={lightTheme.colors.mainTextColor} fontSize={biggestSize} fontWeight="bold">{shortenNumber(value, 2, true)}</Text>
+    <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>{name}</Text>
   </VStack>
 }
 
@@ -191,10 +191,10 @@ export const Landing = ({ posts }: {
           >
             Never Pay Interest Again
           </SplashedText>
-          <Text zIndex="2" textAlign="center" fontWeight="bold" fontSize={normalSize} maxW={{ base: '350px', '2xl': '33%' }}>
+          <Text color={lightTheme.colors.mainTextColor} zIndex="2" textAlign="center" fontWeight="bold" fontSize={normalSize} maxW={{ base: '350px', '2xl': '33%' }}>
             High-volatility interest rates don't work for long-term borrowers.
           </Text>
-          <Text zIndex="2" textAlign="center" fontSize={smallerSize} maxW={{ base: '350px', '2xl': '33%' }}>
+          <Text color={lightTheme.colors.mainTextColor} zIndex="2" textAlign="center" fontSize={smallerSize} maxW={{ base: '350px', '2xl': '33%' }}>
             DOLA Borrowing Rights (DBRs) allow you to fix a rate today and borrow later
           </Text>
           <Stack zIndex="2" direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
@@ -293,8 +293,8 @@ export const Landing = ({ posts }: {
             <SimpleCard spacing="1vh" position="relative" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
                 <Image src="/assets/v2/landing/borrow.png?1" width="full" w="160px" h="150px" mt="6" />
-                <Text fontWeight="extrabold" fontSize={biggerSize}>Borrow</Text>
-                <Text textAlign="center" fontSize={normalSize}>
+                <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Borrow</Text>
+                <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
                   Borrow DOLA for a fixed-rate for an unlimited duration with DOLA Borrowing Rights.
                 </Text>
               </VStack>
@@ -305,8 +305,8 @@ export const Landing = ({ posts }: {
             <SimpleCard spacing="1vh" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
                 <Image src="/assets/v2/landing/earn.png" width="full" w="150px" h="150px" mt="6" />
-                <Text fontWeight="extrabold" fontSize={biggerSize}>Earn</Text>
-                <Text textAlign="center" fontSize={normalSize}>
+                <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Earn</Text>
+                <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
                   Earn attractive returns when you provide liquidity to a trading pair on Curve, Convex, Balancer and others.
                 </Text>
               </VStack>
@@ -317,8 +317,8 @@ export const Landing = ({ posts }: {
             <SimpleCard spacing="1vh" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
                 <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
-                <Text fontWeight="extrabold" fontSize={biggerSize}>Stake</Text>
-                <Text textAlign="center" fontSize={normalSize}>
+                <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Stake</Text>
+                <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
                   Buy INV and stake on Frontier with high APY. Participate in Governance.
                 </Text>
               </VStack>
@@ -356,10 +356,10 @@ export const Landing = ({ posts }: {
               </VStack>
             </SimpleGrid>
             <VStack alignItems={{ base: 'center', sm: 'flex-start' }} w={{ base: 'full', md: '40%' }} spacing='4' pt={{ base: '4', md: '0' }}>
-              <Text fontWeight="bold" fontSize={normalSize}>
+              <Text color={lightTheme.colors.mainTextColor} fontWeight="bold" fontSize={normalSize}>
                 Designed from the ground up with security in mind and now backing it up with third party security professionals
               </Text>
-              <Text fontSize={smallerSize}>
+              <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
                 We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
               <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://docs.inverse.finance/" target="_blank">
@@ -434,7 +434,7 @@ export const Landing = ({ posts }: {
               DAO Analytics
             </LandingSubmitButton>
           </ResponsiveStack>
-          <Text fontSize={smallerSize}>
+          <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
             Inverse Finance DAO operates unmatched transparency into its operation and governance
           </Text>
           <ResponsiveStack pt="8" w='full' alignItems="center">
@@ -489,10 +489,10 @@ export const Landing = ({ posts }: {
               </SplashedText>
             </VStack>
             <VStack zIndex="1" w={{ base: 'full', md: '40%' }} alignItems="flex-start" spacing='4' pt={{ base: '4', md: '0' }}>
-              <Text fontWeight="bold" fontSize={normalSize}>
+              <Text color={lightTheme.colors.mainTextColor} fontWeight="bold" fontSize={normalSize}>
                 Inverse uses 100% on-chain  voting  that avoids the pitfalls of centralized DAO governance.
               </Text>
-              <Text fontSize={smallerSize}>
+              <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
                 We are the most transparent DAO in DeFi with unprecedented levels of operational visibility.
               </Text>
               <Link fontSize={smallerSize} href="/claim-dbr" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
