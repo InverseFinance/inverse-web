@@ -557,7 +557,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         />
       }
       <Flex
-        w={isBlog ? '100vw' : '100vw'}
+        w={'100vw'}
         background="navBarBackground"
         backgroundColor="navBarBackgroundColor"
         borderColor="navBarBorderColor"
