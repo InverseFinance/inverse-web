@@ -18,11 +18,13 @@ const AirdropText = (props: TextProps) => <Text fontSize={{ base: '16px', sm: '1
 
 const EligibleComp = ({
     amount,
+    amountString,
     account,
     hasClaimed,
     airdropData,
 }: {
     amount: number,
+    amountString: string,
     account: string,
     hasClaimed: boolean,
     airdropData: { [key: string]: string },
@@ -31,7 +33,7 @@ const EligibleComp = ({
     const [isSuccess, setIsSuccess] = useState(hasClaimed);
 
     const claim = async () => {
-        const proofs = getAccountProofs(account, airdropData);
+        proofs = getAccountProofs(account, airdropData, amountString);
         return claimAirdrop(account, '0', airdropData[account], proofs, library?.getSigner());
     }
 
@@ -98,7 +100,7 @@ const NotEligibleComp = ({
 
 export const ClaimDbr = () => {
     const account = useAccount();
-    const { isEligible, amount, hasClaimed, airdropData } = useCheckDBRAirdrop(account);
+    const { isEligible, amount, hasClaimed, airdropData, claimer, amountString } = useCheckDBRAirdrop(account);
     return (
         <Layout>
             <Head>
@@ -120,7 +122,7 @@ export const ClaimDbr = () => {
                             />
                         }
                         {
-                            !!account && isEligible && <EligibleComp airdropData={airdropData} hasClaimed={hasClaimed} amount={amount} account={account} />
+                            !!account && isEligible && <EligibleComp airdropData={airdropData} hasClaimed={hasClaimed} amount={amount} account={claimer} amountString={amountString} />
                         }
                         {
                             !!account && !isEligible && <NotEligibleComp account={account} />

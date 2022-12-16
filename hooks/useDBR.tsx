@@ -324,20 +324,29 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
   isEligible: boolean,
   hasClaimed: boolean,
   amount: number,
+  amountString: string,
   airdropData: { [key: string]: string },
+  claimer: string,
 } => {
   const { data: airdropData, error: airdropDataErr } = useCustomSWR('/assets/firm/dbr/airdrop.json', fetcher);
   const { data: hasClaimed, error: hasClaimErr } = useEtherSWR([
     DBR_AIRDROP, 'hasClaimed', account, '0'
   ]);
 
+  const asArray = airdropData ? Object.entries(airdropData) : [];  
   const isEligible = !!account && !!airdropData && !!airdropData[account];
-  const amount = isEligible ? getBnToNumber(parseUnits(airdropData[account], 0)) : 0;
+  const amounts = asArray.filter(a => a[0].toLowerCase() === account?.toLowerCase());
+  amounts.sort((a, b) => a[1] > b[1] ? -1 : 1);
+  const claimer = amounts?.length ? amounts[0][0] : account;
+  const amountString = amounts?.length ? amounts[0][1] : '0';
+  const amount = isEligible && amounts?.length ? getBnToNumber(parseUnits(amountString, 0)) : 0;
 
   return {
     isEligible,
     hasClaimed,
+    claimer,
     amount,
+    amountString,
     airdropData,
     isLoading: !airdropData,
     isError: !!airdropDataErr || !!hasClaimErr,

@@ -9,11 +9,12 @@ const hashFn = (data: string) => keccak256(data).slice(2);
 const { DBR_AIRDROP } = getNetworkConfigConstants();
 
 export const getAccountProofs = (
-  account: string,  
+  account: string,
   airdropData: { [key: string]: string },
-) => {
-  const merkleTree = createTreeWithAccounts(airdropData);  
-  return getAccountBalanceProof(merkleTree, account, airdropData[account]);
+  amount: string,  
+) => {  
+  const merkleTree = createTreeWithAccounts(airdropData);    
+  return getAccountBalanceProof(merkleTree, account, amount);
 }
 
 export const createTreeWithAccounts = (
