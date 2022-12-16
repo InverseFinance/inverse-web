@@ -152,7 +152,7 @@ export const FirmPositions = ({
     
     const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
-    const avgHealth = positions?.length > 0 ? positions.reduce((prev, curr) => prev + curr.perc, 0) / positions?.length : 100;
+    const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.perc * curr.debt, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
 
     return <VStack w='full'>
@@ -167,8 +167,8 @@ export const FirmPositions = ({
             right={
                 <HStack justify="space-between" spacing="4">
                     <VStack alignItems="flex-start">
-                        <Text fontWeight="bold">Avg Loan Health</Text>
-                        <Text color={avgRiskColor}>{shortenNumber(avgHealth, 2)}%</Text>
+                        <Text fontWeight="bold">Avg Borrow Limit</Text>
+                        <Text color={avgRiskColor}>{shortenNumber(100-avgHealth, 2)}%</Text>
                     </VStack>
                     <VStack alignItems="flex-start">
                         <Text fontWeight="bold">Total Value Locked</Text>
