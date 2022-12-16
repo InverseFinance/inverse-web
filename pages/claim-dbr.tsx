@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { claimAirdrop, getAccountProofs } from '@app/util/merkle';
 import Link from '@app/components/common/Link';
 import { useWeb3React } from '@web3-react/core';
+import { getDBRBuyLink } from '@app/util/f2';
 
 const AirdropText = (props: TextProps) => <Text fontSize={{ base: '16px', sm: '18px' }} {...props} />
 
@@ -93,8 +94,11 @@ const NotEligibleComp = ({
             Your <b>{shortenAddress(account)}</b> account is not elgible to claim the DBR airdrop!
         </AirdropText>
         <AirdropText>
-            DBR can be bought on open markets like |link|
+            <b>DBR</b> can be bought Balancer, token address to import is <b>0xAD038Eb671c44b853887A7E32528FaB35dC5D710</b>
         </AirdropText>
+        <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">
+            Open Balancer
+        </Link>
     </>
 }
 
@@ -105,7 +109,9 @@ export const ClaimDbr = () => {
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - DBR token</title>
-                <meta name="og:title" content="Inverse Finance - DBR token" />
+                <meta name="og:title" content="Inverse Finance - DBR Airdrop" />                
+                <meta name="og:description" content="Check if you're available for the DBR airdrop and claim it!" />
+                <meta name="og:image" content="https://inverse.finance/assets/v2/dbr-airdrop.jpg" />
             </Head>
             <AppNav active="Tokens" activeSubmenu="Overview" isClaimPage={true} />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">

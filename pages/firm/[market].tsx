@@ -1,5 +1,6 @@
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
+import Head from 'next/head'
 
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
@@ -35,6 +36,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     return (
         <Layout>
+            <Head>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>
+                <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
+                <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
+            </Head>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary description="Error in the market page, please try reloading">
                 {

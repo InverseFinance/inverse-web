@@ -1,9 +1,8 @@
-import { Divider, useDisclosure, VStack } from '@chakra-ui/react'
+import { Divider, VStack } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { F2Header } from '@app/components/F2/F2Header'
 import { F2Markets } from '@app/components/F2/F2Markets'
 import { useAccount } from '@app/hooks/misc'
 import { useAccountDBR } from '@app/hooks/useDBR'
@@ -16,7 +15,9 @@ export const F2PAGE = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>
+                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>              
+                <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
+                <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>
