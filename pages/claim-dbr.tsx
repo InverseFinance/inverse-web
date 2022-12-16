@@ -146,7 +146,7 @@ export const ClaimDbr = () => {
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
                 <Stack alignItems="center" justify="center" mt="8" w='full' direction={{ base: 'column', lg: 'row' }} spacing="10">
                     <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }} h={{ base: '200px', sm: '500px' }}>
-                        <Image src="/assets/v2/dbr-airdrop.jpg" w="full" maxW={{ base: '200px', sm: '500px' }} maxW={{ base: '200px', sm: '500px' }} />
+                        <Image borderRadius="999px" src="/assets/v2/dbr-airdrop.jpg" w="full" maxW={{ base: '200px', sm: '500px' }} maxW={{ base: '200px', sm: '500px' }} />
                     </VStack>
                     <VStack justify="center" spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
                         {
@@ -164,7 +164,7 @@ export const ClaimDbr = () => {
                         }
                         {
                             !!account && <HStack cursor="pointer" onClick={importDBR}>
-                                <Image src="/assets/v2/dbr.jpg" w="20px" />
+                                <Image borderRadius="50px" src="/assets/v2/dbr.jpg" w="20px" />
                                 <Text>
                                     Import DBR token in my wallet
                                 </Text>

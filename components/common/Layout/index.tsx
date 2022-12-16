@@ -9,7 +9,15 @@ export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', b
   bg?: FlexProps["bg"],
   isLanding?: boolean
 }) => (
-  <Flex w="full" minH="100vh" bgColor={bgColor} background={bg} direction="column" align="center" pt="74px" {...props}>
+  <Flex
+    w="full"
+    minH="100vh"
+    bgColor={isLanding ? lightTheme.colors.mainBackgroundColor : bgColor}
+    background={isLanding ? lightTheme.colors.mainBackground : bg}
+    direction="column"
+    align="center"
+    pt="74px"
+    {...props}>
     <Flex
       zIndex={1}
       w="full"
@@ -32,7 +40,7 @@ export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', b
           spacing="0"
         >
           <Stack
-            alignItems="center"                        
+            alignItems="center"
             direction={{ base: 'column', md: 'row' }}
             px="8%"
             py="8"
