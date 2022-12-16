@@ -33,7 +33,7 @@ const EligibleComp = ({
     const [isSuccess, setIsSuccess] = useState(hasClaimed);
 
     const claim = async () => {
-        proofs = getAccountProofs(account, airdropData, amountString);
+        const proofs = getAccountProofs(account, airdropData, amountString);
         return claimAirdrop(account, '0', airdropData[account], proofs, library?.getSigner());
     }
 
