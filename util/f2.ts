@@ -105,7 +105,7 @@ export const getRiskColor = (newPerc: number) => {
 }
 
 export const getDBRBuyLink = () => {
-    return `https://app.sushi.com/swap?chainId=${process.env.NEXT_PUBLIC_CHAIN_ID}&inputCurrency=ETH&outputCurrency=${DBR}`
+    return `https://app.balancer.fi/#/ethereum/trade`
 }
 
 export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax, perc, isAutoDBR = true): Promise<number> => {
