@@ -105,7 +105,7 @@ export const getRiskColor = (newPerc: number) => {
 }
 
 export const getDBRBuyLink = () => {
-    return `https://app.balancer.fi/#/ethereum/trade`
+    return `https://app.balancer.fi/#/ethereum/trade/0x865377367054516e17014CcdED1e7d814EDC9ce4/0xAD038Eb671c44b853887A7E32528FaB35dC5D710`
 }
 
 export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax, perc, isAutoDBR = true): Promise<number> => {
