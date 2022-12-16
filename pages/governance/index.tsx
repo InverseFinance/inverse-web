@@ -45,7 +45,7 @@ export const Governance = () => {
             <ActiveProposals />
           </Flex>
           <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-            <Link textDecoration="underline" fontSize="14" mt="2" href={`/governance/propose`}>
+            <Link color="lightAccentTextColor" textDecoration="underline" fontSize="14" mt="2" href={`/governance/propose`}>
               Submit a new Proposal
             </Link>
           </Flex>

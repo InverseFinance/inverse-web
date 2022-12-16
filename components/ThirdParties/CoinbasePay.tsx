@@ -5,6 +5,7 @@ import LinkButton, { SubmitButton } from '@app/components/common/Button';
 import { Modal } from '@app/components/common/Modal';
 import { InfoMessage } from '@app/components/common/Messages';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 
 const appId = '033abd6f-0903-4abc-bc2f-fed226b408a2';
 
@@ -52,9 +53,9 @@ export const CoinbasePayButton = ({
                     title="You need a Coinbase Account to use Coinbase Pay"  
                     description="Coinbase Pay allows you buy tokens for your connected Wallet address with fiat funds."                  
                 />
-                <LinkButton maxW="300px" alignItems="center" href={url} isExternal target="_blank">
+                <RSubmitButton maxW="300px" alignItems="center" href={url} isExternal target="_blank">
                     Continue to Coinbase Pay <ExternalLinkIcon ml="1" />
-                </LinkButton>
+                </RSubmitButton>
             </VStack>
         </Modal>
         {

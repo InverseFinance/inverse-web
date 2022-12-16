@@ -1,9 +1,10 @@
 import { TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber } from 'ethers';
-import { formatUnits, commify, isAddress } from 'ethers/lib/utils';
+import { formatUnits, commify, isAddress, parseUnits } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
 import sushiData from '@sushiswap/sushi-data'
+import { toFixed } from './misc';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -11,6 +12,10 @@ export const getMonthlyRate = (balance: number, apy: number) => {
 
 export const getBnToNumber = (bn: BigNumber, decimals = 18) => {
     return bn ? parseFloat(formatUnits(bn, decimals)) : 0;
+}
+
+export const getNumberToBn = (num: number, decimals = 18) => {
+    return num ? parseUnits(toFixed(num, decimals), decimals) : BigNumber.from('0');
 }
 
 export const getParsedBalance = (balances: BigNumberList, address: string, decimals = 18) => {

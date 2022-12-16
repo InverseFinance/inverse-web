@@ -3,17 +3,9 @@ import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, 
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { shortenNumber } from '@app/util/markets';
-import theme from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: string, y: number, label?: string }[][]
-
-const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px', padding: 14 },
-    grid: {
-        stroke: '#666666aa',
-        strokeDasharray: '4 4',
-    }
-}
 
 export type BarChartProps = {
     groupedData: Props,
@@ -40,6 +32,7 @@ export const BarChart = ({
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(65);
+    const { themeStyles } = useAppTheme();
 
     useEffect(() => {
         setRightPadding(isLargerThan ? 65 : 20)
@@ -56,6 +49,14 @@ export const BarChart = ({
 
     const lightMode = width <= 400;
 
+    const defaultAxisStyle: VictoryAxisProps["style"] = {
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
+        grid: {
+            stroke: '#666666aa',
+            strokeDasharray: '4 4',
+        }
+    }
+
     return (
         <Box
             width={width}
@@ -70,7 +71,7 @@ export const BarChart = ({
                 padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle"  {...titleProps} />
+                    !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle"  {...titleProps} />
                 }
                 <VictoryAxis
                     style={defaultAxisStyle}
@@ -82,7 +83,7 @@ export const BarChart = ({
                 />
                 <VictoryBar
                     alignment="middle"
-                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '12px', fill: lightMode ? 'transparent' : theme.colors.secondary }} dy={-10} {...labelProps} />}
+                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: 'bold' }} dy={-10} {...labelProps} />}
                     data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, precision, isDollars) }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
@@ -93,7 +94,7 @@ export const BarChart = ({
                         return (
                             <VictoryBar
                                 alignment="middle"
-                                labelComponent={<VictoryTooltip flyoutPadding={10} cornerRadius={10} style={{ fill: '#fff', fontFamily: 'Inter' }} flyoutStyle={{ fill: theme.colors.darkPrimary, stroke: '#fff' }} />}
+                                labelComponent={<VictoryTooltip flyoutPadding={10} cornerRadius={10} style={{ fill: '#fff', fontFamily: 'Inter' }} flyoutStyle={{ fill: themeStyles.colors.darkPrimary, stroke: '#fff' }} />}
                                 key={key}
                                 data={dataGroup}
                                 style={{

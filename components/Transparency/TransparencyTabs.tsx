@@ -1,3 +1,4 @@
+import { useAppThemeParams } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
 type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
@@ -7,16 +8,17 @@ const tabs = [
     { page: 'treasury', label: 'Treasury' },
     { page: 'dao', label: 'DAO' },
     { page: 'inv', label: 'INV' },
-    { page: 'dola', label: 'DOLA & the Feds' },
+    // { page: 'dola', label: 'DOLA & the Feds' },
     { page: 'feds', label: 'Feds' },
-    { page: 'interest-model', label: 'Interest Rates' },
+    // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
-    { page: 'shortfalls', label: 'Shortfalls' },
-    { page: 'liquidations', label: 'Liquidations' },    
+    { page: 'shortfalls', label: 'Frontier Shortfalls' },
+    { page: 'liquidations', label: 'Frontier Liquidations' },    
 ]
 
 export const TransparencyTabs = ({ active }: { active: TabsType}) => {
+    const { TABS_COLOR_SCHEME, TABS_VARIANT } = useAppThemeParams();
     const handleTab = (newIndex: number) => {
         // cleaner visually than router.push
         window.location.pathname = `/transparency/${tabs[newIndex].page}`
@@ -25,7 +27,7 @@ export const TransparencyTabs = ({ active }: { active: TabsType}) => {
     const activeIndex = tabs.findIndex(tab => tab.page === active);
 
     return (
-        <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme="white" variant='solid-rounded'>
+        <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme={TABS_COLOR_SCHEME} variant={TABS_VARIANT}>
             <TabList justifyContent={{ base: 'flex-start', sm: 'center' }}>
                 {tabs.map(tab => <Tab _focus={{outline: 'none'}} key={tab.page}>{tab.label}</Tab>)}
             </TabList>

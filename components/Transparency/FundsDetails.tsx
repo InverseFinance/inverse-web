@@ -56,7 +56,7 @@ export const FundsDetails = ({
 
     return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }}>
         <Stack>
-            <Text color="secondary" fontSize="20px" fontWeight="extrabold">{title}:</Text>
+            <Text textAlign="center" color="accentTextColor" fontSize="20px" fontWeight="extrabold">{title}:</Text>
             <Stack spacing="0" justify="center" alignItems="center" position="relative">
                 {
                     isDrilled && <Flex cursor="pointer" onClick={reset} alignItems="center" color="secondary" fontSize="12px" position="absolute" left="0" top="0">

@@ -12,6 +12,7 @@ import { useTopDelegates } from '@app/hooks/useDelegates';
 import { namedAddress } from '@app/util';
 import { ViewIcon } from '@chakra-ui/icons';
 import { TopDelegatesAutocomplete } from '../Input/TopDelegatesAutocomplete';
+import { RSubmitButton } from '../Button/RSubmitButton';
 
 type Props = {
     isOpen: boolean
@@ -45,9 +46,9 @@ export const ViewAsModal = ({
                 </Stack>
             }
             footer={
-                <SubmitButton disabled={!address || !isAddress(address)} onClick={handleViewAs}>
+                <RSubmitButton disabled={!address || !isAddress(address)} onClick={handleViewAs}>
                     VIEW ADDRESS
-                </SubmitButton>
+                </RSubmitButton>
             }
         >
             <Stack p={'5'}>

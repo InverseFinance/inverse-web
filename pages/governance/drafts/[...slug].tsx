@@ -98,7 +98,7 @@ export async function getStaticProps(context) {
       description: d.description,
       functions: d.functions,
       createdAt: d.createdAt,
-      updatedAt: d.updatedAt||'',
+      updatedAt: d.updatedAt || '',
       proposer: d.createdBy || '',
       era: GovEra.mills,
       startTimestamp: Date.now(),
@@ -120,6 +120,9 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
+  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+    return { paths: [], fallback: true }
+  }
   const client = getRedisClient();
   const drafts = JSON.parse(await client.get('drafts') || '[]');
 

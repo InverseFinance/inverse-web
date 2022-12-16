@@ -60,7 +60,7 @@ const Votes = ({ votes, status, voters, onViewAll, quorum }: VotesProps) => {
           fontWeight="semibold"
           borderRadius={8}
           textTransform="uppercase"
-          color="primary.100"
+          color="lightAccentTextColor"
           onClick={onViewAll}
           _hover={{ bgColor: 'primary.850' }}
         >

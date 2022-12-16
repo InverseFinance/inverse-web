@@ -120,8 +120,8 @@ export const GovTransparency = () => {
                                 labelWithPercInChart={true}
                                 showAsAmountOnly={true}
                             />
-                            <VStack w='full' justify="flex-start" alignItems="flex-start">
-                                <Text textAlign="left" mt="1" color="secondary" fontSize="20px" fontWeight="extrabold">
+                            <VStack w='full' justify="flex-start" alignItems="center">
+                                <Text textAlign="center" mt="1" color="accentTextColor" fontSize="20px" fontWeight="extrabold">
                                     Created Proposals Last 12 months:
                                 </Text>
                                 <ProposalBarChart maxChartWidth={450} chartData={chartData} />

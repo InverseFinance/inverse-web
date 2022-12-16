@@ -8,12 +8,13 @@ import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useCompensations, useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { CHAIN_TOKENS, RTOKEN_SYMBOL } from '@app/variables/tokens'
-import theme from '@app/variables/theme'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
+  const { themeStyles }= useAppTheme();
   const { treasury, anchorReserves, bonds, multisigs, pols } = useDAO();
   const { currentPayrolls } = useCompensations();
 
@@ -31,7 +32,7 @@ export const Overview = () => {
     return {
       title: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol} Liquidity`,
       funds: [
-        { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Protocol Owned', chartFillColor: theme.colors.secondary, chartLabelFillColor: theme.colors.secondary, balance: p.ownedAmount },
+        { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Protocol Owned', chartFillColor: themeStyles.colors.secondary, chartLabelFillColor: themeStyles.colors.secondary, balance: p.ownedAmount },
         { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Not Protocol Owned', balance: p.totalSupply - p.ownedAmount },
       ],
     }

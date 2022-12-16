@@ -1,7 +1,7 @@
-import { SubmitButton } from '@app/components/common/Button';
 import { Flex, Stack } from '@chakra-ui/react';
 import { SuccessMessage } from '@app/components/common/Messages';
 import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon, DeleteIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 
 export const ProposalFormBtns = ({
     hasTitleAndDescrption,
@@ -45,44 +45,44 @@ export const ProposalFormBtns = ({
                             <Stack direction={{ base: 'column', sm: 'row' }}>
                                 {
                                     nbActions < 20 ?
-                                        <SubmitButton disabled={nbActions === 20 || !hasTitleAndDescrption} mr="1" w={{ base: 'full', sm:'fit-content' }}  onClick={showTemplateModal}>
+                                        <RSubmitButton disabled={nbActions === 20 || !hasTitleAndDescrption} mr="1" w={{ base: 'full', sm:'fit-content' }}  onClick={showTemplateModal}>
                                             <PlusSquareIcon mr="1" /> Add a Template Action
-                                        </SubmitButton>
+                                        </RSubmitButton>
                                         : null
                                 }
-                                <SubmitButton disabled={nbActions === 20 || !hasTitleAndDescrption} ml="1" mr="1" w={{ base: 'full', sm:'fit-content' }}  onClick={() => addAction()}>
+                                <RSubmitButton disabled={nbActions === 20 || !hasTitleAndDescrption} ml="1" mr="1" w={{ base: 'full', sm:'fit-content' }}  onClick={() => addAction()}>
                                     <PlusSquareIcon mr="1" /> {nbActions === 20 ? 'Max number of actions reached' : 'Add an Empty Action'}
-                                </SubmitButton>
+                                </RSubmitButton>
 
-                                <SubmitButton themeColor="green.500" disabled={!isFormValid} ml="1" w={{ base: 'full', sm:'fit-content' }}  onClick={() => setPreviewMode(true)}>
+                                <RSubmitButton themeColor="green.500" disabled={!isFormValid} ml="1" w={{ base: 'full', sm:'fit-content' }}  onClick={() => setPreviewMode(true)}>
                                     <ViewIcon mr="1" /> Preview Proposal
-                                </SubmitButton>
+                                </RSubmitButton>
                             </Stack>
                             :
                             <Stack direction={{ base: 'column', sm: 'row' }}>
-                                <SubmitButton mr="1" w={{ base: 'full', sm:'fit-content' }}  onClick={() => setPreviewMode(false)}>
+                                <RSubmitButton mr="1" w={{ base: 'full', sm:'fit-content' }}  onClick={() => setPreviewMode(false)}>
                                     <EditIcon mr="1" />Resume Editing
-                                </SubmitButton>
+                                </RSubmitButton>
 
-                                <SubmitButton disabled={!isFormValid} ml="1" w={{ base: 'full', sm:'fit-content' }}  onClick={handlePublishDraft}>
+                                <RSubmitButton disabled={!isFormValid} ml="1" w={{ base: 'full', sm:'fit-content' }}  onClick={handlePublishDraft}>
                                     <CheckIcon mr="1" /> {isPublicDraft && draftId ? 'Update' : 'Publish'} the Draft
-                                </SubmitButton>
+                                </RSubmitButton>
 
-                                <SubmitButton themeColor="blue.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm:'fit-content' }}  onClick={handleSimulation}>
+                                <RSubmitButton themeColor="blue.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm:'fit-content' }}  onClick={handleSimulation}>
                                     <HamburgerIcon mr="1" /> Simulate Actions
-                                </SubmitButton>
+                                </RSubmitButton>
 
-                                <SubmitButton themeColor="green.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm:'fit-content' }}  onClick={handleSubmitProposal}>
+                                <RSubmitButton themeColor="green.500" disabled={!isFormValid || !nbActions} ml="2" w={{ base: 'full', sm:'fit-content' }}  onClick={handleSubmitProposal}>
                                     <CheckCircleIcon mr="1" /> Submit the Proposal
-                                </SubmitButton>
+                                </RSubmitButton>
                             </Stack>
                 }
             </Flex>
             {
                 previewMode && isPublicDraft && !!draftId && <Flex alignItems="center" justify="center" w="full" pt="10">
-                    <SubmitButton themeColor="red.500" w={{ base: 'full', sm:'fit-content' }}  onClick={handleDeleteDraft}>
+                    <RSubmitButton themeColor="red.500" w={{ base: 'full', sm:'fit-content' }}  onClick={handleDeleteDraft}>
                         <DeleteIcon mr="1" /> Delete the Draft
-                    </SubmitButton>
+                    </RSubmitButton>
                 </Flex>
             }
         </>

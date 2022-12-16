@@ -1,8 +1,8 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, FlexProps, ScaleFade, Stack, Text } from '@chakra-ui/react'
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Box, Flex, FlexProps, ScaleFade, Stack, Text } from '@chakra-ui/react'
 import Link from '@app/components/common/Link'
 import { NotifBadge } from '../NotifBadge'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const Container = ({
   label,
@@ -16,6 +16,7 @@ export const Container = ({
   contentBgColor,
   contentProps,
   collapsable = false,
+  defaultCollapse = false,
   headerProps,
   ...props
 }: Partial<Omit<FlexProps, "right">> & {
@@ -30,14 +31,16 @@ export const Container = ({
   contentProps?: FlexProps
   children?: React.ReactNode
   collapsable?: boolean,
+  defaultCollapse?: boolean,
   headerProps?: FlexProps
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(defaultCollapse);
+  const [showImage, setShowImage] = useState(!!image);
   const title = (
     <Flex cursor={collapsable ? 'pointer' : undefined} onClick={collapsable ? () => setCollapsed(!collapsed) : undefined} position="relative" w="fit-content">
       {typeof label === 'string' ? (
         <Text as="h3" fontSize="xl" fontWeight="bold" position="relative">
-          {label}
+          {label}{collapsable ? collapsed ? <ChevronRightIcon /> : <ChevronDownIcon /> : null}
         </Text>
       ) : (
         label
@@ -64,22 +67,32 @@ export const Container = ({
     </Flex>
   )
 
-  const content = <Flex w="full" borderRadius={8} mt={4} p={4} shadow="2xl" {...contentProps} bg={contentBgColor ?? 'containerContentBackground'}>
+  const content = <Flex w="full" borderRadius={8} mt={4} p={4} shadow="0 0 20px 2px rgba(0, 0, 0, 0.25)" bg={contentBgColor ?? 'containerContentBackground'} {...contentProps}>
     {children}
   </Flex>
 
+  useEffect(() => {    
+    setShowImage(!!image)
+  }, [image])
+
   return (
     <Flex w="full" direction="column" p={6} pb={0} color="mainTextColor" {...props}>
-      <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
-        <Stack direction="row" align="center">
-          {image}
-          <Flex direction="column" justify="flex-end">
+      {
+        (!!title || !!desc || !!image) && <Flex minH={noPadding ? '' : 14} w="full" justify="space-between" align="flex-end" {...headerProps}>
+        <Stack direction="row" align="center" spacing={showImage ? undefined : 0}>
+          {!!image && <Box display={showImage ? 'inline-block' : 'none'}>
+            {image}
+          </Box>}
+          {
+            (!!title || !!desc) && <Flex direction="column" justify="flex-end">
             {title}
             {desc}
           </Flex>
+          }
         </Stack>
         {right}
       </Flex>
+      }
       {
         collapsable ?
           <ScaleFade in={!collapsed} unmountOnExit={true}>

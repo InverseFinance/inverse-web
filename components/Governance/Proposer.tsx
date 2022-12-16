@@ -7,7 +7,7 @@ import Link from '../common/Link'
 export const Proposer = ({ proposer }: { proposer: string }) => {
     return <Stack direction="row" align="center">
         <Avatar address={proposer} sizePx={20} />
-        <Link fontSize="sm" href={`/governance/delegates/${proposer}`}>
+        <Link fontWeight="bold" color="secondaryTextColor" fontSize="sm" href={`/governance/delegates/${proposer}`}>
             {namedAddress(proposer, NetworkIds.mainnet)}
         </Link>
     </Stack>

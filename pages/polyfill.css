@@ -15,11 +15,20 @@ body {
       -webkit-backdrop-filter: blur(1.5rem);
       backdrop-filter: blur(1.5rem);
     }
+    .infoLight-bg {
+        background-color: #4299e144 !important;
+    }  
     .info-bg {
         background-color: #4299e122 !important;
     }    
     .primary-bg {
         background-color: #5E17EB22 !important;
+    }
+    .dark-bg {
+        background-color: #5E17EB22 !important;
+    }
+    .light-bg {
+        background-color: rgba(250, 250, 250, 0.8) !important;
     }
     .loading-bg {
         background-color: #4299e122 !important;
@@ -54,6 +63,10 @@ body {
     }
 
     .compat-mode2.primary-bg {
+        background-color: #221d45 !important;
+        opacity: 0.98;
+    }
+    .compat-mode2.dark-bg {
         background-color: #221d45 !important;
         opacity: 0.98;
     }

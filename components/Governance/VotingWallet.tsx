@@ -22,10 +22,10 @@ type VotingWalletFieldProps = {
 
 const VotingWalletField = ({ label, children }: VotingWalletFieldProps) => (
   <Flex justify="space-between">
-    <Text fontSize="sm" fontWeight="medium" color="primary.100">
+    <Text fontSize="sm" fontWeight="medium" color="secondaryTextColor">
       {label}
     </Text>
-    <Flex fontWeight="medium" fontSize="sm">
+    <Flex fontWeight="medium" fontSize="sm" color="mainTextColor">
       {children}
     </Flex>
   </Flex>
@@ -37,11 +37,11 @@ const DelegatingTo = ({ label, delegate, account, chainId }: { label: string, de
       {delegate === AddressZero ? (
         <Text color="error">Nobody</Text>
       ) : delegate === account ? (
-        <Text>Self</Text>
+        <Text  color="mainTextColor">Self</Text>
       ) : (
         <Stack direction="row" align="center">
           <Avatar address={delegate} sizePx={20}  />
-          <Text>{namedAddress(delegate, chainId)}</Text>
+          <Text color="mainTextColor">{namedAddress(delegate, chainId)}</Text>
         </Stack>
       )}
     </VotingWalletField>
@@ -87,7 +87,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             alignItems="center"
             fontSize="sm"
             fontWeight="medium"
-            color="primary.100"
+            color="secondaryTextColor"
             textDecoration="underline">
             {addressName}
           </Link>

@@ -1,6 +1,5 @@
 import { useProofOfReviews } from '@app/hooks/useProposals'
-import { HStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Stack, Text, useDisclosure, VStack } from '@chakra-ui/react';
-import { SubmitButton } from '@app/components/common/Button'
+import { HStack, Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverHeader, PopoverTrigger, Stack, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import Container from '@app/components/common/Container'
 import { useNamedAddress } from '@app/hooks/useNamedAddress';
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp';
@@ -12,6 +11,7 @@ import { ChatIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
 import { DraftReview, GovEra } from '@app/types';
 import { useEffect, useState } from 'react';
 import PromptModal from '@app/components/common/Modal/PromptModal';
+import { RSubmitButton } from '../common/Button/RSubmitButton';
 
 const ReviewItem = ({
     review
@@ -128,17 +128,17 @@ export const ProofOfReviews = ({
                     !account || !isDraft ? null
                         :
                         !accountHasReviewedDraft ?
-                            <SubmitButton themeColor="green.500" w="fit-content" onClick={addReview}>
+                            <RSubmitButton themeColor="green.500" w="fit-content" onClick={addReview}>
                                 <CheckIcon mr="1" />I Have Reviewed the Proposal
-                            </SubmitButton>
+                            </RSubmitButton>
                             :
                             <Stack direction={{ base: 'column', lg: 'row' }}>
-                                <SubmitButton themeColor="blue.500" w="fit-content" onClick={addReview}>
+                                <RSubmitButton themeColor="blue.500" w="fit-content" onClick={addReview}>
                                     <EditIcon mr="1" />Edit my Review
-                                </SubmitButton>
-                                <SubmitButton themeColor="orange.400" w="fit-content" onClick={removeReview}>
+                                </RSubmitButton>
+                                <RSubmitButton themeColor="orange.400" w="fit-content" onClick={removeReview}>
                                     <CloseIcon mr="1" /> Remove My Proof of Review
-                                </SubmitButton>
+                                </RSubmitButton>
                             </Stack>
                 }
             </VStack>

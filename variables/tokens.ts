@@ -53,7 +53,7 @@ const chainTokenAddresses = {
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
     VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
-    LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',
+    LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',    
     BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     // yearn vaults
@@ -87,6 +87,7 @@ const chainTokenAddresses = {
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
     WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+    WBTC: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
     INV: '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4',
   }
 }
@@ -367,7 +368,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DBR,
       name: 'DBR',
       symbol: 'DBR',
-      image: '/assets/v2/dbr-small.png',
+      image: '/assets/v2/dbr.jpg',
       decimals: 18,
     },
     [chainTokenAddresses["1"].VLAURA]: {
@@ -440,12 +441,20 @@ const chainTokens = {
     },
   },
   "5": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'Ether',
+      symbol: 'ETH',
+      coingeckoId: 'ethereum',
+      image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+      decimals: 18,
+    },
     [chainTokenAddresses["5"].DOLA]: {
       address: chainTokenAddresses["5"].DOLA,
       name: 'Dola',
       symbol: 'DOLA',
       coingeckoId: 'dola-usd',
-      image: 'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
       decimals: 18,
     },
     [chainTokenAddresses["5"].WETH]: {
@@ -456,6 +465,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/2518/small/weth.png',
       decimals: 18,
       isWrappedChainCoin: true,
+    },
+    [chainTokenAddresses["5"].WBTC]: {
+      address: chainTokenAddresses["5"].WBTC,
+      name: 'Wrapped Bitcoin',
+      symbol: 'WBTC',
+      coingeckoId: 'wrapped-bitcoin',
+      image: 'https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png',
+      decimals: 8,
     },
   },
   "10": {
@@ -584,7 +601,6 @@ const chainUnderlying = {
     '0xb7159DfbAB6C99d3d38CFb4E419eb3F6455bB547': getToken(TOKENS, chainTokenAddresses["1"].YVCRVIB),
     '0x1429a930ec3bcf5Aa32EF298ccc5aB09836EF587': getToken(TOKENS, chainTokenAddresses["1"].YVCRV3CRYPTO),
     '0xD904235Dc0CD28f42AEECc0CD6A7126d871edaa4': getToken(TOKENS, chainTokenAddresses["1"].YVCRVSTEHWETH),
-
   }
 }
 chainUnderlying["31337"] = chainUnderlying["1"];

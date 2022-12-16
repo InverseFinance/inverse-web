@@ -1,4 +1,4 @@
-import theme from '@app/variables/theme'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 import { Box, StackProps, Text, VStack } from '@chakra-ui/react'
 import { chakra } from '@chakra-ui/system'
 
@@ -15,6 +15,7 @@ export const AnchorBigButton = ({
     onClick: () => void
     isActive?: boolean
 }) => {
+    const { themeStyles } = useAppTheme();
     return <VStack
         fontWeight="bold"
         cursor={ isActive ? 'pointer' : 'not-allowed' }
@@ -26,11 +27,11 @@ export const AnchorBigButton = ({
         alignItems="flex-start"
         justify="center"
         color="mainTextColor"
-        textShadow={`2px 2px ${theme.colors.darkPrimary}`}
+        textShadow={`2px 2px ${themeStyles.colors.darkPrimary}`}
         textTransform="none"
         spacing="0"
         h="150px"
-        fontSize="30px"
+        fontSize="26px"
         w={{ base: 'full', lg: '50%' }}
         position="relative"
         p="0"
@@ -43,10 +44,10 @@ export const AnchorBigButton = ({
         <Box zIndex="1" position="absolute" top="-1px" bottom="-1px" left="-1px" right="-1px" margin="auto"
             background="verticalGradient" />
         <Box zIndex="2" position="relative" w="full" py="2" px="6">
-            <chakra.span zIndex="2" fontWeight="extrabold">
+            <chakra.span color="white" zIndex="2" fontWeight="extrabold">
                 {title}
             </chakra.span>
-            <Text zIndex="2" fontSize="18px" color="secondary" textShadow="1px 1px #333" >
+            <Text zIndex="2" fontSize="18px" color="white" textShadow="1px 1px #333" >
                 {subtitle}
             </Text>
         </Box>

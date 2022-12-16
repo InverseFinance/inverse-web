@@ -47,6 +47,13 @@ content {
 }
 `
 
+const LANDING_PAGE_POSTS_FIELDS = `
+slug
+title
+date
+readtime
+`
+
 async function fetchGraphQL(query, preview = false) {
   return fetch(
     `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
@@ -99,6 +106,19 @@ export async function getAllPostsWithSlug() {
   return extractPostEntries(entries)
 }
 
+export async function getLandingPosts() {
+  const entries = await fetchGraphQL(
+    `query {
+      postCollection(where: { slug_exists: true}, order: date_DESC, limit: 5) {
+        items {
+          ${POST_GRAPHQL_FIELDS}
+        }
+      }
+    }`
+  )
+  return extractPostEntries(entries)
+}
+
 export async function getAllPostsForHome({
   preview,
   locale = 'en-US',
@@ -141,7 +161,6 @@ export async function getAllPostsForHome({
     q,
     preview
   )
-
   const posts = extractPostEntries(entries);
   return byTag ? posts.filter(p => !!p.tagsCollection.items.find(tag => tag.name === byTag)) : posts
 }

@@ -71,7 +71,7 @@ export const AnchorModal = ({
     switch (operation) {
       case AnchorOperations.supply:
         return balances
-          ? (formatUnits(balances[asset.underlying.address || 'CHAIN_COIN'], asset.underlying.decimals))
+          ? (formatUnits(balances[asset.underlying.address || 'CHAIN_COIN']|| BigNumber.from('0'), asset.underlying.decimals))
           : '0'
       case AnchorOperations.withdraw:
         const supply =
@@ -132,7 +132,7 @@ export const AnchorModal = ({
       <Image w={5} h={5} src={asset.underlying.image} alt={asset.underlying.symbol} />
       {!!asset.underlying.protocolImage && <Image borderRadius="20px" position="absolute" bottom="0" right="-5px" w={3} h={3} src={asset.underlying.protocolImage} alt="protocol" />}
     </Flex>
-    <Text fontSize="sm" fontWeight="semibold" color="primary.100" align="center">
+    <Text fontSize="sm" fontWeight="semibold" color="lightAccentTextColor" align="center">
       {asset.underlying.symbol.replace('-SLP', '')}
     </Text>
   </Stack>
@@ -270,7 +270,7 @@ export const AnchorModal = ({
         <Stack align="center" spacing={1}>
           <Flex w="full" justify="flex-end" align="flex-end">
             <Stack direction="row" align="flex-end" spacing={1}>
-              <Text fontSize="13px" fontWeight="semibold" color="primary.250">
+              <Text fontSize="13px" fontWeight="semibold" color="lightAccentTextColor">
                 {`${maxLabel()}:`}
               </Text>
               <Text fontSize="13px" fontWeight="semibold">

@@ -1,6 +1,7 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { AreaChart, AreaChartProps } from '@app/components/Transparency/AreaChart'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 export const BondsAreaChart = ({
     chartData,
@@ -12,6 +13,7 @@ export const BondsAreaChart = ({
     onlyChart?: boolean,
     maxChartWidth?: number
 } & Partial<AreaChartProps>) => {
+    const { themeStyles } = useAppTheme();
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
 
@@ -27,7 +29,7 @@ export const BondsAreaChart = ({
                 width={chartWidth}
                 data={chartData}
                 titleProps={{
-                    style:{ fill: 'white', fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
+                    style:{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontWeight: 'bold', fontSize: chartWidth > 400 ? 20 : undefined },
                     y: 10,
                 }}            
                 {...props}

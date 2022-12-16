@@ -3,14 +3,14 @@ import { VictoryChart, VictoryLabel, VictoryAxis, VictoryPie, VictoryTheme, Vict
 import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
-import THEME, { CHART_COLORS } from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: string, y: number, perc?: number }[]
 
 const defaultGraphicData = [{ x: 'Loading...', y: 100 }]; // Data used to make the animate prop work
 class CustomLabel extends React.Component {
     render() {
-        const { datum, showAsAmountOnly } = this.props;
+        const { datum, showAsAmountOnly, themeStyles } = this.props;    
         return (
             <g>
                 <VictoryLabel {...this.props} />
@@ -27,7 +27,7 @@ class CustomLabel extends React.Component {
                             `${shortenNumber(datum.y, 2, !showAsAmountOnly)} (${shortenNumber(datum.perc, 2)}%)`,
                         ]}
                     />}
-                    flyoutStyle={{ fill: THEME.colors.darkPrimary, stroke: '#fff' }}
+                    flyoutStyle={{ fill: themeStyles.colors.darkPrimary, stroke: '#fff' }}
                     flyoutPadding={10}
                     flyoutHeight={80}
                 />
@@ -45,7 +45,7 @@ export const PieChart = ({
     width = 250,
     height = 250,
     padding = defaultPadding,
-    colorScale = CHART_COLORS,
+    colorScale,
     handleDrill,
     showTotalUsd = false,
     showAsAmountOnly = false,
@@ -60,6 +60,9 @@ export const PieChart = ({
     showAsAmountOnly?: boolean,
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
+    const { themeStyles, themeParams } = useAppTheme();
+    const { CHART_COLORS } = themeParams;
+    const _colorScale = colorScale || CHART_COLORS;
 
     useDebouncedEffect(() => {
         const _data = data.length === 1 && data[0].y === 0 ? [{ ...data[0], y: 1e-18 }] : data;
@@ -101,10 +104,10 @@ export const PieChart = ({
                     padding={{ ...defaultPadding, ...padding }}
                     theme={VictoryTheme.material}
                     data={chartData}
-                    labelComponent={<CustomLabel showAsAmountOnly={showAsAmountOnly} />}
+                    labelComponent={<CustomLabel themeStyles={themeStyles} showAsAmountOnly={showAsAmountOnly} />}
                     padAngle={20}
                     innerRadius={35}
-                    colorScale={colorScale}
+                    colorScale={_colorScale}
                     events={[
                         {
                             target: "data",
@@ -121,7 +124,7 @@ export const PieChart = ({
                                                 :
                                                 (opt) => {
                                                     return ({
-                                                        style: { ...opt.style, fill: THEME.colors.secondary }
+                                                        style: { ...opt.style, fill: themeStyles.colors.secondary }
                                                     })
                                                 }
                                         },
@@ -160,7 +163,7 @@ export const PieChart = ({
                                                 :
                                                 (opt) => {
                                                     return ({
-                                                        style: { ...opt.style, fill: THEME.colors.secondary }
+                                                        style: { ...opt.style, fill: themeStyles.colors.secondary }
                                                     })
                                                 }
                                         },
@@ -171,7 +174,7 @@ export const PieChart = ({
                                                 :
                                                 (opt) => {
                                                     return ({
-                                                        style: { ...opt.style, fill: THEME.colors.secondary }
+                                                        style: { ...opt.style, fill: themeStyles.colors.secondary }
                                                     })
                                                 }
                                         },
@@ -195,21 +198,21 @@ export const PieChart = ({
                     style={{
                         data: {
                             fillOpacity: 0.9,
-                            stroke: "#fff",
+                            stroke: themeStyles.colors.mainTextColor,
                             strokeWidth: 1,
                             cursor: ({ datum }) => datum.fund?.drill ? 'pointer' : 'normal',
-                            fill: ({ datum }) => datum.fill || colorScale[datum._x - 1],
+                            fill: ({ datum }) => datum.fill || _colorScale[datum._x - 1],
                         },
                         labels: {
                             fontSize: 12,
-                            fill: ({ datum }) => datum.labelFill || '#fff',
+                            fill: ({ datum }) => datum.labelFill || themeStyles.colors.mainTextColor,
                             cursor: (p) => p.datum.fund?.drill ? 'pointer' : 'normal',
                         },
                     }}
                 />
                 {
                     showTotalUsd && <text
-                        fill="#fff"
+                        fill={themeStyles.colors.mainTextColor}
                         dominantBaseline="middle"
                         textAnchor="middle"
                         x="50%"

@@ -3,12 +3,13 @@ import { shortenNumber } from '@app/util/markets';
 import { useBondsDeposits } from '@app/hooks/useBonds';
 import { BondsAreaChart } from './BondsAreaChart';
 import { BondsBarChart } from './BondsBarChart';
-import theme from '@app/variables/theme';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import moment from 'moment';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export const BondsStatsView = () => {
     const { deposits, acc, lastUpdate } = useBondsDeposits();
+    const { themeStyles } = useAppTheme();
 
     const invExchanged = deposits?.map(d => {
         const date = new Date(d.timestamp);
@@ -97,7 +98,7 @@ export const BondsStatsView = () => {
                                 <BondsBarChart
                                     title={`Monthly INV exchanged for bonds`}
                                     chartData={invExchanged}
-                                    colorScale={[theme.colors.info]}
+                                    colorScale={[themeStyles.colors.info]}
                                 />
                                 {
                                     inputReceived.map(d => {

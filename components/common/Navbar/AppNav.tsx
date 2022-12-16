@@ -1,4 +1,4 @@
-import { CloseIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
+import { CloseIcon, MoonIcon, SunIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -12,7 +12,7 @@ import {
   useDisclosure,
   Box,
   VStack,
-  useMediaQuery,
+  useMediaQuery,  
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -28,8 +28,6 @@ import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
 import { isPreviouslyConnected } from '@app/util/web3';
 import { NetworkItem } from '@app/components/common/NetworkItem'
-import { NetworkIds } from '@app/types'
-import { getINVsFromFaucet, getDOLAsFromFaucet } from '@app/util/contracts'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
@@ -54,27 +52,32 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
+import { switchTheme } from '@app/util/theme'
+import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay'
-
+import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
+import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 const NAV_ITEMS = MENUS.nav
 
-const NavBadge = (props: any) => (
-  <Flex
+const NavBadge = (props: any) => {
+  const { NAV_BUTTON_BG, NAV_BUTTON_BORDER_COLOR, NAV_BUTTON_TEXT_COLOR } = useAppThemeParams();
+  return <Flex
     justify="center"
     fontSize="12px"
     h="40px"
     align="center"
-    bgColor="primary.800"
+    bgColor={NAV_BUTTON_BG}
     borderRadius={4}
     borderWidth={1}
-    borderColor="primary.700"
+    borderColor={NAV_BUTTON_BORDER_COLOR}
     fontWeight="semibold"
-    color="mainTextColor"
+    color={NAV_BUTTON_TEXT_COLOR}
     p={2}
     px={{ base: '2', xl: '4' }}
     {...props}
   />
-)
+}
 
 const NetworkBadge = ({
   chainId,
@@ -90,13 +93,12 @@ const NetworkBadge = ({
 
   const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
 
-  const network = getNetwork(chainId || '');
-  const bgColor = network?.bgColor || 'primary.800';
-
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
-      onClick={isWrongNetwork ? showWrongNetworkModal : undefined} bgColor={bgColor}>
+      onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
+    // bg={'primary.800'}
+    >
       <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
@@ -238,6 +240,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
+  const { themeName } = useAppTheme();
   const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
@@ -245,6 +248,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
   const { isOpen: isViewAsOpen, onOpen: onViewAsOpen, onClose: onViewAsClose } = useDisclosure()
+  const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
 
   useDualSpeedEffect(() => {
     setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
@@ -308,23 +312,25 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       <PopoverTrigger>
         <Flex
           justify="center"
-          bgColor="primary.600"
+          bg={BUTTON_BG}
+          border={`1px solid ${BUTTON_BORDER_COLOR}`}
           cursor="pointer"
           fontSize="sm"
           align="center"
           borderRadius={4}
           fontWeight="semibold"
-          color="mainTextColor"
+          color={BUTTON_TEXT_COLOR}
           p={2.5}
           pl={4}
           pr={4}
-          _hover={{ bgColor: 'primary.600' }}
+          h="40px"
+          _hover={{ filter: 'brightness(1.25)' }}
           alignItems="center"
           data-testid={TEST_IDS.connectBtn}
           position="relative"
         >
           {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
-          <Text>{connectBtnLabel}</Text>
+          <Text color={BUTTON_TEXT_COLOR}>{connectBtnLabel}</Text>
           {/* {
             !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
           } */}
@@ -359,6 +365,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               >
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
+              </ConnectionMenuItem>
+              <ConnectionMenuItem
+                onClick={() => switchTheme()}
+              >
+                {themeName === 'dark' ? <SunIcon boxSize={6} /> : <MoonIcon boxSize={6} />}
+                <Text fontWeight="semibold">
+                  {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </Text>
               </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
@@ -397,6 +411,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 </ConnectionMenuItem>
               </CoinbasePayButton>
             }
+            <ConnectionMenuItem
+              onClick={() => switchTheme()}
+            >
+              {themeName === 'dark' ? <SunIcon boxSize={3} /> : <MoonIcon boxSize={3} />}
+              <Text fontWeight="semibold">
+                {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </Text>
+            </ConnectionMenuItem>
             {/* {
               !!account && <LiquidationsMenuItem account={userAddress} />
             } */}
@@ -425,18 +447,26 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
+  const { themeName } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
-  const [showMobileNav, setShowMobileNav] = useState(false)
+  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
+  const [showMobileNav, setShowMobileNav] = useState(false);
+  const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
+  const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
 
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
+
+  useDebouncedEffect(() => {
+    setShowAirdropModal(isEligible && !hasClaimed);
+  }, [isEligible, hasClaimed], 1000);
 
   useEffect(() => {
     const init = async () => {
@@ -519,9 +549,17 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
+      {
+        showAirdropModal && <AirdropModalCheck
+          isOpen={isAirdropOpen}
+          onOpen={onAirdropOpen}
+          onClose={onAirdropClose}
+        />
+      }
       <Flex
         w={'100vw'}
-        backgroundColor="navBarBackground"
+        background="navBarBackground"
+        backgroundColor="navBarBackgroundColor"
         borderColor="navBarBorderColor"
         borderBottomWidth={showMobileNav ? 0 : 1}
         p={4}
@@ -533,7 +571,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
       >
         <Stack direction="row" align="center" spacing={5}>
           <Link href="/">
-            <Logo boxSize={10} />
+            <Logo boxSize={10} noFilter={true} />
           </Link>
           <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
@@ -565,7 +603,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
                   {
                     submenus?.length > 0 &&
                     <PopoverContent maxW="230px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
-                      <PopoverBody className="blurred-container primary-bg compat-mode2" borderRadius="10px">
+                      <PopoverBody className={`blurred-container ${themeName}-bg compat-mode2`} borderRadius="10px">
                         <VStack spacing="4" p="4">
                           {
                             submenus
@@ -606,9 +644,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
         }
         <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
-            <Image w={4} h={4} src="/assets/cancel.svg" alt="Cancel" />
+            <Image w={4} h={4} src="/assets/cancel.svg" alt="Cancel" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
           ) : (
-            <Image w={6} h={6} src="/assets/hamburger.svg" alt="Menu" />
+            <Image w={6} h={6} src="/assets/hamburger.svg" alt="Menu" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
           )}
           {
             active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>
@@ -630,7 +668,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false }: { active?: str
             borderColor="primary.800"
           >
             {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? 'mainTextColor' : 'secondaryTextColor'}>
+              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? 'mainTextColor' : 'accentTextColor'}>
                 {label}
                 {
                   href === '/governance' && nbNotif > 0 &&

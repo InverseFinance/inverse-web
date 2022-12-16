@@ -24,7 +24,7 @@ export const NetworkItem = ({
                     <Image src={getNetworkImage(network?.id)} ignoreFallback={true} alt={network?.codename} w={5} h={5} mr="2" />
                     :
                     <Tooltip label="Unsupported Network">
-                        <WarningIcon color="orange.100" w={5} h={5} mr="2" />
+                        <WarningIcon color="warning" w={5} h={5} mr="2" />
                     </Tooltip>
             }
             {network && network[networkAttribute] ? network[networkAttribute] : networkAttribute === null ? null : 'Unknown Network'}

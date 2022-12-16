@@ -1,28 +1,19 @@
-import { Flex, Image, Stack, Text } from '@chakra-ui/react'
-import LinkButton from '@app/components/common/Button'
+import { Flex, Stack, Text } from '@chakra-ui/react'
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
-import { useState } from 'react'
-import { Announcement } from '@app/components/common/Announcement'
+import { lightTheme } from '@app/variables/theme';
+import { MENUS } from '@app/variables/menus'
+import { LandingOutlineButton, LandingSubmitButton } from '../Button/RSubmitButton'
+import { biggerSize, slightlyBiggerSize, slightlyBiggerSize3, smallerSize2, normalSize, slightlyBiggerSize2, smallerSize } from '@app/variables/responsive';
 
-const INVERSE_NAV = [
-  {
-    label: 'Docs',
-    href: 'https://docs.inverse.finance/',
-  },
-  {
-    label: 'Analytics',
-    href: '/analytics',
-  },
-  {
-    label: 'Blog',
-    href: '/blog',
-  },
-]
+const NAV_ITEMS = MENUS.nav
 
-export const LandingNav = () => {
-  const [showMobileNav, setShowMobileNav] = useState(false)
-
+export const LandingNav = ({
+  isBottom = false
+}: {
+  isBottom?: boolean
+}) => {
+  const Btn = isBottom ? LandingSubmitButton : LandingOutlineButton;
   return (
     <>
       <Flex
@@ -30,59 +21,51 @@ export const LandingNav = () => {
         bgColor="transparent"
         justify="space-between"
         align="center"
-        p={4}
+        py={isBottom ? 0 : '4vh'}
+        px={0}
         zIndex="docked"
       >
-        <Stack direction="row" align="center">
-          <Logo boxSize={10} />
+        <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
+          <Logo minH="30px" minW="30px" boxSize={isBottom ? '2vmax' : '4vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
+          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} 
+            fontWeight="bold"
+            fontSize={isBottom ? normalSize : slightlyBiggerSize}>
+            Inverse Finance
+          </Text>
         </Stack>
-        <Stack direction="row" spacing={12} fontWeight="semibold" align="center" display={{ base: 'none', md: 'flex' }}>
-          {INVERSE_NAV.map(({ label, href }, i) => (
-            <Link key={i} fontWeight="medium" href={href} isExternal>
+        <Stack spacing="2vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
+          {NAV_ITEMS.map(({ label, href }, i) => (
+            <Link
+              key={i}
+              fontWeight="bold"
+              href={href}
+              isExternal
+              color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
+              _hover={{ textDecoration: 'underline' }}
+              fontSize={isBottom ? smallerSize2 : smallerSize}
+            >
               {label}
             </Link>
           ))}
-          <Flex w={28}>
-            <LinkButton flexProps={{ bgColor: "primaryPlus" }} href="/frontier">Enter App</LinkButton>
-          </Flex>
-        </Stack>
-        <Flex display={{ base: 'flex', md: 'none' }} w={6} onClick={() => setShowMobileNav(!showMobileNav)}>
-          {showMobileNav ? (
-            <Image w={4} h={4} src="/assets/cancel.svg" alt="cancel" />
-          ) : (
-            <Image w={6} h={6} src="/assets/hamburger.svg" alt="menu" />
-          )}
-        </Flex>
-      </Flex>
-      <Flex
-        w="full"
-        opacity={showMobileNav ? 1 : 0}
-        position="absolute"
-        transitionDuration="0.1s"
-        transitionTimingFunction="ease"
-      >
-        <Stack
-          w="full"
-          bgColor="primary.900"
-          mt={8}
-          borderRadius={8}
-          fontWeight="semibold"
-          spacing={6}
-          p={4}
-          pt={16}
-          borderBottomColor="primary.800"
-          borderBottomWidth={1}
-          display={showMobileNav ? 'flex' : 'none'}
-        >
-          {INVERSE_NAV.map(({ label, href }, i) => (
-            <Link key={i} href={href} isExternal>
-              {label}
-            </Link>
-          ))}
-          <Link href="/frontier">Enter App</Link>
+          <Btn
+              href="/firm"
+              fontWeight="bold"
+              // fontSize={slightlyBiggerSize}
+              outline={isBottom ? '2px solid white' : `2px solid ${lightTheme.colors.mainTextColor}`}
+              bgColor={isBottom ? 'transparent' : 'white'}
+              // h="50px"
+              // py="2.2vmax"
+              // px="3vmax"
+              py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}
+              transition="transform ease-in-out 200ms"
+              _hover={{ transform: 'scale(1.03)' }}
+              maxW={{ base: '145px', '2xl': 'none' }}
+              fontSize={smallerSize2}
+            >
+              Enter App
+            </Btn>
         </Stack>
       </Flex>
-      {!showMobileNav && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement isLanding={true} />}
     </>
   )
 }

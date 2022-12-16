@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react'
 import '../blog/styles/index.css'
 import './polyfill.css'
+import './animations.css'
 import '@fontsource/inter/100.css'
 import '@fontsource/inter/200.css'
 import '@fontsource/inter/300.css'
@@ -11,7 +12,6 @@ import '@fontsource/inter/700.css'
 import '@fontsource/inter/800.css'
 import '@fontsource/inter/900.css'
 import '@app/pages/markdown.css'
-import theme from '@app/variables/theme'
 import { fetcher, getLibrary } from '@app/util/web3'
 import { Web3ReactProvider } from '@web3-react/core'
 import { AppProps } from 'next/app'
@@ -20,11 +20,13 @@ import { SWRConfig } from 'swr'
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
 const App = ({ Component, pageProps }: AppProps) => {
-  const router = useRouter()
+  const router = useRouter();
+  const { themeStyles } = useAppTheme();
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
@@ -42,13 +44,13 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, [router.events])
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider theme={themeStyles}>
       <Web3ReactProvider getLibrary={getLibrary}>
         <Head>
           <title>{process.env.NEXT_PUBLIC_TITLE}</title>
           <meta name="description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Stake INV to earn interests and borrow DOLA our decentralized stablecoin." />
-          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, WBTC, YFI, INV, DOLA, FLOKI, xSushi, borrow, lend, bonds, positive-sum, rewards, transparency, anchor, frontier" />
-          
+          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, WBTC, YFI, INV, DOLA, FLOKI, xSushi, borrow, lend, bonds, positive-sum, rewards, transparency, anchor, frontier, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
+
           <meta name="og:title" content="Inverse Finance" />
           <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Stake INV to earn interests and borrow DOLA our decentralized stablecoin." />
           <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/1Ma9aOfVoZhPqBSfWypXPO/51c94241f900cd3f3252e4628916250e/inv_medium_article_image_1.png?w=3840&q=75" />

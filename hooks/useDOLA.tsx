@@ -5,12 +5,15 @@ import { Web3Provider } from '@ethersproject/providers';
 import { useCustomSWR } from './useCustomSWR';
 import { usePositions } from './usePositions';
 import { getNetworkConfigConstants } from '@app/util/networks';
+import useEtherSWR from './useEtherSWR';
+import { getBnToNumber } from '@app/util/markets';
+import { BigNumber } from 'ethers';
 
 type DOLA = {
   totalSupply: number
 }
 
-const { ANCHOR_DOLA } = getNetworkConfigConstants();
+const { ANCHOR_DOLA, DOLA } = getNetworkConfigConstants();
 
 export const useDOLA = (): SWR & DOLA => {
   const { chainId } = useWeb3React<Web3Provider>()
@@ -53,4 +56,14 @@ export const useDOLAShortfall = (): SWR & DOLA & {
     isLoading: !error && !data,
     isError: error,
   }
+}
+
+export const useDOLABalance = (account: string) => {
+  const { data, error } = useEtherSWR([DOLA, 'balanceOf', account]);
+  return {
+    bnBalance: data || BigNumber.from('0'),
+    balance: data ? getBnToNumber(data) : 0,
+    isLoading: !data && !error,
+    hasError: !data && !!error,
+  };
 }

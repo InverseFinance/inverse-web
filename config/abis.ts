@@ -87,6 +87,11 @@ export const DOLA_ABI = ERC20_ABI.concat([
   "function operator() public view returns(address)",
 ])
 
+export const WETH_ABI = ERC20_ABI.concat([
+  "function deposit() public payable",
+  "function withdraw(uint) public",
+])
+
 export const FAUCET_ABI = [
   // will depend on contract
 ];
@@ -198,6 +203,14 @@ export const FED_ABI = [
   "event Contraction (uint256 amount)",
 ]
 
+export const FIRM_FED_ABI = [
+  "function chair() public view returns (address)",
+  "function gov() public view returns (address)",
+  "function globalSupply() public view returns (uint256)",
+  "event Expansion (address indexed market, uint256 amount)",
+  "event Contraction (address indexed market, uint256 amount)",
+]
+
 // Cross-chain fed contract
 export const XCHAIN_FED_ABI = [
   "function chair() public view returns (address)",
@@ -286,17 +299,17 @@ export const BOND_V2_ABI = [
   `event MarketCreated (uint indexed id, address indexed payoutToken, address indexed quoteToken, uint vesting, uint initialPrice)`,
 ]
 
-export const BOND_V2_FIXED_TELLER_ABI = [  
+export const BOND_V2_FIXED_TELLER_ABI = [
   `function purchase(address rec, address ref, uint id, uint amount, uint minAmountOut) external returns (uint, uint)`,
   `function redeem(uint tokenId, uint amount) public`,
   "function tokenMetadata(uint) public view returns (tuple(bool, address, uint, uint, uint))",
   "function balanceOf(address, uint) public view returns (uint)",
   "function getTokenNameAndSymbol(uint) public view returns (string, string)",
-  "event TransferSingle (address indexed operator, address indexed from, address indexed to, uint256 id, uint256 amount)",  
-  "event Bonded (uint indexed id, address indexed ref, uint amount, uint payout)",  
+  "event TransferSingle (address indexed operator, address indexed from, address indexed to, uint256 id, uint256 amount)",
+  "event Bonded (uint indexed id, address indexed ref, uint amount, uint payout)",
 ]
 
-export const BOND_V2_AGGREGATOR_ABI = [  
+export const BOND_V2_AGGREGATOR_ABI = [
   "function liveMarketsFor(address, bool isPayout) public view returns (uint256[])",
   "function marketsFor(address, address) public view returns (uint256[])",
   `function getTeller(uint) public view returns (address)`,
@@ -380,6 +393,74 @@ export const BALANCER_VAULT_ABI = [
   "function getPoolTokens(bytes32 poolId) public view returns (address[], uint256[], uint256)"
 ]
 
+export const DBR_ABI = ERC20_ABI.concat([
+  "function balances(address) public view returns (uint)",
+  "function totalDueTokensAccrued() public view returns (uint)",
+  "function markets(address) public view returns (bool)",
+  "function debts(address) public view returns (uint)",
+  "function dueTokensAccrued(address) public view returns (uint)",
+  "function lastUpdated(address) public view returns (uint)",
+  "function deficitOf(address) public view returns (uint)",
+  "function signedBalanceOf(address) public view returns (int)",
+  "function replenishmentPriceBps() public view returns (uint)",
+]);
+
+export const F2_ORACLE_ABI = [
+  "function getPrice(address collateral, uint collateralFactorBps) external returns (uint)",
+  "function viewPrice(address collateral, uint collateralFactorBps) public view returns (uint)",
+];
+
+export const F2_SIMPLE_ESCROW = [
+  "function balance() public view returns (uint)",
+];
+
+export const F2_CONTROLLER_ABI = [
+  "function dailyLimits(address market) public view returns (uint) ",
+  "function dailyBorrows(address market, uint day) public view returns (uint) ",
+];
+
+export const F2_MARKET_ABI = [
+  "function borrowController() public view returns (address)",
+  "function collateral() public view returns (address)",
+  "function collateralFactorBps() public view returns (uint)",
+  "function replenishmentIncentiveBps() public view returns (uint)",
+  "function liquidationIncentiveBps() public view returns (uint)",
+  "function oracle() public view returns (address)",
+  "function borrowPaused() public view returns (bool)",
+  "function totalDebt() public view returns (uint)",
+  "function escrows(address) public view returns (address)",
+  "function debts(address) public view returns (uint)",
+  "function predictEscrow(address user) public view returns (address)",
+  "function getCreditLimit(address user) public view returns (uint)",
+  "function getWithdrawalLimit(address user) public view returns (uint)",
+  "function getCollateralValue(address user) public view returns (uint)",
+  // "function deposit(uint amount) public",
+  "function deposit(address user, uint amount) public",
+  "function borrow(uint amount) public",
+  "function withdraw(uint amount) public",
+  "function liquidationFactorBps() public view returns (uint)",
+  "function repay(address user, uint amount) public",
+  "function repayAndWithdraw(uint repayAmount, uint withdrawAmount) public",
+  "function depositAndBorrow(uint amountDeposit, uint amountBorrow) public",
+  "function forceReplenish(address user, uint amount) public",
+  "function forceReplenishAll(address user) public",
+  "function liquidate(address user, uint repaidDebt) public",
+  "event Deposit(address indexed account, uint amount)",
+  "event Borrow(address indexed account, uint amount)",
+  "event Withdraw(address indexed account, address indexed to, uint amount)",
+  "event Repay(address indexed account, address indexed repayer, uint amount)",
+  "event ForceReplenish(address indexed account, address indexed replenisher, uint deficit, uint replenishmentCost, uint replenisherReward)",
+  "event Liquidate(address indexed account, address indexed liquidator, uint repaidDebt, uint liquidatorReward)",
+  "event CreateEscrow(address indexed user, address escrow)",
+];
+
+export const MERKLE_DROP_ABI = [
+  "function verifyClaim(address, uint256, uint256, bytes32[]) public view returns (bool)",
+  "function hasClaimed(address, uint256) public view returns (bool)",
+  "function claimTranche(address, uint256, uint256, bytes32[]) public",
+  "function claimTranches(address, uint256[], uint256[], bytes32[][]) public",
+];
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -407,6 +488,11 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     STABILIZER,
     DEBT_REPAYER,
     DEBT_CONVERTER,
+    DBR,
+    DBR_AIRDROP,
+    F2_ORACLE,
+    F2_CONTROLLER,
+    F2_MARKETS,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -431,6 +517,11 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [STABILIZER, STABILIZER_ABI],
         [DEBT_REPAYER, DEBT_REPAYER_ABI],
         [DEBT_CONVERTER, DEBT_CONVERTER_ABI],
+        [DBR, DBR_ABI],
+        [DBR_AIRDROP, MERKLE_DROP_ABI],
+        [F2_ORACLE, F2_ORACLE_ABI],
+        [F2_CONTROLLER, F2_CONTROLLER_ABI],
+        ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
         [BOND_V2_FIXED_TERM, BOND_V2_ABI],
         [BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI],
         [BOND_V2_AGGREGATOR, BOND_V2_AGGREGATOR_ABI],
@@ -438,7 +529,15 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
       ],
-      Object.keys(TOKENS).map((address) => [address, address === INV ? INV_ABI : address === DOLA ? DOLA_ABI : ERC20_ABI])
+      Object.keys(TOKENS).map((address) => [address,
+        address === DBR ?
+          DBR_ABI :
+          address === INV ?
+            INV_ABI :
+            address === DOLA ?
+              DOLA_ABI :
+              ERC20_ABI
+      ])
     )
   )
 }

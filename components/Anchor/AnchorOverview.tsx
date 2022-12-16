@@ -1,5 +1,5 @@
 import { Flex, Stack, Text, Badge, useDisclosure, VStack, Box } from '@chakra-ui/react'
-import { StyledButton } from '@app/components/common/Button'
+import { OutlineButton, StyledButton, SubmitButton } from '@app/components/common/Button'
 import Container from '@app/components/common/Container'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 import { useAnchorRewards } from '@app/hooks/useAnchorRewards'
@@ -98,7 +98,7 @@ export const AnchorOverview = () => {
       }
       <Container
         noPadding
-        contentBgColor="gradient2"
+        // contentBgColor="gradient2"
         contentProps={{
           cursor: 'pointer',
           onClick: () => isDetailsOpen ? onDetailsClose() : onDetailsOpen(),
@@ -118,24 +118,26 @@ export const AnchorOverview = () => {
         right={
           <Stack visibility={!account ? 'hidden' : 'visible'} direction={{ base: 'column-reverse', sm: 'row' }} align="center" textAlign="end">
             <Flex flexDirection="row" alignItems="center">
-              <Text color="secondary" fontSize="14" mr="2" fontWeight="bold">
+              <Text color="accentTextColor" fontSize="14" mr="2" fontWeight="bold">
                 {`${rewardAmount?.toFixed(4)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards`}
               </Text>
               <AnimatedInfoTooltip
-                iconProps={{ boxSize: 3, mt: '2px' }}
+                iconProps={{ boxSize: 3, mt: '2px', color: 'accentTextColor' }}
                 message={
                   <>
                     This represents the total amount of your accrued {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} rewards across all incentivized pools. To earn rewards, deposit assets to a market that shows a positive <b>Reward APR</b>.
                   </>
                 } />
             </Flex>
-            <StyledButton
+            <SubmitButton
+              w='fit-content'
+              maxH={{ base: '30px', sm: 'auto' }}
               isDisabled={!rewardAmount}
               onClick={handleClaim}
               data-testid={TEST_IDS.anchor.claim}
             >
               Claim
-            </StyledButton>
+            </SubmitButton>
           </Stack>
         }
       >
@@ -151,14 +153,14 @@ export const AnchorOverview = () => {
 
           >
             <Stack direction="row" align="center">
-              <Flex whiteSpace="nowrap" color="primary.300" fontSize="sm">
+              <Flex whiteSpace="nowrap" color="secondaryTextColor" fontSize="sm">
                 Borrow Limit
               </Flex>
               <AnimatedInfoTooltip message="Your borrow limit represents the maximum amount that you're allowed to borrow across all tokens. If you reach 100% of your borrow limit, you will get liquidated." />
               <Text>{`${borrowLimitPercent}%`}</Text>
             </Stack>
-            <Flex w="full" h={1} borderRadius={8} bgColor="primary.850">
-              <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="primary.400"></Flex>
+            <Flex w="full" h={1} borderRadius={8} bgColor="barUnfilledColor">
+              <Flex w={`${borrowLimitPercent}%`} h="full" borderRadius={8} bgColor="barFilledColor"></Flex>
             </Flex>
             <Stack direction="row" align="center">
               <Text>{`$${borrowTotal ? commify((borrowTotal).toFixed(2)) : '0.00'}`}</Text>

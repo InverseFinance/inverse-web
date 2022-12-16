@@ -1,15 +1,16 @@
-import theme from '@app/variables/theme';
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart } from '@app/components/Transparency/BarChart'
 import moment from 'moment'
 import { shortenNumber } from '@app/util/markets';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const months = [...Array(12).keys()];
 
 export const ProposalBarChart = ({ chartData, maxChartWidth = 900, ...props }: { chartData: any, maxChartWidth?: number }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
+    const { themeStyles } = useAppTheme();
 
     useEffect(() => {
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 20)
@@ -40,7 +41,7 @@ export const ProposalBarChart = ({ chartData, maxChartWidth = 900, ...props }: {
             height={300}
             title=""
             groupedData={barChartData}
-            colorScale={[theme.colors.mainTextColor, theme.colors.secondary, theme.colors.secondaryTextColor]}
+            colorScale={[themeStyles.colors.mainTextColor, themeStyles.colors.secondary, themeStyles.colors.secondaryTextColor]}
             isDollars={false}
             precision={0}
             {...props}

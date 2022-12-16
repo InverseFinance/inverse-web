@@ -122,8 +122,11 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
+  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+    return { paths: [], fallback: true }
+  }
   const { proposals } = await getCacheFromRedis(cacheKey, false) || { proposals: [] };
-  
+
   const possiblePaths = proposals.map(p => {
     return `/governance/proposals/${p.era}/${p.id}`;
   });

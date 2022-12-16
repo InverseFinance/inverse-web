@@ -9,18 +9,19 @@ import errorLottie from '@app/public/assets/lotties/error.json';
 import infoLottie from '@app/public/assets/lotties/info.json';
 import { CustomToastOptions } from '@app/types';
 import { Animation } from '@app/components/common/Animation';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type AnimOptions = { animData: Object, loop: boolean }
 
-interface NotifTheme {
+interface NotifMode {
     bg: BoxProps["bgColor"],
     borderColor: BoxProps["borderColor"],
     icon?: ComponentWithAs<"svg", IconProps>,
     animOptions?: AnimOptions,
 }
 
-const themes: {
-    [key: string]: NotifTheme
+const modes: {
+    [key: string]: NotifMode
 } = {
     'warning': {
         bg: 'warningAlpha',
@@ -83,18 +84,19 @@ export const Notification = ({
     icon?: ComponentWithAs<"svg", IconProps>,
     animOptions?: AnimOptions,
 }) => {
-    const theme = themes[status];
-    const Icon = icon || theme?.icon;
-    const animationOptions = animOptions || theme?.animOptions
+    const { themeStyles } = useAppTheme();
+    const mode = modes[status];
+    const Icon = icon || mode?.icon;
+    const animationOptions = animOptions || mode?.animOptions
     const anim = animationOptions ? <Animation height={40} width={40} {...animationOptions} /> : null;
 
     return (
         <Box
             borderRadius="lg"
-            color="mainTextColor"
+            color={themeStyles.colors.mainTextColor}
             p={3}
             border="1px solid"
-            borderColor={theme.borderColor}
+            borderColor={mode.borderColor}
             className={`blurred-container ${status}-bg`}
             {...boxProps}
             position="relative"

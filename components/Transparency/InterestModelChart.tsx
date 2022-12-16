@@ -3,7 +3,7 @@ import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, Vic
 import { Box, BoxProps, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import theme from '@app/variables/theme';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: number, y: number }[]
 
@@ -39,6 +39,7 @@ export const InterestModelChart = ({
     const [titleFontSize, setTitleFontSize] = useState(20);
     const [isLightMode, setIsLightMode] = useState(!isLargerThan || width <= 400);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
+    const { themeStyles } = useAppTheme();
 
     useEffect(() => {
         setRightPadding(!isLightMode ? 60 : 20)
@@ -143,7 +144,7 @@ export const InterestModelChart = ({
                                 <VictoryVoronoiContainer
                                     mouseFollowTooltips={true}
                                     voronoiDimension="x"
-                                    labelComponent={<VictoryTooltip flyoutPadding={15} centerOffset={{ x: -50 }} cornerRadius={10} flyoutStyle={{ fill: theme.colors.darkPrimary, stroke: '#fff' }} />}
+                                    labelComponent={<VictoryTooltip flyoutPadding={15} centerOffset={{ x: -50 }} cornerRadius={10} flyoutStyle={{ fill: themeStyles.colors.darkPrimary, stroke: '#fff' }} />}
                                     labels={({ datum }) => {
                                         return (
                                             `For ${shortenNumber(datum.x, 2)}% Utilisation Rate\n=> ${shortenNumber(datum.y, 2)}% Intest Rate`

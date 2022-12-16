@@ -26,13 +26,14 @@ import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
 import { useEffect } from 'react';
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
-import theme from '@app/variables/theme'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const { DOLA, TOKENS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
     const { account, library } = useWeb3React<Web3Provider>();
     const { query } = useRouter();
+    const { themeStyles } = useAppTheme();
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
@@ -124,10 +125,10 @@ export const FedPolicyPage = () => {
                         w={{ base: 'full', lg: '900px' }}
                         label={
                             <HStack alignItems="center" mb="2" spacing="4">
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} color={detailsType === 'policy' ? theme.colors.mainTextColor : 'gray.600'} onClick={() => setDetailsType('policy')}>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('policy')}>
                                     Policy
                                 </Text>
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} color={detailsType === 'revenue' ? theme.colors.mainTextColor : 'gray.600'} onClick={() => setDetailsType('revenue')}>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'revenue' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('revenue')}>
                                     Revenue
                                 </Text>
                             </HStack>
@@ -149,7 +150,7 @@ export const FedPolicyPage = () => {
                                                 title={`${chosenFed.name} Revenue Evolution (Current accumulated revenue: ${chartDataRevenues.length ? shortenNumber(chartDataRevenues[chartDataRevenues.length - 1].y, 2) : 0})`}
                                                 fed={chosenFed}
                                                 chartData={chartDataRevenues}
-                                                domainYpadding={50000}
+                                                domainYpadding={'auto'}
                                                 mainColor="secondary"
                                             />
                                             <FedBarChart chartData={chartDataRevenues} />

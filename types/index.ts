@@ -208,6 +208,7 @@ export type NetworkConfig = {
     oracle: string,
     treasury: string,
   }
+  F2_MARKETS: F2Market[]
   [key: string]: string | any;
 }
 
@@ -408,6 +409,7 @@ export type Fed = {
   revenueChainId?: string
   revenueSrcAd?: string
   revenueTargetAd?: string
+  isFirm?: boolean
 }
 
 export type FedWithData = Fed & {
@@ -667,4 +669,28 @@ export type DebtConversion = {
 export type DebtRepayment = {
   epoch: number
   dolaAmount: number
+}
+
+export type F2Market = {
+  address: string
+  name: string
+  collateral: string
+  underlying: Token
+  price: number
+  collateralFactor: number
+  totalDebt: number
+  bnDolaLiquidity: BigNumber
+  dolaLiquidity: number
+  replenishmentIncentive: number
+  liquidationIncentive: number
+  liquidationFactor: number
+  dailyLimit: number
+  dailyBorrows: number
+  leftToBorrow: number
+  bnLeftToBorrow: number
+  borrowPaused: boolean
+  borrowController: string
+  icon?: string
+  marketIcon?: string
+  helper?: string
 }

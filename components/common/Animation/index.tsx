@@ -6,6 +6,7 @@ import successLottie from '@app/public/assets/lotties/success.json';
 import warningLottie from '@app/public/assets/lotties/warning.json';
 import inverseLottie from '@app/public/assets/lotties/inverse.json';
 import launchLottie from '@app/public/assets/lotties/launch.json';
+import confettiLottie from '@app/public/assets/lotties/confetti.json';
 import Lottie from 'react-lottie';
 
 export type AnimProps = {
@@ -51,3 +52,4 @@ export const InfoAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animD
 export const SuccessAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={successLottie} />
 export const InverseAnimIcon = (props: AnimIconProps) => <AnimIcon {...props} animData={inverseLottie} canClick={true} />
 export const LaunchAnim = (props: AnimIconProps) => <AnimIcon {...props} animData={launchLottie} />
+export const ConfettiAnim = (props: AnimIconProps) => <AnimIcon {...props} animData={confettiLottie} />

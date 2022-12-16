@@ -2,7 +2,7 @@ import { TOKENS, UNDERLYING } from '@app/variables/tokens';
 import { NETWORKS } from '@app/config/networks';
 import { Fed, Multisig, Network, NetworkConfig, NetworkIds, TokenList } from '@app/types';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
-import { FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
+import { FED_ABI, FIRM_FED_ABI, XCHAIN_FED_ABI } from '@app/config/abis';
 
 export const getNetworkImage = (chainId: string) => {
     const { image, codename } = getNetwork(chainId);
@@ -110,7 +110,7 @@ export const getNetworkConfigConstants = (
 
     // FEDS
     const FEDS: Fed[] = (config.feds||[]).map((fed) => {
-        return { ...fed, abi: fed.isXchain ? XCHAIN_FED_ABI : FED_ABI }
+        return { ...fed, abi: fed.isXchain ? XCHAIN_FED_ABI : fed.isFirm ? FIRM_FED_ABI :  FED_ABI }
     });
     const FEDS_WITH_ALL = [{ name: 'All Feds', projectImage: '/assets/projects/eth-ftm.webp', address: '', chainId: NetworkIds.ethftm }]
         .concat(FEDS)
@@ -161,5 +161,10 @@ export const getNetworkConfigConstants = (
         DISPERSE_APP: config.disperseApp,
         DEBT_REPAYER: config.debtRepayer,
         DEBT_CONVERTER: config.debtConverter,
+        DBR: config.dbr,
+        DBR_AIRDROP: config.dbrAirdrop,
+        F2_CONTROLLER: config.f2controller,
+        F2_ORACLE: config.f2Oracle,
+        F2_MARKETS: config.f2markets||[],
     }
 }

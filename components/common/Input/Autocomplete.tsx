@@ -40,7 +40,7 @@ const sortList = (list: AutocompleteItem[]) => {
 const HighlightBefore = ({ label, char }: { label: string, char: string }) => {
     const index = label.indexOf(char)
     return <>
-        <Text color="secondary" fontWeight="bold" display="inline-block" whiteSpace="pre">
+        <Text color="accentTextColor" fontWeight="bold" display="inline-block" whiteSpace="pre">
             {label.substring(0, index)}
         </Text>
         <Text display="inline-block" whiteSpace="pre">
@@ -179,7 +179,7 @@ export const Autocomplete = ({
                         height="100%"
                         onClick={clear}
                         pointer="cursor"
-                        children={<CloseIcon color={searchValue ? '#cccccc' : '#cccccc22'} fontSize="12px" boxSize="3" />}
+                        children={<CloseIcon opacity={searchValue ? 1 : 0.2} color={'secondaryTextColor'} fontSize="12px" boxSize="3" />}
                     />
                 }
                 <InputComp

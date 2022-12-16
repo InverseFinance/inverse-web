@@ -75,6 +75,7 @@ export const ApproveButton = ({
   isDisabled,
   onSuccess = () => { },
   tooltipMsg,
+  ButtonComp = SubmitButton
 }: {
   address: string,
   toAddress: string,
@@ -82,9 +83,10 @@ export const ApproveButton = ({
   isDisabled: boolean,
   onSuccess?: () => void,
   tooltipMsg?: string
+  ButtonComp?: React.ReactNode
 }) => {
   return (
-    <SubmitButton
+    <ButtonComp
       onClick={async () =>
         handleTx(
           await getERC20Contract(address, signer).approve(toAddress, constants.MaxUint256),
@@ -93,10 +95,10 @@ export const ApproveButton = ({
       }
       isDisabled={isDisabled}
       refreshOnSuccess={true}
-      rightIcon={tooltipMsg === '' ? undefined : <AnimatedInfoTooltip ml="1" message='Approving is the first step, it will allow us to use your tokens for the next final step. You only need to do the approve step once per token type and contract' />}
+      rightIcon={tooltipMsg === '' ? undefined : <AnimatedInfoTooltip type="tooltip" ml="1" message='Approving is the first step, it will allow us to use your tokens for the next final step. You only need to do the approve step once per token type and contract' />}
     >
       Step 1/2 - Approve
-    </SubmitButton>
+    </ButtonComp>
   )
 }
 

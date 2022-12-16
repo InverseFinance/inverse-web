@@ -1,0 +1,46 @@
+@keyframes box-shadow-anim {
+    0% {
+        box-shadow: none;
+    }
+
+    50% {
+        box-shadow: 0px 0px 2px 1px #ffffffaa;
+    }
+
+    100% {
+        box-shadow: none;
+    }
+}
+
+.box-shadow-highlight-anim {
+    -webkit-animation: box-shadow-anim ease-in-out 1s infinite;
+    animation: box-shadow-anim ease-in-out 1s infinite;
+}
+
+@keyframes circle {
+    0% {
+        transform: rotate(0deg) translate(-100px) rotate(0deg);
+
+    }
+
+    100% {
+        transform: rotate(360deg) translate(-100px) rotate(-360deg);
+    }
+}
+
+@keyframes text-highlight {
+    0% {
+        transform: scale(1);
+        text-shadow: 2px 2px #18205D;
+    }
+
+    50% {
+        transform: scale(1.03);
+        text-shadow: 3px 3px #18205D;
+    }
+
+    100% {
+        transform: scale(1);
+        text-shadow: 2px 2px #18205D;
+    }
+}

@@ -30,7 +30,7 @@ export const Link = (props: any) => {
           {...otherProps}
         />
       ) : (
-        <Text color="primary.100" cursor="pointer" _hover={{ color: 'mainTextColor' }} _focus={{}} {...otherProps} />
+        <Text color="lightAccentTextColor" cursor="pointer" _hover={{ color: 'mainTextColor' }} _focus={{}} {...otherProps} />
       )}
     </NextLink>
   )

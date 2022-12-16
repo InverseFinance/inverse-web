@@ -295,7 +295,7 @@ export const DebtConverterPage = () => {
                         !!account && <DebtConversions account={userAddress} signer={library?.getSigner()} />
                     }
                 </VStack>
-                <Link mt="5" href="/frontier/debt-converter/repayments">Go to Debt Converter Repayments</Link>
+                <Link color="accentTextColor" mt="5" href="/frontier/debt-converter/repayments">Go to Debt Converter Repayments</Link>
             </ErrorBoundary>
         </Layout>
     )

@@ -16,7 +16,7 @@ const formatBn = (bn: BigNumber, token: Token) => {
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.5`;
+  const cacheKey = `dao-cache-v1.2.6`;
 
   try {
 

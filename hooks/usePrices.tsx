@@ -121,7 +121,7 @@ export const useTransactionCost = (contract: Contract, method: string, args: any
 
   const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
   const costEth = gasPrice * (txGas ? parseFloat(formatUnits(txGas, 'gwei')) : 0);
-  const costUsd = costEth * (prices ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0);
+  const costUsd = costEth * (prices && prices[TOKENS.CHAIN_COIN.coingeckoId] ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0);
 
   return {
     gasPrice,

@@ -1,75 +1,177 @@
 export const MENUS = {
   "nav": [
     {
-      label: 'Frontier',
-      href: '/frontier',
+      label: 'Borrow',
+      href: '/firm',
       submenus: [
         {
-          label: 'Overview',
+          label: 'FiRM',
+          href: '/firm',
+        },
+        {
+          label: 'WETH Market',
+          href: '/firm/WETH',
+        },
+        {
+          label: 'Frontier (deprecated)',
           href: '/frontier',
         },
-        {
-          label: 'Stake INV',
-          href: '/frontier?marketType=supply&market=inv#',
-        },
-        {
-          label: 'Debt Converter',
-          href: '/frontier/debt-converter',
-        },
-        {
-          label: 'Debt Repayer',
-          href: '/frontier/debt-repayer',
-        },
+        // {
+        //   label: 'Borrow DOLA',
+        //   href: '/frontier?marketType=borrow&market=dola#',
+        // },
       ],
     },
     {
-      label: 'INV',
-      href: '/inv',
+      label: 'Earn',
+      href: '/yield-opportunities',
       submenus: [
         {
-          label: 'INV',
-          href: '/inv',
+          label: 'Stake INV',
+          href: '/stake',
         },
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
-      ]
+        {
+          label: 'Liquidate Loans',
+          href: '/firm/positions',
+        },
+        {
+          label: 'Replenish DBR',
+          href: '/firm/dbr-deficits',
+        },
+      ],
+    },
+    {
+      label: 'Bond',
+      href: '/bonds',      
     },
     {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
       submenus: [
         {
-          label: 'Buy DOLA with DAI',
+          label: 'Swap DOLA',
           href: '/swap/DAI/DOLA',
         },
         {
-          label: 'Buy DOLA with USDC',
-          href: '/swap/USDC/DOLA',
+          label: 'Tokens',
+          href: '/tokens',
+        },
+        // {
+        //   label: 'INV',
+        //   href: '/tokens/inv',
+        // },
+
+        // {
+        //   label: 'DBR',
+        //   href: '/tokens/dbr',
+        // },
+        // {
+        //   label: 'Yield Opportunities',
+        //   href: '/yield-opportunities',
+        // },
+      ]
+    },
+    // {
+    //   label: 'Swap',
+    //   href: '/swap/DAI/DOLA',
+    //   submenus: [
+    //     {
+    //       label: 'Buy DOLA with DAI',
+    //       href: '/swap/DAI/DOLA',
+    //     },
+    //     {
+    //       label: 'Buy DOLA with USDC',
+    //       href: '/swap/USDC/DOLA',
+    //     },
+    //     {
+    //       label: 'Buy DOLA with USDT',
+    //       href: '/swap/USDT/USDT',
+    //     },
+    //   ]
+    // },
+    
+    // {
+    //   label: 'Bonds',
+    //   href: '/bonds',
+    //   submenus: [
+    //     {
+    //       label: 'Bonds',
+    //       href: '/bonds',
+    //     },
+    //     {
+    //       label: 'Bonds Stats',
+    //       href: '/bonds/stats',
+    //     },
+    //   ],
+    // },
+    {
+      label: 'Learn',
+      href: '/transparency/overview',
+      submenus: [
+        {
+          href: '/transparency/overview',
+          label: 'Transparency Portal',
         },
         {
-          label: 'Buy DOLA with USDT',
-          href: '/swap/USDT/USDT',
+          href: '/analytics',
+          label: 'Analytics',
         },
+        {
+          href: 'https://analytics.inverse.finance',
+          label: 'Docs',
+        },
+        {
+          label: 'Blog',
+          href: '/blog',
+        },
+        // {
+        //   href: '/transparency/treasury',
+        //   label: 'Treasury',
+        // },
+        // {
+        //   href: '/transparency/dao',
+        //   label: 'DAO',
+        // },
+        // {
+        //   href: '/transparency/inv',
+        //   label: 'INV',
+        // },
+        // {
+        //   href: '/transparency/dola',
+        //   label: 'DOLA & the Feds',
+        // },
+        // {
+        //   href: '/transparency/feds/policy/all',
+        //   label: 'Feds',
+        // },
+        // {
+        //   href: '/transparency/interest-model',
+        //   label: 'Interest Rates',
+        // },
+        // {
+        //   href: '/transparency/multisigs',
+        //   label: 'Multisig Wallets',
+        // },
+        // {
+        //   href: '/transparency/stabilizer',
+        //   label: 'Stabilizer',
+        // },
+        // {
+        //   href: '/transparency/shortfalls',
+        //   label: 'Shortfalls',
+        // },
+        // {
+        //   href: '/transparency/liquidations',
+        //   label: 'Liquidations',
+        // },
       ]
     },
     {
-      label: 'Bonds',
-      href: '/bonds',
-      submenus: [
-        {
-          label: 'Bonds',
-          href: '/bonds',
-        },
-        {
-          label: 'Bonds Stats',
-          href: '/bonds/stats',
-        },
-      ],
-    },
-    {
-      label: 'Governance',
+      label: 'Participate',
       href: '/governance',
       submenus: [
         {
@@ -93,91 +195,45 @@ export const MENUS = {
           href: '/governance/delegates/$account',
         },
       ]
-    },
-    {
-      label: 'Transparency',
-      href: '/transparency/overview',
-      submenus: [
-        {
-          href: '/transparency/overview',
-          label: 'Overview',
-        },
-        {
-          href: '/transparency/treasury',
-          label: 'Treasury',
-        },
-        {
-          href: '/transparency/dao',
-          label: 'DAO',
-        },
-        {
-          href: '/transparency/inv',
-          label: 'INV',
-        },
-        {
-          href: '/transparency/dola',
-          label: 'DOLA & the Feds',
-        },
-        {
-          href: '/transparency/feds/policy/all',
-          label: 'Feds',
-        },
-        {
-          href: '/transparency/interest-model',
-          label: 'Interest Rates',
-        },
-        {
-          href: '/transparency/multisigs',
-          label: 'Multisig Wallets',
-        },
-        {
-          href: '/transparency/stabilizer',
-          label: 'Stabilizer',
-        },
-        {
-          href: '/transparency/shortfalls',
-          label: 'Shortfalls',
-        },
-        {
-          href: '/transparency/liquidations',
-          label: 'Liquidations',
-        },
-      ]
-    },
-    {
-      href: '/analytics',
-      label: 'Analytics',
-      submenus: [
-        {
-          href: '/analytics',
-          label: 'Dashboard',
-        },
-        {
-          href: 'https://analytics.inverse.finance',
-          label: 'Docs',
-        }
-      ],
-    },
-    {
-      label: 'Blog',
-      href: '/blog',
-    },
+    },    
+    // {
+    //   href: '/analytics',
+    //   label: 'Analytics',
+    //   submenus: [
+    //     {
+    //       href: '/analytics',
+    //       label: 'Dashboard',
+    //     },
+    //     {
+    //       href: 'https://analytics.inverse.finance',
+    //       label: 'Docs',
+    //     }
+    //   ],
+    // },
+    // {
+    //   label: 'Blog',
+    //   href: '/blog',
+    // },
   ],
   "footerGroups": [
     {
       groupLabel: 'Products',
       items: [
         {
-          label: 'INV',
-          href: '/inv',
-        },
-        {
-          label: 'Frontier',
-          href: '/frontier',
-        },
-        {
           label: 'DOLA',
-          href: '/swap',
+          href: '/tokens/DOLA',
+        },
+        {
+          label: 'DBR',
+          href: '/tokens/DBR',
+        },
+        {
+          label: 'INV',
+          href: '/tokens/INV',
+        },
+        {
+          label: 'FiRM',
+          href: '/frontier',
         },
         {
           label: 'Bonds',
@@ -217,11 +273,19 @@ export const MENUS = {
           label: 'Github',
           href: 'https://github.com/InverseFinance',
         },
+        {
+          label: 'Whitepaper',
+          href: '/whitepaper',
+        },
       ],
     },
     {
       groupLabel: 'Community',
       items: [
+        {
+          label: 'Bug Bounty',
+          href: 'https://discord.gg/YpYJC7R5nv',
+        },
         {
           label: 'Discord',
           href: 'https://discord.gg/YpYJC7R5nv',
@@ -239,20 +303,7 @@ export const MENUS = {
           href: '/newsletter',
         },
       ],
-    },
-    {
-      groupLabel: 'Social',
-      items: [
-        {
-          label: 'Twitter',
-          href: 'https://twitter.com/InverseFinance',
-        },
-        // {
-        //   label: 'Medium',
-        //   href: 'https://medium.com/inverse-finance',
-        // },
-      ],
-    },
+    },    
   ],
   "socials": [
     {
@@ -267,10 +318,6 @@ export const MENUS = {
       href: 'https://t.me/InverseFinance',
       image: '/assets/socials/telegram.svg',
     },
-    // {
-    //   href: 'https://medium.com/inverse-finance',
-    //   image: '/assets/socials/medium.svg',
-    // },
     {
       href: 'https://github.com/InverseFinance',
       image: '/assets/socials/github.svg',

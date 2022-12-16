@@ -43,7 +43,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
                     <Avatar address={address} sizePx={28} />
                     <Flex direction="column" w={40}>
                       <DelegateName address={address} chainId={chainId} ensName={ensName} />
-                      <Text fontSize="sm" color="primary.100">
+                      <Text fontSize="sm" color="lightAccentTextColor">
                         {`${votes.length} votes`}
                       </Text>
                     </Flex>
@@ -52,7 +52,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
                     <Text fontSize="sm" fontWeight="semibold">
                       {votingPower.toFixed(2)}
                     </Text>
-                    <Text fontSize="sm" color="primary.100">
+                    <Text fontSize="sm" color="lightAccentTextColor">
                       {`${delegators.length} delegators`}
                     </Text>
                   </Flex>
@@ -72,7 +72,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
             fontWeight="semibold"
             borderRadius={8}
             textTransform="uppercase"
-            color="primary.100"
+            color="lightAccentTextColor"
             _hover={{ bgColor: 'primary.850' }}
           >
             View All
@@ -132,7 +132,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
             fontWeight="semibold"
             borderRadius={8}
             textTransform="uppercase"
-            color="primary.100"
+            color="lightAccentTextColor"
             _hover={{ bgColor: 'primary.850' }}
           >
             View All

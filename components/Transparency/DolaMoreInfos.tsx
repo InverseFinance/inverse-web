@@ -5,7 +5,7 @@ export const DolaMoreInfos = () => {
     return (
         <ShrinkableInfoMessage
             description={
-                <Link href="https://docs.inverse.finance/inverse-finance/technical/the-dola-fed">
+                <Link color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/technical/the-dola-fed">
                     Learn more about DOLA and the Fed contracts
                 </Link>
             }

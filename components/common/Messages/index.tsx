@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { AlertTitle, AlertDescription, Alert, AlertProps, ThemingProps, Flex, useMediaQuery, AlertDescriptionProps, AlertTitleProps } from '@chakra-ui/react'
-import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon } from '@app/components/common/Animation'
-import { WarningIcon } from '@chakra-ui/icons';
+import { InfoAnimIcon, WarningAnimIcon, SuccessAnimIcon, ErrorAnimIcon, AnimIconProps } from '@app/components/common/Animation'
+import { InfoIcon, WarningIcon } from '@chakra-ui/icons';
 
 type MessageProps = {
     status: AlertProps["status"],
@@ -14,27 +14,30 @@ type MessageProps = {
     alertDescriptionProps?: AlertDescriptionProps,
     showIcon?: boolean,
     iconStatus?: 'info' | 'success' | 'warning' | 'error' | 'danger',
+    iconProps?: AnimIconProps
 }
 
 const statusAnims = {
-    info: InfoAnimIcon,
+    info: InfoIcon,
     success: SuccessAnimIcon,
     warning: WarningAnimIcon,
     error: ErrorAnimIcon,
     danger: WarningAnimIcon,
 }
 
-export const StatusMessage = ({ title, description, status = 'info', iconStatus ,showIcon, alertProps, alertDescriptionProps, alertTitleProps }: Partial<MessageProps>) => {
+export const StatusMessage = ({ title, description, status = 'info', iconStatus ,showIcon, alertProps, alertDescriptionProps, alertTitleProps, iconProps }: Partial<MessageProps>) => {
     const alertPropsExtended = {
         className: `blurred-container ${status}-bg compat-mode`,
         ...alertProps,
     };
     const IconComp = statusAnims[iconStatus || status];
+    const icon = status === 'info' ? <IconComp color="blue.500" mr="4" {...iconProps} />
+    : <IconComp boxProps={{ mr: '4' }} {...iconProps} />
     return <Message status={status}
         title={title}
         showIcon={showIcon}
         description={description}
-        icon={<IconComp boxProps={{ mr: '2' }} />}
+        icon={icon}
         variant="solid"
         alertTitleProps={alertTitleProps}
         alertDescriptionProps={alertDescriptionProps}
@@ -84,10 +87,10 @@ export const Message = ({
                 {showIcon && icon}
                 <Flex flexDirection="column" w='full'>
                     {
-                        title ? <AlertTitle {...alertTitleProps}>{title}</AlertTitle> : null
+                        title ? <AlertTitle color="mainTextColor" {...alertTitleProps}>{title}</AlertTitle> : null
                     }
                     {
-                        description ? <AlertDescription {...alertDescriptionProps}>{description}</AlertDescription> : null
+                        description ? <AlertDescription color="mainTextColor" {...alertDescriptionProps}>{description}</AlertDescription> : null
                     }
                 </Flex>
             </Flex>

@@ -20,6 +20,7 @@ import { ProposalTags } from './ProposalTags'
 import { SubmitButton } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -93,6 +94,7 @@ export const ProposalPreview = ({
 }) => {
   const { query } = useRouter()
   const { unreadKeys } = useGovernanceNotifs()
+  const { themeStyles } = useAppTheme();
   const { title, id, etaTimestamp, endTimestamp, createdAt, updatedAt, startTimestamp, forVotes, againstVotes, status, era, description, functions, proposer, executionTimestamp } = proposal
 
   const totalVotes = forVotes + againstVotes
@@ -119,7 +121,7 @@ export const ProposalPreview = ({
           _hover={{ bgColor: 'primary.850' }}
           cursor="pointer"
           borderRadius={8}
-          borderTop={`1px solid #393562`}
+          borderTop={`1px solid ${themeStyles.colors.primary['500']}`}
         >
           <Flex
             w="full"
@@ -129,7 +131,7 @@ export const ProposalPreview = ({
             px={2}
           >
             <Flex direction="column">
-              <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'secondary' : 'mainTextColor'}>
+              <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'accentTextColor' : 'mainTextColor'}>
                 {title}
               </Text>
               <Stack direction={{ base: 'column', sm: 'row' }} align="left">
@@ -137,7 +139,7 @@ export const ProposalPreview = ({
                   <StatusBadge status={status} />
                   {!isLocalDraft && !isPublicDraft && <EraBadge era={era} id={id} />}
                 </Stack>
-                <Text textAlign="left" fontSize="13px" color="primary.100" fontWeight="semibold">
+                <Text textAlign="left" fontSize="13px" color="secondaryTextColor" fontWeight="semibold">
                   {getStatusInfos(proposal.status, startTimestamp, endTimestamp, etaTimestamp, false, createdAt, updatedAt, proposal.endBlock, executionTimestamp)}
                 </Text>
               </Stack>
@@ -165,7 +167,7 @@ export const ProposalPreview = ({
                     {forVotes >= 1000 ? `${(forVotes / 1000).toFixed(2)}k` : forVotes.toFixed(0)}
                   </Text>
                 </Stack>
-                <Text fontSize="13px" color="primary.100" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
+                <Text fontSize="13px" color="lightAccentTextColor" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
                   } votes`}</Text>
               </Flex>
             )}
@@ -176,9 +178,9 @@ export const ProposalPreview = ({
         </VStack>
       </NextLink>
       {
-        !!forumLink && <Flex w='full'>
+        !!forumLink && <Flex w='full' pb="2">
           <Link w='full' href={forumLink} isExternal target="_blank">
-            <SubmitButton alignItems="center" color="mainTextColor" w='full'>
+            <SubmitButton alignItems="center" w='full'>
               See the forum post <ExternalLinkIcon ml="1" />
             </SubmitButton>
           </Link>
@@ -247,7 +249,7 @@ export const ProposalDetails = ({
             !!proposer && <Proposer proposer={proposer} />
           }
         </Flex>
-        <Flex w="full" overflow="auto">
+        <Flex w="full" overflow="auto" color="mainTextColor">
           <ReactMarkdown className="markdown-body" remarkPlugins={era !== GovEra.alpha ? [gfm] : undefined}>
             {
               era === GovEra.alpha ? description.replace(

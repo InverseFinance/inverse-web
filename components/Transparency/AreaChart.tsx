@@ -4,16 +4,9 @@ import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: number, y: number }[]
-
-const defaultAxisStyle: VictoryAxisProps["style"] = {
-    tickLabels: { fill: '#fff', fontFamily: 'Inter', fontSize: '12px' },
-    grid: {
-        stroke: '#666666aa',
-        strokeDasharray: '4 4',
-    }
-}
 
 const strokeColors = {
     primary: '#8881c9',
@@ -46,7 +39,7 @@ export const AreaChart = ({
     showTooltips = false,
     showMaxY = true,
     interpolation = 'basis',
-    axisStyle = defaultAxisStyle,
+    axisStyle,
     domainYpadding = 0,
     mainColor = 'primary',
     isDollars = false,
@@ -55,6 +48,15 @@ export const AreaChart = ({
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
+    const { themeStyles } = useAppTheme();
+    
+    const _axisStyle = axisStyle || {
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
+        grid: {
+            stroke: '#666666aa',
+            strokeDasharray: '4 4',
+        }
+    }
 
     const _yPad = domainYpadding === 'auto' ? maxY * 0.1 : domainYpadding;
 
@@ -89,10 +91,10 @@ export const AreaChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: 'white', fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" {...titleProps} />
+                    !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" {...titleProps} />
                 }
-                <VictoryAxis style={axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
-                <VictoryAxis style={axisStyle} />
+                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
+                <VictoryAxis style={_axisStyle} />
                 <VictoryArea
                     domain={{ y: [0, maxY + _yPad] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
@@ -112,7 +114,7 @@ export const AreaChart = ({
                     }
                     style={{
                         data: { fillOpacity: 0.9, fill: `url(#${mainColor}-gradient)`, stroke: strokeColors[mainColor], strokeWidth: 1 },
-                        labels: { fill: 'white', fontSize: '12px', fontFamily: 'Inter' }
+                        labels: { fill: themeStyles.colors.mainTextColor, fontSize: '12px', fontFamily: 'Inter' }
                     }}
                     interpolation={interpolation}
                 />

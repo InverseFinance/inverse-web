@@ -18,7 +18,7 @@ const defaultFedsData = FEDS.map(((fed) => {
 }))
 
 export const useDAO = (): SWR & DAO => {
-  const { data, error } = useCustomSWR(`/api/transparency/dao`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/dao?v=2`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
@@ -72,7 +72,7 @@ const addFedInfosToEvent = (totalEvents, feds) => {
 }
 
 export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: { msg: string, lastUpdate: number } } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-policy`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/fed-policy?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
 
@@ -95,7 +95,7 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
 }
 
 export const useFedRevenues = (): SWR & { totalEvents: FedEvent[], totalRevenues: { [key: string]: number } } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-revenues`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/fed-revenues?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
   const totalRevenues = data?.totalRevenues || {};
