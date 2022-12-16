@@ -328,9 +328,11 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
   ]);
 
   const asArray = airdropData ? Object.entries(airdropData) : [];  
-  const isEligible = !!account && !!airdropData && !!airdropData[account];
+  
   const amounts = asArray.filter(a => a[0].toLowerCase() === account?.toLowerCase());
   amounts.sort((a, b) => a[1] > b[1] ? -1 : 1);
+  const isEligible = amounts?.length > 0;
+
   const claimer = amounts?.length ? amounts[0][0] : account;
   const amountString = amounts?.length ? amounts[0][1] : '0';
   const amount = isEligible && amounts?.length ? getBnToNumber(parseUnits(amountString, 0)) : 0;
