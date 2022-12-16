@@ -1,4 +1,4 @@
-import { F2_SIMPLE_ESCROW } from "@app/config/abis";
+import { BALANCER_VAULT_ABI, F2_SIMPLE_ESCROW } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
@@ -251,29 +251,23 @@ export const useAccountF2Markets = (
 }
 
 export const useDBRPrice = (): { price: number } => {
-  const weth = getToken(TOKENS, 'WETH')
-  // const { data } = useEtherSWR({
-  //   args: [      
-  //       [
-  //         // sushi
-  //         '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
-  //         'getAmountsOut',
-  //         '1000000000000000000',
-  //         [weth.address, DBR],
-  //       ],      
-  //   ],
-  //   abi: ['function getAmountsOut(uint256, address[]) public view returns (uint256[])']
-  // })
-  // const { data: ethPrice } = useEtherSWR({
-  //   args: [
-  //     ['0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', 'latestAnswer'],
-  //   ],
-  //   abi: ['function latestAnswer() public view returns (uint256)'],
-  // });
-  // const out = data && data[0] ? getBnToNumber(data[0][1]) : 0;
-  // use coingecko as fallback when ready
+  const { data } = useEtherSWR({
+    args: [      
+        [
+          // vault
+          '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+          'getPoolTokens',
+          // poolId          
+          '0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415',          
+        ],      
+    ],
+    abi: BALANCER_VAULT_ABI,
+  });
+
+  const price = data && data[0] ? getBnToNumber(data[0][1][0])/getBnToNumber(data[0][1][1]) : 0.04;
+
   return {
-    price: 0.04,//ethPrice ? getBnToNumber(ethPrice[0], 8) / out : 0.05
+    price,
   }
 }
 
