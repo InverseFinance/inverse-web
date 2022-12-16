@@ -152,7 +152,7 @@ export const FirmPositions = ({
     
     const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
-    const avgHealth = positions?.length > 0 ? positions.reduce((prev, curr) => prev + curr.perc * curr.debt, 0) / totalDebt : 100;
+    const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.perc * curr.debt, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
 
     return <VStack w='full'>
