@@ -15,7 +15,7 @@ export const BondsPage = () => {
                 <meta name="description" content="Buy INV at a discount thanks to bonds" />
                 <meta name="keywords" content="Inverse Finance, inv, token, DeFi, bonds, discount, olympus, ohm" />
             </Head>
-            <AppNav active="Bonds" activeSubmenu="Bonds" />
+            <AppNav active="Bond" />
             <Flex direction="column" w={{ base: 'full' }} pt={{ sm: '4' }} maxWidth="900px">
                 <BondsTabs />
                 <BondsView />

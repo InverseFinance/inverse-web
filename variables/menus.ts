@@ -31,10 +31,6 @@ export const MENUS = {
           href: '/stake',
         },
         {
-          label: 'Bond DOLA for INV',
-          href: '/bonds',
-        },
-        {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
@@ -48,10 +44,10 @@ export const MENUS = {
         },
       ],
     },
-    // {
-    //   label: 'Stake',
-    //   href: '/f2',      
-    // },
+    {
+      label: 'Bond',
+      href: '/bonds',      
+    },
     {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
