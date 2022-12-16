@@ -13,8 +13,6 @@ export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.5'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export default async function handler(req, res) {  
-  const isShortfallOnly = req.query?.shortfallOnly === 'true';
-
   try {
     const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, true, 30);
     if (validCache) {
@@ -58,33 +56,20 @@ export default async function handler(req, res) {
 
     const usedMarkets = Object.keys(marketUsersAndEscrows);
 
-    const groupedLiqDebt =
-      await Promise.all(
-        usedMarkets
-          .map(marketAd => {
-            const market = new Contract(marketAd, F2_MARKET_ABI, provider);
-            return Promise.all(
-              marketUsersAndEscrows[marketAd].users.map(u => {
-                return market.getLiquidatableDebt(u);
-              })
-            )
-          })
-      );
-
     const filtered = usedMarkets.map((marketAd, usedMarketIndex) => {
       const marketIndex = F2_MARKETS.findIndex(m => m.address === marketAd);
       return marketUsersAndEscrows[marketAd].users.map((user, userIndex) => {
         return {
           marketIndex,
           user,
-          liquidatableDebt: getBnToNumber(groupedLiqDebt[usedMarketIndex][userIndex]),
+          // liquidatableDebt: getBnToNumber(groupedLiqDebt[usedMarketIndex][userIndex]),
         }
       });
     })
       .flat()
-      .filter(d => !isShortfallOnly || (isShortfallOnly && d.liquidatableDebt > 0));
+      // .filter(d => !isShortfallOnly || (isShortfallOnly && d.liquidatableDebt > 0));
 
-    const [debtsBn, depositsBn] = await Promise.all(
+    const [debtsBn, depositsBn, creditLimitsBn] = await Promise.all(
       [
         await Promise.all(filtered.map((f, i) => {
           const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
@@ -96,14 +81,21 @@ export default async function handler(req, res) {
           const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_SIMPLE_ESCROW, provider);
           return escrow.balance();
         })),
+        await Promise.all(filtered.map((f, i) => {
+          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
+          return market.getCreditLimit(f.user);
+        })),
       ]
     );
     const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[filtered[i].marketIndex].collateral)?.decimals));
-    const debts = debtsBn.map((bn) => getBnToNumber(bn));
+    const debts = debtsBn.map((bn) => getBnToNumber(bn));    
+    const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
+    const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * F2_MARKETS[filtered[i].marketIndex].liquidationFactor));
 
     const positions = filtered.map((f, i) => {
       return {
         ...f,
+        liquidatableDebt: liquidableDebts[i],
         deposits: deposits[i],
         debt: debts[i],
       }
