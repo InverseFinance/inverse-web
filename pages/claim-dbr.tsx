@@ -57,7 +57,7 @@ const EligibleComp = ({
             Read DBR docs
         </Link>
         {
-            isSuccess ?
+            isSuccess || hasClaimed ?
                 <SuccessMessage
                     alertProps={{ w: 'full', fontSize: '18px', fontWeight: 'bold' }}
                     iconProps={{ height: 50, width: 50 }}
