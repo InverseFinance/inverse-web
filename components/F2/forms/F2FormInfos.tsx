@@ -134,7 +134,7 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'Current Collateral Price according to the Oracle',
                 title: 'Collateral Price',
-                value: `${shortenNumber(f2market.price, 2, true)}`,
+                value: `${preciseCommify(f2market.price, 2, true)}`,
             },
         ],
         [
@@ -157,7 +157,7 @@ export const F2FormInfos = (props) => {
             },
             {
                 tooltip: 'The remaining DOLA borrowable today (UTC timezone)',
-                title: 'Remaining Daily Limit',
+                title: 'Remaining liquidity',
                 value: f2market.dailyLimit > 0 ? `${shortenNumber(f2market.leftToBorrow, 2, true)}` : 'No daily limit',
             },
         ],
