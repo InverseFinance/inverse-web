@@ -65,7 +65,7 @@ export const F2WalkthroughCollateral = ({
             />
             {
                 market.underlying.symbol === 'WETH' &&
-                <Text cursor="pointer" textDecoration="underline" onClick={onOpen}>
+                <Text color="secondaryTextColor" cursor="pointer" textDecoration="underline" onClick={onOpen}>
                     Need WETH? Easily convert ETH to WETH
                 </Text>
             }
