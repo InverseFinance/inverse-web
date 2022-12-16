@@ -45,6 +45,10 @@ export const MENUS = {
       ],
     },
     {
+      label: 'Claim',
+      href: '/claim-dbr',      
+    },
+    {
       label: 'Bond',
       href: '/bonds',      
     },
