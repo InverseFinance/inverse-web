@@ -1,8 +1,7 @@
-import { Flex, Stack, Image, VStack, Text, TextProps } from '@chakra-ui/react'
+import { Flex, Stack, Image, VStack, Text, TextProps, HStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { DBRInfos } from '@app/components/F2/Infos/DBRInfos';
 import { useCheckDBRAirdrop } from '@app/hooks/useDBR';
 import { useAccount } from '@app/hooks/misc';
 import { shortenAddress } from '@app/util';
@@ -14,6 +13,11 @@ import { claimAirdrop, getAccountProofs } from '@app/util/merkle';
 import Link from '@app/components/common/Link';
 import { useWeb3React } from '@web3-react/core';
 import { getDBRBuyLink } from '@app/util/f2';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ';
+import ScannerLink from '@app/components/common/ScannerLink';
+
+const { DBR } = getNetworkConfigConstants();
 
 const AirdropText = (props: TextProps) => <Text fontSize={{ base: '16px', sm: '18px' }} {...props} />
 
@@ -93,23 +97,48 @@ const NotEligibleComp = ({
         <AirdropText>
             Your <b>{shortenAddress(account)}</b> account is not elgible to claim the DBR airdrop!
         </AirdropText>
-        <AirdropText>
-            <b>DBR</b> can be bought Balancer, token address to import is <b>0xAD038Eb671c44b853887A7E32528FaB35dC5D710</b>
-        </AirdropText>
         <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">
-            Open Balancer
+            Open Balancer to buy DBR
         </Link>
+        <ScannerLink color="secondaryTextColor" value={DBR} label="Open DBR in Etherscan" />
     </>
 }
 
 export const ClaimDbr = () => {
     const account = useAccount();
     const { isEligible, amount, hasClaimed, airdropData, claimer, amountString } = useCheckDBRAirdrop(account);
+
+    const importDBR = async () => {
+        const tokenAddress = DBR;
+        const tokenSymbol = 'DBR';
+        const tokenDecimals = 18;
+        const tokenImage = 'https://inverse.finance/assets/v2/dbr.jpg';
+
+        try {
+            if (!ethereum) { return }
+            // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+            await ethereum.request({
+                method: 'wallet_watchAsset',
+                params: {
+                    type: 'ERC20',
+                    options: {
+                        address: tokenAddress,
+                        symbol: tokenSymbol,
+                        decimals: tokenDecimals,
+                        image: tokenImage,
+                    },
+                },
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - DBR token</title>
-                <meta name="og:title" content="Inverse Finance - DBR Airdrop" />                
+                <meta name="og:title" content="Inverse Finance - DBR Airdrop" />
                 <meta name="og:description" content="Check if you're available for the DBR airdrop and claim it!" />
                 <meta name="og:image" content="https://inverse.finance/assets/v2/dbr-airdrop.jpg" />
             </Head>
@@ -117,7 +146,7 @@ export const ClaimDbr = () => {
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
                 <Stack alignItems="center" justify="center" mt="8" w='full' direction={{ base: 'column', lg: 'row' }} spacing="10">
                     <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }} h={{ base: '200px', sm: '500px' }}>
-                        <Image src="/assets/v2/dbr-airdrop.jpg" w="full" maxW='500px' maxH="500px" />
+                        <Image src="/assets/v2/dbr-airdrop.jpg" w="full" maxW={{ base: '200px', sm: '500px' }} maxW={{ base: '200px', sm: '500px' }} />
                     </VStack>
                     <VStack justify="center" spacing="4" alignItems="flex-start" w={{ base: 'full', sm: '55%' }}>
                         {
@@ -133,10 +162,18 @@ export const ClaimDbr = () => {
                         {
                             !!account && !isEligible && <NotEligibleComp account={account} />
                         }
+                        {
+                            !!account && <HStack cursor="pointer" onClick={importDBR}>
+                                <Image src="/assets/v2/dbr.jpg" w="20px" />
+                                <Text>
+                                    Import DBR token in my wallet
+                                </Text>
+                            </HStack>
+                        }
                     </VStack>
                 </Stack>
                 <VStack pt="10">
-                    <DBRInfos />
+                    <FirmFAQ />
                 </VStack>
             </Flex>
         </Layout>
