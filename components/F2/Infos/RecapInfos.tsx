@@ -93,7 +93,7 @@ export const RecapInfos = ({
                     </TextInfo>
                 }
                 <TextInfo color={riskColor} message="How much of the maximum borrow capacity is used, at 100% the loan can be liquidated">
-                    <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>The Borrow Limit will be <b style={{ fontWeight: '1000' }}>{shortenNumber(100-newPerc, 2)}%</b></Text>
+                    <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>You will use <b style={{ fontWeight: '1000' }}>{shortenNumber(100-newPerc, 2)}%</b> of your Borrow Limit</Text>
                 </TextInfo>
                 <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
                     <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)}</b> (current price is {preciseCommify(market.price, 0, true)})</Text>

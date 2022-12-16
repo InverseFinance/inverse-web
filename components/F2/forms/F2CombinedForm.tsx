@@ -179,7 +179,7 @@ export const F2CombinedForm = ({
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
-                            isDeposit && market.underlying.symbol === 'WETH' && !collateralBalance && <Text
+                            isDeposit && market.underlying.symbol === 'WETH' && <Text
                                 color="secondaryTextColor"
                                 textDecoration="underline"
                                 cursor="pointer"

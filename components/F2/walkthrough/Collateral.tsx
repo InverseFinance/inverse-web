@@ -64,9 +64,9 @@ export const F2WalkthroughCollateral = ({
                 isError={isNotEnoughBalance}
             />
             {
-                !collateralBalance && market.underlying.symbol === 'WETH' &&
+                market.underlying.symbol === 'WETH' &&
                 <Text cursor="pointer" textDecoration="underline" onClick={onOpen}>
-                    No WETH? Easily Convert ETH to WETH
+                    Need WETH? Easily convert ETH to WETH
                 </Text>
             }
             {
