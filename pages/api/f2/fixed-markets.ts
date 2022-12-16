@@ -118,12 +118,12 @@ export default async function handler(req, res) {
       return bc === BURN_ADDRESS ? bnDola[i] : dailyLimits[i].sub(dailyBorrows[i]);
     });
 
-    const bnPrices = await Promise.all(
+    const bnPrices = (await Promise.allSettled(
       oracles.map((o, i) => {
         const oracle = new Contract(o, F2_ORACLE_ABI, provider);
         return oracle.viewPrice(F2_MARKETS[i].collateral, bnCollateralFactors[i]);
       }),
-    );
+    )).map(r => r.status === 'fulfilled' ? r.value : BigNumber.from('0'));
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
