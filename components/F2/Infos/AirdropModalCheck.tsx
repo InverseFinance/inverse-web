@@ -5,8 +5,8 @@ import useStorage from '@app/hooks/useStorage'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { Modal } from '@app/components/common/Modal'
 import { useAccount } from '@app/hooks/misc'
-import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { ConfettiAnim } from '@app/components/common/Animation'
+import Link from '@app/components/common/Link'
 
 export const AirdropModalCheck = ({
     isOpen,
@@ -20,22 +20,17 @@ export const AirdropModalCheck = ({
     const account = useAccount();
     const router = useRouter();
     const { isEligible, hasClaimed } = useCheckDBRAirdrop(account);
-    const { value: isAlreadyShown, setter } = useStorage('dbr-airdrop');
+    const { value: isAlreadyShown, setter } = useStorage('dbr-airdrop');    
 
     useDebouncedEffect(() => {
-        if (!isAlreadyShown && isEligible && !hasClaimed) {
+        if (!isAlreadyShown && isEligible && !hasClaimed && router && router?.route.indexOf('claim-dbr') === -1) {
             onOpen();
         }
-    }, [isAlreadyShown, isEligible, hasClaimed], 200)
+    }, [isAlreadyShown, isEligible, hasClaimed, router], 200)
 
     const handleClose = async () => {
         setter('done');
         onClose();
-    }
-
-    const handleOk = async () => {
-        setter('done');
-        router.push('/claim-dbr');
     }
 
     return <Flex>
@@ -45,14 +40,9 @@ export const AirdropModalCheck = ({
             }
             footer={
                 <HStack w='full' justify="center">
-                    <RSubmitButton
-                        onClick={handleOk}
-                        w='auto'
-                        px="4"
-                        py="2"                    
-                    >
-                        Go to the Claim Page
-                    </RSubmitButton>
+                    <Link href="/claim-dbr">
+                        Go to the claim page
+                    </Link>
                 </HStack>
             }
         >

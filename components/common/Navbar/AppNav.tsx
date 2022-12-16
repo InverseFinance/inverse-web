@@ -57,6 +57,7 @@ import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay'
 import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
 import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 const NAV_ITEMS = MENUS.nav
 
 const NavBadge = (props: any) => {
@@ -453,7 +454,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
   const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
-  const [showMobileNav, setShowMobileNav] = useState(false)
+  const [showMobileNav, setShowMobileNav] = useState(false);
+  const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
 
@@ -461,6 +463,10 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
+
+  useDebouncedEffect(() => {
+    setShowAirdropModal(isEligible && !hasClaimed);
+  }, [isEligible, hasClaimed], 1000);
 
   useEffect(() => {
     const init = async () => {
@@ -544,7 +550,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         onClose={onWrongNetClose}
       />
       {
-        isEligible && !hasClaimed && <AirdropModalCheck
+        showAirdropModal && <AirdropModalCheck
           isOpen={isAirdropOpen}
           onOpen={onAirdropOpen}
           onClose={onAirdropClose}
