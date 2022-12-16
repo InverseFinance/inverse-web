@@ -368,7 +368,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DBR,
       name: 'DBR',
       symbol: 'DBR',
-      image: '/assets/v2/dbr-small.png',
+      image: '/assets/v2/dbr.jpg',
       decimals: 18,
     },
     [chainTokenAddresses["1"].VLAURA]: {

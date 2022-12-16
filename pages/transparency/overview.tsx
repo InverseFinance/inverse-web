@@ -20,7 +20,7 @@ import { shortenNumber } from '@app/util/markets'
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DBR, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const RWG = MULTISIGS.find(m => m.shortName === 'RWG')?.address;
 
@@ -44,6 +44,7 @@ const defaultValues = {
   govToken: INV,
   govStakedToken: XINV,
   dola: DOLA,
+  dbr: DBR,
   dolaOperator: TREASURY,
   opBondManager: OP_BOND_MANAGER,
 }

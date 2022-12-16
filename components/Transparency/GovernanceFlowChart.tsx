@@ -6,14 +6,15 @@ import { namedAddress } from '@app/util';
 import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 
-const { INV, DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, DOLA, TOKENS, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const blueStyle = { backgroundColor: '#4299e1cc', color: 'white' }
 const primaryStyle = { backgroundColor: '#5E17EBcc', color: 'white' }
 const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white' }
 
-const dolaImg = <Image mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} width={'20px'} height={'20px'} />
-const invImg = <Image mr="2" display="inline-block" src={TOKENS[INV].image} ignoreFallback={true} width={'20px'} height={'20px'} />
+const dolaImg = <Image borderRadius="50px" mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} width={'20px'} height={'20px'} />
+const dbrImg = <Image borderRadius="50px" mr="2" display="inline-block" src={TOKENS[DBR].image} ignoreFallback={true} width={'20px'} height={'20px'} />
+const invImg = <Image borderRadius="50px" mr="2" display="inline-block" src={TOKENS[INV].image} ignoreFallback={true} width={'20px'} height={'20px'} />
 
 export const GovernanceFlowChart = ({
   comptroller,
@@ -34,6 +35,7 @@ export const GovernanceFlowChart = ({
   govToken,
   govStakedToken,
   dola,
+  dbr,
   dolaOperator,
   opBondManager,
 }: {
@@ -55,6 +57,7 @@ export const GovernanceFlowChart = ({
   govToken: string,
   govStakedToken: string,
   dola: string,
+  dbr: string,
   dolaOperator: string,
   opBondManager: string,
 }) => {
@@ -69,7 +72,7 @@ export const GovernanceFlowChart = ({
 
   const links: FlowChartData[] = [
     {
-      label: 'Frontier (Comptroller)',
+      label: 'Frontier (Deprecated)',
       id: comptroller,
       style: primaryStyle,
       targets: [
@@ -126,7 +129,7 @@ export const GovernanceFlowChart = ({
       deltaX: 700,
       style: blueStyle,
       targets: [
-        { label: "Frontier (Comptroller)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
+        { label: "Frontier (Deprecated)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
         { label: `⚖️ ${namedAddress(xinvAdmin)}`, id: xinvAdmin, linkLabel: 'xINV Admin', y: 0, x: 1200, style: primaryStyle },
         { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400, y: 800 },
         { label: 'xINV Escrow', id: xinvEscrow, linkLabel: 'xINV Escrow' },
@@ -152,6 +155,16 @@ export const GovernanceFlowChart = ({
       style: blueStyle,
       targets: [
         { label: namedAddress(dolaOperator), id: dolaOperator, linkLabel: "DOLA Operator" },
+      ]
+    },
+    {
+      label: <>{dbrImg}DBR</>,
+      id: dbr,
+      deltaX: 300,
+      y: 650,
+      style: blueStyle,
+      targets: [
+        { label: namedAddress(dolaOperator), id: dolaOperator, linkLabel: "DBR Operator" },
       ]
     },
   ]
