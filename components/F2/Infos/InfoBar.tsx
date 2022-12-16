@@ -261,12 +261,14 @@ export const DbrBar = ({
 }
 
 const BarBlock = ({
+    label,
     isLargerThan,
     imgSrc,
     price,
     href,
     vstackProps,
 }: {
+    label: string,
     isLargerThan: boolean,
     imgSrc: string,
     price: number,
@@ -282,7 +284,7 @@ const BarBlock = ({
         }
         <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
             <Link fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
-                Buy DBR
+                {label}
             </Link>
 
             <Link textAlign="left" href={href} isExternal target='_blank'>
@@ -306,9 +308,9 @@ export const FirmBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock isLargerThan={isLargerThan} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr-512.jpg`} />
-                    <BarBlock isLargerThan={isLargerThan} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
-                    <BarBlock isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems:{ base: 'flex-end', md: 'flex-start' } }} />
+                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr-512.jpg`} />
+                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
+                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems:{ base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
