@@ -409,6 +409,7 @@ export type Fed = {
   revenueChainId?: string
   revenueSrcAd?: string
   revenueTargetAd?: string
+  isFirm?: boolean
 }
 
 export type FedWithData = Fed & {

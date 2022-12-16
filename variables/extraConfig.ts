@@ -37,7 +37,7 @@ const mainConfig = {
         },
     ],
     feds: [
-        { chainId: NetworkIds.mainnet, address: '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd', name: 'FiRM Fed', projectImage: '/assets/inv-square-dark.jpeg' },
+        { chainId: NetworkIds.mainnet, address: '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd', name: 'FiRM Fed', projectImage: '/assets/inv-square-dark.jpeg', isFirm: true, supplyFuncName: 'globalSupply' },
         { chainId: NetworkIds.mainnet, address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
         { chainId: NetworkIds.mainnet, address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
         { chainId: NetworkIds.mainnet, address: '0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8', name: 'Badger Fed', projectImage: '/assets/projects/Badger.jpg' },

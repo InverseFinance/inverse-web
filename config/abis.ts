@@ -203,6 +203,14 @@ export const FED_ABI = [
   "event Contraction (uint256 amount)",
 ]
 
+export const FIRM_FED_ABI = [
+  "function chair() public view returns (address)",
+  "function gov() public view returns (address)",
+  "function globalSupply() public view returns (uint256)",
+  "event Expansion (address indexed market, uint256 amount)",
+  "event Contraction (address indexed market, uint256 amount)",
+]
+
 // Cross-chain fed contract
 export const XCHAIN_FED_ABI = [
   "function chair() public view returns (address)",

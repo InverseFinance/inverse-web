@@ -26,16 +26,18 @@ const getTimestamps = (rawEvents: [Event[], Event[]], chainId: NetworkIds) => {
   )
 }
 
-const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number) => {
+const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, isFirm?: boolean) => {
   const { event, blockNumber, transactionHash, args } = log;
   const isContraction = event === 'Contraction';
+  const amountBn = isFirm ? args![1] : args![0];
   return {
     event,
     fedIndex,
     isContraction,
     blockNumber,
     transactionHash,
-    value: getBnToNumber(args![0]) * (isContraction ? -1 : 1),
+    args,
+    value: getBnToNumber(amountBn) * (isContraction ? -1 : 1),
     timestamp: timestampInSec * 1000,
   }
 }
@@ -108,7 +110,7 @@ export default async function handler(req, res) {
           events: rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1])
             .sort((a, b) => a.blockNumber - b.blockNumber)
             .map(e => {
-              return getEventDetails(e, blockTimestamps[fed.chainId][e.blockNumber], fedIndex)
+              return getEventDetails(e, blockTimestamps[fed.chainId][e.blockNumber], fedIndex, fed.isFirm)
             })
             .map(e => {
               accumulatedSupply += e.value;
