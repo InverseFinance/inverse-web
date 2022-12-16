@@ -142,7 +142,7 @@ export const ClaimDbr = () => {
                 <meta name="og:description" content="Check if you're available for the DBR airdrop and claim it!" />
                 <meta name="og:image" content="https://inverse.finance/assets/v2/dbr-airdrop.jpg" />
             </Head>
-            <AppNav active="Tokens" activeSubmenu="Overview" isClaimPage={true} />
+            <AppNav active="Claim" isClaimPage={true} />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
                 <Stack alignItems="center" justify="center" mt="8" w='full' direction={{ base: 'column', lg: 'row' }} spacing="10">
                     <VStack alignItems="center" justify="center" w={{ base: 'full', sm: '45%' }} h={{ base: '200px', sm: '500px' }}>
