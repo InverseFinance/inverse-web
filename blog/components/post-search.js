@@ -62,12 +62,12 @@ export default function PostSearch({ ...props }) {
                 results && isFocused && <VStack
                     alignItems="flex-start"
                     position="absolute"
-                    bgColor={"primary.700"}
+                    bgColor={"mainBackgroundColor"}                    
                     p="0"
                     maxH="500px"
                     overflowY="auto"
                     overflowX="hidden"
-                    boxShadow={`0 0 5px 5px ${themeStyles.colors.mainBackgroundColor}`}
+                    boxShadow={`0 0 5px 2px ${themeStyles.colors.mainTextColor}`}
                     top={{ base: '55px', sm: '60px' }}
                     left={{ base: '0', sm: 'auto' }}
                     right={{ base: '0', sm: 'auto' }}
@@ -85,7 +85,7 @@ export default function PostSearch({ ...props }) {
                                     w='full'
                                     alignItems="flex-start"
                                     borderTop={i > 0 ? `1px solid ${themeStyles.colors.secondaryTextColor}` : undefined}
-                                    _hover={{ bgColor: themeStyles.colors.mainBackgroundColor }}
+                                    _hover={{ bgColor: themeStyles.colors.secContrastMainTextColor }}
                                     as="a"
                                 >
                                     <BlogText fontWeight="bold" color="mainTextColor">
