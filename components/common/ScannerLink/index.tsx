@@ -1,6 +1,6 @@
 
 import useScanner from '@app/hooks/useScanner';
-import { namedAddress } from '@app/util';
+import { namedAddress, shortenAddress } from '@app/util';
 import { BLOCK_SCAN } from '@app/config/constants';
 import { Link } from '@app/components/common/Link';
 import { LinkProps } from '@chakra-ui/react';
@@ -14,6 +14,7 @@ const ScannerLink = ({
 	chainId,
 	scanUrl = '',
 	useBlockScan = false,
+	useName = true,
 	...props
 }: {
 	scanUrl?: string;
@@ -22,6 +23,7 @@ const ScannerLink = ({
 	type?: 'address' | 'tx';
 	shorten?: boolean;
 	useBlockScan?: boolean;
+	useName?: boolean;
 	chainId?: string;
 	children?: React.ReactNode | React.ReactNode[];
 } & Partial<LinkProps>
@@ -29,7 +31,11 @@ const ScannerLink = ({
 	const netScanner = useScanner(chainId);
 	const scannerUrl = scanUrl || (useBlockScan ? BLOCK_SCAN : netScanner);
 	const address = value || children?.toString() || '';
-	const content = label || (shorten && (!children || typeof children === 'string') ? namedAddress(address, chainId) : children || value);
+	const content = label || (shorten && (!children || typeof children === 'string') ?
+		useName ? namedAddress(address, chainId) : shortenAddress(address)
+		:
+		children || value
+	);
 
 	return (
 		<Link

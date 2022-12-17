@@ -117,12 +117,12 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'Main Smart Contract handling this Market',
                 title: 'Market Contract',
-                value: <ScannerLink value={f2market.address} />,
+                value: <ScannerLink value={f2market.address} useName={false} />,
             },
             {
                 tooltip: 'Collateral Smart Contract used for this Market',
                 title: 'Collateral Contract',
-                value: <ScannerLink value={f2market.underlying.address} />,
+                value: <ScannerLink value={f2market.underlying.address} useName={false} />,
             },
         ],
         [
@@ -180,7 +180,7 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'DBR Smart Contract',
                 title: 'DBR Contract',
-                value: <ScannerLink value={DBR} />,
+                value: <ScannerLink value={DBR} useName={false} />,
             },
             {
                 tooltip: 'Learn more about DBR',

@@ -267,29 +267,28 @@ const BarBlock = ({
     price,
     href,
     vstackProps,
+    precision = 2,
 }: {
     label: string,
     isLargerThan: boolean,
     imgSrc: string,
     price: number,
+    precision?: number,
     href: string,
     vstackProps?: StackProps,
 }) => {
     return <HStack spacing="4">
         {
-            isLargerThan && 
-                <Link href={href} isExternal target='_blank'>
-                <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
-            </Link>
+            isLargerThan && <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
         }
         <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
-            <Link fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
+            <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                 {label}
             </Link>
 
-            <Link textAlign="left" href={href} isExternal target='_blank'>
-                {shortenNumber(price, 2, true)}
-            </Link>
+            <Text textAlign="left" color="secondaryTextColor">
+                {shortenNumber(price, precision, true)}
+            </Text>
         </VStack>
     </HStack>
 }
@@ -308,8 +307,8 @@ export const FirmBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr-512.jpg`} />
-                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
+                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr-512.jpg`} />
+                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
                     <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems:{ base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
