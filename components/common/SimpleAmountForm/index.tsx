@@ -132,7 +132,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }
 
     const handleAction = (isMax = false) => {
-        const _amount = amount.startsWith('.') ? `0${amount}` : amount;
+        const _amount = (amount||'')?.toString()?.startsWith('.') ? `0${amount}` : amount;
         const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(_amount, decimals) || '0'), decimals);        
         const params = {
             bnAmount,
