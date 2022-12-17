@@ -279,19 +279,16 @@ const BarBlock = ({
 }) => {
     return <HStack spacing="4">
         {
-            isLargerThan && 
-                <Link href={href} isExternal target='_blank'>
-                <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
-            </Link>
+            isLargerThan && <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
         }
         <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
-            <Link fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
+            <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                 {label}
             </Link>
 
-            <Link textAlign="left" href={href} isExternal target='_blank'>
+            <Text textAlign="left" color="secondaryTextColor">
                 {shortenNumber(price, precision, true)}
-            </Link>
+            </Text>
         </VStack>
     </HStack>
 }
