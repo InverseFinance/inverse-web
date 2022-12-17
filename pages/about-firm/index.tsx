@@ -16,7 +16,7 @@ export const AboutFirm = () => {
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/everything-about-firm.png" />
         <meta name="keywords" content="Inverse Finance, FiRM, Fixed Rate, Fixed Rate Market, DOLA Borrowing Right, DBR, DeFi, DOLA, Personal Collateral Escrow, PCE, Borrowing, stablecoin, DAO, fixed rate DeFi, fixed rate loans, fixed rate lending, fixed rate borrowing" />
       </Head>
-      <AppNav active="INV" />
+      <AppNav active="Learn" activeSubmenu="About FiRM" />
       <Flex
         // bg={`url(/assets/social-previews/everything-about-firm.png)`}
         bgSize="cover"
@@ -27,10 +27,10 @@ export const AboutFirm = () => {
         alignItems="center"
         pt="10"
       >
-        <Text as="h1" fontSize={{ base: '26px', sm: '40px' }} fontWeight="extrabold">
+        <Text as="h1" fontSize={{ base: '22px', sm: '40px' }} fontWeight="extrabold">
           Everything about FiRM!
         </Text>
-        <Text color="secondaryTextColor" as="h2" fontSize="20px" fontWeight="bold">
+        <Text color="secondaryTextColor" as="h2" fontSize={{ base: '18px', sm: '20px' }} fontWeight="bold">
           Inverse Finance's Fixed Rate Market
         </Text>
         <Text transform="translateY(100px)">
