@@ -132,10 +132,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }
 
     const handleAction = (isMax = false) => {
-        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(amount, decimals) || '0'), decimals);        
+        const _amount = amount.startsWith('.') ? `0${amount}` : amount;
+        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(_amount, decimals) || '0'), decimals);        
         const params = {
             bnAmount,
-            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(amount) || 0,
+            floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(_amount) || 0,
             balance,
             ...props,
         };
