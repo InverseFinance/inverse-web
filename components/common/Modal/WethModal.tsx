@@ -37,7 +37,7 @@ const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
 
     const ethBalanceNum = ethBalance ? getBnToNumber(ethBalance) : 0;
     const wethBalanceNum = wethBalance ? getBnToNumber(wethBalance) : 0;
-    const maxEthNum = ethBalanceNum - 3 * costEth;
+    const maxEthNum = ethBalanceNum - 6 * costEth;
     const maxEth = maxEthNum <= 0 ? BigNumber.from('0') : getNumberToBn(maxEthNum);
 
     const handleAction = () => {

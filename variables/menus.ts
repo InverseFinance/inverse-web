@@ -121,6 +121,14 @@ export const MENUS = {
           label: 'Transparency Portal',
         },
         {
+          label: 'About FiRM',
+          href: '/about-firm',
+        },
+        {
+          label: 'FiRM Whitepaper',
+          href: '/whitepaper',
+        },
+        {
           href: '/analytics',
           label: 'Analytics',
         },
@@ -280,6 +288,10 @@ export const MENUS = {
         {
           label: 'Whitepaper',
           href: '/whitepaper',
+        },
+        {
+          label: 'About FiRM',
+          href: '/about-firm',
         },
       ],
     },
