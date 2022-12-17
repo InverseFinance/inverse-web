@@ -47,7 +47,7 @@ export const useAccountDBR = (
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
   const dailyDebtAccrual = (oneDay * _debt / oneYear);
-  const balanceWithDelta = signedBalance+deltaDBR;
+  const balanceWithDelta = signedBalance + deltaDBR;
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balanceWithDelta <= 0 ? 0 : balanceWithDelta / dailyDebtAccrual : 0;
   const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
@@ -114,12 +114,12 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const { data: limits } = useEtherSWR([
     ...markets.map((m, i) => {
-      const bc = data ? data[i+3*nbMarkets] : BURN_ADDRESS;
+      const bc = data ? data[i + 3 * nbMarkets] : BURN_ADDRESS;
       const noBorrowController = bc === BURN_ADDRESS;
       return data && !noBorrowController ? [bc, 'dailyLimits', m.address] : [];
     }),
     ...markets.map((m, i) => {
-      const bc = data ? data[i+3*nbMarkets] : BURN_ADDRESS;
+      const bc = data ? data[i + 3 * nbMarkets] : BURN_ADDRESS;
       const noBorrowController = bc === BURN_ADDRESS;
       return data && !noBorrowController ? [bc, 'dailyBorrows', m.address, dayIndexUtc] : [];
     }),
@@ -128,19 +128,19 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   return {
     markets: markets.map((m, i) => {
       const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
-      const dailyBorrows = limits ? getBnToNumber(limits[i+nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
-      const dolaLiquidity = data ? getBnToNumber(data[i+4*nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
-      const borrowPaused =  data ? data[i+5*nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
+      const dailyBorrows = limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
+      const dolaLiquidity = data ? getBnToNumber(data[i + 4 * nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
+      const borrowPaused = data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
       const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
-      
+
       return {
         ...m,
         ...cachedMarkets[i],
         supplyApy: 0,
         price: data ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
-        collateralFactor: data ? getBnToNumber(data[i+nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
-        totalDebt: data ? getBnToNumber(data[i+2*nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
-        bnDolaLiquidity: data ? data[i+4*nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
+        collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
+        totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
+        bnDolaLiquidity: data ? data[i + 4 * nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
         dolaLiquidity,
         dailyLimit,
         dailyBorrows,
@@ -183,7 +183,7 @@ export const useAccountDBRMarket = (
     [market.address, 'escrows', account],
     [market.address, 'getCreditLimit', account],
     [market.address, 'getWithdrawalLimit', account],
-    [market.address, 'debts', account],    
+    [market.address, 'debts', account],
   ]);
 
   const { data: balances } = useEtherSWR([
@@ -209,7 +209,7 @@ export const useAccountDBRMarket = (
 
   const hasDebt = !!deposits && !!withdrawalLimit && deposits > 0 && deposits !== withdrawalLimit;
   const debt = bnDebt ? getBnToNumber(bnDebt) : 0;
-  const { newPerc: perc, newCreditLeft: creditLeft, newLiquidationPrice: liquidationPrice } = f2CalcNewHealth(market, deposits, debt);  
+  const { newPerc: perc, newCreditLeft: creditLeft, newLiquidationPrice: liquidationPrice } = f2CalcNewHealth(market, deposits, debt);
 
   const liquidatableDebt = creditLimit >= debt ? 0 : debt * market.liquidationFactor;
   const liquidatableDebtBn = getNumberToBn(liquidatableDebt);
@@ -251,20 +251,22 @@ export const useAccountF2Markets = (
 }
 
 export const useDBRPrice = (): { price: number } => {
+  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
   const { data } = useEtherSWR({
-    args: [      
-        [
-          // vault
-          '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-          'getPoolTokens',
-          // poolId          
-          '0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415',          
-        ],      
+    args: [
+      [
+        // vault
+        '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+        'getPoolTokens',
+        // poolId          
+        '0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415',
+      ],
     ],
     abi: BALANCER_VAULT_ABI,
   });
 
-  const price = data && data[0] ? getBnToNumber(data[0][1][0])/getBnToNumber(data[0][1][1]) : 0.04;
+  const price = data && data[0] ?
+    getBnToNumber(data[0][1][0]) / getBnToNumber(data[0][1][1]) : apiData?.price || 0.04;
 
   return {
     price,
@@ -279,7 +281,7 @@ export const useBorrowLimits = (market: F2Market) => {
 
   const dataToGet = noBorrowController ? [
     [DOLA, 'balanceOf', market.address],
-  ]: [
+  ] : [
     [DOLA, 'balanceOf', market.address],
     [market.borrowController, 'dailyLimits', market.address],
     [market.borrowController, 'dailyBorrows', market.address, dayIndexUtc],
@@ -289,7 +291,7 @@ export const useBorrowLimits = (market: F2Market) => {
 
   const dolaLiquidity = data ? getBnToNumber(data[0]) : 0;
   const dailyLimit = !noBorrowController && data ? getBnToNumber(data[1]) : 0;
-  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;  
+  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;
   const leftToBorrow = data && dailyLimit !== 0 ? dailyLimit - dailyBorrows : dolaLiquidity;
 
   return {
@@ -306,7 +308,7 @@ export const useDBRReplenishmentPrice = (): SWR & {
   const { data, error } = useEtherSWR([
     DBR, 'replenishmentPriceBps',
   ]);
-  
+
   return {
     replenishmentPrice: data ? getBnToNumber(data, 4) : 0,
     isLoading: !error && !data,
@@ -327,8 +329,8 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
     DBR_AIRDROP, 'hasClaimed', account, '0'
   ]);
 
-  const asArray = airdropData ? Object.entries(airdropData) : [];  
-  
+  const asArray = airdropData ? Object.entries(airdropData) : [];
+
   const amounts = asArray.filter(a => a[0].toLowerCase() === account?.toLowerCase());
   amounts.sort((a, b) => a[1] > b[1] ? -1 : 1);
   const isEligible = amounts?.length > 0;
