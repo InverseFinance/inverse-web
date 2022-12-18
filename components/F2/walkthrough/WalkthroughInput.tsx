@@ -9,6 +9,7 @@ export const WalkthroughInput = (
         hideButtons={true}
         showBalance={true}
         inputProps={{
+            color: "mainTextColor",
             autoFocus: true,
             fontSize: { base: '16px', sm: '20px', md: '30px', lg: '40px' },            
             py: { base: '20px', md: '30px', lg: '40px' }
