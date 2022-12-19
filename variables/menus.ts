@@ -43,10 +43,6 @@ export const MENUS = {
       href: '/yield-opportunities',
       submenus: [
         {
-          label: 'Stake INV',
-          href: '/stake',
-        },
-        {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
