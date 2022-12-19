@@ -35,6 +35,10 @@ export const MENUS = {
       href: '/frontier',
     },
     {
+      label: 'Bond',
+      href: '/bonds',
+    },
+    {
       label: 'Earn',
       href: '/yield-opportunities',
       submenus: [
@@ -59,10 +63,6 @@ export const MENUS = {
     {
       label: 'Claim',
       href: '/claim-dbr',
-    },
-    {
-      label: 'Bond',
-      href: '/bonds',
     },
     {
       label: 'Swap',
