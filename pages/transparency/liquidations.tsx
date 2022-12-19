@@ -15,7 +15,7 @@ export const LiquidationsPage = () => {
                 <meta name="description" content="Transparency: Liquidations" />
                 <meta name="keywords" content="Inverse Finance, transparency, liquidations" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="Liquidations" />
+            <AppNav active="Learn" activeSubmenu="Transparency Portal" />
             <TransparencyTabs active="liquidations" />
             <LiquidationsTable />
         </Layout>

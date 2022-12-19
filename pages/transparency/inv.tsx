@@ -80,7 +80,7 @@ export const InvPage = () => {
         <meta name="description" content="INV Governance Token Details" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, inv, supply, xinv" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="INV" />
+      <AppNav active="Learn" activeSubmenu="Transparency Portal" />
       <TransparencyTabs active="inv" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
