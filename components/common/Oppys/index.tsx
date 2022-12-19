@@ -210,8 +210,7 @@ export const OppysTable = ({
                         defaultSort="tvlUsd"
                         defaultSortDir="desc"
                         columns={columns}
-                        items={filteredOppys}
-                        sortChevronProps={{ w: 8, h: 8, transform: 'translateX(20px)' }}
+                        items={filteredOppys}                        
                         colBoxProps={{ fontWeight: "extrabold" }}
                     />
                     <InfoMessage
