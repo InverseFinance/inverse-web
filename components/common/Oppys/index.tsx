@@ -72,14 +72,14 @@ const getPoolLink = (project, pool) => {
 
 const ProjectItem = ({ project }: { project: string }) => {
     return <>
-        <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Ficons%2F${project}.jpg&w=48&q=75`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
+        <Image w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
         <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
     </>
 }
 
 const ChainItem = ({ chain }: { chain: string }) => {
     return <>
-        <Image w="20px" borderRadius="50px" src={`https://defillama.com/_next/image?url=%2Fchain-icons%2Frsz_${chain.toLowerCase()}.jpg&w=48&q=75`} />
+        <Image w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=24&h=24`} />
         <Text textTransform="capitalize">{chain}</Text>
     </>
 }
