@@ -123,7 +123,7 @@ export const DebtConverterPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Debt Converter</title>
             </Head>
-            <AppNav active="Frontier" activeSubmenu="Debt Converter" />
+            <AppNav active="Borrow" activeSubmenu="Frontier - Debt Converter" />
             <ErrorBoundary>
                 <VStack maxWidth="1200px">
                     <VStack maxW={"700px"}>

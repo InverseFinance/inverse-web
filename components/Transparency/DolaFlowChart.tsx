@@ -45,8 +45,9 @@ export const DolaFlowChart = ({
       </>,
       id: fed.address,
       style: primaryStyle,
+      x: 300,
       targets: [
-        { label: `🔐 ${namedAddress(fed.chair)}`, id: fed.chair, linkLabel: 'Fed Chair', deltaX: 600, y: elementsOptions.yGap },
+        { label: `🔐 ${namedAddress(fed.chair)}`, id: fed.chair, linkLabel: 'Fed Chair', x: 600, y: elementsOptions.yGap },
         { label: `🏦 ${namedAddress(fed.gov)}`, id: fed.gov, linkLabel: 'Fed Gov', style: greenStyle },
         // { label: namedAddress(fed.ctoken), id: fed.ctoken, linkLabel: 'Token' },
       ]
@@ -58,8 +59,9 @@ export const DolaFlowChart = ({
       label: <>{dolaImg}DOLA</>,
       id: dola,
       style: blueStyle,
+      x: 300,
       targets: [
-        { label: `🏦 ${namedAddress(dolaOperator)}`, id: dolaOperator, linkLabel: "DOLA Operator", style: greenStyle },
+        { label: `🏦 ${namedAddress(dolaOperator)}`, x:0, id: dolaOperator, linkLabel: "DOLA Operator", style: greenStyle },
       ]
     },
     ...fedLinks,
@@ -76,7 +78,7 @@ export const DolaFlowChart = ({
       options={{
         showControls: !isLargerThan,
         showBackground: !isLargerThan,
-        autofit: true,
+        // autofit: true,
         elementsOptions,
       }}
       flowData={links}
