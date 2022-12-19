@@ -190,8 +190,8 @@ export const FirmPositions = ({
                 columns={columns}
                 items={positions}
                 onClick={(v) => openLiquidation(v)}
-                defaultSort="perc"
-                defaultSortDir="asc"
+                defaultSort="debt"
+                defaultSortDir="desc"
             />
         </Container>
     </VStack>
