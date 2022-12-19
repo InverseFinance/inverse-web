@@ -8,7 +8,7 @@ const tabs = [
     { page: 'treasury', label: 'Treasury' },
     { page: 'dao', label: 'DAO' },
     { page: 'inv', label: 'INV' },
-    // { page: 'dola', label: 'DOLA & the Feds' },
+    { page: 'dola', label: 'DOLA & the Feds' },
     { page: 'feds', label: 'Feds' },
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
