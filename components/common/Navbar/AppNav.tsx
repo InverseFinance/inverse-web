@@ -579,8 +579,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                 key={i}
                 href={href}
                 fontWeight="medium"
-                position="relative"
-
+                position="relative"                
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
@@ -602,7 +601,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                   </PopoverTrigger>
                   {
                     submenus?.length > 0 &&
-                    <PopoverContent maxW="230px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
+                    <PopoverContent maxW="250px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
                       <PopoverBody className={`blurred-container ${themeName}-bg compat-mode2`} borderRadius="10px">
                         <VStack spacing="4" p="4">
                           {
@@ -644,9 +643,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         }
         <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
-            <Image w={4} h={4} src="/assets/cancel.svg" alt="Cancel" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
+            <Image w={4} h={4} ignoreFallback={true} src="/assets/cancel.svg" alt="Cancel" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
           ) : (
-            <Image w={6} h={6} src="/assets/hamburger.svg" alt="Menu" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
+            <Image w={6} h={6} ignoreFallback={true} src="/assets/hamburger.svg" alt="Menu" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
           )}
           {
             active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>

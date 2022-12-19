@@ -16,6 +16,14 @@ export const MENUS = {
           label: 'Frontier (deprecated)',
           href: '/frontier',
         },
+        {
+          label: 'Frontier - Debt Converter',
+          href: '/frontier/debt-converter',
+        },
+        {
+          label: 'Frontier - Debt Repayer',
+          href: '/frontier/debt-repayer',
+        },
         // {
         //   label: 'Borrow DOLA',
         //   href: '/frontier?marketType=borrow&market=dola#',
@@ -233,15 +241,15 @@ export const MENUS = {
       items: [
         {
           label: 'DOLA',
-          href: '/tokens/DOLA',
+          href: 'https://docs.inverse.finance/inverse-finance/using-dola',
         },
         {
           label: 'DBR',
-          href: '/tokens/DBR',
+          href: 'https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights',
         },
         {
           label: 'INV',
-          href: '/tokens/INV',
+          href: 'https://docs.inverse.finance/inverse-finance/using-inv',
         },
         {
           label: 'FiRM',

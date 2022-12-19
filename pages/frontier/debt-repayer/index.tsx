@@ -128,7 +128,7 @@ export const DebtRepayerPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Debt Repayer</title>
             </Head>
-            <AppNav active="Frontier" activeSubmenu="Debt Repayer" />
+            <AppNav active="Borrow" activeSubmenu="Frontier - Debt Repayer" />
             <ErrorBoundary>
                 <Flex direction="column" w={{ base: 'full' }} maxWidth="700px">
                     {
