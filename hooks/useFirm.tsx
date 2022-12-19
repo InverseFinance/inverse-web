@@ -6,6 +6,9 @@ import { useDBRMarkets } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { getNumberToBn } from "@app/util/markets";
 
+const oneDay = 86400000;
+const oneYear = oneDay * 365;
+
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
@@ -43,27 +46,28 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   }
 }
 
-export const useDBRDeficits = (): SWR & {
+export const useDBRActiveHolders = (): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/dbr-deficits`, fetcher);
+  const { data, error } = useCustomSWR(`/api/f2/dbr-deficits?v2`, fetcher);
   const { positions: firmPositions } = useFirmPositions();
 
-  const dbrShortfalls = data ? data.shortfalls : [];
+  const activeDbrHolders = data ? data.activeDbrHolders : [];
 
-  const dbrDetailedShortfalls = dbrShortfalls.map(s => {
+  const activeDbrHoldersWithMarkets = activeDbrHolders.map(s => {
     const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
-    const marketIcons = marketPositions.map(p => p.market.underlying.image);
+    const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
     return {
       ...s,
       marketPositions,
       marketIcons,
+      dailyBurn: s.debt/oneYear * oneDay
     }
-  });
+  }).filter(p => p.debt > 0);
 
   return {
-    positions: dbrDetailedShortfalls,
+    positions: activeDbrHoldersWithMarkets,
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,

@@ -3,9 +3,9 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { DbrDeficits } from '@app/components/F2/liquidations/dbr-deficits'
+import { DbrSpenders } from '@app/components/F2/liquidations/dbr-spenders'
 
-export const F2DbrDeficitsPage = () => {
+export const F2DbrSpendersPage = () => {
 
     return (
         <Layout>
@@ -15,11 +15,11 @@ export const F2DbrDeficitsPage = () => {
             <AppNav active="Earn" activeSubmenu="Replenish DBR" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
-                    <DbrDeficits />
+                    <DbrSpenders />
                 </VStack>
             </ErrorBoundary>
         </Layout>
     )
 }
 
-export default F2DbrDeficitsPage
+export default F2DbrSpendersPage

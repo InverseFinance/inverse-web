@@ -52,7 +52,7 @@ export const MENUS = {
         },
         {
           label: 'Replenish DBR',
-          href: '/firm/dbr-deficits',
+          href: '/firm/dbr-spenders',
         },
       ],
     },
