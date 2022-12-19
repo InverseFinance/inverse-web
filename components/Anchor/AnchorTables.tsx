@@ -1,4 +1,4 @@
-import { Flex, Stack, HStack, Switch, Text, useDisclosure, FormControl } from '@chakra-ui/react'
+import { Flex, Stack, HStack, Switch, Text, useDisclosure, FormControl, VStack } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { AnchorBorrowModal, AnchorCollateralModal, AnchorSupplyModal } from '@app/components/Anchor/AnchorModals'
 import Container from '@app/components/common/Container'
@@ -28,6 +28,7 @@ import moment from 'moment'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { showToast } from '@app/util/notify'
+import Link from '../common/Link'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
@@ -617,7 +618,12 @@ export const AnchorBorrow = ({ paused, modalOnly }: { paused?: boolean, modalOnl
       description="Borrow against your supplied collateral"
       href={process.env.NEXT_PUBLIC_BORROW_DOC_URL}
     >
-      <Table noDataMessage="DOLA borrowing is now available on FiRM our new lending market!" columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
+      <Table noDataMessage={
+        <VStack alignItems="flex-start">
+            <Text>DOLA borrowing is now available on our new protocol!</Text>
+            <Link textDecoration="underline" href="/firm">Borrow DOLA on FiRM</Link>
+        </VStack>
+      } columns={columns} keyName="token" items={marketsWithUsdLiquidity.filter(({ borrowable }: Market) => borrowable)} onClick={handleBorrow} data-testid={TEST_IDS.anchor.borrowTable} />
       {modalAsset && <AnchorBorrowModal isOpen={isOpen} onClose={onClose} asset={modalAsset} />}
     </Container>
   )
