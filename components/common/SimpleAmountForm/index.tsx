@@ -8,7 +8,6 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
-import { SubmitButton } from "@app/components/common/Button";
 import { BalanceInput } from "@app/components/common//Input"
 import { roundFloorString } from "@app/util/misc";
 import { InfoMessage } from "../Messages";
@@ -122,7 +121,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }, [defaultAmount])
 
     useEffect(() => {
-        setTokenApproved(freshTokenApproved || hasAllowance(approvals, address));
+        setTokenApproved(freshTokenApproved || hasAllowance(approvals, address, decimals, amount));
     }, [approvals, address, freshTokenApproved]);
 
     const setToMaxDeposit = () => {
