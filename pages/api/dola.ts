@@ -1,33 +1,37 @@
 import { Contract } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
 import 'source-map-support'
-import { DOLA_ABI } from '@app/config/abis'
-import { getNetworkConfig } from '@app/util/networks'
+import { DOLA_ABI, FIRM_FED_ABI } from '@app/config/abis'
+import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getBnToNumber } from '@app/util/markets'
+import { CHAIN_ID } from '@app/config/constants';
+
+const { DOLA, FEDS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  // const { chainId = '1' } = req.query;
-  // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-dola-cache-v1.0.0`;
+  const cacheKey = `dola-cache-v1.0.0`;
 
   try {
-    const { DOLA } = networkConfig;
-
     const validCache = await getCacheFromRedis(cacheKey, true, 600);
     if(validCache) {
       res.status(200).json(validCache);
       return
     }
 
-    const provider = getProvider(networkConfig.chainId);
+    const provider = getProvider(CHAIN_ID);
     const contract = new Contract(DOLA, DOLA_ABI, provider);
+    const firmFed = FEDS.find((f) => f.isFirm)!;
+    const firmFedContract = new Contract(firmFed.address, FIRM_FED_ABI, provider);
 
-    const totalSupply = await contract.totalSupply()
+    const [totalSupply, firmSupply] = await Promise.all([
+      contract.totalSupply(),
+      firmFedContract.globalSupply(),
+    ]);    
 
     const resultData = {
-      totalSupply: parseFloat(formatEther(totalSupply)),
+      totalSupply: getBnToNumber(totalSupply),
+      firmSupply: getBnToNumber(firmSupply),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
