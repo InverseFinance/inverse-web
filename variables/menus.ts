@@ -31,6 +31,10 @@ export const MENUS = {
       ],
     },
     {
+      label: 'Stake',
+      href: '/frontier',
+    },
+    {
       label: 'Earn',
       href: '/yield-opportunities',
       submenus: [
@@ -54,11 +58,11 @@ export const MENUS = {
     },
     {
       label: 'Claim',
-      href: '/claim-dbr',      
+      href: '/claim-dbr',
     },
     {
       label: 'Bond',
-      href: '/bonds',      
+      href: '/bonds',
     },
     {
       label: 'Swap',
@@ -105,7 +109,7 @@ export const MENUS = {
     //     },
     //   ]
     // },
-    
+
     // {
     //   label: 'Bonds',
     //   href: '/bonds',
@@ -215,7 +219,7 @@ export const MENUS = {
           href: '/governance/delegates/$account',
         },
       ]
-    },    
+    },
     // {
     //   href: '/analytics',
     //   label: 'Analytics',
@@ -327,7 +331,7 @@ export const MENUS = {
           href: '/newsletter',
         },
       ],
-    },    
+    },
   ],
   "socials": [
     {
