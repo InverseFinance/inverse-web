@@ -144,6 +144,7 @@ const headers = async () => {
 const common = {
   images: {
     domains: ['images.ctfassets.net'],
+    loader: 'custom',
   },
   redirects,
   // headers,
