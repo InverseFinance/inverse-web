@@ -3,7 +3,7 @@ import { BLOCK_SCAN } from '@app/config/constants'
 import { getNetwork } from '@app/util/networks'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
-import { hexValue, formatUnits } from 'ethers/lib/utils'
+import { hexValue, formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
 import { BigNumberList, Token } from '@app/types'
@@ -12,6 +12,7 @@ import { ERC20_ABI } from '@app/config/abis'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+import { getBnToNumber } from './markets'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -152,8 +153,12 @@ export const formatBalance = (balance: BigNumber, decimals: number, symbol = '')
   return `${floatBalance.toFixed(precision)} ${symbol}`.trim();
 }
 
-export const hasAllowance = (approvals: BigNumberList, address: string): boolean => {
-  return !!(approvals && approvals[address] && parseFloat(formatUnits(approvals[address])))
+export const hasAllowance = (approvals: BigNumberList, address: string, decimals = 18, amount?: string): boolean => {
+  const allowanceValue = approvals && approvals[address] ? getBnToNumber(approvals[address], decimals) : 0;
+  if(!amount){
+    return !!allowanceValue
+  }
+  return allowanceValue >= getBnToNumber(parseUnits(amount, decimals));
 }
 
 export const getTokenBalance = async (token: Token, signer: JsonRpcSigner) => {

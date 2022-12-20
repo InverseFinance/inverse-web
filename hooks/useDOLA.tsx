@@ -10,18 +10,18 @@ import { getBnToNumber } from '@app/util/markets';
 import { BigNumber } from 'ethers';
 
 type DOLA = {
-  totalSupply: number
+  totalSupply: number,
+  firmSupply: number,
 }
 
 const { ANCHOR_DOLA, DOLA } = getNetworkConfigConstants();
 
 export const useDOLA = (): SWR & DOLA => {
-  const { chainId } = useWeb3React<Web3Provider>()
-
-  const { data, error } = useCustomSWR(`/api/dola?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/dola`, fetcher)
 
   return {
     totalSupply: data?.totalSupply || 0,
+    firmSupply: data?.firmSupply || 0,
     isLoading: !error && !data,
     isError: error,
   }

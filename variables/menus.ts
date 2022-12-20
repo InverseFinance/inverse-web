@@ -43,10 +43,6 @@ export const MENUS = {
       href: '/yield-opportunities',
       submenus: [
         {
-          label: 'Stake INV',
-          href: '/stake',
-        },
-        {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
@@ -56,7 +52,7 @@ export const MENUS = {
         },
         {
           label: 'Replenish DBR',
-          href: '/firm/dbr-deficits',
+          href: '/firm/dbr-spenders',
         },
       ],
     },

@@ -8,6 +8,6 @@ export const StepNavBtn = (props: ButtonProps) => {
         // fontSize={{ base: '12px', sm: '16px', md: '20px' }}
         fontSize={{ base: '12px', sm: '18px' }}
         minW="fit-content"
-        w="150px"
+        w={{ base: 'fit-content', sm: "150px" }}
         {...props} />
 }

@@ -91,7 +91,7 @@ export const Overview = () => {
         <meta name="description" content="Overview with Contracts Flowchart and key metrics" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, overview" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Overview" />
+      <AppNav active="Learn" activeSubmenu="Transparency Portal" />
       <TransparencyTabs active="overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">

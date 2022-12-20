@@ -15,7 +15,7 @@ const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white' }
 const dolaImg = <Image mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} width={'20px'} height={'20px'} />
 
 const elementsOptions = {
-  yGap: 150,
+  yGap: 0,
 };
 
 export const DolaFlowChart = ({
@@ -36,7 +36,8 @@ export const DolaFlowChart = ({
     setBaseHeight(`${(screen.availHeight || screen.height) / 2}px`)
   }, [isLargerThan]);
 
-  const fedLinks = feds?.map(fed => {
+  const fedLinks = feds?.map((fed, i) => {
+    const y = 150 + i * 150;
     return {
       label: <>
         <Image borderRadius="10px" src={`${fed.projectImage}`} w={'20px'} h={'20px'} mr="1" />
@@ -45,11 +46,24 @@ export const DolaFlowChart = ({
       </>,
       id: fed.address,
       style: primaryStyle,
-      x: 300,
+      x: 350,
+      y,
+      sourcePosition: 'left',
+      targetPosition: 'right',
       targets: [
-        { label: `🔐 ${namedAddress(fed.chair)}`, id: fed.chair, linkLabel: 'Fed Chair', x: 600, y: elementsOptions.yGap },
-        { label: `🏦 ${namedAddress(fed.gov)}`, id: fed.gov, linkLabel: 'Fed Gov', style: greenStyle },
+        // { label: `🔐 ${namedAddress(fed.chair)}`, targetPosition: 'left', id: `${fed.chair}-${i}`, linkLabel: 'Fed Chair', x: 700, y },
+        { label: `🏦 ${namedAddress(fed.gov)}`, targetPosition: 'right', id: `${fed.gov}-${i}`, linkLabel: 'Fed Gov', style: greenStyle, x: 0, y },
         // { label: namedAddress(fed.ctoken), id: fed.ctoken, linkLabel: 'Token' },
+      ]
+    }
+  }) || []
+
+  const fedChairs = feds?.map((fed, i) => {
+    const y = 150 + i * 150;
+    return {
+      label: `🔐 ${namedAddress(fed.chair)}`, sourcePosition: 'left', id: `${fed.chair}-${i}`, x: 700, y,
+      targets: [
+        { label: '', targetPosition: 'right', id: fed.address, linkLabel: 'Fed Chair' }
       ]
     }
   }) || []
@@ -59,12 +73,14 @@ export const DolaFlowChart = ({
       label: <>{dolaImg}DOLA</>,
       id: dola,
       style: blueStyle,
-      x: 300,
+      x: 350,
+      sourcePosition: 'left',
       targets: [
-        { label: `🏦 ${namedAddress(dolaOperator)}`, x:0, id: dolaOperator, linkLabel: "DOLA Operator", style: greenStyle },
+        { label: `🏦 ${namedAddress(dolaOperator)}`, x: 0, y: 0, id: dolaOperator, targetPosition: 'right', linkLabel: "DOLA Operator", style: greenStyle },
       ]
     },
     ...fedLinks,
+    ...fedChairs,
   ]
 
   const boxProps = { w: { base: baseWidth, lg: '900px' }, h: { base: baseheight, lg: '600px' } }

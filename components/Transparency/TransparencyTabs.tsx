@@ -1,14 +1,15 @@
 import { useAppThemeParams } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab } from '@chakra-ui/react'
 
-type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
+type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
 
 const tabs = [
     { page: 'overview', label: 'Overview' },
     { page: 'treasury', label: 'Treasury' },
     { page: 'dao', label: 'DAO' },
     { page: 'inv', label: 'INV' },
-    { page: 'dola', label: 'DOLA & the Feds' },
+    { page: 'dola', label: 'DOLA' },
+    { page: 'dbr', label: 'DBR' },
     { page: 'feds', label: 'Feds' },
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },

@@ -174,7 +174,7 @@ export const F2Markets = ({
     return <Container
         label="FiRM - BETA"
         description="Learn more"
-        href="https://docs.inverse.finance/"
+        href="https://docs.inverse.finance/inverse-finance/firm"
         image={<BigImageButton bg={`url('/assets/firm/firm-transparent.png')`} h="40px" w="100px" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         // right={

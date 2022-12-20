@@ -299,7 +299,7 @@ export const FirmBar = ({
 } & Partial<StackProps>) => {
     const { prices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
-    const { totalSupply } = useDOLA();
+    const { totalSupply, firmSupply } = useDOLA();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
 
@@ -313,12 +313,20 @@ export const FirmBar = ({
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
-                <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
-                    <Title>
+                <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
+                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
                         DOLA Supply
-                    </Title>
+                    </Link>
                     <SubTitle>
                         {shortenNumber(totalSupply, 2)}
+                    </SubTitle>
+                </VStack>
+                <VStack spacing="1" alignItems='center'>
+                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/FiRM">
+                        Supply in FiRM
+                    </Link>
+                    <SubTitle>
+                        {shortenNumber(firmSupply, 2)}
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>

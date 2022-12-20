@@ -119,7 +119,7 @@ export const DbrReplenishmentModal = ({
                 {
                     !account && <InfoMessage alertProps={{ w: 'full' }} description="Please connect wallet" />
                 }
-                <SubmitButton refreshOnSuccess={true} onClick={handleReplenish}>
+                <SubmitButton isDisabled={dolaReward <= 0} refreshOnSuccess={true} onClick={handleReplenish}>
                     Replenish
                 </SubmitButton>
                 {

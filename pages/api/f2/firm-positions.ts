@@ -102,7 +102,7 @@ export default async function handler(req, res) {
     });
 
     const resultData = {
-      positions,
+      positions: positions.filter(p => p.debt > 0),
       // marketUsersAndEscrows,
       timestamp: +(new Date()),
     }

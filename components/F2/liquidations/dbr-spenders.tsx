@@ -1,7 +1,7 @@
 import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useDBRDeficits } from "@app/hooks/useFirm";
+import { useDBRActiveHolders } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
 import Table from "@app/components/common/Table";
+import { useDBRPrice } from "@app/hooks/useDBR";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -40,15 +41,25 @@ const columns = [
         filterWidth: '100px',
     },
     {
-        field: 'deficit',
-        label: 'DBR Deficit',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ deficit }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText>{shortenNumber(deficit, 2, false, true)}</CellText>
+        field: 'signedBalance',
+        label: 'DBR Signed Balance',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        value: ({ signedBalance }) => {
+            return <Cell minWidth="150px" justify="center" >
+                <CellText>{shortenNumber(signedBalance, 2, false, true)}</CellText>
             </Cell>
         },
     },
+    // {
+    //     field: 'balance',
+    //     label: 'DBR Balance',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ balance }) => {
+    //         return <Cell minWidth="100px" justify="center" >
+    //             <CellText>{shortenNumber(balance, 2, false, true)}</CellText>
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'debt',
         label: 'DOLA Debt',
@@ -56,6 +67,16 @@ const columns = [
         value: ({ debt }) => {
             return <Cell minWidth="100px" justify="center" >
                 <CellText>{shortenNumber(debt, 2)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'dailyBurn',
+        label: 'DBR Daily Spend',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ dailyBurn }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <CellText>-{shortenNumber(dailyBurn, 2)}</CellText>
             </Cell>
         },
     },
@@ -71,12 +92,13 @@ const columns = [
     },
 ]
 
-export const DbrDeficits = ({
+export const DbrSpenders = ({
 
 }: {
 
     }) => {
-    const { positions, timestamp } = useDBRDeficits();
+    const { price } = useDBRPrice();
+    const { positions, timestamp } = useDBRActiveHolders();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
@@ -85,11 +107,14 @@ export const DbrDeficits = ({
         onOpen();
     }
     
+    const totalDailyBurn = positions.reduce((prev, curr) => prev + curr.dailyBurn, 0);
     const totalDeficit = positions.reduce((prev, curr) => prev + (curr.deficit), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
+    const monthlyBurn = totalDailyBurn * 30.416;
+    const yearlyBurn = totalDailyBurn * 365;
 
     return <Container
-        label="DBR Deficits"
+        label="Active DBR Spenders"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
@@ -97,14 +122,26 @@ export const DbrDeficits = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <HStack justify="space-between" spacing="4">
+            <HStack justify="space-between" spacing="2">
                 <VStack alignItems="flex-start">
-                    <Text fontWeight="bold">Total DBR Deficit</Text>
-                    <Text color="secondaryTextColor">{shortenNumber(totalDeficit, 2)}</Text>
+                    <Text textAlign="left" fontSize="12px" fontWeight="bold">Total DBR Deficit</Text>
+                    <Text textAlign="left" fontSize="12px" color="secondaryTextColor">{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
+                </VStack>
+                <VStack alignItems="center">
+                    <Text fontSize="12px" fontWeight="bold">Daily spend</Text>
+                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
+                </VStack>
+                <VStack alignItems="center">
+                    <Text fontSize="12px" fontWeight="bold">Monthly spend</Text>
+                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
+                </VStack>
+                <VStack alignItems="center">
+                    <Text fontSize="12px" fontWeight="bold">Yearly spend</Text>
+                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
                 </VStack>
                 <VStack alignItems="flex-end">
-                    <Text fontWeight="bold">Total Debt</Text>
-                    <Text color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
+                    <Text textAlign="right" fontSize="12px" fontWeight="bold">Total Debt</Text>
+                    <Text textAlign="right" fontSize="12px" color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
                 </VStack>
             </HStack>
         }
@@ -118,7 +155,7 @@ export const DbrDeficits = ({
             columns={columns}
             items={positions}
             onClick={(v) => openReplenish(v)}
-            defaultSort="deficit"
+            defaultSort={totalDeficit > 0 ? 'deficit' : 'debt'}
             defaultSortDir="desc"
         />
     </Container>

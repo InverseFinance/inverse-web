@@ -11,7 +11,7 @@ import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = `f2dbr-v1.0.5`;
+  const cacheKey = `f2dbr-v1.0.6`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 30);
@@ -23,13 +23,13 @@ export default async function handler(req, res) {
     const provider = getProvider(CHAIN_ID);
 
     const uniqueUsersCacheData = (await getCacheFromRedis(F2_UNIQUE_USERS_CACHE_KEY, false)) || null;
-    if(!uniqueUsersCacheData) {
+    if (!uniqueUsersCacheData) {
       return res.json({});
     }
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
 
-    const marketUsersAndEscrows = uniqueUsersCacheData?.marketUsersAndEscrows || {  };
+    const marketUsersAndEscrows = uniqueUsersCacheData?.marketUsersAndEscrows || {};
     let dbrUsers: string[] = [];
 
     F2_MARKETS.map(market => {
@@ -39,29 +39,31 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const deficitsBn = await Promise.all(
-      dbrUsers.map(u => {
-        return dbrContract.deficitOf(u);
-      })
-    )
+    const [signedBalanceBn, debtsBn] = await Promise.all(
+      [
+        Promise.all(dbrUsers.map(u => {
+          return dbrContract.signedBalanceOf(u);
+        })),
+        Promise.all(dbrUsers.map(u => {
+          return dbrContract.debts(u);
+        })),
+      ]
+    );
 
-    const usersWithDeficits = deficitsBn.map((bn, i) => {
-      return { deficit: getBnToNumber(bn), user: dbrUsers[i] }
-    }).filter(d => d.deficit > 0);
+    const activeDbrHolders = signedBalanceBn.map((bn, i) => {
+      const signedBalance = getBnToNumber(bn);
+      return {
+        signedBalance: signedBalance,
+        deficit: Math.min(0, signedBalance),
+        balance: Math.max(signedBalance, 0),
+        debt: getBnToNumber(debtsBn[i]),
+        user: dbrUsers[i],
+      }
+    });
 
-    const debts = await Promise.all(
-      usersWithDeficits.map(d => {
-        return dbrContract.debts(d.user);
-      })
-    )
-
-    const shortfalls = usersWithDeficits.map((d, i) => {
-      return { ...d, debt: getBnToNumber(debts[i]) };
-    })
-    
     const resultData = {
       dbrUsers,
-      shortfalls,
+      activeDbrHolders,
       timestamp: +(new Date()),
     }
 

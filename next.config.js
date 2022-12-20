@@ -13,6 +13,11 @@ const redirects = async () => {
       permanent: false,
     },
     {
+      source: '/firm/dbr-deficits',
+      destination: '/firm/dbr-spenders',
+      permanent: true,
+    },
+    {
       source: '/positions',
       destination: '/transparency/shortfalls',
       permanent: true,

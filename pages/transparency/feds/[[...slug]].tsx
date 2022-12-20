@@ -116,7 +116,7 @@ export const FedPolicyPage = () => {
                 <meta name="description" content="Feds Policy & Revenues" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, revenue" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="Fed Policy" />
+            <AppNav active="Learn" activeSubmenu="Transparency Portal" />
             <TransparencyTabs active="feds" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
