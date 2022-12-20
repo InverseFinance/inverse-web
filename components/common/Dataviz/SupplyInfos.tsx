@@ -37,7 +37,7 @@ export const SupplyInfos = ({
         <InfoMessage
             title={
                 token ? <Flex alignItems="center">
-                    <Image mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
+                    <Image borderRadius="50px" mr="2" display="inline-block" src={token.image} ignoreFallback={true} w='15px' h='15px' />
                     {token.symbol} Total Supplies :
                 </Flex>
                     : title
