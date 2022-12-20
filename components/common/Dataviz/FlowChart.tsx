@@ -47,9 +47,10 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, 
   links.forEach((link, i) => {
     const id = link.id.toLowerCase();
     if (!elements.find((el) => el.id === id)) {
+      const address = id?.split('-')?.[0];
       elements.push({
         id,
-        data: { label: <ElementLabel chainId={chainId} label={link.label} address={id} /> },
+        data: { label: <ElementLabel chainId={chainId} label={link.label} address={address} /> },
         position: { x: link.x ?? (originX + (link?.deltaX || 0)), y: link.y ?? (originY + yGap * i) },
         style: { ...defaultNodeSyle, ...(link.style || {}) },
         targetPosition: link.targetPosition,
@@ -66,8 +67,9 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, 
       if (!elements.find((el) => el.id === targetId)) {
         const x = target.x ?? ((-xGap + originX + (xGap * j)) + (target.deltaX || 0))
         const y = target.y ?? (yGap * (i + 1) + (target.deltaY || 0))
+        const address = targetId?.split('-')?.[0];
         elements.push({
-          data: { label: <ElementLabel chainId={chainId} label={target.label} address={targetId} /> },
+          data: { label: <ElementLabel chainId={chainId} label={target.label} address={address} /> },
           id: targetId,
           position: { x, y },
           style: { ...defaultNodeSyle, ...(target.style || {}) },
