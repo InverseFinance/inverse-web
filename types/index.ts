@@ -695,4 +695,5 @@ export type F2Market = {
   icon?: string
   marketIcon?: string
   helper?: string
+  escrowImplementation: string
 }

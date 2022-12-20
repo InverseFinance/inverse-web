@@ -34,7 +34,7 @@ export const DBRFlowChart = ({
   }, [isLargerThan]);
 
   const marketLinks = F2_MARKETS?.map((m, i) => {
-    const y = 200 + i * 150;
+    const y = 200 + i * 300;
     return {
       label: <HStack w='full'>
         <Image borderRadius="10px" src={`${m.icon}`} w={'20px'} h={'20px'} />
@@ -45,10 +45,9 @@ export const DBRFlowChart = ({
       x: 350,
       y,
       sourcePosition: 'top',
-      targetPosition: 'right',
+      targetPosition: 'top',
       targets: [
-        { label: `📜 Oracle`, x: 0, y, id: F2_ORACLE, targetPosition: 'top', linkLabel: "Pessimistic Oracle", style: greenStyle },
-        { label: `🛡️ Borrow Controller`, x: 700, y, id: F2_CONTROLLER, targetPosition: 'top', linkLabel: "Controller", style: greenStyle },
+        { label: `🔐 ${namedAddress(m.escrowImplementation)}`, x: 0, y, id: m.escrowImplementation, targetPosition: 'top', linkLabel: "Escrow Type", style: greenStyle },       
         { label: ``, id: DBR, targetPosition: 'bottom', linkLabel: "Uses DOLA Borrowing Right Tokens as cost", style: greenStyle, labelContainerStyle: { width: '280px' } },
       ]
     }
@@ -64,33 +63,34 @@ export const DBRFlowChart = ({
       targetPosition: 'bottom',
       targets: [
         { label: `🏦 ${namedAddress(operator)}`, x: 0, y: 0, id: operator, targetPosition: 'right', linkLabel: "DBR Operator", style: greenStyle },
-        // { label: '', x: 0, y: 0, id: operator, targetPosition: 'right', linkLabel: "DBR Operator", style: greenStyle },
-        // ...F2_MARKETS?.map((m, i) => {
-        //   return { label: `🏦 ${namedAddress(operator)}`, x: 0, y: 0, id: operator, targetPosition: 'right', linkLabel: "DBR Operator", style: greenStyle }
-        // },
       ]
     },
     {
-      label: <>{dolaImg}DOLA</>,
-      id: DOLA,
-      style: blueStyle,
-      x: 700,
-      sourcePosition: 'left',
+      label: `📜 Oracle`, x: 700, y: 350, id: F2_ORACLE, sourcePosition: 'bottom', linkLabel: "Pessimistic Oracle", style: greenStyle,
+      targets: F2_MARKETS?.map((m, i) => {
+        return { label: '', id: m.address, linkLabel: 'Pessimistic Oracle', targetPosition: 'right' }
+      })
     },
     {
       label: `🛡️ Borrow Controller`,
       id: F2_CONTROLLER,
       style: greenStyle,
       x: 700,
-      y: 200,      
+      y: 200,
+      sourcePosition: 'top',
       targets: [
-        { id: DOLA, linkLabel: 'Can restrict Borrowing', labelContainerStyle: { width: '160px' } }
+        { label: <>{dolaImg}DOLA</>, id: DOLA, x: 700, y: 0, linkLabel: 'Can limit / restrict Borrowing', labelContainerStyle: { width: '195px' }, targetPosition: 'bottom' }
       ]
+        .concat(
+          F2_MARKETS?.map((m, i) => {
+            return { label: '', id: m.address, linkLabel: 'Controller' }
+          })
+        )
     },
-    ...marketLinks,    
+    ...marketLinks,
   ]
 
-  const boxProps = { w: { base: baseWidth, lg: '900px' }, h: { base: baseheight, lg: '300px' } }
+  const boxProps = { w: { base: baseWidth, lg: '900px' }, h: { base: baseheight, lg: '400px' } }
 
   if (!baseWidth) {
     return <Box {...boxProps}>&nbsp;</Box>

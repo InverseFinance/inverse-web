@@ -69,6 +69,22 @@ export const DBRTransparency = () => {
                             </>
                         }
                     />
+                    <ShrinkableInfoMessage
+                        title="🗄️&nbsp;&nbsp;Docs"
+                        description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
+                                    DBR documentation
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/whitepaper" isExternal target="_blank">
+                                    FiRM whitepaper
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/about-firm" isExternal target="_blank">
+                                    FiRM Infographic
+                                </Link>
+                            </VStack>
+                        }
+                    />
                 </VStack>
             </Flex>
         </Layout>
