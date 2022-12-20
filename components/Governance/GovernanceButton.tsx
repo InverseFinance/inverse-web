@@ -80,7 +80,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
       {
         liveStatus === ProposalStatus.active && !hasVoted ?
           <>
-            <SubmitButton disabled={snapshotVotingPower === 0} color="mainTextColor" onClick={onOpen}>
+            <SubmitButton disabled={snapshotVotingPower === 0} onClick={onOpen}>
               Cast Vote
             </SubmitButton>
             <InfoMessage alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
@@ -91,7 +91,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
           <>
             {
               liveStatus === ProposalStatus.succeeded || liveStatus === ProposalStatus.queued ?
-                <SubmitButton isDisabled={isNextStepDisabled} color="mainTextColor" onClick={handleCompletion}>
+                <SubmitButton isDisabled={isNextStepDisabled} onClick={handleCompletion}>
                   {liveStatus === ProposalStatus.succeeded ? 'Queue Proposal' : 'Execute Proposal'}
                 </SubmitButton>
                 :
