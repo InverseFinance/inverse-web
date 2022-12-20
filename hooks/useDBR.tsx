@@ -250,8 +250,7 @@ export const useAccountF2Markets = (
   });
 }
 
-export const useDBRPrice = (): { price: number } => {
-  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
+export const useDBRPriceLive = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
       [
@@ -266,10 +265,43 @@ export const useDBRPrice = (): { price: number } => {
   });
 
   const price = data && data[0] ?
-    getBnToNumber(data[0][1][0]) / getBnToNumber(data[0][1][1]) : apiData?.price || 0.04;
+    getBnToNumber(data[0][1][0]) / getBnToNumber(data[0][1][1]) : undefined;
 
   return {
     price,
+  }
+}
+
+export const useDBRPrice = (): { price: number } => {
+  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
+  const { price: livePrice } = useDBRPriceLive();
+
+  return {
+    price: livePrice ?? (apiData?.price || 0.04),
+  }
+}
+
+export const useDBR = (): {
+  price: number,
+  timestamp: number,
+  totalSupply: number,
+  totalDueTokensAccrued: number,
+  operator: string,
+} => {
+  const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
+  const { price: livePrice } = useDBRPriceLive();
+  const { data: extraData } = useEtherSWR([
+    [DBR, 'totalSupply'],
+    [DBR, 'totalDueTokensAccrued'],
+    [DBR, 'operator'],
+  ]);
+
+  return {
+    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,
+    price: livePrice ?? (apiData?.price || 0.04),
+    totalSupply: extraData ? getBnToNumber(extraData[0]) : (apiData?.totalSupply || 0),
+    totalDueTokensAccrued: extraData ? getBnToNumber(extraData[1]) : (apiData?.totalDueTokensAccrued || 0),
+    operator: extraData ? extraData[2] : apiData?.operator || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B',
   }
 }
 

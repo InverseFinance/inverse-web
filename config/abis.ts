@@ -403,6 +403,7 @@ export const DBR_ABI = ERC20_ABI.concat([
   "function deficitOf(address) public view returns (uint)",
   "function signedBalanceOf(address) public view returns (int)",
   "function replenishmentPriceBps() public view returns (uint)",
+  "function operator() public view returns (address)",
 ]);
 
 export const F2_ORACLE_ABI = [

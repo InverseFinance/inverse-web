@@ -359,6 +359,7 @@ export type FlowChartData = {
     deltaX?: number
     deltaY?: number
     style?: Object
+    labelContainerStyle?: Object
     sourcePosition?: 'left' | 'right' | 'bottom' | 'top'
     targetPosition?: 'left' | 'right' | 'bottom' | 'top'
     type: ConnectionLineType,
@@ -368,6 +369,7 @@ export type FlowChartData = {
   deltaX?: number
   deltaY?: number
   style?: Object
+  labelContainerStyle?: Object
   sourcePosition?: 'left' | 'right' | 'bottom' | 'top'
   targetPosition?: 'left' | 'right' | 'bottom' | 'top'
 }

@@ -99,7 +99,7 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, 
           labelBgPadding: target.labelBgPadding || [18, 4],
           labelBgBorderRadius: 4,
           arrowHeadColor: '#F00',
-          labelBgStyle: { fill: '#FFCC00', color: '#fff' },
+          labelBgStyle: { fill: '#FFCC00', color: '#fff', ...target.labelContainerStyle },
         })
       } else {
         elements[elements.findIndex((el) => el.id === bridgeId)].label += ` & ${target.linkLabel}`
