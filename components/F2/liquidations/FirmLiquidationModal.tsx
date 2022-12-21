@@ -64,11 +64,15 @@ export const FirmLiquidationModal = ({
         setSeizeAmount(seizeWorth / position.market.price);
     }, [repayAmount, position]);
 
+    // TODO: refacto, in some cases view price can be different than price for liq
     const depositWorth = deposits * position?.market.price;
     const maxSeizableWorth = Math.min(liquidatableDebt, depositWorth);
-    const maxSeizable = maxSeizableWorth / position?.market?.price;
-    const maxRepayableForDeposits = depositWorth * (1-position.market.liquidationIncentive);
-    const maxRepayable = seizableWorth < maxRepayableForDeposits ? seizableWorth : maxRepayableForDeposits;
+
+    const maxRepayableForDeposits = depositWorth * (1 - position.market.liquidationIncentive);
+    const maxRepayable = Math.min(liquidatableDebt, maxRepayableForDeposits);
+
+    const maxWorthSeizable = maxRepayable * (1 + position.market.liquidationIncentive);
+    const maxCollateralSeizable = maxWorthSeizable / position?.market.price;
 
     return <Modal
         header={liquidatableDebt > 0 ? `Liquidation Form` : 'Details'}
@@ -82,13 +86,10 @@ export const FirmLiquidationModal = ({
                     <Text>Borrower:</Text>
                     <ScannerLink value={position.user} />
                 </HStack>
-                {
-                    maxSeizableWorth !== debt &&
-                    <HStack w='full' justify="space-between">
-                        <Text>Debt:</Text>
-                        <Text fontWeight="bold">{shortenNumber(debt, 2)}</Text>
-                    </HStack>
-                }
+                <HStack w='full' justify="space-between">
+                    <Text>Debt:</Text>
+                    <Text fontWeight="bold">{shortenNumber(debt, 2)}</Text>
+                </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Deposits:</Text>
                     <Text fontWeight="bold">{shortenNumber(deposits, 4)} {position?.market.underlying.symbol} ({shortenNumber(depositWorth, 2, true)})</Text>
@@ -98,16 +99,20 @@ export const FirmLiquidationModal = ({
                     <Text fontWeight="bold">{shortenNumber(depositWorth * position?.market.collateralFactor, 2, true)}</Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
-                    <Text>Max Liquidable Debt:</Text>
-                    <Text fontWeight="bold">{shortenNumber(maxSeizableWorth, 2, false, true)}</Text>
-                </HStack>
-                <HStack w='full' justify="space-between">
                     <Text>Liquidation Incentive:</Text>
                     <Text fontWeight="bold">{position?.market.liquidationIncentive * 100}%</Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Liquidation Factor:</Text>
                     <Text fontWeight="bold">{position?.market.liquidationFactor * 100}%</Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text>Max Repayable Debt:</Text>
+                    <Text fontWeight="bold">{shortenNumber(maxRepayable, 2, false, true)}</Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text>Max Seizable:</Text>
+                    <Text fontWeight="bold">{shortenNumber(maxCollateralSeizable, 4, false, true)} ({shortenNumber(maxWorthSeizable, 2, true, true)})</Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
                     <Text>Liquidation Price:</Text>
@@ -121,7 +126,7 @@ export const FirmLiquidationModal = ({
                     maxSeizableWorth > 0 && <HStack w='full' justify="space-between">
                         <Text>Max Seizable:</Text>
                         <Text fontWeight="bold">
-                            {shortenNumber(maxSeizable, 4, false, true)} {position?.market.underlying.symbol} ({shortenNumber(maxSeizableWorth, 2, true)})
+                            {shortenNumber(maxCollateralSeizable, 4, false, true)} {position?.market.underlying.symbol} ({shortenNumber(maxSeizableWorth, 2, true)})
                         </Text>
                     </HStack>
                 }
