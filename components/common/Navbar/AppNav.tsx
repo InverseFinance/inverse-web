@@ -466,7 +466,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   useDebouncedEffect(() => {
     setShowAirdropModal(isEligible && !hasClaimed);
-  }, [isEligible, hasClaimed], 1000);
+  }, [isEligible, hasClaimed], 2000);
 
   useEffect(() => {
     const init = async () => {
