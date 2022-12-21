@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const cacheKey = `${networkConfig.chainId}-dola-supply-v1.0.0`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 5);
+    const validCache = await getCacheFromRedis(cacheKey, true, 30);
     if(validCache) {
       res.status(200).send(validCache);
       return

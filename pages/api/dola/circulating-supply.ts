@@ -7,14 +7,11 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
 
-const {
-  TREASURY,
-  OP_BOND_MANAGER,
-} = getNetworkConfigConstants();
-
 const excluded = [
   // TREASURY,
   // OP_BOND_MANAGER,
+  // AN_DOLA
+  '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
 ];
 
 const { ANCHOR_DOLA } = getNetworkConfigConstants();
@@ -45,7 +42,7 @@ export default async function handler(req, res) {
       .map(bn => getBnToNumber(bn))
       .reduce((prev, curr) => prev + curr, 0);
 
-    const circulatingSupply = getBnToNumber(totalSupply)// - getBnToNumber(anDolaReserves) - totalInvExcluded;
+    const circulatingSupply = getBnToNumber(totalSupply) - getBnToNumber(anDolaReserves) - totalInvExcluded;
 
     await redisSetWithTimestamp(cacheKey, circulatingSupply);
 
