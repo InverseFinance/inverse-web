@@ -78,6 +78,11 @@ const redirects = async () => {
       permanent: true,
     },
     {
+      source: '/docs',
+      destination: 'https://docs.inverse.finance',
+      permanent: true,
+    },
+    {
       source: '/tokens/dola',
       destination: '/swap',
       permanent: true,
