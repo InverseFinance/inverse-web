@@ -81,9 +81,9 @@ const columns = [
         label: "Liquidity",
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the remain liquidity left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow }) => {
+        value: ({ leftToBorrow, totalDebt }) => {
             return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0" >
-                <CellText>{shortenNumber(leftToBorrow, 2, true)}</CellText>
+                <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2, true) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
             </Cell>
         },
     },

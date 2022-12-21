@@ -60,7 +60,7 @@ export const F2Walkthrough = ({
                     stepCase === 'Recap' && <F2WalkthroughRecap onStepChange={handleStepChange} />
                 }
                 {
-                    !market.dolaLiquidity && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
+                    !market.leftToBorrow && stepCase !== 'Deposit' && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
                 }
             </VStack>
         }
