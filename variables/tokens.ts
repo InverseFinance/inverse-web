@@ -370,6 +370,7 @@ const chainTokens = {
       symbol: 'DBR',
       image: '/assets/v2/dbr.jpg',
       decimals: 18,
+      coingeckoId: 'dola-borrowing-right',
     },
     [chainTokenAddresses["1"].VLAURA]: {
       address: chainTokenAddresses["1"].VLAURA,

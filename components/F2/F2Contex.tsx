@@ -138,7 +138,7 @@ export const F2Context = ({
             setMode('Deposit & Borrow');
             setStep(1);            
             handleDebtChange('');
-            router.replace({ hash: `step1`, query: { market: router.query.market } });
+            router.replace({ hash: `step1`, query: { ...router.query } });
         }
     }, [isWalkthrough]);
 
@@ -179,7 +179,7 @@ export const F2Context = ({
     }
 
     const handleStepChange = (newStep: number) => {
-        router.push({ hash: `step${newStep}` });
+        router.push({ hash: `step${newStep}`, query: { ...router.query } });
     }
 
     useEffect(() => {
@@ -187,7 +187,7 @@ export const F2Context = ({
         if(!isWalkthrough) { return }
         if(!collateralAmount && parseInt(stepString) !== 1){            
             setStep(1);            
-            router.replace({ hash: `step1`, query: { market: router.query.market } });
+            router.replace({ hash: `step1`, query: { ...router.query } });
         } else {        
             if (stepString && !isNaN(parseInt(stepString))) {
                 setStep(parseInt(stepString));
