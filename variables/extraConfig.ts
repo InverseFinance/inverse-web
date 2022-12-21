@@ -48,7 +48,7 @@ const mainConfig = {
         { chainId: NetworkIds.mainnet, address: '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb', oldAddress: '0x57d59a73cdc15fe717d2f1d433290197732659e2', name: 'Convex Fed', projectImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328', supplyFuncName: 'dolaSupply' },
         { chainId: NetworkIds.ftm, isXchain: true, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
         { chainId: NetworkIds.mainnet, address: '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d', name: 'Velo Fed', projectImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png', supplyFuncName: 'dolaSupply', revenueChain: NetworkIds.optimism, revenueSrcAd: '0xFED67cC40E9C5934F157221169d772B328cb138E', revenueTargetAd: '0xa283139017a2f5BAdE8d8e25412C600055D318F8' },
-        { chainId: NetworkIds.mainnet, address: '0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364', name: 'Aura Fed', projectImage: 'https://assets.coingecko.com/coins/images/25942/small/logo.png', supplyFuncName: 'dolaSupply' },
+        { chainId: NetworkIds.mainnet, address: '0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740', oldAddress: '0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364', name: 'Aura Fed', projectImage: 'https://assets.coingecko.com/coins/images/25942/small/logo.png', supplyFuncName: 'dolaSupply' },
     ],
     multisigs: [
         {

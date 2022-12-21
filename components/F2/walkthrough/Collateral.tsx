@@ -1,6 +1,6 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import { SubmitButton } from "@app/components/common/Button"
-import { InfoMessage } from "@app/components/common/Messages"
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { useAppTheme } from "@app/hooks/useAppTheme"
@@ -78,7 +78,13 @@ export const F2WalkthroughCollateral = ({
                 {/* <Text color="secondaryTextColor">Collateral Factor: {preciseCommify(market.collateralFactor*100, 2)}%</Text> */}
             </Stack>
             {
-                !market.helper &&
+                !market.leftToBorrow && <WarningMessage
+                    alertProps={{ w: 'full' }}
+                    description="No DOLA borrowable at the moment"
+                />
+            }
+            {
+                !market.helper && !!market.leftToBorrow &&
                 <InfoMessage
                     alertProps={{ w: 'full' }}
                     description={
@@ -92,12 +98,6 @@ export const F2WalkthroughCollateral = ({
                 isNotEnoughBalance && <InfoMessage
                     alertProps={{ w: 'full' }}
                     description="Not enough balance"
-                />
-            }
-            {
-                !market.leftToBorrow && <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    description="No DOLA borrowable at the moment"
                 />
             }
         </VStack>

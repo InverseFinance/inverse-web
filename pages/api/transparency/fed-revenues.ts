@@ -66,9 +66,9 @@ const getProfits = async (FEDS: Fed[], TREASURY: string) => {
             await Promise.all(filteredEvents.map(async e => {
                 const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
                 if(['CRV', 'CVX', 'VELO', 'BAL', 'AURA'].includes(e.sender_contract_ticker_symbol)) {
-                    const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
+                    const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];                    
                     const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`);
-                    const historicalData = await res.json();                   
+                    const historicalData = await res.json();                               
                     const histoPrice = historicalData.market_data.current_price.usd;
                     revenues += histoPrice * amount;
                 } else {
@@ -98,12 +98,19 @@ export default async function handler(req, res) {
             return
         }
 
-        const filteredTransfers = await getProfits(FEDS, TREASURY);
-        // add old Convex Fed to Convex Fed
-        const convexFed = FEDS.find(f => f.name === 'Convex Fed')!;
-        const oldConvexFedProfits = await getProfits([{ ...convexFed, address: convexFed.oldAddress }], TREASURY);        
-        const convexFedIndex = FEDS.findIndex(f => f.name === 'Convex Fed');
-        filteredTransfers[convexFedIndex] = filteredTransfers[convexFedIndex].concat(oldConvexFedProfits[0]);
+        const withOldAddresses = FEDS.filter(f => !!f.oldAddress);
+        const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
+            [
+                getProfits(FEDS, TREASURY),
+                getProfits(withOldAddresses.map(f => ({...f, address: f.oldAddress})), TREASURY),
+            ]
+        );
+
+        withOldAddresses.forEach((old, i) => {
+            const fedIndex = FEDS.findIndex(f => f.name === old.name);
+            filteredTransfers[fedIndex] = filteredTransfers[fedIndex].concat(oldFilteredTransfers[i]);
+        });
+        filteredTransfers.sort((a, b) => a.timestamp - b.timestamp);
 
         const accProfits: { [key: string]: number } = {};
         let total = 0;

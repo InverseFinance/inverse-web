@@ -59,11 +59,17 @@ export default async function handler(req, res) {
       ...FEDS.map(fed => getEvents(fed.address, fed.abi, fed.chainId))
     ]);
     // add old Convex Fed to Convex Fed
-    const convexFedIndex = FEDS.findIndex(f => f.name === 'Convex Fed');
-    const convexFed = FEDS[convexFedIndex];
-    const oldConvexFedEvents = await getEvents(convexFed.oldAddress, convexFed.abi, convexFed.chainId);            
-    rawEvents[convexFedIndex][0] = rawEvents[convexFedIndex][0].concat(oldConvexFedEvents[0]);
-    rawEvents[convexFedIndex][1] = rawEvents[convexFedIndex][1].concat(oldConvexFedEvents[1]);
+    const withOldAddresses = FEDS.filter(f => !!f.oldAddress);
+
+    const oldRawEvents = await Promise.all([
+      ...withOldAddresses.map(fed => getEvents(fed.oldAddress, fed.abi, fed.chainId))
+    ]);
+
+    withOldAddresses.forEach((fed, i) => {
+      const fedIndex = FEDS.findIndex(f => f.name === fed.name);
+      rawEvents[fedIndex][0] = rawEvents[fedIndex][0].concat(oldRawEvents[i][0]);
+      rawEvents[fedIndex][1] = rawEvents[fedIndex][1].concat(oldRawEvents[i][1]);
+    });
 
     const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
 

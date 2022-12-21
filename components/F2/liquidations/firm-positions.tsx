@@ -166,17 +166,17 @@ export const FirmPositions = ({
             }}
             right={
                 <HStack justify="space-between" spacing="4">
-                    <VStack alignItems="flex-start">
+                    <VStack alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text fontWeight="bold">Avg Borrow Limit</Text>
                         <Text color={avgRiskColor}>{shortenNumber(100-avgHealth, 2)}%</Text>
                     </VStack>
-                    <VStack alignItems="flex-start">
-                        <Text fontWeight="bold">Total Value Locked</Text>
-                        <Text color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
+                    <VStack alignItems="center">
+                        <Text textAlign="center" fontWeight="bold">Total Value Locked</Text>
+                        <Text textAlign="center" color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
                     </VStack>
                     <VStack alignItems="flex-end">
-                        <Text fontWeight="bold">Total Debt</Text>
-                        <Text color="secondaryTextColor">{shortenNumber(totalDebt, 2, true)}</Text>
+                        <Text textAlign="right" fontWeight="bold">Total Debt</Text>
+                        <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, true)}</Text>
                     </VStack>
                 </HStack>
             }
