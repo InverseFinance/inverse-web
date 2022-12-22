@@ -69,6 +69,7 @@ const chainTokenAddresses = {
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
+    FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
   },
   "250": {
@@ -288,6 +289,14 @@ const chainTokens = {
       coingeckoId: 'curve-fi-frax-usdc',
       image: 'https://assets.coingecko.com/coins/images/13422/small/frax_logo.png?1608476506',
       protocolImage: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png?1547042389',
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].FRAX]: {
+      address: chainTokenAddresses["1"].FRAX,
+      name: 'FRAX',
+      symbol: 'FRAX',
+      coingeckoId: 'frax',
+      image: 'https://assets.coingecko.com/coins/images/13422/small/ethCanonicalFRAX.png?1669277108',      
       decimals: 18,
     },
     [chainTokenAddresses["1"].FLOKI]: {
