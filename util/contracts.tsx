@@ -30,7 +30,7 @@ import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
 import { BigNumber } from 'ethers'
 
-const { DEBT_CONVERTER } = getNetworkConfigConstants();
+const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
 
 export const getNewContract = (
   address: string,
@@ -123,12 +123,14 @@ export const getINVsFromFaucet = (signer: JsonRpcSigner | undefined) => {
   getTokensFromFaucet('INV', '2', signer)
 }
 
-export const getDolaCrvPoolContract = (signer: JsonRpcSigner | Web3Provider | undefined) => {
-  const { DOLA3POOLCRV } = getNetworkConfigConstants(signer?.provider?.network?.chainId);
-  return getNewContract(DOLA3POOLCRV, DOLA3POOLCRV_ABI, signer);
+export const getDolaCrvPoolContract = (signer: JsonRpcSigner | Web3Provider | undefined, poolAddress = DOLA3POOLCRV) => {
+  return getNewContract(poolAddress, DOLA3POOLCRV_ABI, signer);
 }
 
-const CRV_INDEXES: any = { DOLA: 0, DAI: 1, USDC: 2, USDT: 3 }
+const CRV_INDEXES: any = {
+  [DOLA3POOLCRV]: { DOLA: 0, DAI: 1, USDC: 2, USDT: 3 },
+  [DOLAFRAXCRV]: { DOLA: 0, FRAX: 1, USDC: 2 },
+}
 
 export const estimateCrvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number) => {
   return crvSwap(signer, fromUnderlying, toUnderlying, amount, toAmount, 1, true);
@@ -170,15 +172,24 @@ export const crvGetDyUnderlyingRouted = async (signerOrProvider: JsonRpcSigner |
   }
 }
 
-export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlying: Token, amount: number, toAmount: number, maxSlippage: number, isEstimate = false) => {
+export const crvSwap = (
+  signer: JsonRpcSigner,
+  fromUnderlying: Token,
+  toUnderlying: Token,
+  amount: number,
+  toAmount: number,
+  maxSlippage: number,
+  isEstimate = false,
+  poolAddress = DOLA3POOLCRV
+) => {
 
-  const contract = getDolaCrvPoolContract(signer);
+  const contract = getDolaCrvPoolContract(signer, poolAddress);
 
   const bnAmount = parseUnits(amount.toString(), fromUnderlying.decimals);
   const minReveived = (toAmount - (toAmount * maxSlippage / 100)).toFixed(toUnderlying.decimals);
   const bnMinReceived = parseUnits(minReveived, toUnderlying.decimals);
-  const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
-  const toIndex = CRV_INDEXES[toUnderlying.symbol]
+  const fromIndex = CRV_INDEXES[poolAddress][fromUnderlying.symbol]
+  const toIndex = CRV_INDEXES[poolAddress][toUnderlying.symbol]
 
   if (isEstimate) {
     return contract.estimateGas.exchange_underlying(fromIndex, toIndex, bnAmount, bnMinReceived);
@@ -187,12 +198,18 @@ export const crvSwap = (signer: JsonRpcSigner, fromUnderlying: Token, toUnderlyi
   }
 }
 // useful to get the exRate
-export const crvGetDyUnderlying = async (signerOrProvider: JsonRpcSigner | Web3Provider, fromUnderlying: Token, toUnderlying: Token, amount: number) => {
+export const crvGetDyUnderlying = async (
+  signerOrProvider: JsonRpcSigner | Web3Provider,
+  fromUnderlying: Token,
+  toUnderlying: Token,
+  amount: number,
+  poolAddress = DOLA3POOLCRV
+) => {
   if (amount <= 0) { return '0' }
-  const contract = getDolaCrvPoolContract(signerOrProvider);
+  const contract = getDolaCrvPoolContract(signerOrProvider, poolAddress);
 
-  const fromIndex = CRV_INDEXES[fromUnderlying.symbol]
-  const toIndex = CRV_INDEXES[toUnderlying.symbol]
+  const fromIndex = CRV_INDEXES[poolAddress][fromUnderlying.symbol]
+  const toIndex = CRV_INDEXES[poolAddress][toUnderlying.symbol]
 
   const bnAmount = parseUnits(amount.toFixed(fromUnderlying.decimals), fromUnderlying.decimals);
 
@@ -262,7 +279,7 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
   else if (LPToken.isCrvLP) {
     return getBnToNumber(await (new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
-  } else if(LPToken.convexInfos) {
+  } else if (LPToken.convexInfos) {
     return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   }
 
