@@ -1,12 +1,8 @@
-import { F2_MARKET_ABI, F2_SIMPLE_ESCROW } from "@app/config/abis";
+import { F2_MARKET_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
 import { F2Market } from "@app/types";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
-import { getNetworkConfigConstants } from "./networks";
 import moment from 'moment';
-import { getBnToNumber } from "./markets";
-
-const { DBR } = getNetworkConfigConstants();
 
 export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
     const account = await signer.getAddress();
@@ -44,7 +40,7 @@ export const f2exitMarket = async (signer: JsonRpcSigner, market: string) => {
     const account = await signer.getAddress();
     const marketContract = new Contract(market, F2_MARKET_ABI, signer);
     const escrow = await marketContract.escrows(account);
-    const escrowContract = new Contract(escrow, F2_SIMPLE_ESCROW, signer);
+    const escrowContract = new Contract(escrow, F2_SIMPLE_ESCROW_ABI, signer);
     const balance = await escrowContract.balance();
     const debt = await marketContract.debts(account);
     return marketContract.repayAndWithdraw(debt, balance);
