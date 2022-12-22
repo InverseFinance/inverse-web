@@ -14,6 +14,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x7e2a6e9395df9f01c00bc3af095068b454fd896e': 'InvPriceFeed',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
+    '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'Fed FiRM',
     '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7': 'Fed Frontier',
     '0x7765996dae0cf3ecb0e74c016fcdff3f055a5ad8': 'Fed Badger',
     '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
@@ -75,8 +76,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': 'WETH',
     '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',
     '0x63Df5e23Db45a2066508318f172bA45B9CD37035': 'FiRMWethMarket',
-    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',
-    '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'FiRMFed',
+    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',    
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
 }
 

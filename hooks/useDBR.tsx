@@ -1,4 +1,4 @@
-import { BALANCER_VAULT_ABI, F2_SIMPLE_ESCROW } from "@app/config/abis";
+import { BALANCER_VAULT_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
@@ -196,7 +196,7 @@ export const useAccountDBRMarket = (
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
-    abi: F2_SIMPLE_ESCROW,
+    abi: F2_SIMPLE_ESCROW_ABI,
   });
   const bnDeposits = (escrowData ? escrowData[0] : zero);
 

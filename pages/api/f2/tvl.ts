@@ -1,8 +1,17 @@
 
 import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { F2_POSITIONS_CACHE_KEY } from './firm-positions';
+import { getFirmMarketUsers } from './firm-positions';
+import { getProvider } from '@app/util/providers';
+import { CHAIN_ID } from '@app/config/constants';
+import { getNetworkConfigConstants } from '@app/util/networks';
+import { Contract } from 'ethers';
+import { getBnToNumber } from '@app/util/markets';
+import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
+import { F2_SIMPLE_ESCROW_ABI } from '@app/config/abis';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
+
+const { F2_MARKETS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const cacheKey = 'f2-tvl-v1.0.0'
@@ -13,23 +22,31 @@ export default async function handler(req, res) {
             return
         }
 
-        const positionsCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, false);
-        if (!positionsCache) {
-            res.status(200).json({ firmTotalTvl: 0, firmTvls:[] });
-            return
-        }
+        const provider = getProvider(CHAIN_ID);
+        const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(provider);
 
         const marketsCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false);
         if (!marketsCache) {
             res.status(200).json({ firmTotalTvl: 0, firmTvls:[] });
             return
         }
+
         let tvl = 0;
         const marketTvls = {};
 
-        positionsCache.positions.forEach(p => {
+        const depositsBn = await Promise.all(
+            firmMarketUsers.map((f, i) => {
+                const marketAd = F2_MARKETS[f.marketIndex].address;
+                const users = marketUsersAndEscrows[marketAd].users;
+                const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_SIMPLE_ESCROW_ABI, provider);
+                return escrow.balance();
+            })
+        );
+        const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
+
+        firmMarketUsers.forEach((p, i) => {
             const market = marketsCache.markets[p.marketIndex];
-            const worth = market.price * p.deposits;
+            const worth = market.price * deposits[i];
             tvl += worth;
             if (!marketTvls[p.marketIndex]) {
                 marketTvls[p.marketIndex] = 0;
@@ -46,7 +63,7 @@ export default async function handler(req, res) {
                     market: { name: market.name, address: market.address, underlying: market.underlying }
                 }
             }),
-            timestamp: Math.min(marketsCache.timestamp, positionsCache.timestamp),
+            timestamp: +(new Date()),
         }
 
         await redisSetWithTimestamp(cacheKey, resultData);

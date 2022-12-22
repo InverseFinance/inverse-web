@@ -411,7 +411,7 @@ export const F2_ORACLE_ABI = [
   "function viewPrice(address collateral, uint collateralFactorBps) public view returns (uint)",
 ];
 
-export const F2_SIMPLE_ESCROW = [
+export const F2_SIMPLE_ESCROW_ABI = [
   "function balance() public view returns (uint)",
 ];
 

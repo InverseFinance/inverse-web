@@ -42,6 +42,7 @@ export const SupplyInfos = ({
                 </Flex>
                     : title
             }
+            iconProps={{ fontSize: '16px' }}
             alertProps={{ fontSize: '12px', w: 'full' }}
             description={
                 <>
