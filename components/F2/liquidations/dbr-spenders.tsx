@@ -81,6 +81,17 @@ const columns = [
         },
     },
     {
+        field: 'dbrExpiryDate',
+        label: 'DBR Depletion',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        value: ({ dbrExpiryDate }) => {
+            return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
+                <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY')}</CellText>
+                <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>                
+            </Cell>
+        },
+    },
+    {
         field: 'marketIcons',
         label: 'Collaterals',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
@@ -135,14 +146,14 @@ export const DbrSpenders = ({
                     <Text fontSize="12px" fontWeight="bold">Monthly spend</Text>
                     <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
                 </VStack>
-                <VStack alignItems="center">
-                    <Text fontSize="12px" fontWeight="bold">Yearly spend</Text>
-                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
-                </VStack>
                 <VStack alignItems="flex-end">
+                    <Text textAlign="right" fontSize="12px" fontWeight="bold">Yearly spend</Text>
+                    <Text textAlign="right" fontSize="12px" color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
+                </VStack>
+                {/* <VStack alignItems="flex-end">
                     <Text textAlign="right" fontSize="12px" fontWeight="bold">Total Debt</Text>
                     <Text textAlign="right" fontSize="12px" color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
-                </VStack>
+                </VStack> */}
             </HStack>
         }
     >
@@ -155,8 +166,8 @@ export const DbrSpenders = ({
             columns={columns}
             items={positions}
             onClick={(v) => openReplenish(v)}
-            defaultSort={totalDeficit > 0 ? 'deficit' : 'debt'}
-            defaultSortDir="desc"
+            defaultSort={'dbrExpiryDate'}
+            defaultSortDir="asc"
         />
     </Container>
 }
