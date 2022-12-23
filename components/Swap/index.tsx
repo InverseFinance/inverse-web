@@ -180,16 +180,14 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     setBestRoute(newBestRoute);
   }, [exRates, swapDir, fromToken, toToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer, txCosts, includeCostInBestRate, manualChosenRoute]);
 
-  // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
     const bestCrvRoute = exRates[Swappers.crvFrax][swapDir] > exRates[Swappers.crv][swapDir] ? Swappers.crvFrax : Swappers.crv;
-    // if INV case we can only use 1inch
     if ([fromToken?.symbol, toToken?.symbol].includes('FRAX')) {
       return Swappers.crvFrax
     }
     else if (fromToken?.symbol === 'INV') {
       return Swappers.oneinch
-    } // if DOLA-DAI we can use either stabilizer, crv or 1inch
+    } // if DOLA-DAI we can use either stabilizer, crv
     else if (canUseStabilizer) {
       const notEnoughLiquidity = toToken?.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
       setNoStabilizerLiquidity(notEnoughLiquidity);
