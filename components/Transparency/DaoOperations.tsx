@@ -9,7 +9,10 @@ import Container from '@app/components/common/Container';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import Table from '@app/components/common/Table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { timestampToUTC } from '@app/util/misc';
+import { ONE_DAY_MS } from '@app/config/constants';
+import { InfoMessage } from '@app/components/common/Messages';
 
 const columns = [
     {
@@ -71,17 +74,24 @@ const columns = [
     },
 ];
 
+const MAX_DELTA_DAYS = 5;
+
 export const DaoOperationsTable = () => {
     const now = new Date();
-    const thirtyDaysAgoDate = new Date(+now - 86400000 * 10);
-    const [startDate, setStartDate] = useState(`${thirtyDaysAgoDate.getUTCFullYear()}-${(thirtyDaysAgoDate.getUTCMonth() + 1).toString().padStart(2, '0')}-${(thirtyDaysAgoDate.getUTCDate()).toString().padStart(2, '0')}`);
-    const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
+    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-84000000*2));
+    const [endDate, setEndDate] = useState(timestampToUTC(+(now)));
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
     const [subfilters, setSubfilters] = useState({});
+    const [isAboveMaxRange, setIsAboveMaxRange] = useState(false);
 
-    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
+    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex, true);
+
+    useEffect(() => {
+        const deltaDays = Math.round(Math.abs(Date.parse(startDate) - Date.parse(endDate))/ONE_DAY_MS);        
+        setIsAboveMaxRange(deltaDays > MAX_DELTA_DAYS);
+    }, [startDate, endDate]);
 
     const reloadData = () => {
         setChosenStartDate(startDate);
@@ -109,7 +119,7 @@ export const DaoOperationsTable = () => {
                             direction="row"
                             justifyContent="space-between"
                             alignItems="center">
-                            <HStack>
+                            <HStack w='auto'>
                                 <InputGroup>
                                     <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">From:</Text>} />
                                     <Input fontSize="12px" isInvalid={!isValidDateFormat(startDate)} p="0" value={startDate} placeholder="Start date UTC" onChange={(e) => setStartDate(e.target.value)} />
@@ -118,9 +128,15 @@ export const DaoOperationsTable = () => {
                                     <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">To:</Text>} />
                                     <Input fontSize="12px" isInvalid={!isValidDateFormat(endDate) && !!endDate} pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" p="0" value={endDate} placeholder="End date UTC" onChange={(e) => setEndDate(e.target.value)} />
                                 </InputGroup>
-                                <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate)} maxW="30px" onClick={reloadData}>
+                                <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate) || isAboveMaxRange} maxW="30px" onClick={reloadData}>
                                     <RepeatClockIcon />
                                 </SubmitButton>
+                                {
+                                    isAboveMaxRange && <InfoMessage
+                                        alertProps={{ minW: '300px', fontSize: '12px'}}
+                                        description={`Please choose a duration below ${MAX_DELTA_DAYS} days`}
+                                    />
+                                }
                             </HStack>
                         </Stack>
                         <Divider />
