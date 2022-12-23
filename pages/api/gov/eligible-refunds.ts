@@ -3,13 +3,13 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, RefundableTransaction } from '@app/types';
 import { getTxsOf } from '@app/util/covalent';
-import { DRAFT_WHITELIST } from '@app/config/constants';
+import { DRAFT_WHITELIST, ONE_DAY_MS } from '@app/config/constants';
 import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
 import { formatEther } from '@ethersproject/units';
 import { Contract } from 'ethers';
 import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
-import { capitalize, uniqueBy } from '@app/util/misc';
+import { capitalize, timestampToUTC, uniqueBy } from '@app/util/misc';
 
 const client = getRedisClient();
 
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
 
   const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, preferCache } = req.query;
   const cacheKey = `refunds-v1.0.2-${startDate}-${endDate}`;
 
   try {
@@ -82,9 +82,10 @@ export default async function handler(req, res) {
 
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
-    const now = new Date();
-    const todayUtc = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`;
-    const validCache = await getCacheFromRedis(cacheKey, true, todayUtc === endDate ? 2 : 60);
+    const nowTs = +(new Date());
+    const todayUtc = timestampToUTC(nowTs);
+
+    const validCache = await getCacheFromRedis(cacheKey, true, todayUtc === endDate && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
       return
@@ -101,9 +102,16 @@ export default async function handler(req, res) {
     const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
 
     const [endYear, endMonth, endDay] = (endDate || '').split('-');
+    
     const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
+    const deltaDays = Math.round(Math.abs((endTimestamp||nowTs) - startTimestamp)/ONE_DAY_MS);
 
-    const pageSize = startTimestamp < (Date.now() - 30 * 86400000) ? 1000 : 100;
+    if(deltaDays > 5 && preferCache === 'true') {
+      res.status(400).json({ transactions: [] });
+      return;
+    }
+
+    const pageSize = startTimestamp < (nowTs - 30 * ONE_DAY_MS) ? 1000 : 100;
 
     const [
       gov,
