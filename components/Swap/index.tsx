@@ -182,6 +182,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
+    const bestCrvRoute = exRates[Swappers.crvFrax][swapDir] > exRates[Swappers.crv][swapDir] ? Swappers.crvFrax : Swappers.crv;
     // if INV case we can only use 1inch
     if ([fromToken?.symbol, toToken?.symbol].includes('FRAX')) {
       return Swappers.crvFrax
@@ -193,11 +194,8 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       const notEnoughLiquidity = toToken?.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
       setNoStabilizerLiquidity(notEnoughLiquidity);
       const useCrv = notEnoughLiquidity
-        || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir]
-        || exRates[Swappers.crvFrax][swapDir] > exRates[Swappers.stabilizer][swapDir];
+        || exRates[bestCrvRoute][swapDir] > exRates[Swappers.stabilizer][swapDir];        
       
-      const bestCrvRoute = exRates[Swappers.crvFrax][swapDir] > exRates[Swappers.crv][swapDir] ? Swappers.crv : Swappers.crvFrax;
-
       if (!includeCostInBestRate) {
         return useCrv ? bestCrvRoute : Swappers.stabilizer
       } else {
@@ -209,7 +207,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       }
     }
     // for other cases crv
-    return Swappers.crv
+    return bestCrvRoute;
   }
 
   const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
