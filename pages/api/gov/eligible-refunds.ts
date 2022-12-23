@@ -72,6 +72,9 @@ export default async function handler(req, res) {
   const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
   const { startDate, endDate, preferCache } = req.query;
+  const nowTs = +(new Date());
+  const todayUtc = timestampToUTC(nowTs);
+  
   const cacheKey = `refunds-v1.0.2-${startDate}-${endDate}`;
 
   try {
@@ -82,8 +85,6 @@ export default async function handler(req, res) {
 
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
-    const nowTs = +(new Date());
-    const todayUtc = timestampToUTC(nowTs);
 
     const validCache = await getCacheFromRedis(cacheKey, true, todayUtc === endDate && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
@@ -102,11 +103,11 @@ export default async function handler(req, res) {
     const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
 
     const [endYear, endMonth, endDay] = (endDate || '').split('-');
-    
-    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
-    const deltaDays = Math.round(Math.abs((endTimestamp||nowTs) - startTimestamp)/ONE_DAY_MS);
 
-    if(deltaDays > 5 && preferCache === 'true') {
+    const endTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(endDate) ? Date.UTC(+endYear, +endMonth - 1, +endDay, 23, 59, 59) : null;
+    const deltaDays = Math.round(Math.abs((endTimestamp || nowTs) - startTimestamp) / ONE_DAY_MS);
+
+    if (deltaDays > 5 && preferCache === 'true') {
       res.status(400).json({ transactions: [] });
       return;
     }
