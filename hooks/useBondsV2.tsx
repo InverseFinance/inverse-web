@@ -12,7 +12,7 @@ import { useContractEvents, useMultiContractEvents } from './useContractEvents';
 import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { useBlocksTimestamps } from './useBlockTimestamp';
-import { ONE_DAY_SECS } from '@app/config/constants';
+import { ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[], allMarketIds: string[] } => {
   const { data, error, isLoading } = useCustomSWR(`/api/bonds?`, fetcher);
@@ -202,7 +202,7 @@ export const useAccountBondPurchases = (
       expiry: expiry,
       supply: metadata ? getBnToNumber(metadata[4]) : 0,
       purchaseDate,
-      vestingDays: Math.ceil(((expiry - purchaseDate) / 84000000) - 0.5),
+      vestingDays: Math.round(((expiry - purchaseDate) / ONE_DAY_MS)),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
     }
   });
