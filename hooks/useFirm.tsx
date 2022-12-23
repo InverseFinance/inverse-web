@@ -5,9 +5,9 @@ import { useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { getNumberToBn } from "@app/util/markets";
+import { ONE_DAY_MS } from "@app/config/constants";
 
-const oneDay = 86400000;
-const oneYear = oneDay * 365;
+const oneYear = ONE_DAY_MS * 365;
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -58,9 +58,9 @@ export const useDBRActiveHolders = (): SWR & {
   const activeDbrHoldersWithMarkets = activeDbrHolders.map(s => {
     const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
     const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
-    const dailyBurn = s.debt/oneYear * oneDay;
+    const dailyBurn = s.debt/oneYear * ONE_DAY_MS;
     const dbrNbDaysExpiry = dailyBurn ? s.signedBalance / dailyBurn : 0;
-    const dbrExpiryDate = !s.debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
+    const dbrExpiryDate = !s.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
     return {
       ...s,
       marketPositions,

@@ -45,11 +45,11 @@ export const useAccountDBR = (
 
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
-  const dailyDebtAccrual = (oneDay * _debt / oneYear);
+  const dailyDebtAccrual = (ONE_DAY_MS * _debt / oneYear);
   const balanceWithDelta = signedBalance + deltaDBR;
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balanceWithDelta <= 0 ? 0 : balanceWithDelta / dailyDebtAccrual : 0;
-  const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
+  const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   return {
@@ -88,7 +88,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   const nbMarkets = markets.length;
 
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / ONE_DAY_MS);
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
@@ -306,7 +306,7 @@ export const useDBR = (): {
 
 export const useBorrowLimits = (market: F2Market) => {
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / ONE_DAY_MS);
 
   const noBorrowController = market.borrowController === BURN_ADDRESS;
 
