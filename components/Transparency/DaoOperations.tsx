@@ -78,7 +78,7 @@ const MAX_DELTA_DAYS = 5;
 
 export const DaoOperationsTable = () => {
     const now = new Date();
-    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-84000000*2));
+    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-ONE_DAY_MS*2));
     const [endDate, setEndDate] = useState(timestampToUTC(+(now)));
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);

@@ -20,6 +20,7 @@ import ScannerLink from '../../common/ScannerLink';
 import { SkeletonBlob } from '../../common/Skeleton';
 import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
+import { ONE_DAY_MS } from '@app/config/constants';
 
 const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
     // visually better, as table refresh can take XXXms
@@ -52,8 +53,9 @@ export const EligibleRefunds = () => {
     const { isOpen, onClose, onOpen } = useDisclosure();
 
     const now = new Date();
-    const [startDate, setStartDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`);
-    const [endDate, setEndDate] = useState(`${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-${(now.getUTCDate()).toString().padStart(2, '0')}`);
+    // const startOfMonth = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`;    
+    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-ONE_DAY_MS*7));
+    const [endDate, setEndDate] = useState(timestampToUTC(+(now)));
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
