@@ -20,12 +20,20 @@ import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { useGasPrice, usePrices, useStabilizerFees } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 
+const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER, FRAX, DOLAFRAXCRV } = getNetworkConfigConstants('1')
+
 const routes = [
-  { value: Swappers.crv, label: 'Curve', image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484' },
+  { value: Swappers.crv, label: '3Pool', image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484' },
+  { value: Swappers.crvFrax, label: 'FraxPool', image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484' },
   // { value: Swappers.crvRouter, label: 'Curve Router' },
   { value: Swappers.stabilizer, label: 'Stabilizer', image: '/assets/inv-square-dark.jpeg' },
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
+
+const POOLS = {
+  [Swappers.crv]: DOLA3POOLCRV,
+  [Swappers.crvFrax]: DOLAFRAXCRV,
+};
 
 // multiply by Gas Price to get Eth cost
 const DEFAULT_STAB_BUY_COST = 0.000117044;
@@ -37,15 +45,15 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const { account, library, chainId } = useWeb3React<Web3Provider>()
   const gasPrice = useGasPrice();
   const { prices } = usePrices();
-  const { buyFee, sellFee } = useStabilizerFees();
-  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER } = getNetworkConfigConstants('1')
+  const { buyFee, sellFee } = useStabilizerFees();  
 
-  const swapOptions = [DOLA, DAI, USDC, USDT]//, INV];
+  const swapOptions = [DOLA, DAI, USDC, USDT, FRAX]//, INV];
 
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
   const [exRates, setExRates] = useState<{ [key: string]: { [key: string]: number } }>({
     [Swappers.crv]: {},
+    [Swappers.crvFrax]: {},
     [Swappers.stabilizer]: { 'DAIDOLA': 1 - buyFee, 'DOLADAI': 1 - sellFee },
     [Swappers.oneinch]: {},
   })
@@ -68,13 +76,14 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
 
   const { balances: balancesWithCache } = useBalances(swapOptions)
   const { approvals: dola3poolApprovals } = useAllowances(swapOptions, DOLA3POOLCRV)
+  const { approvals: crvFraxApprovals } = useAllowances(swapOptions, DOLAFRAXCRV)
   const { approvals: crvRoutedApprovals } = useAllowances(swapOptions, SWAP_ROUTER)
   const { approvals: stabilizerApprovals } = useStabilizerApprovals()
   const [freshApprovals, setFreshApprovals] = useState<{ [key: string]: boolean }>({})
   const [freshBalances, setFreshBalances] = useState<{ [key: string]: BigNumber }>({})
 
   const [isApproved, setIsApproved] = useState(hasAllowance(dola3poolApprovals, fromToken.address));
-  const [txCosts, setTxCosts] = useState({ [Swappers.crv]: 0, [Swappers.stabilizer]: 0 });
+  const [txCosts, setTxCosts] = useState({ [Swappers.crv]: 0, [Swappers.crvFrax]: 0, [Swappers.stabilizer]: 0 });
   const [includeCostInBestRate, setIncludeCostInBestRate] = useState(true);
   const [needsCurveRouter, setNeedsCurveRouter] = useState(false);
 
@@ -96,6 +105,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   useEffect(() => {
     const contractApprovals: any = {
       [Swappers.crv]: needsCurveRouter ? crvRoutedApprovals : dola3poolApprovals,
+      [Swappers.crvFrax]: crvFraxApprovals,
       [Swappers.stabilizer]: stabilizerApprovals,
     }
     setIsApproved(freshApprovals[chosenRoute + fromToken.address] || hasAllowance(contractApprovals[chosenRoute], fromToken.address))
@@ -119,32 +129,39 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       // crv rates
       const rateAmountRef = fromAmount && parseFloat(fromAmount) > 1 ? parseFloat(fromAmount) : 1;
       const crvFun = needsCurveRouter ? crvGetDyUnderlyingRouted : crvGetDyUnderlying;
-      const dy = await crvFun(library, fromToken, toToken, rateAmountRef);
+      const dy3pool = await crvFun(library, fromToken, toToken, rateAmountRef, DOLA3POOLCRV);
+      const dyFraxpool = await crvFun(library, fromToken, toToken, rateAmountRef, DOLAFRAXCRV);
 
-      let costCrvInEth = DEFAULT_CRV_COST * gasPrice;
+      let costCrv3poolInEth = DEFAULT_CRV_COST * gasPrice;
+      let costCrvFraxInEth = costCrv3poolInEth;
       const isStabBuy = toToken?.symbol === 'DOLA';
       let costStabInEth = (isStabBuy ? DEFAULT_STAB_BUY_COST : DEFAULT_STAB_SELL_COST) * gasPrice;
 
       // try to get dynamic estimation, may fail if signer has not enough balance or token is not approved yet
       try {
         const crvEstimateFun = needsCurveRouter ? estimateCrvSwapRouted : estimateCrvSwap;
-        const costCrv = await crvEstimateFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'));
-        const stabContract = getStabilizerContract(library.getSigner());
-        // buy and sell is around the same
+        const costCrv3pool = await crvEstimateFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'), DOLA3POOLCRV);
+        costCrv3poolInEth = parseFloat(formatUnits(costCrv3pool, 'gwei')) * gasPrice;
+
+        const costCrvFrax = await crvEstimateFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount || '1'), parseFloat(toAmount || '1'), DOLAFRAXCRV);
+        costCrvFraxInEth = parseFloat(formatUnits(costCrvFrax, 'gwei')) * gasPrice;
+
         const amountMinusFee = parseFloat(fromAmount || '1') - buyFee * parseFloat(fromAmount || '1');
         const stabAmount = parseUnits((isStabBuy ? amountMinusFee : parseFloat(fromAmount)).toFixed(fromToken.decimals));
+        const stabContract = getStabilizerContract(library.getSigner());
         const costStab = await stabContract.estimateGas[isStabBuy ? 'buy' : 'sell'](stabAmount);
-        costCrvInEth = parseFloat(formatUnits(costCrv, 'gwei')) * gasPrice;
         costStabInEth = parseFloat(formatUnits(costStab, 'gwei')) * gasPrice;
       } catch (e) {
         console.log('can not estimate gas fees dynamically: prolly not enough balance or allowance');
       }
 
-      setTxCosts({ [Swappers.crv]: costCrvInEth, [Swappers.stabilizer]: costStabInEth });
+      setTxCosts({ [Swappers.crv]: costCrv3poolInEth, [Swappers.crvFrax]: costCrvFraxInEth, [Swappers.stabilizer]: costStabInEth });
 
-      const exRate = parseFloat(dy) / rateAmountRef;
-      const crvRates = { ...exRates[Swappers.crv], [swapDir]: exRate }
-      setExRates({ ...exRates, [Swappers.crv]: crvRates });
+      const ex3poolRate = parseFloat(dy3pool) / rateAmountRef;
+      const exFraxRate = parseFloat(dyFraxpool) / rateAmountRef;
+      const crv3poolRates = { ...exRates[Swappers.crv], [swapDir]: ex3poolRate }
+      const crvFraxRates = { ...exRates[Swappers.crvFrax], [swapDir]: exFraxRate }
+      setExRates({ ...exRates, [Swappers.crv]: crv3poolRates, [Swappers.crvFrax]: crvFraxRates });
     }
     fetchRates()
   }, [library, fromAmount, fromToken, toToken, swapDir, gasPrice, needsCurveRouter, buyFee], 500);
@@ -154,38 +171,41 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   }, [fromAmount, fromToken, includeCostInBestRate]);
 
   useEffect(() => {
-    if (!library || !exRates[Swappers.crv][swapDir]) { return }
+    if (!library || (!exRates[Swappers.crv][swapDir] && !exRates[Swappers.crvFrax][swapDir])) { return }    
     const newBestRoute = getBestRoute();
 
     if (bestRoute === '' && newBestRoute || (newBestRoute && chosenRoute !== newBestRoute && !manualChosenRoute)) {
       setChosenRoute(newBestRoute);
     }
     setBestRoute(newBestRoute);
-  }, [exRates, swapDir, fromToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer, txCosts, includeCostInBestRate, manualChosenRoute]);
+  }, [exRates, swapDir, fromToken, toToken, fromAmount, toAmount, stabilizerBalance, canUseStabilizer, txCosts, includeCostInBestRate, manualChosenRoute]);
 
-  // best route bewteen CRV, STABILIZER & 1INCH
   const getBestRoute = () => {
-    // if INV case we can only use 1inch
-    if (fromToken?.symbol === 'INV') {
+    const bestCrvRoute = exRates[Swappers.crvFrax][swapDir] > exRates[Swappers.crv][swapDir] ? Swappers.crvFrax : Swappers.crv;
+    if ([fromToken?.symbol, toToken?.symbol].includes('FRAX')) {
+      return Swappers.crvFrax
+    }
+    else if (fromToken?.symbol === 'INV') {
       return Swappers.oneinch
-    } // if DOLA-DAI we can use either stabilizer, crv or 1inch
+    } // if DOLA-DAI we can use either stabilizer, crv
     else if (canUseStabilizer) {
       const notEnoughLiquidity = toToken?.symbol === 'DAI' ? parseFloat(toAmount) > stabilizerBalance : false;
       setNoStabilizerLiquidity(notEnoughLiquidity);
-      const useCrv = notEnoughLiquidity || exRates[Swappers.crv][swapDir] > exRates[Swappers.stabilizer][swapDir];
-
+      const useCrv = notEnoughLiquidity
+        || exRates[bestCrvRoute][swapDir] > exRates[Swappers.stabilizer][swapDir];        
+      
       if (!includeCostInBestRate) {
-        return useCrv ? Swappers.crv : Swappers.stabilizer
+        return useCrv ? bestCrvRoute : Swappers.stabilizer
       } else {
         const ethPrice = prices && prices[TOKENS.CHAIN_COIN.coingeckoId] ? prices[TOKENS.CHAIN_COIN.coingeckoId].usd : 0;
-        const crvTotal = parseFloat(fromAmount || '1') * exRates[Swappers.crv][swapDir] - txCosts[Swappers.crv] * ethPrice;
+        const crvTotal = parseFloat(fromAmount || '1') * exRates[bestCrvRoute][swapDir] - txCosts[bestCrvRoute] * ethPrice;
         const stabTotal = parseFloat(fromAmount || '1') * exRates[Swappers.stabilizer][swapDir] - txCosts[Swappers.stabilizer] * ethPrice;
         const useCrv = notEnoughLiquidity || crvTotal > stabTotal;
-        return useCrv ? Swappers.crv : Swappers.stabilizer
+        return useCrv ? bestCrvRoute : Swappers.stabilizer
       }
     }
     // for other cases crv
-    return Swappers.crv
+    return bestCrvRoute;
   }
 
   const changeToken = (newToken: Token, setter: (v: Token) => void, otherToken: Token, otherSetter: (v: Token) => void) => {
@@ -233,6 +253,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const approveToken = async (token: string, options: HandleTxOptions) => {
     const contracts: { [key: string]: string } = {
       [Swappers.crv]: needsCurveRouter ? SWAP_ROUTER : DOLA3POOLCRV,
+      [Swappers.crvFrax]: needsCurveRouter ? SWAP_ROUTER : DOLAFRAXCRV,
       [Swappers.stabilizer]: STABILIZER,
     }
     return handleTx(
@@ -255,9 +276,9 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     let tx;
     // 1inch v4 can "approve and swap" in 1 tx
     if (isApproved || chosenRoute === Swappers.oneinch) {
-      if (chosenRoute === Swappers.crv) {
+      if ([Swappers.crv, Swappers.crvFrax].includes(chosenRoute)) {
         const crvSwapFun = needsCurveRouter ? crvSwapRouted : crvSwap;
-        tx = await crvSwapFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
+        tx = await crvSwapFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage, false, POOLS[chosenRoute]);
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
         const isStabBuy = toToken?.symbol === 'DOLA';
@@ -298,7 +319,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
       my="0"
       // contentBgColor="gradient3"
       label="Swap DOLA using Curve or the Stabilizer"
-    >      
+    >
       <Stack w="full" direction="column" spacing="5">
         <AssetInput
           amount={fromAmount}

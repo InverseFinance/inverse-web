@@ -78,10 +78,12 @@ export const getNetworkConfigConstants = (
     const MIM = Object.values(TOKENS).find(token => token.symbol === 'MIM')?.address!;
     const USDC = Object.values(TOKENS).find(token => token.symbol === 'USDC')?.address!;
     const USDT = Object.values(TOKENS).find(token => token.symbol === 'USDT')?.address!;
+    const FRAX = Object.values(TOKENS).find(token => token.symbol === 'FRAX')?.address!;
     const YFI = Object.values(TOKENS).find(token => token.symbol === 'YFI')?.address!;
     const WBTC = Object.values(TOKENS).find(token => token.symbol === 'WBTC')?.address!;
     const INVDOLASLP = Object.values(TOKENS).find(token => token.symbol === 'INV-DOLA-SLP')?.address!;
     const DOLA3POOLCRV = Object.values(TOKENS).find(token => token.symbol === 'DOLA-3POOL')?.address!;
+    const DOLAFRAXCRV = Object.values(TOKENS).find(token => token.symbol === 'DOLA-FRAX-USDC')?.address!;
     const DOLA_PAYROLL = config.DOLA_PAYROLL;
     const DEPLOYER = config.DEPLOYER;
 
@@ -137,6 +139,7 @@ export const getNetworkConfigConstants = (
         MIM,
         USDC,
         USDT,
+        FRAX,
         WCOIN,
         YFI,
         WBTC,
@@ -144,6 +147,7 @@ export const getNetworkConfigConstants = (
         XINV,
         INVDOLASLP,
         DOLA3POOLCRV,
+        DOLAFRAXCRV,
         UNDERLYING: ALL_UNDERLYING,
         TOKENS,
         NAMED_ADDRESSES,

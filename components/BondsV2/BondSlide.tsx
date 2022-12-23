@@ -185,7 +185,7 @@ export const BondSlide = ({
                             <BalanceInput
                                 value={amount}
                                 inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
-                                onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
+                                onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
                                 onMaxClick={() => handleMax()}
                             />
                         </Flex>
