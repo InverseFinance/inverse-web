@@ -17,7 +17,7 @@ const SwapInfoMessage = ({ description, height, status = 'info' }: { description
 }
 
 const SwapText = ({ children, ...props }: { children: React.ReactNode } & Partial<TextProps>) => {
-    return <Text color={'whiteAlpha.800'} textAlign="center" w="full" fontSize="12px" {...props}>
+    return <Text color={'secondaryTextColor'} textAlign="center" w="full" fontSize="12px" {...props}>
         {children}
     </Text>
 }
@@ -108,7 +108,7 @@ export const SwapFooter = ({
 
     return (
         <>
-            <HStack spacing="1" alignItems="center" h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
+            <HStack color="secondaryTextColor" spacing="1" alignItems="center" h="28px" w='full' justify={{ base: 'center', sm: 'center' }} fontSize="12px">
                 <AnimatedInfoTooltip
                     size="intermediary"
                     message="If enabled (Recommended): calculates the Best Route in total USD terms, meaning it includes the USD worth of the Eth Gas Fees needed for the transaction with the current gas price. Gas Fees are estimations only, check the real cost in your wallet." />
@@ -152,17 +152,23 @@ export const SwapFooter = ({
                     chosenRoute === Swappers.stabilizer && noStabilizerLiquidity && !notEnoughTokens ?
                         <SwapInfoMessage description="There is not enough DAI liquidity in the Stabilizer right now for this swap" />
                         :
-                        <>
-                            <RSubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
-                                {
-                                    notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Step 1/2 - Approve'
-                                }
-                                {
-                                    !isApproved ?
-                                        <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
-                                }
-                            </RSubmitButton>
-                        </>
+                        chosenRoute === Swappers.crv && [fromToken?.symbol, toToken?.symbol].includes('FRAX') ?
+                            <SwapInfoMessage status="warning" description="The 3POOL can only be used for DOLA, USDC, USDT and DAI" />
+                            :
+                            chosenRoute === Swappers.crvFrax && ([fromToken?.symbol, toToken?.symbol].includes('USDT') || [fromToken?.symbol, toToken?.symbol].includes('DAI')) ?
+                                <SwapInfoMessage status="warning" description="The FraxPool can only be used for DOLA, FRAX and USDC" />
+                                :
+                                <>
+                                    <RSubmitButton isDisabled={isDisabled} onClick={handleSubmit}>
+                                        {
+                                            notEnoughTokens ? 'Not enough tokens' : isApproved ? 'Swap' : 'Step 1/2 - Approve'
+                                        }
+                                        {
+                                            !isApproved ?
+                                                <AnimatedInfoTooltip iconProps={{ ml: '2' }} message="Approvals are required once per Token and Protocol" /> : null
+                                        }
+                                    </RSubmitButton>
+                                </>
             }
         </>
     )
