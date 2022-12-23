@@ -20,6 +20,8 @@ import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { useGasPrice, usePrices, useStabilizerFees } from '@app/hooks/usePrices'
 import { InfoMessage } from '@app/components/common/Messages'
 
+const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER, FRAX, DOLAFRAXCRV } = getNetworkConfigConstants('1')
+
 const routes = [
   { value: Swappers.crv, label: '3Pool', image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484' },
   { value: Swappers.crvFrax, label: 'FraxPool', image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484' },
@@ -27,6 +29,11 @@ const routes = [
   { value: Swappers.stabilizer, label: 'Stabilizer', image: '/assets/inv-square-dark.jpeg' },
   // { value: Swappers.oneinch, label: '1Inch' },
 ]
+
+const POOLS = {
+  [Swappers.crv]: DOLA3POOLCRV,
+  [Swappers.crvFrax]: DOLAFRAXCRV,
+};
 
 // multiply by Gas Price to get Eth cost
 const DEFAULT_STAB_BUY_COST = 0.000117044;
@@ -38,8 +45,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const { account, library, chainId } = useWeb3React<Web3Provider>()
   const gasPrice = useGasPrice();
   const { prices } = usePrices();
-  const { buyFee, sellFee } = useStabilizerFees();
-  const { TOKENS, DOLA, DAI, USDC, USDT, INV, DOLA3POOLCRV, STABILIZER, MIM, SWAP_ROUTER, FRAX, DOLAFRAXCRV } = getNetworkConfigConstants('1')
+  const { buyFee, sellFee } = useStabilizerFees();  
 
   const swapOptions = [DOLA, DAI, USDC, USDT, FRAX]//, INV];
 
@@ -251,6 +257,7 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
   const approveToken = async (token: string, options: HandleTxOptions) => {
     const contracts: { [key: string]: string } = {
       [Swappers.crv]: needsCurveRouter ? SWAP_ROUTER : DOLA3POOLCRV,
+      [Swappers.crvFrax]: needsCurveRouter ? SWAP_ROUTER : DOLAFRAXCRV,
       [Swappers.stabilizer]: STABILIZER,
     }
     return handleTx(
@@ -273,9 +280,9 @@ export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string })
     let tx;
     // 1inch v4 can "approve and swap" in 1 tx
     if (isApproved || chosenRoute === Swappers.oneinch) {
-      if (chosenRoute === Swappers.crv) {
+      if ([Swappers.crv, Swappers.crvFrax].includes(chosenRoute)) {
         const crvSwapFun = needsCurveRouter ? crvSwapRouted : crvSwap;
-        tx = await crvSwapFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage);
+        tx = await crvSwapFun(library?.getSigner(), fromToken, toToken, parseFloat(fromAmount), parseFloat(toAmount), maxSlippage, false, POOLS[chosenRoute]);
       } else if (chosenRoute === Swappers.stabilizer) {
         const contract = getStabilizerContract(library?.getSigner())
         const isStabBuy = toToken?.symbol === 'DOLA';
