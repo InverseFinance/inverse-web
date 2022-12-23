@@ -56,11 +56,11 @@ export const getFrontierLiquidations = ({
 
 export const getGovProposals = ({
     offset = 0,
-    size = 200,
+    size = 100,
 }) => {
     return getFromGovernanceGraph(`
     query {        
-        proposals {
+        proposals(first: ${size}) {
             id
             proposalId
             description
