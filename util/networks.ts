@@ -48,8 +48,6 @@ export const getNetworkConfigConstants = (
     }
     const MULTISIGS: Multisig[] = config?.multisigs || [];
 
-    const SECONDS_PER_BLOCK = config.SECONDS_PER_BLOCK;
-
     // Anchor
     const LENS = config.anchor.lens;
     const COMPTROLLER = config.anchor.comptroller;
@@ -156,7 +154,6 @@ export const getNetworkConfigConstants = (
         FEDS_WITH_ALL,
         DEPLOYER,
         MULTISIGS,
-        SECONDS_PER_BLOCK,
         POLICY_COMMITTEE: config.policyCommittee,
         XINV_MANAGER: config.xinvManager,
         OP_BOND_MANAGER: config.opBondManager,
