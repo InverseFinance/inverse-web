@@ -1,4 +1,5 @@
 import { F2_MARKET_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
+import { ONE_DAY_MS } from "@app/config/constants";
 import { F2Market } from "@app/types";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -130,12 +131,12 @@ export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, 
 
 export const getDepletionDate = (timestamp: number, comparedTo: number) => {
     return !!timestamp ?
-    (timestamp - 86400000) <= comparedTo ?
+    (timestamp - ONE_DAY_MS) <= comparedTo ?
     timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).from()}`
         :
         moment(timestamp).format('MMM Do, YYYY') : '-'
 }
 
 export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
-    return getRiskColor((timestamp - comparedTo) / (365 * 86400000) * 200);
+    return getRiskColor((timestamp - comparedTo) / (365 * ONE_DAY_MS) * 200);
 }

@@ -5,6 +5,7 @@ import {
   HAS_REWARD_TOKEN,
   BURN_ADDRESS,
   CHAIN_ID,
+  ONE_DAY_SECS,
 } from "@app/config/constants";
 import { Contract, BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
@@ -258,7 +259,7 @@ export default async function handler(req, res) {
         oracleFeed: oracleFeeds[addresses.indexOf(xinvAddress)],
         priceXinv: 1 / parsedExRate,
         // in days
-        escrowDuration: parseInt((await escrowContract.callStatic.duration()).toString()) / 86400
+        escrowDuration: parseInt((await escrowContract.callStatic.duration()).toString()) / ONE_DAY_SECS
       });
     }
 

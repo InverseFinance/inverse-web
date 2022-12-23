@@ -8,14 +8,13 @@ import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { BURN_ADDRESS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
-const oneDay = 86400000;
-const oneYear = oneDay * 365;
+const oneYear = ONE_DAY_MS * 365;
 
 export const useAccountDBR = (
   account: string | undefined | null,

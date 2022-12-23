@@ -2,8 +2,7 @@ import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester } from '@app/types
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
-
-const oneDay = 86400000;
+import { ONE_DAY_MS } from '@app/config/constants';
 
 const { FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants();
 
@@ -135,7 +134,7 @@ export const useFedRevenuesChartData = (fedHistoricalEvents: FedEvent[], isAllFe
 
   // add today's timestamp and zero one day before first supply
   const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-  chartData.unshift({ x: minX - oneDay, y: 0 });
+  chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
   chartData.push({ x: now, y: chartData[chartData.length - 1].y });
 
   return {
@@ -162,8 +161,8 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
   }
 }
 
-export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number): SWR & { transactions: any[] } => {
-  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}`, (r) => fetcher(r, undefined, 15000))
+export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number, preferCache = false): SWR & { transactions: any[] } => {
+  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}`, (r) => fetcher(r, undefined, 15000))
 
   return {
     transactions: data?.transactions || [],

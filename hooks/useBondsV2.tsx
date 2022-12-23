@@ -12,6 +12,7 @@ import { useContractEvents, useMultiContractEvents } from './useContractEvents';
 import { BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { useBlocksTimestamps } from './useBlockTimestamp';
+import { ONE_DAY_SECS } from '@app/config/constants';
 
 export const useBondsV2Api = (): SWR & { bonds: BondV2[], allMarketIds: string[] } => {
   const { data, error, isLoading } = useCustomSWR(`/api/bonds?`, fetcher);
@@ -85,7 +86,7 @@ export const useBondsV2 = (): SWR & { bonds: BondV2[], allMarketIds: string[] } 
       bondPrice,
       inputUsdPrice: inputPrices[i],
       positiveRoi: bondPrice && marketPrice > bondPrice,
-      vestingDays: bondTerms ? Math.round(parseFloat(bondTerms[i][2].toString()) / 86400) : activeBonds[i].vestingDays,
+      vestingDays: bondTerms ? Math.round(parseFloat(bondTerms[i][2].toString()) / ONE_DAY_SECS) : activeBonds[i].vestingDays,
       conclusion,
       isNotConcluded: now < conclusion,
       isPurchasable: now < conclusion && capacity > 0,

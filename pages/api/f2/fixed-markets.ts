@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from '@app/util/markets'
-import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.92`;
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     );
 
     const today = new Date();
-    const dayIndexUtc = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0) / 86400000);
+    const dayIndexUtc = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0) / ONE_DAY_MS);
 
     const dailyBorrows = await Promise.all(
       borrowControllers.map((bc, i) => {
