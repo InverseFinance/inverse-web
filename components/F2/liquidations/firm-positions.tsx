@@ -102,7 +102,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
         value: ({ isLiquidatable }) => {
             return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
-                <CellText>{isLiquidatable ? 'Yes' : 'No'}</CellText>
+                <CellText color={isLiquidatable ? 'error' : 'mainTextColor'}>{isLiquidatable ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
         showFilter: true,
