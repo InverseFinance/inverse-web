@@ -46,7 +46,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ signedBalance }) => {            
             return <Cell minWidth="150px" justify="center" >
-                <CellText>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
+                <CellText color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
             </Cell>
         },
     },
@@ -124,6 +124,8 @@ export const DbrSpenders = ({
     const monthlyBurn = totalDailyBurn * 30.416;
     const yearlyBurn = totalDailyBurn * 365;
 
+    const fontSize = { base: '12px', sm: '14px', lg: '16px' };
+
     return <Container
         label="Active DBR Spenders"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
@@ -133,26 +135,26 @@ export const DbrSpenders = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <HStack justify="space-between" spacing="2">
-                <VStack alignItems="flex-start">
-                    <Text textAlign="left" fontSize="12px" fontWeight="bold">Total DBR Deficit</Text>
-                    <Text textAlign="left" fontSize="12px" color="secondaryTextColor">{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
+            <HStack justify="space-between" spacing={{ base: '2', sm: '8' }}>
+                <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
+                    <Text textAlign="left" fontSize={fontSize} fontWeight="bold">Total DBR Deficit</Text>
+                    <Text textAlign="left" fontSize={fontSize} color={totalDeficit < 0 ? 'error' : 'secondaryTextColor'}>{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
                 </VStack>
-                <VStack alignItems="center">
-                    <Text fontSize="12px" fontWeight="bold">Daily spend</Text>
-                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
+                <VStack spacing="0" alignItems="center">
+                    <Text fontSize={fontSize} fontWeight="bold">Daily spend</Text>
+                    <Text fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
                 </VStack>
-                <VStack alignItems="center">
-                    <Text fontSize="12px" fontWeight="bold">Monthly spend</Text>
-                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
+                <VStack spacing="0" alignItems="center">
+                    <Text fontSize={fontSize} fontWeight="bold">Monthly spend</Text>
+                    <Text fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
                 </VStack>
-                <VStack alignItems="flex-end">
-                    <Text textAlign="right" fontSize="12px" fontWeight="bold">Yearly spend</Text>
-                    <Text textAlign="right" fontSize="12px" color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
+                <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Yearly spend</Text>
+                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
                 </VStack>
-                {/* <VStack alignItems="flex-end">
-                    <Text textAlign="right" fontSize="12px" fontWeight="bold">Total Debt</Text>
-                    <Text textAlign="right" fontSize="12px" color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
+                {/* <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total Debt</Text>
+                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
                 </VStack> */}
             </HStack>
         }
