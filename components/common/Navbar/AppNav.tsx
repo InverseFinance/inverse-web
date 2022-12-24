@@ -1,4 +1,4 @@
-import { CloseIcon, MoonIcon, SunIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronRightIcon, CloseIcon, MoonIcon, SunIcon, ViewIcon, ViewOffIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Flex,
   Image,
@@ -12,7 +12,7 @@ import {
   useDisclosure,
   Box,
   VStack,
-  useMediaQuery,  
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
@@ -450,12 +450,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const { themeName } = useAppTheme();
+  const { themeName, themeStyles } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
   const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
+  const [openedMenu, setOpenedMenu] = useState('');
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
 
@@ -579,7 +580,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                 key={i}
                 href={href}
                 fontWeight="medium"
-                position="relative"                
+                position="relative"
               >
                 <Popover trigger="hover">
                   <PopoverTrigger>
@@ -665,18 +666,55 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             pt={24}
             borderBottomWidth={1}
             borderColor="primary.800"
+            boxShadow={`0 2px 2px 2px ${themeStyles.colors['primary'][500]}`}
           >
-            {NAV_ITEMS.map(({ label, href }, i) => (
-              <Link w="fit-content" position="relative" key={i} href={href} color={active === label ? 'mainTextColor' : 'accentTextColor'}>
-                {label}
-                {
-                  href === '/governance' && nbNotif > 0 &&
-                  <NotifBadge>
-                    {nbNotif}
-                  </NotifBadge>
-                }
-              </Link>
-            ))}
+            {
+              NAV_ITEMS.map(({ label, href, submenus }, i) => {
+                const hasSubmenus = !!submenus?.length;
+                const LinkComp = !hasSubmenus ? Link : VStack;
+                const color = active === label ? 'mainTextColor' : 'accentTextColor'
+                return <LinkComp
+                  spacing={!hasSubmenus ? '0' : undefined}
+                  w="fit-content"
+                  position="relative"
+                  key={i} href={hasSubmenus ? undefined : href}
+                  color={color}
+                  alignItems="flex-start"
+                  onClick={() => setOpenedMenu(openedMenu !== label ? label : '')}
+                  textDecoration={hasSubmenus ? undefined : 'underline'}
+                >
+                  {
+                    hasSubmenus ? <Text color={color}>
+                      {label} {
+                        openedMenu !== label ? <ChevronDownIcon /> : <ChevronRightIcon />
+                      }
+                    </Text> : label
+                  }
+                  {
+                    href === '/governance' && nbNotif > 0 &&
+                    <NotifBadge>
+                      {nbNotif}
+                    </NotifBadge>
+                  }
+                  {
+                    hasSubmenus && openedMenu === label && <VStack pt="0" alignItems="flex-start" pl="4">
+                      {submenus
+                        .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
+                        .map((sub, j) => {
+                          return <Link
+                            textDecoration="underline"
+                            key={j}
+                            href={sub.href.replace('$account', userAddress || '')}
+                            color={activeSubmenu === sub.label ? 'mainTextColor' : 'accentTextColor'}
+                          >
+                            {sub.label}
+                          </Link>
+                        })}
+                    </VStack>
+                  }
+                </LinkComp>
+              })
+            }
           </Stack>
         </Flex>
       )}

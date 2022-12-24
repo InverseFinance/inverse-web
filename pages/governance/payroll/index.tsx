@@ -81,7 +81,7 @@ export const DolaPayrollPage = () => {
         <meta name="og:title" content="Inverse Finance - Payroll" />
         <meta name="og:description" content="Payroll Portal" />
       </Head>
-      <AppNav active="Governance" />
+      <AppNav active="Participate" />
       <Flex justify="center" direction="column">
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="mainTextColor">
           <Container

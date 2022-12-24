@@ -34,7 +34,7 @@ export const Propose = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - New Proposal</title>
       </Head>
-      <AppNav active="Governance" activeSubmenu="Create a Draft" />
+      <AppNav active="Participate" activeSubmenu="Create a Draft" />
       <Breadcrumbs
         w="7xl"
         breadcrumbs={[

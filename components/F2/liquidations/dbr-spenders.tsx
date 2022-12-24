@@ -44,9 +44,9 @@ const columns = [
         field: 'signedBalance',
         label: 'DBR Signed Balance',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ signedBalance }) => {
+        value: ({ signedBalance }) => {            
             return <Cell minWidth="150px" justify="center" >
-                <CellText>{shortenNumber(signedBalance, 2, false, true)}</CellText>
+                <CellText>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
             </Cell>
         },
     },
