@@ -27,7 +27,8 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
     .map(item => {
       const decodedArr = item.log_events?.map(e => e.decoded).filter(d => !!d);
-      const decoded = type === "fed" ? { name: topics[item?.log_events[0]?.raw_log_topics[0]] } : decodedArr[0];
+      const isFed = !!decodedArr.find(d => ['Contraction', 'Expansion'].includes(d.name));
+      const decoded = isFed ? { name: topics[item?.log_events[0]?.raw_log_topics[0]] } : decodedArr[0];
       const isContractCreation = !item.to_address;
       const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
       const to = item.to_address || log0.sender_address;
@@ -44,7 +45,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
         contractTicker: isContractCreation ? log0.sender_contract_ticker_symbol : undefined,
         contractName: isContractCreation ? log0.sender_name : undefined,
         chainId: chain_id,
-        type,
+        type: isFed ? 'fed' : type,
         refunded: false,
         block: item.block_height,
       }
@@ -74,8 +75,8 @@ export default async function handler(req, res) {
   const { startDate, endDate, preferCache } = req.query;
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
-  
-  const cacheKey = `refunds-v1.0.2-${startDate}-${endDate}`;
+  const includesToday = todayUtc === endDate;
+  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}`;
 
   try {
     let refundWhitelist = [
@@ -86,7 +87,7 @@ export default async function handler(req, res) {
     // refunded txs, manually submitted by signature in UI
     const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
 
-    const validCache = await getCacheFromRedis(cacheKey, true, todayUtc === endDate && preferCache !== 'true' ? 30 : 3600);
+    const validCache = await getCacheFromRedis(cacheKey, includesToday, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
       return
@@ -112,8 +113,6 @@ export default async function handler(req, res) {
       return;
     }
 
-    const pageSize = startTimestamp < (nowTs - 30 * ONE_DAY_MS) ? 1000 : 100;
-
     const [
       gov,
       multidelegator,
@@ -122,26 +121,30 @@ export default async function handler(req, res) {
       oracleCurrent,
       multisigsRes,
       multisigOwners,
-      feds,
+      // feds,
       customTxsRes,
       delegatesRes,
       ignoreTxsRes,
     ] = await Promise.all([
-      getTxsOf(GOVERNANCE, pageSize),
-      getTxsOf(MULTI_DELEGATOR, pageSize),
+      getTxsOf(GOVERNANCE, deltaDays * 3),
+      getTxsOf(MULTI_DELEGATOR, deltaDays * 3),
       // gnosis proxy, for creation
-      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', pageSize),
+      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5),
       // price feed update
-      getTxsOf(invOracleKeepers[0], pageSize),
-      getTxsOf(invOracleKeepers[1], pageSize),
-      Promise.all(MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => getTxsOf(m.address, pageSize))),
+      getTxsOf(invOracleKeepers[0], deltaDays * 2),
+      getTxsOf(invOracleKeepers[1], deltaDays * 2),
+      Promise.all(
+        MULTISIGS
+          .filter(m => m.chainId === NetworkIds.mainnet)
+          .map(m => getTxsOf(m.address, m.shortName === 'TWG' ? deltaDays * 10 : deltaDays * 5))
+      ),
       Promise.all(
         MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
           const contract = new Contract(m.address, MULTISIG_ABI, provider);
           return contract.getOwners()
         })
       ),
-      Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
+      // Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
       client.get('custom-txs-to-refund'),
       client.get(`1-delegates`),
       client.get('refunds-ignore-tx-hashes'),
@@ -171,9 +174,9 @@ export default async function handler(req, res) {
     multisigsRes.forEach(r => {
       totalItems = totalItems.concat(formatResults(r.data, 'multisig', refundWhitelist))
     })
-    feds.forEach(r => {
-      totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
-    })
+    // feds.forEach(r => {
+    //   totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
+    // })
 
     const ignoredTxs = JSON.parse(ignoreTxsRes || '[]');
 
@@ -201,10 +204,12 @@ export default async function handler(req, res) {
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
+      } else {
+        res.status(500).json({ status: 'ko' });
       }
     } catch (e) {
       console.error(e);
-      return res.status(500);
+      return res.status(500).json({ status: 'ko' });
     }
   }
 }
