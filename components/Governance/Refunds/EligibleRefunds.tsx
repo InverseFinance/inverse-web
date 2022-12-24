@@ -54,7 +54,7 @@ export const EligibleRefunds = () => {
 
     const now = new Date();
     // const startOfMonth = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`;    
-    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-ONE_DAY_MS*7));
+    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-ONE_DAY_MS*6));
     const [endDate, setEndDate] = useState(timestampToUTC(+(now)));
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);

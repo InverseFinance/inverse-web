@@ -162,7 +162,7 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
 }
 
 export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number, preferCache = false): SWR & { transactions: any[] } => {
-  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}`, (r) => fetcher(r, undefined, 15000))
+  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}`, (r) => fetcher(r, undefined, 60000))
 
   return {
     transactions: data?.transactions || [],
