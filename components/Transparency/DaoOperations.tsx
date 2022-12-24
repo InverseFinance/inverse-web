@@ -105,7 +105,7 @@ export const DaoOperationsTable = () => {
 
     return (
         <Container
-            label="DAO Transactions on Ethereum"
+            label="DAO Transactions on Ethereum in last 3 days"
             description="Taken into consideration: Governance, Multisigs, Delegation Submissions, Feds, Inv oracle"
             noPadding
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
@@ -120,14 +120,14 @@ export const DaoOperationsTable = () => {
                             justifyContent="space-between"
                             alignItems="center">
                             <HStack w='auto'>
-                                <InputGroup>
+                                {/* <InputGroup>
                                     <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">From:</Text>} />
                                     <Input fontSize="12px" isInvalid={!isValidDateFormat(startDate)} p="0" value={startDate} placeholder="Start date UTC" onChange={(e) => setStartDate(e.target.value)} />
                                 </InputGroup>
                                 <InputGroup>
                                     <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">To:</Text>} />
                                     <Input fontSize="12px" isInvalid={!isValidDateFormat(endDate) && !!endDate} pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" p="0" value={endDate} placeholder="End date UTC" onChange={(e) => setEndDate(e.target.value)} />
-                                </InputGroup>
+                                </InputGroup> */}
                                 <SubmitButton disabled={!isValidDateFormat(startDate) || (!isValidDateFormat(endDate) && !!endDate) || isAboveMaxRange} maxW="30px" onClick={reloadData}>
                                     <RepeatClockIcon />
                                 </SubmitButton>
