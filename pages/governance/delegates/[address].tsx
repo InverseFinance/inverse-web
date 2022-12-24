@@ -274,7 +274,7 @@ export const DelegateView = () => {
         <meta name="description" content="Inverse Finance DAO's Delegate Page" />
         <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, voting power, delegate" />
       </Head>
-      <AppNav active="Governance" activeSubmenu={address === userAddress ? 'Your Profile' : ''} />
+      <AppNav active="Participate" activeSubmenu={address === userAddress ? 'Your Profile' : ''} />
       <Breadcrumbs
         w="7xl"
         breadcrumbs={[

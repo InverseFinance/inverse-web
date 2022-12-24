@@ -14,7 +14,7 @@ export const OpportunitiesPage = () => {
                 <meta name="description" content="INV & DOLA Yield Opportunities" />
                 <meta name="keywords" content="Inverse Finance, inv, dola, DeFi, yield, earn" />
             </Head>
-            <AppNav active="INV" activeSubmenu="Yield Opportunities" />
+            <AppNav active="Earn" activeSubmenu="Yield Opportunities" />
             <Flex direction="column" w={{ base: 'full' }} pt='8' maxWidth="1100px">
                 <Oppys />
             </Flex>
