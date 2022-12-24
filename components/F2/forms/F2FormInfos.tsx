@@ -308,7 +308,7 @@ export const F2FormInfos = (props) => {
             onClick={(v) => setInfoTab(v)}
         />
         {
-            !debtAmount && !collateralAmount && !debt ?
+            !debtAmount && !collateralAmount && !debt && infoTab === 'Summary' ?
                 <VStack pt="4" w='full'>
                     <InfoMessage
                         alertProps={{ w: 'full' }}
