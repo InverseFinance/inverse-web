@@ -27,8 +27,11 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
     .map(item => {
       const decodedArr = item.log_events?.map(e => e.decoded).filter(d => !!d);
-      const isFed = !!decodedArr.find(d => ['Contraction', 'Expansion'].includes(d.name));
-      const decoded = isFed ? { name: topics[item?.log_events[0]?.raw_log_topics[0]] } : decodedArr[0];
+      const fedLog = item.log_events
+        .find(e => (['Contraction', 'Expansion'].includes(e?.decoded?.name) || !!e?.raw_log_topics?.find(r => !!topics[r])));
+      const isFed = !!fedLog;
+      const isContraction = fedLog?.decoded?.name === 'Contraction' || !!fedLog?.raw_log_topics?.find(rawTopic => topics[rawTopic] === 'Contraction')
+      const decoded = isFed ? { name: isContraction ? 'Contraction': 'Expansion' } : decodedArr[0];
       const isContractCreation = !item.to_address;
       const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
       const to = item.to_address || log0.sender_address;
@@ -109,23 +112,28 @@ export default async function handler(req, res) {
     const deltaDays = Math.round(Math.abs((endTimestamp || nowTs) - startTimestamp) / ONE_DAY_MS);
 
     if (deltaDays > 5 && preferCache === 'true') {
-      res.status(400).json({ transactions: [] });
+      res.status(400).json({ transactions: [], msg: 'invalid request' });
       return;
     }
 
     const [
+      multisigsRes,
       gov,
       multidelegator,
       gno,
       oracleOld,
       oracleCurrent,
-      multisigsRes,
       multisigOwners,
       // feds,
       customTxsRes,
       delegatesRes,
       ignoreTxsRes,
     ] = await Promise.all([
+      Promise.all(
+        MULTISIGS
+          .filter(m => m.chainId === NetworkIds.mainnet)
+          .map(m => getTxsOf(m.address, ['FedChair', 'TWG'].includes(m.shortName) ? deltaDays * 10 : deltaDays * 5))
+      ),
       getTxsOf(GOVERNANCE, deltaDays * 3),
       getTxsOf(MULTI_DELEGATOR, deltaDays * 3),
       // gnosis proxy, for creation
@@ -133,11 +141,6 @@ export default async function handler(req, res) {
       // price feed update
       getTxsOf(invOracleKeepers[0], deltaDays * 2),
       getTxsOf(invOracleKeepers[1], deltaDays * 2),
-      Promise.all(
-        MULTISIGS
-          .filter(m => m.chainId === NetworkIds.mainnet)
-          .map(m => getTxsOf(m.address, m.shortName === 'TWG' ? deltaDays * 10 : deltaDays * 5))
-      ),
       Promise.all(
         MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
           const contract = new Contract(m.address, MULTISIG_ABI, provider);

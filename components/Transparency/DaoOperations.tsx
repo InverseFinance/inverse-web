@@ -105,7 +105,7 @@ export const DaoOperationsTable = () => {
 
     return (
         <Container
-            label="DAO Transactions on Ethereum in last 3 days"
+            label="DAO Transactions on Ethereum in the last 3 days"
             description="Taken into consideration: Governance, Multisigs, Delegation Submissions, Feds, Inv oracle"
             noPadding
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
