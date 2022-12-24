@@ -63,29 +63,16 @@ export const MENUS = {
     {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
-      submenus: [
-        {
-          label: 'Swap DOLA',
-          href: '/swap/DAI/DOLA',
-        },
-        {
-          label: 'Tokens',
-          href: '/tokens',
-        },
-        // {
-        //   label: 'INV',
-        //   href: '/tokens/inv',
-        // },
-
-        // {
-        //   label: 'DBR',
-        //   href: '/tokens/dbr',
-        // },
-        // {
-        //   label: 'Yield Opportunities',
-        //   href: '/yield-opportunities',
-        // },
-      ]
+      // submenus: [
+      //   {
+      //     label: 'Swap DOLA',
+      //     href: '/swap/DAI/DOLA',
+      //   },
+      //   {
+      //     label: 'Tokens',
+      //     href: '/tokens',
+      //   },
+      // ]
     },
     // {
     //   label: 'Swap',
