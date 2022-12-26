@@ -114,7 +114,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string) => {
         replenisher: e.args.replenisher,
         name: e.event,
         isCollateralEvent,
-        tokenName: isCollateralEvent ? market.underlying.symbol : 'DOLA',
+        tokenName: isCollateralEvent ? market.underlying.symbol : e.args.replenisher ? 'DBR' : 'DOLA',
       }
     }),
     isLoading,
