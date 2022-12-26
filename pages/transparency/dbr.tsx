@@ -99,6 +99,9 @@ export const DBRTransparency = () => {
                                 <Link textDecoration="underline" color="secondaryTextColor" href="https://www.youtube.com/watch?v=RUgJQ5HOp2Y" isExternal target="_blank">
                                     FiRM introduction video (~1min)
                                 </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.youtube.com/watch?v=gAcp1YiuGkg" isExternal target="_blank">
+                                    FiRM explainer video (~11min)
+                                </Link>
                             </VStack>
                         }
                     />
