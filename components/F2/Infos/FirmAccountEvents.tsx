@@ -2,15 +2,21 @@ import { BlockTimestamp } from "@app/components/common/BlockTimestamp";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { shortenAddress } from "@app/util";
 import { shortenNumber } from "@app/util/markets";
-import { VStack, Text, HStack, StackProps } from "@chakra-ui/react"
+import { VStack, HStack, StackProps } from "@chakra-ui/react"
 
 const colors = {
-    'Borrow': 'success',
-    'Deposit': 'info',
+    'DepositBorrow': 'accentTextColor',
+    'RepayWithdraw': 'mainTextColor',
+    'Borrow': 'info',
+    'Deposit': 'success',
     'Withdraw': 'warning',
-    'Repay': 'secondaryTextColor',
+    'Repay': 'info',
     'Liquidate': 'error',
     'ForceReplenish': 'error',
+}
+
+const getActionLabel = (name: string, amount?: number, tokenName?: string) => {
+    return <>{name}{amount ? <b style={{ fontWeight: '800' }}>&nbsp;{shortenNumber(amount, 2, false, true)} {tokenName}</b> : '' }</>
 }
 
 export const FirmAccountEvents = ({
@@ -20,11 +26,11 @@ export const FirmAccountEvents = ({
 }: {
     events: any[],
     account: string
-} & Partial<StackProps>) => {
+} & Partial<StackProps>) => {    
     return <VStack w='full' alignItems="flex-start" spacing="0" {...props}>
         {
             events?.map(e => {
-                const val = e.amount || e.repaidDebt || e.deficit;
+                const val = e.amount || e.repaidDebt || e.deficit;                
                 const address = e.escrow || e.repayer || e.liquidator || e.replenisher;
                 return <VStack
                     key={`${e.blockNumber}-${e.name}`}
@@ -34,22 +40,27 @@ export const FirmAccountEvents = ({
                 >
                     <HStack w='full' justify="space-between">
                         <ScannerLink
-                            color={colors[e.name]}
+                            color={colors[e.actionName]}
+                            fontSize={{ base: '16px', sm: '18px' }}
+                            _hover={{ filter: 'brightness(1.2)' }}                            
                             fontWeight="bold"
                             value={e.txHash}
                             type="tx"
                             textAlign="left"
-                            label={`${e.name}${val ? ` ${shortenNumber(val, 2, false, true)} ${e.tokenName}` : ''}`}
+                            label={<>
+                                {getActionLabel(e.name, val, e.tokenName)}{e.isCombined ?  <>&nbsp;& {getActionLabel(e.nameCombined, e.amountCombined, e.tokenNameCombined)}</> : ''}
+                            </>}
                         />
                         {
                             !!address && address !== account &&
                             <ScannerLink
                                 value={address}
-                                color={colors[e.name]}
+                                color={colors[e.actionName]}
+                                _hover={{ filter: 'brightness(1.2)' }}
                                 label={`by ${shortenAddress(address)}`} />
                         }
                     </HStack>
-                    <BlockTimestamp blockNumber={e.blockNumber} direction="row" textProps={{ color: colors[e.name] }} />                    
+                    <BlockTimestamp blockNumber={e.blockNumber} direction="row" textProps={{ color: colors[e.actionName] }} />                    
                 </VStack>
             })
         }

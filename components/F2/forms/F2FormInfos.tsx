@@ -67,7 +67,7 @@ const { DBR } = getNetworkConfigConstants();
 // TODO: clean this mess
 export const F2FormInfos = (props) => {
     const account = useAccount();
-    
+
     const {
         infoTab,
         setInfoTab,
@@ -101,7 +101,7 @@ export const F2FormInfos = (props) => {
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events } = useFirmMarketEvents(market, account);
+    const { events, isLoading: isLoadingEvents } = useFirmMarketEvents(market, account);
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -308,7 +308,7 @@ export const F2FormInfos = (props) => {
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={infoTab}
-            options={['Summary', 'My Activity' ,'DBR Details', 'Market Details']}
+            options={['Summary', 'DBR Details', 'Market Details', 'My Activity']}
             onClick={(v) => setInfoTab(v)}
         />
         {
@@ -329,7 +329,12 @@ export const F2FormInfos = (props) => {
                         <Text color="secondaryTextColor">
                             Most recent events in this market about my account:
                         </Text>
-                        <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
+                        {
+                            !events?.length && !isLoadingEvents ?
+                                <InfoMessage description="No event yet" />
+                                :
+                                <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
+                        }
                     </VStack>
 
                     :
