@@ -11,7 +11,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     title: 'What is FiRM?',
                     body: <VStack alignItems="flex-start">
                         <Text color="secondaryTextColor">FiRM is a new Fixed-Rate Market for borrowing DOLA using DBR tokens and it is focused on simplicity and safety. All markets are isolated and collateral cannot be borrowed by others.</Text>
-                        <iframe style={{ maxWidth: '500px' }} width="100%" height="300px" src="https://www.youtube.com/embed/gAcp1YiuGkg" title="FiRM explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe style={{ maxWidth: '500px' }} width="100%" height="300px" src="https://www.youtube.com/embed/gAcp1YiuGkg" title="FiRM explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                     </VStack>
                 },
                 {

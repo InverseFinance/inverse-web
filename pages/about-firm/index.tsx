@@ -1,4 +1,5 @@
 import Layout from '@app/components/common/Layout';
+import Link from '@app/components/common/Link';
 import { AppNav } from '@app/components/common/Navbar';
 import { Flex, Text, Image, useMediaQuery } from '@chakra-ui/react'
 import Head from 'next/head';
@@ -33,6 +34,7 @@ export const AboutFirm = () => {
         <Text color="secondaryTextColor" as="h2" fontSize={{ base: '18px', sm: '20px' }} fontWeight="bold">
           Inverse Finance's Fixed Rate Market
         </Text>
+        <iframe style={{ maxWidth: '500px', marginTop: '50px' }} width="100%" height="300px" src="https://www.youtube.com/embed/gAcp1YiuGkg?modestbranding=1" title="FiRM explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
         <Text transform="translateY(100px)">
           Loading...
         </Text>
@@ -43,6 +45,11 @@ export const AboutFirm = () => {
           maxW="1000px"
           src={isLargerThan ? "/assets/firm/infographic-optimized.jpg" : "/assets/firm/infographic-mobile.jpg"}
         />
+        <Text mt="50px" textAlign="center" fontSize="14px" color="secondaryTextColor">
+            Please read our <Link href="https://docs.inverse.finance/inverse-finance/firm" isExternal target="_blank" as="a" textDecoration="underline" color="secondaryTextColor">
+              Docs
+            </Link> for further details.
+          </Text>
       </Flex>
     </Layout>
   )
