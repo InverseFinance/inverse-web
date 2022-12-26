@@ -1,4 +1,6 @@
 import { FAQ, FAQType } from "@app/components/common/FAQ"
+import Link from "@app/components/common/Link"
+import { VStack, Text } from "@chakra-ui/react"
 
 export const FirmFAQ = (props: Partial<FAQType>) => {
     return <FAQ
@@ -7,7 +9,10 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
             [
                 {
                     title: 'What is FiRM?',
-                    body: `FiRM is a new Fixed-Rate Market for borrowing DOLA using DBR tokens and it is focused on simplicity and safety. All markets are isolated and collateral cannot be borrowed by others.`
+                    body: <VStack alignItems="flex-start">
+                        <Text color="secondaryTextColor">FiRM is a new Fixed-Rate Market for borrowing DOLA using DBR tokens and it is focused on simplicity and safety. All markets are isolated and collateral cannot be borrowed by others.</Text>
+                        <iframe style={{ maxWidth: '500px' }} width="100%" height="300px" src="https://www.youtube.com/embed/gAcp1YiuGkg" title="FiRM explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </VStack>
                 },
                 {
                     title: 'How safe is FiRM?',
@@ -15,7 +20,14 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'What is DBR?',
-                    body: `DBR is a Borrowing Rights token. Holding it in your wallet gives you the right to borrow the DOLA stablecoin in FiRM.`
+                    body: <VStack alignItems="flex-start">
+                        <Text color="secondaryTextColor">
+                            DBR is a Borrowing Rights token. Holding it in your wallet gives you the right to borrow the DOLA stablecoin in FiRM.
+                        </Text>
+                        <Link textDecoration="underline" href="/transparency/dbr">
+                            Transparency page
+                        </Link>
+                    </VStack>
                 },
                 {
                     title: 'What is DOLA?',
@@ -31,7 +43,11 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'How can I get DBR tokens?',
-                    body: `Either via the airdrop if you're eligible or on Balancer. In the future an auto-buy DBR feature will be available.`
+                    body: <VStack alignItems="flex-start">
+                        <Text color="secondaryTextColor">
+                            Either via the airdrop if you're eligible or on Uniswap / Balancer. In the future an auto-buy DBR feature will be available.
+                        </Text>
+                    </VStack>
                 },
                 {
                     title: 'Do I need to stake DBR?',

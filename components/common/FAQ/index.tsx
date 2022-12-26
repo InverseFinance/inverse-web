@@ -8,7 +8,7 @@ export type FAQType = {
     collapsable?: boolean
     items: {
         title: string
-        body: string
+        body: any
     }[]
 }
 

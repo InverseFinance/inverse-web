@@ -39,7 +39,7 @@ export const F2PAGE = () => {
                     <ErrorBoundary description="Failed to Markets">
                         <F2Markets />
                     </ErrorBoundary>
-                    <VStack py="6" px='6' w='full'>
+                    <VStack py="6" px='6' w='full'>                        
                         <FirmFAQ defaultCollapse={true} collapsable={true} />
                     </VStack>
                 </VStack>
