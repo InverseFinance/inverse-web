@@ -1,6 +1,7 @@
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from "@chakra-ui/accordion"
 import { Box } from "@chakra-ui/react"
 import Container from "../Container"
+import { useAppTheme } from "@app/hooks/useAppTheme"
 
 export type FAQType = {
     label: string
@@ -18,6 +19,7 @@ export const FAQ = ({
     collapsable = false,
     defaultCollapse = false,
 }: FAQType) => {
+    const { themeStyles } = useAppTheme();
     return <Container
         label={label}
         noPadding 
@@ -29,7 +31,7 @@ export const FAQ = ({
         <Accordion w='full' allowMultiple>
             {
                 items.map((item, i) => {
-                    return <AccordionItem border="none" borderBottom={i < (items.length - 1) ? '1px solid #eee' : 'none'} key={item.title}>
+                    return <AccordionItem border="none" borderBottom={i < (items.length - 1) ? `1px solid ${themeStyles.colors.mainTextColor}33` : 'none'} key={item.title}>
                         <h2>
                             <AccordionButton >
                                 <Box flex='1' lineHeight="normal" textAlign='left' color="mainTextColor" fontWeight="bold" fontSize="lg">
