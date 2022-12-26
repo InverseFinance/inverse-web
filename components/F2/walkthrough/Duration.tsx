@@ -49,6 +49,7 @@ export const F2WalkthroughDuration = ({
                 // columnMode={true}
                 inputProps={{
                     autoFocus: true,
+                    color: 'mainTextColor',
                     fontSize: { base: '30px', md: '40px', lg: '50px' },
                     py: { base: '20px', md: '30px', lg: '40px' }
                 }}
