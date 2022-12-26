@@ -73,6 +73,7 @@ export const F2CombinedForm = ({
         isWalkthrough,
         infoTab,
         dolaBalance,
+        bnDolaBalance,
         riskColor,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
@@ -259,9 +260,13 @@ export const F2CombinedForm = ({
                                         }}
                                     />
                                     <AmountInfos
-                                        label="DOLA bal."
+                                        label="DOLA balance"
                                         value={dolaBalance}
-                                        textProps={{ fontSize: '14px' }}
+                                        textProps={{
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            onClick: () => handleDebtChange(formatUnits(bnDolaBalance, 18))
+                                        }}
                                     />
                                 </HStack>
                             }

@@ -60,7 +60,8 @@ export const F2DurationInput = ({
                 wrapperProps={{
                     w: { base: 'full', sm : '50%' },
                     justify: 'space-between',
-                    display: { base: 'inline-block', sm: 'flex' }
+                    display: { base: 'inline-block', sm: 'flex' },
+                    color: 'mainTextColor',
                 }}
                 group={{
                     name: 'durationType',

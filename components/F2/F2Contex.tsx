@@ -75,7 +75,7 @@ export const F2Context = ({
     const colDecimals = market.underlying.decimals;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
-    const { balance: dolaBalance } = useDOLABalance(account);
+    const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
 
     const debtAmountNum = parseFloat(debtAmount||'0');
     const collateralAmountNum = parseFloat(collateralAmount||'0');
@@ -123,7 +123,7 @@ export const F2Context = ({
     );
 
     const { signedBalance: dbrBalance } = useAccountDBR(account);
-    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn, } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
 
     useEffect(() => {
         return () => {
@@ -256,6 +256,7 @@ export const F2Context = ({
         borrowLimit: 100-perc,
         newBorrowLimit: 100-newPerc,
         dolaBalance,
+        bnDolaBalance,
         setInfoTab,
         setIsWalkthrough,
         setMode,
