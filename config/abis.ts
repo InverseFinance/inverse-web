@@ -404,6 +404,7 @@ export const DBR_ABI = ERC20_ABI.concat([
   "function signedBalanceOf(address) public view returns (int)",
   "function replenishmentPriceBps() public view returns (uint)",
   "function operator() public view returns (address)",
+  "event ForceReplenish(address indexed account, address indexed replenisher, address indexed market, uint deficit, uint replenishmentCost, uint replenisherReward)",
 ]);
 
 export const F2_ORACLE_ABI = [
@@ -449,8 +450,7 @@ export const F2_MARKET_ABI = [
   "event Deposit(address indexed account, uint amount)",
   "event Borrow(address indexed account, uint amount)",
   "event Withdraw(address indexed account, address indexed to, uint amount)",
-  "event Repay(address indexed account, address indexed repayer, uint amount)",
-  "event ForceReplenish(address indexed account, address indexed replenisher, uint deficit, uint replenishmentCost, uint replenisherReward)",
+  "event Repay(address indexed account, address indexed repayer, uint amount)",  
   "event Liquidate(address indexed account, address indexed liquidator, uint repaidDebt, uint liquidatorReward)",
   "event CreateEscrow(address indexed user, address escrow)",
 ];
