@@ -349,7 +349,7 @@ export const Landing = ({ posts }: {
                 <Image maxW="150px" src="/assets/v2/landing/hats.png" />
               </VStack>
               <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/defimoon.png" />
+                <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" />
               </VStack>
               <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
