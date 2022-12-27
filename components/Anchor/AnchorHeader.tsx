@@ -9,9 +9,8 @@ import { chakra } from '@chakra-ui/system'
 import { TEST_IDS } from '@app/config/test-ids'
 import { useMediaQuery } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
-import { dollarify, shortenNumber } from '@app/util/markets'
+import { dollarify } from '@app/util/markets'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
-import { IntroModalCheck } from '../F2/Infos/IntroModalCheck'
 
 const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   return <Flex maxH="36px" overflow="hidden">
@@ -47,7 +46,6 @@ export const AnchorHeader = () => {
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
     >
-      {/* <IntroModalCheck isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} /> */}
       <Stack w='full' maxW="600px" spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">
