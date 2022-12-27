@@ -64,27 +64,27 @@ const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
 const { DBR } = getNetworkConfigConstants();
 
 // TODO: clean this mess
-export const F2FormInfos = (props) => {
+export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmountNumInfo: number }) => {
     const account = useAccount();
+
+    const {
+        collateralAmountNumInfo,
+        debtAmountNumInfo,
+    } = props;
 
     const {
         infoTab,
         setInfoTab,
         newBorrowLimit,
         maxBorrow,
-
-        newPerc,
         riskColor,
         newLiquidationPrice,
         market,
         dbrCoverDebt,
         dbrCover,
-        duration,
         dbrPrice,
         newDailyDBRBurn,
         newDBRExpiryDate,
-        collateralAmount,
-        debtAmount,
         isDeposit,
         deposits,
         debt,
@@ -93,10 +93,6 @@ export const F2FormInfos = (props) => {
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
-        maxBorrowable,
-        durationType,
-        durationTypedValue,
-        mode,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
@@ -251,12 +247,12 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: `Amouunt of Collateral that you are ${isDeposit ? 'depositing' : 'withdrawing'}`,
                 title: isDeposit ? 'Depositing' : 'Withdrawing',
-                value: `${collateralAmount > 0 ? `${shortenNumber(collateralAmount, 4)} ${market.underlying.symbol} (${shortenNumber(collateralAmount * market.price, 2, true)})` : '-'}`,
+                value: `${collateralAmountNumInfo > 0 ? `${shortenNumber(collateralAmountNumInfo, 4)} ${market.underlying.symbol} (${shortenNumber(collateralAmountNumInfo * market.price, 2, true)})` : '-'}`,
             },
             {
                 tooltip: `Amouunt of Debt that you are ${isDeposit ? 'borrowing' : 'repaying'}`,
                 title: isDeposit ? 'Borrowing' : 'Repaying',
-                value: `${debtAmount > 0 ? `${shortenNumber(debtAmount, 2)} DOLA` : '-'}`,
+                value: `${debtAmountNumInfo > 0 ? `${shortenNumber(debtAmountNumInfo, 2)} DOLA` : '-'}`,
             },
         ],
         [
@@ -311,7 +307,7 @@ export const F2FormInfos = (props) => {
             onClick={(v) => setInfoTab(v)}
         />
         {
-            !debtAmount && !collateralAmount && !debt && infoTab === 'Summary' ?
+            !debtAmountNumInfo && !collateralAmountNumInfo && !debt && infoTab === 'Summary' ?
                 <VStack pt="4" w='full'>
                     <InfoMessage
                         alertProps={{ w: 'full' }}
