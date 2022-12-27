@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, Divider } from '@chakra-ui/react'
+import { Stack, VStack, Text } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
@@ -8,7 +8,6 @@ import { useContext, useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
 import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
-import { RecapInfos } from '../Infos/RecapInfos'
 import { InfoMessage } from '@app/components/common/Messages'
 import { F2MarketContext } from '../F2Contex'
 import { useFirmMarketEvents } from '@app/hooks/useFirm'
@@ -189,7 +188,7 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'Learn more about DBR',
                 title: 'DBR docs',
-                value: <Link textDecoration="underline" color="mainTextColor" href="https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38" isExternal target="_blank">
+                value: <Link textDecoration="underline" color="mainTextColor" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
                     Learn More
                 </Link>,
             },
