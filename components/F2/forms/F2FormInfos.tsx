@@ -13,6 +13,7 @@ import { F2MarketContext } from '../F2Contex'
 import { useFirmMarketEvents } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
 import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 type Data = {
     tooltip: string
@@ -328,7 +329,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                             !events?.length && !isLoadingEvents ?
                                 <InfoMessage alertProps={{ w: 'full' }} description="No event yet" />
                                 :
-                                <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
+                                <ErrorBoundary description={'Something went wrong getting activity'}>
+                                    <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
+                                </ErrorBoundary>
                         }
                     </VStack>
 
