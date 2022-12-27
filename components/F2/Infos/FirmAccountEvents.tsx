@@ -1,4 +1,5 @@
 import { BlockTimestamp } from "@app/components/common/BlockTimestamp";
+import Link from "@app/components/common/Link";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { shortenAddress } from "@app/util";
 import { shortenNumber } from "@app/util/markets";
@@ -16,8 +17,28 @@ const colors = {
 }
 
 const getActionLabel = (name: string, amount?: number, tokenName?: string) => {
-    return <>{name}{amount ? <b style={{ fontWeight: '800' }}>&nbsp;{shortenNumber(amount, 2, false, true)} {tokenName}</b> : '' }</>
+    return <>{name}{amount ? <b style={{ fontWeight: '800' }}>&nbsp;{shortenNumber(amount, 2, false, true)} {tokenName}</b> : ''}</>
 }
+
+const ErrDocLink = (props) => <Link
+    isExternal
+    target="_blank"
+    color="error"
+    textDecoration="underline"
+    {...props}
+/>
+
+const ReplenishDocLink = () => <ErrDocLink
+    href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights#dbr-recharging"
+>
+    Learn more
+</ErrDocLink>
+
+const LiquidateDocLink = () => <ErrDocLink
+    href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights#liquidations"
+>
+    Learn more
+</ErrDocLink>
 
 export const FirmAccountEvents = ({
     events,
@@ -26,29 +47,29 @@ export const FirmAccountEvents = ({
 }: {
     events: any[],
     account: string
-} & Partial<StackProps>) => {    
+} & Partial<StackProps>) => {
     return <VStack w='full' alignItems="flex-start" spacing="0" {...props}>
         {
             events?.map(e => {
-                const val = e.amount || e.repaidDebt || e.deficit;                
+                const val = e.amount || e.repaidDebt || e.deficit;
                 const address = e.escrow || e.repayer || e.liquidator || e.replenisher;
                 return <VStack
                     key={`${e.blockNumber}-${e.name}`}
                     w='full'
-                    alignItems="flex-start"                    
+                    alignItems="flex-start"
                     py="2"
                 >
                     <HStack w='full' justify="space-between">
                         <ScannerLink
                             color={colors[e.actionName]}
                             fontSize={{ base: '16px', sm: '18px' }}
-                            _hover={{ filter: 'brightness(1.2)' }}                            
+                            _hover={{ filter: 'brightness(1.2)' }}
                             fontWeight="bold"
                             value={e.txHash}
                             type="tx"
                             textAlign="left"
                             label={<>
-                                {getActionLabel(e.name, val, e.tokenName)}{e.isCombined ?  <>&nbsp;& {getActionLabel(e.nameCombined, e.amountCombined, e.tokenNameCombined)}</> : ''}
+                                {getActionLabel(e.name, val, e.tokenName)}{e.isCombined ? <>&nbsp;& {getActionLabel(e.nameCombined, e.amountCombined, e.tokenNameCombined)}</> : ''}
                             </>}
                         />
                         {
@@ -60,7 +81,15 @@ export const FirmAccountEvents = ({
                                 label={`by ${shortenAddress(address)}`} />
                         }
                     </HStack>
-                    <BlockTimestamp blockNumber={e.blockNumber} direction="row" textProps={{ color: colors[e.actionName] }} />                    
+                    <HStack w='full' justify="space-between">
+                        <BlockTimestamp blockNumber={e.blockNumber} direction="row" textProps={{ color: colors[e.actionName] }} />
+                        {
+                            e.name === 'ForceReplenish' && <ReplenishDocLink />
+                        }
+                        {
+                            e.name === 'Liquidate' && <LiquidateDocLink />
+                        }
+                    </HStack>
                 </VStack>
             })
         }

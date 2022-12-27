@@ -334,7 +334,6 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                                 </ErrorBoundary>
                         }
                     </VStack>
-
                     :
                     <ListInfos listInfos={tabItems} />
         }
