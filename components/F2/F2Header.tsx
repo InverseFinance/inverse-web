@@ -1,5 +1,4 @@
 import { Text, Stack, Flex, SkeletonText, useDisclosure } from '@chakra-ui/react'
-import LinkButton from '@app/components/common/Button'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
@@ -8,8 +7,6 @@ import { AnchorBigButton } from '../Anchor/AnchorBigButton'
 import { useAccountDBR, useDBRPrice } from '@app/hooks/useDBR'
 import { getDBRBuyLink } from '@app/util/f2'
 import { useRouter } from 'next/router'
-// import { useAccount } from '@app/hooks/misc'
-import { IntroModalCheck } from './Infos/IntroModalCheck'
 import { useAccount } from '@app/hooks/misc'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
 
@@ -34,11 +31,8 @@ const TextOrSkeleton = ({ value, text }: { value: any, text: string }) => {
   </Flex>
 }
 
-export const F2Header = ({
-  autoOpenIntroModal = false
-}) => {
-  const router = useRouter();
-  const { isOpen: isIntroOpen, onOpen: onIntroOpen, onClose: onIntroClose } = useDisclosure();
+export const F2Header = () => {
+  const router = useRouter();  
   // const { markets } = useMarkets()
   // const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
@@ -48,7 +42,8 @@ export const F2Header = ({
   const { debt } = useAccountDBR(account);
 
   const getStarted = () => {
-    router.push(debt > 0 ? 'firm/WETH' : 'firm/WETH#step1')
+    const newPath = router.asPath.replace(router.pathname, '/firm/WETH');
+    router.push(debt > 0 ? newPath : `${newPath}#step1`);
   }
 
   // const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);
@@ -62,8 +57,7 @@ export const F2Header = ({
       align={{ base: 'flex-start', md: 'flex-start' }}
       mt={{ base: 0, md: '4' }}
       direction={{ base: 'column', md: 'row' }}
-    >
-      {/* <IntroModalCheck autoOpenIntroModal={autoOpenIntroModal} isIntroOpen={isIntroOpen} onIntroOpen={onIntroOpen} onIntroClose={onIntroClose} /> */}
+    >      
       <Stack w='full' spacing={8} p={4} alignItems="flex-start">
         <Stack direction={{ base: 'column', lg: 'row' }} >
           <Flex direction="column" width="184px">

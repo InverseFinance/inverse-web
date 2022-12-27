@@ -167,10 +167,9 @@ export const F2Markets = ({
     const router = useRouter();
     const { firmTotalTvl } = useFirmTVL();
 
-    const openMarket = (market: any) => {        
-        const viewAddress = router?.query?.viewAddress
-        const url = debt > 0 ? `/firm/${market.name}` : `/firm/${market.name}#step1`;
-        router.push(`${url}${!!viewAddress ? `?viewAddress=${viewAddress}` : ''}`);
+    const openMarket = (market: any) => {
+        const newPath = router.asPath.replace(router.pathname, `/firm/${market.name}`);
+        router.push(debt > 0 ? newPath : `${newPath}#step1`);
     }
 
     return <Container
