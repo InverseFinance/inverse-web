@@ -308,7 +308,7 @@ export const F2FormInfos = (props) => {
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={infoTab}
-            options={['Summary', 'DBR Details', 'Market Details', 'My Activity']}
+            options={['Summary', 'My Activity', 'DBR Details', 'Market Details']}
             onClick={(v) => setInfoTab(v)}
         />
         {
@@ -331,7 +331,7 @@ export const F2FormInfos = (props) => {
                         </Text>
                         {
                             !events?.length && !isLoadingEvents ?
-                                <InfoMessage description="No event yet" />
+                                <InfoMessage alertProps={{ w: 'full' }} description="No event yet" />
                                 :
                                 <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
                         }
