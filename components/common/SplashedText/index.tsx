@@ -1,4 +1,5 @@
-import { Image, StackProps, TextProps, VStack, Text } from "@chakra-ui/react"
+import { StackProps, TextProps, VStack, Text } from "@chakra-ui/react"
+import { lightTheme } from '@app/variables/theme'
 
 export const SplashedText = ({
     containerProps,
@@ -21,7 +22,7 @@ export const SplashedText = ({
             h="40px"
             top="20px"
             left="-25px"
-            bgColor={'success'}
+            bgColor={lightTheme.colors.success}
             mask={`url(${splashSrc}) no-repeat center / cover`}
             sx={{
                 '-webkit-mask': `url(${splashSrc}) no-repeat 0 0/100% 100%`

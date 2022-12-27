@@ -111,7 +111,7 @@ export const InvPlus = () => {
                 <Text display="inline-block" mr="1">
                   Check out our FAQ
                 </Text>
-                <Link mr="1" textDecoration="underline" display="inline-block" href="https://docs.google.com/document/d/12RzGlLOSM76bhy1WLRZLeRmaOuHlQ-bPwROQRZjKTXk">
+                <Link mr="1" textDecoration="underline" display="inline-block" href="https://docs.inverse.finance/inverse-finance/using-inv">
                   here
                 </Link>
                 <Text display="inline-block" mr="1">

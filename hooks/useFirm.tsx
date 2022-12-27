@@ -1,13 +1,19 @@
 
-import { SWR } from "@app/types"
+import { F2Market, FirmAction, SWR } from "@app/types"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { getNumberToBn } from "@app/util/markets";
+import { getBnToNumber, getNumberToBn } from "@app/util/markets";
+import { useMultiContractEvents } from "./useContractEvents";
+import { DBR_ABI, F2_MARKET_ABI } from "@app/config/abis";
+import { getNetworkConfigConstants } from "@app/util/networks";
+import { uniqueBy } from "@app/util/misc";
 
 const oneDay = 86400000;
 const oneYear = oneDay * 365;
+
+const { DBR } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -21,12 +27,12 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   const positionsWithMarket = positions?.map(p => {
     const market = markets[p.marketIndex];
     const { newPerc, newCreditLimit, newLiquidationPrice, newCreditLeft } = f2CalcNewHealth(market, p.deposits, p.debt);
-    const seizableWorth = p.liquidatableDebt + market.liquidationIncentive*p.liquidatableDebt;
+    const seizableWorth = p.liquidatableDebt + market.liquidationIncentive * p.liquidatableDebt;
     return {
       ...p,
       seizable: seizableWorth / market.price,
       seizableWorth,
-      liquidatableDebtBn: getNumberToBn(p.liquidatableDebt), 
+      liquidatableDebtBn: getNumberToBn(p.liquidatableDebt),
       isLiquidatable: p.liquidatableDebt > 0,
       marketName: market.name,
       market,
@@ -58,7 +64,7 @@ export const useDBRActiveHolders = (): SWR & {
   const activeDbrHoldersWithMarkets = activeDbrHolders.map(s => {
     const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
     const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
-    const dailyBurn = s.debt/oneYear * oneDay;
+    const dailyBurn = s.debt / oneYear * oneDay;
     const dbrNbDaysExpiry = dailyBurn ? s.signedBalance / dailyBurn : 0;
     const dbrExpiryDate = !s.debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
     return {
@@ -75,5 +81,83 @@ export const useDBRActiveHolders = (): SWR & {
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,
+  }
+}
+
+const COMBINATIONS = {
+  'Deposit': 'Borrow',
+  'Borrow': 'Deposit',
+  'Repay': 'Withdraw',
+  'Withdraw': 'Repay',
+}
+const COMBINATIONS_NAMES = {
+  'Deposit': 'DepositBorrow',
+  'Borrow': 'DepositBorrow',
+  'Repay': 'RepayWithdraw',
+  'Withdraw': 'RepayWithdraw',
+}
+
+export const useFirmMarketEvents = (market: F2Market, account: string): {
+  events: FirmAction[]
+  isLoading: boolean
+  error: any
+} => {
+  const { groupedEvents, isLoading, error } = useMultiContractEvents([
+    [market.address, F2_MARKET_ABI, 'Deposit', [account]],
+    [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
+    [market.address, F2_MARKET_ABI, 'Borrow', [account]],
+    [market.address, F2_MARKET_ABI, 'Repay', [account]],
+    [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
+    // [market.address, F2_MARKET_ABI, 'CreateEscrow', [account]],
+    [DBR, DBR_ABI, 'ForceReplenish', [account]],
+  ], `firm-market-${market.address}-${account}`);
+
+  const flatenedEvents = groupedEvents.flat();
+
+  const events = flatenedEvents.map(e => {
+    const isCollateralEvent = ['Deposit', 'Withdraw'].includes(e.event);
+    const decimals = isCollateralEvent ? market.underlying.decimals : 18;
+
+    // Deposit can be associated with Borrow, withdraw with repay
+    let combinedEvent;    
+    const combinedEventName = COMBINATIONS[e.event];
+    if (combinedEventName) {
+      combinedEvent = flatenedEvents.find(e2 => e.transactionHash === e2.transactionHash && e2.event === combinedEventName);
+    }
+
+    const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher ? 'DBR' : 'DOLA';
+    const actionName = !!combinedEvent ? COMBINATIONS_NAMES[e.event] : e.event;
+
+    return {
+      combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
+      actionName,
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash,
+      amount: e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined,
+      isCombined: !!combinedEvent,
+      amountCombined: combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, decimals) : undefined,
+      deficit: e.args?.deficit ? getBnToNumber(e.args?.deficit, 18) : undefined,
+      repaidDebt: e.args?.repaidDebt ? getBnToNumber(e.args?.repaidDebt, 18) : undefined,
+      liquidatorReward: e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined,
+      repayer: e.args?.repayer,
+      to: e.args?.to,
+      escrow: e.args?.escrow,
+      replenisher: e.args?.replenisher,
+      name: e.event,
+      nameCombined: combinedEventName,
+      logIndex: e.logIndex,
+      isCollateralEvent,
+      tokenName,
+      tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
+    }
+  });
+  
+  const grouped = uniqueBy(events, (o1, o2) => o1.combinedKey === o2.combinedKey);
+  grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
+
+  return {
+    events: grouped,
+    isLoading,
+    error,
   }
 }

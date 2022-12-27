@@ -34,6 +34,14 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         setInited(true);
     }, [router, inited]);
 
+    const backToMarkets = () => {
+        router.push(router.asPath.replace(`/${market}`, '').replace(/#step[0-9]/i, ''));
+    }
+
+    const toggleWalkthrough = () => {
+        router.replace({ hash: isWalkthrough ? '' : 'step1', query: router.query })        
+    }
+
     return (
         <Layout>
             <Head>
@@ -62,7 +70,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                             >
                                 <VStack alignItems="flex-start" w='full' spacing="3">
                                     <HStack w='full' justify="space-between">
-                                        <HStack transition="color ease-in-out 200ms" _hover={{ color: 'mainTextColor' }} color="secondaryTextColor" cursor="pointer" spacing="2" onClick={() => router.push('/firm')}>
+                                        <HStack transition="color ease-in-out 200ms" _hover={{ color: 'mainTextColor' }} color="secondaryTextColor" cursor="pointer" spacing="2" onClick={() => backToMarkets()}>
                                             <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
@@ -87,7 +95,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
                                                     </VStack>
                                                 </FormLabel>
-                                                <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => setIsWalkthrough(!isWalkthrough)} id='walkthrough-mode' mr="1" />
+                                                <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
                                             </FormControl>
                                         </HStack>
                                     </HStack>

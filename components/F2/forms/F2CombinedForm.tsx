@@ -410,31 +410,8 @@ export const F2CombinedForm = ({
         >
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
-                    mode={mode}
-                    newPerc={newPerc}
-                    riskColor={riskColor}
-                    newLiquidationPrice={newLiquidationPrice}
-                    f2market={market}
-                    dbrCoverDebt={dbrCoverDebt}
-                    dbrCover={dbrCover}
-                    duration={duration}
-                    dbrPrice={dbrPrice}
-                    newDailyDBRBurn={newDailyDBRBurn}
-                    newDBRExpiryDate={newDBRExpiryDate}
-                    collateralAmount={hasCollateralChange ? collateralAmountNum : 0}
-                    debtAmount={hasDebtChange ? isDeposit ? debtAmountNum : Math.min(debtAmountNum, debt) : 0}
-                    isDeposit={isDeposit}
-                    deposits={deposits}
-                    debt={debt}
-                    newDeposits={newDeposits}
-                    newTotalDebt={newTotalDebt}
-                    newCreditLimit={newCreditLimit}
-                    newCreditLeft={newCreditLeft}
-                    dbrBalance={dbrBalance}
-                    isAutoDBR={isAutoDBR}
-                    maxBorrowable={maxBorrowable}
-                    durationType={durationType}
-                    durationTypedValue={durationTypedValue}
+                    collateralAmountNumInfo={hasCollateralChange ? collateralAmountNum : 0}
+                    debtAmountNumInfo={hasDebtChange ? isDeposit ? debtAmountNum : Math.min(debtAmountNum, debt) : 0}
                 />
                 {
                     disabledConditions[MODES[mode]] && (!!debtAmountNum || !!collateralAmountNum) && newPerc < 1 &&

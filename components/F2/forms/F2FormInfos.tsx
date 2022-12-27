@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, Divider } from '@chakra-ui/react'
+import { Stack, VStack, Text } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
@@ -8,9 +8,12 @@ import { useContext, useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
 import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
-import { RecapInfos } from '../Infos/RecapInfos'
 import { InfoMessage } from '@app/components/common/Messages'
 import { F2MarketContext } from '../F2Contex'
+import { useFirmMarketEvents } from '@app/hooks/useFirm'
+import { useAccount } from '@app/hooks/misc'
+import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 type Data = {
     tooltip: string
@@ -62,20 +65,27 @@ const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
 const { DBR } = getNetworkConfigConstants();
 
 // TODO: clean this mess
-export const F2FormInfos = (props) => {
+export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmountNumInfo: number }) => {
+    const account = useAccount();
+
     const {
-        newPerc,
+        collateralAmountNumInfo,
+        debtAmountNumInfo,
+    } = props;
+
+    const {
+        infoTab,
+        setInfoTab,
+        newBorrowLimit,
+        maxBorrow,
         riskColor,
         newLiquidationPrice,
-        f2market,
+        market,
         dbrCoverDebt,
         dbrCover,
-        duration,
         dbrPrice,
         newDailyDBRBurn,
         newDBRExpiryDate,
-        collateralAmount,
-        debtAmount,
         isDeposit,
         deposits,
         debt,
@@ -84,20 +94,10 @@ export const F2FormInfos = (props) => {
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
-        maxBorrowable,
-        durationType,
-        durationTypedValue,
-        mode,
-    } = props;
-
-    const {
-        infoTab,
-        setInfoTab,
-        newBorrowLimit,
-        maxBorrow,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
+    const { events, isLoading: isLoadingEvents } = useFirmMarketEvents(market, account);
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -117,60 +117,60 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'Main Smart Contract handling this Market',
                 title: 'Market Contract',
-                value: <ScannerLink value={f2market.address} useName={false} />,
+                value: <ScannerLink value={market.address} useName={false} />,
             },
             {
                 tooltip: 'Collateral Smart Contract used for this Market',
                 title: 'Collateral Contract',
-                value: <ScannerLink value={f2market.underlying.address} useName={false} />,
+                value: <ScannerLink value={market.underlying.address} useName={false} />,
             },
         ],
         [
             {
                 tooltip: 'Max Collateral Factor for the collateral in this Market',
                 title: 'Max Collateral Factor',
-                value: `${shortenNumber(f2market.collateralFactor * 100, 2)}%`,
+                value: `${shortenNumber(market.collateralFactor * 100, 2)}%`,
             },
             {
                 tooltip: 'Current Collateral Price according to the Oracle',
                 title: 'Collateral Price',
-                value: `${preciseCommify(f2market.price, 2, true)}`,
+                value: `${preciseCommify(market.price, 2, true)}`,
             },
         ],
         [
             {
                 tooltip: 'The current DOLA liquidity available to borrow in this market',
                 title: 'Market DOLA liquidity',
-                value: `${shortenNumber(f2market.dolaLiquidity, 2, true)}`,
+                value: `${shortenNumber(market.dolaLiquidity, 2, true)}`,
             },
             {
                 tooltip: 'Total amount of DOLA already borrowed from this market',
                 title: 'Total Already Borrowed',
-                value: `${shortenNumber(f2market.totalDebt, 2, true)}`,
+                value: `${shortenNumber(market.totalDebt, 2, true)}`,
             },
         ],
         [
             {
                 tooltip: 'The daily limit of borrowable DOLAs in the market (UTC timezone)',
                 title: 'Daily Borrow Limit',
-                value: f2market.dailyLimit > 0 ? `${shortenNumber(f2market.dailyLimit, 2, true)}` : 'No daily limit',
+                value: market.dailyLimit > 0 ? `${shortenNumber(market.dailyLimit, 2, true)}` : 'No daily limit',
             },
             {
                 tooltip: 'The remaining DOLA borrowable today (UTC timezone)',
                 title: 'Remaining liquidity',
-                value: f2market.dailyLimit > 0 ? `${shortenNumber(f2market.leftToBorrow, 2, true)}` : 'No daily limit',
+                value: market.dailyLimit > 0 ? `${shortenNumber(market.leftToBorrow, 2, true)}` : 'No daily limit',
             },
         ],
         [
             {
                 tooltip: 'Incentive regarding forced top-ups on borrowers in DBR deficit',
                 title: 'DBR Top-up incentive',
-                value: `${shortenNumber(f2market.replenishmentIncentive * 100, 2)}%`,
+                value: `${shortenNumber(market.replenishmentIncentive * 100, 2)}%`,
             },
             {
                 tooltip: 'Liquidation incentive to liquidate shortfalling loans',
                 title: 'Liquidation Incentive',
-                value: `${shortenNumber(f2market.liquidationIncentive * 100, 2, true)}%`,
+                value: `${shortenNumber(market.liquidationIncentive * 100, 2, true)}%`,
             },
         ],
     ]
@@ -185,7 +185,7 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: 'Learn more about DBR',
                 title: 'DBR docs',
-                value: <Link textDecoration="underline" color="mainTextColor" href="https://docs.google.com/document/d/1xDsuhhXTHqNLIZmlwjzCf-P7bjDvQEI72dS0Z0GGM38" isExternal target="_blank">
+                value: <Link textDecoration="underline" color="mainTextColor" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
                     Learn More
                 </Link>,
             },
@@ -248,19 +248,19 @@ export const F2FormInfos = (props) => {
             {
                 tooltip: `Amouunt of Collateral that you are ${isDeposit ? 'depositing' : 'withdrawing'}`,
                 title: isDeposit ? 'Depositing' : 'Withdrawing',
-                value: `${collateralAmount > 0 ? `${shortenNumber(collateralAmount, 4)} ${f2market.underlying.symbol} (${shortenNumber(collateralAmount * f2market.price, 2, true)})` : '-'}`,
+                value: `${collateralAmountNumInfo > 0 ? `${shortenNumber(collateralAmountNumInfo, 4)} ${market.underlying.symbol} (${shortenNumber(collateralAmountNumInfo * market.price, 2, true)})` : '-'}`,
             },
             {
                 tooltip: `Amouunt of Debt that you are ${isDeposit ? 'borrowing' : 'repaying'}`,
                 title: isDeposit ? 'Borrowing' : 'Repaying',
-                value: `${debtAmount > 0 ? `${shortenNumber(debtAmount, 2)} DOLA` : '-'}`,
+                value: `${debtAmountNumInfo > 0 ? `${shortenNumber(debtAmountNumInfo, 2)} DOLA` : '-'}`,
             },
         ],
         [
             {
                 tooltip: 'The total amount of collateral after you deposit/withdraw',
                 title: 'Total Deposits',
-                value: `${newDeposits ? `${shortenNumber(newDeposits, 4)} ${f2market.underlying.symbol} (${shortenNumber(newDeposits * f2market.price, 2, true)})` : '-'}`,
+                value: `${newDeposits ? `${shortenNumber(newDeposits, 4)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
             },
             {
                 tooltip: 'The total amount of debt after you borrow/repay',
@@ -294,7 +294,7 @@ export const F2FormInfos = (props) => {
 
     const lists = {
         'Summary': keyInfos,
-        // 'Position': positionInfos,
+        // 'My Activity': positionInfos,
         'DBR Details': dbrInfos,
         'Market Details': marketInfos,
     }
@@ -304,11 +304,11 @@ export const F2FormInfos = (props) => {
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={infoTab}
-            options={['Summary', 'DBR Details', 'Market Details']}
+            options={['Summary', 'My Activity', 'DBR Details', 'Market Details']}
             onClick={(v) => setInfoTab(v)}
         />
         {
-            !debtAmount && !collateralAmount && !debt && infoTab === 'Summary' ?
+            !debtAmountNumInfo && !collateralAmountNumInfo && !debt && infoTab === 'Summary' ?
                 <VStack pt="4" w='full'>
                     <InfoMessage
                         alertProps={{ w: 'full' }}
@@ -320,7 +320,22 @@ export const F2FormInfos = (props) => {
                     />
                 </VStack>
                 :
-                <ListInfos listInfos={tabItems} />
+                infoTab === 'My Activity' ?
+                    <VStack pt="4" w='full' alignItems="flex-start">
+                        <Text color="secondaryTextColor">
+                            Most recent events in this market about my account:
+                        </Text>
+                        {
+                            !events?.length && !isLoadingEvents ?
+                                <InfoMessage alertProps={{ w: 'full' }} description="No event yet" />
+                                :
+                                <ErrorBoundary description={'Something went wrong getting activity'}>
+                                    <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
+                                </ErrorBoundary>
+                        }
+                    </VStack>
+                    :
+                    <ListInfos listInfos={tabItems} />
         }
     </VStack>
 }
