@@ -342,16 +342,16 @@ export const Landing = ({ posts }: {
           </SplashedText>
           <ResponsiveStack pt="4" justify="center" alignItems={{ base: 'center' }}>
             <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w={{ base: 'full', md: '60%' }} maxW="800px">
-              <VStack w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
               </VStack>
-              <VStack w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://hats.finance/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/hats.png" />
               </VStack>
-              <VStack w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/defimoon.png" />
               </VStack>
-              <VStack w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
             </SimpleGrid>
