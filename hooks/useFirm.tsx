@@ -13,7 +13,7 @@ import { uniqueBy } from "@app/util/misc";
 const oneDay = 86400000;
 const oneYear = oneDay * 365;
 
-const { DBR } = getNetworkConfigConstants();
+const { DBR, F2_MARKETS } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -159,5 +159,29 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     events: grouped,
     isLoading,
     error,
+  }
+}
+
+export const useDBRReplenishments = (): SWR & {
+  events: any,
+  timestamp: number,
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/dbr-replenishments`, fetcher);
+
+  const eventsWithMarket = (data?.events || []).map(e => {
+    const market = F2_MARKETS.find(m => m.address === e.marketAddress);
+    return {
+      ...e,
+      key: `${e.txHash}-${e.account}-${e.marketAddress}`,
+      market,
+      marketName: market?.name,
+    }
+  });
+
+  return {
+    events: eventsWithMarket,
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
   }
 }

@@ -97,7 +97,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ marketIcons }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketIcons.map(img => <MarketImage image={img} size={20} />)}
+                {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
             </Cell>
         },
     },
@@ -109,7 +109,7 @@ export const DbrSpenders = ({
 
     }) => {
     const { price } = useDBRPrice();
-    const { positions, timestamp } = useDBRActiveHolders();
+    const { positions, timestamp, isLoading } = useDBRActiveHolders();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
@@ -128,6 +128,8 @@ export const DbrSpenders = ({
 
     return <Container
         label="Active DBR Spenders"
+        noPadding
+        py="4"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
@@ -164,7 +166,7 @@ export const DbrSpenders = ({
         }
         <Table
             keyName="user"
-            noDataMessage="No DBR deficits in last update"
+            noDataMessage={isLoading ? 'Loading' : "No DBR deficits in last update"}
             columns={columns}
             items={positions}
             onClick={(v) => openReplenish(v)}
