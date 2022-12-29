@@ -97,7 +97,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ marketIcons }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketIcons.map(img => <MarketImage image={img} size={20} />)}
+                {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
             </Cell>
         },
     },
