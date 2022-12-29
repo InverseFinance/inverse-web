@@ -128,6 +128,8 @@ export const DbrSpenders = ({
 
     return <Container
         label="Active DBR Spenders"
+        noPadding
+        py="4"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{

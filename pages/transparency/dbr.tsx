@@ -1,4 +1,4 @@
-import { Flex, HStack, Link, Tabs, Text, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -14,6 +14,7 @@ import { DBRFlowChart } from '@app/components/Transparency/DBRFlowChart'
 import { shortenNumber } from '@app/util/markets'
 import { useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
+import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -36,14 +37,6 @@ export const DBRTransparency = () => {
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1200px'>
                 <VStack w={{ base: 'full', xl: '850px' }}>
                     <DBRFlowChart operator={operator || TREASURY} />
-                    <VStack spacing="0" w='full'>
-                        <VStack maxW='600px' w='full'>
-                            <NavButtons onClick={setTab} active={tab} options={['Spenders', 'Replenishments']} />
-                        </VStack>
-                        {
-                            tab === 'Spenders' ? <DbrSpenders /> : null
-                        }
-                    </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
                     <ShrinkableInfoMessage
@@ -117,6 +110,14 @@ export const DBRTransparency = () => {
                     />
                 </VStack>
             </Flex>
+            <VStack mt="4" spacing="0" w='full'>
+                <VStack alignItems="flex-start" maxW='600px' w='full'>
+                    <NavButtons onClick={setTab} active={tab} options={['Spenders', 'Replenishments']} />
+                </VStack>
+                {
+                    tab === 'Spenders' ? <DbrSpenders /> : <DbrReplenishments />
+                }
+            </VStack>
         </Layout>
     )
 }
