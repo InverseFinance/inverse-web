@@ -123,7 +123,7 @@ export const DbrReplenishments = ({
 }: {
 
     }) => {
-    const { events, timestamp } = useDBRReplenishments();
+    const { events, timestamp, isLoading } = useDBRReplenishments();
    
     return <Container
         label="Last Forced Replenishments"
@@ -138,7 +138,7 @@ export const DbrReplenishments = ({
     >
         <Table
             keyName="key"
-            noDataMessage="No DBR replenishments"
+            noDataMessage={isLoading ? 'Loading' : "No DBR replenishments"}
             columns={columns}
             items={events}         
             defaultSort={'timestamp'}
