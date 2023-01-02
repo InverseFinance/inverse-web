@@ -10,6 +10,7 @@ import { Contract } from 'ethers';
 import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
 import { capitalize, timestampToUTC, uniqueBy } from '@app/util/misc';
+import { cacheMultisigMetaKey } from '../transparency/dao';
 
 const client = getRedisClient();
 
@@ -31,7 +32,7 @@ const formatResults = (data: any, type: string, refundWhitelist: string[], voteC
         .find(e => (['Contraction', 'Expansion'].includes(e?.decoded?.name) || !!e?.raw_log_topics?.find(r => !!topics[r])));
       const isFed = !!fedLog;
       const isContraction = fedLog?.decoded?.name === 'Contraction' || !!fedLog?.raw_log_topics?.find(rawTopic => topics[rawTopic] === 'Contraction')
-      const decoded = isFed ? { name: isContraction ? 'Contraction': 'Expansion' } : decodedArr[0];
+      const decoded = isFed ? { name: isContraction ? 'Contraction' : 'Expansion' } : decodedArr[0];
       const isContractCreation = !item.to_address;
       const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
       const to = item.to_address || log0.sender_address;
@@ -75,11 +76,12 @@ export default async function handler(req, res) {
 
   const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
-  const { startDate, endDate, preferCache } = req.query;
+  const { startDate, endDate, preferCache, multisig, filterType } = req.query;
+  const _multisigFilter = filterType === 'multisig' ? multisig : '';
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
   const includesToday = todayUtc === endDate;
-  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}`;
+  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}${filterType||''}${_multisigFilter||''}`;
 
   try {
     let refundWhitelist = [
@@ -116,6 +118,10 @@ export default async function handler(req, res) {
       return;
     }
 
+    const hasFilter = !!filterType;
+
+    const [multisigsOwners] = (await getCacheFromRedis(cacheMultisigMetaKey, false)) || [[]];
+
     const [
       multisigsRes,
       gov,
@@ -123,7 +129,6 @@ export default async function handler(req, res) {
       gno,
       oracleOld,
       oracleCurrent,
-      multisigOwners,
       // feds,
       customTxsRes,
       delegatesRes,
@@ -131,22 +136,18 @@ export default async function handler(req, res) {
     ] = await Promise.all([
       Promise.all(
         MULTISIGS
-          .filter(m => m.chainId === NetworkIds.mainnet)
-          .map(m => getTxsOf(m.address, ['FedChair', 'TWG'].includes(m.shortName) ? deltaDays * 10 : deltaDays * 5))
+          .filter(m => m.chainId === NetworkIds.mainnet && ((!!_multisigFilter && hasFilter && m.shortName === _multisigFilter) || !hasFilter || !_multisigFilter))
+          .map(m => !hasFilter || filterType === 'multisig' ?
+            getTxsOf(m.address, ['FedChair', 'TWG'].includes(m.shortName) ? deltaDays * 10 : deltaDays * 5)
+            : new Promise((r) => r({ data: {items:[]} })))
       ),
-      getTxsOf(GOVERNANCE, deltaDays * 3),
-      getTxsOf(MULTI_DELEGATOR, deltaDays * 3),
+      !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: {items:[]} })),
+      !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: {items:[]} })),
       // gnosis proxy, for creation
-      getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5),
+      !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: {items:[]} })),
       // price feed update
-      getTxsOf(invOracleKeepers[0], deltaDays * 2),
-      getTxsOf(invOracleKeepers[1], deltaDays * 2),
-      Promise.all(
-        MULTISIGS.filter(m => m.chainId === NetworkIds.mainnet).map(m => {
-          const contract = new Contract(m.address, MULTISIG_ABI, provider);
-          return contract.getOwners()
-        })
-      ),
+      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: {items:[]} })),
+      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: {items:[]} })),
       // Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
       client.get('custom-txs-to-refund'),
       client.get(`1-delegates`),
@@ -162,7 +163,7 @@ export default async function handler(req, res) {
         return del.votingPower >= 500 && del.delegators.length > 2;
       }).map(del => del.address.toLowerCase());
 
-    multisigOwners.forEach(multisigOwners => {
+    multisigsOwners.forEach(multisigOwners => {
       refundWhitelist = refundWhitelist.concat(multisigOwners);
     });
     refundWhitelist = refundWhitelist.map(a => a.toLowerCase());

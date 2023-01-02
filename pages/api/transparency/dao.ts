@@ -23,7 +23,7 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
 ];
 
-const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
+export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
 const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
 const cachePolKey = `dao-pols-v1.0.0`;
 const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
