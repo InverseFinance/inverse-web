@@ -7,6 +7,7 @@ import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM } from '@app/variables/bonds'
 import { getBondV2Contract } from '@app/util/bonds'
 import { getBnToNumber } from '@app/util/markets'
 import { getToken, REWARD_TOKEN, TOKENS } from '@app/variables/tokens'
+import { ONE_DAY_SECS } from '@app/config/constants';
 
 const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
 
@@ -72,7 +73,7 @@ export default async function handler(req, res) {
                 // terms
                 controlVar: terms[i][0],
                 maxDebt: parseFloat(terms[i][1].toString()),
-                vestingDays: Math.round(parseFloat(terms[i][2].toString()) / 86400),
+                vestingDays: Math.round(parseFloat(terms[i][2].toString()) / ONE_DAY_SECS),
                 conclusion,
                 isNotConcluded: now < conclusion,
             }

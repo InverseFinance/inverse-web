@@ -644,9 +644,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         }
         <Flex position="relative" display={{ base: 'flex', lg: 'none' }} w={6} h={6} onClick={() => setShowMobileNav(!showMobileNav)}>
           {showMobileNav ? (
-            <Image w={4} h={4} ignoreFallback={true} src="/assets/cancel.svg" alt="Cancel" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
+            <Image w={4} h={4} ignoreFallback={true} src="/assets/cancel.svg" alt="x" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
           ) : (
-            <Image w={6} h={6} ignoreFallback={true} src="/assets/hamburger.svg" alt="Menu" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
+            <Image w={6} h={6} ignoreFallback={true} src="/assets/hamburger.svg" alt="-" filter={themeName === 'dark' ? undefined : 'invert(0.8)'} />
           )}
           {
             active !== 'Governance' && !showMobileNav && nbNotif > 0 && <NotifBadge>

@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
       govContract.quorumVotes(),
-      getGovProposals({}),
+      getGovProposals({ size: 200 }),
     ]);
 
     const eras = {
@@ -91,7 +91,7 @@ export default async function handler(req, res) {
     const result = {
       blockNumber: blockNumber,
       timestamp: Date.now(),
-      proposals,
+      proposals,      
     }
 
     await redisSetWithTimestamp(cacheKey, result);

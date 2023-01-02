@@ -8,14 +8,13 @@ import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { BURN_ADDRESS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
-const oneDay = 86400000;
-const oneYear = oneDay * 365;
+const oneYear = ONE_DAY_MS * 365;
 
 export const useAccountDBR = (
   account: string | undefined | null,
@@ -46,11 +45,11 @@ export const useAccountDBR = (
 
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
-  const dailyDebtAccrual = Math.max(0, (oneDay * _debt / oneYear));
+  const dailyDebtAccrual = Math.max(0, (ONE_DAY_MS * _debt / oneYear));
   const balanceWithDelta = signedBalance + deltaDBR;
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balanceWithDelta <= 0 ? 0 : balanceWithDelta / dailyDebtAccrual : 0;
-  const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * oneDay);
+  const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   return {
@@ -89,7 +88,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   const nbMarkets = markets.length;
 
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / ONE_DAY_MS);
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
@@ -307,7 +306,7 @@ export const useDBR = (): {
 
 export const useBorrowLimits = (market: F2Market) => {
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / oneDay);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / ONE_DAY_MS);
 
   const noBorrowController = market.borrowController === BURN_ADDRESS;
 

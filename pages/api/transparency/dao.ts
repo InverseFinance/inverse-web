@@ -8,15 +8,32 @@ import { Fed, Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
+import { ONE_DAY_SECS } from '@app/config/constants';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
 }
 
+// Frontier is deprecated, we know reserves will stay at 0 for the others
+const ANCHOR_RESERVES_TO_CHECK = [
+  //'DOLA', 'ETH-1', 'WBTC-1', 'xSUSHI', 'YFY-1'
+  '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
+  '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
+  '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+  '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
+  '0xde2af899040536884e062D3a334F2dD36F34b4a4',
+];
+
+export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
+const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
+const cachePolKey = `dao-pols-v1.0.0`;
+const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
+const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
+
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.6`;
+  const cacheKey = `dao-cache-v1.2.7`;
 
   try {
 
@@ -47,12 +64,13 @@ export default async function handler(req, res) {
 
     }
 
+    const fedsCache = await getCacheFromRedis(cacheFedsMetaKey, true, 1800);
     const [
       dolaTotalSupply,
       invTotalSupply,
       dolaOperator,
       ...fedData
-    ] = await Promise.all([
+    ] = fedsCache || (await Promise.all([
       dolaContract.totalSupply(),
       invContract.totalSupply(),
       dolaContract.operator(),
@@ -64,7 +82,15 @@ export default async function handler(req, res) {
           fedContract['chair'](),
         ]);
       }),
-    ])
+    ]))
+    if (!fedsCache) {
+      await redisSetWithTimestamp(cacheFedsMetaKey, [
+        dolaTotalSupply,
+        invTotalSupply,
+        dolaOperator,
+        ...fedData
+      ]);
+    }
 
     const treasuryFundsToCheck = Object.keys(TOKENS).filter(key => isAddress(key));
     const treasuryBalances = await Promise.all([
@@ -77,28 +103,29 @@ export default async function handler(req, res) {
     const anchorReserves = await Promise.all([
       ...ANCHOR_TOKENS.map((ad: string) => {
         const contract = new Contract(ad, CTOKEN_ABI, provider);
-        return contract.totalReserves();
+        return ANCHOR_RESERVES_TO_CHECK.includes(ad) ? contract.totalReserves() : new Promise((res) => res(BigNumber.from('0')));
       }),
     ]);
 
     const multisigsToShow = MULTISIGS;
 
     // Multisigs
-    const multisigsOwners = await Promise.all([
-      ...multisigsToShow.map((m) => {
+    const multisigMetaCache = await getCacheFromRedis(cacheMultisigMetaKey, true, ONE_DAY_SECS);
+    const [multisigsOwners, multisigsThresholds] = (multisigMetaCache || await Promise.all([
+      Promise.all(multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const contract = new Contract(m.address, MULTISIG_ABI, provider);
         return contract.getOwners();
-      })
-    ])
-
-    const multisigsThresholds = await Promise.all([
-      ...multisigsToShow.map((m) => {
+      })),
+      Promise.all(multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const contract = new Contract(m.address, MULTISIG_ABI, provider);
         return contract.getThreshold();
-      })
-    ])
+      })),
+    ]));
+    if (!multisigMetaCache) {
+      await redisSetWithTimestamp(cacheMultisigMetaKey, [multisigsOwners, multisigsThresholds]);
+    }
 
     const multisigsFundsToCheck = {
       [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet]).filter(key => isAddress(key)),
@@ -106,22 +133,31 @@ export default async function handler(req, res) {
       [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
     }
 
-    const multisigsBalanceValues: BigNumber[][] = await Promise.all([
+    const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
+    const multisigsBalanceValues: BigNumber[][] = multisigBalCache || (await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
         return Promise.all(
           chainFundsToCheck.map(tokenAddress => {
             const token = CHAIN_TOKENS[m.chainId][tokenAddress]
+            const isTWGtype = m.shortName.includes('TWG');
             const isLockedConvexPool = !!token && !!token.convexInfos && m.shortName === 'TWG';
+            if (
+              // reduce numbers of check
+              (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
+              || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
+            ) {
+              return new Promise((res) => res(BigNumber.from('0')));
+            }
             // non-standard balance cases first
-            if(!!token.veNftId) {              
+            else if (!!token.veNftId) {
               const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
               return contract.balanceOfNFT(token.veNftId);
-            } else if(token.symbol === 'vlAURA') {
+            } else if (token.symbol === 'vlAURA') {
               const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
               return contract.balances(m.address);
-            } else if(isLockedConvexPool) {
+            } else if (isLockedConvexPool) {
               const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
               return contract.totalBalanceOf(token.convexInfos.account);
             } else {
@@ -134,20 +170,38 @@ export default async function handler(req, res) {
             ])
         )
       })
-    ]);
+    ]));
+    if (!multisigBalCache) {
+      await redisSetWithTimestamp(cacheMulBalKey, multisigsBalanceValues);
+    }
 
-    const multisigsAllowanceValues: BigNumber[][] =(await Promise.all([
+    const multisigAllCache = await getCacheFromRedis(cacheMulAllKey, true, 300);
+    const multisigsAllowanceValues: BigNumber[][] = multisigAllCache || ((await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
         return Promise.allSettled(
           chainFundsToCheck.map(tokenAddress => {
-            const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-            return contract.allowance(TREASURY, m.address);
+            const token = CHAIN_TOKENS[m.chainId][tokenAddress]
+            const isTWGtype = m.shortName.includes('TWG');
+            if (
+              // reduce numbers of check
+              (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
+              || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
+              || (['TWG on FTM', 'TWG on OP', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
+            ) {
+              return new Promise((res) => res(BigNumber.from('0')));
+            } else {
+              const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+              return contract.allowance(TREASURY, m.address);
+            }
           })
         )
       })
-    ])).map(m => m.map(a => a.status === 'fulfilled' ? a.value : BigNumber.from('0')));
+    ])).map(m => m.map(a => a.status === 'fulfilled' ? a.value : BigNumber.from('0'))));
+    if (!multisigAllCache) {
+      await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
+    }
 
     const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
       const multisig = multisigsToShow[i];
@@ -205,9 +259,13 @@ export default async function handler(req, res) {
       return { totalSupply, ownedAmount, perc, ...lp, owned };
     }
 
-    const pols = await Promise.all([
+    const polsCache = await getCacheFromRedis(cachePolKey, true, 600);
+    const pols = polsCache || (await Promise.all([
       ...lps.map(lp => getPol(lp))
-    ])
+    ]))
+    if(!polsCache) {
+      await redisSetWithTimestamp(cachePolKey, pols);
+    }
 
     const resultData = {
       pols,
