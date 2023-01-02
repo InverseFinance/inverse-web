@@ -99,7 +99,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                 blockNumber: item.block_height,
                 timestamp,
                 profit: deduceBridgeFees(revenues, fed.chainId),
-                transactionHash: item.tx_hash,
+                transactionHash: item.tx_hash,                
             }
         }));
     }));
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
 
     try {
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 150);
+        const validCache = await getCacheFromRedis(cacheKey, true, 900);
         if (validCache) {
             res.status(200).json(validCache);
             return
