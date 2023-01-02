@@ -1,7 +1,7 @@
 import { Input } from '@app/components/common/Input';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEligibleRefunds } from '@app/hooks/useDAO';
-import { RefundableTransaction } from '@app/types';
+import { NetworkIds, RefundableTransaction } from '@app/types';
 import { namedAddress } from '@app/util';
 import { addTxToRefund } from '@app/util/governance';
 import { shortenNumber } from '@app/util/markets';
@@ -224,7 +224,7 @@ export const EligibleRefunds = () => {
         setChosenStartDate(startDate);
         setChosenEndDate(endDate);
         setChosenServerFilter(serverFilter);
-        setChosenServerMultisigFilter(serverFilter === 'multisig' ? serverMultisigFilter: '');
+        setChosenServerMultisigFilter(serverFilter === 'multisig' ? serverMultisigFilter : '');
         setReloadIndex(reloadIndex + 1);
     }
 
@@ -301,14 +301,15 @@ export const EligibleRefunds = () => {
                     :
                     <VStack spacing="4" w='full' alignItems="space-between">
                         <HStack borderBottom="1px solid #ccc" pb="4">
-                            <Text>Server filters:</Text>
+                            <Text>Server-side filters:</Text>
                             <Select value={serverFilter} minW='fit-content' maxW='100px' onChange={(e) => handleServerFilter(e.target.value)}>
-                                <option value=''>All</option>
+                                <option value=''>All types</option>
                                 <option value='multisig'>Multisig</option>
                                 <option value='gov'>Governance</option>
                                 <option value='oracles'>INV Oracles</option>
                                 <option value='multidelegator'>INV Multidelegator</option>
-                                <option value='gnosis'>Gnosis proxy</option>                                
+                                <option value='gnosis'>Gnosis proxy</option>
+                                <option value='custom'>Custom txs</option>
                             </Select>
                             {
                                 serverFilter === 'multisig' &&
@@ -316,10 +317,14 @@ export const EligibleRefunds = () => {
                                     minW='fit-content'
                                     maxW='100px'
                                     onChange={(e) => setServerMultisigFilter(e.target.value)}>
-                                    <option value="">All</option>
-                                    {MULTISIGS.map(m => <option key={m.shortName} value={m.shortName}>{m.shortName}</option>)}
+                                    <option value="">All eligible multisigs</option>
+                                    {
+                                        MULTISIGS
+                                            .filter(m => m.chainId === NetworkIds.mainnet)
+                                            .map(m => <option key={m.shortName} value={m.shortName}>{m.shortName}</option>)
+                                    }
                                 </Select>
-                            }                            
+                            }
                             <InfoMessage description="After choosing server filters, click the reload btn" />
                         </HStack>
                         <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} handleExportCsv={handleExportCsv} />

@@ -149,7 +149,7 @@ export default async function handler(req, res) {
       !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: {items:[]} })),
       !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: {items:[]} })),
       // Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
-      client.get('custom-txs-to-refund'),
+      !hasFilter || filterType === 'custom' ? client.get('custom-txs-to-refund') : new Promise((r) => []),
       client.get(`1-delegates`),
       client.get('refunds-ignore-tx-hashes'),
     ])
