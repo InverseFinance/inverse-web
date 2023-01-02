@@ -7,7 +7,7 @@ import { addTxToRefund } from '@app/util/governance';
 import { shortenNumber } from '@app/util/markets';
 import { exportToCsv, timestampToUTC } from '@app/util/misc';
 import { CheckIcon, MinusIcon, PlusSquareIcon, RepeatClockIcon } from '@chakra-ui/icons';
-import { Box, Checkbox, Divider, Flex, HStack, Stack, Switch, Text, useDisclosure, VStack, InputLeftElement, InputGroup } from '@chakra-ui/react';
+import { Box, Checkbox, Divider, Flex, HStack, Stack, Text, useDisclosure, VStack, InputLeftElement, InputGroup, Select } from '@chakra-ui/react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { isAddress } from 'ethers/lib/utils';
@@ -21,6 +21,9 @@ import { SkeletonBlob } from '../../common/Skeleton';
 import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
 import { ONE_DAY_MS } from '@app/config/constants';
+import { getNetworkConfigConstants } from '@app/util/networks';
+
+const { MULTISIGS } = getNetworkConfigConstants();
 
 const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
     // visually better, as table refresh can take XXXms
@@ -54,23 +57,30 @@ export const EligibleRefunds = () => {
 
     const now = new Date();
     // const startOfMonth = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`;    
-    const [startDate, setStartDate] = useState(timestampToUTC((+(now))-ONE_DAY_MS*6));
+    const [startDate, setStartDate] = useState(timestampToUTC((+(now)) - ONE_DAY_MS * 6));
     const [endDate, setEndDate] = useState(timestampToUTC(+(now)));
     const [chosenStartDate, setChosenStartDate] = useState(startDate);
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
     const [subfilters, setSubfilters] = useState({});
+    const [serverFilter, setServerFilter] = useState('multisig');
+    const [serverMultisigFilter, setServerMultisigFilter] = useState('TWG');
+    const [chosenServerFilter, setChosenServerFilter] = useState(serverFilter);
+    const [chosenServerMultisigFilter, setChosenServerMultisigFilter] = useState(serverMultisigFilter);
 
-    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex);
+    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex, false, chosenServerFilter, chosenServerMultisigFilter);
 
     useEffect(() => {
         setTableItems(refundFilter === 'all' ? eligibleTxs : eligibleTxs.filter(t => t.refunded === (refundFilter === 'refunded')));
     }, [refundFilter, eligibleTxs])
 
     useEffect(() => {
+        if (isLoading) {
+            return;
+        }
         const checkedTxs = txsToRefund.map(t => t.txHash);
         setEligibleTxs(items.map(t => ({ ...t, checked: checkedTxs.includes(t.txHash) })));
-    }, [items, txsToRefund]);
+    }, [items, txsToRefund, isLoading]);
 
     const handleCheckTx = (tx: RefundableTransaction) => {
         const { txHash } = tx;
@@ -136,7 +146,7 @@ export const EligibleRefunds = () => {
             header: ({ ...props }) => <Flex justify="flex-end" minWidth={'180px'} {...props} />,
             value: ({ name, contractTicker }) => <VStack justify="flex-end" minWidth={'180px'} alignItems="center">
                 <Text>{name}</Text>
-                { !!contractTicker && <Text>{contractTicker}</Text> }
+                {!!contractTicker && <Text>{contractTicker}</Text>}
             </VStack>,
             filterWidth: '180px',
             showFilter: true,
@@ -213,6 +223,8 @@ export const EligibleRefunds = () => {
     const reloadData = () => {
         setChosenStartDate(startDate);
         setChosenEndDate(endDate);
+        setChosenServerFilter(serverFilter);
+        setChosenServerMultisigFilter(serverFilter === 'multisig' ? serverMultisigFilter: '');
         setReloadIndex(reloadIndex + 1);
     }
 
@@ -237,7 +249,7 @@ export const EligibleRefunds = () => {
                 FromName: namedAddress(from),
                 EventName: name,
                 TxType: type,
-                To: to||'',
+                To: to || '',
                 ToName: to && isAddress(to) ? namedAddress(to) : '',
                 Fees: fees,
                 // Refunded: refunded,
@@ -259,12 +271,16 @@ export const EligibleRefunds = () => {
         </SubmitButton>
     </HStack>
 
+    const handleServerFilter = (value) => {
+        setServerFilter(value)
+    }
+
     return (
         <Container
             label="Potentially Eligible Transactions for Gas Refunds"
             description="Taken into consideration: GovMills txs, Multisig txs, Delegations, Fed actions, Inv oracle txs"
             noPadding
-            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto', direction: 'column' }}
             collapsable={true}
             right={
                 !account ?
@@ -284,6 +300,27 @@ export const EligibleRefunds = () => {
                     <SkeletonBlob />
                     :
                     <VStack spacing="4" w='full' alignItems="space-between">
+                        <HStack borderBottom="1px solid #ccc" pb="4">
+                            <Text>Server filters:</Text>
+                            <Select value={serverFilter} minW='fit-content' maxW='100px' onChange={(e) => handleServerFilter(e.target.value)}>
+                                <option value=''>All</option>
+                                <option value='multisig'>Multisig</option>
+                                <option value='gov'>Governance</option>
+                                <option value='oracles'>Oracles</option>
+                                <option value='multidelegator'>Multidelegator</option>
+                            </Select>
+                            {
+                                serverFilter === 'multisig' &&
+                                <Select value={serverMultisigFilter}
+                                    minW='fit-content'
+                                    maxW='100px'
+                                    onChange={(e) => setServerMultisigFilter(e.target.value)}>
+                                    <option value="">All</option>
+                                    {MULTISIGS.map(m => <option key={m.shortName} value={m.shortName}>{m.shortName}</option>)}
+                                </Select>
+                            }                            
+                            <InfoMessage description="After choosing server filters, click the reload btn" />
+                        </HStack>
                         <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} handleExportCsv={handleExportCsv} />
                         <Stack
                             direction="row"
