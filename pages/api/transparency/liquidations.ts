@@ -1,9 +1,13 @@
 import 'source-map-support'
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getFrontierLiquidations } from '@app/util/the-graph'
 
 export default async function handler(req, res) {
   const { borrower } = req.query;
+  if(isInvalidGenericParam(borrower)) {
+    res.status(400).json({ msg: 'invalid request' });
+    return;
+  }
   const cacheKey = `${borrower.toLowerCase()||''}-liquidations-v1.0.0`;
 
   try {
