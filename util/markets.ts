@@ -195,22 +195,15 @@ export const getXSushiData = async (nbDays = 7) => {
         const infos = await Promise.all([
             ...days.map(v => {
                 const d = new Date();
-                const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
+                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() -v, 0, 0, 0);
                 return sushiData.bar.info({ timestamp: utc });
             }),
         ]);
-        // const prices = await Promise.all([
-        //     ...days.map(v => {
-        //         const d = new Date();
-        //         const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
-        //         console.log(new Date(utc));
-        //         return sushiData.sushi.priceUSD({ timestamp: utc });
-        //     }),
-        // ]);
+
         const prices = (await Promise.all([
             ...days.map(v => {
                 const d = new Date();
-                const utc = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate() -v, 0, 0, 0);
+                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() -v, 0, 0, 0);
                 return sushiData.exchange.token({ timestamp: utc, token_address: '0x8798249c2e607446efb7ad49ec89dd1865ff4272' });
             }),
         ])).map(d => d.derivedETH);

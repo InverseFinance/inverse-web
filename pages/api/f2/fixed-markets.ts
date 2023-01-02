@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     );
 
     const today = new Date();
-    const dayIndexUtc = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0) / ONE_DAY_MS);
+    const dayIndexUtc = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
 
     const dailyBorrows = await Promise.all(
       borrowControllers.map((bc, i) => {
