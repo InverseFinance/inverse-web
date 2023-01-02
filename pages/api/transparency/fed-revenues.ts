@@ -108,7 +108,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.12`;
+    const cacheKey = `revenues-v1.0.13`;
 
     try {
 
@@ -132,7 +132,6 @@ export default async function handler(req, res) {
             const fedIndex = FEDS.findIndex(f => f.name === old.name);
             filteredTransfers[fedIndex] = filteredTransfers[fedIndex].concat(oldFilteredTransfers[i]);
         });
-        filteredTransfers.sort((a, b) => a.timestamp - b.timestamp);
 
         const accProfits: { [key: string]: number } = {};
         let total = 0;
@@ -140,6 +139,7 @@ export default async function handler(req, res) {
 
         const fedRevenues = filteredTransfers.map((fedTransfers, fedIndex) => {
             if (!accProfits[fedIndex]) { accProfits[fedIndex] = 0 }
+            fedTransfers.sort((a, b) => a.timestamp - b.timestamp);
             return fedTransfers.map(t => {
                 accProfits[fedIndex] += t.profit;
                 return {
