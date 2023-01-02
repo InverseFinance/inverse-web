@@ -145,7 +145,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const handleChange = (value: string) => {
         const stringAmount = value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, '');
         setAmount(stringAmount);
-        if (onAmountChange && !stringAmount.endsWith('.')) {
+        if (onAmountChange && (!stringAmount.endsWith('.') || stringAmount === '.')) {
             const floatAmount = parseFloat(stringAmount) || 0;
             onAmountChange(stringAmount, floatAmount);
         }

@@ -88,7 +88,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   const nbMarkets = markets.length;
 
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / ONE_DAY_MS);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
@@ -306,7 +306,7 @@ export const useDBR = (): {
 
 export const useBorrowLimits = (market: F2Market) => {
   const d = new Date();
-  const dayIndexUtc = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0) / ONE_DAY_MS);
+  const dayIndexUtc = Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
 
   const noBorrowController = market.borrowController === BURN_ADDRESS;
 

@@ -123,19 +123,19 @@ export const StabilizerTransparency = () => {
         }
     })];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getUTCFullYear();
+    const currentMonth = new Date().getUTCMonth();
 
     const barChartData = ['Buy', 'Sell'].map(event => {
         return months.map(month => {
             const date = Date.UTC(currentYear, currentMonth - 11 + month);
-            const filterMonth = new Date(date).getMonth();
-            const filterYear = new Date(date).getFullYear();
+            const filterMonth = new Date(date).getUTCMonth();
+            const filterYear = new Date(date).getUTCFullYear();
             const y = chartData.filter(d => d.event === event && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.profit, 0);
 
             return {
                 label: `${event}s: ${shortenNumber(y, 2, true)}`,
-                x: moment(date).format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
+                x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
                 y,
             }
         });

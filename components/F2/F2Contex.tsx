@@ -76,8 +76,8 @@ export const F2Context = ({
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
 
-    const debtAmountNum = parseFloat(debtAmount || '0');
-    const collateralAmountNum = parseFloat(collateralAmount || '0');
+    const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
+    const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
 
     const dbrCover = debtAmountNum / (365 / duration);
     const dbrCoverDebt = debtAmountNum * dbrPrice / (365 / duration);
