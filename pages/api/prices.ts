@@ -9,11 +9,12 @@ import { COMPTROLLER_ABI, ORACLE_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 
+export const pricesCacheKey = `prices-v1.0.3`;
+
 export default async function handler(req, res) {
-  const cacheKey = `prices-v1.0.3`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(pricesCacheKey, true, 600);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -98,14 +99,14 @@ export default async function handler(req, res) {
       }
     })
 
-    await redisSetWithTimestamp(cacheKey, prices);
+    await redisSetWithTimestamp(pricesCacheKey, prices);
 
     res.status(200).json(prices)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(pricesCacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
