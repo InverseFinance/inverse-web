@@ -16,11 +16,12 @@ const formatBn = (bn: BigNumber, token: Token) => {
 
 // Frontier is deprecated, we know reserves will stay at 0 for the others
 const ANCHOR_RESERVES_TO_CHECK = [
-  //'DOLA', 'ETH-1', 'WBTC-1', 'xSUSHI',
+  //'DOLA', 'ETH-1', 'WBTC-1', 'xSUSHI', 'YFY-1'
   '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
   '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
   '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
   '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
+  '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
