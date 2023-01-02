@@ -306,8 +306,9 @@ export const EligibleRefunds = () => {
                                 <option value=''>All</option>
                                 <option value='multisig'>Multisig</option>
                                 <option value='gov'>Governance</option>
-                                <option value='oracles'>Oracles</option>
-                                <option value='multidelegator'>Multidelegator</option>
+                                <option value='oracles'>INV Oracles</option>
+                                <option value='multidelegator'>INV Multidelegator</option>
+                                <option value='gnosis'>Gnosis proxy</option>                                
                             </Select>
                             {
                                 serverFilter === 'multisig' &&
