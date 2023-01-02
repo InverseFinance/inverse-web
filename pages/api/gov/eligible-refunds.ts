@@ -189,6 +189,7 @@ export default async function handler(req, res) {
         t.timestamp >= startTimestamp
         && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
         && !ignoredTxs.includes(t.txHash)
+        && t.name !== 'Bonded'
       );
 
     totalItems = uniqueBy(totalItems, (o1, o2) => o1.txHash === o2.txHash);
