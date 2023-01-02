@@ -4,13 +4,14 @@ import { BONDS_ABIS, BOND_V2_FIXED_TELLER_ABI } from '@app/config/abis'
 
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { BondV2, NetworkIds } from '@app/types';
+import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { BONDS } from '@app/variables/tokens';
+import { BONDS, TOKENS, getToken } from '@app/variables/tokens';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
-import { BLOCKS_PER_DAY } from '@app/config/constants';
-import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
-import { BONDS_V2_API_CACHE_KEY } from '../bonds';
+import { BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
+import { BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
+import { BONDS_V2_IDS_API_CACHE_KEY } from '../bonds';
+import { getBondV2Contract } from '@app/util/bonds';
 
 export default async function handler(req, res) {
 
@@ -34,18 +35,18 @@ export default async function handler(req, res) {
         );
 
         // bonds V2 with bond protocol
-        const v2bondsCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, false);
-        let bondsV2: BondV2[] = [];        
-        if(v2bondsCache?.bonds?.length > 0) {
-            bondsV2 = v2bondsCache.bonds;
-        }
+        const allV2BondsMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || [];
 
-        const depositsV2 = await Promise.all(
-            bondsV2.map(bondV2 => {
-                const contract = new Contract(BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI, provider);                
-                return contract.queryFilter(contract.filters.Bonded(parseInt(bondV2.id)));
-            })
-        );        
+        const [depositsV2, marketInfos, terms] = await Promise.all([
+            Promise.all(
+                allV2BondsMarketIds.map(v2id => {
+                    const contract = new Contract(BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI, provider);                
+                    return contract.queryFilter(contract.filters.Bonded(parseInt(v2id)));
+                })
+            ),
+            Promise.all(allV2BondsMarketIds.map(id => getBondV2Contract(BOND_V2_FIXED_TERM, provider).markets(id))),
+            Promise.all(allV2BondsMarketIds.map(id => getBondV2Contract(BOND_V2_FIXED_TERM, provider).terms(id))),
+        ]);
 
         const blocks = depositsV1.map(d => d.map(e => e.blockNumber)).flat()
             .concat(depositsV2.map(d => d.map(e => e.blockNumber)).flat());
@@ -74,13 +75,14 @@ export default async function handler(req, res) {
         }).flat();
 
         const formattedDepositsV2 = depositsV2.map((d, i) => {
-            const bond = bondsV2[i];
+            const underlying = getToken(TOKENS, marketInfos[i][2]);
+            const vestingDays = Math.round(parseFloat(terms[i][2].toString()) / ONE_DAY_SECS);
             return d.map(e => {
                 return {
                     timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
-                    input: bond.underlying.symbol,
-                    duration: bond.vestingDays,
-                    type: `${bond.underlying.symbol}-${bond.vestingDays}-v2`,
+                    input: underlying.symbol,
+                    duration: vestingDays,
+                    type: `${underlying.symbol}-${vestingDays}-v2`,
                     inputAmount: getBnToNumber(e.args.amount),
                     outputAmount: getBnToNumber(e.args.payout),
                     txHash: e.transactionHash,
