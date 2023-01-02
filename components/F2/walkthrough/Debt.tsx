@@ -69,7 +69,7 @@ export const F2WalkthroughDebt = ({
                 hideInputIfNoAllowance={false}
                 hideButtons={true}
                 isDisabled={newPerc < 1}
-                inputProps={{ autoFocus: true, fontSize: '50px', py: '40px', px: '20px' }}
+                inputProps={{ autoFocus: true, fontSize: '50px', py: '40px', px: '20px', color: 'mainTextColor' }}
                 inputRight={<MarketImage ml="10px" pr="20px" image={dolaToken.image} size={40} />}
                 isError={debtAmountNum > maxBorrowable}
             />

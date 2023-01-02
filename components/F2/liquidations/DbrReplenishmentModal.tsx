@@ -125,8 +125,6 @@ export const DbrReplenishmentModal = ({
                 {
                     !!account &&
                     <VStack pt="4" w='full' alignItems="flex-start">
-                        <Text fontWeight="bold">Amount to repay:</Text>
-
                         <InfoMessage
                             alertProps={{ w: 'full' }}
                             description={

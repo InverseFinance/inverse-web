@@ -47,7 +47,7 @@ export const useMultiContractEvents = (params: any[], swrKey: string): MultiCont
 
     return {
         groupedEvents: data?.map(d => d.status === 'fulfilled' ? d.value : []) || params.map(p => []),
-        isLoading: !data && !error,
+        isLoading: !!(!data && !error),
         error,
     }
 }

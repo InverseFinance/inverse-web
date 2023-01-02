@@ -33,7 +33,7 @@ export const Anchor = () => {
         <Flex w={{ base: 'full' }} maxW="84rem" justify="flex-start">
           <ErrorBoundary description="Failed to load header">
             {/* <AnchorHeader /> */}
-            <F2Header autoOpenIntroModal={true} />
+            <F2Header />
           </ErrorBoundary>
         </Flex>
         <Flex w={{ base: 'full' }} maxW="84rem" justify="center">

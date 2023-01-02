@@ -465,7 +465,7 @@ export const Stake = () => (
       <meta name="description" content="Inverse Finance DAO's top 100 delegates" />
       <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, voting power, delegates" />
     </Head>
-    <AppNav active="Governance" activeSubmenu="Delegates" />
+    <AppNav active="Participate" activeSubmenu="Delegates" />
     <Breadcrumbs
       w="7xl"
       breadcrumbs={[

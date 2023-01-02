@@ -2,7 +2,6 @@ import { useMediaQuery, FlexProps } from '@chakra-ui/react'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
-import { BigNumber } from 'ethers'
 import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
@@ -55,7 +54,7 @@ export const F2Context = ({
     isWalkthrough: boolean
     setIsWalkthrough: (v: boolean) => void
 } & Partial<FlexProps>) => {
-    const router = useRouter();    
+    const router = useRouter();
     const { library } = useWeb3React();
     const account = useAccount();
     const [step, setStep] = useState(1);
@@ -65,7 +64,7 @@ export const F2Context = ({
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
-    const [isAutoDBR, setIsAutoDBR] = useState(false);    
+    const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
@@ -75,10 +74,10 @@ export const F2Context = ({
     const colDecimals = market.underlying.decimals;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
-    const { balance: dolaBalance } = useDOLABalance(account);
+    const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
 
-    const debtAmountNum = parseFloat(debtAmount||'0');
-    const collateralAmountNum = parseFloat(collateralAmount||'0');
+    const debtAmountNum = parseFloat(debtAmount || '0');
+    const collateralAmountNum = parseFloat(collateralAmount || '0');
 
     const dbrCover = debtAmountNum / (365 / duration);
     const dbrCoverDebt = debtAmountNum * dbrPrice / (365 / duration);
@@ -123,24 +122,13 @@ export const F2Context = ({
     );
 
     const { signedBalance: dbrBalance } = useAccountDBR(account);
-    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn, } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
 
     useEffect(() => {
         return () => {
             isMountedRef.current = false;
         };
     }, []);
-
-    useEffect(() => {
-        if(isWalkthrough){
-            setIsDeposit(true);
-            // setIsAutoDBR(true);
-            setMode('Deposit & Borrow');
-            setStep(1);            
-            handleDebtChange('');
-            router.replace({ hash: `step1`, query: { ...router.query } });
-        }
-    }, [isWalkthrough]);
 
     useEffect(() => {
         const init = async () => {
@@ -156,7 +144,7 @@ export const F2Context = ({
                 perc,
                 isAutoDBR,
             );
-            if(!isMountedRef.current) {
+            if (!isMountedRef.current) {
                 return
             }
             setMaxBorrowable(newMaxBorrowable);
@@ -184,89 +172,100 @@ export const F2Context = ({
 
     useEffect(() => {
         const stepString = location.hash.replace(/#step/, '');
-        if(!isWalkthrough) { return }
-        if(!collateralAmount && parseInt(stepString) !== 1){            
-            setStep(1);            
-            router.replace({ hash: `step1`, query: { ...router.query } });
-        } else {        
+
+        const hasStep = location.hash.indexOf('step') !== -1;
+        setIsWalkthrough(hasStep)
+        if (!hasStep) {
+            return
+        }
+        if (mode !== 'Deposit & Borrow') {
+            handleDebtChange('');
+            setMode('Deposit & Borrow');
+            // setIsAutoDBR(true);
+        }
+        if (!collateralAmount && parseInt(stepString) !== 1) {
+            setStep(1);
+            router.replace({ hash: `step1` });
+        } else {
             if (stepString && !isNaN(parseInt(stepString))) {
                 setStep(parseInt(stepString));
             } else if (step !== 1) {
                 setStep(1);
             }
         }
-    }, [router, collateralAmount, isWalkthrough])
+    }, [router, collateralAmount, mode])
 
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
-    return <F2MarketContext.Provider 
-    value={{
-        market,
-        colDecimals,
-        account,
-        signer: library?.getSigner(),
-        step,
-        duration,
-        collateralAmount,
-        debtAmount,
-        debtAmountNum,
-        collateralAmountNum,
-        deltaCollateral,
-        deltaDebt,
-        dbrPrice,
-        dbrCoverDebt,
-        isSmallerThan728,
-        isDeposit,
-        collateralBalance,
-        bnDeposits,
-        bnDebt,
-        bnWithdrawalLimit,
-        bnCollateralBalance,
-        deposits,
-        newDeposits,
-        dolaToken,
-        newPerc,
-        debt,
-        newDebt,
-        bnDolaLiquidity,
-        newCreditLimit,
-        bnLeftToBorrow,
-        leftToBorrow,
-        durationType,
-        durationTypedValue,
-        riskColor,
-        dbrCover,
-        newLiquidationPrice,
-        newTotalDebt,
-        newCreditLeft,
-        // 100% max
-        maxBorrow,
-        // 99% max
-        maxBorrowable,
-        newDBRExpiryDate,
-        isAutoDBR,
-        dbrBalance,
-        mode,
-        newDailyDBRBurn,
-        isWalkthrough,
-        infoTab,
-        liquidationPrice,
-        perc,
-        borrowLimit: 100-perc,
-        newBorrowLimit: 100-newPerc,
-        dolaBalance,
-        setInfoTab,
-        setIsWalkthrough,
-        setMode,
-        setIsAutoDBR,
-        setStep,
-        setIsDeposit,
-        handleStepChange,
-        handleDurationChange,
-        handleDebtChange,
-        handleCollateralChange,
-    }}
-    {...props}
+    return <F2MarketContext.Provider
+        value={{
+            market,
+            colDecimals,
+            account,
+            signer: library?.getSigner(),
+            step,
+            duration,
+            collateralAmount,
+            debtAmount,
+            debtAmountNum,
+            collateralAmountNum,
+            deltaCollateral,
+            deltaDebt,
+            dbrPrice,
+            dbrCoverDebt,
+            isSmallerThan728,
+            isDeposit,
+            collateralBalance,
+            bnDeposits,
+            bnDebt,
+            bnWithdrawalLimit,
+            bnCollateralBalance,
+            deposits,
+            newDeposits,
+            dolaToken,
+            newPerc,
+            debt,
+            newDebt,
+            bnDolaLiquidity,
+            newCreditLimit,
+            bnLeftToBorrow,
+            leftToBorrow,
+            durationType,
+            durationTypedValue,
+            riskColor,
+            dbrCover,
+            newLiquidationPrice,
+            newTotalDebt,
+            newCreditLeft,
+            // 100% max
+            maxBorrow,
+            // 99% max
+            maxBorrowable,
+            newDBRExpiryDate,
+            isAutoDBR,
+            dbrBalance,
+            mode,
+            newDailyDBRBurn,
+            isWalkthrough,
+            infoTab,
+            liquidationPrice,
+            perc,
+            borrowLimit: 100 - perc,
+            newBorrowLimit: 100 - newPerc,
+            dolaBalance,
+            bnDolaBalance,
+            setInfoTab,
+            setIsWalkthrough,
+            setMode,
+            setIsAutoDBR,
+            setStep,
+            setIsDeposit,
+            handleStepChange,
+            handleDurationChange,
+            handleDebtChange,
+            handleCollateralChange,
+        }}
+        {...props}
     />
 }

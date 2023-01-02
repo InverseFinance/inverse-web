@@ -44,9 +44,9 @@ const columns = [
         field: 'signedBalance',
         label: 'DBR Signed Balance',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ signedBalance }) => {
+        value: ({ signedBalance }) => {            
             return <Cell minWidth="150px" justify="center" >
-                <CellText>{shortenNumber(signedBalance, 2, false, true)}</CellText>
+                <CellText color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
             </Cell>
         },
     },
@@ -97,7 +97,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ marketIcons }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketIcons.map(img => <MarketImage image={img} size={20} />)}
+                {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
             </Cell>
         },
     },
@@ -109,7 +109,7 @@ export const DbrSpenders = ({
 
     }) => {
     const { price } = useDBRPrice();
-    const { positions, timestamp } = useDBRActiveHolders();
+    const { positions, timestamp, isLoading } = useDBRActiveHolders();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
@@ -124,8 +124,12 @@ export const DbrSpenders = ({
     const monthlyBurn = totalDailyBurn * 30.416;
     const yearlyBurn = totalDailyBurn * 365;
 
+    const fontSize = { base: '12px', sm: '14px', lg: '16px' };
+
     return <Container
         label="Active DBR Spenders"
+        noPadding
+        py="4"
         description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
@@ -133,26 +137,26 @@ export const DbrSpenders = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <HStack justify="space-between" spacing="2">
-                <VStack alignItems="flex-start">
-                    <Text textAlign="left" fontSize="12px" fontWeight="bold">Total DBR Deficit</Text>
-                    <Text textAlign="left" fontSize="12px" color="secondaryTextColor">{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
+            <HStack justify="space-between" spacing={{ base: '2', sm: '4' }}>
+                <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
+                    <Text textAlign="left" fontSize={fontSize} fontWeight="bold">Total DBR Deficit</Text>
+                    <Text textAlign="left" fontSize={fontSize} color={totalDeficit < 0 ? 'error' : 'secondaryTextColor'}>{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
                 </VStack>
-                <VStack alignItems="center">
-                    <Text fontSize="12px" fontWeight="bold">Daily spend</Text>
-                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
+                <VStack spacing="0" alignItems="center">
+                    <Text fontSize={fontSize} fontWeight="bold">Daily spend</Text>
+                    <Text fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
                 </VStack>
-                <VStack alignItems="center">
-                    <Text fontSize="12px" fontWeight="bold">Monthly spend</Text>
-                    <Text fontSize="12px" color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
+                <VStack spacing="0" alignItems="center">
+                    <Text fontSize={fontSize} fontWeight="bold">Monthly spend</Text>
+                    <Text fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
                 </VStack>
-                <VStack alignItems="flex-end">
-                    <Text textAlign="right" fontSize="12px" fontWeight="bold">Yearly spend</Text>
-                    <Text textAlign="right" fontSize="12px" color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
+                <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Yearly spend</Text>
+                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
                 </VStack>
-                {/* <VStack alignItems="flex-end">
-                    <Text textAlign="right" fontSize="12px" fontWeight="bold">Total Debt</Text>
-                    <Text textAlign="right" fontSize="12px" color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
+                {/* <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total Debt</Text>
+                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
                 </VStack> */}
             </HStack>
         }
@@ -162,7 +166,7 @@ export const DbrSpenders = ({
         }
         <Table
             keyName="user"
-            noDataMessage="No DBR deficits in last update"
+            noDataMessage={isLoading ? 'Loading' : "No DBR deficits in last update"}
             columns={columns}
             items={positions}
             onClick={(v) => openReplenish(v)}

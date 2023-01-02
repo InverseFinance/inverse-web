@@ -1,5 +1,5 @@
 import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
-import { Stack, Text, StackDirection } from '@chakra-ui/react';
+import { Stack, Text, StackDirection, TextProps } from '@chakra-ui/react';
 import moment from 'moment';
 
 const defaultFormat = 'MMM Do YYYY';
@@ -10,12 +10,14 @@ export const BlockTimestamp = ({
     showRelativeTime = true,
     showAbsoluteTime = true,
     direction = 'column',
+    textProps,
     ...props
 }: {
     blockNumber: number,
     format?: string,
     showRelativeTime?: boolean,
     showAbsoluteTime?: boolean,
+    textProps?: TextProps,
     direction?: StackDirection,
 }) => {
     const { timestamp } = useBlockTimestamp(blockNumber);
@@ -25,15 +27,15 @@ export const BlockTimestamp = ({
         {
             timestamp > 0 ?
                 <>
-                    <Text>{moment(timestamp).fromNow()}</Text>
-                    {!isCol && <Text>-</Text>}
-                    <Text>{moment(timestamp).format(format)}</Text>
+                    <Text {...textProps}>{moment(timestamp).fromNow()}</Text>
+                    {!isCol && <Text {...textProps}>-</Text>}
+                    <Text {...textProps}>{moment(timestamp).format(format)}</Text>
                 </>
                 :
                 <>
-                    <Text>Fetching...</Text>
-                    {!isCol && <Text>For</Text>}
-                    <Text>BN {blockNumber}</Text>
+                    <Text {...textProps}>Fetching...</Text>
+                    {!isCol && <Text {...textProps}>For</Text>}
+                    <Text {...textProps}>BN {blockNumber}</Text>
                 </>
         }
     </Stack>

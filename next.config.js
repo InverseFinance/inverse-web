@@ -18,6 +18,11 @@ const redirects = async () => {
       permanent: true,
     },
     {
+      source: '/firm/about',
+      destination: '/about-firm',
+      permanent: true,
+    },
+    {
       source: '/positions',
       destination: '/transparency/shortfalls',
       permanent: true,

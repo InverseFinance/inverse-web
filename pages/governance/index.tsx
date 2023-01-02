@@ -28,7 +28,7 @@ export const Governance = () => {
         <meta name="description" content="Inverse Finance DAO's On-Chain Proposals and Off-Chain Drafts" />
         <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, draft, governance, DeFi, vote" />
       </Head>
-      <AppNav active="Governance" activeSubmenu="Drafts & Proposals" />
+      <AppNav active="Participate" activeSubmenu="Drafts & Proposals" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">
           {

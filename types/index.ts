@@ -698,3 +698,26 @@ export type F2Market = {
   helper?: string
   escrowImplementation: string
 }
+
+export type FirmAction = {
+  combinedKey: string,
+  actionName: string,
+  blockNumber: number,
+  txHash: string,
+  amount?: number,
+  isCombined: boolean,
+  amountCombined?: number,
+  deficit?: number,
+  repaidDebt?: number,
+  liquidatorReward?: number,
+  repayer?: string,
+  to?: string,
+  escrow?: string,
+  replenisher?: string,
+  name: string,
+  nameCombined?: string,
+  logIndex: number,
+  isCollateralEvent: boolean,
+  tokenName: string,
+  tokenNameCombined?: string,
+}
