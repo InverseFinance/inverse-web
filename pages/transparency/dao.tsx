@@ -139,7 +139,7 @@ export const GovTransparency = () => {
                         </SimpleGrid>
                     </Stack>
                 </Flex>
-                <DaoOperationsTable />
+                {/* <DaoOperationsTable /> */}
             </Stack>
         </Layout>
     )
