@@ -91,7 +91,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     mb='0'
                                                 >
                                                     <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
-                                                        <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text>
+                                                        {/* <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text> */}
                                                         <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
                                                     </VStack>
                                                 </FormLabel>
