@@ -49,6 +49,8 @@ const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
         }        
     }
 
+    const hasError = (amount?.length > 0 && !parseFloat(amount)) || isNaN(parseFloat(amount));
+
     return (
         <Modal
             onClose={onClose}
@@ -87,8 +89,9 @@ const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
                     onAmountChange={(v) => setAmount(v)}
                     showMaxBtn={false}
                     hideInputIfNoAllowance={false}                    
-                    showBalance={false}                    
-                    isError={amount?.length > 0 && !parseFloat(amount)}
+                    showBalance={false}
+                    isDisabled={hasError}
+                    isError={hasError}
                 />
                 {/* <Text textAlign="center">
                     Tx cost: ~{shortenNumber(costEth, 4, false, true)} Eth ({shortenNumber(costUsd, 2, true, true)})
