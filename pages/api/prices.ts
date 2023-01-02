@@ -9,7 +9,7 @@ import { COMPTROLLER_ABI, ORACLE_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 
-export const pricesCacheKey = `prices-v1.0.3`;
+export const pricesCacheKey = `prices-v1.0.4`;
 
 export default async function handler(req, res) {
 
