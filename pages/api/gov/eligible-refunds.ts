@@ -1,6 +1,6 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getRedisClient, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, RefundableTransaction } from '@app/types';
 import { getTxsOf } from '@app/util/covalent';
 import { DRAFT_WHITELIST, ONE_DAY_MS } from '@app/config/constants';
@@ -77,6 +77,12 @@ export default async function handler(req, res) {
   const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
   const { startDate, endDate, preferCache, multisig, filterType } = req.query;
+
+  if(isInvalidGenericParam(startDate) || isInvalidGenericParam(endDate) || isInvalidGenericParam(preferCache) || isInvalidGenericParam(multisig) || isInvalidGenericParam(filterType)){
+    res.status(400).json({ transactions: [], msg: 'invalid request' });
+    return;
+  }
+
   const _multisigFilter = filterType === 'multisig' ? multisig : '';
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
