@@ -405,6 +405,8 @@ export const DBR_ABI = ERC20_ABI.concat([
   "function replenishmentPriceBps() public view returns (uint)",
   "function operator() public view returns (address)",
   "event ForceReplenish(address indexed account, address indexed replenisher, address indexed market, uint deficit, uint replenishmentCost, uint replenisherReward)",
+  "event AddMinter(address minter)",
+  "event AddMarket(address market)",
 ]);
 
 export const F2_ORACLE_ABI = [
