@@ -82,7 +82,7 @@ export const Landing = ({ posts }: {
               <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
             </HStack>
             <HStack>
-              <Image borderRadius='50px' minH="20px" height="2vmax" src="/assets/v2/dbr.jpg" />
+              <Image borderRadius='50px' minH="20px" height="2vmax" src="/assets/v2/dbr.png" />
               <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
               <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
             </HStack>
