@@ -386,7 +386,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].DBR,
       name: 'DBR',
       symbol: 'DBR',
-      image: '/assets/v2/dbr.jpg',
+      image: '/assets/v2/dbr.png',
       decimals: 18,
       coingeckoId: 'dola-borrowing-right',
     },

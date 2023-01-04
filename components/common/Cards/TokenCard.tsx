@@ -78,7 +78,7 @@ export const DBRTokenCard = ({
 }) => <TokenCard
     name="DBR"
     subtitle="DOLA Borrowing Rights token"
-    bg="url('/assets/v2/dbr-512.jpg')"
+    bg="url('/assets/v2/dbr.png')"
     href={ clickable ? "/tokens/dbr" : undefined }
     description={
         <VStack w='full' alignItems="flex-start">
