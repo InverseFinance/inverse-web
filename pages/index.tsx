@@ -18,6 +18,9 @@ import LightPostPreview from '@app/blog/components/light-post-preview'
 import { useDBRPrice } from '@app/hooks/useDBR'
 import { Ecosystem } from '@app/components/Landing/Ecosystem'
 import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerSize2, slightlyBiggerSize2 } from '@app/variables/responsive'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
+import { MENUS } from '@app/variables/menus'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -30,7 +33,7 @@ const Stat = ({ value, name }: { value: number, name: string }) => {
 
 export const Landing = ({ posts }: {
   posts: any[]
-}) => {  
+}) => {
   const { totalSupply } = useDOLA();
   const { prices } = usePrices();
   const { price: dbrPrice } = useDBRPrice();
@@ -51,13 +54,31 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'TVL',
-      value: firmTotalTvl+tvl,
+      value: firmTotalTvl + tvl,
     },
     {
       name: 'DBR price',
       value: dbrPrice,
     },
   ]
+
+  const priceBar = <HStack spacing="2.5vw">
+    <HStack>
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.jpg" />
+      <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
+    </HStack>
+    <HStack>
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" />
+      <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
+    </HStack>
+    <HStack>
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" />
+      <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
+    </HStack>
+  </HStack>
 
   return (
     <Layout isLanding={true} pt="0" overflow="hidden">
@@ -73,24 +94,11 @@ export const Landing = ({ posts }: {
       }}>
         <source src="/assets/v2/landing/landing-anim.mp4" type="video/mp4" />
       </video>
-      <Flex px="8%" pb="0px" pt={{ base: 6, sm: '7vh' }} w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
-        <VStack w='full' alignItems={{ base: 'center', sm: 'flex-end' }} zIndex="1">
-          <HStack spacing="2.5vw">
-            <HStack>
-              <Image borderRadius='50px' minH="20px" height="2vmax" src="/assets/v2/dola.jpg" />
-              <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
-              <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
-            </HStack>
-            <HStack>
-              <Image borderRadius='50px' minH="20px" height="2vmax" src="/assets/v2/dbr.png" />
-              <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
-              <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
-            </HStack>
-            <HStack>
-              <Image borderRadius='50px' minH="20px" height="2vmax" src="/assets/v2/inv.jpg" />
-              <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
-              <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
-            </HStack>
+      <Flex px="8%" pb="0px" pt={{ base: 6, lg: '7vh' }} w="full" h="100vh" bgImage="/assets/v2/landing/hero.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column">
+        <VStack w='full' alignItems={{ base: 'center', sm: 'flex-end' }} position="relative" zIndex="10">
+          <HStack w='full' justify={{ base: 'space-between', sm: 'flex-end' }}>
+            {priceBar}
+            <BurgerMenu navItems={MENUS.nav} isLanding={true} filler={priceBar} />
           </HStack>
           <LandingNav />
         </VStack>
@@ -128,7 +136,7 @@ export const Landing = ({ posts }: {
                     Try Beta
                   </LandingSubmitButton>
                   <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
-                    Learn More
+                    Learn More <ExternalLinkIcon ml="1" />
                   </LandingOutlineButton>
                 </Stack>
               </VStack>
@@ -202,7 +210,7 @@ export const Landing = ({ posts }: {
               Try Beta
             </LandingSubmitButton>
             <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
-              Learn More
+              Learn More <ExternalLinkIcon ml="1" />
             </LandingOutlineButton>
           </Stack>
         </VStack>
@@ -225,8 +233,8 @@ export const Landing = ({ posts }: {
             <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w={{ base: '200px', '2xl': '300px' }} h={{ base: '200px', '2xl': '300px' }} />
             <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left={{ base: 0, sm: '-60px', '2xl': '0' }} />
           </VStack>
-          <VStack spacing="4" justify="center" alignItems="flex-start">
-            <VStack w='full' spacing="0" alignItems="flex-start">
+          <VStack spacing="6" justify="center" alignItems="flex-start">
+            <VStack w='full' spacing="1" alignItems="flex-start">
               <Text
                 fontWeight="extrabold"
                 color={`white`}
@@ -338,20 +346,20 @@ export const Landing = ({ posts }: {
             splash="horizontal-lr2"
             splashProps={{ w: '400px', h: '100px', left: '-20px', top: '-20px' }}
           >
-            Meet our security partners
+            Meet Our Security Partners
           </SplashedText>
-          <ResponsiveStack pt="4" justify="center" alignItems={{ base: 'center' }}>
-            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w={{ base: 'full', md: '60%' }} maxW="800px">
-              <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+          <ResponsiveStack spacing="8" pt="4" justify="center" alignItems={{ base: 'center' }}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w={{ base: 'full', md: '50%' }} maxW="800px">
+              <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
               </VStack>
-              <VStack as="a" href="https://hats.finance/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://hats.finance/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/hats.png" />
               </VStack>
-              <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" />
               </VStack>
-              <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
             </SimpleGrid>
@@ -363,7 +371,7 @@ export const Landing = ({ posts }: {
                 We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
               <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm/firm-security" target="_blank">
-                Learn More
+                Learn More <ExternalLinkIcon ml="1" />
               </LandingOutlineButton>
             </VStack>
           </ResponsiveStack>
@@ -468,7 +476,7 @@ export const Landing = ({ posts }: {
             <Image zIndex="0" src="/assets/v2/landing/building5.png" h='600px' mr="1" position="absolute" right="-16%" top="-120px" />
           </VStack>
           <ResponsiveStack pt="8" w='full' alignItems="center" justify="space-around" zIndex="1">
-            <VStack position="relative" spacing="0" w={{ md: '33%', '2xl': '25%' }}>              
+            <VStack position="relative" spacing="0" w={{ md: '33%', '2xl': '25%' }}>
               <SimpleCard zIndex="1" spacing="0" p="0" >
                 <video autoPlay muted loop style={{
                   width: '100%',
@@ -498,7 +506,7 @@ export const Landing = ({ posts }: {
               <Link fontSize={smallerSize} href="/claim-dbr" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
                 Airdrop Info >>
               </Link>
-              <ResponsiveStack justify={{ base: 'center', md: 'flex-start' }} direction={{ base: 'column', sm:'row', md: 'column', lg: 'row' }} w={{ base: 'full', lg: 'auto' }}>
+              <ResponsiveStack justify={{ base: 'center', md: 'flex-start' }} direction={{ base: 'column', sm: 'row', md: 'column', lg: 'row' }} w={{ base: 'full', lg: 'auto' }}>
                 <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://discord.gg/YpYJC7R5nv" target="_blank">
                   <Image src="/assets/socials/discord.svg" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
                   Join our Discord
@@ -518,16 +526,18 @@ export const Landing = ({ posts }: {
               fontSize={biggerSize}
               fontWeight="extrabold"
               splash="horizontal-rl"
-              splashProps={{ w: { base: '100px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit' }}
+              splashProps={{
+                w: { base: '300px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit'
+              }}
             >
-              Check Out The Latest Alpha...
+              The Latest Alpha...
             </SplashedText>
             <ResponsiveStack direction={{ base: 'column', sm: 'row' }} w={{ base: 'full', sm: 'auto' }}>
               <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://twitter.com/InverseFinance" target="_blank">
                 <Image src="/assets/socials/twitter.svg" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
                 Follow on Twitter
               </LandingSubmitButton>
-              <LandingSubmitButton w={{ base: 'full', md: 'auto'  }} href="/blog">
+              <LandingSubmitButton w={{ base: 'full', md: 'auto' }} href="/blog">
                 View Blog
               </LandingSubmitButton>
             </ResponsiveStack>
