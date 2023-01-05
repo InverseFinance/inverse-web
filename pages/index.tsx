@@ -18,6 +18,7 @@ import LightPostPreview from '@app/blog/components/light-post-preview'
 import { useDBRPrice } from '@app/hooks/useDBR'
 import { Ecosystem } from '@app/components/Landing/Ecosystem'
 import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerSize2, slightlyBiggerSize2 } from '@app/variables/responsive'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -128,7 +129,7 @@ export const Landing = ({ posts }: {
                     Try Beta
                   </LandingSubmitButton>
                   <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
-                    Learn More
+                    Learn More <ExternalLinkIcon ml="1" />
                   </LandingOutlineButton>
                 </Stack>
               </VStack>
@@ -202,7 +203,7 @@ export const Landing = ({ posts }: {
               Try Beta
             </LandingSubmitButton>
             <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
-              Learn More
+              Learn More <ExternalLinkIcon ml="1" />
             </LandingOutlineButton>
           </Stack>
         </VStack>
@@ -225,8 +226,8 @@ export const Landing = ({ posts }: {
             <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w={{ base: '200px', '2xl': '300px' }} h={{ base: '200px', '2xl': '300px' }} />
             <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left={{ base: 0, sm: '-60px', '2xl': '0' }} />
           </VStack>
-          <VStack spacing="4" justify="center" alignItems="flex-start">
-            <VStack w='full' spacing="0" alignItems="flex-start">
+          <VStack spacing="6" justify="center" alignItems="flex-start">
+            <VStack w='full' spacing="1" alignItems="flex-start">
               <Text
                 fontWeight="extrabold"
                 color={`white`}
@@ -338,20 +339,20 @@ export const Landing = ({ posts }: {
             splash="horizontal-lr2"
             splashProps={{ w: '400px', h: '100px', left: '-20px', top: '-20px' }}
           >
-            Meet our security partners
+            Meet Our Security Partners
           </SplashedText>
-          <ResponsiveStack pt="4" justify="center" alignItems={{ base: 'center' }}>
-            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w={{ base: 'full', md: '60%' }} maxW="800px">
-              <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+          <ResponsiveStack spacing="8" pt="4" justify="center" alignItems={{ base: 'center' }}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w={{ base: 'full', md: '50%' }} maxW="800px">
+              <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
               </VStack>
-              <VStack as="a" href="https://hats.finance/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://hats.finance/" target="_blank" w={{ base: 'full'}} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/hats.png" />
               </VStack>
-              <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" />
               </VStack>
-              <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full', md: '180px', lg: '250px' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
             </SimpleGrid>
@@ -363,7 +364,7 @@ export const Landing = ({ posts }: {
                 We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
               <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm/firm-security" target="_blank">
-                Learn More
+                Learn More <ExternalLinkIcon ml="1" />
               </LandingOutlineButton>
             </VStack>
           </ResponsiveStack>
@@ -518,9 +519,11 @@ export const Landing = ({ posts }: {
               fontSize={biggerSize}
               fontWeight="extrabold"
               splash="horizontal-rl"
-              splashProps={{ w: { base: '100px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit' }}
+              splashProps={{
+                w: { base: '300px', md: '400px' }, h: '40px', right: '-20px', left: { base: '0', md: 'inherit' }, bottom: '-10px', top: 'inherit'
+              }}
             >
-              Check Out The Latest Alpha...
+              The Latest Alpha...
             </SplashedText>
             <ResponsiveStack direction={{ base: 'column', sm: 'row' }} w={{ base: 'full', sm: 'auto' }}>
               <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://twitter.com/InverseFinance" target="_blank">

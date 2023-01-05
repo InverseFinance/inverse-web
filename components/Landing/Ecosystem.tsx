@@ -34,7 +34,7 @@ const EcoElement = ({
     label: string,
     href: string,
 }) => {
-    return <SimpleCard minW="200px" w='230px' px="8" py='10' maxH='120px'>
+    return <SimpleCard minW="200px" w='230px' px="8" py='10' maxH='120px' boxShadow="0 0 10px 1px #ccc">
         <HStack w='full' justify="center">
             <Image src={image} height='40px' />
             <Text color={lightTheme.colors.mainTextColor} fontWeight='bold' fontSize='16px'>
@@ -210,7 +210,7 @@ export const Ecosystem = () => {
       {data.map((tab, i) => <Tab key={tab.tab} {...tabProps} pl={i === 0 ? '0': 4}>{tab.tab}</Tab>)}
     </TabList>
   
-    <HStack cursor={ mouseDown ? 'grabbing' : 'default' } onMouseMove={mouseMove} onMouseDown={startDragging} onMouseUp={stopDragging} onMouseLeave={stopDragging} id="ecosystem-cards" spacing="6" pb="2" mt='8' {...responsiveProps}>
+    <HStack cursor={ mouseDown ? 'grabbing' : 'default' } onMouseMove={mouseMove} onMouseDown={startDragging} onMouseUp={stopDragging} onMouseLeave={stopDragging} id="ecosystem-cards" spacing="6" pb="2" pt="2" mt='8' {...responsiveProps}>
         {data[tab]?.elements.map(el => <EcoElement key={el.label} {...el} />)}
     </HStack>
   </Tabs>
