@@ -3,7 +3,7 @@ import { Link, LinkProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { SubmitButton } from "."
 import { lightTheme } from '@app/variables/theme'
-import { smallerSize } from '@app/variables/responsive'
+import { smallerSize2 } from '@app/variables/responsive'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { SmartButtonProps } from '@app/types'
 
@@ -38,7 +38,7 @@ export const LandingSubmitButton = (props: Props) => {
         py={py}
         // h='50px'
         fontWeight="600"
-        fontSize={smallerSize}
+        fontSize={smallerSize2}
         {...props} />
 }
 

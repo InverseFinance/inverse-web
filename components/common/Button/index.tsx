@@ -122,7 +122,7 @@ export const SubmitButton = (props: SmartButtonProps) => {
       boxShadow={BUTTON_BOX_SHADOW}
       _active={{ filter: 'brightness(1.3)' } }
       _focus={{}}
-      _hover={!props?.colorScheme ? { filter: 'brightness(1.25)' } : undefined}
+      _hover={!props?.colorScheme ? { filter: 'brightness(1.4)' } : undefined}
       {...props}
     />
   )
