@@ -38,6 +38,7 @@ export const LandingSubmitButton = (props: Props) => {
         py={py}
         // h='50px'
         fontWeight="600"
+        bgColor={lightTheme.colors.mainTextColor}
         fontSize={smallerSize2}
         {...props} />
 }
