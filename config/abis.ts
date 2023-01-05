@@ -424,6 +424,7 @@ export const F2_CONTROLLER_ABI = [
 ];
 
 export const F2_MARKET_ABI = [
+  "function nonces(address) public view returns (uint)",
   "function borrowController() public view returns (address)",
   "function collateral() public view returns (address)",
   "function collateralFactorBps() public view returns (uint)",
@@ -456,6 +457,10 @@ export const F2_MARKET_ABI = [
   "event Liquidate(address indexed account, address indexed liquidator, uint repaidDebt, uint liquidatorReward)",
   "event CreateEscrow(address indexed user, address escrow)",
 ];
+
+export const F2_HELPER_ABI = [
+  "function depositAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint v, uint r, uint s) public",
+]
 
 export const MERKLE_DROP_ABI = [
   "function verifyClaim(address, uint256, uint256, bytes32[]) public view returns (bool)",
