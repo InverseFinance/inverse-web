@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2repay, f2repayAndWithdraw, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2withdraw, getRiskColor } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -20,8 +20,9 @@ import Link from '@app/components/common/Link'
 import { getDBRBuyLink } from '@app/util/f2'
 import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
+import { roundFloorString } from '@app/util/misc'
 
-const { DOLA } = getNetworkConfigConstants();
+const { DOLA, F2_HELPER } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
 
@@ -93,13 +94,13 @@ export const F2CombinedForm = ({
     const handleAction = () => {
         if (!signer) { return }
         const action = MODES[mode]
-        if (['borrow'].includes(action) && isAutoDBR) {
-            alert('AlphaPhase: auto-buying DBR is not supported yet, disable the option to proceed :)');
-        }
+        // if (['borrow'].includes(action) && isAutoDBR) {
+        //     alert('AlphaPhase: auto-buying DBR is not supported yet, disable the option to proceed :)');
+        // }
         // else if (['withdraw', 'repay'].includes(action) && isAutoDBR) {
         //     alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
         // } 
-        else if (action === 'deposit') {
+        if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
         } else if (action === 'borrow') {
             return f2borrow(signer, market.address, parseUnits(debtAmount));
@@ -107,7 +108,17 @@ export const F2CombinedForm = ({
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
         } else if (action === 'repay') {
             return f2repay(signer, market.address, parseUnits(debtAmount));
-        } else if (action === 'd&b' && !isAutoDBR) {
+        } else if (action === 'd&b') {
+            if (isAutoDBR) {                
+                return f2depositAndBorrowHelper(
+                    signer,
+                    market.address,
+                    parseUnits(collateralAmount, market.underlying.decimals),
+                    parseUnits(debtAmount),
+                    parseUnits(roundFloorString(dbrCoverDebt*1.01)),
+                    duration
+                );
+            }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
             return f2repayAndWithdraw(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
@@ -163,7 +174,7 @@ export const F2CombinedForm = ({
                         <SimpleAmountForm
                             defaultAmount={collateralAmount}
                             address={market.collateral}
-                            destination={market.address}
+                            destination={isAutoDBR ? F2_HELPER : market.address}
                             signer={signer}
                             decimals={colDecimals}
                             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits].concat(isWithdrawOnlyCase ? [bnWithdrawalLimit] : [])}
@@ -232,7 +243,7 @@ export const F2CombinedForm = ({
                             <SimpleAmountForm
                                 defaultAmount={debtAmount}
                                 address={market.collateral}
-                                destination={market.address}
+                                destination={isAutoDBR ? F2_HELPER : market.address}
                                 signer={signer}
                                 decimals={18}
                                 maxAmountFrom={isDeposit ? [bnLeftToBorrow, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
@@ -337,7 +348,7 @@ export const F2CombinedForm = ({
         <SimpleAmountForm
             defaultAmount={collateralAmount}
             address={isRepayCase ? DOLA : market.collateral}
-            destination={market.address}
+            destination={isAutoDBR ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}

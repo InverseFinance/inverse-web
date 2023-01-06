@@ -27,6 +27,9 @@ const mainConfig = {
     dbr: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     f2Oracle: '0xaBe146CF570FD27ddD985895ce9B138a7110cce8',
     f2controller: '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D',
+    // f2helper: '0xaB837301d12cDc4b97f1E910FC56C9179894d9cf',
+    // f2helper: '0x0F527785e39B22911946feDf580d87a4E00465f0',
+    f2helper: '0x9C85258d9A00C01d00ded98065ea3840dF06f09c',
     f2markets: [
         {
             name: 'WETH',
@@ -34,7 +37,7 @@ const mainConfig = {
             address: '0x63Df5e23Db45a2066508318f172bA45B9CD37035',
             escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
             icon: '/assets/projects/Ether.png',
-            helper: '',
+            helper: true,    
         },
     ],
     feds: [

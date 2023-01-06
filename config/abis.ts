@@ -459,7 +459,8 @@ export const F2_MARKET_ABI = [
 ];
 
 export const F2_HELPER_ABI = [
-  "function depositAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint v, uint r, uint s) public",
+  "function depositAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  // "function depositAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint v, uint r, uint s) public",
 ]
 
 export const MERKLE_DROP_ABI = [
