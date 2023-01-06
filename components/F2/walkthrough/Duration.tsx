@@ -3,7 +3,7 @@ import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 import { preciseCommify } from "@app/util/misc"
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
+import { ChevronLeftIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
 import { useContext } from "react"
 import { F2DurationInput } from "../forms/F2DurationInput"
@@ -56,7 +56,7 @@ export const F2WalkthroughDuration = ({
             />
             {/* <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} /> */}
             <InfoMessage
-                alertProps={{ w: 'full' }}                
+                alertProps={{ w: 'full' }}
                 description={
                     !!market.helper ?
                         <VStack alignItems="flex-start">
@@ -74,9 +74,9 @@ export const F2WalkthroughDuration = ({
                                     :
                                     <Text fontWeight="bold" color="warning">You don't have any DBRs in your wallet.<br />Please have at least part of the DBR cost in your wallet to start with.</Text>
                             }
-                            {
-                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">Buy {dbrBalance > 0 ? ' more ' : ''} DBR</Link>
-                            }
+                            <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">
+                                Buy {dbrBalance > 0 ? ' more ' : ''} DBR <ExternalLinkIcon/>
+                            </Link>
                         </VStack>
                 }
             />
