@@ -451,6 +451,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
+  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName, themeStyles } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
@@ -544,7 +545,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   }, []);
 
   return (
-    <>
+    <VStack w='full' spacing="0">
       <WrongNetworkModal
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
@@ -561,6 +562,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         background="navBarBackground"
         backgroundColor="navBarBackgroundColor"
         borderColor="navBarBorderColor"
+        borderBottomWidth={1}
         p={4}
         justify="space-between"
         align="center"
@@ -642,8 +644,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         }
         <BurgerMenu active={active} activeSubmenu={activeSubmenu} userAddress={userAddress} nbNotif={nbNotif} navItems={NAV_ITEMS} />
       </Flex>
-      {isLargerThan && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement />}
-    </>
+      {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement />}
+    </VStack>
   )
 }
 
