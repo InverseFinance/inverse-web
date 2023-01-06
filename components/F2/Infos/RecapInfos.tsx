@@ -57,7 +57,7 @@ export const RecapInfos = ({
         } */}
         {
             !!collateralAmountNum && <TextInfo message="The more you deposit the more you can borrow">
-                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 2)} {market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
+                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 4)} {market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
             </TextInfo>
         }
         <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
