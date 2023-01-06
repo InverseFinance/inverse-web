@@ -22,7 +22,7 @@ export const F2PAGE = () => {
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>
-                <VStack pt="4" w='full' maxW="84rem">                    
+                <VStack pt={{ base: 4, md: 8, '2xl': 20 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>                    
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
                             <FirmBar />

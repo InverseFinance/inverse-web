@@ -38,6 +38,7 @@ type TableProps = {
   sortChevronProps?: IconProps
   colBoxProps?: BoxProps
   enableMobileRender?: boolean
+  mobileThreshold?: number
   mobileClickBtnLabel?: string
 }
 
@@ -120,10 +121,11 @@ export const Table = ({
   sortChevronProps,
   colBoxProps,
   enableMobileRender = false,
+  mobileThreshold = 821,
   mobileClickBtnLabel = 'View Details',
   ...props
 }: TableProps) => {
-  const [isLargerThan] = useMediaQuery('(min-width: 400px)');
+  const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState(defaultFilters);
