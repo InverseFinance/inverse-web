@@ -229,7 +229,7 @@ export const DbrBar = ({
                     </VStack>
                     <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
                         <Title>
-                            Daily Spend Rate
+                            Daily Spend
                         </Title>
                         <SubTitle color="secondaryTextColor">
                             {preciseCommify(-dailyDebtAccrual, 2, false)} DBR
