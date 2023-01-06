@@ -84,6 +84,9 @@ export const MarketBar = ({
             <Title>
                 DBR Price
             </Title>
+            {/* <Link color="secondaryTextColor" href={getDBRBuyLink()} isExternal target='_blank'>
+                <SubTitle color="inherit">{preciseCommify(dbrPrice, 4, true)}</SubTitle>
+            </Link> */}
             <SubTitle color="secondaryTextColor">
                 {preciseCommify(dbrPrice, 4, true)}
             </SubTitle>
@@ -93,23 +96,25 @@ export const MarketBar = ({
                 DBR Balance
             </Title>
 
-            <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={getDBRBuyLink()} isExternal target='_blank'>
-                {
-                    dbrBalance > 0 && <SubTitle color="inherit">
+            {
+                needTopUp ?
+                    <Link color={'error'} href={getDBRBuyLink()} isExternal target='_blank'>
+                        {
+                            dbrBalance === 0 && !debt && <SubTitle color="inherit">
+                                Buy now
+                            </SubTitle>
+                        }
+                        {
+                            needTopUp && <SubTitle color="inherit">
+                                {shortenNumber(dbrBalance, 2)} Top-up now
+                            </SubTitle>
+                        }
+                    </Link>
+                    :
+                    <SubTitle color="secondaryTextColor">
                         {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
                     </SubTitle>
-                }
-                {
-                    dbrBalance === 0 && !debt && <SubTitle color="inherit">
-                        Buy now
-                    </SubTitle>
-                }
-                {
-                    needTopUp && <SubTitle color="inherit">
-                        {shortenNumber(dbrBalance, 2)} Top-up now
-                    </SubTitle>
-                }
-            </Link>
+            }
         </VStack>
         {/* {
             debt > 0 && isLargerThan1000 && loanInfos
@@ -308,8 +313,8 @@ export const FirmBar = ({
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr.png`} />
-                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
-                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems:{ base: 'flex-end', md: 'flex-start' } }} />
+                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
