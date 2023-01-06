@@ -20,6 +20,7 @@ import Link from '@app/components/common/Link'
 import { getDBRBuyLink } from '@app/util/f2'
 import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -294,16 +295,21 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    isDeposit && <FormControl w='fit-content' display='flex' alignItems='center'>
-                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
-                            Auto-{isDeposit ? 'buy' : 'sell'} DBR?
-                        </FormLabel>
-                        <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
-                        {
-                            !market.helper && <Badge ml="2">
-                                Coming soon
-                            </Badge>
-                        }
+                    isDeposit && <FormControl w='full' display='flex' alignItems='center' justifyContent="space-between">
+                        <HStack alignItems='center'>
+                            <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+                                Auto-{isDeposit ? 'buy' : 'sell'} DBR?
+                            </FormLabel>
+                            <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+                            {
+                                !market.helper && <Badge ml="2">
+                                    Coming soon
+                                </Badge>
+                            }
+                        </HStack>
+                        <Link fontSize="14px" textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">
+                            Or buy DBR on open markets <ExternalLinkIcon/>
+                        </Link>
                     </FormControl>
                 }
             </VStack>
