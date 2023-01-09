@@ -71,7 +71,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                     let histoPrice = 1;
                     const histoCacheKey = `price-${cgId}-${histoDateDDMMYYYY}`;
                     const cachedHistoPrice = await getCacheFromRedis(histoCacheKey, false);
-                    
+
                     if (!cachedHistoPrice) {
                         const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`;
                         const res = await fetch(histoPriceUrl);
@@ -83,7 +83,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                             console.log('err fetching histo price');
                             console.log(histoPriceUrl);
                             console.log(e.sender_contract_ticker_symbol)
-                            console.log('-- Falling back on cached current price', cachedCurrentPrices[cgId])                     
+                            console.log('-- Falling back on cached current price', cachedCurrentPrices[cgId])
                             histoPrice = cachedCurrentPrices[cgId] || 1;
                         }
                     } else {
@@ -99,7 +99,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                 blockNumber: item.block_height,
                 timestamp,
                 profit: deduceBridgeFees(revenues, fed.chainId),
-                transactionHash: item.tx_hash,                
+                transactionHash: item.tx_hash,
             }
         }));
     }));
@@ -120,7 +120,10 @@ export default async function handler(req, res) {
 
         const cachedCurrentPrices = await getCacheFromRedis(pricesCacheKey, false);
 
-        const withOldAddresses = FEDS.filter(f => !!f.oldAddress);
+        let withOldAddresses: (Fed & { oldAddress: string })[] = [];
+        FEDS.filter(fed => !!fed.oldAddresses).forEach(fed => {
+            fed.oldAddresses?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldAddress }));
+        });
         const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
             [
                 getProfits(FEDS, TREASURY, cachedCurrentPrices),
