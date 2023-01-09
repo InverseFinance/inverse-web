@@ -11,7 +11,7 @@ import { ONE_DAY_SECS } from '@app/config/constants';
 
 const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
 
-export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.2'
+export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.3'
 export const BONDS_V2_IDS_API_CACHE_KEY = 'bonds-ids-v1.0.0'
 
 export default async function handler(req, res) {
@@ -58,6 +58,7 @@ export default async function handler(req, res) {
                 output: PAYOUT_TOKEN,
                 bondPrice,
                 inputUsdPrice: 1,
+                owner: marketInfos[i][0],
                 underlying: getToken(TOKENS, marketInfos[i][2]),
                 howToGetLink: 'https://inverse.finance/swap',
                 input: marketInfos[i][2],
