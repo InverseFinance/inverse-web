@@ -1,4 +1,4 @@
-import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester } from '@app/types'
+import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
@@ -70,7 +70,11 @@ const addFedInfosToEvent = (totalEvents, feds) => {
     })
 }
 
-export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: { msg: string, lastUpdate: number } } => {
+export const useFedHistory = (): SWR & {
+  totalEvents: FedEvent[],
+  fedPolicyMsg: { msg: string, lastUpdate: number },
+  feds: (Fed & { supply: number })[],
+} => {
   const { data, error } = useCustomSWR(`/api/transparency/fed-policy?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
@@ -78,6 +82,7 @@ export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: 
   return {
     totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
+    feds: data?.feds || [],
     isLoading: !error && !data,
     isError: error,
   }
@@ -161,7 +166,7 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
   }
 }
 
-export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number, preferCache = false, serverFilter = '' , serverMultisigFilter = ''): SWR & { transactions: any[] } => {
+export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number, preferCache = false, serverFilter = '', serverMultisigFilter = ''): SWR & { transactions: any[] } => {
   const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}&filterType=${serverFilter}&multisig=${serverMultisigFilter}`, (r) => fetcher(r, undefined, 60000))
 
   return {

@@ -56,6 +56,7 @@ export const getCacheFromRedis = async (
             }
         }
     } catch (e) {
+        console.log(cacheKey);
         console.log(e);
     }
     return undefined;
