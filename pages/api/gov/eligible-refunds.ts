@@ -19,6 +19,10 @@ const topics = {
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
+export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch2';
+export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-epoch2';
+export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
+
 const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   if (data === null) {
     return [];
@@ -87,7 +91,7 @@ export default async function handler(req, res) {
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
   const includesToday = todayUtc === endDate;
-  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}${filterType||''}${_multisigFilter||''}`;
+  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}${filterType || ''}${_multisigFilter || ''}`;
 
   try {
     let refundWhitelist = [
@@ -96,7 +100,7 @@ export default async function handler(req, res) {
     ];
 
     // refunded txs, manually submitted by signature in UI
-    const refunded = JSON.parse(await client.get('refunded-txs') || '[]');
+    const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
 
     const validCache = await getCacheFromRedis(cacheKey, includesToday, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
@@ -145,19 +149,19 @@ export default async function handler(req, res) {
           .filter(m => m.chainId === NetworkIds.mainnet && ((!!_multisigFilter && hasFilter && m.shortName === _multisigFilter) || !hasFilter || !_multisigFilter))
           .map(m => !hasFilter || filterType === 'multisig' ?
             getTxsOf(m.address, ['FedChair', 'TWG'].includes(m.shortName) ? deltaDays * 10 : deltaDays * 5)
-            : new Promise((r) => r({ data: {items:[]} })))
+            : new Promise((r) => r({ data: { items: [] } })))
       ),
-      !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: {items:[]} })),
-      !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: {items:[]} })),
+      !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
+      !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
       // gnosis proxy, for creation
-      !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: {items:[]} })),
+      !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
       // price feed update
-      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: {items:[]} })),
-      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: {items:[]} })),
+      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
+      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
       // Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
-      !hasFilter || filterType === 'custom' ? client.get('custom-txs-to-refund') : new Promise((r) => r('[]')),
+      !hasFilter || filterType === 'custom' ? client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) : new Promise((r) => r('[]')),
       client.get(`1-delegates`),
-      client.get('refunds-ignore-tx-hashes'),
+      client.get(REFUNDED_TXS_IGNORE_CACHE_KEY),
     ])
 
     const customTxs = JSON.parse((customTxsRes || '[]'));
