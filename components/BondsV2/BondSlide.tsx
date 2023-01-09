@@ -77,8 +77,7 @@ export const BondSlide = ({
         return bondV2Deposit(bond, library?.getSigner(), amount, maxSlippage, receiveAmount, account);
     }
 
-    const handleSuccess = () => {
-        console.log('success')
+    const handleSuccess = () => {        
         router.push('/bonds/purchased')
     }
 
@@ -169,7 +168,7 @@ export const BondSlide = ({
                             Current Max Available Payout for this bond <AnimatedInfoTooltip type="tooltip" message="The number of INVs available in this bonding contract" />:
                         </Text>
                         <Text fontWeight="bold" textAlign="right">
-                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.bondPrice, 2, true)})
+                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
                         </Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
