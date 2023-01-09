@@ -135,7 +135,7 @@ export const FedPolicyPage = () => {
                                 {
                                     detailsType === 'policy' ?
                                         <FedAreaChart
-                                            title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(chartDataPolicies[chartDataPolicies.length - 1].y, 2) : 0})`}
+                                            title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(Math.max(chartDataPolicies[chartDataPolicies.length - 1].y, 0), 2) : 0})`}
                                             fed={chosenFed}
                                             chartData={chartDataPolicies}
                                             domainYpadding={'auto'}
@@ -192,7 +192,7 @@ export const FedPolicyPage = () => {
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
                         supplies={
                             policyFeds.map((fed, fedIndex) => {
-                                return { supply: Math.min(fed.supply, 0), chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                                return { supply: Math.max(fed.supply, 0), chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
                             })
                         }
                     />
