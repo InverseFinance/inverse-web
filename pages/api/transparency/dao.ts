@@ -29,7 +29,7 @@ const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
 const cachePolKey = `dao-pols-v1.0.0`;
 const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
 const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
-const cacheDolaSupplies = `dao-dola-supplies-v1.0.0`;
+export const cacheDolaSupplies = `dao-dola-supplies-v1.0.0`;
 
 export default async function handler(req, res) {
 

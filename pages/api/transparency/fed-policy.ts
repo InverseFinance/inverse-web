@@ -6,6 +6,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, FedEvent, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getRedisClient } from '@app/util/redis';
+import { cacheDolaSupplies } from './dao';
 
 const client = getRedisClient()
 
@@ -139,7 +140,7 @@ export default async function handler(req, res) {
 
     const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
 
-    const dolaSupplies = (await getCacheFromRedis(cacheKey, false)) || {};
+    const dolaSupplies = (await getCacheFromRedis(cacheDolaSupplies, false)) || {};
 
     const resultData = {
       fedPolicyMsg,
