@@ -3,9 +3,10 @@ import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { FedEvent, NetworkIds } from '@app/types';
+import { Fed, FedEvent, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getRedisClient } from '@app/util/redis';
+import { cacheDolaSupplies } from './dao';
 
 const client = getRedisClient()
 
@@ -45,7 +46,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-policy-cache-v1.0.94`;
+  const cacheKey = `fed-policy-cache-v1.0.95`;
 
   try {
 
@@ -59,7 +60,10 @@ export default async function handler(req, res) {
       ...FEDS.map(fed => getEvents(fed.address, fed.abi, fed.chainId))
     ]);
     // add old Convex Fed to Convex Fed
-    const withOldAddresses = FEDS.filter(f => !!f.oldAddress);
+    let withOldAddresses: (Fed & { oldAddress: string })[] = [];
+    FEDS.filter(fed => !!fed.oldAddresses).forEach(fed => {
+      fed.oldAddresses?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldAddress }));
+    });
 
     const oldRawEvents = await Promise.all([
       ...withOldAddresses.map(fed => getEvents(fed.oldAddress, fed.abi, fed.chainId))
@@ -108,6 +112,8 @@ export default async function handler(req, res) {
 
     let _key = 0;
 
+    let accumulatedSupplies = {};
+
     const totalEvents = FEDS
       .map((fed, fedIndex) => {
         let accumulatedSupply = 0;
@@ -120,6 +126,7 @@ export default async function handler(req, res) {
             })
             .map(e => {
               accumulatedSupply += e.value;
+              accumulatedSupplies[fed.address] = accumulatedSupply;
               return { ...e, newSupply: accumulatedSupply }
             })
         }
@@ -127,16 +134,21 @@ export default async function handler(req, res) {
       .reduce((prev, curr) => prev.concat(curr.events), [] as FedEvent[])
       .sort((a, b) => a.timestamp - b.timestamp)
       .map(event => {
-        totalAccumulatedSupply += event.value
+        totalAccumulatedSupply += event.value        
         return { ...event, newTotalSupply: totalAccumulatedSupply, _key: _key++ }
       })
 
-    const fedPolicyMsg = JSON.parse(await client.get('fed-policy-msg') || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
+    const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
+
+    const dolaSupplies = (await getCacheFromRedis(cacheDolaSupplies, false)) || {};
 
     const resultData = {
       fedPolicyMsg,
       totalEvents,
-      feds: FEDS,
+      feds: FEDS.map(fed => {
+        return { ...fed, supply: accumulatedSupplies[fed.address] }
+      }),
+      dolaSupplies: dolaSupplies
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));
