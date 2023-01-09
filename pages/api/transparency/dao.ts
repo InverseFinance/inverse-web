@@ -29,11 +29,12 @@ const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
 const cachePolKey = `dao-pols-v1.0.0`;
 const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
 const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
+const cacheDolaSupplies = `dao-dola-supplies-v1.0.0`;
 
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.7`;
+  const cacheKey = `dao-cache-v1.2.8`;
 
   try {
 
@@ -57,9 +58,14 @@ export default async function handler(req, res) {
       const dolaOptimismContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.optimism]['DOLA'], ERC20_ABI, getProvider(NetworkIds.optimism));
 
       const invFtmContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.ftm]['INV'], ERC20_ABI, getProvider(NetworkIds.ftm));
-      dolaFtmTotalSupply = await dolaFtmContract.totalSupply();
-      dolaOptimismTotalSupply = await dolaOptimismContract.totalSupply();
-      invFtmTotalSupply = await invFtmContract.totalSupply();
+      const supplyData = await Promise.all([
+        dolaFtmContract.totalSupply(),
+        dolaOptimismContract.totalSupply(),
+        invFtmContract.totalSupply(),
+      ]);
+      dolaFtmTotalSupply = supplyData[0];
+      dolaOptimismTotalSupply = supplyData[1];
+      invFtmTotalSupply = supplyData[2];
     } catch (e) {
 
     }
@@ -263,7 +269,7 @@ export default async function handler(req, res) {
     const pols = polsCache || (await Promise.all([
       ...lps.map(lp => getPol(lp))
     ]))
-    if(!polsCache) {
+    if (!polsCache) {
       await redisSetWithTimestamp(cachePolKey, pols);
     }
 
@@ -296,6 +302,12 @@ export default async function handler(req, res) {
         chair: fedData[i][2],
       })),
     }
+
+    await redisSetWithTimestamp(cacheDolaSupplies, {
+      dolaTotalSupply: resultData.dolaTotalSupply,
+      dolaFtmSupply: resultData.fantom.dolaTotalSupply,
+      dolaOptimismSupply: resultData.optimism.dolaTotalSupply,
+    });
 
     await redisSetWithTimestamp(cacheKey, resultData);
 

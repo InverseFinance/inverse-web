@@ -74,6 +74,7 @@ export const useFedHistory = (): SWR & {
   totalEvents: FedEvent[],
   fedPolicyMsg: { msg: string, lastUpdate: number },
   feds: (Fed & { supply: number })[],
+  dolaSupplies: { dolaTotalSupply: number, dolaFtmSupply: number, dolaOptimismSupply: number },
 } => {
   const { data, error } = useCustomSWR(`/api/transparency/fed-policy?v=2`, fetcher)
 
@@ -83,6 +84,7 @@ export const useFedHistory = (): SWR & {
     totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
     feds: data?.feds || [],
+    dolaSupplies: data?.dolaSupplies || {},
     isLoading: !error && !data,
     isError: error,
   }

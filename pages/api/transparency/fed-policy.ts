@@ -45,7 +45,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-policy-cache-v1.0.94`;
+  const cacheKey = `fed-policy-cache-v1.0.95`;
 
   try {
 
@@ -139,12 +139,15 @@ export default async function handler(req, res) {
 
     const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
 
+    const dolaSupplies = (await getCacheFromRedis(cacheKey, false)) || {};
+
     const resultData = {
       fedPolicyMsg,
       totalEvents,
       feds: FEDS.map(fed => {
         return { ...fed, supply: accumulatedSupplies[fed.address] }
       }),
+      dolaSupplies: dolaSupplies
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));

@@ -7,7 +7,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO, useFedHistory, useFedPolicyChartData, useFedPolicyMsg, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
+import { useFedHistory, useFedPolicyChartData, useFedPolicyMsg, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Container } from '@app/components/common/Container';
@@ -26,22 +26,19 @@ import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
 import { useEffect } from 'react';
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
-import { useAppTheme } from '@app/hooks/useAppTheme'
 
-const { DOLA, TOKENS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
     const { account, library } = useWeb3React<Web3Provider>();
-    const { query } = useRouter();
-    const { themeStyles } = useAppTheme();
+    const { query } = useRouter();    
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
-    const userAddress = (query?.viewAddress as string) || account;
-    const { dolaTotalSupply, fantom, feds, optimism } = useDAO();
+    const userAddress = (query?.viewAddress as string) || account;    
     const [msgUpdates, setMsgUpdates] = useState(0)
 
-    const { totalEvents: policyEvents, isLoading: isPolicyLoading } = useFedHistory();
+    const { totalEvents: policyEvents, isLoading: isPolicyLoading, feds: policyFeds, dolaSupplies } = useFedHistory();
     const { totalEvents: profitsEvents, totalRevenues, isLoading: isProfitsLoading } = useFedRevenues();
 
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
@@ -105,7 +102,6 @@ export const FedPolicyPage = () => {
     }
 
     const canEditFedPolicy = userAddress === DEPLOYER;
-
     return (
         <Layout>
             <Head>
@@ -187,19 +183,23 @@ export const FedPolicyPage = () => {
                         }
                     />
                     <SupplyInfos token={TOKENS[DOLA]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
-                        { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-                        { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
+                        { chainId: NetworkIds.mainnet, supply: (dolaSupplies?.dolaTotalSupply - dolaSupplies?.dolaFtmSupply - dolaSupplies?.dolaOptimismSupply)||0 },
+                        { chainId: NetworkIds.ftm, supply: dolaSupplies?.dolaFtmSupply || 0 },
+                        { chainId: NetworkIds.optimism, supply: dolaSupplies?.dolaOptimismSupply || 0 },
                     ]}
                     />
                     <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-                        supplies={feds}
+                        supplies={
+                            policyFeds.map((fed, fedIndex) => {
+                                return { supply: fed.supply, chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                            })
+                        }
                     />
                     <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
                         supplies={
-                            feds.map((fed, fedIndex) => {
+                            FEDS.map((fed, fedIndex) => {
                                 return { supply: totalRevenues[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
                             })
                         }
