@@ -6,6 +6,7 @@ import { verifyMessage } from 'ethers/lib/utils';
 import { SIGN_MSG } from '@app/config/constants';
 import { Contract } from 'ethers';
 import { MULTISIG_ABI } from '@app/config/abis';
+import { REFUNDED_TXS_CACHE_KEY, REFUNDED_TXS_CUSTOM_CACHE_KEY, REFUNDED_TXS_IGNORE_CACHE_KEY } from './eligible-refunds';
 
 const client = getRedisClient();
 
@@ -47,8 +48,8 @@ export default async function handler(req, res) {
 
                 const signedAt = Date.now();
 
-                refunded = JSON.parse(await client.get('refunded-txs') || '[]');
-                const ignoredTxHashes = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
+                refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
+                const ignoredTxHashes = JSON.parse(await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY) || '[]');
                 refunds.forEach(r => {
                     const existingIndex = refunded.findIndex(past => past.txHash === r.txHash);
                     const refund = { ...r, refunded: !!refundTxHash, signedAt, signedBy: sigAddress, refundTxHash };
@@ -62,14 +63,14 @@ export default async function handler(req, res) {
                 });
 
                 await Promise.all([
-                    client.set('refunded-txs', JSON.stringify(refunded)),
-                    client.set('refunds-ignore-tx-hashes', JSON.stringify(ignoredTxHashes)),
+                    client.set(REFUNDED_TXS_CACHE_KEY, JSON.stringify(refunded)),
+                    client.set(REFUNDED_TXS_IGNORE_CACHE_KEY, JSON.stringify(ignoredTxHashes)),
                 ]);
 
                 if(!refundTxHash) {
                     // remove previously added custom txs if ignored now
-                    const customTxs = JSON.parse(await client.get('custom-txs-to-refund') || '[]');
-                    await client.set('custom-txs-to-refund', JSON.stringify(customTxs.filter(t => !ignoredTxHashes.includes(t.tx_hash)))); 
+                    const customTxs = JSON.parse(await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) || '[]');
+                    await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs.filter(t => !ignoredTxHashes.includes(t.tx_hash)))); 
                 }
 
                 res.status(200).json({
