@@ -517,6 +517,7 @@ export type BondV2 = {
   underlying:      Token;
   howToGetLink:    string;
   input:           string;
+  owner:           string;
   teller:          string;
   capacityInQuote: boolean;
   capacity:        number;

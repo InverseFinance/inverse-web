@@ -1,4 +1,4 @@
-import { BondV2, BondV2WithRoi } from '@app/types'
+import { BondV2WithRoi } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { Divider, Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
@@ -26,12 +26,8 @@ import { bondV2Deposit } from '@app/util/bonds'
 import { InfoMessage, WarningMessage } from '../common/Messages'
 import moment from 'moment';
 import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds'
-import { getNetworkConfigConstants } from '@app/util/networks'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
-
-const { MULTISIGS } = getNetworkConfigConstants();
-const PC = MULTISIGS.find(m => m.shortName === 'PC')!;
 
 export const BondSlide = ({
     isOpen,
@@ -57,7 +53,7 @@ export const BondSlide = ({
     const [amount, setAmount] = useState('');
     const [maxSlippage, setMaxSlippage] = useState(1);
     const { approvals } = useAllowances([bond.input], bond.teller);
-    const { approvals: pcApproval } = useAllowances([bond.output], bond.teller, PC.address);
+    const { approvals: pcApproval } = useAllowances([bond.output], bond.teller, bond.owner);
     const [isApproved, setIsApproved] = useState(hasAllowance(approvals, bond.input));
     const { payout: receiveAmount } = useBondV2PayoutFor(bond.bondContract, bond.id, bond.underlying.decimals, amount, REWARD_TOKEN!.decimals, bond.referrer);
     const pcApproved = pcApproval && pcApproval[bond.output] ? getBnToNumber(pcApproval[bond.output]) : 0;
