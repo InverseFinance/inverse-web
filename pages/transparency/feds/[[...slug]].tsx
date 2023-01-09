@@ -192,7 +192,7 @@ export const FedPolicyPage = () => {
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
                         supplies={
                             policyFeds.map((fed, fedIndex) => {
-                                return { supply: fed.supply, chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                                return { supply: Math.min(fed.supply, 0), chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
                             })
                         }
                     />
