@@ -19,6 +19,7 @@ const topics = {
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
+export const ELIGIBLE_TXS = 'eligible-refunds-txs';
 export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch2';
 export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-epoch2';
 export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
