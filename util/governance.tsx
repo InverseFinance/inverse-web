@@ -522,7 +522,7 @@ export const triggerProposalUpdate = async (
     try {
         let _sig = sig || await signer.signMessage(SIGN_MSG)
 
-        const rawResponse = await fetch(`/api/cron-proposals`, {
+        const rawResponse = await fetch(`/api/proposals`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
