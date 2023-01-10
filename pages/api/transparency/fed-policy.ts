@@ -126,6 +126,10 @@ export default async function handler(req, res) {
             })
             .map(e => {
               accumulatedSupply += e.value;
+              // case where profits where made => can contract more than what was expanded in the first place
+              if(accumulatedSupply < 0) {
+                accumulatedSupply = 0;
+              }
               accumulatedSupplies[fed.address] = accumulatedSupply;
               return { ...e, newSupply: accumulatedSupply }
             })
