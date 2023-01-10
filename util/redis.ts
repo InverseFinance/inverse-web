@@ -50,11 +50,13 @@ export const getCacheFromRedis = async (
         let cache, cacheObj;
         if (!useChunks) {
             cache = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`);
+            if(!cache) { return undefined }
             cacheObj = JSON.parse(cache);
         } else {
             const meta = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`);
-            const metaObj = JSON.parse(meta);
-            const arr = [...Array(metaObj.nbChunks).keys()];
+            if(!meta) { return undefined }
+            const metaObj = JSON.parse(meta);            
+            const arr = [...Array(metaObj.nbChunks).keys()];            
             const chunks = await Promise.all(
                 arr.map((v, i) => {
                     return redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunk-${i}`)

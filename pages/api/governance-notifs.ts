@@ -7,7 +7,7 @@ const client = getRedisClient();
 
 export default async function handler(req, res) {
   try {
-    const data: any = await getCacheFromRedis(proposalsCacheKey, false) || { proposals: [] };
+    const data: any = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
     
     if (!data) {
       res.status(404).json({ success: false });

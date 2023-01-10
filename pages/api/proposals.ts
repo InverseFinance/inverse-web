@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     const sigAddress = checkDraftRights(sig);
 
-    const validCache = await getCacheFromRedis(proposalsCacheKey, !sigAddress, 20);
+    const validCache = await getCacheFromRedis(proposalsCacheKey, !sigAddress, 20, true);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
       success: true,
     }
 
-    await redisSetWithTimestamp(proposalsCacheKey, result);
+    await redisSetWithTimestamp(proposalsCacheKey, result, true);
 
     res.status(200).json(result);
   } catch (err) {
