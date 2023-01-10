@@ -22,7 +22,7 @@ const topics = {
     "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
-const formatResults = (covalentResponse: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
+const formatResults = (covalentResponse: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[], multisig?: string): RefundableTransaction[] => {
     if (!covalentResponse || covalentResponse?.data === null) {
         return [{ ...covalentResponse }];
     }
@@ -53,6 +53,7 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist: str
                 contractName: isContractCreation ? log0.sender_name : undefined,
                 chainId: chain_id,
                 type: isFed ? 'fed' : type,
+                multisig,
                 refunded: false,
                 block: item.block_height,
             }
@@ -61,31 +62,6 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist: str
             voteCastWhitelist.includes(item.from.toLowerCase())
             :
             type === 'custom' || refundWhitelist.includes(item.from.toLowerCase())
-        )
-}
-
-const filterTxs = (covalentResponse: any, refundWhitelist: string[], voteCastWhitelist?: string[]) => {
-    if (!covalentResponse || covalentResponse?.data === null) {
-        return [{ ...covalentResponse }];
-    }
-    const { items } = covalentResponse?.data;
-    return items
-        .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
-        .map(item => {
-            const decodedArr = item.log_events?.map(e => e.decoded).filter(d => !!d);
-            const decoded = decodedArr[0];
-            const name = decoded?.name || 'Unknown'
-
-            return {
-                ...item,
-                from: item.from_address,
-                name,
-            }
-        })
-        .filter(item => item.name === 'VoteCast' && voteCastWhitelist ?
-            voteCastWhitelist.includes(item.from.toLowerCase())
-            :
-            refundWhitelist.includes(item.from.toLowerCase())
         )
 }
 
@@ -160,7 +136,7 @@ export default async function handler(req, res) {
             .concat(formatResults(oracleCurrent, 'oracle', refundWhitelist))
 
         multisigsRes.forEach(r => {
-            cronJobItems = cronJobItems.concat(formatResults(r, 'multisig', refundWhitelist))
+            cronJobItems = cronJobItems.concat(formatResults(r, 'multisig', refundWhitelist, [], multisig))
         });
 
         const error = cronJobItems.find(item => item.error);

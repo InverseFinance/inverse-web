@@ -63,8 +63,8 @@ export const EligibleRefunds = () => {
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
     const [subfilters, setSubfilters] = useState({});
-    const [serverFilter, setServerFilter] = useState('multisig');
-    const [serverMultisigFilter, setServerMultisigFilter] = useState('TWG');
+    const [serverFilter, setServerFilter] = useState('');
+    const [serverMultisigFilter, setServerMultisigFilter] = useState('');
     const [chosenServerFilter, setChosenServerFilter] = useState(serverFilter);
     const [chosenServerMultisigFilter, setChosenServerMultisigFilter] = useState(serverMultisigFilter);
 

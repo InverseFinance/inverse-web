@@ -12,6 +12,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xe1C67007D1074bcAcC577DD946661F0CB9053A19': 'XinvVestorFactory',
     '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'DAI',
     '0x7e2a6e9395df9f01c00bc3af095068b454fd896e': 'InvPriceFeed',
+    '0x40A2aCCbd92BCA938b02010E17A5b8929b49130D': 'SafeMultiSend',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'Fed FiRM',
