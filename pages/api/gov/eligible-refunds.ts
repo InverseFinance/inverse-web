@@ -70,7 +70,7 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
   return txs;
 }
 
-export default async function handler(req, res) {  
+export default async function handler(req, res) {
   // UTC
   const { startDate, endDate, preferCache, multisig, filterType } = req.query;
 
@@ -83,14 +83,17 @@ export default async function handler(req, res) {
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
   const includesToday = todayUtc === endDate;
-  const cacheKey = `refunds-v1.0.4-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
+  const cacheKey = `refunds-v1.0.5-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       // refunded txs, manually submitted by signature in UI
       const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
-      res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
+      res.status(200).json({
+        transactions: addRefundedData(validCache.transactions, refunded),
+        cachedMostRecentTimestamp: validCache.cachedMostRecentTimestamp,
+      });
       return
     }
 
@@ -124,6 +127,7 @@ export default async function handler(req, res) {
 
     const cached = (await getCacheFromRedis(ELIGIBLE_TXS, false, 0, true)) || { formattedTxs: [] };
     const cachedTxs = cached?.formattedTxs || [];
+    const cachedMostRecentTimestamp = cached.timestamp;
 
     let totalItems = formatResults({ items: customTxs, chainId: '1' }, 'custom')
       .concat(cachedTxs)
@@ -136,7 +140,7 @@ export default async function handler(req, res) {
         && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
         && !ignoredTxs.includes(t.txHash)
         && t.name !== 'Bonded'
-        && (hasFilter ? t.type === filterType : true)
+        && (hasFilter ? t.type === filterType || (t.type === 'fed' && filterType === 'multisig') : true)
         && (hasFilter && multisig ? t.multisig === multisig : true)
       );
 
@@ -145,6 +149,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       transactions: addRefundedData(totalItems, refunded),
+      cachedMostRecentTimestamp,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
