@@ -168,11 +168,19 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
   }
 }
 
-export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number, preferCache = false, serverFilter = '', serverMultisigFilter = ''): SWR & { transactions: any[] } => {
-  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}&filterType=${serverFilter}&multisig=${serverMultisigFilter}`, (r) => fetcher(r, undefined, 60000))
+export const useEligibleRefunds = (
+  startDate: string,
+  endDate: string,
+  reloadIndex: number,
+  preferCache = false,
+  serverFilter = '',
+  serverMultisigFilter = '',
+): SWR & { transactions: any[], cachedMostRecentTimestamp: number } => {
+  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?v=2&preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}&filterType=${serverFilter}&multisig=${serverMultisigFilter}`, (r) => fetcher(r, undefined, 60000))
 
   return {
     transactions: data?.transactions || [],
+    cachedMostRecentTimestamp: data?.cachedMostRecentTimestamp || 0,
     isLoading: !data && !error,
     isError: !!error,
   }

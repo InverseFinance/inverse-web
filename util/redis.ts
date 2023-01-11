@@ -44,12 +44,29 @@ export const getCacheFromRedis = async (
     cacheKey: string,
     checkForTime = true,
     cacheTime = 1800,
+    useChunks = false,
 ) => {
     try {
-        const cache = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`);
+        let cache, cacheObj;
+        if (!useChunks) {
+            cache = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`);
+            if(!cache) { return undefined }
+            cacheObj = JSON.parse(cache);
+        } else {
+            const meta = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`);
+            if(!meta) { return undefined }
+            const metaObj = JSON.parse(meta);            
+            const arr = [...Array(metaObj.nbChunks).keys()];            
+            const chunks = await Promise.all(
+                arr.map((v, i) => {
+                    return redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunk-${i}`)
+                })
+            )
+            cache = chunks.join('');
+            cacheObj = { ...metaObj, ...JSON.parse(cache) }
+        }
         if (cache) {
-            const now = Date.now();
-            const cacheObj = JSON.parse(cache);
+            const now = Date.now();            
             // we don't use redis.expire because it deletes the key when expired, we want to be able to get data in case of error
             if (!checkForTime || ((now - cacheObj?.timestamp) / 1000 < cacheTime)) {
                 return cacheObj.data;
@@ -62,9 +79,21 @@ export const getCacheFromRedis = async (
     return undefined;
 }
 
-export const redisSetWithTimestamp = async (key: string, data: any) => {
+export const redisSetWithTimestamp = async (key: string, data: any, useChunks = false) => {
     try {
-        return await redisClient.set(`${key}-version-${CACHE_VERSION}`, JSON.stringify({ timestamp: Date.now(), data }));
+        if (!useChunks) {
+            const dataString = JSON.stringify({ timestamp: Date.now(), data });
+            return await redisClient.set(`${key}-version-${CACHE_VERSION}`, dataString);
+        }
+        const dataString = JSON.stringify({ data });
+        // 200k chars
+        const nbChunks = Math.ceil(dataString.length / 200000);
+        const dataStringMeta = JSON.stringify({ timestamp: Date.now(), nbChunks });
+        const stringChunks = dataString.match(/.{1,200000}/g) ?? [];
+        return await Promise.all([
+            redisClient.set(`${key}-version-${CACHE_VERSION}-chunks-meta`, dataStringMeta),
+            ...stringChunks.map((chunk, i) => redisClient.set(`${key}-version-${CACHE_VERSION}-chunk-${i}`, chunk))
+        ]);
     } catch (e) {
         console.log(e);
         return

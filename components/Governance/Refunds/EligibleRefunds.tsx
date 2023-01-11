@@ -22,6 +22,7 @@ import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
 import { ONE_DAY_MS } from '@app/config/constants';
 import { getNetworkConfigConstants } from '@app/util/networks';
+import moment from 'moment';
 
 const { MULTISIGS } = getNetworkConfigConstants();
 
@@ -63,12 +64,12 @@ export const EligibleRefunds = () => {
     const [chosenEndDate, setChosenEndDate] = useState(endDate);
     const [reloadIndex, setReloadIndex] = useState(0);
     const [subfilters, setSubfilters] = useState({});
-    const [serverFilter, setServerFilter] = useState('multisig');
-    const [serverMultisigFilter, setServerMultisigFilter] = useState('TWG');
+    const [serverFilter, setServerFilter] = useState('');
+    const [serverMultisigFilter, setServerMultisigFilter] = useState('');
     const [chosenServerFilter, setChosenServerFilter] = useState(serverFilter);
     const [chosenServerMultisigFilter, setChosenServerMultisigFilter] = useState(serverMultisigFilter);
 
-    const { transactions: items, isLoading } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex, false, chosenServerFilter, chosenServerMultisigFilter);
+    const { transactions: items, isLoading, cachedMostRecentTimestamp } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex, false, chosenServerFilter, chosenServerMultisigFilter);
 
     useEffect(() => {
         setTableItems(refundFilter === 'all' ? eligibleTxs : eligibleTxs.filter(t => t.refunded === (refundFilter === 'refunded')));
@@ -300,32 +301,41 @@ export const EligibleRefunds = () => {
                     <SkeletonBlob />
                     :
                     <VStack spacing="4" w='full' alignItems="space-between">
-                        <HStack borderBottom="1px solid #ccc" pb="4">
-                            <Text>Server-side filters:</Text>
-                            <Select value={serverFilter} minW='fit-content' maxW='100px' onChange={(e) => handleServerFilter(e.target.value)}>
-                                <option value=''>All types</option>
-                                <option value='multisig'>Multisig</option>
-                                <option value='gov'>Governance</option>
-                                <option value='oracles'>INV Oracles</option>
-                                <option value='multidelegator'>INV Multidelegator</option>
-                                <option value='gnosis'>Gnosis proxy</option>
-                                <option value='custom'>Custom txs</option>
-                            </Select>
-                            {
-                                serverFilter === 'multisig' &&
-                                <Select value={serverMultisigFilter}
-                                    minW='fit-content'
-                                    maxW='100px'
-                                    onChange={(e) => setServerMultisigFilter(e.target.value)}>
-                                    <option value="">All eligible multisigs</option>
-                                    {
-                                        MULTISIGS
-                                            .filter(m => m.chainId === NetworkIds.mainnet)
-                                            .map(m => <option key={m.shortName} value={m.shortName}>{m.shortName}</option>)
-                                    }
+                        <HStack borderBottom="1px solid #ccc" pb="4" justify="space-between">
+                            <HStack w='700px'>
+                                <Text>Server-side filters:</Text>
+                                <Select value={serverFilter} minW='fit-content' maxW='100px' onChange={(e) => handleServerFilter(e.target.value)}>
+                                    <option value=''>All types</option>
+                                    <option value='multisig'>Multisig</option>
+                                    <option value='gov'>Governance</option>
+                                    <option value='oracles'>INV Oracles</option>
+                                    <option value='multidelegator'>INV Multidelegator</option>
+                                    <option value='gnosis'>Gnosis proxy</option>
+                                    <option value='custom'>Custom txs</option>
                                 </Select>
-                            }
-                            <InfoMessage description="After choosing server filters, click the reload btn" />
+                                {
+                                    serverFilter === 'multisig' &&
+                                    <Select value={serverMultisigFilter}
+                                        minW='fit-content'
+                                        maxW='100px'
+                                        onChange={(e) => setServerMultisigFilter(e.target.value)}>
+                                        <option value="">All eligible multisigs</option>
+                                        {
+                                            MULTISIGS
+                                                .filter(m => m.chainId === NetworkIds.mainnet)
+                                                .map(m => <option key={m.shortName} value={m.shortName}>{m.shortName}</option>)
+                                        }
+                                    </Select>
+                                }
+                            </HStack>
+                            <HStack w='650px'>
+                                <InfoMessage alertProps={{ fontSize: '12px' }} description="After choosing server filters or dates, click the reload icon" />
+                                <VStack fontSize="12px" alignItems="flex-start">
+                                    <Text>Overall freshest data is from:</Text>
+                                    <Text>{cachedMostRecentTimestamp ? moment(cachedMostRecentTimestamp).fromNow() : '-'}</Text>
+                                </VStack>
+
+                            </HStack>
                         </HStack>
                         <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} handleExportCsv={handleExportCsv} />
                         <Stack

@@ -1,16 +1,9 @@
 import 'source-map-support'
-import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, getRedisClient, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds, RefundableTransaction } from '@app/types';
-import { getTxsOf } from '@app/util/covalent';
-import { DRAFT_WHITELIST, ONE_DAY_MS } from '@app/config/constants';
-import { CUSTOM_NAMED_ADDRESSES } from '@app/variables/names';
+import { RefundableTransaction } from '@app/types';
+import { ONE_DAY_MS } from '@app/config/constants';
 import { formatEther } from '@ethersproject/units';
-import { Contract } from 'ethers';
-import { MULTISIG_ABI, ORACLE_ABI } from '@app/config/abis';
-import { getProvider } from '@app/util/providers';
 import { capitalize, timestampToUTC, uniqueBy } from '@app/util/misc';
-import { cacheMultisigMetaKey } from '../transparency/dao';
 
 const client = getRedisClient();
 
@@ -19,11 +12,12 @@ const topics = {
   "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
+export const ELIGIBLE_TXS = 'eligible-refunds-txs';
 export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch2';
 export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-epoch2';
 export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
 
-const formatResults = (data: any, type: string, refundWhitelist: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
+const formatResults = (data: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   if (data === null) {
     return [];
   }
@@ -77,12 +71,10 @@ const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
 }
 
 export default async function handler(req, res) {
-
-  const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, FEDS, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
   // UTC
   const { startDate, endDate, preferCache, multisig, filterType } = req.query;
 
-  if(isInvalidGenericParam(startDate) || isInvalidGenericParam(endDate) || isInvalidGenericParam(preferCache) || isInvalidGenericParam(multisig) || isInvalidGenericParam(filterType)){
+  if (isInvalidGenericParam(startDate) || isInvalidGenericParam(endDate) || isInvalidGenericParam(preferCache) || isInvalidGenericParam(multisig) || isInvalidGenericParam(filterType)) {
     res.status(400).json({ transactions: [], msg: 'invalid request' });
     return;
   }
@@ -91,29 +83,19 @@ export default async function handler(req, res) {
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
   const includesToday = todayUtc === endDate;
-  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}${filterType || ''}${_multisigFilter || ''}`;
+  const cacheKey = `refunds-v1.0.5-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
 
   try {
-    let refundWhitelist = [
-      ...DRAFT_WHITELIST,
-      ...Object.keys(CUSTOM_NAMED_ADDRESSES),
-    ];
-
-    // refunded txs, manually submitted by signature in UI
-    const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
-
-    const validCache = await getCacheFromRedis(cacheKey, includesToday, includesToday && preferCache !== 'true' ? 30 : 3600);
+    const validCache = await getCacheFromRedis(cacheKey, true, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
-      res.status(200).json({ transactions: addRefundedData(validCache.transactions, refunded) });
+      // refunded txs, manually submitted by signature in UI
+      const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
+      res.status(200).json({
+        transactions: addRefundedData(validCache.transactions, refunded),
+        cachedMostRecentTimestamp: validCache.cachedMostRecentTimestamp,
+      });
       return
     }
-
-    const provider = getProvider(NetworkIds.mainnet);
-
-    const xinvFeed = await new Contract(ORACLE, ORACLE_ABI, provider).feeds(XINV);
-    const xinvKeeperAddress = await new Contract(xinvFeed, ['function oracle() public view returns (address)'], provider).oracle();
-    // old one, then we add the current one
-    const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
 
     const [startYear, startMonth, startDay] = (startDate || '').split('-');
     const startTimestamp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(startDate) ? Date.UTC(+startYear, +startMonth - 1, +startDay) : Date.UTC(2022, 4, 10);
@@ -130,67 +112,25 @@ export default async function handler(req, res) {
 
     const hasFilter = !!filterType;
 
-    const [multisigsOwners] = (await getCacheFromRedis(cacheMultisigMetaKey, false)) || [[]];
-
     const [
-      multisigsRes,
-      gov,
-      multidelegator,
-      gno,
-      oracleOld,
-      oracleCurrent,
-      // feds,
       customTxsRes,
-      delegatesRes,
       ignoreTxsRes,
+      refundedRes,
     ] = await Promise.all([
-      Promise.all(
-        MULTISIGS
-          .filter(m => m.chainId === NetworkIds.mainnet && ((!!_multisigFilter && hasFilter && m.shortName === _multisigFilter) || !hasFilter || !_multisigFilter))
-          .map(m => !hasFilter || filterType === 'multisig' ?
-            getTxsOf(m.address, ['FedChair', 'TWG'].includes(m.shortName) ? deltaDays * 10 : deltaDays * 5)
-            : new Promise((r) => r({ data: { items: [] } })))
-      ),
-      !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
-      !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
-      // gnosis proxy, for creation
-      !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
-      // price feed update
-      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
-      !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
-      // Promise.all(FEDS.filter(m => m.chainId === NetworkIds.mainnet).map(f => getTxsOf(f.address, pageSize))),
       !hasFilter || filterType === 'custom' ? client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) : new Promise((r) => r('[]')),
-      client.get(`1-delegates`),
       client.get(REFUNDED_TXS_IGNORE_CACHE_KEY),
-    ])
+      client.get(REFUNDED_TXS_CACHE_KEY),
+    ]);
 
     const customTxs = JSON.parse((customTxsRes || '[]'));
+    const refunded = JSON.parse((refundedRes || '[]'));
 
-    const delegates = JSON.parse(delegatesRes).data;
-    const eligibleVoteCasters = Object.values(delegates)
-      .map(val => val)
-      .filter(del => {
-        return del.votingPower >= 500 && del.delegators.length > 2;
-      }).map(del => del.address.toLowerCase());
+    const cached = (await getCacheFromRedis(ELIGIBLE_TXS, false, 0, true)) || { formattedTxs: [] };
+    const cachedTxs = cached?.formattedTxs || [];
+    const cachedMostRecentTimestamp = cached.timestamp;
 
-    multisigsOwners.forEach(multisigOwners => {
-      refundWhitelist = refundWhitelist.concat(multisigOwners);
-    });
-    refundWhitelist = refundWhitelist.map(a => a.toLowerCase());
-
-    let totalItems = formatResults(gov.data, 'governance', refundWhitelist, eligibleVoteCasters)
-      .concat(formatResults(multidelegator.data, 'multidelegator', refundWhitelist))
-      .concat(formatResults(gno.data, 'gnosisproxy', refundWhitelist))
-      .concat(formatResults(oracleOld.data, 'oracle', refundWhitelist))
-      .concat(formatResults(oracleCurrent.data, 'oracle', refundWhitelist))
-      .concat(formatResults({ items: customTxs, chainId: '1' }, 'custom', refundWhitelist))
-
-    multisigsRes.forEach(r => {
-      totalItems = totalItems.concat(formatResults(r.data, 'multisig', refundWhitelist))
-    })
-    // feds.forEach(r => {
-    //   totalItems = totalItems.concat(formatResults(r.data, 'fed', refundWhitelist))
-    // })
+    let totalItems = formatResults({ items: customTxs, chainId: '1' }, 'custom')
+      .concat(cachedTxs)
 
     const ignoredTxs = JSON.parse(ignoreTxsRes || '[]');
 
@@ -200,6 +140,8 @@ export default async function handler(req, res) {
         && ((!!endTimestamp && t.timestamp <= endTimestamp) || !endTimestamp)
         && !ignoredTxs.includes(t.txHash)
         && t.name !== 'Bonded'
+        && (hasFilter ? t.type === filterType || (t.type === 'fed' && filterType === 'multisig') : true)
+        && (hasFilter && multisig ? t.multisig === multisig : true)
       );
 
     totalItems = uniqueBy(totalItems, (o1, o2) => o1.txHash === o2.txHash);
@@ -207,6 +149,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       transactions: addRefundedData(totalItems, refunded),
+      cachedMostRecentTimestamp,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
