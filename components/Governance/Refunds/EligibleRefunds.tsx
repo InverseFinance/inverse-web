@@ -307,10 +307,10 @@ export const EligibleRefunds = () => {
                                 <Select value={serverFilter} minW='fit-content' maxW='100px' onChange={(e) => handleServerFilter(e.target.value)}>
                                     <option value=''>All types</option>
                                     <option value='multisig'>Multisig</option>
-                                    <option value='gov'>Governance</option>
-                                    <option value='oracles'>INV Oracles</option>
+                                    <option value='governance'>Governance</option>
+                                    <option value='oracle'>INV Oracles</option>
                                     <option value='multidelegator'>INV Multidelegator</option>
-                                    <option value='gnosis'>Gnosis proxy</option>
+                                    <option value='gnosisproxy'>Gnosis proxy</option>
                                     <option value='custom'>Custom txs</option>
                                 </Select>
                                 {
