@@ -331,10 +331,9 @@ export const EligibleRefunds = () => {
                             <HStack w='650px'>
                                 <InfoMessage alertProps={{ fontSize: '12px' }} description="After choosing server filters or dates, click the reload icon" />
                                 <VStack fontSize="12px" alignItems="flex-start">
-                                    <Text>Overall freshest data is from:</Text>
+                                    <Text>Latest cron job is from:</Text>
                                     <Text>{cachedMostRecentTimestamp ? moment(cachedMostRecentTimestamp).fromNow() : '-'}</Text>
                                 </VStack>
-
                             </HStack>
                         </HStack>
                         <RefundsModal isOpen={isOpen} txs={txsToRefund} onClose={onClose} onSuccess={handleSuccess} handleExportCsv={handleExportCsv} />
