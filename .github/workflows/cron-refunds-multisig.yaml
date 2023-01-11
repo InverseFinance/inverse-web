@@ -1,7 +1,7 @@
-name: 3-h-30-cron
+name: refunds-multisig-cron
 on:
   schedule:
-    - cron: '* */3 30 * *'
+    - cron: '26 */3 * * *'
 jobs:
   cron:
     runs-on: ubuntu-latest
