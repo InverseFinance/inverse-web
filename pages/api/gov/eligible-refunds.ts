@@ -83,10 +83,10 @@ export default async function handler(req, res) {
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
   const includesToday = todayUtc === endDate;
-  const cacheKey = `refunds-v1.0.3-${startDate}-${endDate}${!includesToday ? '-archive' : ''}${filterType || ''}${_multisigFilter || ''}`;
+  const cacheKey = `refunds-v1.0.4-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, includesToday, includesToday && preferCache !== 'true' ? 30 : 3600);
+    const validCache = await getCacheFromRedis(cacheKey, true, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       // refunded txs, manually submitted by signature in UI
       const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
