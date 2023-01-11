@@ -328,9 +328,9 @@ export const EligibleRefunds = () => {
                                     </Select>
                                 }
                             </HStack>
-                            <HStack w='650px'>
+                            <HStack w='650px' justify="flex-end">
                                 <InfoMessage alertProps={{ fontSize: '12px' }} description="After choosing server filters or dates, click the reload icon" />
-                                <VStack fontSize="12px" alignItems="flex-start">
+                                <VStack fontSize="12px" alignItems="flex-end">
                                     <Text>Latest cron job is from:</Text>
                                     <Text>{cachedMostRecentTimestamp ? moment(cachedMostRecentTimestamp).fromNow() : '-'}</Text>
                                 </VStack>
