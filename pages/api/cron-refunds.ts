@@ -73,6 +73,16 @@ export default async function handler(req, res) {
 
     try {
         const _multisigFilter = filterType === 'multisig' ? multisig : '';
+
+        const lastSuccessKey = `${ELIGIBLE_TXS}-${filterType}-${_multisigFilter}`;
+        // if job had success in last 12h, skip job
+        const hadSuccess = await getCacheFromRedis(lastSuccessKey, true, 43200);
+        if(hadSuccess) {
+            const lastSuccessUTC = (new Date(hadSuccess.timestamp)).toUTCString();
+            res.status(200).json({ success: true, delta: 0, skipped: true, lastSuccessUTC });
+            return;
+        }
+
         let refundWhitelist = [
             ...DRAFT_WHITELIST,
             ...Object.keys(CUSTOM_NAMED_ADDRESSES),
@@ -156,11 +166,15 @@ export default async function handler(req, res) {
         const nbAfter = hasErrors ? 0 : totalItems.length;
 
         if (!hasErrors) {
+            const timestamp = Date.now();
             const resultData = {
-                timestamp: Date.now(),
+                timestamp,
                 formattedTxs: totalItems,
             }
-            await redisSetWithTimestamp(ELIGIBLE_TXS, resultData, true);
+            await Promise.all([
+                redisSetWithTimestamp(lastSuccessKey, { timestamp }),
+                redisSetWithTimestamp(ELIGIBLE_TXS, resultData, true),
+            ]);
         }
 
         res.status(200).json({ success: !hasErrors, delta: nbAfter - nbBefore, error })
