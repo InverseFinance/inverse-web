@@ -11,6 +11,11 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-refunds?filterType=gov' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - oracles
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=oracles' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'  
       - name: Governance refunds - multidelegator
         run: |
           curl -v --request POST \
@@ -20,9 +25,4 @@ jobs:
         run: |
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-refunds?filterType=gnosis' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
-      - name: Governance refunds - oracles
-        run: |
-          curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-refunds?filterType=oracles' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'      
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'    

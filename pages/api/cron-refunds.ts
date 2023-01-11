@@ -85,7 +85,7 @@ export default async function handler(req, res) {
         // old one, then we add the current one
         const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
 
-        const deltaDays = 3;
+        const deltaDays = 4;
 
         const hasFilter = !!filterType;
 
