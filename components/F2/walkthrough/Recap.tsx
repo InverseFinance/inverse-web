@@ -45,6 +45,7 @@ export const F2WalkthroughRecap = ({
         handleDebtChange,
         handleCollateralChange,
         setIsWalkthrough,
+        isAutoDBR,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -117,7 +118,8 @@ export const F2WalkthroughRecap = ({
                     maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                     onAction={({ bnAmount }) => handleAction()}
                     onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
-                    actionLabel={isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw'}
+                    actionLabel={isAutoDBR ? 'Sign + ' : '' + (isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw')}
+                    approveLabel={isAutoDBR ? 'Step 1/3 - Approve' : undefined}
                     showMaxBtn={false}
                     isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}
                     hideInputIfNoAllowance={false}

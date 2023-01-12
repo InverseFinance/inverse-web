@@ -332,6 +332,10 @@ export const F2CombinedForm = ({
                 defaultValue={durationTypedValue}
             />
             <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
+            <InfoMessage
+                alertProps={{ w: 'full', fontWeight: 'bold' }}
+                description="NB: Auto-buying DBR adds a step in the borrow process: you will have to confirm a signature before doing the actual transaction"
+            />
         </VStack>
     </VStack>
 
@@ -354,7 +358,8 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction(bnAmount)}
             onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-            actionLabel={mode}
+            actionLabel={isAutoDBR ? `Sign + ${mode}` : mode}
+            approveLabel={isAutoDBR ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
             showMaxBtn={false}

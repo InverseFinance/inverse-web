@@ -100,5 +100,13 @@ export const RecapInfos = ({
                 </TextInfo>
             </>
         }
+        {
+            isAutoDBR && hasHelper && <TextInfo 
+            message="The signature is required to auto-buy DBR when doing the borrow transaction">
+                <Text fontSize={fontSize}>
+                    Steps are: approve collateral, confirm signature, execute transaction
+                </Text>
+            </TextInfo>
+        }
     </VStack>
 }

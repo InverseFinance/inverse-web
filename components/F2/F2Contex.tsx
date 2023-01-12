@@ -178,6 +178,7 @@ export const F2Context = ({
         if (!hasStep) {
             return
         }
+        setIsAutoDBR(true);
         if (mode !== 'Deposit & Borrow') {
             handleDebtChange('');
             setMode('Deposit & Borrow');
