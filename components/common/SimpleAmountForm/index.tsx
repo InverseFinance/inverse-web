@@ -22,6 +22,7 @@ type Props = {
     isMaxDisabled?: boolean
     decimals?: number
     actionLabel?: string
+    approveLabel?: string
     maxActionLabel?: string
     maxAmountFrom?: BigNumber[]
     btnThemeColor?: string
@@ -73,6 +74,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         onAction,
         onMaxAction,
         decimals = 18,
+        approveLabel = 'Step 1/2 - Approve',
         actionLabel = 'Submit',
         maxActionLabel = 'Submit MAX',
         maxAmountFrom,
@@ -185,7 +187,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         onSuccess={() => setFreshTokenApproved(true)}
                         ButtonComp={ButtonComp}
                         {...btnProps}
-                    /> :
+                    >
+                        {approveLabel}
+                    </ApproveButton> :
                     !onlyShowApproveBtn &&
                     <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
                         <ButtonComp
