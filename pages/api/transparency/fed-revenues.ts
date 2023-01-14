@@ -46,20 +46,25 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
-        const toAddress = (fed.revenueTargetAd || TREASURY)?.toLowerCase();
-        const eventName = fed.isXchain ? 'LogSwapout' : 'Transfer';
-
+        const toAddress = (fed?.revenueTargetAd || TREASURY)?.toLowerCase();
+        const srcAddress = (fed?.revenueSrcAd || fed?.address)?.toLowerCase();
+        const eventName = fed?.isXchain ? 'LogSwapout' : 'Transfer';
+        
         const items = r.data.items
-            .filter(item => item.successful)
-            .filter(item => !!item.log_events
-                .find(e => !!e.decoded && e.decoded.name === eventName
-                    && e?.decoded?.params[0]?.value?.toLowerCase() == fed?.address?.toLowerCase()
-                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
-                ))
-            .sort((a, b) => a.block_height - b.block_height);
+                .filter(item => item.successful)
+                .filter(item => !!item.log_events
+                    .find(e => !!e.decoded && e.decoded.name === eventName
+                        && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                        && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+                    ))
+                .sort((a, b) => a.block_height - b.block_height);
 
         return await Promise.all(items.map(async item => {
-            const filteredEvents = item.log_events.filter(e => e.decoded.name === eventName && e.decoded.params[0].value?.toLowerCase() == fed.address?.toLowerCase() && e.decoded.params[1].value?.toLowerCase() == toAddress)
+            const filteredEvents = item.log_events
+                .filter(e => !!e.decoded && e.decoded.name === eventName
+                    && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+                )
             let revenues = 0;
             const timestamp = +(new Date(item.block_signed_at));
             const dateSplit = item.block_signed_at.substring(0, 10).split('-');
@@ -160,6 +165,7 @@ export default async function handler(req, res) {
             });
 
         const resultData = {
+            timestamp: +(new Date()),
             totalRevenues: accProfits,
             totalEvents: fedRevenues,
             feds: FEDS,
