@@ -8,6 +8,7 @@ import { getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
+import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -27,23 +28,25 @@ const columns = [
         label: 'Market',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
-        value: ({ name, icon, marketIcon }) => {
+        value: ({ name, icon, marketIcon, underlying }) => {
             return <Cell minWidth="200px" justify="flex-start" alignItems="center" >                
-                <BigImageButton bg={`url('${marketIcon || icon}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
+                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
                 <CellText>{name}</CellText>
             </Cell>
         },
     },
-    // {
-    //     field: 'supplyApy',
-    //     label: 'SUPPLY APY',
-    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-    //     value: ({ supplyApy }) => {
-    //         return <Cell minWidth="100px" justify="center" >
-    //             <Text>{supplyApy}%</Text>
-    //         </Cell>
-    //     },
-    // },
+    {
+        field: 'supplyApy',
+        label: 'Apy',
+        tooltip: 'Apy for the supplied asset',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ supplyApy, price, underlying }) => {
+            return <Cell minWidth="100px" justify="center" fontSize="16px">
+                {/* <CellText>{shortenNumber(supplyApy, 2)}%</CellText> */}
+                <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
+            </Cell>
+        },
+    },
     // {
     //     field: 'price',
     //     label: 'price',

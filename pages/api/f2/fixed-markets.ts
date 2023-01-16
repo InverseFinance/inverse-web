@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber } from '@app/util/markets'
+import { getBnToNumber, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
           return market.liquidationFactorBps();
         })
       ),
-    ]); 
+    ]);
 
     const dailyLimits = await Promise.all(
       borrowControllers.map((bc, i) => {
@@ -125,6 +125,19 @@ export default async function handler(req, res) {
       }),
     )).map(r => r.status === 'fulfilled' ? r.value : BigNumber.from('0'));
 
+    // external yield bearing apys
+    const externalYieldResults = await Promise.allSettled([
+      getStethData(),
+    ]);
+
+    const [stethData] = externalYieldResults.map(r => {
+      return r.status === 'fulfilled' ? r.value : {};
+    });
+
+    const externalApys = {
+      'stETH': stethData?.apy||0,
+    }    
+
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
       return {
@@ -145,7 +158,7 @@ export default async function handler(req, res) {
         dailyLimit: getBnToNumber(dailyLimits[i]),
         dailyBorrows: getBnToNumber(dailyBorrows[i]),
         leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
-        supplyApy: 0,
+        supplyApy: externalApys[underlying.symbol] || 0,
       }
     });
 

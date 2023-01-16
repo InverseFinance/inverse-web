@@ -168,7 +168,7 @@ export default async function handler(req, res) {
     });
 
     const externalApys = {
-      'stETH': stethData?.data?.[0]?.apy||0,
+      'stETH': stethData?.apy||0,
       'xSUSHI': xSushiData?.apy||0,
       'DOLA-3POOL': dola3poolYield?.apy||0,
     }
