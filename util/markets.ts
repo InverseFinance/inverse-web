@@ -177,8 +177,7 @@ export const getYearnVaults = async () => {
 
 export const getStethData = async () => {
     try {
-        const results = await fetch('https://1rwmj4tky9.execute-api.eu-central-1.amazonaws.com/poolsEnriched?pool=lido-stETH');
-        return results.json();
+        return getPoolYield('747c1d2a-c668-4682-b9f9-296708a3dd90');
     } catch (e) { console.log(e) }
     return [];
 }

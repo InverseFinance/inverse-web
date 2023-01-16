@@ -133,7 +133,7 @@ export const MarketBar = ({
                                     </SubTitle>
                                     :
                                     <SubTitle fontWeight={liquidity === 0 ? 'bold' : undefined} color={liquidity === 0 ? 'warning' : 'secondaryTextColor'}>
-                                        {liquidity ? shortenNumber(liquidity, 0, false, true) : 'No'} DOLA liquidity
+                                        {liquidity ? shortenNumber(liquidity, liquidity < 100 ? 2 : 0, false, true) : 'No'} DOLA liquidity
                                     </SubTitle>
                             }
                         </VStack>
