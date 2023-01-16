@@ -196,7 +196,7 @@ export const useAccountDBRMarket = (
     args: [[escrow, 'balance']],
     abi: F2_SIMPLE_ESCROW_ABI,
   });
-  const bnDeposits = (escrowData ? escrowData[0] : zero);
+  const bnDeposits = (escrowData && escrow ? escrowData[0] : zero);
 
   const decimals = market.underlying.decimals;
 
