@@ -35,18 +35,18 @@ const columns = [
             </Cell>
         },
     },
-    {
-        field: 'supplyApy',
-        label: 'Supply Apy',
-        tooltip: 'Apy for the supplied asset',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ supplyApy, price, underlying }) => {
-            return <Cell minWidth="100px" justify="center" fontSize="16px">
-                {/* <CellText>{shortenNumber(supplyApy, 2)}%</CellText> */}
-                <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'supplyApy',
+    //     label: 'Supply Apy',
+    //     tooltip: 'Apy for the supplied asset',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ supplyApy, price, underlying }) => {
+    //         return <Cell minWidth="100px" justify="center" fontSize="16px">
+    //             {/* <CellText>{shortenNumber(supplyApy, 2)}%</CellText> */}
+    //             <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
+    //         </Cell>
+    //     },
+    // },
     // {
     //     field: 'price',
     //     label: 'price',
