@@ -26,10 +26,10 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying }) => {
-            return <Cell minWidth="200px" justify="flex-start" alignItems="center" >                
+            return <Cell minWidth="120px" justify="flex-start" alignItems="center" >                
                 <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
                 <CellText>{name}</CellText>
             </Cell>
@@ -37,7 +37,7 @@ const columns = [
     },
     {
         field: 'supplyApy',
-        label: 'Apy',
+        label: 'Supply Apy',
         tooltip: 'Apy for the supplied asset',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ supplyApy, price, underlying }) => {
@@ -60,10 +60,10 @@ const columns = [
     {
         field: 'collateralFactor',
         label: 'C.F',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Collateral Factor: percentage of the collateral worth transformed into borrowing power',
         value: ({ collateralFactor }) => {
-            return <Cell minWidth="90px" justify="center" >
+            return <Cell minWidth="120px" justify="center" >
                 <CellText>{shortenNumber(collateralFactor * 100, 2)}%</CellText>
             </Cell>
         },
@@ -82,10 +82,10 @@ const columns = [
     {
         field: 'leftToBorrow',
         label: "Liquidity",
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the remain liquidity left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt }) => {
-            return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0" >
+            return <Cell minWidth="120px" justify="center" alignItems="center" direction="column" spacing="0" >
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2, true) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
             </Cell>
         },
@@ -93,10 +93,10 @@ const columns = [
     {
         field: 'totalDebt',
         label: 'Borrows',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Total DOLA borrowed in the Market',
         value: ({ totalDebt }) => {
-            return <Cell minWidth="150px" justify="center" >
+            return <Cell minWidth="120px" justify="center" >
                 <CellText>{shortenNumber(totalDebt, 2, true)}</CellText>
             </Cell>
         },
@@ -109,7 +109,7 @@ const columns = [
         value: ({ collateralBalance, price, account }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
-                    account ? <>
+                    account && collateralBalance > 0 ? <>
                         <CellText>{shortenNumber(collateralBalance, 2)}</CellText>
                         <CellText>({shortenNumber(collateralBalance * price, 2, true)})</CellText>
                     </> : <>-</>
@@ -118,15 +118,15 @@ const columns = [
         },
     },
     {
-        field: 'debt',
+        field: 'deposits',
         label: 'Your Deposits',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         tooltip: 'Amount of Collateral you deposited in the Market',
         value: ({ deposits, price, account }) => {
             return <Cell minWidth="150px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
-                    account ? <>
-                        <CellText>{shortenNumber(deposits, 2)}</CellText>
+                    account && deposits > 0 ? <>
+                        <CellText>{shortenNumber(deposits, 4)}</CellText>
                         <CellText>({shortenNumber(deposits * price, 2, true)})</CellText>
                     </> : <>-</>
                 }
@@ -139,8 +139,8 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Amount of DOLA you borrowed from the Market',
         value: ({ debt, account }) => {
-            return <Cell minWidth="120px" justify="center" >
-                <CellText>{account ? shortenNumber(debt, 2, true) : '-'}</CellText>
+            return <Cell minWidth="120px" justify="center">
+                <CellText>{account && debt > 0 ? shortenNumber(debt, 2, true) : '-'}</CellText>
             </Cell>
         },
     },
