@@ -407,6 +407,7 @@ export type Fed = {
   name: string,
   projectImage: string,
   isXchain?: boolean,
+  hasEnded?: boolean,
   supplyFuncName?: string
   oldAddresses?: string[]
   revenueChainId?: string
