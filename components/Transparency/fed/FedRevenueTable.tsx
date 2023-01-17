@@ -48,8 +48,8 @@ const columns = [
         field: 'transactionHash',
         label: 'Transaction',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ transactionHash, chainId }) => <Flex minW="120px">
-            <ScannerLink value={transactionHash} type="tx" chainId={chainId} />
+        value: ({ transactionHash, chainId, revenueChainId }) => <Flex minW="120px">
+            <ScannerLink value={transactionHash} type="tx" chainId={revenueChainId||chainId} />
         </Flex>,
     },
     {

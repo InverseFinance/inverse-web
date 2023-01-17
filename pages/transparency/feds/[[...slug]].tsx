@@ -49,7 +49,10 @@ export const FedPolicyPage = () => {
     const isAllFedsCase = chosenFedIndex === 0;
 
     const fedPolicyEvents = isAllFedsCase ? policyEvents : policyEvents.filter(e => e.fedIndex === (chosenFedIndex - 1));
-    const fedProfitsEvents = isAllFedsCase ? profitsEvents : profitsEvents.filter(e => e.fedIndex === (chosenFedIndex - 1));
+    const fedProfitsEvents = (isAllFedsCase ? profitsEvents : profitsEvents.filter(e => e.fedIndex === (chosenFedIndex - 1)))
+        .map(event => {
+            return { ...event, revenueChainId: FEDS[event.fedIndex].revenueChainId }
+        });
 
     const { chartData: chartDataPolicies } = useFedPolicyChartData(fedPolicyEvents, isAllFedsCase);
     const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, isAllFedsCase);
