@@ -10,8 +10,8 @@ import { F2DurationInput } from "../forms/F2DurationInput"
 import { StepNavBtn } from "./StepNavBtn"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { shortenNumber } from "@app/util/markets"
-import { getDBRBuyLink } from "@app/util/f2"
 import Link from "@app/components/common/Link"
+import { BUY_LINKS } from "@app/config/constants"
 
 export const F2WalkthroughDuration = ({
     onStepChange,
@@ -75,7 +75,7 @@ export const F2WalkthroughDuration = ({
                                     <Text fontWeight="bold" color="warning">You don't have any DBRs in your wallet.<br />Please have at least part of the DBR cost in your wallet to start with.</Text>
                             }
                             {
-                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">Buy {dbrBalance > 0 ? ' more ' : ''} DBR</Link>
+                                (dbrBalance < dbrCover) && <Link textDecoration="underline" href={BUY_LINKS.DBR} isExternal target="_blank">Buy {dbrBalance > 0 ? ' more ' : ''} DBR</Link>
                             }
                         </VStack>
                 }
