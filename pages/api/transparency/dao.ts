@@ -129,6 +129,7 @@ export default async function handler(req, res) {
         return contract.getThreshold();
       })),
     ]));
+
     if (!multisigMetaCache) {
       await redisSetWithTimestamp(cacheMultisigMetaKey, [multisigsOwners, multisigsThresholds]);
     }
@@ -140,7 +141,7 @@ export default async function handler(req, res) {
     }
 
     const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
-    const multisigsBalanceValues: BigNumber[][] = multisigBalCache || (await Promise.all([
+    const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(b => BigNumber.from(b)) || (await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
@@ -182,7 +183,7 @@ export default async function handler(req, res) {
     }
 
     const multisigAllCache = await getCacheFromRedis(cacheMulAllKey, true, 300);
-    const multisigsAllowanceValues: BigNumber[][] = multisigAllCache || ((await Promise.all([
+    const multisigsAllowanceValues: BigNumber[][] = multisigAllCache?.map(b => BigNumber.from(b)) || ((await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
@@ -292,7 +293,11 @@ export default async function handler(req, res) {
         invTotalSupply: 0,
       },
       multisigs: multisigsToShow.map((m, i) => ({
-        ...m, owners: multisigsOwners[i], funds: multisigsFunds[i], threshold: parseInt(multisigsThresholds[i].toString()),
+        ...m,
+        owners: multisigsOwners[i],
+        funds: multisigsFunds[i],
+        // when multisigsThresholds is from cache, type is not BN object
+        threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
       })),
       feds: FEDS.map((fed, i) => ({
         ...fed,
