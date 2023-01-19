@@ -39,13 +39,18 @@ const deduceBridgeFees = (value: number, chainId: string) => {
     return value;
 }
 
-const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }) => {
+const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await Promise.all(
         FEDS.map(fed => getTxsOf(fed.revenueSrcAd || fed.address, 1000, 0, fed.revenueChainId || fed.chainId))
     )
 
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
+
+        if(fed.hasEnded && !!cachedTotalEvents) {
+            return cachedTotalEvents.filter(event => event.fedIndex === i);
+        }
+
         const toAddress = (fed?.revenueTargetAd || TREASURY)?.toLowerCase();
         const srcAddress = (fed?.revenueSrcAd || fed?.address)?.toLowerCase();
         const eventName = fed?.isXchain ? 'LogSwapout' : 'Transfer';
@@ -123,7 +128,10 @@ export default async function handler(req, res) {
             return
         }
 
-        const cachedCurrentPrices = await getCacheFromRedis(pricesCacheKey, false);
+        const [archived, cachedCurrentPrices] = await Promise.all([
+            getCacheFromRedis(cacheKey, false),
+            getCacheFromRedis(pricesCacheKey, false),
+        ]);
 
         let withOldAddresses: (Fed & { oldAddress: string })[] = [];
         FEDS.filter(fed => !!fed.oldAddresses).forEach(fed => {
@@ -131,8 +139,8 @@ export default async function handler(req, res) {
         });
         const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
             [
-                getProfits(FEDS, TREASURY, cachedCurrentPrices),
-                getProfits(withOldAddresses.map(f => ({ ...f, address: f.oldAddress })), TREASURY, cachedCurrentPrices),
+                getProfits(FEDS, TREASURY, cachedCurrentPrices, archived.totalEvents),
+                getProfits(withOldAddresses.map(f => ({ ...f, address: f.oldAddress })), TREASURY, cachedCurrentPrices, []),
             ]
         );
 
@@ -153,6 +161,7 @@ export default async function handler(req, res) {
                 return {
                     ...t,
                     fedIndex: fedIndex,
+                    fedAddress: FEDS[fedIndex].address,
                     accProfit: accProfits[fedIndex],
                 };
             })
