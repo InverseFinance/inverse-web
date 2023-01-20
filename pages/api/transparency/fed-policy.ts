@@ -165,7 +165,7 @@ export default async function handler(req, res) {
 
     const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
 
-    const dolaSupplies = (await getCacheFromRedis(cacheDolaSupplies, false)) || {};
+    const dolaSupplies = (await getCacheFromRedis(cacheDolaSupplies, false)) || [];
 
     // temp => migrate data to add fed address to data
     const totalEvents = pastTotalEvents.concat(newEvents).map(event => {
