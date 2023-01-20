@@ -12,7 +12,7 @@ import moment from 'moment';
 import { shortenNumber } from '@app/util/markets';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 
-const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE } = getNetworkConfigConstants();
+const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, FEDS, F2_MARKETS } = getNetworkConfigConstants();
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
     return <Text display="inline-block" fontWeight="bold" color="secondary">
@@ -87,6 +87,117 @@ const ComptrollerHumanReadableActionLabel = ({
         case '_supportMarket':
             text = <Flex display="inline-block">
                 <b>Add</b> <ScannerLink color="info" label={<><b>{contractKnownToken?.symbol || shortenAddress(callDatas[0])}</b></>} value={callDatas[0]} /> as a <b>new Market</b> on Frontier
+            </Flex>
+            break;
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
+const FirmMarketHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+    market,
+}: {
+    signature: string,
+    callDatas: string[],
+    market: string,
+}) => {
+    const funName = signature.split('(')[0];
+    let text, amount;
+
+    switch (funName) {
+        case 'setCollateralFactorBps':
+            amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={market} /> <b>Collateral Factor</b> to {amount}
+            </Flex>
+            break;
+        case 'setLiquidationFactorBps':
+            amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={market} /> <b>Liquidation Factor</b> to {amount}
+            </Flex>
+            break;
+        case 'setLiquidationFeeBps':
+            amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={market} /> <b>Liquidation Fee</b> to {amount}
+            </Flex>
+            break;
+        case 'setLiquidationIncentiveBps':
+            amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={market} /> <b>Liquidation Incentive</b> to {amount}
+            </Flex>
+            break;
+        case 'setReplenismentIncentiveBps':
+            amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={market} /> <b>Replenishment Incentive</b> to {amount}
+            </Flex>
+            break;
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
+const FirmControllerHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text, amount;
+
+    switch (funName) {
+        case 'setDailyLimit':
+            amount = <Amount value={callDatas[1]} decimals={18} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={callDatas[0]} /> <b>Daily Borrow Limit</b> to {amount} DOLA
+            </Flex>
+            break;
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
+
+const FirmFedHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text, amount;
+
+    switch (funName) {
+        case 'changeMarketCeiling':
+            amount = <Amount value={callDatas[1]} decimals={18} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={callDatas[0]} /> <b>Supply Ceiling</b> to {amount} DOLA
+            </Flex>
+            break;
+        case 'changeSupplyCeiling':
+            amount = <Amount value={callDatas[0]} decimals={18} />;
+            text = <Flex display="inline-block">
+                Set <b>FiRM's Global Supply Ceiling</b> to {amount} DOLA
             </Flex>
             break;
     }
@@ -240,6 +351,12 @@ const HumanReadableActionLabel = ({
         return <GovernanceHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (lcTarget === ORACLE.toLowerCase()) {
         return <OracleHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (lcTarget === F2_CONTROLLER.toLowerCase()) {
+        return <FirmControllerHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (!!F2_MARKETS.find(f => f.address.toLowerCase() === lcTarget)) {
+        return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
+    } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
+        return <FirmFedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     }
 
     const isDolaPayroll = lcTarget === DOLA_PAYROLL.toLowerCase();
@@ -300,6 +417,16 @@ export const ProposalActionPreview = (({
         'setBuyFee',
         'updateProposalQuorum',
         'updateProposalThreshold',
+        // firm
+        'changeMarketCeiling',
+        'changeSupplyCeiling',
+        'setDailyLimit',
+        'setCollateralFactorBps',
+        'setLiquidationFactorBps',
+        'setLiquidationFeeBps',
+        'setLiquidationIncentiveBps',
+        // contracts have the typo
+        'setReplenismentIncentiveBps',
     ].includes(funName);
 
     const contractKnownToken = target.toLowerCase() === DOLA_PAYROLL.toLowerCase() ?
@@ -317,7 +444,12 @@ export const ProposalActionPreview = (({
             }
             <Flex w="full" overflowX="auto" direction="column" bgColor="primary.850" borderRadius={8} p={3}>
                 {
-                    isHumanRedeableCaseHandled && (!!contractKnownToken || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE].map(v => v.toLowerCase()).includes(target.toLowerCase()))
+                    isHumanRedeableCaseHandled
+                    && (!!contractKnownToken
+                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER].map(v => v.toLowerCase()).includes(target.toLowerCase())
+                        || !!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase())
+                        || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
+                    )
                     && <ErrorBoundary description={null}>
                         <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
                     </ErrorBoundary>
