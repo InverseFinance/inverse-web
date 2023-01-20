@@ -36,7 +36,7 @@ const defaultValues = {
 export const InvPage = () => {
   const { prices: geckoPrices } = usePrices()
   const { markets } = useMarkets()
-  const { invTotalSupply, fantom } = useDAO();
+  const { invTotalSupply, invSupplies } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -87,10 +87,7 @@ export const InvPage = () => {
           <InvFlowChart {...invFlowChartData} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <SupplyInfos token={TOKENS[INV]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply },
-            { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
-          ]}
+          <SupplyInfos token={TOKENS[INV]} supplies={invSupplies}
           />
           <ShrinkableInfoMessage
             title={`🔒 ${RTOKEN_SYMBOL} Staked on Frontier`}

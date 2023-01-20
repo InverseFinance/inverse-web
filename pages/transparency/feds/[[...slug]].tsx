@@ -185,11 +185,7 @@ export const FedPolicyPage = () => {
                             </>
                         }
                     />
-                    <SupplyInfos token={TOKENS[DOLA]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: (dolaSupplies?.dolaTotalSupply - dolaSupplies?.dolaFtmSupply - dolaSupplies?.dolaOptimismSupply)||0 },
-                        { chainId: NetworkIds.ftm, supply: dolaSupplies?.dolaFtmSupply || 0 },
-                        { chainId: NetworkIds.optimism, supply: dolaSupplies?.dolaOptimismSupply || 0 },
-                    ]}
+                    <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
                     />
                     <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"

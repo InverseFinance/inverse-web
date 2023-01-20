@@ -91,7 +91,10 @@ const chainTokenAddresses = {
     WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
     WBTC: '0xDAc02EE9f5F0Fe62d248be235f4ACd0d5E0451a0',
     INV: '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4',
-  }
+  },
+  "56": {
+    DOLA: '0x2F29Bc0FFAF9bff337b31CBe6CB5Fb3bf12e5840',
+  },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 

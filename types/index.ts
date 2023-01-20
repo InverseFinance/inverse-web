@@ -166,6 +166,7 @@ export enum NetworkIds {
   rinkeby = '4',
   ftm = '250',
   optimism = '10',
+  bsc = '56',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',
@@ -583,14 +584,8 @@ export type DAO = {
   dolaTotalSupply: number
   invTotalSupply: number
   dolaOperator: string
-  fantom: {
-    dolaTotalSupply: number
-    invTotalSupply: number
-  },
-  optimism: {
-    dolaTotalSupply: number
-    invTotalSupply: number
-  }
+  dolaSupplies: { supply: number, chainId: NetworkIds }[]
+  invSupplies: { supply: number, chainId: NetworkIds }[]
   treasury: { token: Token, balance: number }[],
   anchorReserves: { token: Token, balance: number }[],
   bonds: { balances: { token: Token, balance: number }[] },

@@ -11,6 +11,8 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     }
     else if(chainId === NetworkIds.optimism) {
         return new JsonRpcProvider('https://mainnet.optimism.io');
+    } else if(chainId === NetworkIds.bsc) {
+        return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
     }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
