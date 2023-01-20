@@ -14,6 +14,15 @@ import { ErrorBoundary } from '../common/ErrorBoundary';
 
 const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, FEDS, F2_MARKETS } = getNetworkConfigConstants();
 
+const firmMarketsFunctions = [
+    'setCollateralFactorBps',
+    'setLiquidationFactorBps',
+    'setLiquidationFeeBps',
+    'setLiquidationIncentiveBps',
+    // contracts have the typo
+    'setReplenismentIncentiveBps',
+];
+
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
     return <Text display="inline-block" fontWeight="bold" color="secondary">
         {commify(removeScientificFormat(parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1))).replace(/\.0$/, '')}{isPerc && '%'}
@@ -339,6 +348,7 @@ const HumanReadableActionLabel = ({
     callDatas: string[],
 }) => {
     const lcTarget = target.toLowerCase();
+    const funName = signature.split('(')[0];
     if (_getProp(UNDERLYING, target)) {
         return <AnchorHumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />;
     } else if (lcTarget === COMPTROLLER.toLowerCase()) {
@@ -353,7 +363,7 @@ const HumanReadableActionLabel = ({
         return <OracleHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (lcTarget === F2_CONTROLLER.toLowerCase()) {
         return <FirmControllerHumanReadableActionLabel signature={signature} callDatas={callDatas} />
-    } else if (!!F2_MARKETS.find(f => f.address.toLowerCase() === lcTarget)) {
+    } else if (!!F2_MARKETS.find(f => f.address.toLowerCase() === lcTarget) || firmMarketsFunctions.includes(funName)) {
         return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
     } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
         return <FirmFedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
@@ -363,7 +373,7 @@ const HumanReadableActionLabel = ({
     const contractKnownToken = isDolaPayroll ? _getProp(TOKENS, DOLA) : _getProp(TOKENS, target);
 
     const destinator = <ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />;
-    const funName = signature.split('(')[0];
+    
     const symbol = <Text fontWeight="bold" display="inline-block">{contractKnownToken.symbol}</Text>;
 
     const amount = <Amount value={callDatas[1]} decimals={contractKnownToken.decimals} />
@@ -421,12 +431,7 @@ export const ProposalActionPreview = (({
         'changeMarketCeiling',
         'changeSupplyCeiling',
         'setDailyLimit',
-        'setCollateralFactorBps',
-        'setLiquidationFactorBps',
-        'setLiquidationFeeBps',
-        'setLiquidationIncentiveBps',
-        // contracts have the typo
-        'setReplenismentIncentiveBps',
+        ...firmMarketsFunctions,
     ].includes(funName);
 
     const contractKnownToken = target.toLowerCase() === DOLA_PAYROLL.toLowerCase() ?
@@ -447,7 +452,7 @@ export const ProposalActionPreview = (({
                     isHumanRedeableCaseHandled
                     && (!!contractKnownToken
                         || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER].map(v => v.toLowerCase()).includes(target.toLowerCase())
-                        || !!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase())
+                        || (!!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase()) || firmMarketsFunctions.includes(funName))
                         || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
                     )
                     && <ErrorBoundary description={null}>
