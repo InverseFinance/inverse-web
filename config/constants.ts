@@ -1,4 +1,4 @@
-import { GovEra } from '@app/types';
+import { GovEra, NetworkIds } from '@app/types';
 
 export const START_BLOCK = 11498340;
 export const ETH_MANTISSA = 1e18;
@@ -44,3 +44,6 @@ export const BUY_LINKS = {
     'DOLA': 'https://swap.defillama.com/?chain=ethereum&from=0x6b175474e89094c44da98b954eedeac495271d0f&to=0x865377367054516e17014ccded1e7d814edc9ce4',
     'DBR': 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
 }
+
+export const DOLA_BRIDGED_CHAINS = [NetworkIds.ftm, NetworkIds.optimism, NetworkIds.bsc];
+export const INV_BRIDGED_CHAINS = [NetworkIds.ftm];
