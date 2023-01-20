@@ -17,7 +17,7 @@ const defaultFedsData = FEDS.map(((fed) => {
 }))
 
 export const useDAO = (): SWR & DAO => {
-  const { data, error } = useCustomSWR(`/api/transparency/dao?v=2`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/dao?v=3`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
@@ -26,14 +26,8 @@ export const useDAO = (): SWR & DAO => {
     treasury: data?.treasury || [],
     bonds: data?.bonds || { balances: [] },
     anchorReserves: data?.anchorReserves || [],
-    fantom: {
-      dolaTotalSupply: data?.fantom?.dolaTotalSupply || 0,
-      invTotalSupply: data?.fantom?.invTotalSupply || 0,
-    },
-    optimism: {
-      dolaTotalSupply: data?.optimism?.dolaTotalSupply || 0,
-      invTotalSupply: data?.optimism?.invTotalSupply || 0,
-    },
+    dolaSupplies: data?.dolaSupplies || [],
+    invSupplies: data?.invSupplies || [],
     feds: data?.feds || defaultFedsData,
     multisigs: data?.multisigs || [],
     pols: data?.pols || [],

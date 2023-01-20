@@ -52,7 +52,7 @@ const defaultValues = {
 export const Overview = () => {
   const { prices } = usePricesV2(true)
   const { data: tvlData } = useTVL()
-  const { dolaTotalSupply, invTotalSupply, fantom, optimism, treasury, anchorReserves, bonds } = useDAO();
+  const { dolaSupplies, invSupplies, treasury, anchorReserves, bonds } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -165,19 +165,8 @@ export const Overview = () => {
                 } />
             }
           />}
-          <SupplyInfos token={TOKENS[INV]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: invTotalSupply - fantom?.invTotalSupply - optimism?.invTotalSupply },
-            { chainId: NetworkIds.ftm, supply: fantom?.invTotalSupply },
-            { chainId: NetworkIds.optimism, supply: optimism?.invTotalSupply },
-          ]}
-          />
-
-          <SupplyInfos token={TOKENS[DOLA]} supplies={[
-            { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
-            { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-            { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
-          ]}
-          />
+          <SupplyInfos token={TOKENS[INV]} supplies={invSupplies} />
+          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies} />
           <ShrinkableInfoMessage
             title="⚡ Roles & Powers"
             description={

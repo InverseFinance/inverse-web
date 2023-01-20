@@ -179,7 +179,7 @@ export default async function handler(req, res) {
       feds: FEDS.map(fed => {
         return { ...fed, supply: accumulatedSupplies[fed.address] }
       }),
-      dolaSupplies: dolaSupplies,
+      dolaSupplies,
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));
