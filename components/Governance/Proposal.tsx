@@ -111,7 +111,7 @@ export const ProposalPreview = ({
 
   const isUnread = unreadKeys.includes(isPublicDraft ? `draft-${proposal.id}` : `active-${proposal.proposalNum}`);
 
-  const forumLink = (proposal.description.match(/https:\/\/forum\.inverse\.finance[^\s)]+/i) || [''])[0];
+  const forumLink = (proposal.description.match(/https:\/\/forum\.inverse\.finance[^\s*)]+/i) || [''])[0];
 
   return (
     <VStack w='full'>
