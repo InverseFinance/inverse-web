@@ -187,7 +187,7 @@ export const DWFPage = () => {
             <Text fontWeight="bold" fontSize="24px">{prices ? shortenNumber(prices['inverse-finance']?.usd, 2, true) : '-'}</Text>
           </VStack>
         </HStack>
-        <Stack px="4%" pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
+        <Stack px="4%" pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1300px" spacing="8">
           {
             !isConnected ? <Container noPadding p="0" alignItems='center' contentProps={{ maxW: '500px' }}>
               <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
