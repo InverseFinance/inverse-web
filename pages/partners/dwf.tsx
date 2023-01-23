@@ -17,6 +17,10 @@ import { DWF_PURCHASER_ABI } from '@app/config/abis';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useAccount } from '@app/hooks/misc';
 import ScannerLink from '@app/components/common/ScannerLink';
+import { InfoMessage } from '@app/components/common/Messages';
+import Link from '@app/components/common/Link';
+import { Input } from '@app/components/common/Input';
+import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 
 const zero = BigNumber.from('0');
 
@@ -77,7 +81,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     usdcBalanceBn: data ? usdcBalance : zero,
     invBalance: data ? getBnToNumber(invBalance) : 0,
     invBalanceBn: data ? invBalance : zero,
-    isWhitelisted: data ? isWhitelisted : false,
+    isWhitelisted: data ? isWhitelisted : true,
   }
 }
 
@@ -87,20 +91,42 @@ const buy = (bnAmount: BigNumber, maxInvPrice: BigNumber, signer: JsonRpcSigner)
 }
 
 export const DWFPage = () => {
-  const { library } = useWeb3React();
-  const account = useAccount();
-  const dwfData = useDWFPurchaser(account);
-  const prices = usePrices();
+  const { library, account } = useWeb3React();
+  const viewAddress = useAccount();
+  const dwfData = useDWFPurchaser(viewAddress);
+  const { prices } = usePrices();
+
+  const [isConnected, setConnected] = useState(true);
   const [amount, setAmount] = useState('');
-  const [maxSlippage, setMaxSlippage] = useState('1');
-  const { invPrice, startTime, endTime, lastBuy, limitAvailable, lifetimeBuy, dailyLimit, dailyBuy, bonusBps,invBalanceBn,limitAvailableBn, usdcBalanceBn, usdcBalance, minInvPrice, lifetimeLimit, invBalance, isWhitelisted } = dwfData;
+  const [maxSlippage, setMaxSlippage] = useState('2');
+  const { invPrice, startTime, endTime, lastBuy, limitAvailable, lifetimeBuy, dailyLimit, dailyBuy, bonusBps, invBalanceBn, limitAvailableBn, usdcBalanceBn, usdcBalance, minInvPrice, lifetimeLimit, invBalance, isWhitelisted } = dwfData;
+
+  const maxInvPrice = invPrice * (1 + parseFloat(maxSlippage) / 100);
+
+  const floatAmount = parseFloat(amount || '0');
+  const hasError = invPrice < minInvPrice
+    || usdcBalance < floatAmount
+    || floatAmount > limitAvailable
+    ;
+
+  const isDisabled = !floatAmount || !maxSlippage || hasError;
+
+  const invNormalPurchase = invPrice ? floatAmount / invPrice : 0;
+  const invBonus = invNormalPurchase * bonusBps;
+  const invTotal = invNormalPurchase + invBonus;
+
+  useDualSpeedEffect(() => {
+    setConnected(!!account);
+  }, [account], !account, 1000);
 
   const handleAction = (params) => {
-    const maxInvPrice = getNumberToBn(invPrice * (1+parseFloat(maxSlippage)/100));
-    return buy(params.bnAmount, maxInvPrice, library?.getSigner());
+    return buy(params.bnAmount, getNumberToBn(maxInvPrice), library?.getSigner());
   }
 
-  const hasError = invPrice < minInvPrice || usdcBalance < parseFloat(amount||'0') || parseFloat(amount||'0') > limitAvailable;
+  const handleMaxSlippage = (value: string) => {
+    const newSlippage = value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, '')
+    setMaxSlippage(newSlippage);
+  }
 
   return (
     <Layout>
@@ -110,7 +136,7 @@ export const DWFPage = () => {
         <meta name="description" content="Inverse Finance DWF" />
         <meta name="og:description" content="Inverse Finance DWF" />
       </Head>
-      <AppNav />
+      <AppNav hideAnnouncement={true} />
       <VStack w={{ base: 'full' }} justify="center" alignItems="center" pt="0">
         <Stack
           alignItems="center"
@@ -126,87 +152,150 @@ export const DWFPage = () => {
           <Image src="/assets/partners/inv-handshake.png" w="50%" maxW='200px' />
           <Text color="white" textAlign="center" fontWeight="extrabold" fontSize="24px">Inverse Finance</Text>
         </Stack>
-        <Stack pt="8" w='full' direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
-          <Container noPadding p="0" label="OTC Deal Agreement">
-            <VStack w='full'>
-              <HStack w='full' justify="space-between">
-                <Text>Bonus to apply:</Text>
-                <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(bonusBps * 100, 2)}%</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Contract:</Text>
-                <ScannerLink useName={false} value={DWF_PURCHASER} />
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Min INV price:</Text>
-                <Text fontWeight="bold">{shortenNumber(minInvPrice, 2, true)}</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Start Time:</Text>
-                <Text fontWeight="bold">{moment(startTime).format('MMM Do YYYY, hh:mm a')} ({moment(startTime).fromNow()})</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>End Time:</Text>
-                <Text fontWeight="bold">{moment(endTime).format('MMM Do YYYY, hh:mm a')} ({moment(endTime).fromNow()})</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Total Spend Limit:</Text>
-                <Text fontWeight="bold">{preciseCommify(lifetimeLimit, 0)} USDC</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Daily Spend Limit:</Text>
-                <Text fontWeight="bold">{preciseCommify(dailyLimit, 0)} USDC</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>INV currently in held the contract:</Text>
-                <Text fontWeight="bold">{preciseCommify(invBalance, 0)} INV</Text>
-              </HStack>
-            </VStack>
-          </Container>
-          <Container noPadding p="0" label="Buy INV">
-            <VStack w='full'>
-              <HStack w='full' justify="space-between">
-                <Text>Currently spendable:</Text>
-                <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(limitAvailable, 2)} USDC</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Total spent:</Text>
-                <Text>{shortenNumber(lifetimeBuy, 2)} USDC</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Spent Today:</Text>
-                <Text>{shortenNumber(dailyBuy, 2)} USDC</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <Text>Last Buy:</Text>
-                <Text>{
-                  lastBuy >= startTime ? `${moment(lastBuy).format('MMM Do YYYY, hh:mm a')} (${moment(lastBuy).fromNow()})` : '-'
-                }</Text>
-              </HStack>
-              <HStack w='full' justify="space-between">
-                <SimpleAmountForm
-                  decimals={USDC_DECIMALS}
-                  defaultAmount={amount}
-                  address={USDC}
-                  destination={DWF_PURCHASER}
-                  signer={library?.getSigner()}
-                  maxAmountFrom={[usdcBalanceBn, limitAvailableBn]}
-                  onAction={handleAction}
-                  onMaxAction={handleAction}
-                  actionLabel={'Buy'}
-                  maxActionLabel={'Buy MAX available'}
-                  hideInputIfNoAllowance={false}
-                  onAmountChange={(v) => setAmount(v)}
-                  showMaxBtn={true}
-                  showBalance={true}
-                  isDisabled={hasError}
-                  isError={hasError}
-                />
-                {/* <Text>Inv Oracle Price (Balancer Pool):</Text> */}
-                {/* <Text>{shortenNumber(invPrice, 2, true)}</Text> */}
-              </HStack>
-            </VStack>
-          </Container>
+        <HStack justify="space-between" pt="6" w='100%' maxW='500px'>
+          <VStack>
+            <Text fontSize="16px">INV price (OTC)</Text>
+            <Text fontWeight="bold" fontSize="24px">{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
+          </VStack>
+          <VStack>
+            <Text fontSize="16px">INV price (Coingecko)</Text>
+            <Text fontWeight="bold" fontSize="24px">{prices ? shortenNumber(prices['inverse-finance']?.usd, 2, true) : '-'}</Text>
+          </VStack>
+        </HStack>
+        <Stack pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
+          {
+            !isConnected ? <Container noPadding p="0" alignItems='center' contentProps={{ maxW: '500px' }}>
+              <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
+            </Container>
+              : <>
+                <Container noPadding p="0" label="OTC Agreement">
+                  <VStack h="400px" w='full' justify="space-between">
+                    <VStack w='full' >
+                      <HStack w='full' justify="space-between">
+                        <Text>Bonus to apply:</Text>
+                        <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(bonusBps * 100, 2)}%</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>OTC Contract:</Text>
+                        <ScannerLink useName={false} value={DWF_PURCHASER} />
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>Min INV price:</Text>
+                        <Text fontWeight="bold">{shortenNumber(minInvPrice, 2, true)}</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>Start Time:</Text>
+                        <Text fontWeight="bold">{moment(startTime).format('MMM Do YYYY, hh:mm a')} ({moment(startTime).fromNow()})</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>End Time:</Text>
+                        <Text fontWeight="bold">{moment(endTime).format('MMM Do YYYY, hh:mm a')} ({moment(endTime).fromNow()})</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>Total Spend Limit:</Text>
+                        <Text fontWeight="bold">{preciseCommify(lifetimeLimit, 0)} USDC</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>Daily Spend Limit:</Text>
+                        <Text fontWeight="bold">{preciseCommify(dailyLimit, 0)} USDC</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>INV currently in held the contract:</Text>
+                        <Text fontWeight="bold">{preciseCommify(invBalance, 0)} INV</Text>
+                      </HStack>
+                    </VStack>
+                    <InfoMessage
+                      alertProps={{ w: 'full', fontSize: '14px' }}
+                      description={
+                        <VStack spacing="0" w='full' alignItems="flex-start">
+                          <HStack spacing="1">
+                            <Text>Recommendation: use flashbot rpc, </Text>
+                            <Link href="https://docs.flashbots.net/flashbots-protect/rpc/quick-start" isExternal target="_blank">learn more</Link>
+                          </HStack>
+                          <Link href="/governance">See Initial Governance proposal</Link>
+                        </VStack>
+                      }
+                    />
+                  </VStack>
+                </Container>
+                <Container noPadding p="0" label="Buy INV with USDC">
+                  {isWhitelisted ? <VStack h="400px" w='full'>
+                    <HStack w='full' justify="space-between">
+                      <Text>Currently spendable:</Text>
+                      <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(limitAvailable, 2)} USDC</Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Total already spent:</Text>
+                      <Text>{shortenNumber(lifetimeBuy, 2)} USDC</Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Spent Today:</Text>
+                      <Text>{shortenNumber(dailyBuy, 2)} USDC</Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Last Buy:</Text>
+                      <Text>{
+                        lastBuy >= startTime ? `${moment(lastBuy).format('MMM Do YYYY, hh:mm a')} (${moment(lastBuy).fromNow()})` : '-'
+                      }</Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <SimpleAmountForm
+                        decimals={USDC_DECIMALS}
+                        defaultAmount={amount}
+                        address={USDC}
+                        destination={DWF_PURCHASER}
+                        signer={library?.getSigner()}
+                        maxAmountFrom={[usdcBalanceBn, limitAvailableBn]}
+                        onAction={handleAction}
+                        onMaxAction={handleAction}
+                        actionLabel={'Spend USDC'}
+                        // maxActionLabel={'Buy MAX available'}
+                        hideInputIfNoAllowance={false}
+                        onAmountChange={(v) => setAmount(v)}
+                        showMaxBtn={false}
+                        // showBalance={true}
+                        isDisabled={isDisabled}
+                        isError={hasError}
+                        inputProps={{ placeholder: 'USDC to spend' }}
+                        btnProps={{ fontSize: '18px' }}
+                      />
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Max. slippage %:</Text>
+                      <Input border={!maxSlippage ? '1px solid red' : 'none'} maxH="30px" p="8px" w='80px' placeholder="0" value={maxSlippage} onChange={(e) => handleMaxSlippage(e.target.value)} />
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Max. INV price to accept:</Text>
+                      <Text>
+                        ~{shortenNumber(maxInvPrice, 2, true)}
+                      </Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Purchasing:</Text>
+                      <Text>
+                        {invNormalPurchase ? `~${shortenNumber(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
+                      </Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Bonus to receive:</Text>
+                      <Text>
+                        {invNormalPurchase ? `~${shortenNumber(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
+                      </Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                      <Text>Total INV to receive:</Text>
+                      <Text fontWeight="bold">
+                        {invNormalPurchase ? `~${shortenNumber(invTotal, 2)} INV (${shortenNumber(invPrice * invTotal, 2, true)})` : '-'}
+                      </Text>
+                    </HStack>
+                  </VStack> : <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description="Your account is not whitelisted for this OTC contract"
+                  />
+                  }
+                </Container>
+              </>
+          }
         </Stack>
       </VStack>
     </Layout>
