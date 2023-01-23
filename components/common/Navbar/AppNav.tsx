@@ -448,7 +448,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
@@ -644,7 +644,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         }
         <BurgerMenu active={active} activeSubmenu={activeSubmenu} userAddress={userAddress} nbNotif={nbNotif} navItems={NAV_ITEMS} />
       </Flex>
-      {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && <Announcement />}
+      {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
     </VStack>
   )
 }
