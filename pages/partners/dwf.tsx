@@ -258,15 +258,15 @@ export const DWFPage = () => {
                   {isWhitelisted ? <VStack minH="400px" w='full'>
                     <HStack w='full' justify="space-between">
                       <Text>Currently spendable:</Text>
-                      <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(limitAvailable, 2)} USDC</Text>
+                      <Text fontWeight="bold" color="success" fontSize="20px">{preciseCommify(limitAvailable, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Total already spent:</Text>
-                      <Text>{shortenNumber(lifetimeBuy, 2)} USDC</Text>
+                      <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Spent Today:</Text>
-                      <Text>{shortenNumber(dailyBuy, 2)} USDC</Text>
+                      <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Last Buy:</Text>
@@ -309,19 +309,19 @@ export const DWFPage = () => {
                     <HStack w='full' justify="space-between">
                       <Text>Purchasing:</Text>
                       <Text>
-                        {invNormalPurchase ? `~${shortenNumber(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
+                        {invNormalPurchase ? `~${preciseCommify(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
                       </Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Bonus to receive:</Text>
                       <Text>
-                        {invNormalPurchase ? `~${shortenNumber(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
+                        {invNormalPurchase ? `~${preciseCommify(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
                       </Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Total INV to receive:</Text>
                       <Text fontWeight="bold">
-                        {invNormalPurchase ? `~${shortenNumber(invTotal, 2)} INV (${shortenNumber(invPrice * invTotal, 2, true)})` : '-'}
+                        {invNormalPurchase ? `~${preciseCommify(invTotal, 2)} INV (${shortenNumber(invPrice * invTotal, 2, true)})` : '-'}
                       </Text>
                     </HStack>
                   </VStack> : <InfoMessage
