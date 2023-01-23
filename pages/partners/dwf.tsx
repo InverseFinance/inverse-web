@@ -44,6 +44,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     [DWF_PURCHASER, 'whitelist', buyer],
     [USDC, 'balanceOf', buyer],
     [INV, 'balanceOf', DWF_PURCHASER],
+    [INV, 'balanceOf', buyer],
   ]);
 
   const [
@@ -61,10 +62,12 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     isWhitelisted,
     usdcBalance,
     invBalance,
-  ] = data || [zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, false, zero, zero];
+    myInvBalance,
+  ] = data || [zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, false, zero, zero, zero];
 
   return {
     isLoading: !data && !error,
+    // contract uses an inv price normalized for USDC's decimals
     invPrice: data ? getBnToNumber(invPrice, USDC_DECIMALS) : 0,
     startTime: data ? getBnToNumber(startTime, 0) * 1000 : 0,
     runTime: data ? getBnToNumber(runTime, 0) * 1000 : 0,
@@ -81,13 +84,14 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     usdcBalance: data ? getBnToNumber(usdcBalance, USDC_DECIMALS) : 0,
     usdcBalanceBn: data ? usdcBalance : zero,
     invBalance: data ? getBnToNumber(invBalance) : 0,
+    myInvBalance: data ? getBnToNumber(myInvBalance) : 0,
     invBalanceBn: data ? invBalance : zero,
     isWhitelisted: data ? isWhitelisted : true,
   }
 }
 
 const buy = (bnAmount: BigNumber, maxInvPrice: BigNumber, signer: JsonRpcSigner) => {
-  const contract = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, signer);
+  const contract = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, signer);  
   return contract.buy(bnAmount, maxInvPrice);
 }
 
@@ -100,7 +104,27 @@ export const DWFPage = () => {
   const [isConnected, setConnected] = useState(true);
   const [amount, setAmount] = useState('');
   const [maxSlippage, setMaxSlippage] = useState('2');
-  const { isLoading, invPrice, startTime, endTime, lastBuy, limitAvailable, lifetimeBuy, dailyLimit, dailyBuy, bonusBps, invBalanceBn, limitAvailableBn, usdcBalanceBn, usdcBalance, minInvPrice, lifetimeLimit, invBalance, isWhitelisted } = dwfData;
+  const {
+    isLoading,
+    myInvBalance,
+    invPrice,
+    startTime,
+    endTime,
+    lastBuy,
+    limitAvailable,
+    lifetimeBuy,
+    dailyLimit,
+    dailyBuy,
+    bonusBps,
+    invBalanceBn,
+    limitAvailableBn,
+    usdcBalanceBn,
+    usdcBalance,
+    minInvPrice,
+    lifetimeLimit,
+    invBalance,
+    isWhitelisted,
+  } = dwfData;
 
   const maxInvPrice = invPrice * (1 + parseFloat(maxSlippage) / 100);
 
@@ -121,7 +145,7 @@ export const DWFPage = () => {
   }, [account], !account, 1000);
 
   const handleAction = (params) => {
-    return buy(params.bnAmount, getNumberToBn(maxInvPrice), library?.getSigner());
+    return buy(params.bnAmount, getNumberToBn(maxInvPrice, USDC_DECIMALS), library?.getSigner());
   }
 
   const handleMaxSlippage = (value: string) => {
