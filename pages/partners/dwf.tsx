@@ -17,7 +17,7 @@ import { DWF_PURCHASER_ABI } from '@app/config/abis';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useAccount } from '@app/hooks/misc';
 import ScannerLink from '@app/components/common/ScannerLink';
-import { InfoMessage } from '@app/components/common/Messages';
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
 import { Input } from '@app/components/common/Input';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
@@ -29,7 +29,7 @@ const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 const INV = '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68';
 
 export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
-  const { data } = useEtherSWR([
+  const { data, error } = useEtherSWR([
     [DWF_PURCHASER, 'getInvPrice'],
     [DWF_PURCHASER, 'startTime'],
     [DWF_PURCHASER, 'runTime'],
@@ -44,6 +44,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     [DWF_PURCHASER, 'whitelist', buyer],
     [USDC, 'balanceOf', buyer],
     [INV, 'balanceOf', DWF_PURCHASER],
+    [INV, 'balanceOf', buyer],
   ]);
 
   const [
@@ -61,10 +62,13 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     isWhitelisted,
     usdcBalance,
     invBalance,
-  ] = data || [zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, false, zero, zero];
+    myInvBalance,
+  ] = data || [zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, false, zero, zero, zero];
 
   return {
-    invPrice: data ? getBnToNumber(invPrice) : 0,
+    isLoading: !data && !error,
+    // contract uses an inv price normalized for USDC's decimals
+    invPrice: data ? getBnToNumber(invPrice, USDC_DECIMALS) : 0,
     startTime: data ? getBnToNumber(startTime, 0) * 1000 : 0,
     runTime: data ? getBnToNumber(runTime, 0) * 1000 : 0,
     endTime: data ? getBnToNumber(startTime, 0) * 1000 + getBnToNumber(runTime, 0) * 1000 : 0,
@@ -75,18 +79,19 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     lifetimeBuy: data ? getBnToNumber(lifetimeBuy, USDC_DECIMALS) : 0,
     limitAvailable: data ? getBnToNumber(limitAvailable, USDC_DECIMALS) : 0,
     limitAvailableBn: data ? limitAvailable : zero,
-    minInvPrice: data ? getBnToNumber(minInvPrice) : 0,
+    minInvPrice: data ? getBnToNumber(minInvPrice, USDC_DECIMALS) : 0,
     bonusBps: data ? getBnToNumber(bonusBps, 4) : 0,
     usdcBalance: data ? getBnToNumber(usdcBalance, USDC_DECIMALS) : 0,
     usdcBalanceBn: data ? usdcBalance : zero,
     invBalance: data ? getBnToNumber(invBalance) : 0,
+    myInvBalance: data ? getBnToNumber(myInvBalance) : 0,
     invBalanceBn: data ? invBalance : zero,
     isWhitelisted: data ? isWhitelisted : true,
   }
 }
 
 const buy = (bnAmount: BigNumber, maxInvPrice: BigNumber, signer: JsonRpcSigner) => {
-  const contract = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, signer);
+  const contract = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, signer);  
   return contract.buy(bnAmount, maxInvPrice);
 }
 
@@ -99,7 +104,27 @@ export const DWFPage = () => {
   const [isConnected, setConnected] = useState(true);
   const [amount, setAmount] = useState('');
   const [maxSlippage, setMaxSlippage] = useState('2');
-  const { invPrice, startTime, endTime, lastBuy, limitAvailable, lifetimeBuy, dailyLimit, dailyBuy, bonusBps, invBalanceBn, limitAvailableBn, usdcBalanceBn, usdcBalance, minInvPrice, lifetimeLimit, invBalance, isWhitelisted } = dwfData;
+  const {
+    isLoading,
+    myInvBalance,
+    invPrice,
+    startTime,
+    endTime,
+    lastBuy,
+    limitAvailable,
+    lifetimeBuy,
+    dailyLimit,
+    dailyBuy,
+    bonusBps,
+    invBalanceBn,
+    limitAvailableBn,
+    usdcBalanceBn,
+    usdcBalance,
+    minInvPrice,
+    lifetimeLimit,
+    invBalance,
+    isWhitelisted,
+  } = dwfData;
 
   const maxInvPrice = invPrice * (1 + parseFloat(maxSlippage) / 100);
 
@@ -120,7 +145,7 @@ export const DWFPage = () => {
   }, [account], !account, 1000);
 
   const handleAction = (params) => {
-    return buy(params.bnAmount, getNumberToBn(maxInvPrice), library?.getSigner());
+    return buy(params.bnAmount, getNumberToBn(maxInvPrice, USDC_DECIMALS), library?.getSigner());
   }
 
   const handleMaxSlippage = (value: string) => {
@@ -150,9 +175,9 @@ export const DWFPage = () => {
         >
           <Image src="/assets/partners/dwf-labs.svg" w="50%" maxW='200px' />
           <Image src="/assets/partners/inv-handshake.png" w="50%" maxW='200px' />
-          <Text color="white" textAlign="center" fontWeight="extrabold" fontSize="24px">Inverse Finance</Text>
+          <Text color="white" textAlign="center" fontWeight="extrabold" fontSize="30px">Inverse Finance</Text>
         </Stack>
-        <HStack justify="space-between" pt="6" w='100%' maxW='500px'>
+        <HStack px="4%" justify="space-between" pt="6" w='100%' maxW='500px'>
           <VStack>
             <Text fontSize="16px">INV price (OTC)</Text>
             <Text fontWeight="bold" fontSize="24px">{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
@@ -162,14 +187,14 @@ export const DWFPage = () => {
             <Text fontWeight="bold" fontSize="24px">{prices ? shortenNumber(prices['inverse-finance']?.usd, 2, true) : '-'}</Text>
           </VStack>
         </HStack>
-        <Stack pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
+        <Stack px="4%" pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
           {
             !isConnected ? <Container noPadding p="0" alignItems='center' contentProps={{ maxW: '500px' }}>
               <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
             </Container>
               : <>
                 <Container noPadding p="0" label="OTC Agreement">
-                  <VStack h="400px" w='full' justify="space-between">
+                  <VStack minH="400px" w='full' justify="space-between">
                     <VStack w='full' >
                       <HStack w='full' justify="space-between">
                         <Text>Bonus to apply:</Text>
@@ -185,11 +210,11 @@ export const DWFPage = () => {
                       </HStack>
                       <HStack w='full' justify="space-between">
                         <Text>Start Time:</Text>
-                        <Text fontWeight="bold">{moment(startTime).format('MMM Do YYYY, hh:mm a')} ({moment(startTime).fromNow()})</Text>
+                        <Text fontWeight="bold">{lifetimeLimit ? `${moment(startTime).format('MMM Do YYYY, hh:mm a')} (${moment(startTime).fromNow()})` : '-'}</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
                         <Text>End Time:</Text>
-                        <Text fontWeight="bold">{moment(endTime).format('MMM Do YYYY, hh:mm a')} ({moment(endTime).fromNow()})</Text>
+                        <Text fontWeight="bold">{lifetimeLimit ? `${moment(endTime).format('MMM Do YYYY, hh:mm a')} (${moment(endTime).fromNow()})` : '-'}</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
                         <Text>Total Spend Limit:</Text>
@@ -200,37 +225,48 @@ export const DWFPage = () => {
                         <Text fontWeight="bold">{preciseCommify(dailyLimit, 0)} USDC</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
-                        <Text>INV currently in held the contract:</Text>
+                        <Text>INV in contract:</Text>
                         <Text fontWeight="bold">{preciseCommify(invBalance, 0)} INV</Text>
                       </HStack>
                     </VStack>
-                    <InfoMessage
-                      alertProps={{ w: 'full', fontSize: '14px' }}
-                      description={
-                        <VStack spacing="0" w='full' alignItems="flex-start">
-                          <HStack spacing="1">
-                            <Text>Recommendation: use flashbot rpc, </Text>
-                            <Link href="https://docs.flashbots.net/flashbots-protect/rpc/quick-start" isExternal target="_blank">learn more</Link>
-                          </HStack>
-                          <Link href="/governance">See Initial Governance proposal</Link>
-                        </VStack>
-                      }
-                    />
+                    {
+                      lifetimeLimit || isLoading ? <InfoMessage
+                        alertProps={{ w: 'full', fontSize: '14px' }}
+                        description={
+                          <VStack spacing="0" w='full' alignItems="flex-start">
+                            <HStack spacing="1">
+                              <Text>Recommendation: use flashbot rpc, </Text>
+                              <Link href="https://docs.flashbots.net/flashbots-protect/rpc/quick-start" isExternal target="_blank">learn more</Link>
+                            </HStack>
+                            <Link href="/governance/proposals/mills/84">See Initial Governance proposal</Link>
+                          </VStack>
+                        }
+                      />
+                        : <WarningMessage
+                          alertProps={{ w: 'full', fontSize: '14px' }}
+                          description={
+                            <VStack spacing="0" w='full' alignItems="flex-start">
+                              <Text>Agreement details not initialized yet (awaiting proposal execution)</Text>
+                              <Link href="/governance">See Governance</Link>
+                            </VStack>
+                          }
+                        />
+                    }
                   </VStack>
                 </Container>
                 <Container noPadding p="0" label="Buy INV with USDC">
-                  {isWhitelisted ? <VStack h="400px" w='full'>
+                  {isWhitelisted ? <VStack minH="400px" w='full'>
                     <HStack w='full' justify="space-between">
                       <Text>Currently spendable:</Text>
-                      <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(limitAvailable, 2)} USDC</Text>
+                      <Text fontWeight="bold" color="success" fontSize="20px">{preciseCommify(limitAvailable, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Total already spent:</Text>
-                      <Text>{shortenNumber(lifetimeBuy, 2)} USDC</Text>
+                      <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Spent Today:</Text>
-                      <Text>{shortenNumber(dailyBuy, 2)} USDC</Text>
+                      <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Last Buy:</Text>
@@ -273,19 +309,19 @@ export const DWFPage = () => {
                     <HStack w='full' justify="space-between">
                       <Text>Purchasing:</Text>
                       <Text>
-                        {invNormalPurchase ? `~${shortenNumber(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
+                        {invNormalPurchase ? `~${preciseCommify(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
                       </Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Bonus to receive:</Text>
                       <Text>
-                        {invNormalPurchase ? `~${shortenNumber(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
+                        {invNormalPurchase ? `~${preciseCommify(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
                       </Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
                       <Text>Total INV to receive:</Text>
                       <Text fontWeight="bold">
-                        {invNormalPurchase ? `~${shortenNumber(invTotal, 2)} INV (${shortenNumber(invPrice * invTotal, 2, true)})` : '-'}
+                        {invNormalPurchase ? `~${preciseCommify(invTotal, 2)} INV (${shortenNumber(invPrice * invTotal, 2, true)})` : '-'}
                       </Text>
                     </HStack>
                   </VStack> : <InfoMessage
