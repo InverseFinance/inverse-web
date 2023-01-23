@@ -175,9 +175,9 @@ export const DWFPage = () => {
         >
           <Image src="/assets/partners/dwf-labs.svg" w="50%" maxW='200px' />
           <Image src="/assets/partners/inv-handshake.png" w="50%" maxW='200px' />
-          <Text color="white" textAlign="center" fontWeight="extrabold" fontSize="24px">Inverse Finance</Text>
+          <Text color="white" textAlign="center" fontWeight="extrabold" fontSize="30px">Inverse Finance</Text>
         </Stack>
-        <HStack justify="space-between" pt="6" w='100%' maxW='500px'>
+        <HStack px="4%" justify="space-between" pt="6" w='100%' maxW='500px'>
           <VStack>
             <Text fontSize="16px">INV price (OTC)</Text>
             <Text fontWeight="bold" fontSize="24px">{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
@@ -187,14 +187,14 @@ export const DWFPage = () => {
             <Text fontWeight="bold" fontSize="24px">{prices ? shortenNumber(prices['inverse-finance']?.usd, 2, true) : '-'}</Text>
           </VStack>
         </HStack>
-        <Stack pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
+        <Stack px="4%" pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1100px" spacing="8">
           {
             !isConnected ? <Container noPadding p="0" alignItems='center' contentProps={{ maxW: '500px' }}>
               <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
             </Container>
               : <>
                 <Container noPadding p="0" label="OTC Agreement">
-                  <VStack h="400px" w='full' justify="space-between">
+                  <VStack minH="400px" w='full' justify="space-between">
                     <VStack w='full' >
                       <HStack w='full' justify="space-between">
                         <Text>Bonus to apply:</Text>
@@ -225,7 +225,7 @@ export const DWFPage = () => {
                         <Text fontWeight="bold">{preciseCommify(dailyLimit, 0)} USDC</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
-                        <Text>INV currently in held the contract:</Text>
+                        <Text>INV in contract:</Text>
                         <Text fontWeight="bold">{preciseCommify(invBalance, 0)} INV</Text>
                       </HStack>
                     </VStack>
@@ -255,7 +255,7 @@ export const DWFPage = () => {
                   </VStack>
                 </Container>
                 <Container noPadding p="0" label="Buy INV with USDC">
-                  {isWhitelisted ? <VStack h="400px" w='full'>
+                  {isWhitelisted ? <VStack minH="400px" w='full'>
                     <HStack w='full' justify="space-between">
                       <Text>Currently spendable:</Text>
                       <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(limitAvailable, 2)} USDC</Text>
