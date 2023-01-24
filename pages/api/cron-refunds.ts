@@ -15,7 +15,7 @@ import { formatEther } from "@ethersproject/units";
 
 const client = getRedisClient();
 
-const { GOVERNANCE, MULTISIGS, MULTI_DELEGATOR, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { GOVERNANCE, FEDS, MULTISIGS, MULTI_DELEGATOR, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const topics = {
     "0xdcc16fd18a808d877bcd9a09b544844b36ae8f0a4b222e317d7b777b2c18b032": "Expansion",
@@ -106,6 +106,7 @@ export default async function handler(req, res) {
             gov,
             multidelegator,
             gno,
+            feds,
             oracleOld,
             oracleCurrent,
             delegatesRes,
@@ -121,6 +122,7 @@ export default async function handler(req, res) {
             !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
             // gnosis proxy, for creation
             !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
+            !hasFilter || filterType === 'feds' ? Promise.all(FEDS.filter(f => f.chainId === NetworkIds.mainnet && !f.hasEnded).map(f => getTxsOf(f.address, deltaDays * 10))) : new Promise((r) => r([{ data: { items: [] } }])),
             // price feed update
             !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
             !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
@@ -147,6 +149,9 @@ export default async function handler(req, res) {
 
         multisigsRes.forEach(r => {
             cronJobItems = cronJobItems.concat(formatResults(r, 'multisig', refundWhitelist, [], multisig))
+        });
+        feds.forEach(r => {
+            cronJobItems = cronJobItems.concat(formatResults(r, 'fed', refundWhitelist))
         });
 
         const error = cronJobItems.find(item => item.error);
