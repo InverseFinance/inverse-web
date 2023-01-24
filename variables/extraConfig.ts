@@ -35,6 +35,7 @@ const mainConfig = {
             escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
             icon: '/assets/projects/Ether.png',
             helper: '',
+            oracleType: "chainlink",
         },
     ],
     feds: [
