@@ -254,7 +254,7 @@ export const DWFPage = () => {
                     }
                   </VStack>
                 </Container>
-                <Container noPadding p="0" label="Buy INV with USDC">
+                <Container noPadding p="0" label="Swap USDC to INV">
                   {isWhitelisted ? <VStack minH="400px" w='full'>
                     <HStack w='full' justify="space-between">
                       <Text>Currently spendable:</Text>
@@ -269,7 +269,7 @@ export const DWFPage = () => {
                       <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
-                      <Text>Last Buy:</Text>
+                      <Text>Last swap:</Text>
                       <Text>{
                         lastBuy >= startTime ? `${moment(lastBuy).format('MMM Do YYYY, hh:mm a')} (${moment(lastBuy).fromNow()})` : '-'
                       }</Text>
@@ -284,15 +284,14 @@ export const DWFPage = () => {
                         maxAmountFrom={[usdcBalanceBn, limitAvailableBn]}
                         onAction={handleAction}
                         onMaxAction={handleAction}
-                        actionLabel={'Spend USDC'}
-                        // maxActionLabel={'Buy MAX available'}
+                        actionLabel={'Swap USDC'}                        
                         hideInputIfNoAllowance={false}
                         onAmountChange={(v) => setAmount(v)}
                         showMaxBtn={false}
                         // showBalance={true}
                         isDisabled={isDisabled}
                         isError={hasError}
-                        inputProps={{ placeholder: 'USDC to spend' }}
+                        inputProps={{ placeholder: 'USDC to swap' }}
                         btnProps={{ fontSize: '18px' }}
                       />
                     </HStack>

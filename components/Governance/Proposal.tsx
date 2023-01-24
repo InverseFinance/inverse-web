@@ -21,6 +21,7 @@ import { SubmitButton } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { DWFtextFix } from './dwf-text-fix'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -210,7 +211,8 @@ export const ProposalDetails = ({
     )
   }
 
-  const { title, description, proposer, status, createdAt, updatedAt, startTimestamp, etaTimestamp, endTimestamp, id, era, functions, executionTimestamp } = proposal
+  const { title, description, proposer, status, createdAt, updatedAt, startTimestamp, etaTimestamp, endTimestamp, id, era, functions, executionTimestamp, proposalNum } = proposal
+  const _description = proposalNum === 113 ? DWFtextFix : description;
 
   return (
     <Container
@@ -229,7 +231,7 @@ export const ProposalDetails = ({
                 isPublicDraft={isPublicDraft}
                 type="copy"
                 title={title}
-                description={description}
+                description={_description}
                 functions={functions}
               />
             }
@@ -252,10 +254,10 @@ export const ProposalDetails = ({
         <Flex w="full" overflow="auto" color="mainTextColor">
           <ReactMarkdown className="markdown-body" remarkPlugins={era !== GovEra.alpha ? [gfm] : undefined}>
             {
-              era === GovEra.alpha ? description.replace(
+              era === GovEra.alpha ? _description.replace(
                 /(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+/,
                 (m: string) => `[(Link)](${m})`
-              ) : description
+              ) : _description
             }
           </ReactMarkdown>
         </Flex>
