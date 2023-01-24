@@ -59,7 +59,7 @@ Full risk assessment provided by the Risk Working Group is here: Risk Assessment
 
 - DWF proposes to swap INV in $10K increments over a 140-day period. DWF could pause swapping at any time before Day 140 and not complete its $1MM swap commitment.
 
-- Unlike MM’s who borrow a DAO’s governance tokens for MM ops, DWF is taking actual ownership of INV tokens and there are no provisions for Inverse Finance to reclaim those sold INV once the sale is complete. Thus there is a risk that DWF could, after realizing a sufficient profit, swap some or all of its INV inventory back into the market, thus requiring us to seek out new MM partner(s). We see reputational risk for DWF in such a move that outweighs the benefits to DWF.
+- Unlike MM’s who borrow a DAO’s governance tokens for MM ops, DWF is taking actual ownership of INV tokens and there are no provisions for Inverse Finance to reclaim those swapped INV. Thus there is a risk that DWF could, after realizing a sufficient profit, swap some or all of its INV inventory back into the market, thus requiring us to seek out new MM partner(s). We see reputational risk for DWF in such a move that outweighs the benefits to DWF.
 
 - If DWF pauses its MM activities and chooses to exercise governance rights, it would become one of the largest holders of voting INV within the DAO.
 
