@@ -182,7 +182,7 @@ export default async function handler(req, res) {
             ]);
         }
 
-        res.status(200).json({ success: !hasErrors, delta: nbAfter - nbBefore, error, cronJobItems })
+        res.status(200).json({ success: !hasErrors, delta: nbAfter - nbBefore, error })
 
     } catch (err) {
         console.error(err);
