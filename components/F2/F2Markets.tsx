@@ -20,41 +20,40 @@ const Cell = ({ ...props }) => {
 }
 
 const CellText = ({ ...props }) => {
-    return <Text fontSize="16px" {...props} />
+    return <Text fontSize="15px" {...props} />
 }
 
 const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying }) => {
-            return <Cell minWidth="120px" justify="flex-start" alignItems="center" >                
+            return <Cell minWidth="110px" justify="flex-start" alignItems="center" >                
                 <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
-                <CellText>{name}</CellText>
+                <CellText fontWeight="bold">{name}</CellText>
             </Cell>
         },
     },
-    // {
-    //     field: 'supplyApy',
-    //     label: 'Supply Apy',
-    //     tooltip: 'Apy for the supplied asset',
-    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-    //     value: ({ supplyApy, price, underlying }) => {
-    //         return <Cell minWidth="100px" justify="center" fontSize="16px">
-    //             {/* <CellText>{shortenNumber(supplyApy, 2)}%</CellText> */}
-    //             <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
-    //         </Cell>
-    //     },
-    // },
+    {
+        field: 'supplyApy',
+        label: 'Supply Apy',
+        tooltip: 'Apy for the supplied asset',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ supplyApy, price, underlying }) => {
+            return <Cell minWidth="100px" justify="center" fontSize="15px">                
+                <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
+            </Cell>
+        },
+    },
     {
         field: 'oracleType',
         label: 'Oracle Type',
         tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
         value: ({ oracleType }) => {
-            return <Cell alignItems="center" minWidth="150px" justify="center" fontSize="16px">
+            return <Cell alignItems="center" minWidth="160px" justify="center" fontSize="15px">
                 <OracleType oracleType={oracleType} />
             </Cell>
         },
@@ -72,11 +71,11 @@ const columns = [
     {
         field: 'collateralFactor',
         label: 'C.F',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         tooltip: 'Collateral Factor: percentage of the collateral worth transformed into borrowing power',
         value: ({ collateralFactor }) => {
-            return <Cell minWidth="120px" justify="center" >
-                <CellText>{shortenNumber(collateralFactor * 100, 2)}%</CellText>
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
             </Cell>
         },
     },
@@ -94,10 +93,10 @@ const columns = [
     {
         field: 'tvl',
         label: 'TVL',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         tooltip: 'Total Value Locked',
         value: ({ tvl }) => {
-            return <Cell minWidth="120px" justify="center" >
+            return <Cell minWidth="90px" justify="center" >
                 <CellText>{shortenNumber(tvl, 2, true)}</CellText>
             </Cell>
         },
@@ -105,10 +104,10 @@ const columns = [
     {
         field: 'totalDebt',
         label: 'Borrows',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         tooltip: 'Total DOLA borrowed in the Market',
         value: ({ totalDebt }) => {
-            return <Cell minWidth="120px" justify="center" >
+            return <Cell minWidth="90px" justify="center" >
                 <CellText>{shortenNumber(totalDebt, 2, true)}</CellText>
             </Cell>
         },
@@ -219,7 +218,7 @@ export const F2Markets = ({
                 return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
             })}
             onClick={openMarket}
-            defaultSort="address"
+            defaultSort="tvl"
             defaultSortDir="desc"
             enableMobileRender={true}
             mobileClickBtnLabel={'View Market'}

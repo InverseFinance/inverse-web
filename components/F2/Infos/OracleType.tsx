@@ -11,7 +11,7 @@ export const OracleType = ({
     showText?: boolean,
 }) => {
     return <HStack spacing="1">
-        {showImage && <Image src={`/assets/projects/${oracleType}.webp`} h="20px" w="20px" ignoreFallback={true} />}
+        {showImage && <Image src={`/assets/projects/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
         { showText && <Text>{capitalize(oracleType)}+PPO</Text> }
     </HStack>
 }
