@@ -14,6 +14,7 @@ import { useFirmMarketEvents } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
 import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
+import { OracleType } from '../Infos/OracleType'
 
 type Data = {
     tooltip: string
@@ -123,6 +124,18 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 tooltip: 'Collateral Smart Contract used for this Market',
                 title: 'Collateral Contract',
                 value: <ScannerLink value={market.underlying.address} useName={false} />,
+            },
+        ],
+        [
+            {
+                tooltip: 'Main Smart Contract handling this Market',
+                title: 'Oracle Feed',
+                value: <ScannerLink value={market.oracleFeed} useName={false} />,
+            },
+            {
+                tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
+                title: 'Oracle Type',
+                value: <OracleType oracleType={market.oracleType} showImage={false} />,
             },
         ],
         [

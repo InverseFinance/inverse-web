@@ -693,6 +693,8 @@ export type F2Market = {
   icon?: string
   marketIcon?: string
   helper?: string
+  oracleType: string
+  oracleFeed: string
   escrowImplementation: string
 }
 

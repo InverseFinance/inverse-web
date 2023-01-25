@@ -35,6 +35,16 @@ const mainConfig = {
             escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
             icon: '/assets/projects/Ether.png',
             helper: '',
+            oracleType: "chainlink",
+        },
+        {
+            name: 'stETH',
+            collateral: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+            address: '0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf',
+            escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
+            icon: 'https://assets.coingecko.com/coins/images/13442/large/steth_logo.png',
+            helper: '',
+            oracleType: "chainlink",
         },
     ],
     feds: [
