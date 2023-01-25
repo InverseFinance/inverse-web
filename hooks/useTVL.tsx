@@ -23,10 +23,10 @@ export const useFirmTVL = (): SWR & {
   timestamp: number
   firmTvls: { tvl: number, market: F2Market }
 }[] => {
-  const { data, error } = useCustomSWR(`/api/f2/tvl`, fetcher)
+  const { data, error } = useCustomSWR(`/api/f2/tvl?v=2`, fetcher)
 
   return {
-    firmTotalTvl: data?.firmTotalTvl,
+    firmTotalTvl: data?.firmTotalTvl || 0,
     firmTvls: data?.firmTvls || [],
     timestamp: data?.timestamp,
     isLoading: !error && !data,

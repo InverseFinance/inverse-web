@@ -14,7 +14,7 @@ import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const cacheKey = 'f2-tvl-v1.0.0'
+    const cacheKey = 'f2-tvl-v1.0.1'
     try {
         const cache = await getCacheFromRedis(cacheKey, true, 30);
         if (cache) {

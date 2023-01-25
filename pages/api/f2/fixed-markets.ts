@@ -9,7 +9,7 @@ import { getBnToNumber, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.92`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.93`;
 
 export default async function handler(req, res) {
 
