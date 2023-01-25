@@ -78,9 +78,7 @@ export const F2WalkthroughRecap = ({
     }
 
     const gotoLoan = () => {
-        setIsWalkthrough(false);
-        handleDebtChange('');
-        handleCollateralChange('');
+        window.location.href = `/firm/${market.name}`;
     }
 
     if (isDone) {
