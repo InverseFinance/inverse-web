@@ -125,6 +125,13 @@ export default async function handler(req, res) {
       }),
     )).map(r => r.status === 'fulfilled' ? r.value : BigNumber.from('0'));
 
+    const oracleFeeds = (await Promise.all(
+      oracles.map((o, i) => {
+        const oracle = new Contract(o, F2_ORACLE_ABI, provider);
+        return oracle.feeds(F2_MARKETS[i].collateral);
+      }),
+    ));
+
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
@@ -144,6 +151,7 @@ export default async function handler(req, res) {
         ...m,
         bnTotalDebts,
         oracle: oracles[i],
+        oracleFeed: oracleFeeds[i][0],
         underlying: TOKENS[m.collateral],
         price: getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
         totalDebt: getBnToNumber(bnTotalDebts[i]),

@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image } from "@chakra-ui/react"
+import { Flex, Stack, Text } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
@@ -9,7 +9,7 @@ import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
-import { capitalize } from "@app/util/misc";
+import { OracleType } from "./Infos/OracleType";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -55,8 +55,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ oracleType }) => {
             return <Cell alignItems="center" minWidth="150px" justify="center" fontSize="16px">
-                <Image src={`/assets/projects/${oracleType}.svg`} h="20px" w="20px" />      
-                <Text>{capitalize(oracleType)}+PPO</Text>
+                <OracleType oracleType={oracleType} />
             </Cell>
         },
     },
@@ -125,22 +124,22 @@ const columns = [
             </Cell>
         },
     }, 
-    {
-        field: 'collateralBalance',
-        label: 'Wallet',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        tooltip: 'Collateral balance in your wallet',
-        value: ({ collateralBalance, price, account }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
-                {
-                    account && collateralBalance > 0 ? <>
-                        <CellText>{shortenNumber(collateralBalance, 2)}</CellText>
-                        <CellText>({shortenNumber(collateralBalance * price, 2, true)})</CellText>
-                    </> : <>-</>
-                }
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'collateralBalance',
+    //     label: 'Wallet',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     tooltip: 'Collateral balance in your wallet',
+    //     value: ({ collateralBalance, price, account }) => {
+    //         return <Cell minWidth="100px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
+    //             {
+    //                 account && collateralBalance > 0 ? <>
+    //                     <CellText>{shortenNumber(collateralBalance, 2)}</CellText>
+    //                     <CellText>({shortenNumber(collateralBalance * price, 2, true)})</CellText>
+    //                 </> : <>-</>
+    //             }
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'deposits',
         label: 'Your Deposits',

@@ -413,6 +413,7 @@ export const DBR_ABI = ERC20_ABI.concat([
 export const F2_ORACLE_ABI = [
   "function getPrice(address collateral, uint collateralFactorBps) external returns (uint)",
   "function viewPrice(address collateral, uint collateralFactorBps) public view returns (uint)",
+  "function feeds(address collateral) public view returns (address, uint)",
 ];
 
 export const F2_SIMPLE_ESCROW_ABI = [
