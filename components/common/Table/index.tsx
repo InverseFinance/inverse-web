@@ -138,6 +138,10 @@ export const Table = ({
   }));
 
   useEffect(() => {
+    setSortBy(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
+  }, [defaultSort])
+
+  useEffect(() => {
     let filteredItems = [...sortedItems];
     Object.entries(filters).forEach(([key, val]) => {
       if (val === null) { return }

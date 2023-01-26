@@ -197,6 +197,8 @@ export const F2Markets = ({
         router.push(debt > 0 ? newPath : `${newPath}#step1`);
     }
 
+    console.log(debt)
+
     return <Container
         label="FiRM - BETA"
         description="Learn more"
@@ -218,7 +220,7 @@ export const F2Markets = ({
                 return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
             })}
             onClick={openMarket}
-            defaultSort="tvl"
+            defaultSort={debt > 0 ? 'deposits' : 'tvl'}
             defaultSortDir="desc"
             enableMobileRender={true}
             mobileClickBtnLabel={'View Market'}
