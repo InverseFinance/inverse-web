@@ -10,7 +10,7 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import moment from 'moment'
 import { useState } from "react";
 import { FirmLiquidationModal } from "./FirmLiquidationModal";
-import TableV2 from "@app/components/common/Table/TableV2";
+import Table from "@app/components/common/Table";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -184,7 +184,7 @@ export const FirmPositions = ({
             {
                 !!position && <FirmLiquidationModal onClose={onClose} isOpen={isOpen} position={position} />
             }
-            <TableV2
+            <Table
                 keyName="key"
                 noDataMessage="No live positions in last update"
                 columns={columns}
