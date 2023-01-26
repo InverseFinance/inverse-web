@@ -197,13 +197,11 @@ export const F2Markets = ({
         router.push(debt > 0 ? newPath : `${newPath}#step1`);
     }
 
-    console.log(debt)
-
     return <Container
         label="FiRM - BETA"
         description="Learn more"
         href="https://docs.inverse.finance/inverse-finance/firm"
-        image={<BigImageButton bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '30px', sm: "50px" }} w={{ base: '100px' ,sm: '110px' }} borderRadius="0" />}
+        image={<BigImageButton bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '40px', sm: "50px" }} w={{ base: '85px' ,sm: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         right={
             <Stack spacing="0" alignItems="flex-end">
