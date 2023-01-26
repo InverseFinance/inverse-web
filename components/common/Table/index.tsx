@@ -138,6 +138,10 @@ export const Table = ({
   }));
 
   useEffect(() => {
+    setSortBy(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
+  }, [defaultSort])
+
+  useEffect(() => {
     let filteredItems = [...sortedItems];
     Object.entries(filters).forEach(([key, val]) => {
       if (val === null) { return }
@@ -314,7 +318,7 @@ export const Table = ({
         </Flex>
       ))}
       {
-        !filteredItems.length > 0 && !!noDataMessage &&
+        filteredItems.length === 0 && !!noDataMessage &&
         <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
       }
     </Stack>
