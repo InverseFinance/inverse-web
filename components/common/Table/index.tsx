@@ -145,7 +145,8 @@ export const Table = ({
     let filteredItems = [...sortedItems];
     Object.entries(filters).forEach(([key, val]) => {
       if (val === null) { return }
-      filteredItems = filteredItems.filter(item => item[key] === val);
+      const isBool = ['true', 'false'].includes(val);
+      filteredItems = filteredItems.filter(item => isBool ? item[key].toString() === val : item[key] === val);
     });
     setFilteredItems(filteredItems);
     if (onFilter) {
