@@ -318,7 +318,7 @@ export const Table = ({
         </Flex>
       ))}
       {
-        !filteredItems.length > 0 && !!noDataMessage &&
+        filteredItems.length === 0 && !!noDataMessage &&
         <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
       }
     </Stack>
