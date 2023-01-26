@@ -1,7 +1,7 @@
 import { Flex, Stack, Text } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useAccountDBR, useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR';
+import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
@@ -187,10 +187,11 @@ export const F2Markets = ({
     }) => {
     const { markets } = useDBRMarkets();
     const account = useAccount();
+    const { price: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const { debt } = useAccountDBR(account);
     const router = useRouter();
-    const { firmTotalTvl, firmTvls } = useFirmTVL();
+    const { firmTvls } = useFirmTVL();
 
     const openMarket = (market: any) => {
         const newPath = router.asPath.replace(router.pathname, `/firm/${market.name}`);
@@ -198,17 +199,19 @@ export const F2Markets = ({
     }
 
     return <Container
-        label="FiRM - BETA"
-        description="Learn more"
+        label={`${shortenNumber(dbrPrice * 100, 2)}% Fixed Borrow APR`}
+        labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
+        description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/firm"
-        image={<BigImageButton bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '40px', sm: "50px" }} w={{ base: '85px' ,sm: '110px' }} borderRadius="0" />}
+        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '40px', sm: "50px" }} w={{ base: '85px' ,sm: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        right={
-            <Stack spacing="0" alignItems="flex-end">
-                <Text fontWeight="bold" color="mainTextColor">TVL</Text>
-                <Text color="secondaryTextColor">{shortenNumber(firmTotalTvl, 2, true)}</Text>
-            </Stack>
-        }
+        // right={
+        //     <Stack spacing="0" alignItems="flex-start">
+        //         <Text fontSize="20px" fontWeight="extrabold" color="mainTextColor">Fixed Borrow APR</Text>
+        //         <Text fontSize="24px" fontWeight="extrabold" color="secondaryTextColor">{shortenNumber(dbrPrice * 100, 2)}%</Text>
+        //     </Stack>
+        // }
+        // headerProps={{ direction: 'row-reverse' }}
     >
         <Table
             keyName="address"
