@@ -11,6 +11,7 @@ import { uniqueBy } from '@app/util/misc';
 import { AutocompleteProps } from '@app/types';
 import React from 'react';
 import { RSubmitButton } from '../Button/RSubmitButton';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export type Column = {
   label: string
@@ -38,6 +39,7 @@ type TableProps = {
   sortChevronProps?: IconProps
   colBoxProps?: BoxProps
   enableMobileRender?: boolean
+  showRowBorder?: boolean
   mobileThreshold?: number
   mobileClickBtnLabel?: string
 }
@@ -123,8 +125,10 @@ export const Table = ({
   enableMobileRender = false,
   mobileThreshold = 821,
   mobileClickBtnLabel = 'View Details',
+  showRowBorder = false,
   ...props
 }: TableProps) => {
+  const { themeStyles } = useAppTheme();
   const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
@@ -302,6 +306,7 @@ export const Table = ({
           py={2.5}
           pl={4}
           pr={4}
+          border={showRowBorder ? `1px solid ${themeStyles.colors.primary[600]}` : undefined}
           minW='fit-content'
           w="full"
           borderRadius={8}
