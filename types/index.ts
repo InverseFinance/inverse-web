@@ -1,4 +1,4 @@
-import { BackgroundProps } from '@app/node_modules/@chakra-ui/react/dist/types'
+import { BackgroundProps, BadgeProps } from '@app/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
@@ -696,6 +696,8 @@ export type F2Market = {
   oracleType: string
   oracleFeed: string
   escrowImplementation: string
+  badgeInfo: string
+  badgeProps?: BadgeProps
 }
 
 export type FirmAction = {
