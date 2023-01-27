@@ -36,6 +36,7 @@ const mainConfig = {
             icon: '/assets/projects/Ether.png',
             helper: '',
             oracleType: "chainlink",
+            badgeInfo: 'Highest CF',            
         },
         {
             name: 'stETH',
@@ -45,7 +46,19 @@ const mainConfig = {
             icon: 'https://assets.coingecko.com/coins/images/13442/large/steth_logo.png',
             helper: '',
             oracleType: "chainlink",
+            badgeInfo: 'Yield-Bearing',
+            badgeProps: { bgColor: 'success', color: 'white' },
         },
+        // {
+        //     name: 'gOHM',
+        //     collateral: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
+        //     address: '',
+        //     escrowImplementation: '',            
+        //     helper: '',
+        //     oracleType: "chainlink",
+        //     badgeInfo: 'Voting Preserved',
+        //     badgeProps: { bgColor: 'accentTextColor', color: 'white' },
+        // },
     ],
     feds: [
         { chainId: NetworkIds.mainnet, address: '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd', name: 'FiRM Fed', projectImage: '/assets/inv-square-dark.jpeg', isFirm: true, supplyFuncName: 'globalSupply' },
