@@ -30,22 +30,24 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell direction="column" minWidth="130px" justify="flex-start" alignItems="flex-start" >
-                <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
-                    <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                    <CellText fontWeight="bold">{name}</CellText>
-                </HStack>
-                {
-                    !!badgeInfo && <CellText fontWeight="bold">
-                        <Badge fontWeight="normal"
-                            textTransform="capitalize"
-                            borderRadius="50px"
-                            px="8px"
-                            {...badgeProps}>
-                            {badgeInfo}
-                        </Badge>
-                    </CellText>
-                }
+            return <Cell minWidth="130px">
+                <Cell minWidth='130px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+                    <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
+                        <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                        <CellText fontWeight="bold">{name}</CellText>
+                    </HStack>
+                    {
+                        !!badgeInfo && <CellText fontWeight="bold">
+                            <Badge fontWeight="normal"
+                                textTransform="capitalize"
+                                borderRadius="50px"
+                                px="8px"
+                                {...badgeProps}>
+                                {badgeInfo}
+                            </Badge>
+                        </CellText>
+                    }
+                </Cell>
             </Cell>
         },
     },
