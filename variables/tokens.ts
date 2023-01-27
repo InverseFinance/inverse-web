@@ -72,6 +72,7 @@ const chainTokenAddresses = {
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
+    GOHM: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -176,6 +177,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/13442/small/steth_logo.png',
       decimals: 18,
       protocolImage: 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png?1609873644',
+    },
+    [chainTokenAddresses["1"].GOHM]: {
+      address: chainTokenAddresses["1"].GOHM,
+      name: 'Governance OHM',
+      symbol: 'gOHM',
+      coingeckoId: 'governance-ohm',
+      image: 'https://assets.coingecko.com/coins/images/21129/small/token_wsOHM_logo.png?1638764900',
+      decimals: 18,      
     },
     [chainTokenAddresses["1"].INVDOLASLP]: {
       address: chainTokenAddresses["1"].INVDOLASLP,
