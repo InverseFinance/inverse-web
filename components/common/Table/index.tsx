@@ -294,39 +294,41 @@ export const Table = ({
           )
         })}
       </Flex>
-      {filteredItems?.map((item, i) => (
-        <Flex
-          key={item[keyName] ?? i}
-          // bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
-          justify="space-between"
-          align="center"
-          fontWeight="semibold"
-          fontSize="sm"
-          cursor={!!onClick ? 'pointer' : undefined}
-          py={2.5}
-          pl={4}
-          pr={4}
-          border={showRowBorder ? `1px solid ${themeStyles.colors.primary[600]}` : undefined}
-          minW='fit-content'
-          w="full"
-          borderRadius={8}
-          onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
-            if (!!e && e?.target?.id.startsWith('popover-')) {
-              return;
-            }
-            return onClick(item, e);
-          } : undefined}
-          _hover={{ bgColor: 'primary.850' }}
-        >
-          {columns.map(({ value }, j) => (
-            <Fragment key={j}>{value(item, i)}</Fragment>
-          ))}
-        </Flex>
-      ))}
-      {
-        filteredItems.length === 0 && !!noDataMessage &&
-        <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
-      }
+      <VStack w='full' spacing={showRowBorder ? '4' : '0'}>
+        {filteredItems?.map((item, i) => (
+          <Flex
+            key={item[keyName] ?? i}
+            // bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
+            justify="space-between"
+            align="center"
+            fontWeight="semibold"
+            fontSize="sm"
+            cursor={!!onClick ? 'pointer' : undefined}
+            py={2.5}
+            pl={4}
+            pr={4}
+            border={showRowBorder ? `1px solid ${themeStyles.colors.primary[600]}` : undefined}
+            minW='fit-content'
+            w="full"
+            borderRadius={8}
+            onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
+              if (!!e && e?.target?.id.startsWith('popover-')) {
+                return;
+              }
+              return onClick(item, e);
+            } : undefined}
+            _hover={{ bgColor: 'primary.850' }}
+          >
+            {columns.map(({ value }, j) => (
+              <Fragment key={j}>{value(item, i)}</Fragment>
+            ))}
+          </Flex>
+        ))}
+        {
+          filteredItems.length === 0 && !!noDataMessage &&
+          <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
+        }
+      </VStack>
     </Stack>
   )
 }
