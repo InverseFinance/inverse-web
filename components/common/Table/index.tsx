@@ -206,7 +206,7 @@ export const Table = ({
         fontWeight="semibold"
         justify="space-between"
         textTransform="capitalize"
-        pb={2}
+        pb={showRowBorder ? 0 : 2}
         pl={4}
         pr={4}
       >
