@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -27,12 +27,25 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
-        value: ({ name, icon, marketIcon, underlying }) => {
-            return <Cell minWidth="110px" justify="flex-start" alignItems="center" >                
-                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />   
-                <CellText fontWeight="bold">{name}</CellText>
+        value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
+            return <Cell direction="column" minWidth="130px" justify="flex-start" alignItems="flex-start" >
+                <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
+                    <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                    <CellText fontWeight="bold">{name}</CellText>
+                </HStack>
+                {
+                    !!badgeInfo && <CellText fontWeight="bold">
+                        <Badge fontWeight="normal"
+                            textTransform="capitalize"
+                            borderRadius="50px"
+                            px="8px"
+                            {...badgeProps}>
+                            {badgeInfo}
+                        </Badge>
+                    </CellText>
+                }
             </Cell>
         },
     },
@@ -42,7 +55,7 @@ const columns = [
         tooltip: 'Apy for the supplied asset',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ supplyApy, price, underlying }) => {
-            return <Cell minWidth="100px" justify="center" fontSize="15px">                
+            return <Cell minWidth="100px" justify="center" fontSize="15px">
                 <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
             </Cell>
         },
@@ -122,7 +135,7 @@ const columns = [
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2, true) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
             </Cell>
         },
-    }, 
+    },
     // {
     //     field: 'collateralBalance',
     //     label: 'Wallet',
@@ -203,15 +216,15 @@ export const F2Markets = ({
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/firm"
-        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '40px', sm: "50px" }} w={{ base: '85px' ,sm: '110px' }} borderRadius="0" />}
+        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '40px', sm: "50px" }} w={{ base: '85px', sm: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        // right={
-        //     <Stack spacing="0" alignItems="flex-start">
-        //         <Text fontSize="20px" fontWeight="extrabold" color="mainTextColor">Fixed Borrow APR</Text>
-        //         <Text fontSize="24px" fontWeight="extrabold" color="secondaryTextColor">{shortenNumber(dbrPrice * 100, 2)}%</Text>
-        //     </Stack>
-        // }
-        // headerProps={{ direction: 'row-reverse' }}
+    // right={
+    //     <Stack spacing="0" alignItems="flex-start">
+    //         <Text fontSize="20px" fontWeight="extrabold" color="mainTextColor">Fixed Borrow APR</Text>
+    //         <Text fontSize="24px" fontWeight="extrabold" color="secondaryTextColor">{shortenNumber(dbrPrice * 100, 2)}%</Text>
+    //     </Stack>
+    // }
+    // headerProps={{ direction: 'row-reverse' }}
     >
         <Table
             keyName="address"
@@ -225,6 +238,7 @@ export const F2Markets = ({
             defaultSortDir="desc"
             enableMobileRender={true}
             mobileClickBtnLabel={'View Market'}
+            showRowBorder={true}
             spacing="0"
         />
     </Container>
