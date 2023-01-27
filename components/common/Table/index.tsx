@@ -294,7 +294,7 @@ export const Table = ({
           )
         })}
       </Flex>
-      <VStack w='full' spacing={showRowBorder ? '4' : '0'}>
+      <VStack mt={showRowBorder ? "4 !important" : undefined} w='full' spacing={showRowBorder ? '4' : '0'}>
         {filteredItems?.map((item, i) => (
           <Flex
             key={item[keyName] ?? i}
