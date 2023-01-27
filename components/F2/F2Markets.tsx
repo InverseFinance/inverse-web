@@ -27,11 +27,11 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="105px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="130px">
-                <Cell minWidth='130px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+            return <Cell minWidth="105px">
+                <Cell minWidth='105px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                         <CellText fontWeight="bold">{name}</CellText>
@@ -85,7 +85,7 @@ const columns = [
     // },
     {
         field: 'collateralFactor',
-        label: 'C.F',
+        label: 'CF',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         tooltip: 'Collateral Factor: percentage of the collateral worth transformed into borrowing power',
         value: ({ collateralFactor }) => {
