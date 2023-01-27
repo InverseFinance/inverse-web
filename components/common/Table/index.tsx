@@ -206,7 +206,7 @@ export const Table = ({
         fontWeight="semibold"
         justify="space-between"
         textTransform="capitalize"
-        pb={2}
+        pb={showRowBorder ? 4 : 2}
         pl={4}
         pr={4}
       >
@@ -294,7 +294,7 @@ export const Table = ({
           )
         })}
       </Flex>
-      <VStack w='full' spacing={showRowBorder ? '4' : '0'}>
+      <VStack mt={showRowBorder ? "0 !important" : undefined} w='full' spacing={showRowBorder ? '4' : '0'}>
         {filteredItems?.map((item, i) => (
           <Flex
             key={item[keyName] ?? i}
