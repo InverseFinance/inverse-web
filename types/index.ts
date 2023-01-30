@@ -411,9 +411,9 @@ export type Fed = {
   hasEnded?: boolean,
   supplyFuncName?: string
   oldAddresses?: string[]
-  revenueChainId?: string
-  revenueSrcAd?: string
-  revenueTargetAd?: string
+  incomeChainId?: string
+  incomeSrcAd?: string
+  incomeTargetAd?: string
   isFirm?: boolean
 }
 

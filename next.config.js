@@ -48,8 +48,8 @@ const redirects = async () => {
       permanent: true,
     },
     {
-      source: '/transparency/fed-revenues',
-      destination: '/transparency/feds/revenue/all',
+      source: '/transparency/fed-income',
+      destination: '/transparency/feds/income/all',
       permanent: true,
     },
     {

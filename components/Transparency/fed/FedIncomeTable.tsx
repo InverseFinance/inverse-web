@@ -48,8 +48,8 @@ const columns = [
         field: 'transactionHash',
         label: 'Transaction',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ transactionHash, chainId, revenueChainId }) => <Flex minW="120px">
-            <ScannerLink value={transactionHash} type="tx" chainId={revenueChainId||chainId} />
+        value: ({ transactionHash, chainId, incomeChainId }) => <Flex minW="120px">
+            <ScannerLink value={transactionHash} type="tx" chainId={incomeChainId||chainId} />
         </Flex>,
     },
     {
@@ -63,7 +63,7 @@ const columns = [
     },
     {
         field: 'accProfit',
-        label: 'New Fed Revenue',
+        label: 'New Fed Income',
         header: ({ ...props }) => <Flex justify="center" minW="140px" {...props} />,
         value: ({ accProfit, profit }) =>
             <SupplyChange newSupply={accProfit} changeAmount={profit} />
@@ -73,14 +73,14 @@ const columns = [
 const columnsWithTotal = columns.concat([
     {
         field: 'totalAccProfit',
-        label: 'New TOTAL Revenue',
+        label: 'New TOTAL Income',
         header: ({ ...props }) => <Flex justify="flex-end" minW="140px" {...props} />,
         value: ({ totalAccProfit, profit }) =>
             <SupplyChange newSupply={totalAccProfit} changeAmount={profit} />
     },
 ])
 
-export const FedRevenueTable = ({ fedHistoricalEvents, isLoading, showTotalCol = true }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean, showTotalCol?: boolean }) => {
+export const FedIncomeTable = ({ fedHistoricalEvents, isLoading, showTotalCol = true }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean, showTotalCol?: boolean }) => {
     return (
         fedHistoricalEvents?.length > 0 ?
             <Table

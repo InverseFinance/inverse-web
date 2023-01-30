@@ -106,7 +106,7 @@ export const AnchorHeader = () => {
             <CheckIcon /> High-yield Positive Sum Rewards Token
           </Text>
           <Text color="accentTextColor">
-            <CheckIcon /> Revenue Sharing Payouts
+            <CheckIcon /> Income Sharing Payouts
           </Text>
           <Text color="accentTextColor">
             <CheckIcon /> Usable as Collateral

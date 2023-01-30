@@ -94,15 +94,15 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
   }
 }
 
-export const useFedRevenues = (): SWR & { totalEvents: FedEvent[], totalRevenues: { [key: string]: number } } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-revenues?v=2`, fetcher)
+export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncomes: { [key: string]: number } } => {
+  const { data, error } = useCustomSWR(`/api/transparency/fed-income?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
-  const totalRevenues = data?.totalRevenues || {};
+  const totalFedsIncomes = data?.totalFedsIncomes || {};
 
   return {
     totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
-    totalRevenues,
+    totalFedsIncomes,
     isLoading: !error && !data,
     isError: error,
   }
@@ -120,7 +120,7 @@ export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
   }
 }
 
-export const useFedRevenuesChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
+export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
   const now = new Date()
   const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
     const date = new Date(event.timestamp);
