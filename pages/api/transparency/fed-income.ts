@@ -41,7 +41,7 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await Promise.all(
-        FEDS.map(fed => getTxsOf(fed.revenueSrcAd || fed.address, 1000, 0, fed.revenueChainId || fed.chainId))
+        FEDS.map(fed => getTxsOf(fed.incomeSrcAd || fed.address, 1000, 0, fed.incomeChainId || fed.chainId))
     )
 
     return await Promise.all(transfers.map(async (r, i) => {
@@ -51,8 +51,8 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
             return cachedTotalEvents.filter(event => event.fedIndex === i);
         }
 
-        const toAddress = (fed?.revenueTargetAd || TREASURY)?.toLowerCase();
-        const srcAddress = (fed?.revenueSrcAd || fed?.address)?.toLowerCase();
+        const toAddress = (fed?.incomeTargetAd || TREASURY)?.toLowerCase();
+        const srcAddress = (fed?.incomeSrcAd || fed?.address)?.toLowerCase();
         const eventName = fed?.isXchain ? 'LogSwapout' : 'Transfer';
         
         const items = r.data.items
@@ -70,7 +70,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
                     && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
                 )
-            let revenues = 0;
+            let income = 0;
             const timestamp = +(new Date(item.block_signed_at));
             const dateSplit = item.block_signed_at.substring(0, 10).split('-');
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
@@ -100,15 +100,15 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                         console.log('found cached histo price', cachedHistoPrice.usd)
                         histoPrice = cachedHistoPrice.usd;
                     }
-                    revenues += histoPrice * amount;
+                    income += histoPrice * amount;
                 } else {
-                    revenues += amount;
+                    income += amount;
                 }
             }))
             return {
                 blockNumber: item.block_height,
                 timestamp,
-                profit: deduceBridgeFees(revenues, fed.chainId),
+                profit: deduceBridgeFees(income, fed.chainId),
                 transactionHash: item.tx_hash,
             }
         }));
@@ -153,7 +153,7 @@ export default async function handler(req, res) {
         let total = 0;
         let _key = 0;
 
-        const fedRevenues = filteredTransfers.map((fedTransfers, fedIndex) => {
+        const fedsIncomes = filteredTransfers.map((fedTransfers, fedIndex) => {
             if (!accProfits[fedIndex]) { accProfits[fedIndex] = 0 }
             fedTransfers.sort((a, b) => a.timestamp - b.timestamp);
             return fedTransfers.map(t => {
@@ -175,8 +175,8 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: +(new Date()),
-            totalRevenues: accProfits,
-            totalEvents: fedRevenues,
+            totalFedsIncomes: accProfits,
+            totalEvents: fedsIncomes,
             feds: FEDS,
         }
 
