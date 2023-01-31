@@ -25,11 +25,12 @@ const ANCHOR_RESERVES_TO_CHECK = [
 ];
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
-const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
+export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
 const cachePolKey = `dao-pols-v1.0.0`;
 const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
 const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
+export const cacheFedDatas = `dao-feds-datas-v1.0.0`;
 
 export default async function handler(req, res) {
 
@@ -294,7 +295,16 @@ export default async function handler(req, res) {
     const dolaSupplies = toSupplies(dolaTotalSupplyNum, dolaBridgedSupplies, DOLA_BRIDGED_CHAINS);
     const invSupplies = toSupplies(invTotalSupplyNum, invBridgedSupplies, INV_BRIDGED_CHAINS);
 
+    const fedsData = FEDS.map((fed, i) => ({
+      ...fed,
+      abi: undefined,
+      supply: getBnToNumber(fedData[i][0]),
+      gov: fedData[i][1],
+      chair: fedData[i][2],
+    }));
+
     const resultData = {
+      timestamp: +(new Date()),
       pols,
       dolaTotalSupply: dolaTotalSupplyNum,
       invTotalSupply: invTotalSupplyNum,
@@ -313,19 +323,15 @@ export default async function handler(req, res) {
         // when multisigsThresholds is from cache, type is not BN object
         threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
       })),
-      feds: FEDS.map((fed, i) => ({
-        ...fed,
-        abi: undefined,
-        supply: getBnToNumber(fedData[i][0]),
-        gov: fedData[i][1],
-        chair: fedData[i][2],
-      })),
+      feds: fedsData,
     }
 
     await redisSetWithTimestamp(cacheDolaSupplies, {
       dolaTotalSupply: resultData.dolaTotalSupply,
       dolaSupplies,
     });
+    
+    redisSetWithTimestamp(cacheFedDatas, fedsData);
 
     await redisSetWithTimestamp(cacheKey, resultData);
 
