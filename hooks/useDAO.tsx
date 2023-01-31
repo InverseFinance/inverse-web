@@ -108,6 +108,16 @@ export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncome
   }
 }
 
+export const useFedOverview = (): SWR & { fedOverviews: any[] } => {
+  const { data, error } = useCustomSWR(`/api/transparency/fed-overview`, fetcher)
+
+  return {
+    fedOverviews: data?.fedOverviews || [],    
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
   const { data, error } = useCustomSWR(`/api/transparency/stabilizer`, fetcher)
 
