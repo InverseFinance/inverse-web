@@ -1,10 +1,12 @@
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import Container from '@app/components/common/Container'
+import Link from '@app/components/common/Link'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
 import { FedEvent } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text, Flex, VStack, HStack, Stack, Badge } from '@chakra-ui/react'
 
 const ColHeader = ({ ...props }) => {
@@ -30,7 +32,7 @@ const columns = [
                 <Cell minWidth='105px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${projectImage}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                        <CellText fontWeight="bold">{name.replace(/ fed/i, '')}</CellText>
+                        <CellText fontWeight="bold">{name?.replace(/ fed/i, '')}</CellText>
                     </HStack>
                     {
                         !!badgeInfo && <CellText fontWeight="bold">
@@ -60,7 +62,7 @@ const columns = [
     },
     {
         field: 'type',
-        label: 'Type',
+        label: 'Backing Type',
         tooltip: <VStack alignItems="flex-start" justify="flex-start">
             <Text textAlign="left">- <b>Cross</b>: lending protocol where a DOLA loan can be backed by several collaterals at the same time</Text>
             <Text textAlign="left">- <b>Isolated</b>: lending protocol where DOLA loans are independently backed by single collaterals</Text>
@@ -72,15 +74,41 @@ const columns = [
                 <CellText>{type}</CellText>
             </Cell>
         },
-    },   
+    },    
     {
         field: 'supply',
-        label: 'DOLA Supply',
+        label: 'Fed Supply',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        tooltip: 'Amount of DOLA made available for borrowing / usage',
+        tooltip: 'Amount of DOLA made available for borrowing / usage by the Fed (does not other sources for the DOLA)',
         value: ({ supply }) => {
             return <Cell minWidth="120px" justify="center">
                 <CellText>{supply > 0 ? shortenNumber(supply, 2) : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'borrows',
+        label: 'DOLA Borrowed',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        tooltip: 'Amount of DOLA you borrowed from the Market',
+        value: ({ borrows }) => {
+            return <Cell minWidth="120px" justify="center">
+                <CellText>{borrows > 0 ? shortenNumber(borrows, 2) : '-'}</CellText>
+            </Cell>
+        },
+    }, {
+        field: 'detailsLinkName',
+        label: 'Details',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        tooltip: 'Amount of DOLA you borrowed from the Market',
+        value: ({ detailsLink, detailsLinkName }) => {
+            return <Cell minWidth="120px" justify="center">
+                {
+                    detailsLink ? <Link textDecoration="underline" href={detailsLink} isExternal target="_blank">
+                        <ExternalLinkIcon mr="1" />{detailsLinkName || 'See'}
+                    </Link>
+                        : <CellText>-</CellText>
+                }
             </Cell>
         },
     },

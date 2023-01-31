@@ -8,14 +8,16 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO } from '@app/hooks/useDAO'
+import { useDAO, useFedOverview } from '@app/hooks/useDAO'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
+import { FedList } from '@app/components/Transparency/fed/FedList'
 
 const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DolaDiagram = () => {
-  const { dolaOperator, dolaSupplies, feds } = useDAO();
+  const { dolaOperator, dolaSupplies, feds, isLoading } = useDAO();
+  const { fedOverviews } = useFedOverview();
 
   const fedsWithData = feds;
 
@@ -34,6 +36,7 @@ export const DolaDiagram = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column" py="2">
           <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
+          <FedList feds={fedOverviews.filter(f => f.supply > 0)} isLoading={isLoading} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
