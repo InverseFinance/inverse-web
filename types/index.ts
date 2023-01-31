@@ -406,6 +406,7 @@ export type Fed = {
   abi: string[],
   chainId: NetworkIds,
   name: string,
+  type: 'Isolated' | 'Cross' | 'LP',
   projectImage: string,
   isXchain?: boolean,
   hasEnded?: boolean,
