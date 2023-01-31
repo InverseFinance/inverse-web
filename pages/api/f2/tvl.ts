@@ -13,10 +13,11 @@ import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export default async function handler(req, res) {
-    const cacheKey = 'f2-tvl-v1.0.1'
+export const firmTvlCacheKey = 'f2-tvl-v1.0.1'
+
+export default async function handler(req, res) {    
     try {
-        const cache = await getCacheFromRedis(cacheKey, true, 30);
+        const cache = await getCacheFromRedis(firmTvlCacheKey, true, 30);
         if (cache) {
             res.status(200).json(cache);
             return
@@ -66,14 +67,14 @@ export default async function handler(req, res) {
             timestamp: +(new Date()),
         }
 
-        await redisSetWithTimestamp(cacheKey, resultData);
+        await redisSetWithTimestamp(firmTvlCacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(cacheKey, false);
+            const cache = await getCacheFromRedis(firmTvlCacheKey, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);
