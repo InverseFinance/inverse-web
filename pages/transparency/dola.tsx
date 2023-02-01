@@ -34,9 +34,11 @@ export const DolaDiagram = () => {
       <AppNav active="Learn" activeSubmenu="Transparency Portal" />
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
-        <Flex direction="column" py="2">
-          <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
+        <Flex direction="column">
           <FedList feds={fedOverviews.filter(f => f.supply > 0)} isLoading={isLoading} />
+          <Flex mt="4" p="2">
+            <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
+          </Flex>
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
