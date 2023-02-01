@@ -93,13 +93,15 @@ export const FEDS_PARAMS = [
                     image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484',
                 },
                 {
-                    address: '0xF403C135812408BFbE8713b5A23a04b3D48AAE31',
-                    name: 'Convex booster',
+                    address: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
+                    name: 'Convex Reward Pool',
                     link: 'https://www.convexfinance.com/stake',
                     image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
                 },
             ],
             type: 'convex',
+            targetContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',            
+            // targetBalanc
             // cvxDOLAFRAXBP3CRV-f
             stakeToken: '0xf7eCC27CC9DB5d28110AF2d89b176A6623c7E351',
             // crv
@@ -130,7 +132,7 @@ export const FEDS_PARAMS = [
         incomeSrcAd: "0xFED67cC40E9C5934F157221169d772B328cb138E",
         incomeTargetAd: "0xa283139017a2f5BAdE8d8e25412C600055D318F8",
         strategy: {
-            description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. This Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
+            description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
             pools: [
                 {
                     address: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',

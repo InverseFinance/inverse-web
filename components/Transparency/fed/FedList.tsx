@@ -1,3 +1,4 @@
+import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import Container from '@app/components/common/Container'
 import Link from '@app/components/common/Link'
@@ -7,6 +8,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
 import { FedEvent } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
+import { preciseCommify } from '@app/util/misc'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure, Image } from '@chakra-ui/react'
 import { useState } from 'react'
@@ -131,7 +133,7 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
             label="Live DOLA Feds Overview"
             description="Fed contracts handle the DOLA supply in a lending protocol or liquidity pool via expansions and contractions"
         >
-            <InfoModal title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose}>
+            <InfoModal title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose} onOk={onClose}>
                 <VStack p="4" w='full' alignItems="flex-start">
                     <Text fontWeight="bold" fontSize="18px">Strategy:</Text>
                     <Text>
@@ -141,7 +143,7 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                     </Text>
                     {
                         !!selectedFed?.strategy?.pools && <>
-                            <Text fontWeight="bold" fontSize="18px">Pools:</Text>
+                            <Text fontWeight="bold" fontSize="18px">Farming Pools:</Text>
                             {selectedFed?.strategy?.pools.map(p => {
                                 return <HStack w='full' justify="space-between">
                                     <Link display="inline-flex" textDecoration="underline" color="mainTextColor" href={p.link} isExternal target="_blank">
@@ -150,6 +152,24 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                                     <ScannerLink chainId={p.incomeChainId || p.chainId} value={p.address} />
                                 </HStack>
                             })}
+                        </>
+                    }
+                    {
+                        !!selectedFed?.subBalances?.length > 0 && <>
+                            <HStack w='full' justify="space-between">
+                                <Text fontWeight="bold" fontSize="18px">LP size:</Text>
+                                <Text>{preciseCommify(selectedFed.lpBalance, 2)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
+                            </HStack>
+                            {
+                                selectedFed?.subBalances.map(tokenInLp => {
+                                    return <HStack>
+                                        <UnderlyingItem {...tokenInLp} />
+                                        <Text>
+                                            {shortenNumber(tokenInLp.perc, 2)}%
+                                        </Text>
+                                    </HStack>;
+                                })
+                            }
                         </>
                     }
                 </VStack>

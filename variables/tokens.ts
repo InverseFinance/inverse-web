@@ -285,6 +285,9 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isCrvLP: true,
+      pairs: [
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
+      ],
       image: '/assets/v2/dola-small.png'
     },
     [chainTokenAddresses["1"].THREECRV]: {
