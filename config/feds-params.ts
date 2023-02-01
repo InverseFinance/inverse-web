@@ -77,6 +77,15 @@ export const FEDS_PARAMS = [
         projectImage:
             "https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328",
         supplyFuncName: "dolaSupply",
+        strategy: {
+            description: 'The minted DOLA is added to the Curve DOLA/FRAX-USDC liquidity pool, the resulting Curve LP token is then deposited in the Convex booster. This Fed get rewards in CRV and CVX tokens',
+            type: 'convex',
+            // cvxDOLAFRAXBP3CRV-f
+            stakeToken: '0xf7eCC27CC9DB5d28110AF2d89b176A6623c7E351',
+            // crv
+            rewardToken: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+            rewardContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
+        },
     },
     {
         chainId: NetworkIds.ftm,
@@ -113,4 +122,3 @@ export const FEDS_PARAMS = [
         supplyFuncName: "dolaSupply",
     },
 ];
-;

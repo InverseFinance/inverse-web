@@ -1,13 +1,15 @@
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import Container from '@app/components/common/Container'
 import Link from '@app/components/common/Link'
+import InfoModal from '@app/components/common/Modal/InfoModal'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
 import { FedEvent } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Text, Flex, VStack, HStack, Stack, Badge } from '@chakra-ui/react'
+import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure } from '@chakra-ui/react'
+import { useState } from 'react'
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -115,8 +117,22 @@ const columns = [
 ]
 
 export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boolean }) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [selectedFed, setSelectedFed] = useState(null);
+
+    const handleClick = (item) => {        
+        setSelectedFed(item);
+        onOpen();
+    }
+
     return (
-        <Container label="Fed types & details">
+        <Container label="Live DOLA Feds Overview">
+            <InfoModal title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose}>
+                <VStack p="4" w='full' alignItems="flex-start">
+                    <Text fontWeight="bold" fontSize="18px">Strategy:</Text>
+                    <Text>{selectedFed?.strategy?.description || 'No strategy'}</Text>
+                </VStack>
+            </InfoModal>
             {
                 feds?.length > 0 ?
                     <Table
@@ -126,6 +142,7 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                         alternateBg={false}
                         columns={columns}
                         items={feds}
+                        onClick={(item) => handleClick(item)}
                     />
                     : isLoading ? <SkeletonBlob /> : <Text>
                         No Contraction or Expansion has been executed yet
