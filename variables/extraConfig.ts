@@ -1,3 +1,4 @@
+import { FEDS_PARAMS } from '@app/config/feds-params';
 import { NetworkIds } from '@app/types';
 
 const mainConfig = {
@@ -60,19 +61,7 @@ const mainConfig = {
         //     badgeProps: { bgColor: 'accentTextColor', color: 'white' },
         // },
     ],
-    feds: [
-        { chainId: NetworkIds.mainnet, type: 'Isolated', protocol: 'FiRM', address: '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd', name: 'FiRM Fed', projectImage: '/assets/inv-square-dark.jpeg', isFirm: true, supplyFuncName: 'globalSupply' },
-        { chainId: NetworkIds.mainnet, type: 'Cross', protocol: 'Frontier', address: '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7', name: 'Frontier Fed', projectImage: '/assets/inv-square-dark.jpeg' },
-        { chainId: NetworkIds.mainnet, type: 'Cross', fusePool: '6', protocol: 'Fuse', address: '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664', name: 'Fuse6 Fed', projectImage: '/assets/projects/Fuse.png' },
-        { chainId: NetworkIds.mainnet, type: 'Cross', fusePool: '22', protocol: 'Fuse', address: '0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8', name: 'Badger Fed', projectImage: '/assets/projects/Fuse.png' },
-        { chainId: NetworkIds.mainnet, type: 'Cross', fusePool: '127', protocol: 'Fuse', address: '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C', name: '0xb1 Fed', projectImage: '/assets/projects/Fuse.png' },
-        { chainId: NetworkIds.mainnet, type: 'Cross', fusePool: '24', protocol: 'Fuse', hasEnded: true, address: '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36', name: 'Fuse24 Fed', projectImage: '/assets/projects/Fuse.png' },
-        { chainId: NetworkIds.mainnet, type: 'LP', protocol: 'Yearn', address: '0xcc180262347F84544c3a4854b87C34117ACADf94', name: 'Yearn Fed', projectImage: '/assets/projects/YFI.svg' },
-        { chainId: NetworkIds.mainnet, type: 'LP', protocol: 'Convex', address: '0xF382d062DF29CF5E400c131C1383c9E6Cd174305', oldAddresses: ['0x57d59a73cdc15fe717d2f1d433290197732659e2', '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb'], name: 'Convex Fed', projectImage: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328', supplyFuncName: 'dolaSupply' },
-        { chainId: NetworkIds.ftm, type: 'Cross', protocol: 'Scream', hasEnded: true, isXchain: true, address: '0x4d7928e993125A9Cefe7ffa9aB637653654222E2', name: 'Scream Fed', projectImage: '/assets/projects/Scream.webp' },
-        { chainId: NetworkIds.mainnet, type: 'LP', protocol: 'Velodrome', address: '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d', name: 'Velo Fed', projectImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png', supplyFuncName: 'dolaSupply', incomeChainId: NetworkIds.optimism, incomeSrcAd: '0xFED67cC40E9C5934F157221169d772B328cb138E', incomeTargetAd: '0xa283139017a2f5BAdE8d8e25412C600055D318F8' },
-        { chainId: NetworkIds.mainnet, type: 'LP', protocol: 'Aura', address: '0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740', oldAddresses: ['0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364'], name: 'Aura Fed', projectImage: 'https://assets.coingecko.com/coins/images/25942/small/logo.png', supplyFuncName: 'dolaSupply' },
-    ],
+    feds: FEDS_PARAMS,
     multisigs: [
         {
             address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
