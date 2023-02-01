@@ -19,6 +19,7 @@ import {
   DEBT_REPAYER_ABI,
   BALANCER_VAULT_ABI,
   DEBT_CONVERTER_ABI,
+  CONVEX_REWARD_POOL,
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
@@ -272,6 +273,17 @@ const getBalancerPoolBalances = async (token: Token, providerOrSigner: Provider 
   const contract = new Contract(token.balancerInfos?.vault!, BALANCER_VAULT_ABI, providerOrSigner);
   const [addresses, balances, lastChangeBlock] = await contract.getPoolTokens(token.balancerInfos?.poolId!);
   return balances;
+}
+
+export const getCrvConvexRewards = async (baseRewardPool: string, account: string, providerOrSigner?: Provider | JsonRpcSigner): Promise<number[]> => {
+  const contract = new Contract(baseRewardPool, CONVEX_REWARD_POOL, providerOrSigner);
+  const rewards = await Promise.all([
+    // CRV
+    contract.earned(account),
+    // CVX
+    //
+  ]);
+  return rewards.map(bn => getBnToNumber(bn));
 }
 
 export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & {balance: number, perc: number}[]> => {
