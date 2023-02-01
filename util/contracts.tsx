@@ -274,6 +274,21 @@ const getBalancerPoolBalances = async (token: Token, providerOrSigner: Provider 
   return balances;
 }
 
+export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & {balance: number, perc: number}[]> => {
+  if(LPToken.isCrvLP && !!LPToken.pairs) {
+    const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+    const balancesBn = await Promise.all(
+      tokens.map((token, tokenIndex) => new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
+    );
+    const balances = balancesBn.map((bn,i) => getBnToNumber(bn, tokens[i].decimals));
+    const total = balances.reduce((prev, curr) => prev+curr, 0);
+    return tokens.map((token, i) => {
+      return { ...token, balance: balances[i], perc: total > 0 ? balances[i]/total * 100 : 0 };
+    })
+  }
+  return [];
+}
+
 export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<number> => {
   if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
