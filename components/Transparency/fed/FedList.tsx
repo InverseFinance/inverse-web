@@ -8,7 +8,7 @@ import Table from '@app/components/common/Table'
 import { FedEvent } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure } from '@chakra-ui/react'
+import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure, Image } from '@chakra-ui/react'
 import { useState } from 'react'
 
 const ColHeader = ({ ...props }) => {
@@ -136,7 +136,7 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                     <Text fontWeight="bold" fontSize="18px">Strategy:</Text>
                     <Text>
                         {
-                            selectedFed?.strategy?.description || 'Get borrowing interests on the DOLA borrowed in a Compound-style cross-lending protocol'
+                            selectedFed?.strategy?.description || 'Get borrowing interests on the DOLA borrowed in a Compound-style cross-lending protocol.'
                         }
                     </Text>
                     {
@@ -144,8 +144,8 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                             <Text fontWeight="bold" fontSize="18px">Pools:</Text>
                             {selectedFed?.strategy?.pools.map(p => {
                                 return <HStack w='full' justify="space-between">
-                                    <Link textDecoration="underline" color="mainTextColor" href={p.link} isExternal target="_blank">
-                                        {p.name}
+                                    <Link display="inline-flex" textDecoration="underline" color="mainTextColor" href={p.link} isExternal target="_blank">
+                                        <Image src={p.image || selectedFed.projectImage} h="20px" w="20px" mr="1" /> {p.name}
                                     </Link>
                                     <ScannerLink chainId={p.incomeChainId || p.chainId} value={p.address} />
                                 </HStack>

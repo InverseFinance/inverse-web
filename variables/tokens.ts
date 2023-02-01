@@ -382,7 +382,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].CRV,
       name: 'CRV',
       symbol: 'CRV',
-      image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
+      image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484',
       decimals: 18,
       coingeckoId: 'curve-dao-token',
     },
