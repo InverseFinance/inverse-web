@@ -275,18 +275,48 @@ const getBalancerPoolBalances = async (token: Token, providerOrSigner: Provider 
   return balances;
 }
 
-export const getPoolRewards = async (rewardPools: any[], account: string, chainId: string, providerOrSigner?: Provider | JsonRpcSigner): Promise<any[]> => {  
-  const rewards = await Promise.all(
+const cvxConstants = {
+  totalCliffs: 1000,
+  reductionPerCliff: 100000,
+  maxSupply: 100000000,
+};
+
+// Convex rewards uses a specific calculation method...
+// check mint (not _mint) function here: https://etherscan.io/address/0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B#code
+const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number => {
+  const crvReward = getBnToNumber(crvRewardBn);  
+  const supply = getBnToNumber(supplyBn);
+  const cliff = supply / cvxConstants.reductionPerCliff;
+  if (cliff >= cvxConstants.totalCliffs) {
+    return 0;
+  }
+  const reduction = cvxConstants.totalCliffs - cliff;
+  const cvxAmount = crvReward * reduction / cvxConstants.totalCliffs;
+  const amtTillMax = cvxConstants.maxSupply - supply;
+  if (cvxAmount > amtTillMax) {
+    return amtTillMax;
+  }
+  return cvxAmount;
+}
+
+export const getPoolRewards = async (rewardPools: any[], account: string, chainId: string, providerOrSigner: Provider | JsonRpcSigner): Promise<any[]> => {
+  const dataForRewards = await Promise.all(
     rewardPools.map(p => {
+      if (p.isCVXreward) {
+        return (new Contract(p.underlying, ERC20_ABI, providerOrSigner)).totalSupply();
+      }
       const contract = new Contract(p.address, [`function ${p.method}(address) public view returns(uint)`], providerOrSigner);
       return contract[p.method](account);
     })
-  );  
-  return rewardPools.map((rp,i) => {
-    const rewardToken =  CHAIN_TOKENS[chainId][rp.underlying];
+  );
+  return rewardPools.map((rp, i) => {
+    const rewardToken = CHAIN_TOKENS[chainId][rp.underlying];
     return {
       ...rp,
-      reward: getBnToNumber(rewards[i], rewardToken.decimals),
+      reward: rp.isCVXreward ?// cvx should be after crv
+        getCrvToCvxReward(dataForRewards[i - 1], dataForRewards[i])
+        :
+        getBnToNumber(dataForRewards[i], rewardToken.decimals),
       rewardToken,
     }
   });
@@ -303,16 +333,16 @@ export const getCrvConvexRewards = async (baseRewardPool: string, account: strin
   return rewards.map(bn => getBnToNumber(bn));
 }
 
-export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & {balance: number, perc: number}[]> => {
-  if(LPToken.isCrvLP && !!LPToken.pairs) {
+export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & { balance: number, perc: number }[]> => {
+  if (LPToken.isCrvLP && !!LPToken.pairs) {
     const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
     const balancesBn = await Promise.all(
       tokens.map((token, tokenIndex) => new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
     );
-    const balances = balancesBn.map((bn,i) => getBnToNumber(bn, tokens[i].decimals));
-    const total = balances.reduce((prev, curr) => prev+curr, 0);
+    const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+    const total = balances.reduce((prev, curr) => prev + curr, 0);
     return tokens.map((token, i) => {
-      return { ...token, balance: balances[i], perc: total > 0 ? balances[i]/total * 100 : 0 };
+      return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
     })
   }
   return [];

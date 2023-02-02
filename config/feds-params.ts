@@ -103,7 +103,7 @@ export const FEDS_PARAMS = [
             targetContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
             rewardPools: [
                 { address: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', method: 'earned', underlying: '0xD533a949740bb3306d119CC777fa900bA034cd52' },
-                // { address: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', method: 'earned', underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },                
+                { isCVXreward: true, underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },                
             ]
         },
     },
