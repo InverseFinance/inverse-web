@@ -10,7 +10,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { BigNumber, Contract } from 'ethers';
 import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 import { CTOKEN_ABI } from '@app/config/abis';
-import { getLPBalances, getLPPrice } from '@app/util/contracts';
+import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
 import { TOKENS, getToken } from '@app/variables/tokens';
 
 const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -48,6 +48,7 @@ export default async function handler(req, res) {
       lpBalancesBn,
       lpPrices,
       lpSubBalances,
+      lpRewards,
     ] = await Promise.all([
       getCacheFromRedis(cacheFedDatas, false),
       getCacheFromRedis(frontierMarketsCacheKey, false),
@@ -82,12 +83,22 @@ export default async function handler(req, res) {
       Promise.all(
         FEDS.map(lpFed => {
           if(!lpFed.strategy?.targetContract) {
-            return new Promise((res) => res(0));
+            return new Promise((res) => res([]));
           }
           const token = getToken(TOKENS, lpFed.strategy?.pools[0].address);
           const chainId = lpFed.incomeChainId||lpFed.chainId;
           const chainProvider = getProvider(chainId);
           return getLPBalances(token, chainId, chainProvider);
+        })
+      ),
+      Promise.all(
+        FEDS.map(lpFed => {
+          if(!lpFed.strategy?.rewardPools?.length > 0) {
+            return new Promise((res) => res([]));
+          }
+          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const chainProvider = getProvider(chainId);
+          return getPoolRewards(lpFed.strategy?.rewardPools, lpFed.address, chainId, chainProvider);
         })
       ),
     ]);
@@ -100,7 +111,7 @@ export default async function handler(req, res) {
     const fedOverviews = FEDS.map((fedConfig, fedIndex) => {
       const fedData = fedsData.find(f => f.address === fedConfig.address);
       let tvl, borrows, lpBalance, lpPrice = 0;
-      let subBalances = [];
+      let subBalances, rewards = [];
       let detailsLink, detailsLinkName = '';
       // frontier
       if (fedConfig.address === '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7') {
@@ -120,6 +131,7 @@ export default async function handler(req, res) {
         lpBalance = getBnToNumber(lpBalancesBn[fedIndex]);
         lpPrice = lpPrices[fedIndex];
         subBalances = lpSubBalances[fedIndex];
+        rewards = lpRewards[fedIndex]
       } else if (fedConfig.fusePool) {
         detailsLink = `https://app.rari.capital/fuse/pool/${fedConfig.fusePool}/info`;
         detailsLinkName = 'Fuse'
@@ -135,11 +147,12 @@ export default async function handler(req, res) {
         supply: fedData?.supply || 0,
         lpBalance,
         lpPrice,
-        subBalances,
         tvl,
         borrows,
         detailsLink,
         detailsLinkName,
+        subBalances,
+        rewards,
       }
     })
 

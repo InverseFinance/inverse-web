@@ -158,7 +158,7 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                         !!selectedFed?.subBalances?.length > 0 && <>
                             <HStack w='full' justify="space-between">
                                 <Text fontWeight="bold" fontSize="18px">LP size:</Text>
-                                <Text>{preciseCommify(selectedFed.lpBalance, 2)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
+                                <Text>{preciseCommify(selectedFed.lpBalance, 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
                             </HStack>
                             {
                                 selectedFed?.subBalances.map(tokenInLp => {
@@ -166,6 +166,24 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
                                         <UnderlyingItem {...tokenInLp} />
                                         <Text>
                                             {shortenNumber(tokenInLp.perc, 2)}%
+                                        </Text>
+                                    </HStack>;
+                                })
+                            }
+                        </>
+                    }
+                    {
+                        !!selectedFed?.rewards?.length > 0 && <>
+                            <HStack w='full' justify="space-between">
+                                <Text fontWeight="bold" fontSize="18px">Claimable Rewards:</Text>
+                                {/* <Text>{preciseCommify(selectedFed.lpBalance, 2)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text> */}
+                            </HStack>
+                            {
+                                selectedFed?.rewards.map(r => {
+                                    return <HStack>
+                                        <UnderlyingItem {...r.rewardToken} />
+                                        <Text>
+                                            {preciseCommify(r.reward, 0)}
                                         </Text>
                                     </HStack>;
                                 })

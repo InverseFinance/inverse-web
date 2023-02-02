@@ -275,6 +275,23 @@ const getBalancerPoolBalances = async (token: Token, providerOrSigner: Provider 
   return balances;
 }
 
+export const getPoolRewards = async (rewardPools: any[], account: string, chainId: string, providerOrSigner?: Provider | JsonRpcSigner): Promise<any[]> => {  
+  const rewards = await Promise.all(
+    rewardPools.map(p => {
+      const contract = new Contract(p.address, [`function ${p.method}(address) public view returns(uint)`], providerOrSigner);
+      return contract[p.method](account);
+    })
+  );  
+  return rewardPools.map((rp,i) => {
+    const rewardToken =  CHAIN_TOKENS[chainId][rp.underlying];
+    return {
+      ...rp,
+      reward: getBnToNumber(rewards[i], rewardToken.decimals),
+      rewardToken,
+    }
+  });
+}
+
 export const getCrvConvexRewards = async (baseRewardPool: string, account: string, providerOrSigner?: Provider | JsonRpcSigner): Promise<number[]> => {
   const contract = new Contract(baseRewardPool, CONVEX_REWARD_POOL, providerOrSigner);
   const rewards = await Promise.all([
