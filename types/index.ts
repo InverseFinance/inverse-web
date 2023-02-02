@@ -15,6 +15,7 @@ export interface Token {
   isWrappedChainCoin?: boolean
   isLP?: boolean
   isCrvLP?: boolean
+  isVeloLP?: boolean
   lpPrice?: number
   balancerInfos?: {
     poolId: string

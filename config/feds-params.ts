@@ -99,8 +99,8 @@ export const FEDS_PARAMS = [
                     image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
                 },
             ],
-            type: 'convex',
-            targetContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
+            type: 'convex',            
+            lpBalanceContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
             rewardPools: [
                 { address: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', method: 'earned', underlying: '0xD533a949740bb3306d119CC777fa900bA034cd52' },
                 { isCVXreward: true, underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },                
@@ -139,7 +139,8 @@ export const FEDS_PARAMS = [
                     image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png',
                 },
             ],
-            type: 'solidly',
+            type: 'solidly',            
+            lpBalanceContract: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F',
             rewardPools: [
                 { address: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F', method: 'earned', underlying: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05', type: 'specifyUnderlying' }
             ]

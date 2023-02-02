@@ -11,7 +11,7 @@ import { BigNumber, Contract } from 'ethers';
 import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 import { CTOKEN_ABI } from '@app/config/abis';
 import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
-import { TOKENS, getToken } from '@app/variables/tokens';
+import { CHAIN_TOKENS } from '@app/variables/tokens';
 
 const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -62,32 +62,35 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.targetContract) {
+          if(!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res(BigNumber.from('0')));
           }
-          const contract = new Contract(lpFed.strategy.targetContract, CTOKEN_ABI, provider);
-          return contract.balanceOf(lpFed.address);
+          const address = lpFed.incomeSrcAd||lpFed.address;
+          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const chainProvider = getProvider(chainId);
+          const contract = new Contract(lpFed.strategy.lpBalanceContract, CTOKEN_ABI, chainProvider);
+          return contract.balanceOf(address);
         })
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.targetContract) {
+          if(!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res(0));
-          }
-          const token = getToken(TOKENS, lpFed.strategy?.pools[0].address);
+          }          
           const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
           const chainProvider = getProvider(chainId);
           return getLPPrice(token, chainId, chainProvider);
         })
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.targetContract) {
+          if(!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res([]));
           }
-          const token = getToken(TOKENS, lpFed.strategy?.pools[0].address);
           const chainId = lpFed.incomeChainId||lpFed.chainId;
-          const chainProvider = getProvider(chainId);
+          const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
+          const chainProvider = getProvider(chainId);          
           return getLPBalances(token, chainId, chainProvider);
         })
       ),

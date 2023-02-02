@@ -340,13 +340,21 @@ export const getCrvConvexRewards = async (baseRewardPool: string, account: strin
   return rewards.map(bn => getBnToNumber(bn));
 }
 
-export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & { balance: number, perc: number }[]> => {
+export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner, viaReserves = false): Promise<Token & { balance: number, perc: number }[]> => {
   if (LPToken.isCrvLP && !!LPToken.pairs) {
     const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
     const balancesBn = await Promise.all(
       tokens.map((token, tokenIndex) => new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
     );
     const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+    const total = balances.reduce((prev, curr) => prev + curr, 0);
+    return tokens.map((token, i) => {
+      return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
+    })
+  } else if(LPToken.isVeloLP && !!LPToken.pairs) {
+    const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+    const balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves())
+    const balances = balancesBn.slice(0, 2).map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
     const total = balances.reduce((prev, curr) => prev + curr, 0);
     return tokens.map((token, i) => {
       return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };

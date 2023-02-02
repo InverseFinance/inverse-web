@@ -167,7 +167,7 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                 title={
                                     <HStack w='full' justify="space-between">
                                         <Text fontWeight="extrabold" fontSize="18px">LP size:</Text>
-                                        <Text fontWeight="bold">{preciseCommify(selectedFed.lpBalance, 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
+                                        <Text fontWeight="bold">{preciseCommify(selectedFed.lpBalance, selectedFed.lpBalance < 10 ? 2 : 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
                                     </HStack>
                                 }
                                 body={<VStack w='full' alignItems="flex-start">
