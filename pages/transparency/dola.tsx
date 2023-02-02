@@ -12,12 +12,14 @@ import { useDAO, useFedOverview } from '@app/hooks/useDAO'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { FedList } from '@app/components/Transparency/fed/FedList'
+import { usePrices } from '@app/hooks/usePrices'
 
 const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DolaDiagram = () => {
   const { dolaOperator, dolaSupplies, feds, isLoading } = useDAO();
   const { fedOverviews } = useFedOverview();
+  const { prices } = usePrices();
 
   const fedsWithData = feds;
 
@@ -35,7 +37,7 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column">
-          <FedList feds={fedOverviews.filter(f => f.supply > 0)} isLoading={isLoading} />
+          <FedList prices={prices} feds={fedOverviews.filter(f => f.supply > 0)} isLoading={isLoading} />
           <Flex mt="4" p="2">
             <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
           </Flex>

@@ -13,6 +13,28 @@ export type FAQType = {
     }[]
 }
 
+export const AccordionItemTemplate = ({
+    title,
+    body,
+}: {
+    title: any,
+    body: any,
+}) => {
+    return <AccordionItem w='full' border="none">
+        <h2>
+            <AccordionButton >
+                <Box flex='1' lineHeight="normal" textAlign='left' color="mainTextColor" fontWeight="bold" fontSize="lg">
+                    {title}
+                </Box>
+                <AccordionIcon />
+            </AccordionButton>
+        </h2>
+        <AccordionPanel lineHeight="normal" pb={4} color="secondaryTextColor">
+            {body}
+        </AccordionPanel>
+    </AccordionItem>
+}
+
 export const FAQ = ({
     label = 'FAQ',
     items,
@@ -22,7 +44,7 @@ export const FAQ = ({
     const { themeStyles } = useAppTheme();
     return <Container
         label={label}
-        noPadding 
+        noPadding
         p="0"
         collapsable={collapsable}
         defaultCollapse={defaultCollapse}

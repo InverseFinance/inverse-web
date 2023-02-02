@@ -1,16 +1,17 @@
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { BigImageButton } from '@app/components/common/Button/BigImageButton'
 import Container from '@app/components/common/Container'
+import { AccordionItemTemplate } from '@app/components/common/FAQ'
 import Link from '@app/components/common/Link'
 import InfoModal from '@app/components/common/Modal/InfoModal'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
-import { FedEvent } from '@app/types'
+import { FedEvent, Prices } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure, Image } from '@chakra-ui/react'
+import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure, Image, Accordion } from '@chakra-ui/react'
 import { useState } from 'react'
 
 const ColHeader = ({ ...props }) => {
@@ -118,7 +119,7 @@ const columns = [
     },
 ]
 
-export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boolean }) => {
+export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoading?: boolean, prices: Prices["prices"] }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedFed, setSelectedFed] = useState(null);
 
@@ -134,62 +135,86 @@ export const FedList = ({ feds, isLoading }: { feds: FedEvent[], isLoading?: boo
             description="Fed contracts handle the DOLA supply in a lending protocol or liquidity pool via expansions and contractions"
         >
             <InfoModal title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose} onOk={onClose}>
-                <VStack p="4" w='full' alignItems="flex-start">
-                    <Text fontWeight="bold" fontSize="18px">Strategy:</Text>
-                    <Text>
+                <VStack spacing="4" py="4" w='full' alignItems="flex-start">
+                    <Accordion w='full' allowMultiple defaultIndex={[0, 1, 2, 3, 4, 5, 6, 7, 8]}>
+                        <AccordionItemTemplate
+                            title="Strategy:"
+                            body={
+                                <Text>
+                                    {
+                                        selectedFed?.strategy?.description || 'Get borrowing interests on the DOLA borrowed in a Compound-style cross-lending protocol.'
+                                    }
+                                </Text>
+                            }
+                        />
                         {
-                            selectedFed?.strategy?.description || 'Get borrowing interests on the DOLA borrowed in a Compound-style cross-lending protocol.'
+                            !!selectedFed?.strategy?.pools && <AccordionItemTemplate
+                                title="Farming Pools:"
+                                body={<VStack w='full' alignItems="flex-start">
+                                    {selectedFed?.strategy?.pools.map(p => {
+                                        return <HStack w='full' key={p.address} w='full' justify="space-between">
+                                            <Link display="inline-flex" textDecoration="underline" color="mainTextColor" href={p.link} isExternal target="_blank">
+                                                <Image src={p.image || selectedFed.projectImage} h="20px" w="20px" mr="4" /> {p.name}
+                                            </Link>
+                                            <ScannerLink chainId={p.incomeChainId || p.chainId} value={p.address} />
+                                        </HStack>
+                                    })}
+                                </VStack>}
+                            />
                         }
-                    </Text>
-                    {
-                        !!selectedFed?.strategy?.pools && <>
-                            <Text fontWeight="bold" fontSize="18px">Farming Pools:</Text>
-                            {selectedFed?.strategy?.pools.map(p => {
-                                return <HStack w='full' justify="space-between">
-                                    <Link display="inline-flex" textDecoration="underline" color="mainTextColor" href={p.link} isExternal target="_blank">
-                                        <Image src={p.image || selectedFed.projectImage} h="20px" w="20px" mr="1" /> {p.name}
-                                    </Link>
-                                    <ScannerLink chainId={p.incomeChainId || p.chainId} value={p.address} />
-                                </HStack>
-                            })}
-                        </>
-                    }
-                    {
-                        !!selectedFed?.subBalances?.length > 0 && <>
-                            <HStack w='full' justify="space-between">
-                                <Text fontWeight="bold" fontSize="18px">LP size:</Text>
-                                <Text>{preciseCommify(selectedFed.lpBalance, 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
-                            </HStack>
-                            {
-                                selectedFed?.subBalances.map(tokenInLp => {
-                                    return <HStack>
-                                        <UnderlyingItem {...tokenInLp} />
-                                        <Text>
-                                            {shortenNumber(tokenInLp.perc, 2)}%
-                                        </Text>
-                                    </HStack>;
-                                })
-                            }
-                        </>
-                    }
-                    {
-                        !!selectedFed?.rewards?.length > 0 && <>
-                            <HStack w='full' justify="space-between">
-                                <Text fontWeight="bold" fontSize="18px">Claimable Rewards:</Text>
-                                {/* <Text>{preciseCommify(selectedFed.lpBalance, 2)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text> */}
-                            </HStack>
-                            {
-                                selectedFed?.rewards.map(r => {
-                                    return <HStack>
-                                        <UnderlyingItem {...r.rewardToken} />
-                                        <Text>
-                                            {preciseCommify(r.reward, 0)}
-                                        </Text>
-                                    </HStack>;
-                                })
-                            }
-                        </>
-                    }
+                        {
+                            selectedFed?.subBalances?.length > 0 && <AccordionItemTemplate
+                                title={
+                                    <HStack w='full' justify="space-between">
+                                        <Text fontWeight="extrabold" fontSize="18px">LP size:</Text>
+                                        <Text fontWeight="bold">{preciseCommify(selectedFed.lpBalance, 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
+                                    </HStack>
+                                }
+                                body={<VStack w='full' alignItems="flex-start">
+                                    {
+                                        selectedFed?.subBalances.map(tokenInLp => {
+                                            return <HStack key={tokenInLp.address}>
+                                                <UnderlyingItem {...tokenInLp} />
+                                                <Text>
+                                                    {shortenNumber(tokenInLp.perc, 2)}%
+                                                </Text>
+                                            </HStack>;
+                                        })
+                                    }
+                                </VStack>}
+                            />
+                        }
+                        {
+                            selectedFed?.rewards?.length > 0 && <AccordionItemTemplate
+                                title={
+                                    <HStack w='full' justify="space-between">
+                                        <Text fontWeight="extrabold" fontSize="18px">Claimable Rewards:</Text>
+                                        <Text fontWeight="bold">{
+                                            shortenNumber(
+                                                selectedFed?.rewards.reduce(
+                                                    (prev, curr) => prev + curr.reward * prices[curr.rewardToken.coingeckoId]?.usd || 0,
+                                                    0
+                                                ),
+                                                2,
+                                                true,
+                                            )}</Text>
+                                    </HStack>
+                                }
+                                body={<VStack w='full' alignItems="flex-start">
+                                    {
+                                        selectedFed?.rewards.map(r => {
+                                            return <HStack key={r.address}>
+                                                <UnderlyingItem {...r.rewardToken} />
+                                                <Text>
+                                                    {preciseCommify(r.reward, 0)} ({shortenNumber(r.reward * prices[r.rewardToken.coingeckoId]?.usd || 0, 2, true)})
+                                                </Text>
+                                            </HStack>;
+                                        })
+                                    }
+                                </VStack>}
+                            />
+                        }
+                    </Accordion>
                 </VStack>
             </InfoModal>
             {
