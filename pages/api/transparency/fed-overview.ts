@@ -97,8 +97,9 @@ export default async function handler(req, res) {
             return new Promise((res) => res([]));
           }
           const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const address = lpFed.incomeSrcAd||lpFed.address;
           const chainProvider = getProvider(chainId);
-          return getPoolRewards(lpFed.strategy?.rewardPools, lpFed.address, chainId, chainProvider);
+          return getPoolRewards(lpFed.strategy?.rewardPools, address, chainId, chainProvider);
         })
       ),
     ]);

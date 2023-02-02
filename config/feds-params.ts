@@ -140,11 +140,9 @@ export const FEDS_PARAMS = [
                 },
             ],
             type: 'solidly',
-            // cvxDOLAFRAXBP3CRV-f
-            stakeToken: '0xf7eCC27CC9DB5d28110AF2d89b176A6623c7E351',
-            // crv
-            rewardToken: '0xD533a949740bb3306d119CC777fa900bA034cd52',
-            rewardContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
+            rewardPools: [
+                { address: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F', method: 'earned', underlying: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05', type: 'specifyUnderlying' }
+            ]
         },
     },
     {

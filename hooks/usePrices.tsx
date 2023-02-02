@@ -24,11 +24,11 @@ export const usePrice = (coingeckoId: string): SWR & Prices => {
   }
 }
 
-export const usePrices = (): SWR & Prices => {
+export const usePrices = (extras?: string[]): SWR & Prices => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { TOKENS } = getNetworkConfigConstants(chainId)
 
-  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId)
+  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId).concat(extras||[]);
   const { data, error } = useCustomSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
     fetcher

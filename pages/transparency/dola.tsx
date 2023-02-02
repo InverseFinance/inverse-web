@@ -19,7 +19,7 @@ const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet)
 export const DolaDiagram = () => {
   const { dolaOperator, dolaSupplies, feds, isLoading } = useDAO();
   const { fedOverviews } = useFedOverview();
-  const { prices } = usePrices();
+  const { prices } = usePrices(['velodrome-finance']);
 
   const fedsWithData = feds;
 

@@ -299,16 +299,23 @@ const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number 
   return cvxAmount;
 }
 
+const poolRewardsAbis = {
+  'specifyUnderlying': `function earned(address, address) public view returns(uint)`,
+  'default': `function earned(address) public view returns(uint)`,
+}
+
 export const getPoolRewards = async (rewardPools: any[], account: string, chainId: string, providerOrSigner: Provider | JsonRpcSigner): Promise<any[]> => {
   const dataForRewards = await Promise.all(
     rewardPools.map(p => {
       if (p.isCVXreward) {
         return (new Contract(p.underlying, ERC20_ABI, providerOrSigner)).totalSupply();
       }
-      const contract = new Contract(p.address, [`function ${p.method}(address) public view returns(uint)`], providerOrSigner);
-      return contract[p.method](account);
+      const contract = new Contract(p.address, [poolRewardsAbis[p.type||'default']], providerOrSigner);
+      const args = p.type === 'specifyUnderlying' ? [p.underlying, account] : [account];
+      return contract[p.method](...args);
     })
   );
+
   return rewardPools.map((rp, i) => {
     const rewardToken = CHAIN_TOKENS[chainId][rp.underlying];
     return {
