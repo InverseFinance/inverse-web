@@ -86,6 +86,8 @@ const chainTokenAddresses = {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
     VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
     VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
+    VELODOLAUSDCLP: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
+    USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -518,6 +520,22 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
       decimals: 18,
     },
+    [chainTokenAddresses["10"].DOLA]: {
+      address: chainTokenAddresses["10"].DOLA,
+      name: 'Dola',
+      symbol: 'DOLA',
+      coingeckoId: 'dola-usd',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
+      decimals: 18,
+    },
+    [chainTokenAddresses["10"].USDC]: {
+      address: chainTokenAddresses["10"].USDC,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      coingeckoId: 'usd-coin',
+      image: 'https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png',
+      decimals: 6,
+    },
     [chainTokenAddresses["10"].VELO]: {
       address: chainTokenAddresses["10"].VELO,
       name: 'VELO',
@@ -534,6 +552,19 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'velodrome-finance',
       veNftId: '4',
+    },
+    [chainTokenAddresses["10"].VELODOLAUSDCLP]: {
+      address: chainTokenAddresses["10"].VELODOLAUSDCLP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
+      decimals: 18,
+      isLP: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
     },
   },
 }
