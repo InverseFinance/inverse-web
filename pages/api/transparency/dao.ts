@@ -26,11 +26,12 @@ const ANCHOR_RESERVES_TO_CHECK = [
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-const cachePolKey = `dao-pols-v1.0.0`;
-const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
-const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
+export const cachePolKey = `dao-pols-v1.0.0`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
+export const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
-export const cacheFedDatas = `dao-feds-datas-v1.0.0`;
+export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
+export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.0`;
 
 export default async function handler(req, res) {
 
@@ -303,6 +304,14 @@ export default async function handler(req, res) {
       chair: fedData[i][2],
     }));
 
+    const multisigData = multisigsToShow.map((m, i) => ({
+      ...m,
+      owners: multisigsOwners[i],
+      funds: multisigsFunds[i],
+      // when multisigsThresholds is from cache, type is not BN object
+      threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
+    }));
+
     const resultData = {
       timestamp: +(new Date()),
       pols,
@@ -316,13 +325,7 @@ export default async function handler(req, res) {
       treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])),
       dolaSupplies,
       invSupplies,
-      multisigs: multisigsToShow.map((m, i) => ({
-        ...m,
-        owners: multisigsOwners[i],
-        funds: multisigsFunds[i],
-        // when multisigsThresholds is from cache, type is not BN object
-        threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
-      })),
+      multisigs: multisigData,
       feds: fedsData,
     }
 
@@ -331,7 +334,8 @@ export default async function handler(req, res) {
       dolaSupplies,
     });
     
-    redisSetWithTimestamp(cacheFedDatas, fedsData);
+    redisSetWithTimestamp(cacheFedDataKey, fedsData);
+    redisSetWithTimestamp(cacheMultisigDataKey, multisigData);
 
     await redisSetWithTimestamp(cacheKey, resultData);
 

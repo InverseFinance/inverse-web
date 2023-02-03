@@ -3,7 +3,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { cacheFedDatas } from './dao';
+import { cacheFedDataKey, cacheMultisigDataKey } from './dao';
 import { frontierMarketsCacheKey } from '../markets';
 import { firmTvlCacheKey } from '../f2/tvl';
 import { getBnToNumber } from '@app/util/markets';
@@ -44,16 +44,18 @@ export default async function handler(req, res) {
       frontierData,
       firmTvlData,
       firmMarketsData,
+      _multisigData,
       fuseDolaBorrowsBn,
       lpBalancesBn,
       lpPrices,
       lpSubBalances,
       lpRewards,
     ] = await Promise.all([
-      getCacheFromRedis(cacheFedDatas, false),
+      getCacheFromRedis(cacheFedDataKey, false),
       getCacheFromRedis(frontierMarketsCacheKey, false),
       getCacheFromRedis(firmTvlCacheKey, false),
       getCacheFromRedis(F2_MARKETS_CACHE_KEY, false),
+      getCacheFromRedis(cacheMultisigDataKey, false),
       Promise.all(
         FUSE_FEDS.map(fuseFed => {
           const contract = new Contract(fuseFed.ctoken, CTOKEN_ABI, provider);
@@ -111,11 +113,12 @@ export default async function handler(req, res) {
     const frontierMarkets = frontierData?.markets || [];
     const firmMarkets = firmMarketsData?.markets || [];
     const firmTotalTvl = firmTvlData?.firmTotalTvl || 0;
+    const multisigData = _multisigData || [];
 
     const fedOverviews = FEDS.map((fedConfig, fedIndex) => {
       const fedData = fedsData.find(f => f.address === fedConfig.address);
       let tvl, borrows, lpBalance, lpPrice = 0;
-      let subBalances, rewards = [];
+      let subBalances, rewards, relatedFunds = [];
       let detailsLink, detailsLinkName = '';
       // frontier
       if (fedConfig.address === '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7') {
@@ -136,6 +139,12 @@ export default async function handler(req, res) {
         lpPrice = lpPrices[fedIndex];
         subBalances = lpSubBalances[fedIndex];
         rewards = lpRewards[fedIndex]
+        if(fedConfig.strategy?.multisig) {
+          const _multisig = multisigData.find(m => m.address === fedConfig.strategy.multisig.address);
+          if(_multisig) {
+            relatedFunds = _multisig.funds.filter(f => fedConfig.strategy.multisig.relevantAssets.includes(f.token.address));
+          }
+        }
       } else if (fedConfig.fusePool) {
         detailsLink = `https://app.rari.capital/fuse/pool/${fedConfig.fusePool}/info`;
         detailsLinkName = 'Fuse'
@@ -157,6 +166,7 @@ export default async function handler(req, res) {
         detailsLinkName,
         subBalances,
         rewards,
+        relatedFunds,
       }
     })
 
