@@ -7,7 +7,7 @@ import InfoModal from '@app/components/common/Modal/InfoModal'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
-import { FedEvent, Prices } from '@app/types'
+import { FedEvent, FedTypes, Prices } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
@@ -58,35 +58,35 @@ const columns = [
         field: 'address',
         label: 'Contract',
         tooltip: 'Link to the contract where the details and strategy are verifiable',
-        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         value: ({ address }) => {
-            return <Cell alignItems="center" minWidth="160px" justify="center" fontSize="15px">
+            return <Cell alignItems="center" minWidth="140px" justify="center" fontSize="15px">
                 <ScannerLink value={address} useName={false} />
             </Cell>
         },
     },
     {
         field: 'type',
-        label: 'Backing Type',
+        label: 'Fed Type',
         tooltip: <VStack alignItems="flex-start" justify="flex-start">
-            <Text textAlign="left">- <b>Cross</b>: lending protocol where a DOLA loan can be backed by several collaterals at the same time and those collaterals can also back other loans than DOLA loans.</Text>
-            <Text textAlign="left">- <b>Isolated</b>: lending protocol where DOLA loans are independently backed by single collaterals</Text>
-            <Text textAlign="left">- <b>LP</b>: DOLA is backed by the other assets in the liquidity pool</Text>
+            <Text textAlign="left">- <b>{FedTypes.CROSS}</b>: lending protocol where a DOLA loan can be backed by several collaterals at the same time and those collaterals can also back other loans than DOLA loans.</Text>
+            <Text textAlign="left">- <b>{FedTypes.ISOLATED}</b>: lending protocol where DOLA loans are independently backed by single collaterals</Text>
+            <Text textAlign="left">- <b>{FedTypes.LP}</b>: DOLA is backed by the other assets in the liquidity pool</Text>
         </VStack>,
-        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         value: ({ type }) => {
-            return <Cell alignItems="center" minWidth="160px" justify="center" fontSize="15px">
+            return <Cell alignItems="center" minWidth="140px" justify="center" fontSize="15px">
                 <CellText>{type}</CellText>
             </Cell>
         },
     },
     {
         field: 'supply',
-        label: 'Fed Supply',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        label: 'Supplied by Fed',
+        header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         tooltip: 'Amount of DOLA made available for borrowing / usage by the Fed (total DOLA supply can be higher as DOLA can also be supplied by other sources)',
         value: ({ supply }) => {
-            return <Cell minWidth="120px" justify="center">
+            return <Cell minWidth="140px" justify="center">
                 <CellText>{supply > 0 ? shortenNumber(supply, 2) : '-'}</CellText>
             </Cell>
         },
@@ -131,10 +131,10 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
     return (
         <Container
             noPadding
-            label="Live DOLA Feds Overview"
+            label="Active DOLA Feds Overview"
             description="Fed contracts handle the DOLA supply in a lending protocol or liquidity pool via expansions and contractions"
         >
-            <InfoModal title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose} onOk={onClose}>
+            <InfoModal minW={{ base: 'auto', xl: '900px' }} title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose} onOk={onClose}>
                 <VStack spacing="4" py="4" w='full' alignItems="flex-start">
                     <Accordion w='full' allowMultiple defaultIndex={[0, 1, 2, 3, 4, 5, 6, 7, 8]}>
                         <AccordionItemTemplate

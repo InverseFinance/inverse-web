@@ -44,11 +44,11 @@ export const DolaDiagram = () => {
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
-          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
+          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies.filter(chain => chain.supply > 0)}
           />
           <SupplyInfos
             title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-            supplies={fedsWithData}
+            supplies={fedsWithData.filter(fed => fed.supply > 0)}
           />
           <ShrinkableInfoMessage
             title="⚡&nbsp;&nbsp;Roles & Powers"

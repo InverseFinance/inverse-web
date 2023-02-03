@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { NetworkIds } from '@app/types';
+import { FedTypes, NetworkIds } from '@app/types';
 import { cacheFedDataKey, cacheMultisigDataKey } from './dao';
 import { frontierMarketsCacheKey } from '../markets';
 import { firmTvlCacheKey } from '../f2/tvl';
@@ -132,7 +132,7 @@ export default async function handler(req, res) {
         borrows = firmMarkets.reduce((prev, curr) => prev + curr.totalDebt, 0);
         detailsLink = '/firm/positions';
         detailsLinkName = 'Positions'
-      } else if (fedConfig.type === 'LP') {
+      } else if (fedConfig.type === FedTypes.LP) {
         detailsLink = `https://debank.com/profile/${fedConfig.incomeSrcAd || fedConfig.address}`;
         detailsLinkName = 'Debank'
         lpBalance = getBnToNumber(lpBalancesBn[fedIndex]);
@@ -142,7 +142,7 @@ export default async function handler(req, res) {
         if(fedConfig.strategy?.multisig) {
           const _multisig = multisigData.find(m => m.address === fedConfig.strategy.multisig.address);
           if(_multisig) {
-            relatedFunds = _multisig.funds.filter(f => fedConfig.strategy.multisig.relevantAssets.includes(f.token.address));
+            relatedFunds = _multisig.funds.filter(f => f.balance > 0 && fedConfig.strategy.multisig.relevantAssets.includes(f.token.address));
           }
         }
       } else if (fedConfig.fusePool) {

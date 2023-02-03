@@ -402,12 +402,18 @@ export type Prices = {
   }
 }
 
+export enum FedTypes {
+  LP = 'Liquidity Pool',
+  CROSS = 'Cross-Lending',
+  ISOLATED = 'Isolated-Lending',
+}
+
 export type Fed = {
   address: string,
   abi: string[],
   chainId: NetworkIds,
   name: string,
-  type: 'Isolated' | 'Cross' | 'LP',
+  type: FedTypes,
   projectImage: string,
   isXchain?: boolean,
   hasEnded?: boolean,

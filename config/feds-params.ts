@@ -1,9 +1,9 @@
-import { NetworkIds } from "@app/types";
+import { FedTypes, NetworkIds } from "@app/types";
 
 export const FEDS_PARAMS = [
     {
         chainId: NetworkIds.mainnet,
-        type: "Isolated",
+        type: FedTypes.ISOLATED,
         protocol: "FiRM",
         address: "0x2b34548b865ad66A2B046cb82e59eE43F75B90fd",
         name: "FiRM Fed",
@@ -16,7 +16,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "Cross",
+        type: FedTypes.CROSS,
         protocol: "Frontier",
         address: "0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7",
         name: "Frontier Fed",
@@ -27,7 +27,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "Cross",
+        type: FedTypes.CROSS,
         fusePool: "6",
         protocol: "Fuse",
         address: "0xe3277f1102C1ca248aD859407Ca0cBF128DB0664",
@@ -36,7 +36,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "Cross",
+        type: FedTypes.CROSS,
         fusePool: "22",
         protocol: "Fuse",
         address: "0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8",
@@ -45,7 +45,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "Cross",
+        type: FedTypes.CROSS,
         fusePool: "127",
         protocol: "Fuse",
         address: "0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C",
@@ -54,7 +54,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "Cross",
+        type: FedTypes.CROSS,
         fusePool: "24",
         protocol: "Fuse",
         hasEnded: true,
@@ -64,7 +64,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "LP",
+        type: FedTypes.LP,
         protocol: "Yearn",
         address: "0xcc180262347F84544c3a4854b87C34117ACADf94",
         name: "Yearn Fed",
@@ -72,7 +72,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "LP",
+        type: FedTypes.LP,
         protocol: "Convex",
         address: "0xF382d062DF29CF5E400c131C1383c9E6Cd174305",
         oldAddresses: [
@@ -104,12 +104,20 @@ export const FEDS_PARAMS = [
             rewardPools: [
                 { address: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', method: 'earned', underlying: '0xD533a949740bb3306d119CC777fa900bA034cd52' },
                 { isCVXreward: true, underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },                
-            ]
+            ],
+            multisig: {
+                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
+                relevantAssets: [
+                    '0xD533a949740bb3306d119CC777fa900bA034cd52',
+                    '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+                    '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+                ]
+            },
         },
     },
     {
         chainId: NetworkIds.ftm,
-        type: "Cross",
+        type: FedTypes.CROSS,
         protocol: "Scream",
         hasEnded: true,
         isXchain: true,
@@ -119,7 +127,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "LP",
+        type: FedTypes.LP,
         protocol: "Velodrome",
         address: "0xfEd533e0Ec584D6FF40281a7850c4621D258b43d",
         name: "Velo Fed",
@@ -155,7 +163,7 @@ export const FEDS_PARAMS = [
     },
     {
         chainId: NetworkIds.mainnet,
-        type: "LP",
+        type: FedTypes.LP,
         protocol: "Aura",
         address: "0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740",
         oldAddresses: ["0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364"],
