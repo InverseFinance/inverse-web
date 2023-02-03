@@ -143,7 +143,14 @@ export const FEDS_PARAMS = [
             lpBalanceContract: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F',
             rewardPools: [
                 { address: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F', method: 'earned', underlying: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05', type: 'specifyUnderlying' }
-            ]
+            ],
+            multisig: {
+                address: '0xa283139017a2f5BAdE8d8e25412C600055D318F8',
+                relevantAssets: [
+                    '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
+                    '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
+                ]
+            },
         },
     },
     {

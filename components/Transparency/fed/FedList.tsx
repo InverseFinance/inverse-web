@@ -174,7 +174,9 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                     {
                                         selectedFed?.subBalances.map(tokenInLp => {
                                             return <HStack key={tokenInLp.address}>
-                                                <UnderlyingItem {...tokenInLp} />
+                                                <HStack w='100px' alignItems="center">
+                                                    <UnderlyingItem {...tokenInLp} label={tokenInLp.symbol} />
+                                                </HStack>
                                                 <Text>
                                                     {shortenNumber(tokenInLp.perc, 2)}%
                                                 </Text>
@@ -204,9 +206,43 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                     {
                                         selectedFed?.rewards.map(r => {
                                             return <HStack key={r.address}>
-                                                <UnderlyingItem {...r.rewardToken} />
+                                                <HStack w='100px' alignItems="center">
+                                                    <UnderlyingItem {...r.rewardToken} label={r.rewardToken.symbol} />
+                                                </HStack>
                                                 <Text>
                                                     {preciseCommify(r.reward, 0)} ({shortenNumber(r.reward * prices[r.rewardToken.coingeckoId]?.usd || 0, 2, true)})
+                                                </Text>
+                                            </HStack>;
+                                        })
+                                    }
+                                </VStack>}
+                            />
+                        }
+                        {
+                            selectedFed?.relatedFunds?.length > 0 && <AccordionItemTemplate
+                                title={
+                                    <HStack w='full' justify="space-between">
+                                        <Text fontWeight="extrabold" fontSize="18px">Related Funds in TWG:</Text>
+                                        <Text fontWeight="bold">{
+                                            shortenNumber(
+                                                selectedFed?.relatedFunds.reduce(
+                                                    (prev, curr) => prev + curr.balance * prices[curr.token.coingeckoId]?.usd || 0,
+                                                    0
+                                                ),
+                                                2,
+                                                true,
+                                            )}</Text>
+                                    </HStack>
+                                }
+                                body={<VStack w='full' alignItems="flex-start">
+                                    {
+                                        selectedFed?.relatedFunds.map(r => {
+                                            return <HStack key={r.token.address}>
+                                                <HStack w='100px' alignItems="center">
+                                                    <UnderlyingItem {...r.token} label={r.token.symbol} />
+                                                </HStack>
+                                                <Text>
+                                                    {preciseCommify(r.balance, 0)} ({shortenNumber(r.balance * prices[r.token.coingeckoId]?.usd || 0, 2, true)})
                                                 </Text>
                                             </HStack>;
                                         })
