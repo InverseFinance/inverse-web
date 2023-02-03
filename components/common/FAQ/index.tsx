@@ -22,7 +22,7 @@ export const AccordionItemTemplate = ({
 }) => {
     return <AccordionItem w='full' border="none">
         <h2>
-            <AccordionButton >
+            <AccordionButton _focus={{ outline: 'none' }}>
                 <Box flex='1' lineHeight="normal" textAlign='left' color="mainTextColor" fontWeight="bold" fontSize="lg">
                     {title}
                 </Box>

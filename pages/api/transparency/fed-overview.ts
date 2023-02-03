@@ -47,6 +47,7 @@ export default async function handler(req, res) {
       _multisigData,
       fuseDolaBorrowsBn,
       lpBalancesBn,
+      lpSupplyBn,
       lpPrices,
       lpSubBalances,
       lpRewards,
@@ -72,6 +73,17 @@ export default async function handler(req, res) {
           const chainProvider = getProvider(chainId);
           const contract = new Contract(lpFed.strategy.lpBalanceContract, CTOKEN_ABI, chainProvider);
           return contract.balanceOf(address);
+        })
+      ),
+      Promise.all(
+        FEDS.map(lpFed => {
+          if(!lpFed.strategy?.lpBalanceContract) {
+            return new Promise((res) => res(0));
+          }    
+          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const chainProvider = getProvider(chainId);
+          const contract = new Contract(lpFed.strategy?.lpBalanceContract, CTOKEN_ABI, chainProvider);
+          return contract.totalSupply();
         })
       ),
       Promise.all(
@@ -117,7 +129,7 @@ export default async function handler(req, res) {
 
     const fedOverviews = FEDS.map((fedConfig, fedIndex) => {
       const fedData = fedsData.find(f => f.address === fedConfig.address);
-      let tvl, borrows, lpBalance, lpPrice = 0;
+      let tvl, borrows, lpBalance, lpPrice, lpTotalSupply, lpPol = 0;
       let subBalances, rewards, relatedFunds = [];
       let detailsLink, detailsLinkName = '';
       // frontier
@@ -136,6 +148,8 @@ export default async function handler(req, res) {
         detailsLink = `https://debank.com/profile/${fedConfig.incomeSrcAd || fedConfig.address}`;
         detailsLinkName = 'Debank'
         lpBalance = getBnToNumber(lpBalancesBn[fedIndex]);
+        lpTotalSupply = getBnToNumber(lpSupplyBn[fedIndex]);
+        lpPol = lpTotalSupply > 0 ? lpBalance / lpTotalSupply : 0;
         lpPrice = lpPrices[fedIndex];
         subBalances = lpSubBalances[fedIndex];
         rewards = lpRewards[fedIndex]
@@ -159,6 +173,8 @@ export default async function handler(req, res) {
         abi: undefined,
         supply: fedData?.supply || 0,
         lpBalance,
+        lpTotalSupply,
+        lpPol,
         lpPrice,
         tvl,
         borrows,

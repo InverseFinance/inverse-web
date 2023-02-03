@@ -60,7 +60,7 @@ const columns = [
         tooltip: 'Link to the contract where the details and strategy are verifiable',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         value: ({ address }) => {
-            return <Cell alignItems="center" minWidth="140px" justify="center" fontSize="15px">
+            return <Cell alignItems="center" minWidth="140px" justify="center" fontSize="15px" onClick={(e) => e.stopPropagation()}>
                 <ScannerLink value={address} useName={false} />
             </Cell>
         },
@@ -134,11 +134,11 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
             label="Active DOLA Feds Overview"
             description="Fed contracts handle the DOLA supply in a lending protocol or liquidity pool via expansions and contractions"
         >
-            <InfoModal minW={{ base: 'auto', xl: '900px' }} title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose} onOk={onClose}>
+            <InfoModal minW={{ base: 'auto', xl: '600px' }} title={`${selectedFed?.name}`} isOpen={isOpen} onClose={onClose} onOk={onClose}>
                 <VStack spacing="4" py="4" w='full' alignItems="flex-start">
-                    <Accordion w='full' allowMultiple defaultIndex={[0, 1, 2, 3, 4, 5, 6, 7, 8]}>
+                    <Accordion w='full' allowToggle={true} defaultIndex={[0]}>
                         <AccordionItemTemplate
-                            title="Strategy:"
+                            title={<Text fontWeight="extrabold" fontSize="16px">Strategy:</Text>}
                             body={
                                 <Text>
                                     {
@@ -149,14 +149,23 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                         />
                         {
                             !!selectedFed?.strategy?.pools && <AccordionItemTemplate
-                                title="Farming Pools:"
+                                title={
+                                    <HStack w='full' justify="space-between" fontSize="16px">
+                                        <Text fontWeight="extrabold">Farming Pools:</Text>
+                                        <HStack>
+                                            {selectedFed.strategy.pools.map(pool => {
+                                                return <Image h="20px" w="20px" key={pool.address} src={pool.image||selectedFed.projectImage} />
+                                            })}
+                                        </HStack>
+                                    </HStack>
+                                }
                                 body={<VStack w='full' alignItems="flex-start">
                                     {selectedFed?.strategy?.pools.map(p => {
                                         return <HStack w='full' key={p.address} w='full' justify="space-between">
                                             <Link display="inline-flex" textDecoration="underline" color="mainTextColor" href={p.link} isExternal target="_blank">
                                                 <Image src={p.image || selectedFed.projectImage} h="20px" w="20px" mr="4" /> {p.name}
                                             </Link>
-                                            <ScannerLink chainId={p.incomeChainId || p.chainId} value={p.address} />
+                                            <ScannerLink chainId={selectedFed.incomeChainId || selectedFed.chainId} value={p.address} />
                                         </HStack>
                                     })}
                                 </VStack>}
@@ -165,9 +174,9 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                         {
                             selectedFed?.subBalances?.length > 0 && <AccordionItemTemplate
                                 title={
-                                    <HStack w='full' justify="space-between">
-                                        <Text fontWeight="extrabold" fontSize="18px">LP size:</Text>
-                                        <Text fontWeight="bold">{preciseCommify(selectedFed.lpBalance, selectedFed.lpBalance < 10 ? 2 : 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
+                                    <HStack w='full' justify="space-between" fontSize="16px">
+                                        <Text fontWeight="extrabold">Total LP Size:</Text>
+                                        <Text fontWeight="bold">{preciseCommify(selectedFed.lpTotalSupply, selectedFed.lpTotalSupply < 10 ? 2 : 0)} ({shortenNumber(selectedFed.lpTotalSupply * selectedFed.lpPrice, 2, true)})</Text>
                                     </HStack>
                                 }
                                 body={<VStack w='full' alignItems="flex-start">
@@ -178,7 +187,31 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                                     <UnderlyingItem {...tokenInLp} label={tokenInLp.symbol} />
                                                 </HStack>
                                                 <Text>
-                                                    {shortenNumber(tokenInLp.perc, 2)}%
+                                                    {preciseCommify(tokenInLp.balance, 0)} ({shortenNumber(tokenInLp.perc, 2)}%)
+                                                </Text>
+                                            </HStack>;
+                                        })
+                                    }
+                                </VStack>}
+                            />
+                        }
+                        {
+                            selectedFed?.subBalances?.length > 0 && <AccordionItemTemplate
+                                title={
+                                    <HStack w='full' justify="space-between" fontSize="16px">
+                                        <Text fontWeight="extrabold">Protocol-Owned Liquidity:</Text>
+                                        <Text fontWeight="bold">{shortenNumber(selectedFed.lpPol * 100, 2)}% - {preciseCommify(selectedFed.lpBalance, selectedFed.lpBalance < 10 ? 2 : 0)} ({shortenNumber(selectedFed.lpBalance * selectedFed.lpPrice, 2, true)})</Text>
+                                    </HStack>
+                                }
+                                body={<VStack w='full' alignItems="flex-start">
+                                    {
+                                        selectedFed?.subBalances.map(tokenInLp => {
+                                            return <HStack key={tokenInLp.address}>
+                                                <HStack w='100px' alignItems="center">
+                                                    <UnderlyingItem {...tokenInLp} label={tokenInLp.symbol} />
+                                                </HStack>
+                                                <Text>
+                                                    {preciseCommify(tokenInLp.balance * selectedFed.lpPol, 0)} ({shortenNumber(tokenInLp.perc * selectedFed.lpPol, 2)}%)
                                                 </Text>
                                             </HStack>;
                                         })
@@ -189,8 +222,8 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                         {
                             selectedFed?.rewards?.length > 0 && <AccordionItemTemplate
                                 title={
-                                    <HStack w='full' justify="space-between">
-                                        <Text fontWeight="extrabold" fontSize="18px">Claimable Rewards:</Text>
+                                    <HStack w='full' justify="space-between" fontSize="16px">
+                                        <Text fontWeight="extrabold">Claimable Rewards:</Text>
                                         <Text fontWeight="bold">{
                                             shortenNumber(
                                                 selectedFed?.rewards.reduce(
@@ -221,8 +254,8 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                         {
                             selectedFed?.relatedFunds?.length > 0 && <AccordionItemTemplate
                                 title={
-                                    <HStack w='full' justify="space-between">
-                                        <Text fontWeight="extrabold" fontSize="18px">Related Funds in TWG:</Text>
+                                    <HStack w='full' justify="space-between" fontSize="16px">
+                                        <Text fontWeight="extrabold">Funds related to this Fed in TWG:</Text>
                                         <Text fontWeight="bold">{
                                             shortenNumber(
                                                 selectedFed?.relatedFunds.reduce(
