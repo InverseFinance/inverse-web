@@ -183,7 +183,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'Liquidation incentive to liquidate shortfalling loans',
                 title: 'Liquidation Incentive',
-                value: `${shortenNumber(market.liquidationIncentive * 100, 2, true)}%`,
+                value: `${shortenNumber(market.liquidationIncentive * 100, 2)}%`,
             },
         ],
     ]
