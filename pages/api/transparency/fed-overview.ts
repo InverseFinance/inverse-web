@@ -104,7 +104,7 @@ export default async function handler(req, res) {
           }
           const chainId = lpFed.incomeChainId||lpFed.chainId;
           const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
-          const chainProvider = getProvider(chainId);          
+          const chainProvider = getProvider(chainId);
           return getLPBalances(token, chainId, chainProvider);
         })
       ),
@@ -156,7 +156,7 @@ export default async function handler(req, res) {
         if(fedConfig.strategy?.multisig) {
           const _multisig = multisigData.find(m => m.address === fedConfig.strategy.multisig.address);
           if(_multisig) {
-            relatedFunds = _multisig.funds.filter(f => f.balance > 0 && fedConfig.strategy.multisig.relevantAssets.includes(f.token.address));
+            relatedFunds = _multisig.funds.filter(f => f.balance > 0.1 && fedConfig.strategy.multisig.relevantAssets.includes(f.token.address));
           }
         }
       } else if (fedConfig.fusePool) {

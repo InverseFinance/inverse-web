@@ -275,7 +275,7 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                                     <UnderlyingItem {...r.token} label={r.token.symbol} />
                                                 </HStack>
                                                 <Text>
-                                                    {preciseCommify(r.balance, 0)} ({shortenNumber(r.balance * prices[r.token.coingeckoId]?.usd || 0, 2, true)})
+                                                    {preciseCommify(r.balance, r.balance < 100 ? 2 : 0)} ({shortenNumber(r.balance * prices[r.token.coingeckoId]?.usd || 0, 2, true)})
                                                 </Text>
                                             </HStack>;
                                         })

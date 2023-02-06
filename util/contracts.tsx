@@ -284,7 +284,7 @@ const cvxConstants = {
 // Convex rewards uses a specific calculation method...
 // check mint (not _mint) function here: https://etherscan.io/address/0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B#code
 const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number => {
-  const crvReward = getBnToNumber(crvRewardBn);  
+  const crvReward = getBnToNumber(crvRewardBn);
   const supply = getBnToNumber(supplyBn);
   const cliff = supply / cvxConstants.reductionPerCliff;
   if (cliff >= cvxConstants.totalCliffs) {
@@ -299,6 +299,31 @@ const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number 
   return cvxAmount;
 }
 
+const auraConstants = {
+  totalCliffs: 500,
+  reductionPerCliff: 100000,
+  maxSupply: 50000000,
+  initAmount: 50000000,
+  minterMinted: 0,
+};
+
+const getBalToAuraReward = (balRewardBn: BigNumber, supplyBn: BigNumber): number => {
+  const balReward = getBnToNumber(balRewardBn);
+  const supply = getBnToNumber(supplyBn);
+  const emissionsMinted = supply - auraConstants.initAmount - auraConstants.minterMinted;
+  const cliff = emissionsMinted / auraConstants.reductionPerCliff;
+  if (cliff >= auraConstants.totalCliffs) {
+    return 0;
+  }
+  const reduction = (auraConstants.totalCliffs - cliff)*2.5 + 700;
+  const auraAmount = balReward * reduction / auraConstants.totalCliffs;
+  const amtTillMax = auraConstants.maxSupply - emissionsMinted;
+  if (auraAmount > amtTillMax) {
+    return amtTillMax;
+  }
+  return auraAmount;
+}
+
 const poolRewardsAbis = {
   'specifyUnderlying': `function earned(address, address) public view returns(uint)`,
   'default': `function earned(address) public view returns(uint)`,
@@ -307,10 +332,10 @@ const poolRewardsAbis = {
 export const getPoolRewards = async (rewardPools: any[], account: string, chainId: string, providerOrSigner: Provider | JsonRpcSigner): Promise<any[]> => {
   const dataForRewards = await Promise.all(
     rewardPools.map(p => {
-      if (p.isCVXreward) {
+      if (p.isCVXreward || p.isAURAreward) {
         return (new Contract(p.underlying, ERC20_ABI, providerOrSigner)).totalSupply();
       }
-      const contract = new Contract(p.address, [poolRewardsAbis[p.type||'default']], providerOrSigner);
+      const contract = new Contract(p.address, [poolRewardsAbis[p.type || 'default']], providerOrSigner);
       const args = p.type === 'specifyUnderlying' ? [p.underlying, account] : [account];
       return contract[p.method](...args);
     })
@@ -320,8 +345,9 @@ export const getPoolRewards = async (rewardPools: any[], account: string, chainI
     const rewardToken = CHAIN_TOKENS[chainId][rp.underlying];
     return {
       ...rp,
-      reward: rp.isCVXreward ?// cvx should be after crv
-        getCrvToCvxReward(dataForRewards[i - 1], dataForRewards[i])
+      reward: rp.isCVXreward || rp.isAURAreward ?// cvx should be after crv
+        rp.isCVXreward ? getCrvToCvxReward(dataForRewards[i - 1], dataForRewards[i])
+          : getBalToAuraReward(dataForRewards[i - 1], dataForRewards[i])
         :
         getBnToNumber(dataForRewards[i], rewardToken.decimals),
       rewardToken,
@@ -351,10 +377,18 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
     return tokens.map((token, i) => {
       return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
     })
-  } else if(LPToken.isVeloLP && !!LPToken.pairs) {
+  } else if (LPToken.isVeloLP && !!LPToken.pairs) {
     const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
     const balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves())
     const balances = balancesBn.slice(0, 2).map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+    const total = balances.reduce((prev, curr) => prev + curr, 0);
+    return tokens.map((token, i) => {
+      return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
+    })
+  } else if(LPToken.balancerInfos && !!LPToken.pairs) {
+    const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+    const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);
+    const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
     const total = balances.reduce((prev, curr) => prev + curr, 0);
     return tokens.map((token, i) => {
       return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
