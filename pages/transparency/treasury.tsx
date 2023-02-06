@@ -19,13 +19,13 @@ export const Overview = () => {
   const { currentPayrolls } = useCompensations();
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
-  const TWGFtmfunds = multisigs?.find(m => m.shortName === 'TWG on FTM')?.funds || [];
+  const TWGOPfunds = multisigs?.find(m => m.shortName === 'TWG on OP')?.funds || [];
 
   const totalHoldings = [
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices), usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
     { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
-    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGFtmfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGFtmfunds) },
+    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds) },
   ];
 
   const polsFunds = pols.map(p => {
@@ -39,7 +39,7 @@ export const Overview = () => {
   })
 
   const totalMultisigs = multisigs?.map(m => {
-    return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'both'), usdPrice: 1, drill: m.funds }
+    return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
   });
 
   return (
@@ -52,14 +52,14 @@ export const Overview = () => {
         <meta name="description" content="Inverse Finance Treasury Details" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, treasury, funds, liquidity, pol, holdings" />
       </Head>
-      <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+      <AppNav active="Verify" activeSubmenu="Treasury" hideAnnouncement={true} />
       <TransparencyTabs active="treasury" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
             <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="100px" spacingY="40px">
               <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
-              <FundsDetails title="Multisigs's Holdings & Allowances from Treasury" funds={totalMultisigs} prices={prices} />
+              <FundsDetails title="Multisigs's Holdings" funds={totalMultisigs} prices={prices} />
               <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} />
               <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} />              
               <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} title="DOLA Monthly Payrolls" />
@@ -67,7 +67,7 @@ export const Overview = () => {
               <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} />
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} />
-              <FundsDetails title="TWG on Fantom" funds={TWGFtmfunds} prices={prices} />
+              <FundsDetails title="TWG on Optimism" funds={TWGOPfunds} prices={prices} />
               {
                 polsFunds.map(p => {
                   return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} labelWithPercInChart={true} />
