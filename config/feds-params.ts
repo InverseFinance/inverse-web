@@ -165,11 +165,42 @@ export const FEDS_PARAMS = [
         chainId: NetworkIds.mainnet,
         type: FedTypes.LP,
         protocol: "Aura",
-        address: "0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740",
-        oldAddresses: ["0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364"],
+        address: "0x1CD24E3FBae88BECbaFED4b8Cda765D1e6e3BC03",
+        oldAddresses: ["0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364", "0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740"],
         name: "Aura Fed",
         projectImage:
             "https://assets.coingecko.com/coins/images/25942/small/logo.png",
         supplyFuncName: "dolaSupply",
+        strategy: {
+            description: 'The minted DOLA is added to the Balancer DOLA/USDC liquidity pool, the resulting Balancer LP token is then deposited in the Aura booster. This Fed gets rewards in BAL and AURA tokens.',
+            pools: [
+                {
+                    address: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
+                    name: 'Balancer DOLA/USDC',
+                    link: 'https://app.balancer.fi/#/ethereum/pool/0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
+                    image: '/assets/projects/balancer.png',
+                },
+                {
+                    address: '0x22915f309EC0182c85cD8331C23bD187fd761360',
+                    name: 'Aura Reward Pool',
+                    link: 'https://app.aura.finance/',
+                    image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
+                },
+            ],
+            type: 'convex',
+            lpBalanceContract: '0x22915f309EC0182c85cD8331C23bD187fd761360',
+            rewardPools: [
+                { address: '0x22915f309EC0182c85cD8331C23bD187fd761360', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
+                { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                
+            ],
+            multisig: {
+                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
+                relevantAssets: [
+                    '0xba100000625a3754423978a60c9317c58a424e3D',
+                    '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
+                    '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
+                ]
+            },
+        },
     },
 ];
