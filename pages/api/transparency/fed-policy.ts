@@ -165,7 +165,7 @@ export default async function handler(req, res) {
 
     const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
 
-    const dolaSupplies = (await getCacheFromRedis(cacheDolaSupplies, false)) || [];
+    const dolaSuppliesCacheData = (await getCacheFromRedis(cacheDolaSupplies, false)) || { dolaSupplies: [], dolaTotalSupply: 0 };
 
     // temp => migrate data to add fed address to data
     const totalEvents = pastTotalEvents.concat(newEvents).map(event => {
@@ -179,7 +179,7 @@ export default async function handler(req, res) {
       feds: FEDS.map(fed => {
         return { ...fed, supply: accumulatedSupplies[fed.address] }
       }),
-      dolaSupplies,
+      dolaSupplies: dolaSuppliesCacheData?.dolaSupplies,
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));
