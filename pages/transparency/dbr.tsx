@@ -1,4 +1,4 @@
-import { Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
+import { Divider, Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -32,7 +32,7 @@ export const DBRTransparency = () => {
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-dbr.png" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dbr, dola, supply" />
             </Head>
-            <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+            <AppNav active="Verify" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
             <TransparencyTabs active="dbr" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1200px'>
                 <VStack w={{ base: 'full', xl: '850px' }}>
@@ -110,8 +110,9 @@ export const DBRTransparency = () => {
                     />
                 </VStack>
             </Flex>
+            <Divider mt="4" />
             <VStack mt="4" spacing="0" w='full'>
-                <VStack alignItems="flex-start" maxW='600px' w='full'>
+                <VStack alignItems="flex-start" maxW='400px' w='full'>
                     <NavButtons onClick={setTab} active={tab} options={['Spenders', 'Replenishments']} />
                 </VStack>
                 {

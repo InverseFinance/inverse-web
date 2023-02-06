@@ -298,7 +298,7 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                         onClick={(item) => handleClick(item)}
                     />
                     : isLoading ? <SkeletonBlob /> : <Text>
-                        No Contraction or Expansion has been executed yet
+                        No active feds
                     </Text>
             }
         </Container>

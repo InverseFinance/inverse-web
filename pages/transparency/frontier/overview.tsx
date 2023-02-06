@@ -10,7 +10,7 @@ import { NetworkIds } from '@app/types'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
-import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
+import { TransparencyFrontierTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@app/hooks/useDAO'
@@ -92,52 +92,38 @@ export const Overview = () => {
         <meta name="keywords" content="Inverse Finance, dao, transparency, overview" />
       </Head>
       <AppNav active="Verify" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
-      <TransparencyTabs active="overview" />
+      <TransparencyFrontierTabs active="frontier-overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
           <GovernanceFlowChart {...govFlowChartData} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <GovernanceRules />                
-          <SupplyInfos token={TOKENS[INV]} supplies={invSupplies} />
-          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies} />
-          <ShrinkableInfoMessage
-            title="⚡ Roles & Powers"
+          {!!tvlData && <ShrinkableInfoMessage
+            title={<Flex alignItems="center">
+              Frontier Total Value Locked (
+              <Link isExternal href="https://dune.xyz/naoufel/anchor-metrics">
+                Analytics <ExternalLinkIcon mb="1px" fontSize="10px" />
+              </Link>
+              )
+            </Flex>
+            }
             description={
-              <>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Pause Guardian:</Text>
-                  <Text>Pause (but not unpause) a Market</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Frontier Admin:</Text>
-                  <Text>All rights on Frontier</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} Admin:</Text>
-                  <Text>Change {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} APY</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Escrow Admin:</Text>
-                  <Text>Change x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} escrow duration</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Dola operator:</Text>
-                  <Text>Add/remove DOLA minters</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold" whiteSpace="nowrap">- Gov Guardian:</Text>
-                  <Text>Update Gov. rules, cancel a proposal</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold" whiteSpace="nowrap">- Treasury Admin:</Text>
-                  <Text>Use treasury funds</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Policy Committee:</Text>
-                  <Text>Handle Reward Rates Policies</Text>
-                </Flex>
-              </>
+              <Funds prices={prices}
+                funds={
+                  tvlData?.anchor?.assets.map(assetWithBalance => {
+                    return { balance: assetWithBalance.balance, token: assetWithBalance }
+                  })
+                } />
+            }
+          />}
+          <ShrinkableInfoMessage
+            title={<Text mt="2" fontWeight="bold">In Frontier Reserves:</Text>}
+            description={
+              <Funds
+                prices={prices}
+                funds={anchorReserves}
+                boldTotal={false}
+              />
             }
           />
         </VStack>

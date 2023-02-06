@@ -48,7 +48,7 @@ export const DBRFlowChart = ({
       targetPosition: 'top',
       targets: [
         { label: `🔐 ${namedAddress(m.escrowImplementation)}`, x: 0, y, id: m.escrowImplementation, targetPosition: 'top', linkLabel: "Escrow Type", style: greenStyle },       
-        { label: ``, id: DBR, targetPosition: 'bottom', linkLabel: "Uses DOLA Borrowing Right Tokens as cost", style: greenStyle, labelContainerStyle: { width: '280px' } },
+        // { label: ``, id: DBR, targetPosition: 'bottom', linkLabel: "Uses DOLA Borrowing Right Tokens as cost", style: greenStyle, labelContainerStyle: { width: '280px' } },
       ]
     }
   }) || [];

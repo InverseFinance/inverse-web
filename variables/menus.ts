@@ -56,10 +56,10 @@ export const MENUS = {
         },
       ],
     },
-    {
-      label: 'Claim',
-      href: '/claim-dbr',
-    },
+    // {
+    //   label: 'Claim',
+    //   href: '/claim-dbr',
+    // },
     {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
@@ -109,11 +109,11 @@ export const MENUS = {
     // },
     {
       label: 'Learn',
-      href: '/transparency/overview',
+      href: 'https://docs.inverse.finance',
       submenus: [
         {
-          href: '/transparency/overview',
-          label: 'Transparency Portal',
+          href: 'https://docs.inverse.finance',
+          label: 'Docs',
         },
         {
           label: 'About FiRM',
@@ -126,10 +126,6 @@ export const MENUS = {
         {
           href: '/analytics',
           label: 'Analytics',
-        },
-        {
-          href: 'https://docs.inverse.finance',
-          label: 'Docs',
         },
         {
           label: 'Blog',
@@ -176,6 +172,52 @@ export const MENUS = {
         //   label: 'Liquidations',
         // },
       ]
+    },
+    {
+      label: 'Verify',
+      href: '/transparency/overview',
+      submenus: [
+        {
+          href: '/transparency/overview',
+          label: 'Overview',
+        },
+        {
+          href: '/transparency/treasury',
+          label: 'Treasury',
+        },
+        {
+          href: '/transparency/dao',
+          label: 'DAO',
+        },
+        {
+          href: '/transparency/inv',
+          label: 'INV',
+        },
+        {
+          href: '/transparency/dola',
+          label: 'DOLA & the Feds',
+        },
+        {
+          href: '/transparency/feds/policy/all',
+          label: 'Feds',
+        },
+        {
+          href: '/transparency/multisigs',
+          label: 'Multisig Wallets',
+        },
+        // {
+        //   href: '/transparency/stabilizer',
+        //   label: 'Stabilizer',
+        // },
+        // {
+        //   href: '/transparency/shortfalls',
+        //   label: 'Shortfalls',
+        // },
+        // {
+        //   href: '/transparency/liquidations',
+        //   label: 'Liquidations',
+        // },
+      ],
     },
     {
       label: 'Participate',

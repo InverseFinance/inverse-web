@@ -53,6 +53,26 @@ const redirects = async () => {
       permanent: true,
     },
     {
+      source: '/transparency/frontier-overview',
+      destination: '/transparency/frontier/overview',
+      permanent: true,
+    },
+    {
+      source: '/transparency/frontier-liquidations',
+      destination: '/transparency/frontier/liquidations',
+      permanent: true,
+    },
+    {
+      source: '/transparency/frontier-shortfalls',
+      destination: '/transparency/frontier/shortfalls',
+      permanent: true,
+    },
+    {
+      source: '/transparency/shortfalls',
+      destination: '/transparency/frontier/shortfalls',
+      permanent: true,
+    },
+    {
       source: '/vaults',
       destination: 'https://old.inverse.finance/vaults',
       permanent: true,

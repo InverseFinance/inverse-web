@@ -452,7 +452,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
         <meta name="og:description" content="Yearn Fed" />
         <meta name="description" content="Inverse Finance Yearn Fed" />
       </Head>
-      <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+      <AppNav active="Verify" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
       {
         !yearnFedData?.yearn ?
           <WarningMessage alertProps={{ mt: "8" }} description="Could not fetch data form API" />
