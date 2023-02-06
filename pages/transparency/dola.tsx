@@ -46,10 +46,10 @@ export const DolaDiagram = () => {
           <DolaMoreInfos />
           <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies.filter(chain => chain.supply > 0)}
           />
-          <SupplyInfos
+          {/* <SupplyInfos
             title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
             supplies={fedsWithData.filter(fed => fed.supply > 0)}
-          />
+          /> */}
           <ShrinkableInfoMessage
             title="⚡&nbsp;&nbsp;Roles & Powers"
             description={
