@@ -57,6 +57,7 @@ const chainTokenAddresses = {
     LOCKEDDOLAFRAXBP: '0xF06c8696730cf760619e4fA0eDd0f79ea50531A9',    
     BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
+    DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -292,6 +293,22 @@ const chainTokens = {
       ],
       image: '/assets/v2/dola-small.png'
     },
+    [chainTokenAddresses["1"].DOLAUSDCBALANCER]: {
+      address: chainTokenAddresses["1"].DOLAUSDCBALANCER,
+      name: 'DOLA-USDC blp',
+      symbol: 'DOLA-USDC blp',
+      protocolImage: '/assets/projects/balancer.png',
+      decimals: 18,
+      isLP: true,
+      balancerInfos: {
+        poolId: '0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },     
+      pairs: [
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+      ],
+      image: '/assets/v2/dola-small.png'
+    },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
       name: 'lp-3pool-curve',
@@ -432,7 +449,7 @@ const chainTokens = {
       name: 'AURA',
       symbol: 'AURA',
       coingeckoId: 'aura-finance',
-      image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',     
+      image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
       decimals: 18,
     },
     [chainTokenAddresses["1"].BAL]: {
