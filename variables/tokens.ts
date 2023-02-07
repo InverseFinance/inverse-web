@@ -58,6 +58,8 @@ const chainTokenAddresses = {
     BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
+    SDCRV: '0xd1b5651e55d4ceed36251c61c50c889b36f6abb5',
+    SDCRVGAUGE: '0x7f50786A0b15723D741727882ee99a0BF34e3466',
     // yearn vaults
     YVDOLA3POOLCRV: '0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C',
     YVUSDT: '0x7Da96a3891Add058AdA2E826306D812C638D87a7',
@@ -407,6 +409,22 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484',
       decimals: 18,
       coingeckoId: 'curve-dao-token',
+    },
+    [chainTokenAddresses["1"].SDCRV]: {
+      address: chainTokenAddresses["1"].SDCRV,
+      name: 'sdCRV',
+      symbol: 'dcCRV',
+      image: 'https://assets.coingecko.com/coins/images/27756/small/scCRV-2.png?1665654580',
+      decimals: 18,
+      coingeckoId: 'stake-dao-crv',
+    },
+    [chainTokenAddresses["1"].SDCRVGAUGE]: {
+      address: chainTokenAddresses["1"].SDCRVGAUGE,
+      name: 'sdCRV-g',
+      symbol: 'sdCRV-g',
+      image: 'https://assets.coingecko.com/coins/images/27756/small/scCRV-2.png?1665654580',
+      decimals: 18,
+      coingeckoId: 'stake-dao-crv',
     },
     [chainTokenAddresses["1"].VLCVX]: {
       address: chainTokenAddresses["1"].VLCVX,

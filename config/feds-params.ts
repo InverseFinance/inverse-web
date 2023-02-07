@@ -111,6 +111,8 @@ export const FEDS_PARAMS = [
                     '0xD533a949740bb3306d119CC777fa900bA034cd52',
                     '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
                     '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+                    '0xd1b5651e55d4ceed36251c61c50c889b36f6abb5',
+                    '0x7f50786A0b15723D741727882ee99a0BF34e3466',
                 ]
             },
         },
