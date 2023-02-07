@@ -240,6 +240,7 @@ export const F2Markets = ({
             defaultSortDir="desc"
             enableMobileRender={true}
             mobileClickBtnLabel={'View Market'}
+            mobileThreshold={1260}
             showRowBorder={true}
             spacing="0"
         />
