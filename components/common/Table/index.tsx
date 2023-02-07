@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text } from '@chakra-ui/react'
+import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text, SimpleGrid } from '@chakra-ui/react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
@@ -59,16 +59,21 @@ export const MobileTable = ({
   mobileClickBtnLabel: TableProps["mobileClickBtnLabel"],
   onClick: TableProps["onClick"],
 }) => {
-  return <VStack spacing="4" w='full'>
+  const length = filteredItems?.length;
+  return <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 0 }} w='full'>
     {
       filteredItems?.map((item, i) => {
         const isNotFirst = i > 0;
+        const isEvenNum = i % 2 === 0;
         return <VStack
           key={item[keyName] ?? i}
           w='full'
           spacing="4"
-          borderTop={isNotFirst ? '1px solid #cccccc' : undefined}
-          pt={isNotFirst ? '4' : undefined}
+          borderTop={{ base: (isNotFirst ? '1px solid #cccccc' : undefined), md: 'none' }}
+          borderLeft={{ md: (isNotFirst ? '1px solid #cccccc' : undefined) }}
+          pl={{ base: 1, md: (length > 1 ? !isEvenNum ? 8 : 4 : undefined) }}
+          pr={{ base: 1, md: (length > 1 ? isEvenNum ? 8 : 4 : undefined) }}
+          pt={{ base: (isNotFirst ? '4' : undefined), md: '0' }}
         >
           <VStack w='full' spacing="2">
             {
@@ -106,7 +111,7 @@ export const MobileTable = ({
         </VStack>
       })
     }
-  </VStack>
+  </SimpleGrid>
 }
 
 export const Table = ({
