@@ -194,6 +194,10 @@ export const MENUS = {
           label: 'INV',
         },
         {
+          href: '/transparency/dbr',
+          label: 'DBR',
+        },
+        {
           href: '/transparency/dola',
           label: 'DOLA & Feds',
         },
