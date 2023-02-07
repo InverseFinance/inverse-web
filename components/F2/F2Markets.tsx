@@ -223,17 +223,16 @@ export const F2Markets = ({
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/firm"
-        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '30px', sm: "50px" }} w={{ base: '63px', sm: '110px' }} borderRadius="0" />}
+        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-    // right={
-    //     <VStack spacing="0" alignItems="flex-end">
-    //         <Link textDecoration="underline" href="https://www.inverse.finance/governance/drafts/mills/94" fontSize={{ base: '12px', sm: '14px' }} fontWeight="extrabold" color="mainTextColor">
-    //             Next Proposal:
-    //         </Link>
-    //         <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
-    //     </VStack>
-    // }
-    // headerProps={{ direction: 'row-reverse' }}
+        right={
+            <VStack display={{base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
+                <Link textDecoration="underline" href="https://www.inverse.finance/governance/drafts/mills/94" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
+                    Next Proposal:
+                </Link>
+                <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
+            </VStack>
+        }
     >
         {
             isLoading ?
