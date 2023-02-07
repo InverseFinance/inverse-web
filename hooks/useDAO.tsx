@@ -1,7 +1,7 @@
 import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
-import { useCustomSWR } from './useCustomSWR';
+import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR';
 import { ONE_DAY_MS } from '@app/config/constants';
 
 const { FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants();
@@ -109,7 +109,7 @@ export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncome
 }
 
 export const useFedOverview = (): SWR & { fedOverviews: any[] } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-overview`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-overview`, fetcher)
 
   return {
     fedOverviews: data?.fedOverviews || [],    

@@ -27,10 +27,11 @@ const FUSE_FEDS = Object.entries(FUSE_CTOKENS).map(([fedAddress, ctoken]) => ({ 
 export default async function handler(req, res) {  
   // to keep for archive
   const cacheKey = `fed-overview-v1.0.0`;
+  const { cacheFirst } = req.query;
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 900);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 2);
 
     if (validCache) {
       res.status(200).json(validCache);
