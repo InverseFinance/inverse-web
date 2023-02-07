@@ -238,21 +238,22 @@ export const F2Markets = ({
         {
             isLoading ?
                 <SkeletonList /> :
-                <Table
-                    keyName="address"
-                    noDataMessage="Loading..."
-                    columns={columns}
-                    items={accountMarkets.map(m => {
-                        return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-                    })}
-                    onClick={openMarket}
-                    defaultSort={debt > 0 ? 'deposits' : 'tvl'}
-                    defaultSortDir="desc"
-                    enableMobileRender={true}
-                    mobileClickBtnLabel={'View Market'}
-                    showRowBorder={true}
-                    spacing="0"
-                />
+                 <Table
+            keyName="address"
+            noDataMessage="Loading..."
+            columns={columns}
+            items={accountMarkets.map(m => {
+                return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+            })}
+            onClick={openMarket}
+            defaultSort={debt > 0 ? 'deposits' : 'tvl'}
+            defaultSortDir="desc"
+            enableMobileRender={true}
+            mobileClickBtnLabel={'View Market'}
+            mobileThreshold={1260}
+            showRowBorder={true}
+            spacing="0"
+        />
         }
     </Container>
 }
