@@ -55,7 +55,7 @@ export const MultisigsDiagram = () => {
         <meta name="description" content="Inverse Finance Multisigs" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, multisigs" />
       </Head>
-      <AppNav active="Verify" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
+      <AppNav active="Verify" activeSubmenu="Multisig Wallets" hideAnnouncement={true} />
       <TransparencyTabs active="multisigs" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column">

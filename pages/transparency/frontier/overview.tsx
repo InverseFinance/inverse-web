@@ -4,21 +4,17 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
-import { GovernanceFlowChart } from '@app/components/Transparency/GovernanceFlowChart'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
-import { TransparencyFrontierTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
+import { TransparencyFrontierTabs } from '@app/components/Transparency/TransparencyTabs';
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@app/hooks/useDAO'
-import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
-import { shortenNumber } from '@app/util/markets'
-import { RTOKEN_SYMBOL } from '@app/variables/tokens'
-import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
+import { FrontierFlowChart } from '@app/components/Transparency/FrontierFlowChart'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DBR, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -52,7 +48,7 @@ const defaultValues = {
 export const Overview = () => {
   const { prices } = usePricesV2(true)
   const { data: tvlData } = useTVL()
-  const { dolaSupplies, invSupplies, treasury, anchorReserves, bonds } = useDAO();
+  const { anchorReserves } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -91,11 +87,11 @@ export const Overview = () => {
         <meta name="description" content="Overview with Contracts Flowchart and key metrics" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, overview" />
       </Head>
-      <AppNav active="Verify" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
+      <AppNav active="Verify" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
       <TransparencyFrontierTabs active="frontier-overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
-          <GovernanceFlowChart {...govFlowChartData} />
+          <FrontierFlowChart {...govFlowChartData} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           {!!tvlData && <ShrinkableInfoMessage

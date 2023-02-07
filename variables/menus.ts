@@ -195,15 +195,19 @@ export const MENUS = {
         },
         {
           href: '/transparency/dola',
-          label: 'DOLA & the Feds',
+          label: 'DOLA & Feds',
         },
         {
           href: '/transparency/feds/policy/all',
-          label: 'Feds',
+          label: 'Feds Policy & Income',
         },
         {
           href: '/transparency/multisigs',
           label: 'Multisig Wallets',
+        },
+        {
+          href: '/transparency/frontier/overview',
+          label: 'Frontier (deprecated)',
         },
         // {
         //   href: '/transparency/stabilizer',

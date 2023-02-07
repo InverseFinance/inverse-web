@@ -6,7 +6,7 @@ import { namedAddress } from '@app/util';
 import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
 
-const { INV, DOLA, TOKENS, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const blueStyle = { backgroundColor: '#4299e1cc', color: 'white' }
 const primaryStyle = { backgroundColor: '#5E17EBcc', color: 'white' }
@@ -14,12 +14,9 @@ const deprecatedStyle = { backgroundColor: '#aaaaaa', color: 'white' }
 const greenStyle = { backgroundColor: '#25C9A1cc', color: 'white' }
 
 const dolaImg = <Image borderRadius="50px" mr="2" display="inline-block" src={TOKENS[DOLA].image} ignoreFallback={true} width={'20px'} height={'20px'} />
-const dbrImg = <Image borderRadius="50px" mr="2" display="inline-block" src={TOKENS[DBR].image} ignoreFallback={true} width={'20px'} height={'20px'} />
 const invImg = <Image borderRadius="50px" mr="2" display="inline-block" src={TOKENS[INV].image} ignoreFallback={true} width={'20px'} height={'20px'} />
 
-const { F2_CONTROLLER } = getNetworkConfigConstants();
-
-export const GovernanceFlowChart = ({
+export const FrontierFlowChart = ({
   comptroller,
   compGuard,
   compAdmin,
@@ -79,30 +76,10 @@ export const GovernanceFlowChart = ({
       id: comptroller,
       style: deprecatedStyle,
       targets: [
-        { label: `🔐 ${namedAddress(compGuard)}`, id: govTreasury, y: 400, linkLabel: 'Pause Guardian' },
-        { label: namedAddress(compAdmin), id: govTreasury, linkLabel: 'Frontier Admin' },
+        { label: `🔐 ${namedAddress(compGuard)}`, id: compGuard, y: 400, linkLabel: 'Pause Guardian' },
+        { label: namedAddress(compAdmin), id: compAdmin, linkLabel: 'Frontier Admin' },
       ]
     },
-    {
-      label: 'FiRM Controller',
-      id: F2_CONTROLLER,
-      style: primaryStyle,
-      x: 200,
-      targets: [        
-        { label: namedAddress(govTreasury), id: govTreasury, linkLabel: 'Operator' },
-      ]
-    },
-    // {
-    //   label: '⏱️ Escrow',
-    //   id: escrow,
-    //   y: 300,
-    //   deltaX: 300,
-    //   style: primaryStyle,
-    //   targetPosition: 'bottom',
-    //   targets: [
-    //     { label: 'Escrow Admin', id: escrowGov, linkLabel: 'Escrow Admin' },
-    //   ]
-    // },
     {
       label: `🏦 ${namedAddress(govTreasury)}`,
       id: govTreasury,
@@ -110,29 +87,6 @@ export const GovernanceFlowChart = ({
       targets: [
         { label: namedAddress(treasuryAdmin), id: treasuryAdmin, linkLabel: "Treasury Admin" },
       ],
-    },
-    {
-      label: `⚖️ ${namedAddress(xinvAdmin)}`,
-      id: xinvAdmin,
-      x: 1200,
-      y: 0,
-      style: primaryStyle,
-      sourcePosition: 'left',
-      targetPosition: 'bottom',
-      targets: [
-        { label: '👥 Policy Committee', id: xinvManagerPC, linkLabel: 'PC', x: 800, y: 0, targetPosition: 'right' }
-      ]
-    },
-    {
-      label:'⚖️ BondsManager',
-      id: opBondManager,
-      x: 1050,
-      y: 150,
-      sourcePosition: 'left',
-      style: primaryStyle,
-      targets: [
-        { id: xinvManagerPC, linkLabel: 'PC' }
-      ]
     },
     {
       label: <>{invImg} xINV</>,
@@ -144,7 +98,6 @@ export const GovernanceFlowChart = ({
         { label: "Frontier (Deprecated)", id: xinvComptroller, linkLabel: 'xINV Comptroller' },
         { label: `⚖️ ${namedAddress(xinvAdmin)}`, id: xinvAdmin, linkLabel: 'xINV Admin', y: 0, x: 1200, style: primaryStyle },
         { label: <>{invImg} INV</>, id: xinvUnderlying, style: blueStyle, linkLabel: 'xINV Underlying', deltaX: 400, y: 800 },
-        // { label: 'xINV Escrow', id: xinvEscrow, linkLabel: 'xINV Escrow' },
       ]
     },
     {
@@ -162,21 +115,11 @@ export const GovernanceFlowChart = ({
     {
       label: <>{dolaImg}DOLA</>,
       id: dola,
-      deltaX: 400,
-      y: 400,
+      deltaX: 300,
+      y: 475,
       style: blueStyle,
       targets: [
         { label: namedAddress(dolaOperator), id: dolaOperator, linkLabel: "DOLA Operator" },
-      ]
-    },
-    {
-      label: <>{dbrImg}DBR</>,
-      id: dbr,
-      x: 200,
-      y: 400,
-      style: blueStyle,
-      targets: [
-        { label: namedAddress(dolaOperator), id: dolaOperator, linkLabel: "DBR Operator" },
       ]
     },
   ]
