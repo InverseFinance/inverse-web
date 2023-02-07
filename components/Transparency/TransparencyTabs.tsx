@@ -7,10 +7,10 @@ const TABS = [
     { page: 'overview', label: 'Overview' },
     { page: 'treasury', label: 'Treasury' },
     { page: 'dao', label: 'DAO' },
-    { page: 'inv', label: 'INV' },
-    { page: 'dola', label: 'DOLA' },
+    { page: 'inv', label: 'INV' },    
     { page: 'dbr', label: 'DBR' },
-    { page: 'feds', label: 'Feds' },
+    { page: 'dola', label: 'DOLA & Feds' },
+    { page: 'feds', label: 'Feds Policy & Income' },
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
@@ -53,7 +53,7 @@ export const TransparencyTabs = ({
                 <Image filter={themeName === 'dark' ? 'invert(1)' : undefined} src="/assets/transparency.png" h="40px" w="40px" ignoreFallback={true} />
                 <VStack alignItems="flex-start" spacing="0">
                     <Text fontWeight="extrabold" fontSize="22px">Transparency Portal</Text>
-                    <Text fontWeight="bold" fontSize="14px" color="secondaryTextColor">Don't trust, verify</Text>
+                    <Text as="i" fontWeight="bold" fontSize="14px" color="secondaryTextColor">Don't trust, verify</Text>
                 </VStack>
             </HStack>
             <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme={TABS_COLOR_SCHEME} variant={TABS_VARIANT}>
