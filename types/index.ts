@@ -403,7 +403,7 @@ export type Prices = {
 }
 
 export enum FedTypes {
-  LP = 'Liquidity Pool',
+  LP = 'AMM',
   CROSS = 'Cross-Lending',
   ISOLATED = 'Isolated-Lending',
 }

@@ -117,7 +117,13 @@ const columns = [
             </Cell>
         },
     },
-]
+];
+
+const ABOUTS = {
+    [FedTypes.CROSS]: 'The Fed supplies DOLA in the DOLA market of a compound-style cross-lending protocol, the borrowing capacity of a user can depend on several different collaterals and this capacity can be used to borrow different assets including DOLA but not only. The utilization rate of DOLA is directly related to supply and demand which determines the borrowing APR, by adjusting the supply the Fed can effectively impact the borrowing APR, which helps to control DOLA peg.',
+    [FedTypes.ISOLATED]: 'The Fed supplies DOLA in the fixed-rate isolated-lending protocol FiRM, only DOLA can be borrowed, and the borrowing capacity is isolated by collateral. The borrowing APR is directly determined by the price of the DOLA Borrowing Right token (DBR).',
+    [FedTypes.LP]: "AMM feds are operated to mint/burn DOLA's based on demand in a liquidity pool, when demand for DOLA is up in the pool which is represented by the increase in DOLA price, the Fed Chair will mint more DOLAs and deposit to the LP, bringing the balance back to where it was. It works similarly the other way. AMM Feds are powerful peg control tools for DOLA.",
+}
 
 export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoading?: boolean, prices: Prices["prices"] }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -147,6 +153,14 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                 </Text>
                             }
                         />
+                        <AccordionItemTemplate
+                            title={<Text fontWeight="extrabold" fontSize="16px">About "{selectedFed?.type}" Feds:</Text>}
+                            body={
+                                <Text>
+                                    {ABOUTS[selectedFed?.type]}
+                                </Text>
+                            }
+                        />
                         {
                             !!selectedFed?.strategy?.pools && <AccordionItemTemplate
                                 title={
@@ -154,7 +168,7 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                         <Text fontWeight="extrabold">Farming Pools:</Text>
                                         <HStack>
                                             {selectedFed.strategy.pools.map(pool => {
-                                                return <Image h="20px" w="20px" key={pool.address} src={pool.image||selectedFed.projectImage} />
+                                                return <Image h="20px" w="20px" key={pool.address} src={pool.image || selectedFed.projectImage} />
                                             })}
                                         </HStack>
                                     </HStack>
