@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -10,6 +10,9 @@ import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
 import { OracleType } from "./Infos/OracleType";
+import { SkeletonList } from "../common/Skeleton";
+import { UnderlyingItemBlock } from "../common/Assets/UnderlyingItemBlock";
+import Link from "../common/Link";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -206,7 +209,9 @@ export const F2Markets = ({
     const accountMarkets = useAccountF2Markets(markets, account);
     const { debt } = useAccountDBR(account);
     const router = useRouter();
-    const { firmTvls } = useFirmTVL();
+    const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
+
+    const isLoading = tvlLoading || !markets?.length;
 
     const openMarket = (market: any) => {
         const newPath = router.asPath.replace(router.pathname, `/firm/${market.name}`);
@@ -218,31 +223,36 @@ export const F2Markets = ({
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/firm"
-        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '40px', sm: "50px" }} w={{ base: '85px', sm: '110px' }} borderRadius="0" />}
+        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-    // right={
-    //     <Stack spacing="0" alignItems="flex-start">
-    //         <Text fontSize="20px" fontWeight="extrabold" color="mainTextColor">Fixed Borrow APR</Text>
-    //         <Text fontSize="24px" fontWeight="extrabold" color="secondaryTextColor">{shortenNumber(dbrPrice * 100, 2)}%</Text>
-    //     </Stack>
-    // }
-    // headerProps={{ direction: 'row-reverse' }}
+        right={
+            <VStack display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
+                <Link textDecoration="underline" href="https://www.inverse.finance/governance/drafts/mills/94" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
+                    Next Proposal:
+                </Link>
+                <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
+            </VStack>
+        }
     >
-        <Table
-            keyName="address"
-            noDataMessage="Loading..."
-            columns={columns}
-            items={accountMarkets.map(m => {
-                return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-            })}
-            onClick={openMarket}
-            defaultSort={debt > 0 ? 'deposits' : 'tvl'}
-            defaultSortDir="desc"
-            enableMobileRender={true}
-            mobileClickBtnLabel={'View Market'}
-            mobileThreshold={1260}
-            showRowBorder={true}
-            spacing="0"
-        />
+        {
+            isLoading ?
+                <SkeletonList /> :
+                <Table
+                    keyName="address"
+                    noDataMessage="Loading..."
+                    columns={columns}
+                    items={accountMarkets.map(m => {
+                        return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                    })}
+                    onClick={openMarket}
+                    defaultSort={debt > 0 ? 'deposits' : 'tvl'}
+                    defaultSortDir="desc"
+                    enableMobileRender={true}
+                    mobileClickBtnLabel={'View Market'}
+                    mobileThreshold={1260}
+                    showRowBorder={true}
+                    spacing="0"
+                />
+        }
     </Container>
 }
