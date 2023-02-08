@@ -182,10 +182,6 @@ export const getRiskColor = (newPerc: number) => {
     return (newPerc >= 75 ? 'seagreen' : (newPerc >= 50 ? 'darkgoldenrod' : (newPerc >= 25 ? 'darkorange' : 'red')));
 }
 
-export const getDBRBuyLink = () => {
-    return `https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xAD038Eb671c44b853887A7E32528FaB35dC5D710`
-}
-
 export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax, perc, isAutoDBR = true): Promise<number> => {
     return new Promise((res) => {
         const dbrCoverDebt = isAutoDBR ? naiveMax * dbrPrice / (365 / duration) : 0;

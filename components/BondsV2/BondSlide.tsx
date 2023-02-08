@@ -1,7 +1,7 @@
-import { BondV2, BondV2WithRoi } from '@app/types'
+import { BondV2WithRoi } from '@app/types'
 import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { Divider, Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react'
-import { shortenNumber } from '@app/util/markets'
+import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useBalances } from '@app/hooks/useBalances'
 import { formatUnits } from '@ethersproject/units'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -23,7 +23,7 @@ import Link from '@app/components/common/Link'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { useBondV2PayoutFor } from '@app/hooks/useBondsV2'
 import { bondV2Deposit } from '@app/util/bonds'
-import { InfoMessage } from '../common/Messages'
+import { InfoMessage, WarningMessage } from '../common/Messages'
 import moment from 'moment';
 import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds'
 
@@ -53,8 +53,10 @@ export const BondSlide = ({
     const [amount, setAmount] = useState('');
     const [maxSlippage, setMaxSlippage] = useState(1);
     const { approvals } = useAllowances([bond.input], bond.teller);
+    const { approvals: pcApproval } = useAllowances([bond.output], bond.teller, bond.owner);
     const [isApproved, setIsApproved] = useState(hasAllowance(approvals, bond.input));
     const { payout: receiveAmount } = useBondV2PayoutFor(bond.bondContract, bond.id, bond.underlying.decimals, amount, REWARD_TOKEN!.decimals, bond.referrer);
+    const pcApproved = pcApproval && pcApproval[bond.output] ? getBnToNumber(pcApproval[bond.output]) : 0;
 
     useEffect(() => {
         setIsApproved(hasAllowance(approvals, bond.input));
@@ -78,7 +80,6 @@ export const BondSlide = ({
     }
 
     const handleSuccess = () => {
-        console.log('success')
         router.push('/bonds/purchased')
     }
 
@@ -169,7 +170,7 @@ export const BondSlide = ({
                             Current Max Available Payout for this bond <AnimatedInfoTooltip type="tooltip" message="The number of INVs available in this bonding contract" />:
                         </Text>
                         <Text fontWeight="bold" textAlign="right">
-                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.bondPrice, 2, true)})
+                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
                         </Text>
                     </HStack>
                     <HStack w='full' justify="space-between">
@@ -180,6 +181,15 @@ export const BondSlide = ({
                             {bond.capacity} {bond.capacityInQuote ? bond.underlying.symbol : 'INV'}
                         </Text>
                     </HStack>
+                    {
+                        bond.capacity && !bond.capacityInQuote && pcApproved < bond.capacity &&
+                        <HStack w='full' justify="flex-start">
+                            <WarningMessage
+                                alertProps={{ w: 'full' }}
+                                description="The Policy Committee needs to increase allowance for this market"
+                            />
+                        </HStack>
+                    }
                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
                         <Flex w='full' maxW={{ base: 'full', sm: '400px' }}>
                             <BalanceInput
@@ -194,7 +204,11 @@ export const BondSlide = ({
                                 !isApproved ?
                                     <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!library?.getSigner())} />
                                     :
-                                    <SubmitButton onSuccess={() => handleSuccess()} isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount)} onClick={handleDeposit} refreshOnSuccess={true}>
+                                    <SubmitButton
+                                        onSuccess={() => handleSuccess()}
+                                        isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount) || (parseFloat(receiveAmount) > pcApproved)}
+                                        onClick={handleDeposit}
+                                        refreshOnSuccess={true}>
                                         Purchase
                                     </SubmitButton>
                             }

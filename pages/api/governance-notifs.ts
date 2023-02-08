@@ -1,12 +1,13 @@
 import "source-map-support";
 import { getCacheFromRedis, getRedisClient } from '@app/util/redis';
 import { ProposalStatus } from '@app/types';
+import { proposalsCacheKey } from "./proposals";
 
 const client = getRedisClient();
 
 export default async function handler(req, res) {
   try {
-    const data: any = await getCacheFromRedis(`1-proposals-v1.0.0`, false) || { proposals: [] };
+    const data: any = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
     
     if (!data) {
       res.status(404).json({ success: false });

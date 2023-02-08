@@ -3,18 +3,19 @@ import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { FedEvent, NetworkIds } from '@app/types';
+import { Fed, FedEvent, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getRedisClient } from '@app/util/redis';
+import { cacheDolaSupplies } from './dao';
 
-const client = getRedisClient()
+const client = getRedisClient();
 
-const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds) => {
+const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
   const provider = getProvider(chainId);
-  const contract = new Contract(fedAd, abi, provider);
+  const contract = new Contract(fedAd, abi, provider);  
   return Promise.all([
-    contract.queryFilter(contract.filters.Contraction()),
-    contract.queryFilter(contract.filters.Expansion()),
+    contract.queryFilter(contract.filters.Contraction(), startBlock),
+    contract.queryFilter(contract.filters.Expansion(), startBlock),
   ])
 }
 
@@ -45,24 +46,42 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
 export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `fed-policy-cache-v1.0.94`;
+  // to keep for archive
+  const cacheKeyOld = `fed-policy-cache-v1.0.95`;  
+  // temp migration
+  const cacheKeyNew = `fed-policy-cache-v1.0.96`;  
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 900);
+    const validCache = await getCacheFromRedis(cacheKeyNew, true, 900);
+
     if (validCache) {
       res.status(200).json(validCache);
       return
     }
 
+    const archived = await getCacheFromRedis(cacheKeyOld, false);
+    const pastTotalEvents = archived?.totalEvents || [];
+
+    const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
+    const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
+
     const rawEvents = await Promise.all([
-      ...FEDS.map(fed => getEvents(fed.address, fed.abi, fed.chainId))
+      ...FEDS.map(fed =>
+        fed.hasEnded ?
+          new Promise((res) => res([[], []]))
+          : getEvents(fed.address, fed.abi, fed.chainId, newStartingBlock)
+      )
     ]);
+
     // add old Convex Fed to Convex Fed
-    const withOldAddresses = FEDS.filter(f => !!f.oldAddress);
+    let withOldAddresses: (Fed & { oldAddress: string })[] = [];
+    FEDS.filter(fed => !!fed.oldAddresses).forEach(fed => {
+      fed.oldAddresses?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldAddress }));
+    });
 
     const oldRawEvents = await Promise.all([
-      ...withOldAddresses.map(fed => getEvents(fed.oldAddress, fed.abi, fed.chainId))
+      ...withOldAddresses.map(fed => getEvents(fed.oldAddress, fed.abi, fed.chainId, newStartingBlock))
     ]);
 
     withOldAddresses.forEach((fed, i) => {
@@ -104,13 +123,22 @@ export default async function handler(req, res) {
       }
     }
 
-    let totalAccumulatedSupply = 0;
+    let totalAccumulatedSupply = lastKnownEvent?.newTotalSupply || 0;
 
-    let _key = 0;
+    let _key = lastKnownEvent?._key ? lastKnownEvent?._key + 1 : 0;
 
-    const totalEvents = FEDS
+    let accumulatedSupplies = {};
+    FEDS.forEach((fed, i) => {
+      // no array findLast method in this node version
+      const fedEvents = pastTotalEvents.filter(event => event.fedIndex === i);
+      const lastEvent = fedEvents?.length > 0 ? fedEvents[fedEvents.length - 1] : {};
+      if (lastEvent) {
+        accumulatedSupplies[fed.address] = lastEvent.newSupply || 0;
+      }
+    })
+
+    const newEvents = FEDS
       .map((fed, fedIndex) => {
-        let accumulatedSupply = 0;
         return {
           ...fed,
           events: rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1])
@@ -119,8 +147,12 @@ export default async function handler(req, res) {
               return getEventDetails(e, blockTimestamps[fed.chainId][e.blockNumber], fedIndex, fed.isFirm)
             })
             .map(e => {
-              accumulatedSupply += e.value;
-              return { ...e, newSupply: accumulatedSupply }
+              accumulatedSupplies[fed.address] += e.value;
+              // case where profits where made => can contract more than what was expanded in the first place
+              if (accumulatedSupplies[fed.address] < 0) {
+                accumulatedSupplies[fed.address] = 0;
+              }
+              return { ...e, newSupply: accumulatedSupplies[fed.address] }
             })
         }
       })
@@ -131,17 +163,28 @@ export default async function handler(req, res) {
         return { ...event, newTotalSupply: totalAccumulatedSupply, _key: _key++ }
       })
 
-    const fedPolicyMsg = JSON.parse(await client.get('fed-policy-msg') || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
+    const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
+
+    const dolaSupplies = (await getCacheFromRedis(cacheDolaSupplies, false)) || [];
+
+    // temp => migrate data to add fed address to data
+    const totalEvents = pastTotalEvents.concat(newEvents).map(event => {
+      return { ...event, fedAddress: FEDS[event.fedIndex].address }
+    });
 
     const resultData = {
+      timestamp: +(new Date()),
       fedPolicyMsg,
       totalEvents,
-      feds: FEDS,
+      feds: FEDS.map(fed => {
+        return { ...fed, supply: accumulatedSupplies[fed.address] }
+      }),
+      dolaSupplies,
     }
 
     await client.set('block-timestamps', JSON.stringify(blockTimestamps));
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(cacheKeyNew, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {

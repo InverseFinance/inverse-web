@@ -1,0 +1,14 @@
+name: refunds-feds-cron
+on:
+  schedule:
+    - cron: '* */5 * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:     
+      - name: Governance refunds - FEDS
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=feds' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'      
+      

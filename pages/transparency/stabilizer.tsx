@@ -95,7 +95,7 @@ const columns = [
 ]
 
 export const StabilizerTransparency = () => {
-    const { dolaTotalSupply, fantom, optimism } = useDAO();
+    const { dolaSupplies } = useDAO();
     const { totalEvents } = useStabilizer();
     const [chartWidth, setChartWidth] = useState<number>(900);
     const [now, setNow] = useState<number>(Date.now());
@@ -151,7 +151,7 @@ export const StabilizerTransparency = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Stabilizer</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
-                <meta name="og:description" content="Stabilizer Revenues" />
+                <meta name="og:description" content="Stabilizer Income" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-stabilizer.png" />
                 <meta name="description" content="Inverse Finance Stabilizer for DOLA" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, stabilizer, peg" />
@@ -163,7 +163,7 @@ export const StabilizerTransparency = () => {
                     <Container
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}
-                        label="Accumulated Profits in DAI from the Stabilizer Swap fees"
+                        label="Accumulated Income in DAI from the Stabilizer Swap fees"
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
                                 <Flex h="25px" position="relative" alignItems="center">
@@ -178,7 +178,7 @@ export const StabilizerTransparency = () => {
                                     totalEvents?.length > 0 ?
                                         <>
                                             <AreaChart
-                                                title={`Accumulated Profits (Current Total: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2, true) : 0})`}
+                                                title={`Accumulated Income (Current Total: ${chartData.length ? shortenNumber(chartData[chartData.length - 1].y, 2, true) : 0})`}
                                                 showTooltips={true}
                                                 showMaxY={false}
                                                 height={300}
@@ -192,7 +192,7 @@ export const StabilizerTransparency = () => {
                                             <BarChart
                                                 width={chartWidth}
                                                 height={300}
-                                                title="Monthly profits for the last 12 months"
+                                                title="Monthly income for the last 12 months"
                                                 groupedData={barChartData}
                                                 colorScale={['#34E795', '#4299e1']}
                                                 isDollars={true}
@@ -208,7 +208,7 @@ export const StabilizerTransparency = () => {
                         }
                     >
                         <VStack w='full'>
-                            <Text fontSize="14px" fontWeight="bold" mb="2">Profits from the Last {tableData.length} Stabilizer Swap Fees</Text>
+                            <Text fontSize="14px" fontWeight="bold" mb="2">Income from the Last {tableData.length} Stabilizer Swap Fees</Text>
                             {
                                 tableData?.length > 0 ?
                                     <Table
@@ -231,13 +231,9 @@ export const StabilizerTransparency = () => {
                         </Link>
                     } />
                     <ShrinkableInfoMessage description={
-                        <Text>Profits are made in DAI and sent to the Inverse Treasury on each swap</Text>
+                        <Text>DAI income is sent to the Inverse Treasury on each swap</Text>
                     } />
-                    <SupplyInfos token={TOKENS[DOLA]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
-                        { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-                        { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
-                    ]}
+                    <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
                     />
                 </VStack>
             </Flex>

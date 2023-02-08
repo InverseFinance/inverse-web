@@ -12,10 +12,10 @@ import { useState } from 'react';
 import { claimAirdrop, getAccountProofs } from '@app/util/merkle';
 import Link from '@app/components/common/Link';
 import { useWeb3React } from '@web3-react/core';
-import { getDBRBuyLink } from '@app/util/f2';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ';
 import ScannerLink from '@app/components/common/ScannerLink';
+import { BUY_LINKS } from '@app/config/constants';
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -97,7 +97,7 @@ const NotEligibleComp = ({
         <AirdropText>
             Your <b>{shortenAddress(account)}</b> account is not elgible to claim the DBR airdrop!
         </AirdropText>
-        <Link textDecoration="underline" href={getDBRBuyLink()} isExternal target="_blank">
+        <Link textDecoration="underline" href={BUY_LINKS.DBR} isExternal target="_blank">
             Open Balancer to buy DBR
         </Link>
         <ScannerLink color="secondaryTextColor" value={DBR} label="Open DBR in Etherscan" />

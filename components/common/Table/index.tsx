@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text } from '@chakra-ui/react'
+import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text, SimpleGrid } from '@chakra-ui/react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
@@ -11,6 +11,7 @@ import { uniqueBy } from '@app/util/misc';
 import { AutocompleteProps } from '@app/types';
 import React from 'react';
 import { RSubmitButton } from '../Button/RSubmitButton';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export type Column = {
   label: string
@@ -38,6 +39,8 @@ type TableProps = {
   sortChevronProps?: IconProps
   colBoxProps?: BoxProps
   enableMobileRender?: boolean
+  showRowBorder?: boolean
+  mobileThreshold?: number
   mobileClickBtnLabel?: string
 }
 
@@ -56,16 +59,21 @@ export const MobileTable = ({
   mobileClickBtnLabel: TableProps["mobileClickBtnLabel"],
   onClick: TableProps["onClick"],
 }) => {
-  return <VStack spacing="4" w='full'>
+  const length = filteredItems?.length;
+  return <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 0 }} w='full'>
     {
       filteredItems?.map((item, i) => {
         const isNotFirst = i > 0;
+        const isEvenNum = i % 2 === 0;
         return <VStack
           key={item[keyName] ?? i}
           w='full'
           spacing="4"
-          borderTop={isNotFirst ? '1px solid #cccccc' : undefined}
-          pt={isNotFirst ? '4' : undefined}
+          borderTop={{ base: (isNotFirst ? '1px solid #cccccc' : undefined), md: 'none' }}
+          borderLeft={{ md: (isNotFirst ? '1px solid #cccccc' : undefined) }}
+          pl={{ base: 1, md: (length > 1 ? !isEvenNum ? 8 : 4 : undefined) }}
+          pr={{ base: 1, md: (length > 1 ? isEvenNum ? 8 : 4 : undefined) }}
+          pt={{ base: (isNotFirst ? '4' : undefined), md: '0' }}
         >
           <VStack w='full' spacing="2">
             {
@@ -103,7 +111,7 @@ export const MobileTable = ({
         </VStack>
       })
     }
-  </VStack>
+  </SimpleGrid>
 }
 
 export const Table = ({
@@ -120,10 +128,14 @@ export const Table = ({
   sortChevronProps,
   colBoxProps,
   enableMobileRender = false,
+  mobileThreshold = 821,
   mobileClickBtnLabel = 'View Details',
+  showRowBorder = false,
   ...props
 }: TableProps) => {
-  const [isLargerThan] = useMediaQuery('(min-width: 400px)');
+  const { themeStyles } = useAppTheme();
+  const [isReady, setIsReady] = useState(false);
+  const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);  
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState(defaultFilters);
@@ -136,10 +148,19 @@ export const Table = ({
   }));
 
   useEffect(() => {
+    setIsReady(true);
+  }, []);
+
+  useEffect(() => {
+    setSortBy(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
+  }, [defaultSort])
+
+  useEffect(() => {
     let filteredItems = [...sortedItems];
     Object.entries(filters).forEach(([key, val]) => {
       if (val === null) { return }
-      filteredItems = filteredItems.filter(item => item[key] === val);
+      const isBool = ['true', 'false'].includes(val);
+      filteredItems = filteredItems.filter(item => isBool ? item[key].toString() === val : item[key] === val);
     });
     setFilteredItems(filteredItems);
     if (onFilter) {
@@ -177,7 +198,7 @@ export const Table = ({
 
   const chevronProps = { color: 'accentTextColor', w: 4, h: 4, ...sortChevronProps };
 
-  if (!isLargerThan && enableMobileRender) {
+  if (isReady && !isLargerThan && enableMobileRender) {
     return <MobileTable
       keyName={keyName}
       filteredItems={filteredItems}
@@ -187,6 +208,38 @@ export const Table = ({
     />
   }
 
+  const filteredRows = filteredItems?.map((item, i) => (
+    <Flex
+      key={item[keyName] ?? i}
+      // bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
+      justify="space-between"
+      align="center"
+      fontWeight="semibold"
+      fontSize="sm"
+      cursor={!!onClick ? 'pointer' : undefined}
+      py={2.5}
+      pl={4}
+      pr={4}
+      border={showRowBorder ? `1px solid ${themeStyles.colors.primary[600]}` : undefined}
+      minW='fit-content'
+      w="full"
+      borderRadius={8}
+      onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
+        if (!!e && e?.target?.id.startsWith('popover-')) {
+          return;
+        }
+        return onClick(item, e);
+      } : undefined}
+      _hover={{ bgColor: 'primary.850' }}
+    >
+      {columns.map(({ value }, j) => (
+        <Fragment key={j}>{value(item, i)}</Fragment>
+      ))}
+    </Flex>
+  ));
+  const noDataEntity = filteredItems.length === 0 && !!noDataMessage &&
+    <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />;
+
   return (
     <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
       <Flex
@@ -195,7 +248,7 @@ export const Table = ({
         fontWeight="semibold"
         justify="space-between"
         textTransform="capitalize"
-        pb={2}
+        pb={showRowBorder ? 4 : 2}
         pl={4}
         pr={4}
       >
@@ -283,37 +336,15 @@ export const Table = ({
           )
         })}
       </Flex>
-      {filteredItems?.map((item, i) => (
-        <Flex
-          key={item[keyName] ?? i}
-          // bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
-          justify="space-between"
-          align="center"
-          fontWeight="semibold"
-          fontSize="sm"
-          cursor={!!onClick ? 'pointer' : undefined}
-          py={2.5}
-          pl={4}
-          pr={4}
-          minW='fit-content'
-          w="full"
-          borderRadius={8}
-          onClick={onClick ? (e: React.MouseEvent<HTMLElement>) => {
-            if (!!e && e?.target?.id.startsWith('popover-')) {
-              return;
-            }
-            return onClick(item, e);
-          } : undefined}
-          _hover={{ bgColor: 'primary.850' }}
-        >
-          {columns.map(({ value }, j) => (
-            <Fragment key={j}>{value(item, i)}</Fragment>
-          ))}
-        </Flex>
-      ))}
       {
-        !filteredItems.length > 0 && !!noDataMessage &&
-        <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />
+        showRowBorder ? <VStack mt={showRowBorder ? "0 !important" : undefined} w='full' spacing={showRowBorder ? '4' : '0'}>
+          {filteredRows}
+          {noDataEntity}
+        </VStack>
+          : <>
+            {filteredRows}
+            {noDataEntity}
+          </>
       }
     </Stack>
   )

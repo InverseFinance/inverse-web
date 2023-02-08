@@ -52,7 +52,7 @@ export const Breakdown = (containerProps: Partial<FlexProps>) => {
         </Flex>
         <Stack w={48}>
           <Stack direction="row">
-            <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
+            <Text w={'40px'} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
               {active}
             </Text>
             <Text color="mainTextColor" fontWeight="bold" whiteSpace="nowrap">
@@ -60,7 +60,7 @@ export const Breakdown = (containerProps: Partial<FlexProps>) => {
             </Text>
           </Stack>
           <Stack direction="row">
-            <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
+            <Text w={'40px'} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
               {passed}
             </Text>
             <Text color="#25C9A1" fontWeight="bold" whiteSpace="nowrap">
@@ -68,7 +68,7 @@ export const Breakdown = (containerProps: Partial<FlexProps>) => {
             </Text>
           </Stack>
           <Stack direction="row">
-            <Text w={5} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
+            <Text w={'40px'} textAlign="end" fontWeight="bold" whiteSpace="nowrap">
               {failed}
             </Text>
             <Text color="#928acc" fontWeight="bold" whiteSpace="nowrap">

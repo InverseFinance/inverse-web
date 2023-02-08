@@ -2,7 +2,7 @@ import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import Link from "@app/components/common/Link"
 import { useAccountDBR, useDBRPrice } from "@app/hooks/useDBR"
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
-import { getDBRBuyLink, getRiskColor } from "@app/util/f2"
+import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
@@ -13,6 +13,8 @@ import Container from "@app/components/common/Container"
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
 import { usePrices } from "@app/hooks/usePrices"
 import { useDOLA } from "@app/hooks/useDOLA"
+import { BUY_LINKS } from "@app/config/constants"
+import { useFirmTVL } from "@app/hooks/useTVL"
 
 const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
@@ -93,7 +95,7 @@ export const MarketBar = ({
                 DBR Balance
             </Title>
 
-            <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={getDBRBuyLink()} isExternal target='_blank'>
+            <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
                 {
                     dbrBalance > 0 && <SubTitle color="inherit">
                         {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
@@ -133,7 +135,7 @@ export const MarketBar = ({
                                     </SubTitle>
                                     :
                                     <SubTitle fontWeight={liquidity === 0 ? 'bold' : undefined} color={liquidity === 0 ? 'warning' : 'secondaryTextColor'}>
-                                        {liquidity ? shortenNumber(liquidity, 0, false, true) : 'No'} DOLA liquidity
+                                        {liquidity ? shortenNumber(liquidity, liquidity < 100 ? 2 : 0, false, true) : 'No'} DOLA liquidity
                                     </SubTitle>
                             }
                         </VStack>
@@ -190,7 +192,7 @@ export const DbrBar = ({
             DBR Balance
         </Title>
 
-        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={getDBRBuyLink()} isExternal target='_blank'>
+        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
             {
                 dbrBalance > 0 && <SubTitle color="inherit">
                     {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true, true)})`}
@@ -229,7 +231,7 @@ export const DbrBar = ({
                     </VStack>
                     <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
                         <Title>
-                            Daily Spend Rate
+                            Daily Spend
                         </Title>
                         <SubTitle color="secondaryTextColor">
                             {preciseCommify(-dailyDebtAccrual, 2, false)} DBR
@@ -300,6 +302,7 @@ export const FirmBar = ({
     const { prices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
     const { totalSupply, firmSupply } = useDOLA();
+    const { firmTotalTvl } = useFirmTVL();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
 
@@ -307,9 +310,9 @@ export const FirmBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={getDBRBuyLink()} imgSrc={`/assets/v2/dbr.png`} />
-                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems:{ base: 'center', md: 'flex-start' } }} />
-                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={'https://app.1inch.io/#/1/unified/swap/DOLA/INV'} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems:{ base: 'flex-end', md: 'flex-start' } }} />
+                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
+                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
@@ -330,11 +333,11 @@ export const FirmBar = ({
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>
-                    <Title>
-                        Borrow APR
-                    </Title>
+                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="https://defillama.com/protocol/inverse-finance-firm" isExternal target="_blank">
+                        TVL in FiRM
+                    </Link>
                     <SubTitle>
-                        {shortenNumber(dbrPrice * 100, 2)}%
+                        {shortenNumber(firmTotalTvl, 2, true)}
                     </SubTitle>
                 </VStack>
             </HStack>

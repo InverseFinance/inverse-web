@@ -1,0 +1,49 @@
+name: refunds-multisig-cron
+on:
+  schedule:
+    - cron: '26 */3 * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:     
+      - name: Governance refunds - TWG
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=TWG' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - FedChair
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=FedChair' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - PC
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=PC' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - RWG
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=RWG' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - AWG
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=AWG' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - CWG
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=CWG' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - GWG
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=GWG' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - BBP
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=multisig&multisig=BBP' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      

@@ -18,6 +18,7 @@ import { GovernanceInfos } from '@app/components/Governance/GovernanceInfos'
 import { updateReadGovernanceNotifs } from '@app/util/governance'
 import { getCacheFromRedis, getRedisClient } from '@app/util/redis'
 import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
+import { proposalsCacheKey } from '@app/pages/api/proposals'
 
 const fixEraTypo = (era: string): GovEra => era.replace('mils', GovEra.mills) as GovEra;
 
@@ -101,12 +102,10 @@ export const Governance = ({ proposal }: { proposal: Proposal }) => {
 
 export default Governance
 
-const cacheKey = `1-proposals-v1.0.0`;
-
 // static with revalidate as on-chain proposal content cannot change but the status/votes can
 export async function getStaticProps(context) {
   const { slug } = context.params;
-  const { proposals } = await getCacheFromRedis(cacheKey, false) || { proposals: [] };
+  const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
 
   const proposal = proposals?.map(p => ({ ...p, era: fixEraTypo(p.era) }))
     .find((p: Proposal) => {
@@ -125,7 +124,7 @@ export async function getStaticPaths() {
   if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
     return { paths: [], fallback: true }
   }
-  const { proposals } = await getCacheFromRedis(cacheKey, false) || { proposals: [] };
+  const { proposals } = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
 
   const possiblePaths = proposals.map(p => {
     return `/governance/proposals/${p.era}/${p.id}`;

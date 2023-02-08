@@ -14,6 +14,7 @@ import { useFirmMarketEvents } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
 import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
+import { OracleType } from '../Infos/OracleType'
 
 type Data = {
     tooltip: string
@@ -127,6 +128,18 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
+                tooltip: 'Main Smart Contract handling this Market',
+                title: 'Oracle Feed',
+                value: <ScannerLink value={market.oracleFeed} useName={false} />,
+            },
+            {
+                tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
+                title: 'Oracle Type',
+                value: <OracleType oracleType={market.oracleType} showImage={false} />,
+            },
+        ],
+        [
+            {
                 tooltip: 'Max Collateral Factor for the collateral in this Market',
                 title: 'Max Collateral Factor',
                 value: `${shortenNumber(market.collateralFactor * 100, 2)}%`,
@@ -170,7 +183,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'Liquidation incentive to liquidate shortfalling loans',
                 title: 'Liquidation Incentive',
-                value: `${shortenNumber(market.liquidationIncentive * 100, 2, true)}%`,
+                value: `${shortenNumber(market.liquidationIncentive * 100, 2)}%`,
             },
         ],
     ]

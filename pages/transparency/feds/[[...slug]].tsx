@@ -7,7 +7,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO, useFedHistory, useFedPolicyChartData, useFedPolicyMsg, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
+import { useFedHistory, useFedPolicyChartData, useFedPolicyMsg, useFedIncome, useFedIncomeChartData } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Container } from '@app/components/common/Container';
@@ -25,24 +25,21 @@ import { FedsSelector } from '@app/components/Transparency/fed/FedsSelector'
 import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
 import { useEffect } from 'react';
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
-import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
-import { useAppTheme } from '@app/hooks/useAppTheme'
+import { FedIncomeTable } from '@app/components/Transparency/fed/FedIncomeTable'
 
-const { DOLA, TOKENS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { DOLA, TOKENS, FEDS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
     const { account, library } = useWeb3React<Web3Provider>();
-    const { query } = useRouter();
-    const { themeStyles } = useAppTheme();
+    const { query } = useRouter();    
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
-    const userAddress = (query?.viewAddress as string) || account;
-    const { dolaTotalSupply, fantom, feds, optimism } = useDAO();
+    const userAddress = (query?.viewAddress as string) || account;    
     const [msgUpdates, setMsgUpdates] = useState(0)
 
-    const { totalEvents: policyEvents, isLoading: isPolicyLoading } = useFedHistory();
-    const { totalEvents: profitsEvents, totalRevenues, isLoading: isProfitsLoading } = useFedRevenues();
+    const { totalEvents: policyEvents, isLoading: isPolicyLoading, feds: policyFeds, dolaSupplies } = useFedHistory();
+    const { totalEvents: profitsEvents, totalFedsIncomes, isLoading: isProfitsLoading } = useFedIncome();
 
     const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [detailsType, setDetailsType] = useState(slug[0]);
@@ -52,10 +49,13 @@ export const FedPolicyPage = () => {
     const isAllFedsCase = chosenFedIndex === 0;
 
     const fedPolicyEvents = isAllFedsCase ? policyEvents : policyEvents.filter(e => e.fedIndex === (chosenFedIndex - 1));
-    const fedProfitsEvents = isAllFedsCase ? profitsEvents : profitsEvents.filter(e => e.fedIndex === (chosenFedIndex - 1));
+    const fedProfitsEvents = (isAllFedsCase ? profitsEvents : profitsEvents.filter(e => e.fedIndex === (chosenFedIndex - 1)))
+        .map(event => {
+            return { ...event, incomeChainId: FEDS[event.fedIndex].incomeChainId }
+        });
 
     const { chartData: chartDataPolicies } = useFedPolicyChartData(fedPolicyEvents, isAllFedsCase);
-    const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, isAllFedsCase);
+    const { chartData: chartDataIncomes } = useFedIncomeChartData(fedProfitsEvents, isAllFedsCase);
 
     const chosenFed = FEDS_WITH_ALL[chosenFedIndex];
 
@@ -105,16 +105,15 @@ export const FedPolicyPage = () => {
     }
 
     const canEditFedPolicy = userAddress === DEPLOYER;
-
     return (
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Feds</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
-                <meta name="og:description" content="Feds Policy & Revenues" />
+                <meta name="og:description" content="Feds Policy & Income" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-fed-policy.png" />
-                <meta name="description" content="Feds Policy & Revenues" />
-                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, revenue" />
+                <meta name="description" content="Feds Policy & Income" />
+                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, income" />
             </Head>
             <AppNav active="Learn" activeSubmenu="Transparency Portal" />
             <TransparencyTabs active="feds" />
@@ -128,8 +127,8 @@ export const FedPolicyPage = () => {
                                 <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('policy')}>
                                     Policy
                                 </Text>
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'revenue' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('revenue')}>
-                                    Revenue
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'income' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('income')}>
+                                    Income
                                 </Text>
                             </HStack>
                         }
@@ -139,7 +138,7 @@ export const FedPolicyPage = () => {
                                 {
                                     detailsType === 'policy' ?
                                         <FedAreaChart
-                                            title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(chartDataPolicies[chartDataPolicies.length - 1].y, 2) : 0})`}
+                                            title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(Math.max(chartDataPolicies[chartDataPolicies.length - 1].y, 0), 2) : 0})`}
                                             fed={chosenFed}
                                             chartData={chartDataPolicies}
                                             domainYpadding={'auto'}
@@ -147,13 +146,13 @@ export const FedPolicyPage = () => {
                                         :
                                         <>
                                             <FedAreaChart
-                                                title={`${chosenFed.name} Revenue Evolution (Current accumulated revenue: ${chartDataRevenues.length ? shortenNumber(chartDataRevenues[chartDataRevenues.length - 1].y, 2) : 0})`}
+                                                title={`${chosenFed.name} Income Evolution (Current accumulated income: ${chartDataIncomes.length ? shortenNumber(chartDataIncomes[chartDataIncomes.length - 1].y, 2) : 0})`}
                                                 fed={chosenFed}
-                                                chartData={chartDataRevenues}
+                                                chartData={chartDataIncomes}
                                                 domainYpadding={'auto'}
                                                 mainColor="secondary"
                                             />
-                                            <FedBarChart chartData={chartDataRevenues} />
+                                            <FedBarChart chartData={chartDataIncomes} />
                                         </>
                                 }
                             </Box>
@@ -163,7 +162,7 @@ export const FedPolicyPage = () => {
                             detailsType === 'policy' ?
                                 <FedPolicyTable fedHistoricalEvents={fedPolicyEvents} isLoading={isPolicyLoading} />
                                 :
-                                <FedRevenueTable fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
+                                <FedIncomeTable fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
                         }
                     </Container>
                 </Flex>
@@ -186,21 +185,21 @@ export const FedPolicyPage = () => {
                             </>
                         }
                     />
-                    <SupplyInfos token={TOKENS[DOLA]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: dolaTotalSupply - fantom?.dolaTotalSupply - optimism?.dolaTotalSupply },
-                        { chainId: NetworkIds.ftm, supply: fantom?.dolaTotalSupply },
-                        { chainId: NetworkIds.optimism, supply: optimism?.dolaTotalSupply },
-                    ]}
+                    <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
                     />
                     <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-                        supplies={feds}
+                        supplies={
+                            policyFeds.map((fed, fedIndex) => {
+                                return { supply: Math.max(fed.supply, 0), chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                            })
+                        }
                     />
                     <SupplyInfos
-                        title="🦅&nbsp;&nbsp;DOLA Fed Revenues"
+                        title="🦅&nbsp;&nbsp;DOLA Fed Incomes"
                         supplies={
-                            feds.map((fed, fedIndex) => {
-                                return { supply: totalRevenues[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
+                            FEDS.map((fed, fedIndex) => {
+                                return { supply: totalFedsIncomes[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
                             })
                         }
                     />

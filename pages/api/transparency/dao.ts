@@ -8,7 +8,7 @@ import { Fed, Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
-import { ONE_DAY_SECS } from '@app/config/constants';
+import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -29,11 +29,12 @@ const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
 const cachePolKey = `dao-pols-v1.0.0`;
 const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
 const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
+export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.7`;
+  const cacheKey = `dao-cache-v1.2.9`;
 
   try {
 
@@ -47,19 +48,27 @@ export default async function handler(req, res) {
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
     const invContract = new Contract(INV, INV_ABI, provider);
 
-    let invFtmTotalSupply = BigNumber.from('0');
-    let dolaFtmTotalSupply = BigNumber.from('0');
-    let dolaOptimismTotalSupply = BigNumber.from('0');
+    let dolaBridgedSupplies = [];
+    let invBridgedSupplies = [];
 
     // public rpc for fantom, less reliable
     try {
-      const dolaFtmContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.ftm]['DOLA'], ERC20_ABI, getProvider(NetworkIds.ftm));
-      const dolaOptimismContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.optimism]['DOLA'], ERC20_ABI, getProvider(NetworkIds.optimism));
-
-      const invFtmContract = new Contract(CHAIN_TOKEN_ADDRESSES[NetworkIds.ftm]['INV'], ERC20_ABI, getProvider(NetworkIds.ftm));
-      dolaFtmTotalSupply = await dolaFtmContract.totalSupply();
-      dolaOptimismTotalSupply = await dolaOptimismContract.totalSupply();
-      invFtmTotalSupply = await invFtmContract.totalSupply();
+      const supplyData = await Promise.all([
+        await Promise.all(
+          INV_BRIDGED_CHAINS.map(chainId => {
+            const dolaOnBridgedChain = new Contract(CHAIN_TOKEN_ADDRESSES[chainId]['INV'], ERC20_ABI, getProvider(chainId));
+            return dolaOnBridgedChain.totalSupply();
+          })
+        ),
+        await Promise.all(
+          DOLA_BRIDGED_CHAINS.map(chainId => {
+            const dolaOnBridgedChain = new Contract(CHAIN_TOKEN_ADDRESSES[chainId]['DOLA'], ERC20_ABI, getProvider(chainId));
+            return dolaOnBridgedChain.totalSupply();
+          })
+        ),
+      ]);
+      invBridgedSupplies = supplyData[0];
+      dolaBridgedSupplies = supplyData[1];
     } catch (e) {
 
     }
@@ -91,6 +100,8 @@ export default async function handler(req, res) {
         ...fedData
       ]);
     }
+    const dolaTotalSupplyNum = getBnToNumber(BigNumber.from(dolaTotalSupply));
+    const invTotalSupplyNum = getBnToNumber(BigNumber.from(invTotalSupply));
 
     const treasuryFundsToCheck = Object.keys(TOKENS).filter(key => isAddress(key));
     const treasuryBalances = await Promise.all([
@@ -123,6 +134,7 @@ export default async function handler(req, res) {
         return contract.getThreshold();
       })),
     ]));
+
     if (!multisigMetaCache) {
       await redisSetWithTimestamp(cacheMultisigMetaKey, [multisigsOwners, multisigsThresholds]);
     }
@@ -134,7 +146,7 @@ export default async function handler(req, res) {
     }
 
     const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
-    const multisigsBalanceValues: BigNumber[][] = multisigBalCache || (await Promise.all([
+    const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => BigNumber.from(bn))) || (await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
@@ -176,7 +188,7 @@ export default async function handler(req, res) {
     }
 
     const multisigAllCache = await getCacheFromRedis(cacheMulAllKey, true, 300);
-    const multisigsAllowanceValues: BigNumber[][] = multisigAllCache || ((await Promise.all([
+    const multisigsAllowanceValues: BigNumber[][] = multisigAllCache?.map(bns => bns.map(bn => BigNumber.from(bn))) || ((await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
@@ -263,30 +275,43 @@ export default async function handler(req, res) {
     const pols = polsCache || (await Promise.all([
       ...lps.map(lp => getPol(lp))
     ]))
-    if(!polsCache) {
+    if (!polsCache) {
       await redisSetWithTimestamp(cachePolKey, pols);
     }
 
+    const toSupplies = (total: number, bridgedSupplies: BigNumber[], bridgedChains: string[]) => {
+      return [
+        {
+          chainId: NetworkIds.mainnet,
+          supply: total - bridgedSupplies.reduce((prev, curr) => prev+getBnToNumber(curr), 0),
+        },
+        ...bridgedSupplies.map((bn, i) => {
+          return { chainId: bridgedChains[i], supply: getBnToNumber(bn) };
+        })
+      ];
+    }
+
+    const dolaSupplies = toSupplies(dolaTotalSupplyNum, dolaBridgedSupplies, DOLA_BRIDGED_CHAINS);
+    const invSupplies = toSupplies(invTotalSupplyNum, invBridgedSupplies, INV_BRIDGED_CHAINS);
+
     const resultData = {
       pols,
-      dolaTotalSupply: getBnToNumber(dolaTotalSupply),
-      invTotalSupply: getBnToNumber(invTotalSupply),
+      dolaTotalSupply: dolaTotalSupplyNum,
+      invTotalSupply: invTotalSupplyNum,
       dolaOperator,
       bonds: {
         balances: bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
       anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])),
       treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])),
-      fantom: {
-        dolaTotalSupply: getBnToNumber(dolaFtmTotalSupply),
-        invTotalSupply: getBnToNumber(invFtmTotalSupply),
-      },
-      optimism: {
-        dolaTotalSupply: getBnToNumber(dolaOptimismTotalSupply),
-        invTotalSupply: 0,
-      },
+      dolaSupplies,
+      invSupplies,
       multisigs: multisigsToShow.map((m, i) => ({
-        ...m, owners: multisigsOwners[i], funds: multisigsFunds[i], threshold: parseInt(multisigsThresholds[i].toString()),
+        ...m,
+        owners: multisigsOwners[i],
+        funds: multisigsFunds[i],
+        // when multisigsThresholds is from cache, type is not BN object
+        threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
       })),
       feds: FEDS.map((fed, i) => ({
         ...fed,
@@ -296,6 +321,11 @@ export default async function handler(req, res) {
         chair: fedData[i][2],
       })),
     }
+
+    await redisSetWithTimestamp(cacheDolaSupplies, {
+      dolaTotalSupply: resultData.dolaTotalSupply,
+      dolaSupplies,
+    });
 
     await redisSetWithTimestamp(cacheKey, resultData);
 

@@ -118,6 +118,7 @@ const networks: Network[] = [
     coinSymbol: 'bnb',
     isTestnet: false,
     isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.bsc}.png`,
   },
   {
     id: '97',

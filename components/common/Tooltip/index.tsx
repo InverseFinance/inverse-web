@@ -87,7 +87,8 @@ export const AnimatedInfoTooltip = ({
   return <Comp message={content}
     tooltipProps={{
       className: `blurred-container info-bg`,
-      borderColor: 'info'
+      borderColor: 'info',
+      color: 'mainTextColor'
     }}
     iconProps={{ ...tooltipIconProps }}
     children={children}

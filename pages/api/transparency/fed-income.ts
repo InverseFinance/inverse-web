@@ -39,28 +39,38 @@ const deduceBridgeFees = (value: number, chainId: string) => {
     return value;
 }
 
-const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }) => {
+const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await Promise.all(
-        FEDS.map(fed => getTxsOf(fed.revenueSrcAd || fed.address, 1000, 0, fed.revenueChainId || fed.chainId))
+        FEDS.map(fed => getTxsOf(fed.incomeSrcAd || fed.address, 1000, 0, fed.incomeChainId || fed.chainId))
     )
 
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
-        const toAddress = (fed.revenueTargetAd || TREASURY)?.toLowerCase();
-        const eventName = fed.isXchain ? 'LogSwapout' : 'Transfer';
 
+        if(fed.hasEnded && !!cachedTotalEvents) {
+            return cachedTotalEvents.filter(event => event.fedIndex === i);
+        }
+
+        const toAddress = (fed?.incomeTargetAd || TREASURY)?.toLowerCase();
+        const srcAddress = (fed?.incomeSrcAd || fed?.address)?.toLowerCase();
+        const eventName = fed?.isXchain ? 'LogSwapout' : 'Transfer';
+        
         const items = r.data.items
-            .filter(item => item.successful)
-            .filter(item => !!item.log_events
-                .find(e => !!e.decoded && e.decoded.name === eventName
-                    && e?.decoded?.params[0]?.value?.toLowerCase() == fed?.address?.toLowerCase()
-                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
-                ))
-            .sort((a, b) => a.block_height - b.block_height);
+                .filter(item => item.successful)
+                .filter(item => !!item.log_events
+                    .find(e => !!e.decoded && e.decoded.name === eventName
+                        && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                        && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+                    ))
+                .sort((a, b) => a.block_height - b.block_height);
 
         return await Promise.all(items.map(async item => {
-            const filteredEvents = item.log_events.filter(e => e.decoded.name === eventName && e.decoded.params[0].value?.toLowerCase() == fed.address?.toLowerCase() && e.decoded.params[1].value?.toLowerCase() == toAddress)
-            let revenues = 0;
+            const filteredEvents = item.log_events
+                .filter(e => !!e.decoded && e.decoded.name === eventName
+                    && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+                )
+            let income = 0;
             const timestamp = +(new Date(item.block_signed_at));
             const dateSplit = item.block_signed_at.substring(0, 10).split('-');
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
@@ -71,7 +81,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                     let histoPrice = 1;
                     const histoCacheKey = `price-${cgId}-${histoDateDDMMYYYY}`;
                     const cachedHistoPrice = await getCacheFromRedis(histoCacheKey, false);
-                    
+
                     if (!cachedHistoPrice) {
                         const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`;
                         const res = await fetch(histoPriceUrl);
@@ -83,23 +93,23 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                             console.log('err fetching histo price');
                             console.log(histoPriceUrl);
                             console.log(e.sender_contract_ticker_symbol)
-                            console.log('-- Falling back on cached current price', cachedCurrentPrices[cgId])                     
+                            console.log('-- Falling back on cached current price', cachedCurrentPrices[cgId])
                             histoPrice = cachedCurrentPrices[cgId] || 1;
                         }
                     } else {
                         console.log('found cached histo price', cachedHistoPrice.usd)
                         histoPrice = cachedHistoPrice.usd;
                     }
-                    revenues += histoPrice * amount;
+                    income += histoPrice * amount;
                 } else {
-                    revenues += amount;
+                    income += amount;
                 }
             }))
             return {
                 blockNumber: item.block_height,
                 timestamp,
-                profit: deduceBridgeFees(revenues, fed.chainId),
-                transactionHash: item.tx_hash,                
+                profit: deduceBridgeFees(income, fed.chainId),
+                transactionHash: item.tx_hash,
             }
         }));
     }));
@@ -108,7 +118,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 export default async function handler(req, res) {
 
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.13`;
+    const cacheKey = `revenues-v1.0.14`;
 
     try {
 
@@ -118,13 +128,19 @@ export default async function handler(req, res) {
             return
         }
 
-        const cachedCurrentPrices = await getCacheFromRedis(pricesCacheKey, false);
+        const [archived, cachedCurrentPrices] = await Promise.all([
+            getCacheFromRedis(cacheKey, false),
+            getCacheFromRedis(pricesCacheKey, false),
+        ]);
 
-        const withOldAddresses = FEDS.filter(f => !!f.oldAddress);
+        let withOldAddresses: (Fed & { oldAddress: string })[] = [];
+        FEDS.filter(fed => !!fed.oldAddresses).forEach(fed => {
+            fed.oldAddresses?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldAddress }));
+        });
         const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
             [
-                getProfits(FEDS, TREASURY, cachedCurrentPrices),
-                getProfits(withOldAddresses.map(f => ({ ...f, address: f.oldAddress })), TREASURY, cachedCurrentPrices),
+                getProfits(FEDS, TREASURY, cachedCurrentPrices, archived.totalEvents),
+                getProfits(withOldAddresses.map(f => ({ ...f, address: f.oldAddress })), TREASURY, cachedCurrentPrices, []),
             ]
         );
 
@@ -137,7 +153,7 @@ export default async function handler(req, res) {
         let total = 0;
         let _key = 0;
 
-        const fedRevenues = filteredTransfers.map((fedTransfers, fedIndex) => {
+        const fedsIncomes = filteredTransfers.map((fedTransfers, fedIndex) => {
             if (!accProfits[fedIndex]) { accProfits[fedIndex] = 0 }
             fedTransfers.sort((a, b) => a.timestamp - b.timestamp);
             return fedTransfers.map(t => {
@@ -145,6 +161,7 @@ export default async function handler(req, res) {
                 return {
                     ...t,
                     fedIndex: fedIndex,
+                    fedAddress: FEDS[fedIndex].address,
                     accProfit: accProfits[fedIndex],
                 };
             })
@@ -157,8 +174,9 @@ export default async function handler(req, res) {
             });
 
         const resultData = {
-            totalRevenues: accProfits,
-            totalEvents: fedRevenues,
+            timestamp: +(new Date()),
+            totalFedsIncomes: accProfits,
+            totalEvents: fedsIncomes,
             feds: FEDS,
         }
 
