@@ -134,7 +134,8 @@ export const Table = ({
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
-  const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);
+  const [isReady, setIsReady] = useState(false);
+  const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);  
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState(defaultFilters);
@@ -145,6 +146,10 @@ export const Table = ({
   const [sortedItems, setSortedItems] = useState(items?.map((item) => {
     return ({ ...item, symbol: item?.symbol || item?.underlying?.symbol })
   }));
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   useEffect(() => {
     setSortBy(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
@@ -193,7 +198,7 @@ export const Table = ({
 
   const chevronProps = { color: 'accentTextColor', w: 4, h: 4, ...sortChevronProps };
 
-  if (!isLargerThan && enableMobileRender) {
+  if (isReady && !isLargerThan && enableMobileRender) {
     return <MobileTable
       keyName={keyName}
       filteredItems={filteredItems}
