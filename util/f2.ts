@@ -69,12 +69,17 @@ export const f2depositAndBorrowHelper = async (
     borrow: string | BigNumber,
     maxDolaIn: string | BigNumber,
     durationDays: number,
+    isNativeCoin = false,
 ) => {
     const signatureResult = await getFirmSignature(signer, market, borrow, 'BorrowOnBehalf');
     if (signatureResult) {        
         const { deadline, r, s, v } = signatureResult;
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);      
-        const durationSecs = durationDays * ONE_DAY_SECS;        
+        const durationSecs = durationDays * ONE_DAY_SECS;
+        if(isNativeCoin) {
+            return helperContract
+            .depositNativeEthAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
+        }
         return helperContract
             .depositAndBorrowOnBehalf(market, deposit, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
     }
