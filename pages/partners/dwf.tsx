@@ -17,10 +17,11 @@ import { DWF_PURCHASER_ABI } from '@app/config/abis';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { useAccount } from '@app/hooks/misc';
 import ScannerLink from '@app/components/common/ScannerLink';
-import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
+import { InfoMessage, SuccessMessage, WarningMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
 import { Input } from '@app/components/common/Input';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
+import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 
 const zero = BigNumber.from('0');
 
@@ -40,7 +41,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     [DWF_PURCHASER, 'lifetimeBuy'],
     [DWF_PURCHASER, 'limitAvailable'],
     [DWF_PURCHASER, 'minInvPrice'],
-    [DWF_PURCHASER, 'bonusBps'],
+    [DWF_PURCHASER, 'discountBps'],
     [DWF_PURCHASER, 'whitelist', buyer],
     [USDC, 'balanceOf', buyer],
     [INV, 'balanceOf', DWF_PURCHASER],
@@ -58,7 +59,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     lifetimeBuy,
     limitAvailable,
     minInvPrice,
-    bonusBps,
+    discountBps,
     isWhitelisted,
     usdcBalance,
     invBalance,
@@ -80,7 +81,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     limitAvailable: data ? getBnToNumber(limitAvailable, USDC_DECIMALS) : 0,
     limitAvailableBn: data ? limitAvailable : zero,
     minInvPrice: data ? getBnToNumber(minInvPrice, USDC_DECIMALS) : 0,
-    bonusBps: data ? getBnToNumber(bonusBps, 4) : 0,
+    discountBps: data ? getBnToNumber(discountBps, 4) : 0,
     usdcBalance: data ? getBnToNumber(usdcBalance, USDC_DECIMALS) : 0,
     usdcBalanceBn: data ? usdcBalance : zero,
     invBalance: data ? getBnToNumber(invBalance) : 0,
@@ -91,7 +92,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
 }
 
 const buy = (bnAmount: BigNumber, maxInvPrice: BigNumber, signer: JsonRpcSigner) => {
-  const contract = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, signer);  
+  const contract = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, signer);
   return contract.buy(bnAmount, maxInvPrice);
 }
 
@@ -103,7 +104,7 @@ export const DWFPage = () => {
 
   const [isConnected, setConnected] = useState(true);
   const [amount, setAmount] = useState('');
-  const [maxSlippage, setMaxSlippage] = useState('2');
+  const [maxSlippage, setMaxSlippage] = useState('1');
   const {
     isLoading,
     myInvBalance,
@@ -115,7 +116,7 @@ export const DWFPage = () => {
     lifetimeBuy,
     dailyLimit,
     dailyBuy,
-    bonusBps,
+    discountBps,
     invBalanceBn,
     limitAvailableBn,
     usdcBalanceBn,
@@ -137,8 +138,10 @@ export const DWFPage = () => {
   const isDisabled = !floatAmount || !maxSlippage || hasError;
 
   const invNormalPurchase = invPrice ? floatAmount / invPrice : 0;
-  const invBonus = invNormalPurchase * bonusBps;
-  const invTotal = invNormalPurchase + invBonus;
+  const discountedPrice = invPrice ? invPrice - invPrice * discountBps : 0;
+  const maxDiscountedPrice = maxInvPrice ? maxInvPrice - maxInvPrice * discountBps : 0;
+  const invDiscountedPurchase = discountedPrice ? floatAmount / discountedPrice : 0;
+  const invBonus = invDiscountedPurchase - invNormalPurchase;
 
   useDualSpeedEffect(() => {
     setConnected(!!account);
@@ -152,6 +155,8 @@ export const DWFPage = () => {
     const newSlippage = value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, '')
     setMaxSlippage(newSlippage);
   }
+
+  const dailyLimitReached = dailyBuy >= dailyLimit;
 
   return (
     <Layout>
@@ -179,26 +184,36 @@ export const DWFPage = () => {
         </Stack>
         <HStack px="4%" justify="space-between" pt="6" w='100%' maxW='500px'>
           <VStack>
-            <Text fontSize="16px">INV price (OTC)</Text>
+            <HStack spacing="1">
+              <AnimatedInfoTooltip
+                message="Smart contracts can only read data from the blockchain, here the price is taken from Balancer which has the deepest liquidity pool on ethereum for INV."
+                iconProps={{ fontSize: '12px', mr: "1", color: 'mainTextColor' }} />
+              <Text fontSize="16px">INV price (OTC)</Text>
+            </HStack>
             <Text fontWeight="bold" fontSize="24px">{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
           </VStack>
           <VStack>
-            <Text fontSize="16px">INV price (Coingecko)</Text>
+            <HStack spacing="1">
+              <AnimatedInfoTooltip
+                message="Coingecko price is shown for reference only."
+                iconProps={{ fontSize: '12px', mr: "1", color: 'mainTextColor' }} />
+              <Text fontSize="16px">INV price (coingecko)</Text>
+            </HStack>
             <Text fontWeight="bold" fontSize="24px">{prices ? shortenNumber(prices['inverse-finance']?.usd, 2, true) : '-'}</Text>
           </VStack>
         </HStack>
-        <Stack px="4%" pt="6" w='full' justify="center" direction={{ base: 'column', sm: 'row' }} maxW="1300px" spacing="8">
+        <Stack px="4%" pt="6" w='full' justify="center" direction={{ base: 'column', lg: 'row' }} maxW="1300px" spacing="8">
           {
             !isConnected ? <Container noPadding p="0" alignItems='center' contentProps={{ maxW: '500px' }}>
               <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
             </Container>
               : <>
                 <Container noPadding p="0" label="OTC Agreement">
-                  <VStack minH="400px" w='full' justify="space-between">
+                  <VStack minH={{ lg: dailyLimitReached ? '380px' : '460px' }} w='full' justify="space-between">
                     <VStack w='full' >
                       <HStack w='full' justify="space-between">
-                        <Text>Bonus to apply:</Text>
-                        <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(bonusBps * 100, 2)}%</Text>
+                        <Text>Discount to apply:</Text>
+                        <Text fontWeight="bold" color="success" fontSize="20px">{shortenNumber(discountBps * 100, 2)}%</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
                         <Text>OTC Contract:</Text>
@@ -208,14 +223,14 @@ export const DWFPage = () => {
                         <Text>Min INV price:</Text>
                         <Text fontWeight="bold">{shortenNumber(minInvPrice, 2, true)}</Text>
                       </HStack>
-                      <HStack w='full' justify="space-between">
+                      <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>Start Time:</Text>
                         <Text fontWeight="bold">{lifetimeLimit ? `${moment(startTime).format('MMM Do YYYY, hh:mm a')} (${moment(startTime).fromNow()})` : '-'}</Text>
-                      </HStack>
-                      <HStack w='full' justify="space-between">
+                      </Stack>
+                      <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>End Time:</Text>
                         <Text fontWeight="bold">{lifetimeLimit ? `${moment(endTime).format('MMM Do YYYY, hh:mm a')} (${moment(endTime).fromNow()})` : '-'}</Text>
-                      </HStack>
+                      </Stack>
                       <HStack w='full' justify="space-between">
                         <Text>Total Spend Limit:</Text>
                         <Text fontWeight="bold">{preciseCommify(lifetimeLimit, 0)} USDC</Text>
@@ -239,6 +254,8 @@ export const DWFPage = () => {
                               <Link href="https://docs.flashbots.net/flashbots-protect/rpc/quick-start" isExternal target="_blank">learn more</Link>
                             </HStack>
                             <Link href="/governance/proposals/mills/84">See Initial Governance proposal</Link>
+                            <Link href="/governance/proposals/mills/85">See Whitelist change Governance proposal</Link>
+                            <Link href="/governance/proposals/mills/87">See Final Governance proposal</Link>
                           </VStack>
                         }
                       />
@@ -255,78 +272,103 @@ export const DWFPage = () => {
                   </VStack>
                 </Container>
                 <Container noPadding p="0" label="Swap USDC to INV">
-                  {isWhitelisted ? <VStack minH="400px" w='full'>
-                    <HStack w='full' justify="space-between">
-                      <Text>Currently spendable:</Text>
-                      <Text fontWeight="bold" color="success" fontSize="20px">{preciseCommify(limitAvailable, 2)} USDC</Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Total already spent:</Text>
-                      <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Spent Today:</Text>
-                      <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Last swap:</Text>
-                      <Text>{
-                        lastBuy >= startTime ? `${moment(lastBuy).format('MMM Do YYYY, hh:mm a')} (${moment(lastBuy).fromNow()})` : '-'
-                      }</Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <SimpleAmountForm
-                        decimals={USDC_DECIMALS}
-                        defaultAmount={amount}
-                        address={USDC}
-                        destination={DWF_PURCHASER}
-                        signer={library?.getSigner()}
-                        maxAmountFrom={[usdcBalanceBn, limitAvailableBn]}
-                        onAction={handleAction}
-                        onMaxAction={handleAction}
-                        actionLabel={'Swap USDC'}                        
-                        hideInputIfNoAllowance={false}
-                        onAmountChange={(v) => setAmount(v)}
-                        showMaxBtn={false}
-                        // showBalance={true}
-                        isDisabled={isDisabled}
-                        isError={hasError}
-                        inputProps={{ placeholder: 'USDC to swap' }}
-                        btnProps={{ fontSize: '18px' }}
+                  {isWhitelisted ? <VStack minH={{ lg: dailyLimitReached ? '380px' : '460px' }} w='full' alignItems="flex-start" justify="space-between">
+                    <VStack w='full' alignItems="flex-start">
+                      <HStack w='full' justify="space-between">
+                        <Text>Currently spendable:</Text>
+                        <Text fontWeight="bold" color="success" fontSize="20px">{preciseCommify(limitAvailable, 2)} USDC</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>In your wallet:</Text>
+                        <Text>{preciseCommify(usdcBalance, 2)} USDC</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>Total already spent:</Text>
+                        <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
+                      </HStack>
+                      <HStack w='full' justify="space-between">
+                        <Text>Spent Today:</Text>
+                        <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
+                      </HStack>
+                      <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
+                        <Text>Last swap:</Text>
+                        <Text>{
+                          lastBuy >= startTime ? `${moment(lastBuy).format('MMM Do YYYY, hh:mm a')} (${moment(lastBuy).fromNow()})` : '-'
+                        }</Text>
+                      </Stack>
+                      {
+                        dailyLimitReached ? null :
+                          <>
+                            <HStack w='full' justify="space-between">
+                              <SimpleAmountForm
+                                decimals={USDC_DECIMALS}
+                                defaultAmount={amount}
+                                address={USDC}
+                                destination={DWF_PURCHASER}
+                                signer={library?.getSigner()}
+                                maxAmountFrom={[usdcBalanceBn, limitAvailableBn]}
+                                onAction={handleAction}
+                                onMaxAction={handleAction}
+                                actionLabel={'Swap USDC'}
+                                hideInputIfNoAllowance={false}
+                                onAmountChange={(v) => setAmount(v)}
+                                showMaxBtn={false}
+                                // showBalance={true}
+                                isDisabled={isDisabled}
+                                isError={hasError}
+                                inputProps={{ placeholder: 'USDC to swap' }}
+                                btnProps={{ fontSize: '18px' }}
+                              />
+                            </HStack>
+                            <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
+                              <Text>OTC INV price:</Text>
+                              <Text>
+                                ~{shortenNumber(invPrice, 2, true)} => ~{shortenNumber(discountedPrice, 2, true)} (discounted)
+                              </Text>
+                            </Stack>
+                            <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
+                              <Text>Max. INV price slippage %:</Text>
+                              <Input border={!maxSlippage ? '1px solid red' : 'none'} maxH="30px" p="8px" w='80px' placeholder="0" value={maxSlippage} onChange={(e) => handleMaxSlippage(e.target.value)} />
+                            </Stack>
+                            <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
+                              <Text>Max. INV price to accept:</Text>
+                              <Text>
+                                ~{shortenNumber(maxInvPrice, 2, true)} => ~{shortenNumber(maxDiscountedPrice, 2, true)} (discounted)
+                              </Text>
+                            </Stack>
+                            <HStack w='full' justify="space-between">
+                              <Text>Swapping:</Text>
+                              <Text>
+                                {invNormalPurchase ? `~${preciseCommify(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
+                              </Text>
+                            </HStack>
+                            <HStack w='full' justify="space-between">
+                              <Text>Surplus thanks to the discount:</Text>
+                              <Text>
+                                {invBonus ? `~${preciseCommify(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
+                              </Text>
+                            </HStack>
+                            <HStack w='full' justify="space-between">
+                              <Text>Total INV to receive:</Text>
+                              <Text fontWeight="bold">
+                                {invNormalPurchase ? `~${preciseCommify(invDiscountedPurchase, 2)} INV (${shortenNumber(invPrice * invDiscountedPurchase, 2, true)})` : '-'}
+                              </Text>
+                            </HStack>
+                          </>
+                      }
+                    </VStack>
+                    {
+                      dailyLimitReached && <SuccessMessage
+                        description="Daily Swap Limit Reached!"
+                        iconProps={{ height: 50, width: 50 }}
+                        alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
                       />
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Max. slippage %:</Text>
-                      <Input border={!maxSlippage ? '1px solid red' : 'none'} maxH="30px" p="8px" w='80px' placeholder="0" value={maxSlippage} onChange={(e) => handleMaxSlippage(e.target.value)} />
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Max. INV price to accept:</Text>
-                      <Text>
-                        ~{shortenNumber(maxInvPrice, 2, true)}
-                      </Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Purchasing:</Text>
-                      <Text>
-                        {invNormalPurchase ? `~${preciseCommify(invNormalPurchase, 2)} INV (${shortenNumber(invPrice * invNormalPurchase, 2, true)})` : '-'}
-                      </Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Bonus to receive:</Text>
-                      <Text>
-                        {invNormalPurchase ? `~${preciseCommify(invBonus, 2)} INV (${shortenNumber(invPrice * invBonus, 2, true)})` : '-'}
-                      </Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                      <Text>Total INV to receive:</Text>
-                      <Text fontWeight="bold">
-                        {invNormalPurchase ? `~${preciseCommify(invTotal, 2)} INV (${shortenNumber(invPrice * invTotal, 2, true)})` : '-'}
-                      </Text>
-                    </HStack>
-                  </VStack> : <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    description="Your account is not whitelisted for this OTC contract"
-                  />
+                    }
+                  </VStack>
+                    : <InfoMessage
+                      alertProps={{ w: 'full' }}
+                      description="Your account is not whitelisted for this OTC contract"
+                    />
                   }
                 </Container>
               </>
