@@ -6,17 +6,21 @@ import { getGovProposals } from '@app/util/the-graph';
 import { getProvider } from '@app/util/providers';
 import { SECONDS_PER_BLOCK } from '@app/config/constants';
 import removeMd from 'remove-markdown';
-import { getProposalStatus } from '@app/util/governance';
+import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { Contract } from 'ethers';
 import { GOVERNANCE_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 
-export default async function handler(req, res) {
-  const cacheKey = '1-proposals-v1.0.0';
+export const proposalsCacheKey = '1-proposals-v1.0.0';
+
+export default async function handler(req, res) {  
   try {
+    const { sig } = req;
     const { GOVERNANCE } = getNetworkConfigConstants();
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 10);
+    const sigAddress = checkDraftRights(sig);
+
+    const validCache = await getCacheFromRedis(proposalsCacheKey, !sigAddress, 20, true);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -91,10 +95,11 @@ export default async function handler(req, res) {
     const result = {
       blockNumber: blockNumber,
       timestamp: Date.now(),
-      proposals,      
+      proposals,
+      success: true,
     }
 
-    await redisSetWithTimestamp(cacheKey, result);
+    await redisSetWithTimestamp(proposalsCacheKey, result, true);
 
     res.status(200).json(result);
   } catch (err) {

@@ -7,6 +7,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
+import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.5'
@@ -70,7 +71,12 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(CHAIN_ID);
-    const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(provider);
+    const [marketUsersCache, marketsCache] = await Promise.all([
+      getFirmMarketUsers(provider),
+      getCacheFromRedis(F2_MARKETS_CACHE_KEY, false),
+    ])
+    const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
+    const _markets = marketsCache?.markets || F2_MARKETS;
 
     const [debtsBn, depositsBn, creditLimitsBn] = await Promise.all(
       [
@@ -93,7 +99,7 @@ export default async function handler(req, res) {
     const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
     const debts = debtsBn.map((bn) => getBnToNumber(bn));
     const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
-    const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * F2_MARKETS[firmMarketUsers[i].marketIndex].liquidationFactor));
+    const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor||0.5)));
 
     const positions = firmMarketUsers.map((f, i) => {
       return {

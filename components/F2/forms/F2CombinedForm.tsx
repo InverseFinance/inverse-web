@@ -17,10 +17,10 @@ import { AmountInfos } from '@app/components/common/Messages/AmountInfos'
 import { F2FormInfos } from './F2FormInfos'
 import { NavButtons } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
-import { getDBRBuyLink } from '@app/util/f2'
 import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
 import { roundFloorString } from '@app/util/misc'
+import { BUY_LINKS } from '@app/config/constants'
 
 const { DOLA, F2_HELPER } = getNetworkConfigConstants();
 
@@ -297,7 +297,7 @@ export const F2CombinedForm = ({
                         alertProps={{ w: 'full' }}
                         description={
                             <Flex display="inline-block">
-                                To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={getDBRBuyLink()} isExternal target="_blank">
+                                To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={BUY_LINKS.DBR} isExternal target="_blank">
                                     buy DBR tokens
                                 </Link> OR use the auto-buy option which adds the DBR cost to your DOLA loan.
                             </Flex>

@@ -1,6 +1,7 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
+import { DWF_PURCHASER } from './constants';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -412,6 +413,7 @@ export const DBR_ABI = ERC20_ABI.concat([
 export const F2_ORACLE_ABI = [
   "function getPrice(address collateral, uint collateralFactorBps) external returns (uint)",
   "function viewPrice(address collateral, uint collateralFactorBps) public view returns (uint)",
+  "function feeds(address collateral) public view returns (address, uint)",
 ];
 
 export const F2_SIMPLE_ESCROW_ABI = [
@@ -469,6 +471,8 @@ export const MERKLE_DROP_ABI = [
   "function claimTranche(address, uint256, uint256, bytes32[]) public",
   "function claimTranches(address, uint256[], uint256[], bytes32[][]) public",
 ];
+
+export const DWF_PURCHASER_ABI = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"usdcAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"invAmount","type":"uint256"},{"indexed":false,"internalType":"address","name":"purchaser","type":"address"}],"name":"Buy","type":"event"},{"inputs":[],"name":"INV","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"buyer","type":"address"},{"internalType":"bool","name":"allowed","type":"bool"}],"name":"allowWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"maxInvPrice","type":"uint256"}],"name":"buy","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"dailyBuy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"dailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"discountBps","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"additionalTime","type":"uint256"}],"name":"extendBuyPeriod","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getInvPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"gov","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_startTime","type":"uint256"},{"internalType":"uint256","name":"_runTime","type":"uint256"},{"internalType":"uint256","name":"_dailyLimit","type":"uint256"},{"internalType":"uint256","name":"_lifetimeLimit","type":"uint256"},{"internalType":"uint256","name":"_discountBps","type":"uint256"},{"internalType":"uint256","name":"_minInvPrice","type":"uint256"},{"internalType":"address","name":"upgradeFrom","type":"address"}],"name":"init","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"lastBuy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastReset","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lifetimeBuy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lifetimeLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"limitAvailable","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minInvPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minPriceGuardian","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"poolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"runTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"newMinPrice","type":"uint256"}],"name":"setMinInvPrice","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newGuardian","type":"address"}],"name":"setMinPriceGuardian","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"sweep","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"vault","outputs":[{"internalType":"contract IVault","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}];
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
@@ -530,6 +534,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DBR_AIRDROP, MERKLE_DROP_ABI],
         [F2_ORACLE, F2_ORACLE_ABI],
         [F2_CONTROLLER, F2_CONTROLLER_ABI],
+        [DWF_PURCHASER, DWF_PURCHASER_ABI],
         ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
         [BOND_V2_FIXED_TERM, BOND_V2_ABI],
         [BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI],

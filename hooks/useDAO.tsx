@@ -1,4 +1,4 @@
-import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester } from '@app/types'
+import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from './useCustomSWR';
@@ -17,7 +17,7 @@ const defaultFedsData = FEDS.map(((fed) => {
 }))
 
 export const useDAO = (): SWR & DAO => {
-  const { data, error } = useCustomSWR(`/api/transparency/dao?v=2`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/dao?v=3`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
@@ -26,14 +26,8 @@ export const useDAO = (): SWR & DAO => {
     treasury: data?.treasury || [],
     bonds: data?.bonds || { balances: [] },
     anchorReserves: data?.anchorReserves || [],
-    fantom: {
-      dolaTotalSupply: data?.fantom?.dolaTotalSupply || 0,
-      invTotalSupply: data?.fantom?.invTotalSupply || 0,
-    },
-    optimism: {
-      dolaTotalSupply: data?.optimism?.dolaTotalSupply || 0,
-      invTotalSupply: data?.optimism?.invTotalSupply || 0,
-    },
+    dolaSupplies: data?.dolaSupplies || [],
+    invSupplies: data?.invSupplies || [],
     feds: data?.feds || defaultFedsData,
     multisigs: data?.multisigs || [],
     pols: data?.pols || [],
@@ -70,7 +64,12 @@ const addFedInfosToEvent = (totalEvents, feds) => {
     })
 }
 
-export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: { msg: string, lastUpdate: number } } => {
+export const useFedHistory = (): SWR & {
+  totalEvents: FedEvent[],
+  fedPolicyMsg: { msg: string, lastUpdate: number },
+  feds: (Fed & { supply: number })[],
+  dolaSupplies: { chainId: string, supply: number }[],
+} => {
   const { data, error } = useCustomSWR(`/api/transparency/fed-policy?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
@@ -78,6 +77,8 @@ export const useFedHistory = (): SWR & { totalEvents: FedEvent[], fedPolicyMsg: 
   return {
     totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
     fedPolicyMsg: data?.fedPolicyMsg || { msg: 'No guidance at the moment', lastUpdate: null },
+    feds: data?.feds || [],
+    dolaSupplies: Array.isArray(data?.dolaSupplies) ? data?.dolaSupplies : [],
     isLoading: !error && !data,
     isError: error,
   }
@@ -93,15 +94,15 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
   }
 }
 
-export const useFedRevenues = (): SWR & { totalEvents: FedEvent[], totalRevenues: { [key: string]: number } } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-revenues?v=2`, fetcher)
+export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncomes: { [key: string]: number } } => {
+  const { data, error } = useCustomSWR(`/api/transparency/fed-income?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
-  const totalRevenues = data?.totalRevenues || {};
+  const totalFedsIncomes = data?.totalFedsIncomes || {};
 
   return {
     totalEvents: addFedInfosToEvent(totalEvents, data?.feds || []),
-    totalRevenues,
+    totalFedsIncomes,
     isLoading: !error && !data,
     isError: error,
   }
@@ -119,7 +120,7 @@ export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
   }
 }
 
-export const useFedRevenuesChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
+export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
   const now = new Date()
   const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
     const date = new Date(event.timestamp);
@@ -161,11 +162,19 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
   }
 }
 
-export const useEligibleRefunds = (startDate: string, endDate: string, reloadIndex: number, preferCache = false, serverFilter = '' , serverMultisigFilter = ''): SWR & { transactions: any[] } => {
-  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}&filterType=${serverFilter}&multisig=${serverMultisigFilter}`, (r) => fetcher(r, undefined, 60000))
+export const useEligibleRefunds = (
+  startDate: string,
+  endDate: string,
+  reloadIndex: number,
+  preferCache = false,
+  serverFilter = '',
+  serverMultisigFilter = '',
+): SWR & { transactions: any[], cachedMostRecentTimestamp: number } => {
+  const { data, error } = useCustomSWR(`/api/gov/eligible-refunds?v=2&preferCache=${preferCache}&startDate=${startDate}&endDate=${endDate}&reloadIndex=${reloadIndex}&filterType=${serverFilter}&multisig=${serverMultisigFilter}`, (r) => fetcher(r, undefined, 60000))
 
   return {
     transactions: data?.transactions || [],
+    cachedMostRecentTimestamp: data?.cachedMostRecentTimestamp || 0,
     isLoading: !data && !error,
     isError: !!error,
   }

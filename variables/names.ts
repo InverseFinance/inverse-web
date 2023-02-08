@@ -12,6 +12,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xe1C67007D1074bcAcC577DD946661F0CB9053A19': 'XinvVestorFactory',
     '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'DAI',
     '0x7e2a6e9395df9f01c00bc3af095068b454fd896e': 'InvPriceFeed',
+    '0x40A2aCCbd92BCA938b02010E17A5b8929b49130D': 'SafeMultiSend',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'Fed FiRM',
@@ -20,9 +21,9 @@ const namedAddresses: { [key: string]: string } = {
     '0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C': 'Fed 0xb1',
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
     '0xcc180262347F84544c3a4854b87C34117ACADf94': 'Fed Yearn',
-    '0x9060A61994F700632D16D6d2938CA3C7a1D344Cb': 'Fed Convex',
+    '0xF382d062DF29CF5E400c131C1383c9E6Cd174305': 'Fed Convex',
     '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d': 'Fed Velo',
-    '0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740': 'Fed Aura',
+    '0x1CD24E3FBae88BECbaFED4b8Cda765D1e6e3BC03': 'Fed Aura',
     // Cross-Chain Feds
     '0x4d7928e993125A9Cefe7ffa9aB637653654222E2': 'Fed Scream',
     // dao members
@@ -76,8 +77,11 @@ const namedAddresses: { [key: string]: string } = {
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': 'WETH',
     '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',
     '0x63Df5e23Db45a2066508318f172bA45B9CD37035': 'FiRMWethMarket',
+    '0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf': 'FiRMstETHMarket',
     '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',    
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
+    // partners
+    '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
 
 export const ADDRESS_ROLES = {

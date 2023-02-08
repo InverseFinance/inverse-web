@@ -1,4 +1,4 @@
-import { BackgroundProps } from '@app/node_modules/@chakra-ui/react/dist/types'
+import { BackgroundProps, BadgeProps } from '@app/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
@@ -166,6 +166,7 @@ export enum NetworkIds {
   rinkeby = '4',
   ftm = '250',
   optimism = '10',
+  bsc = '56',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',
@@ -407,11 +408,12 @@ export type Fed = {
   name: string,
   projectImage: string,
   isXchain?: boolean,
+  hasEnded?: boolean,
   supplyFuncName?: string
-  oldAddress?: string
-  revenueChainId?: string
-  revenueSrcAd?: string
-  revenueTargetAd?: string
+  oldAddresses?: string[]
+  incomeChainId?: string
+  incomeSrcAd?: string
+  incomeTargetAd?: string
   isFirm?: boolean
 }
 
@@ -517,6 +519,7 @@ export type BondV2 = {
   underlying:      Token;
   howToGetLink:    string;
   input:           string;
+  owner:           string;
   teller:          string;
   capacityInQuote: boolean;
   capacity:        number;
@@ -581,14 +584,8 @@ export type DAO = {
   dolaTotalSupply: number
   invTotalSupply: number
   dolaOperator: string
-  fantom: {
-    dolaTotalSupply: number
-    invTotalSupply: number
-  },
-  optimism: {
-    dolaTotalSupply: number
-    invTotalSupply: number
-  }
+  dolaSupplies: { supply: number, chainId: NetworkIds }[]
+  invSupplies: { supply: number, chainId: NetworkIds }[]
   treasury: { token: Token, balance: number }[],
   anchorReserves: { token: Token, balance: number }[],
   bonds: { balances: { token: Token, balance: number }[] },
@@ -696,7 +693,11 @@ export type F2Market = {
   icon?: string
   marketIcon?: string
   helper?: string
+  oracleType: string
+  oracleFeed: string
   escrowImplementation: string
+  badgeInfo: string
+  badgeProps?: BadgeProps
 }
 
 export type FirmAction = {

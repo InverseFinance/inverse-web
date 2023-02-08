@@ -128,7 +128,7 @@ export const MENUS = {
           label: 'Analytics',
         },
         {
-          href: 'https://analytics.inverse.finance',
+          href: 'https://docs.inverse.finance',
           label: 'Docs',
         },
         {

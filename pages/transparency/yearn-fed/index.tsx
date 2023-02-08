@@ -3,7 +3,7 @@ import { Box, Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { useDAO, useFedHistory, useFedPolicyChartData, useFedRevenues, useFedRevenuesChartData } from '@app/hooks/useDAO'
+import { useDAO, useFedHistory, useFedPolicyChartData, useFedIncome, useFedIncomeChartData } from '@app/hooks/useDAO'
 import { Funds } from '@app/components/Transparency/Funds'
 import { TOKENS, getToken } from '@app/variables/tokens'
 import Table from '@app/components/common/Table'
@@ -21,7 +21,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { useEffect, useState } from 'react'
 import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
-import { FedRevenueTable } from '@app/components/Transparency/fed/FedRevenueTable'
+import { FedIncomeTable } from '@app/components/Transparency/fed/FedIncomeTable'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
 import { NavButtons } from '@app/components/common/Button'
 
@@ -383,7 +383,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   const yearnFedData = fresherYearnFedData || cachedYearnFedData;
   const { feds } = useDAO();
   const { totalEvents: policyEvents, isLoading: isPolicyLoading } = useFedHistory();
-  const { totalEvents: profitsEvents, isLoading: isProfitsLoading } = useFedRevenues();
+  const { totalEvents: profitsEvents, isLoading: isProfitsLoading } = useFedIncome();
   const [detailsType, setDetailsType] = useState('gauges');
   const [activePool, setActivePool] = useState('3Crv');
   const [activePoolAddress, setActivePoolAddress] = useState('0xAA5A67c256e27A5d80712c51971408db3370927D');
@@ -397,7 +397,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   const fedProfitsEvents = profitsEvents.filter(e => e.fedIndex === (chosenFedIndex));
 
   const { chartData: chartDataPolicies } = useFedPolicyChartData(fedHistoricalEvents, false);
-  const { chartData: chartDataRevenues } = useFedRevenuesChartData(fedProfitsEvents, false);
+  const { chartData: chartDataIncomes } = useFedIncomeChartData(fedProfitsEvents, false);
 
   const aggregStrategiesByVault = yearnFedData?.yearn?.vaults.map(v => {
     // aggregated old and the newer strategies for the vault
@@ -583,7 +583,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       { label: 'Gauges Votes', value: 'gauges' },
                       { label: 'Harvests', value: 'harvests' },
                       { label: 'Fed Policy', value: 'policy' },
-                      { label: 'Fed Revenue', value: 'revenue' },
+                      { label: 'Fed Income', value: 'income' },
                     ]}
                   />
                 </Box>
@@ -662,13 +662,13 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                 }
 
                 {
-                  detailsType === 'revenue' && <>
-                    <Container p="0" m="0" label="Yearn Fed Accumulated Revenue Chart" noPadding
+                  detailsType === 'income' && <>
+                    <Container p="0" m="0" label="Yearn Fed Accumulated Income Chart" noPadding
                       description="Fed Contract"
                       href={`${getScanner('1')}/address/${yearnFed.address}`}>
                       <FedAreaChart
-                        title={`Current Accumulated Revenue: ${chartDataRevenues.length ? shortenNumber(chartDataRevenues[chartDataRevenues.length - 1].y, 2) : 0}`}
-                        chartData={chartDataRevenues}
+                        title={`Current Accumulated Income: ${chartDataIncomes.length ? shortenNumber(chartDataIncomes[chartDataIncomes.length - 1].y, 2) : 0}`}
+                        chartData={chartDataIncomes}
                         domainYpadding={50000}
                         fed={yearnFed}
                         onlyChart={true}
@@ -677,16 +677,16 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
                       />
                     </Container>
 
-                    <Container p="0" m="0" label="Yearn Fed Monthly Revenue"
+                    <Container p="0" m="0" label="Yearn Fed Monthly Income"
                       description="Fed Contract"
                       href={`${getScanner('1')}/address/${yearnFed.address}`}>
-                      <FedBarChart chartData={chartDataRevenues} maxChartWidth={1200} />
+                      <FedBarChart chartData={chartDataIncomes} maxChartWidth={1200} />
                     </Container>
 
                     <Container p="0" m="0" label="Yearn Fed Take Profits Events" noPadding
                       description="Fed Contract"
                       href={`${getScanner('1')}/address/${yearnFed.address}`}>
-                      <FedRevenueTable showTotalCol={false} fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
+                      <FedIncomeTable showTotalCol={false} fedHistoricalEvents={fedProfitsEvents} isLoading={isProfitsLoading} />
                     </Container>
                   </>
                 }

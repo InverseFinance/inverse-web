@@ -6,6 +6,7 @@ import { SIGN_MSG } from '@app/config/constants';
 import { Contract } from 'ethers';
 import { MULTISIG_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
+import { REFUNDED_TXS_CUSTOM_CACHE_KEY, REFUNDED_TXS_IGNORE_CACHE_KEY } from './eligible-refunds';
 
 const client = getRedisClient();
 
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
                     return
                 };
 
-                const customTxs = JSON.parse(await client.get('custom-txs-to-refund') || '[]');
+                const customTxs = JSON.parse(await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) || '[]');
                 const alreadyAdded = customTxs.find(t => t.tx_hash.toLowerCase() === txHash.toLowerCase());
 
                 if (!!alreadyAdded) {
@@ -53,11 +54,11 @@ export default async function handler(req, res) {
                 const tx = result.data.items[0];
                 customTxs.push(tx);
 
-                await client.set('custom-txs-to-refund', JSON.stringify(customTxs));
+                await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs));
 
                 // remove from ignored hashes if now adding tx
-                const ignoredTxHashes = JSON.parse(await client.get('refunds-ignore-tx-hashes') || '[]');
-                await client.set('refunds-ignore-tx-hashes', JSON.stringify(ignoredTxHashes.filter(hash => hash !== txHash))); 
+                const ignoredTxHashes = JSON.parse(await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY) || '[]');
+                await client.set(REFUNDED_TXS_IGNORE_CACHE_KEY, JSON.stringify(ignoredTxHashes.filter(hash => hash !== txHash))); 
                 
                 res.status(200).json({
                     status: 'success',

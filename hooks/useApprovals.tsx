@@ -32,10 +32,10 @@ export const useApprovals = (): SWR & Approvals => {
   }
 }
 // TODO: refactor all approval hooks using this one
-export const useAllowances = (addresses: string[], target: string): SWR & Approvals => {
+export const useAllowances = (addresses: string[], target: string, from?: string): SWR & Approvals => {
   const { account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (query?.viewAddress as string) || account;
+  const userAddress = from || (query?.viewAddress as string) || account;
   const filteredAddresses = addresses.filter(ad => !!ad && isAddress(ad));
   const { data, error } = useEtherSWR(filteredAddresses.map(ad => ([ad, 'allowance', userAddress, target])))
 

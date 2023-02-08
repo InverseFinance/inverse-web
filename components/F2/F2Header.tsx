@@ -1,14 +1,14 @@
-import { Text, Stack, Flex, SkeletonText, useDisclosure } from '@chakra-ui/react'
+import { Text, Stack, Flex, SkeletonText } from '@chakra-ui/react'
 import { useDOLA } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify, shortenNumber } from '@app/util/markets'
 import { AnchorBigButton } from '../Anchor/AnchorBigButton'
 import { useAccountDBR, useDBRPrice } from '@app/hooks/useDBR'
-import { getDBRBuyLink } from '@app/util/f2'
 import { useRouter } from 'next/router'
 import { useAccount } from '@app/hooks/misc'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
+import { BUY_LINKS } from '@app/config/constants'
 
 const Btn = (props) => <RSubmitButton 
   w='100%'
@@ -81,7 +81,7 @@ export const F2Header = () => {
         </Stack>
         <Stack w='full' spacing={2} direction="row" alignItems="flex-start">
           <Btn
-            href={'https://app.1inch.io/#/1/swap/DAI/INV'}
+            href={BUY_LINKS.INV}
             target="_blank">
             Buy {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}
           </Btn>
@@ -92,7 +92,7 @@ export const F2Header = () => {
             Buy DOLA
           </Btn>
           <Btn
-            href={getDBRBuyLink()}
+            href={BUY_LINKS.DBR}
             target="_blank">
             Buy DBR
           </Btn>
