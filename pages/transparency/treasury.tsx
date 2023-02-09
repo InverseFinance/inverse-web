@@ -48,7 +48,7 @@ export const Overview = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Treasury</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
         <meta name="og:description" content="Treasury Details" />
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-treasury.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
         <meta name="description" content="Inverse Finance Treasury Details" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, treasury, funds, liquidity, pol, holdings" />
       </Head>

@@ -111,7 +111,7 @@ export const FedPolicyPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Feds</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="Feds Policy & Income" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-fed-policy.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
                 <meta name="description" content="Feds Policy & Income" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, income" />
             </Head>

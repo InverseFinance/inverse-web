@@ -152,7 +152,7 @@ export const StabilizerTransparency = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Stabilizer</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="Stabilizer Income" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-stabilizer.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
                 <meta name="description" content="Inverse Finance Stabilizer for DOLA" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, stabilizer, peg" />
             </Head>
