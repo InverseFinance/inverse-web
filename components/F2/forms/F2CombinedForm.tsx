@@ -109,13 +109,13 @@ export const F2CombinedForm = ({
         } else if (action === 'repay') {
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
-            if (isAutoDBR) {                
+            if (isAutoDBR) {
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(dbrCoverDebt*1.01)),
+                    parseUnits(roundFloorString(parseFloat(debtAmount)+dbrCoverDebt*1.05)),
                     duration
                 );
             }

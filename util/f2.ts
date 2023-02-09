@@ -48,7 +48,6 @@ export const getFirmSignature = (
 
             const signature = await signer._signTypedData(domain, types, value)
             const { r, s, v } = splitSignature(signature);
-
             resolve({
                 deadline: value.deadline,
                 r,
@@ -71,10 +70,10 @@ export const f2depositAndBorrowHelper = async (
     durationDays: number,
     isNativeCoin = false,
 ) => {
-    const signatureResult = await getFirmSignature(signer, market, borrow, 'BorrowOnBehalf');
-    if (signatureResult) {        
+    const signatureResult = await getFirmSignature(signer, market, maxDolaIn, 'BorrowOnBehalf');
+    if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
-        const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);      
+        const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         const durationSecs = durationDays * ONE_DAY_SECS;
         if(isNativeCoin) {
             return helperContract
