@@ -81,7 +81,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',    
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
     // partners
-    '0xf6c2b9f5Ee30b7F2bCa5C3Dcc28e27fcb733BE04': 'DWF Swapper',
+    '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
 
 export const ADDRESS_ROLES = {

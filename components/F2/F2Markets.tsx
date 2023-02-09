@@ -10,9 +10,9 @@ import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
 import { OracleType } from "./Infos/OracleType";
+import { SkeletonList } from "../common/Skeleton";
 import { UnderlyingItemBlock } from "../common/Assets/UnderlyingItemBlock";
 import Link from "../common/Link";
-import { SkeletonList } from "../common/Skeleton";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -226,7 +226,7 @@ export const F2Markets = ({
         image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         right={
-            <VStack display={{base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
+            <VStack display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
                 <Link textDecoration="underline" href="https://www.inverse.finance/governance/drafts/mills/94" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
                     Next Proposal:
                 </Link>
