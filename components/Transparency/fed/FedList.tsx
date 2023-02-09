@@ -120,7 +120,7 @@ const columns = [
 ];
 
 const ABOUTS = {
-    [FedTypes.CROSS]: 'The Fed supplies DOLA in the DOLA market of a compound-style cross-lending protocol, the borrowing capacity of a user can depend on several different collaterals and this capacity can be used to borrow different assets including DOLA but not only. The utilization rate of DOLA is directly related to supply and demand which determines the borrowing APR, by adjusting the supply the Fed can effectively impact the borrowing APR, which helps to control DOLA peg.',
+    [FedTypes.CROSS]: 'The Fed supplies DOLA in the DOLA market of a compound-style cross-lending protocol, the borrowing capacity of a user can depend on several different collaterals and this capacity can be used to borrow different assets including DOLA but not only. The utilization rate of DOLA is directly related to supply and demand which determines the borrowing APR, by adjusting the supply the Fed can effectively impact the borrowing APR, which helps to control DOLA peg by encouraging borrowers to repay their debt when APR is high or incite them to borrow when APR is low.',
     [FedTypes.ISOLATED]: 'The Fed supplies DOLA in the fixed-rate isolated-lending protocol FiRM, only DOLA can be borrowed, and the borrowing capacity is isolated by collateral. The borrowing APR is directly determined by the price of the DOLA Borrowing Right token (DBR).',
     [FedTypes.LP]: "AMM feds are operated to mint/burn DOLA's based on demand in a liquidity pool, when demand for DOLA is up in the pool which is represented by the increase in DOLA price, the Fed Chair will mint more DOLAs and deposit to the LP, bringing the balance back to where it was. It works similarly the other way. AMM Feds are powerful peg control tools for DOLA.",
 }

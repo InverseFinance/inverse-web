@@ -11,7 +11,7 @@ export const FEDS_PARAMS = [
         isFirm: true,
         supplyFuncName: "globalSupply",
         strategy: {
-            description: 'DOLA is borrowable via the DOLA Borrowing Right (DBR) token, borrowers spend 1 DBR a year for each DOLA borrowed.',
+            description: 'Offer unique features alongside competitive fixed-rate borrowing APR, get borrowing fees via the the DOLA Borrowing Right (DBR) token, in the FiRM protocol the borrowers spend 1 DBR a year for each DOLA they borrow.',
         },
     },
     {
