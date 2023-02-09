@@ -48,4 +48,4 @@ export const BUY_LINKS = {
 export const DOLA_BRIDGED_CHAINS = [NetworkIds.ftm, NetworkIds.optimism, NetworkIds.bsc];
 export const INV_BRIDGED_CHAINS = [NetworkIds.ftm];
 
-export const DWF_PURCHASER = '0xf6c2b9f5Ee30b7F2bCa5C3Dcc28e27fcb733BE04';
+export const DWF_PURCHASER = '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647';
