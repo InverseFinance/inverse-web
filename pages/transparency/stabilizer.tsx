@@ -156,7 +156,7 @@ export const StabilizerTransparency = () => {
                 <meta name="description" content="Inverse Finance Stabilizer for DOLA" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, stabilizer, peg" />
             </Head>
-            <AppNav active="Verify" activeSubmenu="Stabilizer" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="Stabilizer" hideAnnouncement={true} />
             <TransparencyTabs active="stabilizer" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">

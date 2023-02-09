@@ -172,9 +172,35 @@ export const MENUS = {
         //   label: 'Liquidations',
         // },
       ]
+    },    
+    {
+      label: 'Participate',
+      href: '/governance',
+      submenus: [
+        {
+          label: 'Drafts & Proposals',
+          href: '/governance',
+        },
+        {
+          label: 'Passed Proposals',
+          href: '/governance/proposals',
+        },
+        {
+          label: 'Create a Draft',
+          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
+        },
+        {
+          label: 'Delegates',
+          href: '/governance/delegates',
+        },
+        {
+          label: 'Your Profile',
+          href: '/governance/delegates/$account',
+        },
+      ]
     },
     {
-      label: 'Verify',
+      label: 'Transparency',
       href: '/transparency/overview',
       submenus: [
         {
@@ -213,64 +239,8 @@ export const MENUS = {
           href: '/transparency/frontier/overview',
           label: 'Frontier (deprecated)',
         },
-        // {
-        //   href: '/transparency/stabilizer',
-        //   label: 'Stabilizer',
-        // },
-        // {
-        //   href: '/transparency/shortfalls',
-        //   label: 'Shortfalls',
-        // },
-        // {
-        //   href: '/transparency/liquidations',
-        //   label: 'Liquidations',
-        // },
       ],
-    },
-    {
-      label: 'Participate',
-      href: '/governance',
-      submenus: [
-        {
-          label: 'Drafts & Proposals',
-          href: '/governance',
-        },
-        {
-          label: 'Passed Proposals',
-          href: '/governance/proposals',
-        },
-        {
-          label: 'Create a Draft',
-          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
-        },
-        {
-          label: 'Delegates',
-          href: '/governance/delegates',
-        },
-        {
-          label: 'Your Profile',
-          href: '/governance/delegates/$account',
-        },
-      ]
-    },
-    // {
-    //   href: '/analytics',
-    //   label: 'Analytics',
-    //   submenus: [
-    //     {
-    //       href: '/analytics',
-    //       label: 'Dashboard',
-    //     },
-    //     {
-    //       href: 'https://analytics.inverse.finance',
-    //       label: 'Docs',
-    //     }
-    //   ],
-    // },
-    // {
-    //   label: 'Blog',
-    //   href: '/blog',
-    // },
+    },    
   ],
   "footerGroups": [
     {

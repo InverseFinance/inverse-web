@@ -28,7 +28,7 @@ export const ShortfallsPage = () => {
         <meta name="description" content="Inverse Finance Shortfalls Details" />
         <meta name="keywords" content="Inverse Finance, transparency, frontier, shortfalls" />
       </Head>
-      <AppNav active="Verify" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
+      <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
       <TransparencyFrontierTabs active="frontier-shortfalls" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">

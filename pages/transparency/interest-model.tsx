@@ -47,7 +47,7 @@ export const InterestModelPage = () => {
                 <meta name="description" content="Inverse Finance Interest Rates" />
                 <meta name="keywords" content="Inverse Finance, transparency, interest rates, apy, borrow, supply" />
             </Head>
-            <AppNav active="Verify" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
             <TransparencyTabs active="interest-model" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column" color="mainTextColor">

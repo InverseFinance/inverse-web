@@ -87,7 +87,7 @@ export const Overview = () => {
         <meta name="description" content="Overview with Contracts Flowchart and key metrics" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, overview" />
       </Head>
-      <AppNav active="Verify" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
+      <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
       <TransparencyFrontierTabs active="frontier-overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">

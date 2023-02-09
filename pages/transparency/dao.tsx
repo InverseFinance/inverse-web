@@ -105,7 +105,7 @@ export const GovTransparency = () => {
                 <meta name="description" content="DAO Transparency" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, delegates, proposals" />
             </Head>
-            <AppNav active="Verify" activeSubmenu="DAO" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="DAO" hideAnnouncement={true} />
             <TransparencyTabs active="dao" />
             <Stack spacing="8" w="full" alignItems="center" justify="center" justifyContent="center" direction='column'>
                 <Flex direction="column" py="2" px="5" maxWidth="900px" w='full'>

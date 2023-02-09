@@ -32,7 +32,7 @@ export const DBRTransparency = () => {
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-dbr.png" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dbr, dola, supply" />
             </Head>
-            <AppNav active="Verify" activeSubmenu="DBR" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="DBR" hideAnnouncement={true} />
             <TransparencyTabs active="dbr" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1200px'>
                 <VStack w={{ base: 'full', xl: '850px' }}>

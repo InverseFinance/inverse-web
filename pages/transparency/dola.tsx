@@ -33,7 +33,7 @@ export const DolaDiagram = () => {
         <meta name="description" content="Dola & the Feds" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply" />
       </Head>
-      <AppNav active="Verify" activeSubmenu="DOLA & Feds" hideAnnouncement={true} />
+      <AppNav active="Transparency" activeSubmenu="DOLA & Feds" hideAnnouncement={true} />
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column">
