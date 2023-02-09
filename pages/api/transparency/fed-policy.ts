@@ -177,7 +177,7 @@ export default async function handler(req, res) {
       fedPolicyMsg,
       totalEvents,
       feds: FEDS.map(fed => {
-        return { ...fed, supply: accumulatedSupplies[fed.address] }
+        return { ...fed, supply: accumulatedSupplies[fed.address], strategy: undefined }
       }),
       dolaSupplies: dolaSuppliesCacheData?.dolaSupplies,
     }

@@ -299,6 +299,7 @@ export default async function handler(req, res) {
     const fedsData = FEDS.map((fed, i) => ({
       ...fed,
       abi: undefined,
+      strategy: undefined,
       supply: getBnToNumber(fedData[i][0]),
       gov: fedData[i][1],
       chair: fedData[i][2],
