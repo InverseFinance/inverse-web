@@ -25,11 +25,13 @@ const ANCHOR_RESERVES_TO_CHECK = [
 ];
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
-const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-const cachePolKey = `dao-pols-v1.0.0`;
-const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
-const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
+export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
+export const cachePolKey = `dao-pols-v1.0.0`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
+export const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
+export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
+export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.0`;
 
 export default async function handler(req, res) {
 
@@ -103,7 +105,10 @@ export default async function handler(req, res) {
     const dolaTotalSupplyNum = getBnToNumber(BigNumber.from(dolaTotalSupply));
     const invTotalSupplyNum = getBnToNumber(BigNumber.from(invTotalSupply));
 
-    const treasuryFundsToCheck = Object.keys(TOKENS).filter(key => isAddress(key));
+    const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
+    const treasuryFundsToCheck = [
+      mainnetTokens.INV, mainnetTokens.DOLA, mainnetTokens.DAI, mainnetTokens.USDC, mainnetTokens.USDT, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI, mainnetTokens.FRAX
+    ];
     const treasuryBalances = await Promise.all([
       ...treasuryFundsToCheck.map((ad: string) => {
         const contract = new Contract(ad, ERC20_ABI, provider);
@@ -140,13 +145,15 @@ export default async function handler(req, res) {
     }
 
     const multisigsFundsToCheck = {
-      [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet]).filter(key => isAddress(key)),
-      [NetworkIds.ftm]: Object.keys(CHAIN_TOKENS[NetworkIds.ftm]).filter(key => isAddress(key)),
+      [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet])
+        .filter(key => isAddress(key))
+        .filter(key => ![mainnetTokens.MIM, mainnetTokens.FLOKI, mainnetTokens.THREECRV, mainnetTokens.XSUSHI].includes(key)),        
+      [NetworkIds.ftm]: [],// not used anymore
       [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
     }
 
     const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
-    const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => BigNumber.from(bn))) || (await Promise.all([
+    const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => Array.isArray(bn) ? BigNumber.from(bn[0]) : BigNumber.from(bn))) || (await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
@@ -159,6 +166,8 @@ export default async function handler(req, res) {
               // reduce numbers of check
               (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
+              // skip yearn vaults
+              || token?.symbol?.startsWith('yv')
             ) {
               return new Promise((res) => res(BigNumber.from('0')));
             }
@@ -201,6 +210,8 @@ export default async function handler(req, res) {
               (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
               || (['TWG on FTM', 'TWG on OP', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
+              // skip yearn vaults
+              || token?.symbol?.startsWith('yv')
             ) {
               return new Promise((res) => res(BigNumber.from('0')));
             } else {
@@ -294,7 +305,25 @@ export default async function handler(req, res) {
     const dolaSupplies = toSupplies(dolaTotalSupplyNum, dolaBridgedSupplies, DOLA_BRIDGED_CHAINS);
     const invSupplies = toSupplies(invTotalSupplyNum, invBridgedSupplies, INV_BRIDGED_CHAINS);
 
+    const fedsData = FEDS.map((fed, i) => ({
+      ...fed,
+      abi: undefined,
+      strategy: undefined,
+      supply: getBnToNumber(fedData[i][0]),
+      gov: fedData[i][1],
+      chair: fedData[i][2],
+    }));
+
+    const multisigData = multisigsToShow.map((m, i) => ({
+      ...m,
+      owners: multisigsOwners[i],
+      funds: multisigsFunds[i].filter(d => d.balance||0 > 0 || d.allowance||0 > 0),
+      // when multisigsThresholds is from cache, type is not BN object
+      threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
+    }));
+
     const resultData = {
+      timestamp: +(new Date()),
       pols,
       dolaTotalSupply: dolaTotalSupplyNum,
       invTotalSupply: invTotalSupplyNum,
@@ -302,30 +331,21 @@ export default async function handler(req, res) {
       bonds: {
         balances: bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
-      anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])),
-      treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])),
+      anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])).filter(d => d.balance > 0),
+      treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])).filter(d => d.balance > 0),
       dolaSupplies,
       invSupplies,
-      multisigs: multisigsToShow.map((m, i) => ({
-        ...m,
-        owners: multisigsOwners[i],
-        funds: multisigsFunds[i],
-        // when multisigsThresholds is from cache, type is not BN object
-        threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
-      })),
-      feds: FEDS.map((fed, i) => ({
-        ...fed,
-        abi: undefined,
-        supply: getBnToNumber(fedData[i][0]),
-        gov: fedData[i][1],
-        chair: fedData[i][2],
-      })),
+      multisigs: multisigData,
+      feds: fedsData,
     }
 
     await redisSetWithTimestamp(cacheDolaSupplies, {
       dolaTotalSupply: resultData.dolaTotalSupply,
       dolaSupplies,
     });
+    
+    redisSetWithTimestamp(cacheFedDataKey, fedsData);
+    redisSetWithTimestamp(cacheMultisigDataKey, multisigData);
 
     await redisSetWithTimestamp(cacheKey, resultData);
 

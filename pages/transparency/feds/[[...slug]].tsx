@@ -65,57 +65,57 @@ export const FedPolicyPage = () => {
         setDetailsType(slug && slug[0] ? slug[0] : 'policy')
     }, [queryFedIndex, queryFedName, slug])
 
-    const handlePolicyEdit = async () => {
-        try {
-            if (!library) { return }
-            const signer = library?.getSigner()
-            const newMsg = window.prompt("New Fed Chair Guidance", fedPolicyMsg.msg);
+    // const handlePolicyEdit = async () => {
+    //     try {
+    //         if (!library) { return }
+    //         const signer = library?.getSigner()
+    //         const newMsg = window.prompt("New Fed Chair Guidance", fedPolicyMsg.msg);
 
-            if (newMsg === null) {
-                return
-            }
+    //         if (newMsg === null) {
+    //             return
+    //         }
 
-            const sig = await signer.signMessage(FED_POLICY_SIGN_MSG);
+    //         const sig = await signer.signMessage(FED_POLICY_SIGN_MSG);
 
-            showToast({ id: 'fed-policy', status: "loading", title: "In Progress" });
+    //         showToast({ id: 'fed-policy', status: "loading", title: "In Progress" });
 
-            setTimeout(async () => {
-                const rawResponse = await fetch(`/api/transparency/fed-policy-msg`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ sig, msg: newMsg })
-                });
+    //         setTimeout(async () => {
+    //             const rawResponse = await fetch(`/api/transparency/fed-policy-msg`, {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Accept': 'application/json',
+    //                     'Content-Type': 'application/json'
+    //                 },
+    //                 body: JSON.stringify({ sig, msg: newMsg })
+    //             });
 
-                const result = await rawResponse.json();
+    //             const result = await rawResponse.json();
 
-                if (result.status === "success") {
-                    showToast({ id: 'fed-policy', status: "success", title: "Current Fed Chair Guidance", description: "Message updated" })
-                    setMsgUpdates(msgUpdates + 1)
-                } else {
-                    showToast({ id: 'fed-policy', status: "warning", title: "Current Fed Chair Guidance", description: "Update unauthorized" })
-                }
-            }, 0);
-            return result;
-        } catch (e: any) {
-            return { status: 'warning', message: e.message || 'An error occured' }
-        }
-    }
+    //             if (result.status === "success") {
+    //                 showToast({ id: 'fed-policy', status: "success", title: "Current Fed Chair Guidance", description: "Message updated" })
+    //                 setMsgUpdates(msgUpdates + 1)
+    //             } else {
+    //                 showToast({ id: 'fed-policy', status: "warning", title: "Current Fed Chair Guidance", description: "Update unauthorized" })
+    //             }
+    //         }, 0);
+    //         return result;
+    //     } catch (e: any) {
+    //         return { status: 'warning', message: e.message || 'An error occured' }
+    //     }
+    // }
 
-    const canEditFedPolicy = userAddress === DEPLOYER;
+    // const canEditFedPolicy = userAddress === DEPLOYER;
     return (
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Feds</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="Feds Policy & Income" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-fed-policy.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
                 <meta name="description" content="Feds Policy & Income" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, income" />
             </Head>
-            <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+            <AppNav active="Transparency" activeSubmenu="Feds Policy & Income" hideAnnouncement={true} />
             <TransparencyTabs active="feds" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
@@ -168,7 +168,7 @@ export const FedPolicyPage = () => {
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <DolaMoreInfos />
-                    <ShrinkableInfoMessage
+                    {/* <ShrinkableInfoMessage
                         title={
                             <Flex alignItems="center">
                                 Current Fed Chair Guidance
@@ -184,7 +184,7 @@ export const FedPolicyPage = () => {
                                 <Text>{fedPolicyMsg?.msg}</Text>
                             </>
                         }
-                    />
+                    /> */}
                     <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
                     />
                     <SupplyInfos
@@ -192,7 +192,7 @@ export const FedPolicyPage = () => {
                         supplies={
                             policyFeds.map((fed, fedIndex) => {
                                 return { supply: Math.max(fed.supply, 0), chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
-                            })
+                            }).filter(fed => fed.supply > 0)
                         }
                     />
                     <SupplyInfos

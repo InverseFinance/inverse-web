@@ -21,3 +21,23 @@ export const useCustomSWR = (key: string, fetcher = defaultFetcher): SWR & { dat
     error,
   }
 }
+
+export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & { data: any, error: any } => {
+  const { value: localCacheData, setter } = useStorage(key);
+  const keyCacheFirst = key.indexOf('?') === -1 ? `${key}?cacheFirst=true` : `${key}&cacheFirst=true`
+  const { data: apiCacheData } = useSWR(keyCacheFirst, fetcher);
+  const { data, error } = useSWR(key, fetcher);
+
+  useEffect(() => {
+    if(typeof data !== 'undefined') {
+      setter(data);
+    }
+  }, [data]);
+
+  return {
+    data: data || apiCacheData || localCacheData,
+    isLoading: !error && !data,
+    isError: error,
+    error,
+  }
+}

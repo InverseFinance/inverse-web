@@ -101,11 +101,11 @@ export const GovTransparency = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Dao Transparency</title>
                 <meta name="og:title" content="Inverse Finance - DAO Transparency" />
                 <meta name="og:description" content="DAO Transparency" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-dao.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
                 <meta name="description" content="DAO Transparency" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, delegates, proposals" />
             </Head>
-            <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+            <AppNav active="Transparency" activeSubmenu="DAO" hideAnnouncement={true} />
             <TransparencyTabs active="dao" />
             <Stack spacing="8" w="full" alignItems="center" justify="center" justifyContent="center" direction='column'>
                 <Flex direction="column" py="2" px="5" maxWidth="900px" w='full'>
@@ -122,7 +122,7 @@ export const GovTransparency = () => {
                             />
                             <VStack w='full' justify="flex-start" alignItems="center">
                                 <Text textAlign="center" mt="1" color="accentTextColor" fontSize="20px" fontWeight="extrabold">
-                                    Created Proposals Last 12 months:
+                                    DAO Proposals (12 month):
                                 </Text>
                                 <ProposalBarChart maxChartWidth={450} chartData={chartData} />
                             </VStack>

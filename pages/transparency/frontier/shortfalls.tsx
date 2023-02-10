@@ -12,7 +12,7 @@ import moment from 'moment'
 import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
 import { shortenAddress } from '@app/util'
 import { InfoMessage } from '@app/components/common/Messages'
-import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { TransparencyFrontierTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 
 export const ShortfallsPage = () => {
   const [accounts, setAccounts] = useState('');
@@ -23,12 +23,13 @@ export const ShortfallsPage = () => {
       <Head>
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Shortfalls</title>
         <meta name="og:title" content="Inverse Finance - Shortfalls" />
-        <meta name="og:description" content="Frontier's shortfalls" />        
+        <meta name="og:description" content="Frontier's shortfalls" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
         <meta name="description" content="Inverse Finance Shortfalls Details" />
         <meta name="keywords" content="Inverse Finance, transparency, frontier, shortfalls" />
       </Head>
-      <AppNav active="Learn" activeSubmenu="Transparency Portal" />
-      <TransparencyTabs active="shortfalls" />
+      <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
+      <TransparencyFrontierTabs active="frontier-shortfalls" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Container

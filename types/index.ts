@@ -15,6 +15,7 @@ export interface Token {
   isWrappedChainCoin?: boolean
   isLP?: boolean
   isCrvLP?: boolean
+  isVeloLP?: boolean
   lpPrice?: number
   balancerInfos?: {
     poolId: string
@@ -401,11 +402,18 @@ export type Prices = {
   }
 }
 
+export enum FedTypes {
+  LP = 'AMM',
+  CROSS = 'Cross-Lending',
+  ISOLATED = 'Isolated-Lending',
+}
+
 export type Fed = {
   address: string,
   abi: string[],
   chainId: NetworkIds,
   name: string,
+  type: FedTypes,
   projectImage: string,
   isXchain?: boolean,
   hasEnded?: boolean,
@@ -414,6 +422,7 @@ export type Fed = {
   incomeChainId?: string
   incomeSrcAd?: string
   incomeTargetAd?: string
+  fusePool?: string
   isFirm?: boolean
 }
 

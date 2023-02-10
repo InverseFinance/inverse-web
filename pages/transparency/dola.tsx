@@ -8,14 +8,18 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useDAO } from '@app/hooks/useDAO'
+import { useDAO, useFedOverview } from '@app/hooks/useDAO'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
+import { FedList } from '@app/components/Transparency/fed/FedList'
+import { usePrices } from '@app/hooks/usePrices'
 
 const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DolaDiagram = () => {
-  const { dolaOperator, dolaSupplies, feds } = useDAO();
+  const { dolaOperator, dolaSupplies, feds, isLoading } = useDAO();
+  const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
+  const { prices } = usePrices(['velodrome-finance']);
 
   const fedsWithData = feds;
 
@@ -25,24 +29,27 @@ export const DolaDiagram = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Dola</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
         <meta name="og:description" content="Dola & the Feds" />
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-feds.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
         <meta name="description" content="Dola & the Feds" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply" />
       </Head>
-      <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+      <AppNav active="Transparency" activeSubmenu="DOLA & Feds" hideAnnouncement={true} />
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
-        <Flex direction="column" py="2">
-          <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
+        <Flex direction="column">
+          <FedList prices={prices} feds={fedOverviews.filter(f => f.supply > 0)} isLoading={isLoadingOverview} />
+          <Flex mt="4" p="2">
+            <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
+          </Flex>
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
-          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
+          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies.filter(chain => chain.supply > 0)}
           />
-          <SupplyInfos
+          {/* <SupplyInfos
             title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-            supplies={fedsWithData}
-          />
+            supplies={fedsWithData.filter(fed => fed.supply > 0)}
+          /> */}
           <ShrinkableInfoMessage
             title="⚡&nbsp;&nbsp;Roles & Powers"
             description={

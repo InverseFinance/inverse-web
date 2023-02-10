@@ -19,10 +19,11 @@ import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 const NB_DAYS_MONTH = 365/12;
 
+export const frontierMarketsCacheKey = `1-markets-cache-v1.4.4`;
+
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
-  const networkConfig = getNetworkConfig(CHAIN_ID, true)!;
-  const cacheKey = `${networkConfig.chainId}-markets-cache-v1.4.4`;
+  const networkConfig = getNetworkConfig(CHAIN_ID, true)!;  
 
   if(CHAIN_ID === '5') {
     const r = await fetch('https://www.inverse.finance/api/markets');
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
       ESCROW_OLD,
     } = getNetworkConfigConstants(networkConfig);
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(frontierMarketsCacheKey, true, 600);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -272,14 +273,14 @@ export default async function handler(req, res) {
 
     const resultData = { markets };
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(frontierMarketsCacheKey, resultData);
     res.status(200).json(resultData);
 
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(frontierMarketsCacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);

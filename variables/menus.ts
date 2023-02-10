@@ -56,10 +56,10 @@ export const MENUS = {
         },
       ],
     },
-    {
-      label: 'Claim',
-      href: '/claim-dbr',
-    },
+    // {
+    //   label: 'Claim',
+    //   href: '/claim-dbr',
+    // },
     {
       label: 'Swap',
       href: '/swap/DAI/DOLA',
@@ -109,11 +109,11 @@ export const MENUS = {
     // },
     {
       label: 'Learn',
-      href: '/transparency/overview',
+      href: 'https://docs.inverse.finance',
       submenus: [
         {
-          href: '/transparency/overview',
-          label: 'Transparency Portal',
+          href: 'https://docs.inverse.finance',
+          label: 'Docs',
         },
         {
           label: 'About FiRM',
@@ -126,10 +126,6 @@ export const MENUS = {
         {
           href: '/analytics',
           label: 'Analytics',
-        },
-        {
-          href: 'https://docs.inverse.finance',
-          label: 'Docs',
         },
         {
           label: 'Blog',
@@ -176,7 +172,7 @@ export const MENUS = {
         //   label: 'Liquidations',
         // },
       ]
-    },
+    },    
     {
       label: 'Participate',
       href: '/governance',
@@ -203,24 +199,48 @@ export const MENUS = {
         },
       ]
     },
-    // {
-    //   href: '/analytics',
-    //   label: 'Analytics',
-    //   submenus: [
-    //     {
-    //       href: '/analytics',
-    //       label: 'Dashboard',
-    //     },
-    //     {
-    //       href: 'https://analytics.inverse.finance',
-    //       label: 'Docs',
-    //     }
-    //   ],
-    // },
-    // {
-    //   label: 'Blog',
-    //   href: '/blog',
-    // },
+    {
+      label: 'Transparency',
+      href: '/transparency/overview',
+      submenus: [
+        {
+          href: '/transparency/overview',
+          label: 'Overview',
+        },
+        {
+          href: '/transparency/treasury',
+          label: 'Treasury',
+        },
+        {
+          href: '/transparency/dao',
+          label: 'DAO',
+        },
+        {
+          href: '/transparency/inv',
+          label: 'INV',
+        },
+        {
+          href: '/transparency/dbr',
+          label: 'DBR',
+        },
+        {
+          href: '/transparency/dola',
+          label: 'DOLA & Feds',
+        },
+        {
+          href: '/transparency/feds/policy/all',
+          label: 'Feds Policy & Income',
+        },
+        {
+          href: '/transparency/multisigs',
+          label: 'Multisig Wallets',
+        },
+        {
+          href: '/transparency/frontier/overview',
+          label: 'Frontier (deprecated)',
+        },
+      ],
+    },    
   ],
   "footerGroups": [
     {

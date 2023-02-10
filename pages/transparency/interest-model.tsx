@@ -43,11 +43,11 @@ export const InterestModelPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Interest Rate Model</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="Interest Rates" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-interest-rates.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
                 <meta name="description" content="Inverse Finance Interest Rates" />
                 <meta name="keywords" content="Inverse Finance, transparency, interest rates, apy, borrow, supply" />
             </Head>
-            <AppNav active="Learn" activeSubmenu="Transparency Portal" />
+            <AppNav active="Transparency" activeSubmenu="Transparency Portal" hideAnnouncement={true} />
             <TransparencyTabs active="interest-model" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column" color="mainTextColor">
