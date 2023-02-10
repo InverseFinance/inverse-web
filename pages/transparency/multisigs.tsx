@@ -51,7 +51,7 @@ export const MultisigsDiagram = () => {
         <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Multisigs</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
         <meta name="og:description" content="Multisigs" />
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/transparency-portal.png" />
         <meta name="description" content="Inverse Finance Multisigs" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, multisigs" />
       </Head>
