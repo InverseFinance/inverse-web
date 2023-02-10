@@ -122,7 +122,7 @@ export const GovTransparency = () => {
                             />
                             <VStack w='full' justify="flex-start" alignItems="center">
                                 <Text textAlign="center" mt="1" color="accentTextColor" fontSize="20px" fontWeight="extrabold">
-                                    Created Proposals Last 12 months:
+                                    DAO Proposals (12 month):
                                 </Text>
                                 <ProposalBarChart maxChartWidth={450} chartData={chartData} />
                             </VStack>

@@ -19,7 +19,7 @@ export const PayrollDetails = ({
     currentPayrolls,
     prices,
     fundKey = 'amount',
-    title = 'DOLA Monthly costs',
+    title = 'DOLA Payrolls',
     toMonthly = true,
 }: Props) => {
     const divFactor = toMonthly ? 12 : 1;
