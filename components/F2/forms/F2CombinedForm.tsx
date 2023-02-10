@@ -115,7 +115,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount)+dbrCoverDebt*1.05)),
+                    parseUnits(roundFloorString(parseFloat(debtAmount)+dbrCoverDebt*1.25)),
                     duration
                 );
             }

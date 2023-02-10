@@ -79,6 +79,10 @@ export const f2depositAndBorrowHelper = async (
             return helperContract
             .depositNativeEthAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
         }
+        console.log('--')
+        console.log(deposit.toString())
+        console.log(borrow.toString())
+        console.log(maxDolaIn.toString())
         return helperContract
             .depositAndBorrowOnBehalf(market, deposit, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
     }
