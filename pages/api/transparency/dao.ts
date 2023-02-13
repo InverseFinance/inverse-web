@@ -150,6 +150,7 @@ export default async function handler(req, res) {
         .filter(key => ![mainnetTokens.MIM, mainnetTokens.FLOKI, mainnetTokens.THREECRV, mainnetTokens.XSUSHI].includes(key)),        
       [NetworkIds.ftm]: [],// not used anymore
       [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
+      [NetworkIds.bsc]: Object.keys(CHAIN_TOKENS[NetworkIds.bsc]).filter(key => isAddress(key)),
     }
 
     const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
