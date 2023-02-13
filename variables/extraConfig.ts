@@ -30,7 +30,8 @@ const mainConfig = {
     // f2helper: '0xaB837301d12cDc4b97f1E910FC56C9179894d9cf',
     // f2helper: '0x0F527785e39B22911946feDf580d87a4E00465f0',
     // f2helper: '0x9C85258d9A00C01d00ded98065ea3840dF06f09c',
-    f2helper: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
+    // f2helper: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
+    f2helper: '0x8f119cd256a0FfFeed643E830ADCD9767a1d517F',
     f2markets: [
         {
             name: 'WETH',

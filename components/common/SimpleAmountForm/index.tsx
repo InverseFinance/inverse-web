@@ -104,10 +104,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
+    const _tokenAddress = address || 'CHAIN_COIN';
 
-    const balanceBn = balances && balances[address] ? balances[address] : zeroBn;
+    const balanceBn = balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn;
     const balance = getBnToNumber(balanceBn, decimals);
-    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
+    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn];
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
@@ -123,7 +124,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }, [defaultAmount])
 
     useEffect(() => {
-        setTokenApproved(freshTokenApproved || hasAllowance(approvals, address, decimals, amount));
+        setTokenApproved(freshTokenApproved || !address || hasAllowance(approvals, address, decimals, amount));
     }, [approvals, address, freshTokenApproved]);
 
     const setToMaxDeposit = () => {

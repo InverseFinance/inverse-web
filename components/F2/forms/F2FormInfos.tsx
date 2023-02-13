@@ -223,7 +223,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             },
             {
                 tooltip: "DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
-                title: 'DBR cost',
+                title: `DBR cost`,
                 value: dbrCover > 0 && isDeposit ? `${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
             },
         ],
@@ -304,6 +304,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
+    if(isAutoDBR) {
+        keyInfos.splice(2, 0, dbrInfos[2]);
+    }
 
     const lists = {
         'Summary': keyInfos,

@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndWithdrawHelper, f2withdraw, getRiskColor } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -22,7 +22,7 @@ import WethModal from '@app/components/common/Modal/WethModal'
 import { roundFloorString } from '@app/util/misc'
 import { BUY_LINKS } from '@app/config/constants'
 
-const { DOLA, F2_HELPER } = getNetworkConfigConstants();
+const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
 
@@ -61,6 +61,8 @@ export const F2CombinedForm = ({
         setIsDeposit,
         isAutoDBR,
         setIsAutoDBR,
+        isUseNativeCoin,
+        setIsUseNativeCoin,
         dbrPrice,
         maxBorrowable,
         signer,
@@ -103,6 +105,18 @@ export const F2CombinedForm = ({
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
         } else if (action === 'borrow') {
+            if(isAutoDBR) {
+                return f2depositAndBorrowHelper(
+                    signer,
+                    market.address,
+                    parseUnits('0', market.underlying.decimals),
+                    parseUnits(debtAmount),
+                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 3.25)),
+                    duration,
+                    false,
+                    true,
+                );
+            }
             return f2borrow(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
@@ -115,8 +129,9 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount)+dbrCoverDebt*1.25)),
-                    duration
+                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 3.25)),
+                    duration,
+                    isUseNativeCoin,
                 );
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
@@ -158,6 +173,7 @@ export const F2CombinedForm = ({
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
+    const isWethMarket = market.underlying.symbol === 'WETH';
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -173,11 +189,11 @@ export const F2CombinedForm = ({
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
                             defaultAmount={collateralAmount}
-                            address={market.collateral}
+                            address={isUseNativeCoin ? '' : market.collateral}
                             destination={isAutoDBR ? F2_HELPER : market.address}
                             signer={signer}
                             decimals={colDecimals}
-                            maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits].concat(isWithdrawOnlyCase ? [bnWithdrawalLimit] : [])}
+                            maxAmountFrom={isDeposit ? isUseNativeCoin ? undefined : [bnCollateralBalance] : [bnDeposits].concat(isWithdrawOnlyCase ? [bnWithdrawalLimit] : [])}
                             onAction={handleAction}
                             onMaxAction={handleAction}
                             actionLabel={btnLabel}
@@ -191,15 +207,23 @@ export const F2CombinedForm = ({
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
-                            isDeposit && market.underlying.symbol === 'WETH' && <Text
-                                color="secondaryTextColor"
-                                textDecoration="underline"
-                                cursor="pointer"
-                                onClick={onOpen}
-                                fontSize="14px"
-                            >
-                                Need WETH? Easily convert ETH to WETH
-                            </Text>
+                            isDeposit && isWethMarket && <HStack w='full' justify="space-between">
+                                <Text
+                                    color="secondaryTextColor"
+                                    textDecoration="underline"
+                                    cursor="pointer"
+                                    onClick={onOpen}
+                                    fontSize="14px"
+                                >
+                                    Easily convert between ETH to WETH
+                                </Text>
+                                <FormControl w='fit-content' display='flex' alignItems='center'>
+                                    <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
+                                        Use native Ether?
+                                    </FormLabel>
+                                    <Switch onChange={() => setIsUseNativeCoin(!isUseNativeCoin)} isChecked={isUseNativeCoin} id='auto-eth' />
+                                </FormControl>
+                            </HStack>
                         }
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
                     </>
@@ -246,7 +270,7 @@ export const F2CombinedForm = ({
                                 destination={isAutoDBR ? F2_HELPER : market.address}
                                 signer={signer}
                                 decimals={18}
-                                maxAmountFrom={isDeposit ? [bnLeftToBorrow, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt]}
+                                maxAmountFrom={isDeposit ? [bnLeftToBorrow, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt, bnDolaBalance]}
                                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                                 actionLabel={btnLabel}
@@ -352,14 +376,14 @@ export const F2CombinedForm = ({
         <SimpleAmountForm
             defaultAmount={collateralAmount}
             address={isRepayCase ? DOLA : market.collateral}
-            destination={isAutoDBR ? F2_HELPER : market.address}
+            destination={isAutoDBR && isDeposit ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction(bnAmount)}
             onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-            actionLabel={isAutoDBR ? `Sign + ${mode}` : mode}
-            approveLabel={isAutoDBR ? 'Step 1/3 - Approve' : undefined}
+            actionLabel={isAutoDBR && isDeposit ? `Sign + ${mode}` : mode}
+            approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
             showMaxBtn={false}

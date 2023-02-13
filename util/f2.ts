@@ -5,7 +5,8 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { splitSignature } from "ethers/lib/utils";
+import { parseEther, splitSignature } from "ethers/lib/utils";
+import { getBnToNumber } from "./markets";
 
 const { F2_HELPER } = getNetworkConfigConstants();
 
@@ -61,7 +62,8 @@ export const getFirmSignature = (
     })
 }
 
-export const f2depositAndBorrowHelper = async (
+
+export const f2sellAndWithdrawHelper = async (
     signer: JsonRpcSigner,
     market: string,
     deposit: string | BigNumber,
@@ -70,19 +72,47 @@ export const f2depositAndBorrowHelper = async (
     durationDays: number,
     isNativeCoin = false,
 ) => {
-    const signatureResult = await getFirmSignature(signer, market, maxDolaIn, 'BorrowOnBehalf');
+    const signatureResult = await getFirmSignature(signer, market, parseEther('0.01'), 'WithdrawOnBehalf');
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         const durationSecs = durationDays * ONE_DAY_SECS;
-        if(isNativeCoin) {
+        // const temp = await helperContract.approximateDolaAndDbrNeeded(borrow, durationSecs, 8);
+
+        if (isNativeCoin) {
             return helperContract
-            .depositNativeEthAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
+                .depositNativeEthAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
+        }  
+        return helperContract
+            // sellDbrRepayAndWithdrawOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s)
+            .sellDbrRepayAndWithdrawOnBehalf(market, borrow, parseEther('0.0000000001'), parseEther('1'), parseEther('0.01'), deadline.toString(), v.toString(), r, s);
+    }
+    return new Promise((res, rej) => rej("Signature failed or canceled"));
+}
+
+export const f2depositAndBorrowHelper = async (
+    signer: JsonRpcSigner,
+    market: string,
+    deposit: string | BigNumber,
+    borrow: string | BigNumber,
+    maxDolaIn: string | BigNumber,
+    durationDays: number,
+    isNativeCoin = false,
+    isBorrowOnly = false,
+) => {
+    const signatureResult = await getFirmSignature(signer, market, maxDolaIn, 'BorrowOnBehalf');
+    if (signatureResult) {
+        const { deadline, r, s, v } = signatureResult;
+        const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+        const durationSecs = durationDays * ONE_DAY_SECS;        
+        if (isNativeCoin) {
+            return helperContract
+                .depositNativeEthOnBehalf(market, { value: deposit });
         }
-        console.log('--')
-        console.log(deposit.toString())
-        console.log(borrow.toString())
-        console.log(maxDolaIn.toString())
+        if(isBorrowOnly) {
+            return helperContract
+            .borrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
+        }
         return helperContract
             .depositAndBorrowOnBehalf(market, deposit, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
     }
