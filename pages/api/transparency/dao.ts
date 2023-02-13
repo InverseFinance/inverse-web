@@ -150,6 +150,7 @@ export default async function handler(req, res) {
         .filter(key => ![mainnetTokens.MIM, mainnetTokens.FLOKI, mainnetTokens.THREECRV, mainnetTokens.XSUSHI].includes(key)),        
       [NetworkIds.ftm]: [],// not used anymore
       [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
+      [NetworkIds.bsc]: Object.keys(CHAIN_TOKENS[NetworkIds.bsc]).filter(key => isAddress(key)),
     }
 
     const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
@@ -209,7 +210,7 @@ export default async function handler(req, res) {
               // reduce numbers of check
               (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
-              || (['TWG on FTM', 'TWG on OP', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
+              || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
               // skip yearn vaults
               || token?.symbol?.startsWith('yv')
             ) {

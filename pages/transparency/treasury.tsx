@@ -20,12 +20,13 @@ export const Overview = () => {
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
   const TWGOPfunds = multisigs?.find(m => m.shortName === 'TWG on OP')?.funds || [];
+  const TWGBSCfunds = multisigs?.find(m => m.shortName === 'TWG on BSC')?.funds || [];
 
   const totalHoldings = [
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices), usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
     { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
-    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds) },
+    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds, TWGBSCfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds, TWGBSCfunds) },
   ];
 
   const polsFunds = pols.map(p => {
@@ -68,6 +69,7 @@ export const Overview = () => {
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on Optimism" funds={TWGOPfunds} prices={prices} type='balance' />
+              <FundsDetails title="TWG on BSC" funds={TWGBSCfunds} prices={prices} type='balance' />
               {
                 polsFunds.map(p => {
                   return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} labelWithPercInChart={true} type='balance' />

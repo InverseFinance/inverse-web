@@ -70,6 +70,7 @@ const mainConfig = {
             purpose: 'Optimize Inverse Treasury management on Ethereum',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/10',
             chainId: NetworkIds.mainnet,
+            order: 0,
         },
         {
             address: '0x7f063F7B7A1326eE8B64ACFdc81Bf544ecc974bC',
@@ -78,6 +79,7 @@ const mainConfig = {
             purpose: 'Optimize Inverse Treasury management on Fantom',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/10',
             chainId: NetworkIds.ftm,
+            order: 1,
         },
         {
             address: '0xa283139017a2f5BAdE8d8e25412C600055D318F8',
@@ -86,6 +88,7 @@ const mainConfig = {
             purpose: 'Optimize Inverse Treasury management on Fantom',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/10',
             chainId: NetworkIds.optimism,
+            order: 2,
         },
         {
             address: '0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7',
@@ -94,6 +97,7 @@ const mainConfig = {
             purpose: 'Handle Reward Rates and Bonds Policies',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/6',
             chainId: NetworkIds.mainnet,
+            order: 5,
         },
         {
             address: '0x07de0318c24D67141e6758370e9D7B6d863635AA',
@@ -102,6 +106,7 @@ const mainConfig = {
             purpose: 'Handle Investments & Costs regarding Growth',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/5',
             chainId: NetworkIds.mainnet,
+            order: 7,
         },
         {
             address: '0xa40FBd692350C9Ed22137F97d64E6Baa4f869E8C',
@@ -134,6 +139,7 @@ const mainConfig = {
             purpose: 'Assumes Guardian role',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/42',
             chainId: NetworkIds.mainnet,
+            order: 6,
         },
         {
             address: '0x8F97cCA30Dbe80e7a8B462F1dD1a51C32accDfC8',
@@ -141,6 +147,15 @@ const mainConfig = {
             shortName: 'FedChair',
             purpose: 'Manage Fed Policies',
             chainId: NetworkIds.mainnet,
+            order: 4,
+        },
+        {
+            address: '0xF7Da4bC9B7A6bB3653221aE333a9d2a2C2d5BdA7',
+            name: 'Treasury Working Group on BSC',
+            shortName: 'TWG on BSC',
+            purpose: 'Optimize Inverse Treasury management on BSC',            
+            chainId: NetworkIds.bsc,
+            order: 3,
         },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
