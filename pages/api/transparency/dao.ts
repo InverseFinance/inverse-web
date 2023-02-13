@@ -265,6 +265,7 @@ export default async function handler(req, res) {
       [NetworkIds.mainnet]: multisigsToShow.find(m => m.shortName === 'TWG')!,
       [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
       [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
+      [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
     }
 
     const getPol = async (lp: { address: string, chainId: string }) => {
