@@ -16,6 +16,7 @@ const positions: { [key: string]: { [key: string]: { x: number, y: number } } } 
   '1': {},
   '250': {},
   '10': {},
+  '56': {},
 }
 
 export const MultisigsFlowChart = ({

@@ -69,7 +69,7 @@ export const Overview = () => {
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on Optimism" funds={TWGOPfunds} prices={prices} type='balance' />
-              <FundsDetails title="TWG on BSC" funds={TWGOPfunds} prices={prices} type='balance' />
+              <FundsDetails title="TWG on BSC" funds={TWGBSCfunds} prices={prices} type='balance' />
               {
                 polsFunds.map(p => {
                   return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} labelWithPercInChart={true} type='balance' />
