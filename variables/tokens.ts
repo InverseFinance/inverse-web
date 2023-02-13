@@ -629,6 +629,7 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'thena',
       veNftId: '13',
+      isLockedVeNft: true,
     },
     [chainTokenAddresses["56"].DOLA]: {
       address: chainTokenAddresses["56"].DOLA,

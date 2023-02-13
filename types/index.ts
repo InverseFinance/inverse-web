@@ -34,6 +34,7 @@ export interface Token {
   protocolImage?: string,
   order?: number
   veNftId?: string
+  isLockedVeNft?: boolean
 }
 
 export interface TokenWithBalance extends Token {

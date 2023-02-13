@@ -174,8 +174,13 @@ export default async function handler(req, res) {
             }
             // non-standard balance cases first
             else if (!!token.veNftId) {
-              const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
-              return contract.balanceOfNFT(token.veNftId);
+              if(token.isLockedVeNft) {
+                const contract = new Contract(token.address, ['function locked(uint) public view returns (uint, uint)'], provider);
+                return contract.locked(token.veNftId);  
+              } else {
+                const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
+                return contract.balanceOfNFT(token.veNftId);
+              }              
             } else if (token.symbol === 'vlAURA') {
               const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
               return contract.balances(m.address);
@@ -235,7 +240,7 @@ export default async function handler(req, res) {
         const allowance = multisigsAllowanceValues[i][j]
         return {
           token,
-          // handle non-standard vlAURA balance in array case
+          // handle non-standard vlAURA, locked veThena balance in array case
           balance: getBnToNumber(Array.isArray(bn) ? bn[0] : bn, token.decimals),
           allowance: allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null,
         }
