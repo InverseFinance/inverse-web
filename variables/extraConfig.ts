@@ -142,6 +142,13 @@ const mainConfig = {
             purpose: 'Manage Fed Policies',
             chainId: NetworkIds.mainnet,
         },
+        {
+            address: '0xF7Da4bC9B7A6bB3653221aE333a9d2a2C2d5BdA7',
+            name: 'Treasury Working Group on BSC',
+            shortName: 'TWG on BSC',
+            purpose: 'Optimize Inverse Treasury management on BSC',            
+            chainId: NetworkIds.bsc,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };

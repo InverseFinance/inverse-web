@@ -100,6 +100,8 @@ const chainTokenAddresses = {
   },
   "56": {
     DOLA: '0x2F29Bc0FFAF9bff337b31CBe6CB5Fb3bf12e5840',
+    THENA: '0xF4C8E32EaDEC4BFe97E0F595AdD0f4450a863a11',
+    VETHENA: '0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -602,6 +604,41 @@ const chainTokens = {
       protocolImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
     },
   },
+  "56": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'BNB',
+      symbol: 'BNB',
+      coingeckoId: 'binancecoin',
+      image: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png?1644979850',
+      decimals: 18,
+    },
+    [chainTokenAddresses["56"].THENA]: {
+      address: chainTokenAddresses["56"].THENA,
+      name: 'THENA',
+      symbol: 'THENA',
+      image: 'https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924',
+      decimals: 18,
+      coingeckoId: 'thena',
+    },
+    [chainTokenAddresses["56"].VETHENA]: {
+      address: chainTokenAddresses["56"].VETHENA,
+      name: 'veTHENA',
+      symbol: 'veTHENA',
+      image: 'https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924',
+      decimals: 18,
+      coingeckoId: 'thena',
+      veNftId: '13',
+    },
+    [chainTokenAddresses["56"].DOLA]: {
+      address: chainTokenAddresses["56"].DOLA,
+      name: 'Dola',
+      symbol: 'DOLA',
+      coingeckoId: 'dola-usd',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
+      decimals: 18,
+    },
+  }
 }
 chainTokens["31337"] = chainTokens["1"];
 

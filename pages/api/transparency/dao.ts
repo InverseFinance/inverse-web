@@ -209,7 +209,7 @@ export default async function handler(req, res) {
               // reduce numbers of check
               (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
-              || (['TWG on FTM', 'TWG on OP', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
+              || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
               // skip yearn vaults
               || token?.symbol?.startsWith('yv')
             ) {
