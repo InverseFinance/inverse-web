@@ -371,7 +371,7 @@ export const F2CombinedForm = ({
     const disabledConditions = {
         'deposit': collateralAmountNum <= 0,
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
-        'repay': debtAmountNum <= 0 || debtAmountNum > debt,
+        'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance,
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
     }
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow']
