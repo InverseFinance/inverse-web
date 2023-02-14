@@ -103,7 +103,7 @@ export const F2CombinedForm = ({
         //     alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
         // } 
         if (action === 'deposit') {
-            return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
+            return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
             if(isAutoDBR) {
                 return f2depositAndBorrowHelper(
@@ -188,7 +188,7 @@ export const F2CombinedForm = ({
                         "The more you deposit, the more you can borrow against"
                         : "Withdrawing collateral will reduce borrowing power"
                 }>
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {market.underlying.symbol}:</Text>
+                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}:</Text>
                 </TextInfo>
                 {
                     deposits > 0 || isDeposit ? <>
@@ -208,7 +208,7 @@ export const F2CombinedForm = ({
                             hideInputIfNoAllowance={false}
                             hideButtons={true}
                             showBalance={isDeposit}
-                            inputRight={<MarketImage pr="2" image={market.icon || market.underlying.image} size={25} />}
+                            inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : market.icon || market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
@@ -224,7 +224,7 @@ export const F2CombinedForm = ({
                                 </Text>
                                 <FormControl w='fit-content' display='flex' alignItems='center'>
                                     <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
-                                        Use native Ether?
+                                        Use ETH instead of WETH?
                                     </FormLabel>
                                     <Switch onChange={() => setIsUseNativeCoin(!isUseNativeCoin)} isChecked={isUseNativeCoin} id='auto-eth' />
                                 </FormControl>
