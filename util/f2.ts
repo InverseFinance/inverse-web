@@ -126,7 +126,15 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
     return contract.deposit(account, amount);
 }
 
-export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, to?: string) => {
+export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin?: boolean) => {
+    if(isNativeCoin) {
+        const signatureResult = await getFirmSignature(signer, market, amount, 'WithdrawOnBehalf');
+        if (signatureResult) {
+            const { deadline, r, s, v } = signatureResult;
+            const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+            return helperContract.withdrawNativeEthOnBehalf(market, amount, deadline, v, r, s);
+        }
+    }
     const contract = new Contract(market, F2_MARKET_ABI, signer);
     return contract.withdraw(amount);
 }

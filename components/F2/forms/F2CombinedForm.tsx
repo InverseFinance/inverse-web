@@ -112,7 +112,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits('0', market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.05)),
+                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
                     duration,
                     false,
                     true,
@@ -120,7 +120,7 @@ export const F2CombinedForm = ({
             }
             return f2borrow(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'withdraw') {
-            return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals));
+            return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'repay') {
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
@@ -130,7 +130,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.05)),
+                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
                     duration,
                     isUseNativeCoin,
                 );
@@ -387,7 +387,7 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction(bnAmount)}
             onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-            actionLabel={isAutoDBR && isDeposit && hasDebtChange ? `Sign + ${mode}` : mode}
+            actionLabel={(isAutoDBR && isDeposit && hasDebtChange) || (isUseNativeCoin && hasCollateralChange) ? `Sign + ${mode}` : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
