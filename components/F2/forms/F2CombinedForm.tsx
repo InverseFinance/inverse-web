@@ -129,13 +129,18 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 3.25)),
+                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.05)),
                     duration,
                     isUseNativeCoin,
                 );
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
+            if(isAutoDBR) {
+                const minDolaOut = getNumberToBn(dbrCoverDebt * 0.95);
+                const dbrAmountToSell = getNumberToBn(dbrCover);
+                return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isNativeCoin);
+            }
             return f2repayAndWithdraw(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
         } else {
             alert('AlphaPhase: Contract is not implemented yet for this action');
