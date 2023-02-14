@@ -212,7 +212,7 @@ export const F2CombinedForm = ({
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
-                            isDeposit && isWethMarket && <HStack w='full' justify="space-between">
+                            isWethMarket && <HStack w='full' justify="space-between">
                                 <Text
                                     color="secondaryTextColor"
                                     textDecoration="underline"
@@ -387,7 +387,7 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction(bnAmount)}
             onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-            actionLabel={isAutoDBR && isDeposit ? `Sign + ${mode}` : mode}
+            actionLabel={isAutoDBR && isDeposit && hasDebtChange ? `Sign + ${mode}` : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
