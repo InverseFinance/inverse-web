@@ -66,22 +66,19 @@ export const getFirmSignature = (
 export const f2sellAndWithdrawHelper = async (
     signer: JsonRpcSigner,
     market: string,
-    deposit: string | BigNumber,
-    borrow: string | BigNumber,
-    maxDolaIn: string | BigNumber,
-    durationDays: number,
+    repay: string | BigNumber,
+    withdraw: string | BigNumber,
+    minDolaOut: string | BigNumber,
+    dbrAmountToSell: string | BigNumber,
     isNativeCoin = false,
 ) => {
-    const signatureResult = await getFirmSignature(signer, market, parseEther('0.01'), 'WithdrawOnBehalf');
+    const signatureResult = await getFirmSignature(signer, market, withdraw, 'WithdrawOnBehalf');
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
-        const durationSecs = durationDays * ONE_DAY_SECS;
-        // const temp = await helperContract.approximateDolaAndDbrNeeded(borrow, durationSecs, 8);
-
         if (isNativeCoin) {
             return helperContract
-                .depositNativeEthAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
+                .sellDbrRepayAndWithdrawNativeEthOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
         }  
         return helperContract
             // sellDbrRepayAndWithdrawOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s)
