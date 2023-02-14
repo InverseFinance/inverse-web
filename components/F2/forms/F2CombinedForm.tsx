@@ -78,6 +78,7 @@ export const F2CombinedForm = ({
         dolaBalance,
         bnDolaBalance,
         riskColor,
+        isWethMarket,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
@@ -111,7 +112,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits('0', market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 3.25)),
+                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.05)),
                     duration,
                     false,
                     true,
@@ -177,8 +178,7 @@ export const F2CombinedForm = ({
     }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough, infoTab]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
-    const btnMaxlabel = `${btnLabel} Max`;
-    const isWethMarket = market.underlying.symbol === 'WETH';
+    const btnMaxlabel = `${btnLabel} Max`;    
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {

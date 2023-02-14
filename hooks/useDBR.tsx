@@ -346,12 +346,12 @@ export const useDBRReplenishmentPrice = (): SWR & {
   }
 }
 
-export const useDBRNeeded = (borrowAmount: string | BigNumber, period: string | BigNumber, iterations = 8): SWR & {
+export const useDBRNeeded = (borrowAmount: number, period: number, iterations = 8): SWR & {
   dolaNeeded: number,
   dbrNeeded: number,
 } => {
   const { data, error } = useEtherSWR([
-    DBR, 'approximateDolaAndDbrNeeded', borrowAmount, period, iterations
+    DBR, 'approximateDolaAndDbrNeeded', getNumberToBn(borrowAmount), period, iterations
   ]);
 
   return {

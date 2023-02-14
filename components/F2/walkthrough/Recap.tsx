@@ -5,11 +5,12 @@ import { useContext, useState } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { RecapInfos } from "../Infos/RecapInfos"
 import { StepNavBtn } from "./StepNavBtn"
-import { f2depositAndBorrow } from "@app/util/f2"
+import { f2depositAndBorrow, f2depositAndBorrowHelper } from "@app/util/f2"
 import { SuccessMessage } from "@app/components/common/Messages"
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
 import { parseUnits } from "@ethersproject/units"
+import { roundFloorString } from "@app/util/misc"
 
 export const F2WalkthroughRecap = ({
     onStepChange,
@@ -46,6 +47,8 @@ export const F2WalkthroughRecap = ({
         handleCollateralChange,
         setIsWalkthrough,
         isAutoDBR,
+        isWethMarket,
+        isUseNativeCoin,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -64,11 +67,22 @@ export const F2WalkthroughRecap = ({
         debtAmountNum,
         duration,
         newDBRExpiryDate,
+        isWethMarket,
+        isUseNativeCoin,
     }
 
     const handleAction = () => {
         if (market.helper) {
-            alert('Not implemented yet');
+            return f2depositAndBorrowHelper(
+                signer,
+                market.address,
+                parseUnits(collateralAmount, market.underlying.decimals),
+                parseUnits(debtAmount),
+                parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.05)),
+                duration,
+                isUseNativeCoin,
+                false,
+            );
         } else {
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         }
@@ -116,7 +130,7 @@ export const F2WalkthroughRecap = ({
                     maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                     onAction={({ bnAmount }) => handleAction()}
                     onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
-                    actionLabel={isAutoDBR ? 'Sign + ' : '' + (isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw')}
+                    actionLabel={(isAutoDBR ? 'Sign + ' : '') + (isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw')}
                     approveLabel={isAutoDBR ? 'Step 1/3 - Approve' : undefined}
                     showMaxBtn={false}
                     isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}

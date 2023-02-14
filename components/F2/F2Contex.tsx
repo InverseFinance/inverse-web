@@ -258,6 +258,7 @@ export const F2Context = ({
             newBorrowLimit: 100 - newPerc,
             dolaBalance,
             bnDolaBalance,
+            isWethMarket: market.underlying.symbol === 'WETH',
             setInfoTab,
             setIsWalkthrough,
             setMode,

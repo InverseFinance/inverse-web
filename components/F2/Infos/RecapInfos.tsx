@@ -24,6 +24,8 @@ export const RecapInfos = ({
     isAutoDBR = true,
     isTuto = true,
     isDeposit = true,
+    isWethMarket,
+    isUseNativeCoin,
     newDBRExpiryDate,
     ...props
 }) => {
@@ -57,7 +59,7 @@ export const RecapInfos = ({
         } */}
         {
             !!collateralAmountNum && <TextInfo message="The more you deposit the more you can borrow">
-                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 2)} {market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
+                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 4)} {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
             </TextInfo>
         }
         <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
@@ -104,7 +106,7 @@ export const RecapInfos = ({
             isAutoDBR && hasHelper && <TextInfo 
             message="The signature is required to auto-buy DBR when doing the borrow transaction">
                 <Text fontSize={fontSize}>
-                    Steps are: approve collateral, confirm signature, execute transaction
+                    Steps are: {isUseNativeCoin ? '' : 'approve collateral,'} confirm signature, execute transaction
                 </Text>
             </TextInfo>
         }

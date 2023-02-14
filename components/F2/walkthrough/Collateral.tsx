@@ -5,7 +5,7 @@ import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, Text, HStack, Stack, useDisclosure } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, useDisclosure, FormControl, FormLabel, Switch } from "@chakra-ui/react"
 import { useContext } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { StepNavBtn } from "./StepNavBtn"
@@ -40,6 +40,9 @@ export const F2WalkthroughCollateral = ({
         bnWithdrawalLimit,
         maxBorrowable,
         maxBorrow,
+        isWethMarket,
+        isUseNativeCoin,
+        setIsUseNativeCoin,
     } = useContext(F2MarketContext);
 
     const isNotEnoughBalance = collateralAmountNum > collateralBalance;
@@ -49,25 +52,39 @@ export const F2WalkthroughCollateral = ({
             <WethModal isOpen={isOpen} onClose={onClose} />
             <TextInfo color="accentTextColor" message="The more you deposit, the more you can borrow against">
                 <Text fontWeight="bold" fontSize={{ base: '16px', sm: '20px', md: '30px' }} color="mainTextColor">
-                    <b style={{ color: themeStyles.colors.accentTextColor }}>How much {market.underlying.symbol}</b> do you want to deposit?
+                    <b style={{ color: themeStyles.colors.accentTextColor }}>How much {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}</b> do you want to deposit?
                 </Text>
             </TextInfo>
             <WalkthroughInput
                 defaultAmount={collateralAmount}
-                address={market.collateral}
+                address={isUseNativeCoin ? '' : market.collateral}
                 destination={market.address}
                 signer={signer}
                 decimals={colDecimals}
-                maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
+                maxAmountFrom={isDeposit ? isUseNativeCoin ? undefined : [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                 onAmountChange={onChange}
-                inputRight={<MarketImage ml="10px" pr="20px" image={market.icon || market.underlying.image} size={40} />}
+                inputRight={<MarketImage ml="10px" pr="20px" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : market.icon || market.underlying.image} size={40} />}
                 isError={isNotEnoughBalance}
             />
             {
-                market.underlying.symbol === 'WETH' &&
-                <Text color="secondaryTextColor" cursor="pointer" textDecoration="underline" onClick={onOpen}>
-                    Need WETH? Easily convert ETH to WETH
-                </Text>
+                isWethMarket &&
+                <HStack w='full' justify="space-between">
+                    <Text
+                        color="secondaryTextColor"
+                        textDecoration="underline"
+                        cursor="pointer"
+                        onClick={onOpen}
+                    >
+                        Easily convert between ETH to WETH
+                    </Text>
+                    <FormControl w='fit-content' display='flex' alignItems='center'>
+                        <FormLabel fontWeight='normal' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
+                            Use ETH instead of WETH?
+                        </FormLabel>
+                        <Switch onChange={() => setIsUseNativeCoin(!isUseNativeCoin)} isChecked={isUseNativeCoin} id='auto-eth' />
+                    </FormControl>
+                </HStack>
+
             }
             {
                 // (deposits > 0 || !!collateralAmount) && <AmountInfos label="Deposits" value={deposits} delta={collateralAmount} price={market.price} />
