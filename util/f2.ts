@@ -103,15 +103,19 @@ export const f2depositAndBorrowHelper = async (
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         const durationSecs = durationDays * ONE_DAY_SECS;        
         if (isNativeCoin) {
+            if(!durationDays) {
+                return helperContract
+                    .depositNativeEthAndBorrowOnBehalf(market, borrow, maxDolaIn, deadline.toString(), v.toString(), r, s, { value: deposit });
+            }
             return helperContract
-                .depositNativeEthOnBehalf(market, { value: deposit });
+                .depositNativeEthBuyDbrAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
         }
         if(isBorrowOnly) {
             return helperContract
-            .borrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
+            .buyDbrAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
         }
         return helperContract
-            .depositAndBorrowOnBehalf(market, deposit, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
+            .depositBuyDbrAndBorrowOnBehalf(market, deposit, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }

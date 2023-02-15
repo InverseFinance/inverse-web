@@ -124,23 +124,23 @@ export const F2CombinedForm = ({
         } else if (action === 'repay') {
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
-            if (isAutoDBR) {
+            if (isAutoDBR || isUseNativeCoin) {
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
                     parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
-                    duration,
+                    isAutoDBR ? duration : 0,
                     isUseNativeCoin,
                 );
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
-            if(isAutoDBR) {
+            if(isAutoDBR || isUseNativeCoin) {
                 const minDolaOut = getNumberToBn(dbrCoverDebt * 0.95);
                 const dbrAmountToSell = getNumberToBn(dbrCover);
-                return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isNativeCoin);
+                return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isUseNativeCoin);
             }
             return f2repayAndWithdraw(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
         } else {
