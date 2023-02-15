@@ -122,7 +122,7 @@ export const F2Context = ({
         perc,
     );
 
-    const { signedBalance: dbrBalance } = useAccountDBR(account);
+    const { signedBalance: dbrBalance, bnBalance: bnDbrBalance } = useAccountDBR(account);
     const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
 
     useEffect(() => {
@@ -248,6 +248,7 @@ export const F2Context = ({
             isAutoDBR,
             isUseNativeCoin,
             dbrBalance,
+            bnDbrBalance,
             mode,
             newDailyDBRBurn,
             isWalkthrough,

@@ -30,6 +30,7 @@ export const useAccountDBR = (
   dbrExpiryDate: number | null,
   dbrDepletionPerc: number,
   bnDebt: BigNumber,
+  bnBalance: BigNumber,
 } => {
   const { data, error } = useEtherSWR([
     [DBR, 'balanceOf', account],
@@ -53,6 +54,7 @@ export const useAccountDBR = (
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   return {
+    bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,
     debt: _debt,
     interests,
