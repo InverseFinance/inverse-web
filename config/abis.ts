@@ -462,15 +462,16 @@ export const F2_MARKET_ABI = [
 ];
 
 export const F2_HELPER_ABI = [
-  "function depositAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
-  "function depositNativeEthAndBorrowOnBehalf(address market, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public payable",
+  "function depositBuyDbrAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function depositNativeEthBuyDbrAndBorrowOnBehalf(address market, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public payable",
+  "function depositNativeEthAndBorrowOnBehalf(address market, uint dolaAmount, uint maxDolaIn, uint deadline, uint8 v, bytes32 r, bytes32 s) public payable",
   "function sellDbrAndRepayOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell) public",
   "function sellDbrRepayAndWithdrawOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
   "function sellDbrRepayAndWithdrawNativeEthOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
   "function depositNativeEthOnBehalf(address market) public payable",
   "function withdrawNativeEthOnBehalf(address market, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
   "function approximateDolaAndDbrNeeded(uint dolaBorrowAmount, uint period, uint iterations) public view returns(uint, uint)",
-  "function borrowOnBehalf(address market, uint dolaBorrowAmount, uint maxDebt, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function buyDbrAndBorrowOnBehalf(address market, uint dolaBorrowAmount, uint maxDebt, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
 ]
 
 export const MERKLE_DROP_ABI = [
