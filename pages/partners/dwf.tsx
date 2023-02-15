@@ -287,8 +287,8 @@ export const DWFPage = () => {
                         <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
-                        <Text>Spent Today:</Text>
-                        <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
+                        <Text>Available today:</Text>
+                        <Text>{preciseCommify(limitAvailable, 2)} USDC</Text>
                       </HStack>
                       <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>Last swap:</Text>
