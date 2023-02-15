@@ -42,6 +42,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     [DWF_PURCHASER, 'limitAvailable'],
     [DWF_PURCHASER, 'minInvPrice'],
     [DWF_PURCHASER, 'discountBps'],
+    [DWF_PURCHASER, 'lastReset'],
     [DWF_PURCHASER, 'whitelist', buyer],
     [USDC, 'balanceOf', buyer],
     [INV, 'balanceOf', DWF_PURCHASER],
@@ -60,11 +61,12 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     limitAvailable,
     minInvPrice,
     discountBps,
+    lastReset,
     isWhitelisted,
     usdcBalance,
     invBalance,
     myInvBalance,
-  ] = data || [zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, false, zero, zero, zero];
+  ] = data || [zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, false, zero, zero, zero];
 
   return {
     isLoading: !data && !error,
@@ -74,6 +76,7 @@ export const useDWFPurchaser = (buyer = BURN_ADDRESS) => {
     runTime: data ? getBnToNumber(runTime, 0) * 1000 : 0,
     endTime: data ? getBnToNumber(startTime, 0) * 1000 + getBnToNumber(runTime, 0) * 1000 : 0,
     lastBuy: data ? getBnToNumber(lastBuy, 0) * 1000 : 0,
+    lastReset: data ? getBnToNumber(lastReset, 0) * 1000 : 0,
     dailyLimit: data ? getBnToNumber(dailyLimit, USDC_DECIMALS) : 0,
     dailyBuy: data ? getBnToNumber(dailyBuy, USDC_DECIMALS) : 0,
     lifetimeLimit: data ? getBnToNumber(lifetimeLimit, USDC_DECIMALS) : 0,
@@ -125,6 +128,7 @@ export const DWFPage = () => {
     lifetimeLimit,
     invBalance,
     isWhitelisted,
+    lastReset,
   } = dwfData;
 
   const maxInvPrice = invPrice * (1 + parseFloat(maxSlippage) / 100);
@@ -142,6 +146,7 @@ export const DWFPage = () => {
   const maxDiscountedPrice = maxInvPrice ? maxInvPrice - maxInvPrice * discountBps : 0;
   const invDiscountedPurchase = discountedPrice ? floatAmount / discountedPrice : 0;
   const invBonus = invDiscountedPurchase - invNormalPurchase;
+  const spentToday = lastBuy >= lastReset ? dailyBuy : 0;
 
   useDualSpeedEffect(() => {
     setConnected(!!account);
@@ -156,7 +161,7 @@ export const DWFPage = () => {
     setMaxSlippage(newSlippage);
   }
 
-  const dailyLimitReached = limitAvailable <= 0;
+  const dailyLimitReached = isLoading ? false : limitAvailable <= 0;
 
   return (
     <Layout>
@@ -287,8 +292,8 @@ export const DWFPage = () => {
                         <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
                       </HStack>
                       <HStack w='full' justify="space-between">
-                        <Text>Available today:</Text>
-                        <Text>{preciseCommify(limitAvailable, 2)} USDC</Text>
+                        <Text>Spent today:</Text>
+                        <Text>{preciseCommify(spentToday, 2)} USDC</Text>
                       </HStack>
                       <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>Last swap:</Text>
