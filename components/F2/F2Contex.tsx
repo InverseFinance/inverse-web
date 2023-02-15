@@ -124,7 +124,7 @@ export const F2Context = ({
     );
 
     const { signedBalance: dbrBalance, bnBalance: bnDbrBalance } = useAccountDBR(account);
-    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? isDeposit ? dbrCover : -parseFloat(dbrSellAmount||'0') : 0);
 
     useEffect(() => {
         return () => {

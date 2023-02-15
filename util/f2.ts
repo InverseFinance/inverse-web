@@ -62,6 +62,17 @@ export const getFirmSignature = (
     })
 }
 
+export const f2sellAndRepayHelper = async (
+    signer: JsonRpcSigner,
+    market: string,
+    repay: string | BigNumber,    
+    minDolaOut: string | BigNumber,
+    dbrAmountToSell: string | BigNumber,    
+) => {
+    const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);   
+    return helperContract        
+        .sellDbrAndRepayOnBehalf(market, repay, minDolaOut, dbrAmountToSell);
+}
 
 export const f2sellAndWithdrawHelper = async (
     signer: JsonRpcSigner,

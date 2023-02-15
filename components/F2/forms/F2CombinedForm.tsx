@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2borrow, f2CalcNewHealth, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndWithdrawHelper, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -126,6 +126,11 @@ export const F2CombinedForm = ({
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'repay') {
+            if(isAutoDBR) {
+                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
+                const dbrAmountToSell = parseUnits(dbrSellAmount);
+                return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
+            }
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
             if (isAutoDBR || isUseNativeCoin) {
@@ -142,8 +147,8 @@ export const F2CombinedForm = ({
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
             if (isAutoDBR || isUseNativeCoin) {
-                const minDolaOut = getNumberToBn(dbrCoverDebt * 0.95);
-                const dbrAmountToSell = getNumberToBn(dbrCover);
+                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
+                const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isUseNativeCoin);
             }
             return f2repayAndWithdraw(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
@@ -161,6 +166,7 @@ export const F2CombinedForm = ({
     const resetForm = () => {
         handleDebtChange('');
         handleCollateralChange('');
+        setDbrSellAmount('');
     }
 
     useEffect(() => {
@@ -374,20 +380,22 @@ export const F2CombinedForm = ({
 
     const sellDbrAmountPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
         <VStack w='full' alignItems="flex-start">
-            <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
+            <TextInfo message="Will auto-sell the specified amount of DBRs against DOLAs">
                 <Text fontSize='18px' color="mainTextColor"><b>DBR</b> to sell:</Text>
             </TextInfo>
             <SimpleAmountForm
                 defaultAmount={dbrSellAmount}
-                address={''}
+                address={DBR}
                 destination={F2_HELPER}
                 signer={signer}
                 decimals={18}
                 maxAmountFrom={[bnDbrBalance]}
                 onAmountChange={setDbrSellAmount}
+                approveLabel="Approve DBR for auto-selling"
                 showMax={true}
                 showMaxBtn={false}
-                hideButtons={true}
+                onlyShowApproveBtn={true}
+                hideInputIfNoAllowance={true}
                 inputRight={<MarketImage pr="2" image={dbrToken.image} size={25} />}
                 // balance decreases if debt, calling with higher sell amount to contract is ok
                 isError={dbrBalance < parseFloat(dbrSellAmount)*1.01}
@@ -398,7 +406,7 @@ export const F2CombinedForm = ({
     const disabledConditions = {
         'deposit': collateralAmountNum <= 0,
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
-        'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance,
+        'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
     }
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow']
@@ -408,7 +416,7 @@ export const F2CombinedForm = ({
         <SimpleAmountForm
             defaultAmount={collateralAmount}
             address={isRepayCase ? DOLA : market.collateral}
-            destination={isAutoDBR && isDeposit ? F2_HELPER : market.address}
+            destination={isAutoDBR ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
