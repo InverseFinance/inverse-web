@@ -156,7 +156,7 @@ export const DWFPage = () => {
     setMaxSlippage(newSlippage);
   }
 
-  const dailyLimitReached = false;//dailyBuy > 0 && dailyBuy >= dailyLimit;
+  const dailyLimitReached = limitAvailable <= 0;
 
   return (
     <Layout>
@@ -286,10 +286,10 @@ export const DWFPage = () => {
                         <Text>Total already spent:</Text>
                         <Text>{preciseCommify(lifetimeBuy, 2)} USDC</Text>
                       </HStack>
-                      {/* <HStack w='full' justify="space-between">
+                      <HStack w='full' justify="space-between">
                         <Text>Spent Today:</Text>
                         <Text>{preciseCommify(dailyBuy, 2)} USDC</Text>
-                      </HStack> */}
+                      </HStack>
                       <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>Last swap:</Text>
                         <Text>{
