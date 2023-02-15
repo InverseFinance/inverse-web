@@ -161,7 +161,7 @@ export const DWFPage = () => {
     setMaxSlippage(newSlippage);
   }
 
-  const dailyLimitReached = limitAvailable <= 0;
+  const dailyLimitReached = isLoading ? false : limitAvailable <= 0;
 
   return (
     <Layout>
