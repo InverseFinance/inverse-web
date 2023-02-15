@@ -63,6 +63,7 @@ export const F2Context = ({
     const [durationTypedValue, setDurationTypedValue] = useState(12);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
+    const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
@@ -260,6 +261,8 @@ export const F2Context = ({
             dolaBalance,
             bnDolaBalance,
             isWethMarket: market.underlying.symbol === 'WETH',
+            dbrSellAmount,
+            setDbrSellAmount,
             setInfoTab,
             setIsWalkthrough,
             setMode,

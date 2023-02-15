@@ -25,6 +25,7 @@ import { BUY_LINKS } from '@app/config/constants'
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
+const dbrToken = TOKENS[DBR];
 
 const MODES = {
     'Deposit & Borrow': 'd&b',
@@ -69,6 +70,7 @@ export const F2CombinedForm = ({
         dbrCover,
         dbrCoverDebt,
         dbrBalance,
+        bnDbrBalance,
         newDailyDBRBurn,
         newDBRExpiryDate,
         mode,
@@ -79,6 +81,8 @@ export const F2CombinedForm = ({
         bnDolaBalance,
         riskColor,
         isWethMarket,
+        dbrSellAmount,
+        setDbrSellAmount,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
@@ -106,7 +110,7 @@ export const F2CombinedForm = ({
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
-            if(isAutoDBR) {
+            if (isAutoDBR) {
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
@@ -137,7 +141,7 @@ export const F2CombinedForm = ({
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
-            if(isAutoDBR || isUseNativeCoin) {
+            if (isAutoDBR || isUseNativeCoin) {
                 const minDolaOut = getNumberToBn(dbrCoverDebt * 0.95);
                 const dbrAmountToSell = getNumberToBn(dbrCover);
                 return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isUseNativeCoin);
@@ -178,7 +182,7 @@ export const F2CombinedForm = ({
     }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough, infoTab]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
-    const btnMaxlabel = `${btnLabel} Max`;    
+    const btnMaxlabel = `${btnLabel} Max`;
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -334,7 +338,7 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    isDeposit && <FormControl w='fit-content' display='flex' alignItems='center'>
+                    (hasDebtChange || hasCollateralChange) && <FormControl w='fit-content' display='flex' alignItems='center'>
                         <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
                             Auto-{isDeposit ? 'buy' : 'sell'} DBR?
                         </FormLabel>
@@ -368,6 +372,29 @@ export const F2CombinedForm = ({
         </VStack>
     </VStack>
 
+    const sellDbrAmountPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
+        <VStack w='full' alignItems="flex-start">
+            <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
+                <Text fontSize='18px' color="mainTextColor"><b>DBR</b> to sell:</Text>
+            </TextInfo>
+            <SimpleAmountForm
+                defaultAmount={dbrSellAmount}
+                address={''}
+                destination={F2_HELPER}
+                signer={signer}
+                decimals={18}
+                maxAmountFrom={[bnDbrBalance]}
+                onAmountChange={setDbrSellAmount}
+                showMax={true}
+                showMaxBtn={false}
+                hideButtons={true}
+                inputRight={<MarketImage pr="2" image={dbrToken.image} size={25} />}
+                // balance decreases if debt, calling with higher sell amount to contract is ok
+                isError={dbrBalance < parseFloat(dbrSellAmount)*1.01}
+            />
+        </VStack>
+    </VStack>
+
     const disabledConditions = {
         'deposit': collateralAmountNum <= 0,
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
@@ -387,7 +414,7 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction(bnAmount)}
             onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-            actionLabel={(isAutoDBR && isDeposit && hasDebtChange) || (isUseNativeCoin && hasCollateralChange) ? `Sign + ${mode}` : mode}
+            actionLabel={(isAutoDBR && hasDebtChange) || (isUseNativeCoin && hasCollateralChange) ? `Sign + ${mode}` : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
@@ -435,6 +462,7 @@ export const F2CombinedForm = ({
                     {leftPart}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && durationPart}
+                    {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrAmountPart}
                 </Stack>
                 {
                     collateralAmountNum > collateralBalance && isDeposit &&
