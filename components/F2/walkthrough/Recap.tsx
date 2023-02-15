@@ -78,7 +78,7 @@ export const F2WalkthroughRecap = ({
                 market.address,
                 parseUnits(collateralAmount, market.underlying.decimals),
                 parseUnits(debtAmount),
-                parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.05)),
+                parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
                 duration,
                 isUseNativeCoin,
                 false,
