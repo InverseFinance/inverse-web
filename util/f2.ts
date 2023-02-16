@@ -62,6 +62,14 @@ export const getFirmSignature = (
     })
 }
 
+export const f2approxDbrAndDolaNeeded = async (signer: JsonRpcSigner, dolaAmount: string | BigNumber, durationDays: number) => {
+    const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+    const durationSecs = durationDays * ONE_DAY_SECS;
+    return helperContract
+        // 8 iterations are used in the helper
+        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, 8);    
+}
+
 export const f2sellAndRepayHelper = async (
     signer: JsonRpcSigner,
     market: string,

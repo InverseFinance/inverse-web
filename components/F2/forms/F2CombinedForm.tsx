@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -98,25 +98,26 @@ export const F2CombinedForm = ({
     const isBorrowOnlyCase = 'borrow' === MODES[mode];
     const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
 
-    const handleAction = () => {
+    const handleAction = async () => {
         if (!signer) { return }
         const action = MODES[mode]
-        // if (['borrow'].includes(action) && isAutoDBR) {
-        //     alert('AlphaPhase: auto-buying DBR is not supported yet, disable the option to proceed :)');
-        // }
-        // else if (['withdraw', 'repay'].includes(action) && isAutoDBR) {
-        //     alert('AlphaPhase: auto-selling DBR is not supported yet, disable the option to proceed :)');
-        // } 
+        let dbrNeeded, dolaNeededForDbr, maxDolaIn;
+        if(isAutoDBR || isUseNativeCoin) {
+            const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
+            dolaNeededForDbr = approx[0];
+            dbrNeeded = approx[1];
+            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(105).div(100));       
+        }
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
-            if (isAutoDBR) {
+            if (isAutoDBR) {                
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
                     parseUnits('0', market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
+                    maxDolaIn,
                     duration,
                     false,
                     true,
@@ -139,7 +140,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
+                    maxDolaIn,
                     isAutoDBR ? duration : 0,
                     isUseNativeCoin,
                 );
