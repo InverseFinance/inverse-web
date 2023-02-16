@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor } from '@app/util/f2'
+import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -146,7 +146,10 @@ export const F2CombinedForm = ({
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
-            if (isAutoDBR || isUseNativeCoin) {
+            if (isAutoDBR || isUseNativeCoin) {                
+                if(!isAutoDBR) {
+                    return f2repayAndWithdrawNative(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));        
+                }
                 const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isUseNativeCoin);
@@ -416,7 +419,7 @@ export const F2CombinedForm = ({
         <SimpleAmountForm
             defaultAmount={collateralAmount}
             address={isRepayCase ? DOLA : market.collateral}
-            destination={isAutoDBR ? F2_HELPER : market.address}
+            destination={isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}

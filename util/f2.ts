@@ -74,6 +74,22 @@ export const f2sellAndRepayHelper = async (
         .sellDbrAndRepayOnBehalf(market, repay, minDolaOut, dbrAmountToSell);
 }
 
+export const f2repayAndWithdrawNative = async (
+    signer: JsonRpcSigner,
+    market: string,
+    repay: string | BigNumber,
+    withdraw: string | BigNumber,    
+) => {
+    const signatureResult = await getFirmSignature(signer, market, withdraw, 'WithdrawOnBehalf');
+    if (signatureResult) {
+        const { deadline, r, s, v } = signatureResult;
+        const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+        return helperContract
+            .repayAndWithdrawNativeEthOnBehalf(market, repay, withdraw, deadline.toString(), v.toString(), r, s);
+    }
+    return new Promise((res, rej) => rej("Signature failed or canceled"));
+}
+
 export const f2sellAndWithdrawHelper = async (
     signer: JsonRpcSigner,
     market: string,
@@ -90,7 +106,7 @@ export const f2sellAndWithdrawHelper = async (
         if (isNativeCoin) {
             return helperContract
                 .sellDbrRepayAndWithdrawNativeEthOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
-        }  
+        }
         return helperContract
             .sellDbrRepayAndWithdrawOnBehalf(market, repay, withdraw, deadline.toString(), v.toString(), r, s);
     }

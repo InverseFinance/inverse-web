@@ -468,6 +468,7 @@ export const F2_HELPER_ABI = [
   "function sellDbrAndRepayOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell) public",
   "function sellDbrRepayAndWithdrawOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
   "function sellDbrRepayAndWithdrawNativeEthOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function repayAndWithdrawNativeEthOnBehalf(address market, uint dolaAmount, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
   "function depositNativeEthOnBehalf(address market) public payable",
   "function withdrawNativeEthOnBehalf(address market, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
   "function approximateDolaAndDbrNeeded(uint dolaBorrowAmount, uint period, uint iterations) public view returns(uint, uint)",
