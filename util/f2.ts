@@ -92,8 +92,7 @@ export const f2sellAndWithdrawHelper = async (
                 .sellDbrRepayAndWithdrawNativeEthOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
         }  
         return helperContract
-            // sellDbrRepayAndWithdrawOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s)
-            .sellDbrRepayAndWithdrawOnBehalf(market, borrow, parseEther('0.0000000001'), parseEther('1'), parseEther('0.01'), deadline.toString(), v.toString(), r, s);
+            .sellDbrRepayAndWithdrawOnBehalf(market, repay, withdraw, deadline.toString(), v.toString(), r, s);
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
