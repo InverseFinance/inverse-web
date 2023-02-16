@@ -102,16 +102,16 @@ export const F2CombinedForm = ({
         if (!signer) { return }
         const action = MODES[mode]
         let dbrNeeded, dolaNeededForDbr, maxDolaIn;
-        if(isAutoDBR || isUseNativeCoin) {
+        if (isAutoDBR || isUseNativeCoin) {
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             dbrNeeded = approx[1];
-            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(105).div(100));       
+            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(105).div(100));
         }
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
-            if (isAutoDBR) {                
+            if (isAutoDBR) {
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
@@ -127,7 +127,7 @@ export const F2CombinedForm = ({
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'repay') {
-            if(isAutoDBR) {
+            if (isAutoDBR) {
                 const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
@@ -147,9 +147,9 @@ export const F2CombinedForm = ({
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
-            if (isAutoDBR || isUseNativeCoin) {                
-                if(!isAutoDBR) {
-                    return f2repayAndWithdrawNative(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));        
+            if (isAutoDBR || isUseNativeCoin) {
+                if (!isAutoDBR) {
+                    return f2repayAndWithdrawNative(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
                 }
                 const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
@@ -377,7 +377,7 @@ export const F2CombinedForm = ({
             <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
             <InfoMessage
                 alertProps={{ w: 'full', fontWeight: 'bold' }}
-                description="NB: Auto-buying DBR adds a step in the borrow process: you will have to confirm a signature before doing the actual transaction"
+                description="NB: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt."
             />
         </VStack>
     </VStack>
@@ -402,7 +402,11 @@ export const F2CombinedForm = ({
                 hideInputIfNoAllowance={true}
                 inputRight={<MarketImage pr="2" image={dbrToken.image} size={25} />}
                 // balance decreases if debt, calling with higher sell amount to contract is ok
-                isError={dbrBalance < parseFloat(dbrSellAmount)*1.01}
+                isError={dbrBalance < parseFloat(dbrSellAmount) * 1.01}
+            />
+            <InfoMessage
+                alertProps={{ w: 'full', fontWeight: 'bold' }}
+                description="NB: auto-selling DBR requires an additional signature step. The DOLA received from the swap will be sent to your wallet."
             />
         </VStack>
     </VStack>
