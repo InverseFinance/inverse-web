@@ -75,7 +75,7 @@ export const F2Context = ({
     const isMountedRef = useRef(true)
     const colDecimals = market.underlying.decimals;
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow } = useAccountDBRMarket(market, account);
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
@@ -262,6 +262,7 @@ export const F2Context = ({
             bnDolaBalance,
             isWethMarket: market.underlying.symbol === 'WETH',
             dbrSellAmount,
+            escrow,
             setDbrSellAmount,
             setInfoTab,
             setIsWalkthrough,

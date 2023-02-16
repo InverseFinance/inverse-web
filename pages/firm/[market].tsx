@@ -18,6 +18,7 @@ import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContain
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { InfoMessage } from '@app/components/common/Messages'
+import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -132,6 +133,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 <ErrorBoundary description="Error in the standard mode, please try reloading">
                                                     <F2CombinedForm />
                                                 </ErrorBoundary>
+                                                {
+                                                    (f2market.isGovTokenCollateral || true) && <FirmGovToken />
+                                                }
                                             </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={true} />
