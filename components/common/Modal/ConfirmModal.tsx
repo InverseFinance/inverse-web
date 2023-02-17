@@ -11,6 +11,7 @@ export type Props = {
     okLabel?: string,
     cancelLabel?: string,
     isOpen: boolean
+    okDisabled?: boolean
     textAreaProps?: TextareaProps,
     onClose: () => void
     onCancel?: () => void
@@ -24,6 +25,7 @@ const ConfirmModal = ({
     isOpen,
     okLabel = 'OK',
     cancelLabel = 'Cancel',
+    okDisabled = false,
     onCancel,
     onClose,
     onSuccess,
@@ -55,7 +57,7 @@ const ConfirmModal = ({
             footer={
                 <HStack>
                     { !!cancelLabel && <SubmitButton onClick={handleCancel}>{cancelLabel}</SubmitButton> }
-                    <SubmitButton refreshOnSuccess={true} onClick={handleOk} onSuccess={handleSuccess}>{okLabel}</SubmitButton>
+                    <SubmitButton disabled={okDisabled} refreshOnSuccess={true} onClick={handleOk} onSuccess={handleSuccess}>{okLabel}</SubmitButton>
                 </HStack>
             }
         >
