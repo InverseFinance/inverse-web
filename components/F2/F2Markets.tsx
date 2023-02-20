@@ -227,8 +227,8 @@ export const F2Markets = ({
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         right={
             <VStack display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
-                <Link textDecoration="underline" href="https://www.inverse.finance/governance/drafts/mills/94" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
-                    Next Proposal:
+                <Link textDecoration="underline" href="https://www.inverse.finance/governance/proposals/mills/90" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
+                    New Proposal:
                 </Link>
                 <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
             </VStack>
