@@ -180,7 +180,7 @@ export const F2Context = ({
         if (!hasStep) {
             return
         }
-        setIsAutoDBR(true);
+        setIsAutoDBR(!!market.helper);
         if (mode !== 'Deposit & Borrow') {
             handleDebtChange('');
             setMode('Deposit & Borrow');
@@ -196,7 +196,7 @@ export const F2Context = ({
                 setStep(1);
             }
         }
-    }, [router, collateralAmount, mode])
+    }, [router, collateralAmount, mode, market])
 
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);

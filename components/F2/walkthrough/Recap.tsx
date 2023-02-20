@@ -72,10 +72,9 @@ export const F2WalkthroughRecap = ({
 
     const handleAction = async () => {
         if (market.helper) {
-            let dbrNeeded, dolaNeededForDbr, maxDolaIn;            
+            let dolaNeededForDbr, maxDolaIn;            
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
-            dolaNeededForDbr = approx[0];
-            dbrNeeded = approx[1];
+            dolaNeededForDbr = approx[0];            
             maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(105).div(100));            
             return f2depositAndBorrowHelper(
                 signer,
@@ -134,8 +133,8 @@ export const F2WalkthroughRecap = ({
                     maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
                     onAction={({ bnAmount }) => handleAction()}
                     onMaxAction={({ bnAmount }) => { alert('Contract not available yet for this action') }}
-                    actionLabel={(isAutoDBR ? 'Sign + ' : '') + (isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw')}
-                    approveLabel={isAutoDBR ? 'Step 1/3 - Approve' : undefined}
+                    actionLabel={(isAutoDBR && market.helper ? 'Sign + ' : '') + (isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw')}
+                    approveLabel={isAutoDBR && market.helper ? 'Step 1/3 - Approve' : undefined}
                     showMaxBtn={false}
                     isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}
                     hideInputIfNoAllowance={false}
