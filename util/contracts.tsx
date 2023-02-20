@@ -388,11 +388,13 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
   } else if(LPToken.balancerInfos && !!LPToken.pairs) {
     const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
     const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);
-    const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+    const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+    // balancer composable metapools contain the LP itself, we can skip it for our calc
+    const balances = _balances.filter((v,i) => tokens[i].address !== LPToken.address);
     const total = balances.reduce((prev, curr) => prev + curr, 0);
-    return tokens.map((token, i) => {
+    return tokens.filter((token => token.address !== LPToken.address)).map((token, i) => {
       return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
-    })
+    });
   }
   return [];
 }
@@ -410,7 +412,6 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
 
   try {
     const lpTokenTotalSupply = await (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply());
-
     const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
 
     const coingeckoIds = tokens
@@ -434,7 +435,8 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
     const prices = await cgPrices.json();
 
     lpPrice = tokens.reduce((prev, curr, idx) => {
-      return prev + (balances[idx] * (prices[curr.coingeckoId].usd || 0) / getBnToNumber(lpTokenTotalSupply));
+      const worthUsd = (balances[idx] * (prices[curr.coingeckoId]?.usd || 1) / getBnToNumber(lpTokenTotalSupply))
+      return prev + worthUsd;
     }, 0);
   } catch (e) {
 
