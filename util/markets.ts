@@ -182,6 +182,24 @@ export const getStethData = async () => {
     return [];
 }
 
+export const getGOhmData = async () => {
+    try {        
+        const results = await fetch("https://api.thegraph.com/subgraphs/name/olympusdao/olympus-protocol-metrics", {
+            "referrer": "https://app.olympusdao.finance/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "body": "{\"query\":\"\\n    query ProtocolMetrics($recordCount: Int!, $startingRecord: Int = 0, $filter: ProtocolMetric_filter, $endpoint: String!) {\\n  protocolMetrics(\\n    first: $recordCount\\n    skip: $startingRecord\\n    where: $filter\\n    orderBy: date\\n    orderDirection: desc\\n  ) {\\n    currentAPY\\n  }\\n}\\n    \",\"variables\":{\"recordCount\":1,\"endpoint\":\"https://api.thegraph.com/subgraphs/name/olympusdao/olympus-protocol-metrics\"}}",
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "omit"
+          });
+          const data = await results.json();          
+          return data?.data?.protocolMetrics?.length > 0 ? { apy: parseFloat(data.data.protocolMetrics[0].currentAPY) } : { apy: 0 };
+    } catch (e) {
+        console.log(e)
+        return { apy: 0 }
+    }
+}
+
 export const getXSushiData = async (nbDays = 7) => {
     let apy = 0;
     const period = 365;
