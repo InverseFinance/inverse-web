@@ -5,8 +5,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { parseEther, splitSignature } from "ethers/lib/utils";
-import { getBnToNumber } from "./markets";
+import { splitSignature } from "ethers/lib/utils";
 
 const { F2_HELPER } = getNetworkConfigConstants();
 

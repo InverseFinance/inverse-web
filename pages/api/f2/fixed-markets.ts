@@ -135,7 +135,7 @@ export default async function handler(req, res) {
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
-      getGOhmData(),
+      // getGOhmData(),
     ]);
 
     const [stethData, gohmData] = externalYieldResults.map(r => {
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
 
     const externalApys = {
       'stETH': stethData?.apy||0,
-      'gOHM': gohmData?.apy||0,
+      // 'gOHM': gohmData?.apy||0,
     }
 
     const markets = F2_MARKETS.map((m, i) => {
