@@ -78,7 +78,9 @@ const namedAddresses: { [key: string]: string } = {
     '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',
     '0x63Df5e23Db45a2066508318f172bA45B9CD37035': 'FiRMWethMarket',
     '0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf': 'FiRMstETHMarket',
-    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow',    
+    '0x7Cd3ab8354289BEF52c84c2BF0A54E3608e66b37': 'FiRMgOHMMarket',
+    '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow', 
+    '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A': 'FiRMgOHMEscrow', 
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
     '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMHelper',
     // partners
