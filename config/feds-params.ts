@@ -205,4 +205,45 @@ export const FEDS_PARAMS = [
             },
         },
     },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.LP,
+        protocol: "Aura",
+        address: "0xab4AE477899fD61B27744B4DEbe8990C66c81C22",        
+        name: "AuraEuler Fed",
+        projectImage:
+            "https://assets.coingecko.com/coins/images/25942/small/logo.png",
+        supplyFuncName: "dolaSupply",
+        strategy: {
+            description: 'The minted DOLA is added to the Balancer DOLA/bb-e-USD liquidity pool, the resulting Balancer LP token is then deposited in the Aura booster. This Fed gets rewards in BAL and AURA tokens.',
+            pools: [
+                {
+                    address: '0x133d241F225750D2c92948E464A5a80111920331',
+                    name: 'Balancer DOLA/bb-e-USD',
+                    link: 'https://app.balancer.fi/#/ethereum/pool/0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
+                    image: '/assets/projects/balancer.png',
+                },
+                {
+                    address: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
+                    name: 'Aura Reward Pool',
+                    link: 'https://app.aura.finance/',
+                    image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
+                },
+            ],
+            type: 'convex',
+            lpBalanceContract: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
+            rewardPools: [
+                { address: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
+                { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                
+            ],
+            multisig: {
+                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
+                relevantAssets: [
+                    '0xba100000625a3754423978a60c9317c58a424e3D',
+                    '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
+                    '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
+                ]
+            },
+        },
+    },
 ];
