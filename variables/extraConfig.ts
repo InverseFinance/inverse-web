@@ -28,6 +28,7 @@ const mainConfig = {
     dbr: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     f2Oracle: '0xaBe146CF570FD27ddD985895ce9B138a7110cce8',
     f2controller: '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D',
+    f2helper: '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1',    
     f2markets: [
         {
             name: 'WETH',
@@ -35,9 +36,9 @@ const mainConfig = {
             address: '0x63Df5e23Db45a2066508318f172bA45B9CD37035',
             escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
             icon: '/assets/projects/Ether.png',
-            helper: '',
+            helper: false,
             oracleType: "chainlink",
-            badgeInfo: 'Highest CF',            
+            badgeInfo: 'Highest CF',
         },
         {
             name: 'stETH',
@@ -45,7 +46,7 @@ const mainConfig = {
             address: '0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf',
             escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
             icon: 'https://assets.coingecko.com/coins/images/13442/large/steth_logo.png',
-            helper: '',
+            helper: false,
             oracleType: "chainlink",
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'white' },
@@ -53,9 +54,9 @@ const mainConfig = {
         // {
         //     name: 'gOHM',
         //     collateral: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
-        //     address: '',
-        //     escrowImplementation: '',            
-        //     helper: '',
+        //     address: '0x7Cd3ab8354289BEF52c84c2BF0A54E3608e66b37',
+        //     escrowImplementation: '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',            
+        //     helper: true,
         //     oracleType: "chainlink",
         //     badgeInfo: 'Voting Preserved',
         //     badgeProps: { bgColor: 'accentTextColor', color: 'white' },

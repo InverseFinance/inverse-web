@@ -22,6 +22,7 @@ type Props = {
     isMaxDisabled?: boolean
     decimals?: number
     actionLabel?: string
+    approveLabel?: string
     maxActionLabel?: string
     maxAmountFrom?: BigNumber[]
     btnThemeColor?: string
@@ -73,6 +74,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         onAction,
         onMaxAction,
         decimals = 18,
+        approveLabel = 'Step 1/2 - Approve',
         actionLabel = 'Submit',
         maxActionLabel = 'Submit MAX',
         maxAmountFrom,
@@ -102,10 +104,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
+    const _tokenAddress = address || 'CHAIN_COIN';
 
-    const balanceBn = balances && balances[address] ? balances[address] : zeroBn;
+    const balanceBn = balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn;
     const balance = getBnToNumber(balanceBn, decimals);
-    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[address] ? balances[address] : zeroBn];
+    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn];
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
@@ -121,7 +124,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }, [defaultAmount])
 
     useEffect(() => {
-        setTokenApproved(freshTokenApproved || hasAllowance(approvals, address, decimals, amount));
+        setTokenApproved(freshTokenApproved || !address || hasAllowance(approvals, address, decimals, amount));
     }, [approvals, address, freshTokenApproved]);
 
     const setToMaxDeposit = () => {
@@ -185,7 +188,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         onSuccess={() => setFreshTokenApproved(true)}
                         ButtonComp={ButtonComp}
                         {...btnProps}
-                    /> :
+                    >
+                        {approveLabel}
+                    </ApproveButton> :
                     !onlyShowApproveBtn &&
                     <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
                         <ButtonComp

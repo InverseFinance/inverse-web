@@ -63,8 +63,10 @@ export const F2Context = ({
     const [durationTypedValue, setDurationTypedValue] = useState(12);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
+    const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
+    const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
@@ -73,7 +75,7 @@ export const F2Context = ({
     const isMountedRef = useRef(true)
     const colDecimals = market.underlying.decimals;
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice } = useAccountDBRMarket(market, account);
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow } = useAccountDBRMarket(market, account);
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
@@ -121,8 +123,8 @@ export const F2Context = ({
         perc,
     );
 
-    const { signedBalance: dbrBalance } = useAccountDBR(account);
-    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? dbrCover : 0);
+    const { signedBalance: dbrBalance, bnBalance: bnDbrBalance } = useAccountDBR(account);
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? isDeposit ? dbrCover : -parseFloat(dbrSellAmount||'0') : 0);
 
     useEffect(() => {
         return () => {
@@ -178,6 +180,7 @@ export const F2Context = ({
         if (!hasStep) {
             return
         }
+        setIsAutoDBR(!!market.helper);
         if (mode !== 'Deposit & Borrow') {
             handleDebtChange('');
             setMode('Deposit & Borrow');
@@ -193,7 +196,7 @@ export const F2Context = ({
                 setStep(1);
             }
         }
-    }, [router, collateralAmount, mode])
+    }, [router, collateralAmount, mode, market])
 
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
@@ -244,7 +247,9 @@ export const F2Context = ({
             maxBorrowable,
             newDBRExpiryDate,
             isAutoDBR,
+            isUseNativeCoin,
             dbrBalance,
+            bnDbrBalance,
             mode,
             newDailyDBRBurn,
             isWalkthrough,
@@ -255,10 +260,15 @@ export const F2Context = ({
             newBorrowLimit: 100 - newPerc,
             dolaBalance,
             bnDolaBalance,
+            isWethMarket: market.underlying.symbol === 'WETH',
+            dbrSellAmount,
+            escrow,
+            setDbrSellAmount,
             setInfoTab,
             setIsWalkthrough,
             setMode,
             setIsAutoDBR,
+            setIsUseNativeCoin,
             setStep,
             setIsDeposit,
             handleStepChange,

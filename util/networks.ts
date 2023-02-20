@@ -165,6 +165,7 @@ export const getNetworkConfigConstants = (
         DBR: config.dbr,
         DBR_AIRDROP: config.dbrAirdrop,
         F2_CONTROLLER: config.f2controller,
+        F2_HELPER: config.f2helper,
         F2_ORACLE: config.f2Oracle,
         F2_MARKETS: config.f2markets||[],
     }

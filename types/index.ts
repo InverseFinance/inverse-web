@@ -701,8 +701,9 @@ export type F2Market = {
   borrowPaused: boolean
   borrowController: string
   icon?: string
+  isGovTokenCollateral?: boolean
   marketIcon?: string
-  helper?: string
+  helper?: boolean
   oracleType: string
   oracleFeed: string
   escrowImplementation: string

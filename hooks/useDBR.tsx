@@ -30,6 +30,7 @@ export const useAccountDBR = (
   dbrExpiryDate: number | null,
   dbrDepletionPerc: number,
   bnDebt: BigNumber,
+  bnBalance: BigNumber,
 } => {
   const { data, error } = useEtherSWR([
     [DBR, 'balanceOf', account],
@@ -53,6 +54,7 @@ export const useAccountDBR = (
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   return {
+    bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,
     debt: _debt,
     interests,
@@ -341,6 +343,22 @@ export const useDBRReplenishmentPrice = (): SWR & {
 
   return {
     replenishmentPrice: data ? getBnToNumber(data, 4) : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useDBRNeeded = (borrowAmount: number, period: number, iterations = 8): SWR & {
+  dolaNeeded: number,
+  dbrNeeded: number,
+} => {
+  const { data, error } = useEtherSWR([
+    DBR, 'approximateDolaAndDbrNeeded', getNumberToBn(borrowAmount), period, iterations
+  ]);
+
+  return {
+    dolaNeeded: data ? getBnToNumber(data[0]) : 0,
+    dbrNeeded: data ? getBnToNumber(data[1]) : 0,
     isLoading: !error && !data,
     isError: error,
   }

@@ -419,14 +419,19 @@ export const F2_ORACLE_ABI = [
 
 export const F2_SIMPLE_ESCROW_ABI = [
   "function balance() public view returns (uint)",
+  "function beneficiary() public view returns (address)",
+  "function delegatingTo() public view returns (address)",
+  "function delegate(address) public view returns (address)",
 ];
 
 export const F2_CONTROLLER_ABI = [
-  "function dailyLimits(address market) public view returns (uint) ",
-  "function dailyBorrows(address market, uint day) public view returns (uint) ",
+  "function dailyLimits(address market) public view returns (uint)",
+  "function dailyBorrows(address market, uint day) public view returns (uint)",
+  "function contractAllowlist(address market) public view returns (bool)",
 ];
 
 export const F2_MARKET_ABI = [
+  "function nonces(address) public view returns (uint)",
   "function borrowController() public view returns (address)",
   "function collateral() public view returns (address)",
   "function collateralFactorBps() public view returns (uint)",
@@ -459,6 +464,20 @@ export const F2_MARKET_ABI = [
   "event Liquidate(address indexed account, address indexed liquidator, uint repaidDebt, uint liquidatorReward)",
   "event CreateEscrow(address indexed user, address escrow)",
 ];
+
+export const F2_HELPER_ABI = [
+  "function depositBuyDbrAndBorrowOnBehalf(address market, uint collateralAmount, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function depositNativeEthBuyDbrAndBorrowOnBehalf(address market, uint dolaAmount, uint maxDolaIn, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public payable",
+  "function depositNativeEthAndBorrowOnBehalf(address market, uint dolaAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public payable",
+  "function sellDbrAndRepayOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell) public",
+  "function sellDbrRepayAndWithdrawOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function sellDbrRepayAndWithdrawNativeEthOnBehalf(address market, uint dolaAmount, uint minDolaFromDbr, uint dbrAmountToSell, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function repayAndWithdrawNativeEthOnBehalf(address market, uint dolaAmount, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function depositNativeEthOnBehalf(address market) public payable",
+  "function withdrawNativeEthOnBehalf(address market, uint collateralAmount, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+  "function approximateDolaAndDbrNeeded(uint dolaBorrowAmount, uint period, uint iterations) public view returns(uint, uint)",
+  "function buyDbrAndBorrowOnBehalf(address market, uint dolaBorrowAmount, uint maxDebt, uint duration, uint deadline, uint8 v, bytes32 r, bytes32 s) public",
+]
 
 export const MERKLE_DROP_ABI = [
   "function verifyClaim(address, uint256, uint256, bytes32[]) public view returns (bool)",

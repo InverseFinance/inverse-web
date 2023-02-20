@@ -191,6 +191,7 @@ const chainTokens = {
       symbol: 'gOHM',
       coingeckoId: 'governance-ohm',
       image: 'https://assets.coingecko.com/coins/images/21129/small/token_wsOHM_logo.png?1638764900',
+      protocolImage: 'https://assets.coingecko.com/coins/images/14483/small/token_OHM_%281%29.png?1628311611',
       decimals: 18,      
     },
     [chainTokenAddresses["1"].INVDOLASLP]: {

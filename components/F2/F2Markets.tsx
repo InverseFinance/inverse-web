@@ -30,11 +30,11 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="105px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="105px">
-                <Cell minWidth='105px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+            return <Cell minWidth="120px">
+                <Cell minWidth='120px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                         <CellText fontWeight="bold">{name}</CellText>
@@ -70,9 +70,9 @@ const columns = [
         label: 'Oracle Type',
         tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
         header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
-        value: ({ oracleType }) => {
+        value: ({ oracleType, underlying }) => {
             return <Cell alignItems="center" minWidth="160px" justify="center" fontSize="15px">
-                <OracleType oracleType={oracleType} />
+                <OracleType oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
             </Cell>
         },
     },
