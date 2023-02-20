@@ -197,7 +197,7 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                     {
                                         selectedFed?.subBalances.map(tokenInLp => {
                                             return <HStack key={tokenInLp.address}>
-                                                <HStack w='100px' alignItems="center">
+                                                <HStack w='150px' alignItems="center">
                                                     <UnderlyingItem {...tokenInLp} label={tokenInLp.symbol} />
                                                 </HStack>
                                                 <Text>
@@ -221,7 +221,7 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                                     {
                                         selectedFed?.subBalances.map(tokenInLp => {
                                             return <HStack key={tokenInLp.address}>
-                                                <HStack w='100px' alignItems="center">
+                                                <HStack w='150px' alignItems="center">
                                                     <UnderlyingItem {...tokenInLp} label={tokenInLp.symbol} />
                                                 </HStack>
                                                 <Text>
