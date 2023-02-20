@@ -5,12 +5,11 @@ import { useContext, useState } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
 import { RecapInfos } from "../Infos/RecapInfos"
 import { StepNavBtn } from "./StepNavBtn"
-import { f2depositAndBorrow, f2depositAndBorrowHelper } from "@app/util/f2"
+import { f2approxDbrAndDolaNeeded, f2depositAndBorrow, f2depositAndBorrowHelper } from "@app/util/f2"
 import { SuccessMessage } from "@app/components/common/Messages"
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
 import { parseUnits } from "@ethersproject/units"
-import { roundFloorString } from "@app/util/misc"
 
 export const F2WalkthroughRecap = ({
     onStepChange,
@@ -71,14 +70,19 @@ export const F2WalkthroughRecap = ({
         isUseNativeCoin,
     }
 
-    const handleAction = () => {
+    const handleAction = async () => {
         if (market.helper) {
+            let dbrNeeded, dolaNeededForDbr, maxDolaIn;            
+            const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
+            dolaNeededForDbr = approx[0];
+            dbrNeeded = approx[1];
+            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(105).div(100));            
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,
                 parseUnits(collateralAmount, market.underlying.decimals),
                 parseUnits(debtAmount),
-                parseUnits(roundFloorString(parseFloat(debtAmount) + dbrCoverDebt * 1.15)),
+                maxDolaIn,
                 duration,
                 isUseNativeCoin,
                 false,
