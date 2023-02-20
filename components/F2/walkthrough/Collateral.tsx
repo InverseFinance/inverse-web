@@ -67,7 +67,7 @@ export const F2WalkthroughCollateral = ({
                 isError={isNotEnoughBalance}
             />
             {
-                isWethMarket &&
+                isWethMarket && !!market.helper &&
                 <HStack w='full' justify="space-between">
                     <Text
                         color="secondaryTextColor"

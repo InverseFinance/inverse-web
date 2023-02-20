@@ -226,7 +226,7 @@ export const F2CombinedForm = ({
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
-                            isWethMarket && <HStack w='full' justify="space-between">
+                            isWethMarket && !!market.helper && <HStack w='full' justify="space-between">
                                 <Text
                                     color="secondaryTextColor"
                                     textDecoration="underline"
