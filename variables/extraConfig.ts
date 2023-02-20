@@ -27,14 +27,7 @@ const mainConfig = {
     dbr: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     f2Oracle: '0xaBe146CF570FD27ddD985895ce9B138a7110cce8',
     f2controller: '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D',
-    // f2helper: '0xaB837301d12cDc4b97f1E910FC56C9179894d9cf',
-    // f2helper: '0x0F527785e39B22911946feDf580d87a4E00465f0',
-    // f2helper: '0x9C85258d9A00C01d00ded98065ea3840dF06f09c',
-    // f2helper: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
-    // f2helper: '0x8f119cd256a0FfFeed643E830ADCD9767a1d517F',
-    // f2helper: '0xD2D5e508C82EFc205cAFA4Ad969a4395Babce026',
-    f2helper: '0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf',
-    // f2helper: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72',
+    f2helper: '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1',    
     f2markets: [
         {
             name: 'WETH',
