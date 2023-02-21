@@ -15,7 +15,7 @@ export const GovRefunds = () => {
         <meta name="og:title" content="Inverse Finance - Refunds" />
         <meta name="og:description" content="Refunds Portal" />
       </Head>
-      <AppNav active="Participate" />
+      <AppNav active="Governance" />
 
       <HStack maxW="1000px" justify="center" alignItems="flex-start" mt="2">
         <InfoMessage

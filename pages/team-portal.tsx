@@ -18,7 +18,7 @@ export const TokensPage = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Team Portal</title>
                 <meta name="og:title" content="Inverse Finance - Team Portal" />
             </Head>
-            <AppNav active="Participate" />
+            <AppNav active="Governance" />
             <Flex direction="column" w={{ base: 'full' }} p={{ base: '4' }} maxWidth="1140px">
                 <VStack alignItems="flex-start">
                     <Text fontSize="20px">
