@@ -330,6 +330,7 @@ const chainTokens = {
       pairs: [
         '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
       ],
+      isComposableMetapool: true,
       image: '/assets/v2/dola-small.png'
     },
     [chainTokenAddresses["1"].BBEUSD]: {
