@@ -16,7 +16,7 @@ export const Governance = () => (
       <meta name="description" content="Inverse Finance DAO's On-Chain Proposals" />
       <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, DeFi, vote" />
     </Head>
-    <AppNav active="Participate" activeSubmenu="Passed Proposals" />
+    <AppNav active="Governance" activeSubmenu="Passed Proposals" />
     <Breadcrumbs
       w="7xl"
       breadcrumbs={[

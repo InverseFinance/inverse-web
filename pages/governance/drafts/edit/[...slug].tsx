@@ -48,7 +48,7 @@ export const Drafts = ({ proposal }) => {
         <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
         <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
       </Head>
-      <AppNav active="Participate" />
+      <AppNav active="Governance" />
       <Breadcrumbs
         w="7xl"
         breadcrumbs={[

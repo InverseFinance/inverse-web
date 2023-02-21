@@ -154,7 +154,7 @@ export const VesterPage = () => {
         <meta name="og:title" content="Inverse Finance - Vester Portal" />
         <meta name="og:description" content="Vester Portal" />
       </Head>
-      <AppNav active="Participate" />
+      <AppNav active="Governance" />
       <Flex justify="center" direction="column">
         <Flex w={{ base: 'full', xl: '4xl' }} justify="center" color="mainTextColor">
           <VStack w='full'>

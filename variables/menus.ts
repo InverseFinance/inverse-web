@@ -174,7 +174,7 @@ export const MENUS = {
       ]
     },    
     {
-      label: 'Participate',
+      label: 'Governance',
       href: '/governance',
       submenus: [
         {
