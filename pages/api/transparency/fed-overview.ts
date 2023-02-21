@@ -24,7 +24,7 @@ const FUSE_CTOKENS = {
 };
 const FUSE_FEDS = Object.entries(FUSE_CTOKENS).map(([fedAddress, ctoken]) => ({ fedAddress, ctoken }));
 
-export default async function handler(req, res) {  
+export default async function handler(req, res) {
   // to keep for archive
   const cacheKey = `fed-overview-v1.0.0`;
   const { cacheFirst } = req.query;
@@ -66,11 +66,11 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.lpBalanceContract) {
+          if (!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res(BigNumber.from('0')));
           }
-          const address = lpFed.incomeSrcAd||lpFed.address;
-          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const address = lpFed.incomeSrcAd || lpFed.address;
+          const chainId = lpFed.incomeChainId || lpFed.chainId;
           const chainProvider = getProvider(chainId);
           const contract = new Contract(lpFed.strategy.lpBalanceContract, CTOKEN_ABI, chainProvider);
           return contract.balanceOf(address);
@@ -78,10 +78,10 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.lpBalanceContract) {
+          if (!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res(0));
-          }    
-          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          }
+          const chainId = lpFed.incomeChainId || lpFed.chainId;
           const chainProvider = getProvider(chainId);
           const contract = new Contract(lpFed.strategy?.lpBalanceContract, CTOKEN_ABI, chainProvider);
           return contract.totalSupply();
@@ -89,10 +89,10 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.lpBalanceContract) {
+          if (!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res(0));
-          }          
-          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          }
+          const chainId = lpFed.incomeChainId || lpFed.chainId;
           const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
           const chainProvider = getProvider(chainId);
           return getLPPrice(token, chainId, chainProvider);
@@ -100,10 +100,10 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.lpBalanceContract) {
+          if (!lpFed.strategy?.lpBalanceContract) {
             return new Promise((res) => res([]));
           }
-          const chainId = lpFed.incomeChainId||lpFed.chainId;
+          const chainId = lpFed.incomeChainId || lpFed.chainId;
           const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
           const chainProvider = getProvider(chainId);
           return getLPBalances(token, chainId, chainProvider);
@@ -111,11 +111,11 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if(!lpFed.strategy?.rewardPools?.length > 0) {
+          if (!lpFed.strategy?.rewardPools?.length > 0) {
             return new Promise((res) => res([]));
           }
-          const chainId = lpFed.incomeChainId||lpFed.chainId;
-          const address = lpFed.incomeSrcAd||lpFed.address;
+          const chainId = lpFed.incomeChainId || lpFed.chainId;
+          const address = lpFed.incomeSrcAd || lpFed.address;
           const chainProvider = getProvider(chainId);
           return getPoolRewards(lpFed.strategy?.rewardPools, address, chainId, chainProvider);
         })
@@ -149,14 +149,18 @@ export default async function handler(req, res) {
         detailsLink = `https://debank.com/profile/${fedConfig.incomeSrcAd || fedConfig.address}`;
         detailsLinkName = 'Debank'
         lpBalance = getBnToNumber(lpBalancesBn[fedIndex]);
-        lpTotalSupply = getBnToNumber(lpSupplyBn[fedIndex]);
-        lpPol = lpTotalSupply > 0 ? lpBalance / lpTotalSupply : 0;
+        const _supply = getBnToNumber(lpSupplyBn[fedIndex]);
         lpPrice = lpPrices[fedIndex];
         subBalances = lpSubBalances[fedIndex];
+        // we don't use the totalSupply value for composable metapools
+        lpTotalSupply = fedConfig.strategy?.isComposableMetapool ?
+          subBalances.reduce((prev, curr) => prev + curr.balance, 0)
+          : _supply;
+        lpPol = lpTotalSupply > 0 ? lpBalance / _supply : 0;
         rewards = lpRewards[fedIndex]
-        if(fedConfig.strategy?.multisig) {
+        if (fedConfig.strategy?.multisig) {
           const _multisig = multisigData.find(m => m.address === fedConfig.strategy.multisig.address);
-          if(_multisig) {
+          if (_multisig) {
             relatedFunds = _multisig.funds.filter(f => f.balance > 0.1 && fedConfig.strategy.multisig.relevantAssets.includes(f.token.address));
           }
         }
