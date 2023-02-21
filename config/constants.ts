@@ -49,3 +49,4 @@ export const DOLA_BRIDGED_CHAINS = [NetworkIds.ftm, NetworkIds.optimism, Network
 export const INV_BRIDGED_CHAINS = [NetworkIds.ftm];
 
 export const DWF_PURCHASER = '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647';
+export const OTC_CONTRACT = '0x0000000000000000000000000000000000000001';
