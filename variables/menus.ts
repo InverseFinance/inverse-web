@@ -172,33 +172,7 @@ export const MENUS = {
         //   label: 'Liquidations',
         // },
       ]
-    },    
-    {
-      label: 'Governance',
-      href: '/governance',
-      submenus: [
-        {
-          label: 'Drafts & Proposals',
-          href: '/governance',
-        },
-        {
-          label: 'Passed Proposals',
-          href: '/governance/proposals',
-        },
-        {
-          label: 'Create a Draft',
-          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
-        },
-        {
-          label: 'Delegates',
-          href: '/governance/delegates',
-        },
-        {
-          label: 'Your Profile',
-          href: '/governance/delegates/$account',
-        },
-      ]
-    },
+    },        
     {
       label: 'Transparency',
       href: '/transparency/overview',
@@ -240,7 +214,33 @@ export const MENUS = {
           label: 'Frontier (deprecated)',
         },
       ],
-    },    
+    },
+    {
+      label: 'Governance',
+      href: '/governance',
+      submenus: [
+        {
+          label: 'Drafts & Proposals',
+          href: '/governance',
+        },
+        {
+          label: 'Passed Proposals',
+          href: '/governance/proposals',
+        },
+        {
+          label: 'Create a Draft',
+          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
+        },
+        {
+          label: 'Delegates',
+          href: '/governance/delegates',
+        },
+        {
+          label: 'Your Profile',
+          href: '/governance/delegates/$account',
+        },
+      ]
+    },
   ],
   "footerGroups": [
     {
