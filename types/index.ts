@@ -31,6 +31,7 @@ export interface Token {
     color: BackgroundProps["bgColor"]
   }
   isInPausedSection?: boolean,
+  isComposableMetapool?: boolean,
   protocolImage?: string,
   order?: number
   veNftId?: string
