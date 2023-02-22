@@ -138,7 +138,7 @@ export const FedPolicyPage = () => {
                                 {
                                     detailsType === 'policy' ?
                                         <FedAreaChart
-                                            title={`${chosenFed.name} Supply Evolution (Current supply: ${chartDataPolicies.length ? shortenNumber(Math.max(chartDataPolicies[chartDataPolicies.length - 1].y, 0), 2) : 0})`}
+                                            title={`${chosenFed.name} Supply Evolution\n(Current supply: ${chartDataPolicies.length ? shortenNumber(Math.max(chartDataPolicies[chartDataPolicies.length - 1].y, 0), 2) : 0})`}
                                             fed={chosenFed}
                                             chartData={chartDataPolicies}
                                             domainYpadding={'auto'}
@@ -146,7 +146,7 @@ export const FedPolicyPage = () => {
                                         :
                                         <>
                                             <FedAreaChart
-                                                title={`${chosenFed.name} Income Evolution (Current accumulated income: ${chartDataIncomes.length ? shortenNumber(chartDataIncomes[chartDataIncomes.length - 1].y, 2) : 0})`}
+                                                title={`${chosenFed.name} Income Evolution\n(Current accumulated income: ${chartDataIncomes.length ? shortenNumber(chartDataIncomes[chartDataIncomes.length - 1].y, 2) : 0})`}
                                                 fed={chosenFed}
                                                 chartData={chartDataIncomes}
                                                 domainYpadding={'auto'}

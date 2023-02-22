@@ -73,7 +73,7 @@ export const BarChart = ({
                 {
                     !!title && <VictoryLabel
                         text={title}
-                        style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter' }}
+                        style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }}
                         x={Math.floor(width / 2)}
                         y={10}
                         textAnchor="middle"  {...titleProps} />
