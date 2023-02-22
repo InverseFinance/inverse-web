@@ -52,7 +52,7 @@ export const BarChart = ({
     const defaultAxisStyle: VictoryAxisProps["style"] = {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
         grid: {
-            stroke: '#666666aa',
+            stroke: '#66666633',
             strokeDasharray: '4 4',
         }
     }
@@ -71,7 +71,12 @@ export const BarChart = ({
                 padding={{ top: 50, bottom: 50, left: 50, right: rightPadding }}
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={10} textAnchor="middle"  {...titleProps} />
+                    !!title && <VictoryLabel
+                        text={title}
+                        style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter' }}
+                        x={Math.floor(width / 2)}
+                        y={10}
+                        textAnchor="middle"  {...titleProps} />
                 }
                 <VictoryAxis
                     style={defaultAxisStyle}
@@ -83,13 +88,13 @@ export const BarChart = ({
                 />
                 <VictoryBar
                     alignment="middle"
-                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: 'bold' }} dy={-10} {...labelProps} />}
+                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: '600' }} dy={-10} {...labelProps} />}
                     data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, precision, isDollars) }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}
                 />
-                <VictoryStack colorScale={colorScale}>
+                <VictoryStack domain={{ x: [0.5, 1], y: [0, 0] }} colorScale={colorScale}>
                     {Object.entries(groupedData).map(([key, dataGroup]) => {
                         return (
                             <VictoryBar
