@@ -535,7 +535,6 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     F2_ORACLE,
     F2_CONTROLLER,
     F2_MARKETS,
-    OTC,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(

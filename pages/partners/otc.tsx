@@ -2,7 +2,7 @@ import { Stack, Image, VStack, Text } from '@chakra-ui/react'
 import Head from 'next/head';
 import Layout from '@app/components/common/Layout';
 import { AppNav } from '@app/components/common/Navbar';
-import { BigNumber, Contract } from 'ethers';
+import { BigNumber } from 'ethers';
 import { BURN_ADDRESS, OTC_CONTRACT } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
 import { getBnToNumber } from '@app/util/markets';
@@ -11,27 +11,23 @@ import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
 import { useAccount } from '@app/hooks/misc';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
-import { getNetworkConfigConstants } from '@app/util/networks';
+import { InfoMessage } from '@app/components/common/Messages';
+import { OtcDealer } from '@app/components/OTC/OtcDealer';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 const zero = BigNumber.from('0');
-
-const INV = '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68';
-
-const { TREASURY } = getNetworkConfigConstants();
 
 export const useOTC = (buyer = BURN_ADDRESS) => {
   const { data, error } = useEtherSWR([
     [OTC_CONTRACT, 'owner'],
     [OTC_CONTRACT, 'deals', buyer],
-    [INV, 'allowance', TREASURY, OTC_CONTRACT],
-    [INV, 'balanceOf', buyer],
   ]);
 
   const [
-    owner, deal, invTreasuryAllowance, invBuyerBalance
-  ] = data || ['', ['', zero, zero, zero], zero, zero, zero];
+    owner, deal
+  ] = data || ['', ['', zero, zero, zero]];
 
-  const token = data ? deal[0] : '';
+  const token = deal[0];
 
   const { data: decimalsData } = useEtherSWR([
     [token, 'decimals'],
@@ -41,13 +37,11 @@ export const useOTC = (buyer = BURN_ADDRESS) => {
     isLoading: !data && !error,
     owner,
     deal: {
-      token: data ? deal[0] : '',
+      token,
       tokenAmount: data ? getBnToNumber(deal[1], parseFloat(decimalsData?.toString() || '18')) : 0,
       invAmount: data ? getBnToNumber(deal[2], parseFloat(decimalsData?.toString() || '18')) : 0,
       deadline: data ? getBnToNumber(deal[3], 0) * 1000 : 0,
     },
-    invTreasuryAllowance: data ? getBnToNumber(invTreasuryAllowance) : 0,
-    invBuyerBalance: data ? getBnToNumber(invBuyerBalance) : 0,
   }
 }
 
@@ -62,8 +56,6 @@ export const OTCPage = () => {
     isLoading,
     owner,
     deal,
-    invTreasuryAllowance,
-    invBuyerBalance,
   } = otcData;
 
   useDualSpeedEffect(() => {
@@ -94,6 +86,17 @@ export const OTCPage = () => {
           <Image src="/assets/partners/inv-handshake.png" w="50%" maxW='200px' />
           <Text w={{ sm: '250px' }} color="white" textAlign="center" fontWeight="extrabold" fontSize="30px">Inverse Finance</Text>
         </Stack>
+        <VStack w='full' pt="4" maxW="500px">
+          {
+            !!deal.token && isConnected && !isLoading ?
+              <OtcDealer signer={library?.getSigner()} owner={owner} deal={deal} /> :
+              isConnected && !isLoading ?
+                <InfoMessage description="No OTC Deal found for your connected address" />
+                :
+                isLoading ? <SkeletonBlob /> :
+                  <InfoMessage description="Please connect your wallet" />
+          }
+        </VStack>
       </VStack>
     </Layout>
   )
