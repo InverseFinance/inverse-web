@@ -53,7 +53,7 @@ export const AreaChart = ({
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
         grid: {
-            stroke: '#666666aa',
+            stroke: '#66666633',
             strokeDasharray: '4 4',
         }
     }
@@ -91,7 +91,7 @@ export const AreaChart = ({
                 }
             >
                 {
-                    !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter' }} x={Math.floor(width / 2)} y={30} textAnchor="middle" {...titleProps} />
+                    !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                 }
                 <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
                 <VictoryAxis style={_axisStyle} />
@@ -101,7 +101,7 @@ export const AreaChart = ({
                     data={data}
                     labelComponent={
                         <VictoryLabel
-                            dx={-rightPadding - 20}
+                            dx={-rightPadding - 30}
                             textAnchor="start"
                             verticalAnchor="start"
                         />
