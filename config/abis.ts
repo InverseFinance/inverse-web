@@ -78,6 +78,7 @@ export const AN_CHAIN_COIN_REPAY_ALL_ABI = [
 export const ERC20_ABI = [
   "function allowance(address, address) external view returns (uint256)",
   "function approve(address, uint256)",
+  "function symbol() public view returns(string)",
   "function decimals() view returns (uint8)",
   "function balanceOf(address) external view returns (uint256)",
   "function totalSupply() external view returns (uint256)",

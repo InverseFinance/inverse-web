@@ -21,14 +21,10 @@ export const OtcDealer = ({
     signer,
     owner,
     deal,
-    // invTreasuryAllowance,
-    // invBuyerBalance,
 }: {
     signer: JsonRpcSigner,
     owner: string,
     deal: { token: string, tokenAmount: number, invAmount: number, deadline: number }
-    // invTreasuryAllowance: number
-    // invBuyerBalance: number
 }) => {
     const { token, tokenAmount, invAmount, deadline } = deal;
     const { data: tokenDecimals } = useEtherSWR([

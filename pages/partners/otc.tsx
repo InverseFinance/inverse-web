@@ -14,6 +14,7 @@ import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import { InfoMessage } from '@app/components/common/Messages';
 import { OtcDealer } from '@app/components/OTC/OtcDealer';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { OtcCreator } from '@app/components/OTC/OtcCreator';
 
 const zero = BigNumber.from('0');
 
@@ -88,13 +89,15 @@ export const OTCPage = () => {
         </Stack>
         <VStack w='full' pt="4" maxW="500px">
           {
-            !!deal.token && isConnected && !isLoading ?
-              <OtcDealer signer={library?.getSigner()} owner={owner} deal={deal} /> :
-              isConnected && !isLoading ?
-                <InfoMessage description="No OTC Deal found for your connected address" />
+            isConnected && !isLoading ?
+              (account === owner || true) ?
+                <OtcCreator signer={library?.getSigner()} owner={owner} />
                 :
-                isLoading ? <SkeletonBlob /> :
-                  <InfoMessage description="Please connect your wallet" />
+                !!deal.token ?
+                  <OtcDealer signer={library?.getSigner()} owner={owner} deal={deal} /> :
+                  <InfoMessage description="No OTC Deal found for your connected address" /> :
+              isLoading ? <SkeletonBlob /> :
+                <InfoMessage description="Please connect your wallet" />
           }
         </VStack>
       </VStack>
