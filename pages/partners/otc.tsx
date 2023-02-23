@@ -90,7 +90,7 @@ export const OTCPage = () => {
         <VStack w='full' pt="4" maxW="500px">
           {
             isConnected && !isLoading ?
-              (account === owner || true) ?
+              (account === owner) ?
                 <OtcCreator signer={library?.getSigner()} owner={owner} />
                 :
                 !!deal.token ?
