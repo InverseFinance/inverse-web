@@ -51,6 +51,8 @@ export const F2WalkthroughRecap = ({
         isAutoDBR,
         isWethMarket,
         isUseNativeCoin,
+        dbrBuySlippage,
+        setDbrBuySlippage,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -71,6 +73,8 @@ export const F2WalkthroughRecap = ({
         newDBRExpiryDate,
         isWethMarket,
         isUseNativeCoin,
+        dbrBuySlippage,
+        setDbrBuySlippage,
     }
 
     const handleAction = async () => {
