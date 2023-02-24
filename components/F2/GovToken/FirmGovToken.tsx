@@ -13,6 +13,8 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
+import Link from "@app/components/common/Link";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 export const FirmGovToken = () => {
     const { library, account } = useWeb3React<Web3Provider>();
@@ -85,6 +87,9 @@ export const FirmGovToken = () => {
                 </Stack>
                     : <Text>Once you do your first deposit the escrow contract will delegate to your address (can be changed later)</Text>
             }
+            <Link textDecoration="underline" href="https://snapshot.org/#/olympusdao.eth" target="_blank" isExternal>
+                Vote on Olympus DAO proposals<ExternalLinkIcon ml="1" />
+            </Link>
         </VStack>
     </Container>
 }
