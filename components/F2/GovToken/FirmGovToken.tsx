@@ -37,7 +37,7 @@ export const FirmGovToken = () => {
 
     const handleOk = async () => {
         const contract = new Contract(escrow, F2_SIMPLE_ESCROW_ABI, library?.getSigner());
-        return contract.delegate(newDelegate);        
+        return contract.delegate(newDelegate);
     }
 
     const handleClose = () => {
@@ -71,17 +71,20 @@ export const FirmGovToken = () => {
                     }
                 </VStack>
             </ConfirmModal>
-            <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
-                <Stack alignItems={{ base: 'flex-start', md: 'center' }} spacing="1" direction={{ base: 'column', md: 'row' }}>
-                    <Text>You are currently delegating to:</Text>
-                    {
-                        !!delegatingTo && <ScannerLink value={delegatingTo} useName={false} />
-                    }
+            {
+                !!delegatingTo ? <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
+                    <Stack alignItems={{ base: 'flex-start', md: 'center' }} spacing="1" direction={{ base: 'column', md: 'row' }}>
+                        <Text>You are currently delegating to:</Text>
+                        {
+                            !!delegatingTo && <ScannerLink value={delegatingTo} useName={false} />
+                        }
+                    </Stack>
+                    <RSubmitButton refreshOnSuccess={true} onSuccess={onClose} fontSize="14px" w='fit-content' onClick={onOpen}>
+                        Change delegate address
+                    </RSubmitButton>
                 </Stack>
-                <RSubmitButton refreshOnSuccess={true} onSuccess={onClose} fontSize="14px" w='fit-content' onClick={onOpen}>
-                    Change delegate address
-                </RSubmitButton>
-            </Stack>
+                    : <Text>Once you do your first deposit the escrow contract will delegate to your address (can be changed later)</Text>
+            }
         </VStack>
     </Container>
 }

@@ -134,7 +134,7 @@ const columns = [
         field: 'leftToBorrow',
         label: "Liquidity",
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        tooltip: 'Markets can have daily borrow limits, this shows the liquidity left to borrow for the day (UTC timezone)',
+        tooltip: 'Markets can have daily borrow limits, this shows the dola left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt }) => {
             return <Cell minWidth="120px" justify="center" alignItems="center" direction="column" spacing="0" >
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2, true) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
