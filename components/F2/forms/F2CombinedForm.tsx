@@ -21,6 +21,7 @@ import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
 import { roundFloorString } from '@app/util/misc'
 import { BUY_LINKS } from '@app/config/constants'
+import { Input } from '@app/components/common/Input'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -83,6 +84,8 @@ export const F2CombinedForm = ({
         isWethMarket,
         dbrSellAmount,
         setDbrSellAmount,
+        dbrBuySlippage,
+        setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
@@ -106,7 +109,8 @@ export const F2CombinedForm = ({
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             dbrNeeded = approx[1];
-            maxDolaIn = dolaNeededForDbr.mul(103).div(100)
+            const slippage = parseFloat(dbrBuySlippage)+100;
+            maxDolaIn = dolaNeededForDbr.mul(slippage).div(100)
         }
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
@@ -375,8 +379,17 @@ export const F2CombinedForm = ({
                 defaultValue={durationTypedValue}
             />
             <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
+            <HStack w='full' justify="space-between">
+                <TextInfo
+                    message="DBR price can vary while trying to buy, the max. slippage % allows to buy within a certain range, if out of range, tx will revert">
+                    <Text>
+                        DBR max. slippage %:
+                    </Text>
+                </TextInfo>
+                <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
+            </HStack>
             <InfoMessage
-                alertProps={{ w: 'full', fontWeight: 'bold' }}
+                alertProps={{ w: 'full', fontStyle: 'italic' }}
                 description="NB: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt."
             />
         </VStack>
@@ -405,7 +418,7 @@ export const F2CombinedForm = ({
                 isError={dbrBalance < parseFloat(dbrSellAmount) * 1.01}
             />
             <InfoMessage
-                alertProps={{ w: 'full', fontWeight: 'bold' }}
+                alertProps={{ w: 'full', fontStyle: 'italic' }}
                 description="NB: auto-selling DBR requires an additional signature step. The DOLA received from the swap will be sent to your wallet."
             />
         </VStack>
@@ -417,7 +430,7 @@ export const F2CombinedForm = ({
         'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
     }
-    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow']
+    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage);
     disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw']
 
     const actionBtn = <HStack>

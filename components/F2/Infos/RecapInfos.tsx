@@ -1,8 +1,9 @@
+import { Input } from "@app/components/common/Input"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { getDBRRiskColor, getDepletionDate } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { VStack, Text } from "@chakra-ui/react"
+import { VStack, Text, HStack } from "@chakra-ui/react"
 import moment from 'moment'
 import { useEffect, useState } from "react"
 
@@ -27,6 +28,8 @@ export const RecapInfos = ({
     isWethMarket,
     isUseNativeCoin,
     newDBRExpiryDate,
+    setDbrBuySlippage,
+    dbrBuySlippage,
     ...props
 }) => {
     const [now, setNow] = useState(Date.now());
@@ -63,7 +66,7 @@ export const RecapInfos = ({
             </TextInfo>
         }
         <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
-            <Text fontSize={fontSize}>With the collateral factor of {shortenNumber(market.collateralFactor*100, 0)}% your deposit is worth {shortenNumber(worth, 2, true)}</Text>
+            <Text fontSize={fontSize}>With the collateral factor of {shortenNumber(market.collateralFactor * 100, 0)}% your deposit is worth {shortenNumber(worth, 2, true)}</Text>
         </TextInfo>
         {
             !!debtAmountNum && <TextInfo message="The amount of DOLA you will receive">
@@ -72,7 +75,7 @@ export const RecapInfos = ({
         }
         {
             isAutoDBR && isTuto && hasHelper && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate">
-                <Text fontSize={fontSize}>You will lock-In a <b>{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
+                <Text fontSize={fontSize}>You will lock-In a <b>~{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
             </TextInfo>
         }
         {
@@ -82,7 +85,7 @@ export const RecapInfos = ({
         }
         {
             isAutoDBR && hasHelper && <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
-                <Text fontSize={fontSize}>Your total loan amount including DBR will be ~<b>{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
+                <Text fontSize={fontSize}>Your total loan amount including DBR will be <b>~{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
             </TextInfo>
         }
         {
@@ -95,20 +98,31 @@ export const RecapInfos = ({
                     </TextInfo>
                 }
                 <TextInfo color={riskColor} message="How much of the maximum borrow capacity is used, at 100% the loan can be liquidated">
-                    <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>You will use <b style={{ fontWeight: '1000' }}>{shortenNumber(100-newPerc, 2)}%</b> of your Borrow Limit</Text>
+                    <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>You will use <b style={{ fontWeight: '1000' }}>~{shortenNumber(100 - newPerc, 2)}%</b> of your Borrow Limit</Text>
                 </TextInfo>
                 <TextInfo color={riskColor} message="If the collateral price reaches that price, your collateral can be liquidated entirely">
-                    <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>{preciseCommify(newLiquidationPrice, 0, true)}</b> (current price is {preciseCommify(market.price, 0, true)})</Text>
+                    <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>Your liquidation price will be <b style={{ fontWeight: '1000' }}>~{preciseCommify(newLiquidationPrice, 0, true)}</b> (current price is {preciseCommify(market.price, 0, true)})</Text>
                 </TextInfo>
             </>
         }
         {
-            isAutoDBR && hasHelper && <TextInfo 
-            message="The signature is required to auto-buy DBR when doing the borrow transaction">
-                <Text fontSize={fontSize}>
-                    Steps are: {isUseNativeCoin ? '' : 'approve collateral,'} confirm signature, execute transaction
-                </Text>
-            </TextInfo>
+            isAutoDBR && hasHelper && <>
+                <TextInfo
+                    message="The signature is required to auto-buy DBR when doing the borrow transaction">
+                    <Text fontSize={fontSize}>
+                        Steps are: {isUseNativeCoin ? '' : 'approve collateral,'} confirm signature, execute transaction
+                    </Text>
+                </TextInfo>
+                <HStack w='full' justify="space-between">
+                    <TextInfo
+                        message="DBR price can vary while trying to buy, the max. slippage % allows to buy within a certain range, if out of range, tx will revert">
+                        <Text fontSize={fontSize}>
+                            DBR max. slippage %:
+                        </Text>
+                    </TextInfo>
+                    <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
+                </HStack>
+            </>
         }
     </VStack>
 }

@@ -109,10 +109,10 @@ export const MENUS = {
     // },
     {
       label: 'Learn',
-      href: 'https://docs.inverse.finance',
+      href: 'https://inverse-dao.gitbook.io/inverse-finance',
       submenus: [
         {
-          href: 'https://docs.inverse.finance',
+          href: 'https://inverse-dao.gitbook.io/inverse-finance',
           label: 'Docs',
         },
         {
@@ -248,15 +248,15 @@ export const MENUS = {
       items: [
         {
           label: 'DOLA',
-          href: 'https://docs.inverse.finance/inverse-finance/using-dola',
+          href: 'https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/using-dola',
         },
         {
           label: 'DBR',
-          href: 'https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights',
+          href: 'https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/dbr-dola-borrowing-rights',
         },
         {
           label: 'INV',
-          href: 'https://docs.inverse.finance/inverse-finance/using-inv',
+          href: 'https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/using-inv',
         },
         {
           label: 'FiRM',
@@ -294,7 +294,7 @@ export const MENUS = {
       items: [
         {
           label: 'Docs',
-          href: 'https://docs.inverse.finance/',
+          href: 'https://inverse-dao.gitbook.io/inverse-finance/',
         },
         {
           label: 'Risk Docs',

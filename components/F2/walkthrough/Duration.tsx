@@ -60,7 +60,7 @@ export const F2WalkthroughDuration = ({
                 description={
                     !!market.helper ?
                         <VStack alignItems="flex-start">
-                            <Text>Maximum Borrowing Power will be <b>{preciseCommify(maxBorrowable, 0)} DOLA</b> (depends on duration)</Text>
+                            <Text>Maximum Borrowing Power will be <b>~{preciseCommify(maxBorrowable, 0)} DOLA</b> (depends on duration)</Text>
                             <Text>You can terminate the loan at any time</Text>
                         </VStack>
                         :
@@ -85,7 +85,7 @@ export const F2WalkthroughDuration = ({
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={duration <= 0 || dbrBalance <= 0}>
+            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={duration <= 0}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>

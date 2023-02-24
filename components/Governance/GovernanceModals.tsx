@@ -172,7 +172,7 @@ export const ChangeDelegatesModal = ({ isOpen, onClose, address }: ModalProps & 
               </Text>
               <Flex>
                 <Link
-                  href="https://docs.inverse.finance/inverse-finance/governance/delegates-and-delegating"
+                  href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/governance/delegates-and-delegating"
                   fontSize="xs"
                   color="secondaryTextColor"
                   fontWeight="semibold"

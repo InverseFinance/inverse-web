@@ -72,7 +72,7 @@ export const BondsView = () => {
                 label="Available Bonds"
                 contentBgColor="gradient3"
                 description="Get INV at a discount via Olympus Pro  - Learn More about bonds here"
-                href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
+                href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
             >
                 {
                     bondsPaused && !!account ?

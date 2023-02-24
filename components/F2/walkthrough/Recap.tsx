@@ -51,6 +51,8 @@ export const F2WalkthroughRecap = ({
         isAutoDBR,
         isWethMarket,
         isUseNativeCoin,
+        dbrBuySlippage,
+        setDbrBuySlippage,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -71,14 +73,17 @@ export const F2WalkthroughRecap = ({
         newDBRExpiryDate,
         isWethMarket,
         isUseNativeCoin,
+        dbrBuySlippage,
+        setDbrBuySlippage,
     }
 
     const handleAction = async () => {
         if (market.helper) {
             let dolaNeededForDbr, maxDolaIn;            
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
-            dolaNeededForDbr = approx[0];            
-            maxDolaIn = dolaNeededForDbr.mul(103).div(100);         
+            dolaNeededForDbr = approx[0];
+            const slippage = parseFloat(dbrBuySlippage)+100;
+            maxDolaIn = dolaNeededForDbr.mul(slippage).div(100);   
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,
@@ -139,7 +144,7 @@ export const F2WalkthroughRecap = ({
                     actionLabel={(isAutoDBR && market.helper ? 'Sign + ' : '') + (isDeposit ? 'Deposit & Borrow' : 'Repay & Withdraw')}
                     approveLabel={isAutoDBR && market.helper ? 'Step 1/3 - Approve' : undefined}
                     showMaxBtn={false}
-                    isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow}
+                    isDisabled={duration <= 0 || debtAmountNum <= 0 || collateralAmountNum <= 0 || !market.leftToBorrow || !parseFloat(dbrBuySlippage)}
                     hideInputIfNoAllowance={false}
                     hideInput={true}
                     hideButtons={false}
