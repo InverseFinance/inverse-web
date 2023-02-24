@@ -10,6 +10,9 @@ import { SuccessMessage } from "@app/components/common/Messages"
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
 import { parseUnits } from "@ethersproject/units"
+import { getNetworkConfigConstants } from "@app/util/networks"
+
+const { F2_HELPER } = getNetworkConfigConstants();
 
 export const F2WalkthroughRecap = ({
     onStepChange,
@@ -75,7 +78,7 @@ export const F2WalkthroughRecap = ({
             let dolaNeededForDbr, maxDolaIn;            
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];            
-            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(103).div(100));            
+            maxDolaIn = dolaNeededForDbr.mul(103).div(100);         
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,
@@ -126,8 +129,8 @@ export const F2WalkthroughRecap = ({
             <HStack>
                 <SimpleAmountForm
                     defaultAmount={collateralAmount}
-                    address={market.collateral}
-                    destination={market.address}
+                    address={isUseNativeCoin ? '' : market.collateral}
+                    destination={isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
                     signer={signer}
                     decimals={colDecimals}
                     maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}

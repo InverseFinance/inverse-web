@@ -106,10 +106,7 @@ export const F2CombinedForm = ({
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             dbrNeeded = approx[1];
-            console.log(debtAmount)
-            console.log(getBnToNumber(dolaNeededForDbr))
-            console.log(getBnToNumber(dolaNeededForDbr.mul(103).div(100)))
-            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(103).div(100));
+            maxDolaIn = dolaNeededForDbr.mul(103).div(100)
         }
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
