@@ -376,7 +376,7 @@ export const F2CombinedForm = ({
             />
             <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
             <InfoMessage
-                alertProps={{ w: 'full', fontWeight: 'bold' }}
+                alertProps={{ w: 'full', fontStyle: 'italic' }}
                 description="NB: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt."
             />
         </VStack>
@@ -405,7 +405,7 @@ export const F2CombinedForm = ({
                 isError={dbrBalance < parseFloat(dbrSellAmount) * 1.01}
             />
             <InfoMessage
-                alertProps={{ w: 'full', fontWeight: 'bold' }}
+                alertProps={{ w: 'full', fontStyle: 'italic' }}
                 description="NB: auto-selling DBR requires an additional signature step. The DOLA received from the swap will be sent to your wallet."
             />
         </VStack>
