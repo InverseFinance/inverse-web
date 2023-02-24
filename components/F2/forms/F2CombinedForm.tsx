@@ -1,6 +1,6 @@
 import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { getNumberToBn, shortenNumber } from '@app/util/markets'
+import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded } from '@app/util/f2'
@@ -106,6 +106,9 @@ export const F2CombinedForm = ({
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             dbrNeeded = approx[1];
+            console.log(debtAmount)
+            console.log(getBnToNumber(dolaNeededForDbr))
+            console.log(getBnToNumber(dolaNeededForDbr.mul(103).div(100)))
             maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(103).div(100));
         }
         if (action === 'deposit') {

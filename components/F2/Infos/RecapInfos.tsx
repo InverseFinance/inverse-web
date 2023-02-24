@@ -77,12 +77,12 @@ export const RecapInfos = ({
         }
         {
             isAutoDBR && hasHelper && <TextInfo message="DBRs will be spent over time as fees to cover the loan, they should stay in your wallet while the loan is active">
-                <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs ({shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
+                <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs (~{shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
             </TextInfo>
         }
         {
             isAutoDBR && hasHelper && <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
-                <Text fontSize={fontSize}>Your total loan amount including DBR will be <b>{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
+                <Text fontSize={fontSize}>Your total loan amount including DBR will be ~<b>{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
             </TextInfo>
         }
         {
