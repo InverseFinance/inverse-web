@@ -134,7 +134,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     <F2CombinedForm />
                                                 </ErrorBoundary>
                                                 {
-                                                    (f2market.isGovTokenCollateral || true) && <FirmGovToken />
+                                                    (f2market.isGovTokenCollateral) && <FirmGovToken />
                                                 }
                                             </VStack>
                                 }
