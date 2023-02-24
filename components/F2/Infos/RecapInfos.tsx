@@ -80,7 +80,7 @@ export const RecapInfos = ({
         }
         {
             isAutoDBR && hasHelper && <TextInfo message="DBRs will be spent over time as fees to cover the loan, they should stay in your wallet while the loan is active">
-                <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs (~{shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>                
+                <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs (~{shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
             </TextInfo>
         }
         {
@@ -106,21 +106,23 @@ export const RecapInfos = ({
             </>
         }
         {
-            isAutoDBR && hasHelper && <TextInfo
-                message="The signature is required to auto-buy DBR when doing the borrow transaction">
-                <Text fontSize={fontSize}>
-                    Steps are: {isUseNativeCoin ? '' : 'approve collateral,'} confirm signature, execute transaction
-                </Text>
-            </TextInfo>
+            isAutoDBR && hasHelper && <>
+                <TextInfo
+                    message="The signature is required to auto-buy DBR when doing the borrow transaction">
+                    <Text fontSize={fontSize}>
+                        Steps are: {isUseNativeCoin ? '' : 'approve collateral,'} confirm signature, execute transaction
+                    </Text>
+                </TextInfo>
+                <HStack w='full' justify="space-between">
+                    <TextInfo
+                        message="DBR price can vary while trying to buy, the max. slippage % allows to buy within a certain range, if out of range, tx will revert">
+                        <Text fontSize={fontSize}>
+                            DBR max. slippage %:
+                        </Text>
+                    </TextInfo>
+                    <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
+                </HStack>
+            </>
         }
-        <HStack w='full' justify="space-between">
-            <TextInfo
-                message="DBR price can vary while trying to buy, the max. slippage % allows to buy within a certain range, if out of range, tx will revert">
-                <Text fontSize={fontSize}>
-                    DBR max. slippage %:
-                </Text>
-            </TextInfo>
-            <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
-        </HStack>
     </VStack>
 }
