@@ -381,9 +381,9 @@ export const F2CombinedForm = ({
             <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
             <HStack w='full' justify="space-between">
                 <TextInfo
-                    message="DBR price can vary while trying to buy, the max. slippage % allows to buy within a certain range, if out of range, tx will revert">
+                    message="DBR price can vary while trying to buy, the max. slippage % allows the resulting total DOLA debt created to be within a certain range, if out of range, tx will revert or fail">
                     <Text>
-                        DBR max. slippage %:
+                        Max. slippage %:
                     </Text>
                 </TextInfo>
                 <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
