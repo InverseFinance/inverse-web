@@ -113,7 +113,7 @@ export const F2Header = () => {
               subtitle={`${apy}% APY`}
             /> */}
             <AnchorBigButton
-              onClick={() => router.push('https://docs.inverse.finance/inverse-finance/firm')}
+              onClick={() => router.push('https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/firm')}
               // onClick={() => onIntroOpen()}
               bg="url('/assets/stake-inv.png')"
               title="FiRM & DBR"

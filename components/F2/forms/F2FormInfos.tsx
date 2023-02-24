@@ -198,7 +198,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'Learn more about DBR',
                 title: 'DBR docs',
-                value: <Link textDecoration="underline" color="mainTextColor" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
+                value: <Link textDecoration="underline" color="mainTextColor" href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
                     Learn More
                 </Link>,
             },
