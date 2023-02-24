@@ -421,7 +421,7 @@ export const F2_SIMPLE_ESCROW_ABI = [
   "function balance() public view returns (uint)",
   "function beneficiary() public view returns (address)",
   "function delegatingTo() public view returns (address)",
-  "function delegate(address) public view returns (address)",
+  "function delegate(address) public",
 ];
 
 export const F2_CONTROLLER_ABI = [
