@@ -9,12 +9,12 @@ import { getBnToNumber, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.94`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.95`;
 
 export default async function handler(req, res) {
 
   try {
-    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 300);
+    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 60);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
-      // getGOhmData(),
+      getGOhmData(),
     ]);
 
     const [stethData, gohmData] = externalYieldResults.map(r => {
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
 
     const externalApys = {
       'stETH': stethData?.apy||0,
-      // 'gOHM': gohmData?.apy||0,
+      'gOHM': gohmData?.apy||0,
     }
 
     const markets = F2_MARKETS.map((m, i) => {
