@@ -423,7 +423,7 @@ export const F2CombinedForm = ({
     const actionBtn = <HStack>
         <SimpleAmountForm
             defaultAmount={collateralAmount}
-            address={isRepayCase ? DOLA : market.collateral}
+            address={isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
             destination={isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
