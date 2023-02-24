@@ -225,14 +225,14 @@ export const F2Markets = ({
         href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/firm"
         image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        right={
-            <VStack display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
-                <Link textDecoration="underline" href="https://www.inverse.finance/governance/proposals/mills/90" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
-                    New Proposal:
-                </Link>
-                <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
-            </VStack>
-        }
+        // right={
+        //     <VStack display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
+        //         <Link textDecoration="underline" href="https://www.inverse.finance/governance/proposals/mills/90" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
+        //             New Proposal:
+        //         </Link>
+        //         <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
+        //     </VStack>
+        // }
     >
         {
             isLoading ?

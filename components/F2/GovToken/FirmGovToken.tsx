@@ -11,8 +11,11 @@ import { Input } from "@app/components/common/Input";
 import { isAddress } from "ethers/lib/utils";
 import { InfoMessage } from "@app/components/common/Messages";
 import { Contract } from "ethers";
+import { useWeb3React } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
 
 export const FirmGovToken = () => {
+    const { library, account } = useWeb3React<Web3Provider>();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [newDelegate, setNewDelegate] = useState('');
     const [hasError, setHasError] = useState(false);
@@ -26,10 +29,11 @@ export const FirmGovToken = () => {
     useEffect(() => {
         setHasError(
             !newDelegate
+            || !account
             || (!!newDelegate && !isAddress(newDelegate))
             || delegatingTo?.toLowerCase() === newDelegate.toLowerCase()
         );
-    }, [newDelegate]);
+    }, [newDelegate, account]);
 
     const handleOk = async () => {
         const contract = new Contract(escrow, F2_SIMPLE_ESCROW_ABI, library?.getSigner());
@@ -45,7 +49,7 @@ export const FirmGovToken = () => {
         noPadding
         p="0"
         collapsable={true}
-        defaultCollapse={true}
+        defaultCollapse={false}
         label={`${market.underlying.symbol} Governance Rights`}
         description={`Governance tokens deposited on FiRM keep their voting power!`}
     >
