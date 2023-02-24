@@ -75,7 +75,7 @@ export const F2WalkthroughRecap = ({
             let dolaNeededForDbr, maxDolaIn;            
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];            
-            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(105).div(100));            
+            maxDolaIn = parseUnits(debtAmount).add(dolaNeededForDbr.mul(103).div(100));            
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,

@@ -178,6 +178,7 @@ type AccountDBRMarket = F2Market & {
 export const useAccountDBRMarket = (
   market: F2Market,
   account: string,
+  isUseNativeCoin = false,
 ): AccountDBRMarket => {
   const { data: accountMarketData, error } = useEtherSWR([
     [market.address, 'escrows', account],
@@ -188,10 +189,11 @@ export const useAccountDBRMarket = (
 
   const { data: balances } = useEtherSWR([
     [market.collateral, 'balanceOf', account],
+    ['getBalance', account, 'latest'],
   ]);
 
   const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
-  const [bnCollateralBalance]: BigNumber[] = balances || [zero];
+  const bnCollateralBalance: BigNumber = balances ? isUseNativeCoin ? balances[1] : balances[0] : zero;
   const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
   const { data: escrowData } = useEtherSWR({
