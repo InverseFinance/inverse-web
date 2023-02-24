@@ -60,6 +60,7 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Voting Preserved',
             badgeProps: { bgColor: 'accentTextColor', color: 'white' },
+            isGovTokenCollateral: true,
         },
     ],
     feds: FEDS_PARAMS,
