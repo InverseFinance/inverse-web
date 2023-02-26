@@ -29,13 +29,13 @@ const ErrDocLink = (props) => <Link
 />
 
 const ReplenishDocLink = () => <ErrDocLink
-    href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/dbr-dola-borrowing-rights#dbr-recharging"
+    href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights#dbr-recharging"
 >
     Learn more
 </ErrDocLink>
 
 const LiquidateDocLink = () => <ErrDocLink
-    href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/dbr-dola-borrowing-rights#liquidations"
+    href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights#liquidations"
 >
     Learn more
 </ErrDocLink>

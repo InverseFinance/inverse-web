@@ -34,7 +34,7 @@ export const BondsV1List = () => {
             label="Available Bonds - V1 linear vesting"
             contentBgColor="gradient3"
             description="Get INV at a discount via Olympus Pro  - Learn More about bonds here"
-            href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
+            href="https://docs.inverse.finance/inverse-finance/providing-liquidity/olympus-pro-bonds"
         >
             {
                 bondsPaused && !!account ?
