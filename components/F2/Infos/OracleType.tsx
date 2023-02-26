@@ -12,7 +12,7 @@ export const OracleType = ({
     showText?: boolean,
     subText?: string
 }) => {
-    return <Stack justify="flex-start" alignItems="center" direction="column" spacing="0">
+    return <Stack justify="flex-start" alignItems={{ base: 'flex-end', xl: 'center' }} direction="column" spacing="0">
         <Stack alignItems="center"  spacing="1" direction="row">
             {showImage && <Image src={`/assets/projects/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
             {showText && <Text>{capitalize(oracleType)}+PPO</Text>}

@@ -90,7 +90,7 @@ const columns = [
         field: 'collateralFactor',
         label: 'CF',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        tooltip: 'Collateral Factor: percentage of the collateral worth transformed into borrowing power',
+        tooltip: 'Collateral Factor: maximum percentage of collateral value that can be used for borrowing',
         value: ({ collateralFactor }) => {
             return <Cell minWidth="90px" justify="center" >
                 <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
@@ -132,9 +132,9 @@ const columns = [
     },
     {
         field: 'leftToBorrow',
-        label: "Liquidity",
+        label: "DOLA Available",
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        tooltip: 'Markets can have daily borrow limits, this shows the dola left to borrow for the day (UTC timezone)',
+        tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt }) => {
             return <Cell minWidth="120px" justify="center" alignItems="center" direction="column" spacing="0" >
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2, true) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
@@ -186,12 +186,12 @@ const columns = [
     },
     {
         field: 'perc',
-        label: 'Borrow Limit',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
-        tooltip: 'Borrow Limit, should not reach 100%',
+        label: 'Your Borrow Limit',
+        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-end"  {...props} />,
+        tooltip: 'Your Borrow Limit, should not reach 100%, otherwise liquidations can happen',
         value: ({ perc, debt }) => {
             const color = getRiskColor(perc);
-            return <Cell minWidth="120px" justify="flex-end" >
+            return <Cell minWidth="130px" justify="flex-end" >
                 <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(100 - perc, 2)}%` : '-'}</CellText>
             </Cell>
         },

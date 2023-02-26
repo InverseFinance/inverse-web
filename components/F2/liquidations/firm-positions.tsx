@@ -30,9 +30,9 @@ const columns = [
         label: 'Market',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: ({ market }) => {
-            const { name, icon, marketIcon } = market;
+            const { name, icon, marketIcon, underlying } = market;
             return <Cell minWidth="200px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon || icon}')`} h="40px" w="60px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="40px" w="60px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 <CellText>{name}</CellText>
             </Cell>
         },
