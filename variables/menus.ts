@@ -8,10 +8,10 @@ export const MENUS = {
           label: 'FiRM',
           href: '/firm',
         },
-        {
-          label: 'WETH Market',
-          href: '/firm/WETH',
-        },
+        // {
+        //   label: 'WETH Market',
+        //   href: '/firm/WETH',
+        // },
         {
           label: 'Frontier (deprecated)',
           href: '/frontier',
