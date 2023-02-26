@@ -172,7 +172,7 @@ export const OppysTable = ({
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="Earn with INV & DOLA on external platforms"
         description="DeFi yield opportunities on Ethereum, Optimism and Fantom"
-        href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/yield-opportunities"
+        href="https://docs.inverse.finance/inverse-finance/yield-opportunities"
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },

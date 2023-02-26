@@ -90,7 +90,7 @@ export const DBRTransparency = () => {
                         title="🗄️&nbsp;&nbsp;Docs & Media"
                         description={
                             <VStack spacing="0" alignItems="flex-start">
-                                <Link textDecoration="underline" color="secondaryTextColor" href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
                                     DBR documentation
                                 </Link>
                                 <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/whitepaper" isExternal target="_blank">

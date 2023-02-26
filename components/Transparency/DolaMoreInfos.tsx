@@ -32,7 +32,7 @@ export const DolaMoreInfos = () => {
                         <ListItem>- Isolated-Lending Feds (FiRM)</ListItem>
                         <ListItem>- AMM Feds</ListItem>
                     </List>
-                    <Link color="secondaryTextColor" href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/basics/the-dola-feds">
+                    <Link color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/basics/the-dola-feds">
                         Learn more about DOLA and the Fed contracts
                     </Link>
                 </VStack>

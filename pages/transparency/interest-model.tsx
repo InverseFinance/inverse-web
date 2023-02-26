@@ -142,7 +142,7 @@ export const InterestModelPage = () => {
                                     <Text>{shortenNumber(baseRatePerYear, 2)}</Text>
                                 </Flex>
                                 <Box mt="2">
-                                    <Link isExternal href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/technical/interest-rate-model">
+                                    <Link isExternal href="https://docs.inverse.finance/inverse-finance/technical/interest-rate-model">
                                         Learn more about how the Interest Model works
                                     </Link>
                                 </Box>
@@ -157,7 +157,7 @@ export const InterestModelPage = () => {
                                 <Text>
                                     Each pool has a <b>predetermined monthly INV emission rate</b>, those are <b>rewarded on every block proportionally</b> to the amount of the asset deposited, the monthly emission rates are <b>decided by Governance vote or the Policy Committee</b>.
                                 </Text>
-                                <Link isExternal href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/using-anchor/depositing-assets#anchor-rewards">
+                                <Link isExternal href="https://docs.inverse.finance/inverse-finance/using-anchor/depositing-assets#anchor-rewards">
                                     Learn more about INV rewards and their amounts
                                 </Link>
                             </>

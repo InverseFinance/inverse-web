@@ -135,7 +135,7 @@ export const Landing = ({ posts }: {
                   <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
                     Try Beta
                   </LandingSubmitButton>
-                  <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/firm" target="_blank">
+                  <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
                     Learn More <ExternalLinkIcon ml="1" />
                   </LandingOutlineButton>
                 </Stack>
@@ -209,7 +209,7 @@ export const Landing = ({ posts }: {
             <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
               Try Beta
             </LandingSubmitButton>
-            <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/firm" target="_blank">
+            <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm" target="_blank">
               Learn More <ExternalLinkIcon ml="1" />
             </LandingOutlineButton>
           </Stack>
@@ -370,7 +370,7 @@ export const Landing = ({ posts }: {
               <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
                 We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
-              <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/firm/firm-security" target="_blank">
+              <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://docs.inverse.finance/inverse-finance/firm/firm-security" target="_blank">
                 Learn More <ExternalLinkIcon ml="1" />
               </LandingOutlineButton>
             </VStack>
@@ -382,7 +382,7 @@ export const Landing = ({ posts }: {
           <Text fontSize={smallerSize} color="white" maxW={{ md: '600px', '2xl': '40%' }}>
             Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
           </Text>
-          <LandingOutlineButton w={{ base: 'full', sm: '220px', '2xl': 'auto' }} boxShadow="none" href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/firm/firm-security" target="_blank">
+          <LandingOutlineButton w={{ base: 'full', sm: '220px', '2xl': 'auto' }} boxShadow="none" href="https://docs.inverse.finance/inverse-finance/firm/firm-security" target="_blank">
             Bug Bounty Program
           </LandingOutlineButton>
         </ResponsiveStack>

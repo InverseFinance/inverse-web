@@ -60,7 +60,7 @@ const EligibleComp = ({
         <AirdropText >
             The DBR airdrop is a unique occasion to borrow at 0% interest
         </AirdropText>
-        <Link textDecoration="underline" href="https://inverse-dao.gitbook.io/inverse-finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
+        <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights" isExternal target="_blank">
             Read DBR docs
         </Link>
         {
