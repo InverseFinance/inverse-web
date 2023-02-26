@@ -38,7 +38,7 @@ const mainConfig = {
             icon: '/assets/projects/Ether.png',
             helper: true,
             oracleType: "chainlink",
-            badgeInfo: 'Highest CF',
+            badgeInfo: 'High CF',
         },
         {
             name: 'stETH',
