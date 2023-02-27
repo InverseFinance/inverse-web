@@ -6,10 +6,10 @@ import { CUSTOM_NAMED_ADDRESSES } from "@app/variables/names";
 import { getProvider } from "@app/util/providers";
 import { Contract } from "ethers";
 import { ORACLE_ABI } from "@app/config/abis";
-import { NetworkIds, RefundableTransaction } from "@app/types";
+import { Fed, NetworkIds, RefundableTransaction } from "@app/types";
 import { cacheMultisigMetaKey } from "./transparency/dao";
 import { getTxsOf } from "@app/util/covalent";
-import { capitalize, uniqueBy } from "@app/util/misc";
+import { capitalize, throttledPromises, uniqueBy } from "@app/util/misc";
 import { ELIGIBLE_TXS } from "./gov/eligible-refunds";
 import { formatEther } from "@ethersproject/units";
 
@@ -121,8 +121,16 @@ export default async function handler(req, res) {
             !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
             !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
             // gnosis proxy, for creation
-            !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
-            !hasFilter || filterType === 'feds' ? Promise.all(FEDS.filter(f => f.chainId === NetworkIds.mainnet && !f.hasEnded).map(f => getTxsOf(f.address, deltaDays * 10))) : new Promise((r) => r([{ data: { items: [] } }])),
+            !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),            
+            !hasFilter || filterType === 'feds' ? 
+                throttledPromises(
+                    (f: Fed) => getTxsOf(f.address, deltaDays * 10),
+                    FEDS.filter(f => f.chainId === NetworkIds.mainnet && !f.hasEnded),
+                    // freemium: 5 req per sec
+                    5,
+                    1000,
+                )
+                : new Promise((r) => r([{ data: { items: [] } }])),
             // price feed update
             !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
             !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
