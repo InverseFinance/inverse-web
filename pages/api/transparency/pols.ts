@@ -55,7 +55,8 @@ export default async function handler(req, res) {
                     ...lp,
                     totalSupply,
                     ownedAmount: fedPol.supply,
-                    perc: fedPol.supply / totalSupply,
+                    perc: fedPol.supply / totalSupply * 100,
+                    pairingDepth: totalSupply - dolaPart.balance,
                     dolaBalance: dolaPart.balance,
                     dolaWeight: dolaPart.perc,
                 }

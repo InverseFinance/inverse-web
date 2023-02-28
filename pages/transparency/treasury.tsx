@@ -1,22 +1,21 @@
-import { Divider, Flex, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { Divider, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useCompensations, useDAO } from '@app/hooks/useDAO'
+import { useCompensations, useDAO, usePOLs } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
-import { CHAIN_TOKENS, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
-import { useAppTheme } from '@app/hooks/useAppTheme'
 import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
-  const { themeStyles }= useAppTheme();
-  const { treasury, anchorReserves, bonds, multisigs, pols } = useDAO();
+  const { treasury, anchorReserves, bonds, multisigs } = useDAO();
+  const { pols } = usePOLs();
   const { currentPayrolls } = useCompensations();
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
@@ -32,10 +31,11 @@ export const Overview = () => {
 
   const polsItems = pols.map(p => {
     return {
-      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,      
+      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,
       tvl: p.totalSupply,
       pol: p.ownedAmount,
       polDom: p.perc,
+      ...p,
     }
   });
 

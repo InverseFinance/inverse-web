@@ -36,6 +36,16 @@ export const useDAO = (): SWR & DAO => {
   }
 }
 
+export const usePOLs = (): SWR & DAO => {
+  const { data, error } = useCustomSWR(`/api/transparency/pols?v=1`, fetcher)
+
+  return {    
+    pols: data?.pols || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useCompensations = (): SWR & {
   currentPayrolls: Payroll[]
   currentVesters: Vester[]
