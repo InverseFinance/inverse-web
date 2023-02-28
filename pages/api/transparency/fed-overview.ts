@@ -24,14 +24,15 @@ const FUSE_CTOKENS = {
 };
 const FUSE_FEDS = Object.entries(FUSE_CTOKENS).map(([fedAddress, ctoken]) => ({ fedAddress, ctoken }));
 
+export const fedOverviewCacheKey = `fed-overview-v1.0.0`;
+
 export default async function handler(req, res) {
-  // to keep for archive
-  const cacheKey = `fed-overview-v1.0.0`;
+  // to keep for archive  
   const { cacheFirst } = req.query;
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 900);
+    const validCache = await getCacheFromRedis(fedOverviewCacheKey, cacheFirst !== 'true', 900);
 
     if (validCache) {
       res.status(200).json(validCache);
@@ -196,14 +197,14 @@ export default async function handler(req, res) {
       fedOverviews,
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(fedOverviewCacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(fedOverviewCacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
