@@ -92,7 +92,9 @@ const chainTokenAddresses = {
     VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
     VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
     VELODOLAUSDCLP: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
+    VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+    USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -609,6 +611,14 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'velodrome-finance',
     },
+    [chainTokenAddresses["10"].USDplus]: {
+      address: chainTokenAddresses["10"].USDplus,
+      name: 'USD+',
+      symbol: 'USD+',
+      image: 'https://assets.coingecko.com/coins/images/25757/small/USD__logo.png?1653519267',
+      decimals: 6,
+      coingeckoId: 'usd',
+    },
     [chainTokenAddresses["10"].VEVELO]: {
       address: chainTokenAddresses["10"].VEVELO,
       name: 'veVELO',
@@ -628,6 +638,19 @@ const chainTokens = {
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
+    },
+    [chainTokenAddresses["10"].VELODOLAUSDplusLP]: {
+      address: chainTokenAddresses["10"].VELODOLAUSDplusLP,
+      name: 'DOLA-USD+',
+      symbol: 'DOLA-USD+',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
+      decimals: 18,
+      isLP: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["10"].USDplus, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: 'https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876',
     },
