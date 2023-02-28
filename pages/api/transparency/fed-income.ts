@@ -6,6 +6,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { getTxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 import { pricesCacheKey } from '../prices';
+import { throttledPromises } from '@app/util/misc';
 
 const COINGECKO_IDS = {
     'CRV': 'curve-dao-token',
@@ -40,9 +41,13 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 }
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
-    const transfers = await Promise.all(
-        FEDS.map(fed => getTxsOf(fed.incomeSrcAd || fed.address, 1000, 0, fed.incomeChainId || fed.chainId))
-    )
+    const transfers = await throttledPromises(
+        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 1000, 0, fed.incomeChainId || fed.chainId),
+        FEDS,
+        // max 5 req per sec
+        5,
+        500,
+    );
 
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];

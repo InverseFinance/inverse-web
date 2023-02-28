@@ -7,6 +7,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
 import { throttledPromises } from '@app/util/misc';
+import { getCacheFromRedis, redisSetWithTimestamp } from "./redis";
 
 const fillPositionsWithRetry = async (
     positions: [number, BigNumber, BigNumber, string, number][],
@@ -107,22 +108,29 @@ export const getPositionsDetails = async ({
                 return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
             })
 
-        const holders = await Promise.all(
-            contracts.map(contract => getTokenHolders(contract.address))
-        )
+        // potential borrowers list won't change for Frontier as it's borrowing is disabled
+        const cachedUserAddresses = (await getCacheFromRedis('frontier-unique-past-users', false)) || [];
+        if (!cachedUserAddresses?.length) {
+            const holders = await Promise.all(
+                contracts.map(contract => getTokenHolders(contract.address))
+            )
 
-        const usersSet = new Set();
-        balances = {};
+            const usersSet = new Set();
+            balances = {};
 
-        holders.forEach((res, i) => {
-            res.data.items.forEach(anTokenHolder => {
-                usersSet.add(anTokenHolder.address);
-                if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
-                balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
+            holders.forEach((res, i) => {
+                res.data.items.forEach(anTokenHolder => {
+                    usersSet.add(anTokenHolder.address);
+                    if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
+                    balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
+                });
             });
-        });
 
-        uniqueUsers = Array.from(usersSet);
+            uniqueUsers = Array.from(usersSet);            
+            await redisSetWithTimestamp('frontier-unique-past-users', uniqueUsers);
+        } else {
+            uniqueUsers = cachedUserAddresses;
+        }
         lastUpdate = Date.now();
     } else {
         lastUpdate = marketsData.lastUpdate;

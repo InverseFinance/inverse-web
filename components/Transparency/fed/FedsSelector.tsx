@@ -7,7 +7,7 @@ export const FedsSelector = ({ feds, setChosenFedIndex, defaultValue = '0', valu
             value: i.toString(),
             label: <Flex alignItems="center">
                 {
-                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="2" />
+                    !!fed.chainId && <Image borderRadius={fed.address ? '10px' : undefined} ignoreFallback={true} src={`${fed.projectImage}`} w={'15px'} h={'15px'} mr="1" />
                 }
                 {fed.name.replace(/ Fed$/, '')}
             </Flex>,
@@ -31,7 +31,7 @@ export const FedsSelector = ({ feds, setChosenFedIndex, defaultValue = '0', valu
                     value: value !== undefined ? value.toString() : undefined,
                     onChange: (v: string) => setChosenFedIndex(parseInt(v)),
                 }}
-                radioCardProps={{ w: '95px', fontSize: '14px', textAlign: 'center', p: '2', position: 'relative' }}
+                radioCardProps={{ w: '95px', fontSize: '13px', textAlign: 'center', p: '2', position: 'relative' }}
                 options={fedOptionList}
             />
         </Box>
