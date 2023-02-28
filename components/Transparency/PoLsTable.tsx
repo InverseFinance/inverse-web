@@ -33,7 +33,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ tvl }) => {
             return <Cell minWidth="100px" justify="center" fontSize="15px">
-                <CellText>{preciseCommify(tvl, 2)}</CellText>
+                <CellText>{preciseCommify(tvl, 2, true)}</CellText>
             </Cell>
         },
     }
@@ -43,7 +43,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ pol }) => {
             return <Cell minWidth="100px" justify="center" fontSize="15px">
-                <CellText>{preciseCommify(pol, 2)}</CellText>
+                <CellText>{preciseCommify(pol, 2, true)}</CellText>
             </Cell>
         },
     }

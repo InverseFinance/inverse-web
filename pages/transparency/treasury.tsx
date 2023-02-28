@@ -1,4 +1,4 @@
-import { Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Divider, Flex, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -11,6 +11,7 @@ import { CHAIN_TOKENS, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
@@ -29,15 +30,14 @@ export const Overview = () => {
     { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds, TWGBSCfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds, TWGBSCfunds) },
   ];
 
-  const polsFunds = pols.map(p => {
+  const polsItems = pols.map(p => {
     return {
-      title: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol} Liquidity`,
-      funds: [
-        { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Protocol Owned', chartFillColor: themeStyles.colors.secondary, chartLabelFillColor: themeStyles.colors.secondary, balance: p.ownedAmount },
-        { token: { symbol: CHAIN_TOKENS[p.chainId][p.address]?.symbol }, label: 'Not Protocol Owned', balance: p.totalSupply - p.ownedAmount },
-      ],
+      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,      
+      tvl: p.totalSupply,
+      pol: p.ownedAmount,
+      polDom: p.perc,
     }
-  })
+  });
 
   const totalMultisigs = multisigs?.map(m => {
     return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
@@ -70,12 +70,9 @@ export const Overview = () => {
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on Optimism" funds={TWGOPfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on BSC" funds={TWGBSCfunds} prices={prices} type='balance' />
-              {
-                polsFunds.map(p => {
-                  return <FundsDetails key={p.title} title={p.title} funds={p.funds} prices={prices} labelWithPercInChart={true} type='balance' />
-                })
-              }
             </SimpleGrid>
+            <Divider />
+            <PoLsTable items={polsItems} />
           </Stack>
         </Flex>
       </Flex>
