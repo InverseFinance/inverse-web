@@ -649,6 +649,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isVeloLP: true,
+      lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
       pairs: [
         chainTokenAddresses["10"].USDplus, chainTokenAddresses["10"].DOLA
       ],

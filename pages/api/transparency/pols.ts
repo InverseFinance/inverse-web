@@ -4,10 +4,11 @@ import { ERC20_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { Multisig, NetworkIds } from '@app/types';
+import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
+import { getLPBalances } from '@app/util/contracts';
 
 export default async function handler(req, res) {
 
@@ -29,13 +30,13 @@ export default async function handler(req, res) {
         const lps = [
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ isLP }) => isLP)
-                .map(({ address }) => ({ address, chainId: NetworkIds.mainnet })),
+                .map((lp) => ({ chainId: NetworkIds.mainnet, ...lp })),
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(({ isLP }) => isLP)
-                .map(({ address }) => ({ address, chainId: NetworkIds.optimism })),
+                .map((lp) => ({ chainId: NetworkIds.optimism, ...lp })),
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ isLP }) => isLP)
-                .map(({ address }) => ({ address, chainId: NetworkIds.bsc })),
+                .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
         ]
 
         const chainTWG: { [key: string]: Multisig } = {
@@ -47,36 +48,41 @@ export default async function handler(req, res) {
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
 
-        const getPol = async (lp: { address: string, chainId: string }) => {
+        const getPol = async (lp: Token & { chainId: string }) => {
             const fedPol = fedPols.find(f => {
                 return f?.strategy?.pools?.[0]?.address === lp.address
             });
-            if (fedPol) {
-                const totalSupply = fedPol.subBalances.reduce((prev, curr) => prev + curr.balance, 0);
-                const dolaPart = fedPol.subBalances.find(d => d.symbol === 'DOLA');
-                return {
-                    ...lp,
-                    totalSupply,
-                    ownedAmount: fedPol.supply,
-                    perc: fedPol.supply / totalSupply * 100,
-                    pairingDepth: totalSupply - dolaPart.balance,
-                    dolaBalance: dolaPart.balance,
-                    dolaWeight: dolaPart.perc,
-                }
-            }
             const provider = getProvider(lp.chainId);
-            const contract = new Contract(lp.address, ERC20_ABI, provider);
-            const totalSupply = getBnToNumber(await contract.totalSupply());
 
-            const owned: { [key: string]: number } = {};
-            owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
-            if (lp.chainId === NetworkIds.mainnet) {
-                owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
-                owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
+            const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
+            const totalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
+            const dolaPart = subBalances.find(d => d.symbol === 'DOLA' || d.symbol === 'INV');
+
+            let ownedAmount = 0
+            if (!fedPol) {
+                const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
+                // const totalSupply = getBnToNumber(await contract.totalSupply());
+
+                const owned: { [key: string]: number } = {};
+                owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
+                if (lp.chainId === NetworkIds.mainnet) {
+                    // no more
+                    // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
+                    owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
+                }
+                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0);
+            } else {
+                ownedAmount = fedPol.supply;
             }
-            const ownedAmount: number = Object.values(owned).reduce((prev, curr) => prev + curr, 0);
-            const perc = ownedAmount / totalSupply * 100;
-            return { totalSupply, ownedAmount, perc, ...lp, owned };
+            return {
+                ...lp,
+                totalSupply,
+                ownedAmount,
+                perc: ownedAmount / totalSupply * 100,
+                pairingDepth: totalSupply - (dolaPart?.balance||0),
+                dolaBalance: dolaPart?.balance || 0,
+                dolaWeight: dolaPart?.perc || 0,
+            }
         }
 
         const pols = (await Promise.all([
