@@ -74,7 +74,7 @@ export default async function handler(req, res) {
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
                     }
                 }
-                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0);
+                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0) * (prices[lp.coingeckoId||lp.symbol]||1);
             } else {
                 ownedAmount = fedPol.supply;
             }
