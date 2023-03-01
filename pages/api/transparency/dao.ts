@@ -26,7 +26,6 @@ const ANCHOR_RESERVES_TO_CHECK = [
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-export const cachePolKey = `dao-pols-v1.0.0`;
 export const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
 export const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
@@ -256,47 +255,6 @@ export default async function handler(req, res) {
       })
     )
 
-    // POL
-    const lps = [
-      ...Object
-        .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ isLP }) => isLP)
-        .map(({ address }) => ({ address, chainId: NetworkIds.mainnet })),
-      ...Object
-        .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
-        .map(({ address }) => ({ address, chainId: NetworkIds.ftm })),
-    ]
-
-    const chainTWG: { [key: string]: Multisig } = {
-      [NetworkIds.mainnet]: multisigsToShow.find(m => m.shortName === 'TWG')!,
-      [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
-      [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
-      [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
-    }
-
-    const getPol = async (lp: { address: string, chainId: string }) => {
-      const provider = getProvider(lp.chainId);
-      const contract = new Contract(lp.address, ERC20_ABI, provider);
-      const totalSupply = getBnToNumber(await contract.totalSupply());
-
-      const owned: { [key: string]: number } = {};
-      owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
-      if (lp.chainId === NetworkIds.mainnet) {
-        owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
-        owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
-      }
-      const ownedAmount: number = Object.values(owned).reduce((prev, curr) => prev + curr, 0);
-      const perc = ownedAmount / totalSupply * 100;
-      return { totalSupply, ownedAmount, perc, ...lp, owned };
-    }
-
-    const polsCache = await getCacheFromRedis(cachePolKey, true, 600);
-    const pols = polsCache || (await Promise.all([
-      ...lps.map(lp => getPol(lp))
-    ]))
-    if (!polsCache) {
-      await redisSetWithTimestamp(cachePolKey, pols);
-    }
-
     const toSupplies = (total: number, bridgedSupplies: BigNumber[], bridgedChains: string[]) => {
       return [
         {
@@ -330,8 +288,7 @@ export default async function handler(req, res) {
     }));
 
     const resultData = {
-      timestamp: +(new Date()),
-      pols,
+      timestamp: +(new Date()),      
       dolaTotalSupply: dolaTotalSupplyNum,
       invTotalSupply: invTotalSupplyNum,
       dolaOperator,
