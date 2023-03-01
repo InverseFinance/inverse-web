@@ -12,7 +12,7 @@ import { getLPBalances } from '@app/util/contracts';
 
 export default async function handler(req, res) {
 
-    const { TREASURY, MULTISIGS, OP_BOND_MANAGER } = getNetworkConfigConstants(NetworkIds.mainnet);
+    const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
     const cacheKey = `pols-v1.0.0`;
 
     try {
@@ -64,11 +64,13 @@ export default async function handler(req, res) {
                 // const totalSupply = getBnToNumber(await contract.totalSupply());
 
                 const owned: { [key: string]: number } = {};
-                owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
-                if (lp.chainId === NetworkIds.mainnet) {
-                    // no more
-                    // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
-                    owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
+                if (!lp.isUniV3) {
+                    owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
+                    if (lp.chainId === NetworkIds.mainnet) {
+                        // no more
+                        // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
+                        owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
+                    }
                 }
                 ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0);
             } else {
@@ -79,7 +81,7 @@ export default async function handler(req, res) {
                 totalSupply,
                 ownedAmount,
                 perc: ownedAmount / totalSupply * 100,
-                pairingDepth: totalSupply - (dolaPart?.balance||0),
+                pairingDepth: totalSupply - (dolaPart?.balance || 0),
                 dolaBalance: dolaPart?.balance || 0,
                 dolaWeight: dolaPart?.perc || 0,
             }

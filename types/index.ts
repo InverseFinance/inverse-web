@@ -16,6 +16,7 @@ export interface Token {
   isLP?: boolean
   isCrvLP?: boolean
   isVeloLP?: boolean
+  isUniV3?: boolean
   lpBalanceContract?: string
   lpPrice?: number
   balancerInfos?: {

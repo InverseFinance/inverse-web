@@ -366,10 +366,10 @@ export const getCrvConvexRewards = async (baseRewardPool: string, account: strin
   return rewards.map(bn => getBnToNumber(bn));
 }
 
-export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner, viaReserves = false): Promise<Token & { balance: number, perc: number }[]> => {
-  try {
-    if (LPToken.isCrvLP && !!LPToken.pairs) {
-      const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & { balance: number, perc: number }[]> => {
+  const tokens = LPToken.pairs?.map(address => CHAIN_TOKENS[chainId][address]) || [];
+  try {    
+    if (LPToken.isCrvLP && !!LPToken.pairs) {      
       const balancesBn = await Promise.all(
         tokens.map((token, tokenIndex) => new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
       );
@@ -378,24 +378,35 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
       return tokens.map((token, i) => {
         return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
       })
-    } else if (LPToken.isVeloLP && !!LPToken.pairs) {
-      const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
-      const balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves())
-      const balances = balancesBn.slice(0, 2).map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
-      const total = balances.reduce((prev, curr) => prev + curr, 0);
-      return tokens.map((token, i) => {
-        return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
-      })
-    } else if (LPToken.balancerInfos && !!LPToken.pairs) {
-      const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);      
-      const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);      
-      const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i]?.decimals||18));
+    } else if (LPToken.balancerInfos && !!LPToken.pairs) {      
+      const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);
+      const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i]?.decimals || 18));
       // balancer composable metapools contain the LP itself, we can skip it for our calc
       const balances = _balances.filter((v, i) => tokens[i].address !== LPToken.address);
       const total = balances.reduce((prev, curr) => prev + curr, 0);
       return tokens.filter((token => token.address !== LPToken.address)).map((token, i) => {
         return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
       });
+    }
+    // UniV3
+    else if (LPToken.isUniV3 && !!LPToken.pairs) {
+      const balancesBn = await Promise.all(
+        tokens.map((token, tokenIndex) => new Contract(token.address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address))
+      );
+      const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+      const total = balances.reduce((prev, curr) => prev + curr, 0);
+      return tokens.map((token, i) => {
+        return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
+      })
+    }
+    // Uni/Sushi or Solidly
+    else if (!!LPToken.pairs) {      
+      const balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves())
+      const balances = balancesBn.slice(0, 2).map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+      const total = balances.reduce((prev, curr) => prev + curr, 0);
+      return tokens.map((token, i) => {
+        return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
+      })
     }
   } catch (e) {
     console.log(e)
