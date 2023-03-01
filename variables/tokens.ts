@@ -46,6 +46,7 @@ const chainTokenAddresses = {
     INVETHLP: '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
     DOLAUSDCUNIV3: '0x7c082BF85e01f9bB343dbb460A14e51F67C58cFB',
+    DOLADBRUNIV3: '0x6a279e847965ba5dDc0AbFE8d669642F73334A2C',
     THREECRV: '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490',
     FLOKI: '0xcf0c122c6b73ff809c693db761e7baebe62b6a2e',
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
@@ -59,6 +60,7 @@ const chainTokenAddresses = {
     BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
+    DBRDOLABALANCER: '0x445494F823f3483ee62d854eBc9f58d5B9972A25',
     DOLABBEUSD: '0x133d241F225750D2c92948E464A5a80111920331',
     BBEUSD: '0x50Cf90B954958480b8DF7958A9E965752F627124',
     SDCRV: '0xd1b5651e55d4ceed36251c61c50c889b36f6abb5',
@@ -257,6 +259,19 @@ const chainTokens = {
       ],
       protocolImage: 'https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604',
     },
+    [chainTokenAddresses["1"].DOLADBRUNIV3]: {
+      address: chainTokenAddresses["1"].DOLADBRUNIV3,
+      name: 'DOLA-DBR LP',
+      symbol: 'DOLA-DBR-LP',
+      image: '/assets/v2/dola-small.png',
+      decimals: 18,
+      isLP: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR
+      ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604',
+    },
     [chainTokenAddresses["1"].INVETHSLP]: {
       address: chainTokenAddresses["1"].INVETHSLP,
       name: 'INV-ETH SLP',
@@ -338,6 +353,22 @@ const chainTokens = {
       },     
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+      ],
+      image: '/assets/v2/dola-small.png'
+    },
+    [chainTokenAddresses["1"].DBRDOLABALANCER]: {
+      address: chainTokenAddresses["1"].DBRDOLABALANCER,
+      name: 'DOLA-DBR blp',
+      symbol: 'DOLA-DBR blp',
+      protocolImage: '/assets/projects/balancer.png',
+      decimals: 18,
+      isLP: true,
+      balancerInfos: {
+        poolId: '0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },     
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR
       ],
       image: '/assets/v2/dola-small.png'
     },
