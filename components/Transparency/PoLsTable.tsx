@@ -31,7 +31,7 @@ const columns = [
     {
         field: 'tvl',
         label: 'TVL',        
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ tvl }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(tvl, 2, true)}</CellText>
@@ -41,7 +41,7 @@ const columns = [
     {
         field: 'pairingDepth',
         label: 'Pairing Depth',        
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ pairingDepth }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(pairingDepth||0, 2, true)}</CellText>
@@ -51,7 +51,7 @@ const columns = [
     {
         field: 'dolaBalance',
         label: 'DOLA Balance',        
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ dolaBalance }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(dolaBalance||0, 2, true)}</CellText>
@@ -61,7 +61,7 @@ const columns = [
     {
         field: 'dolaWeight',
         label: 'DOLA Weight',        
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ dolaWeight }) => {
             return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
                 <CellText>{shortenNumber(dolaWeight||0, 2)}%</CellText>
@@ -71,7 +71,7 @@ const columns = [
     , {
         field: 'pol',
         label: 'PoL',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ pol }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(pol, 2, true)}</CellText>

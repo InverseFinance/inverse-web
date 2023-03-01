@@ -31,8 +31,7 @@ export const Overview = () => {
 
   const polsItems = pols.map(p => {
     return {
-      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,
-      tvl: p.totalSupply,
+      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,      
       pol: p.ownedAmount,
       polDom: p.perc,
       ...p,
