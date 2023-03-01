@@ -9,6 +9,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
 import { getLPBalances } from '@app/util/contracts';
+import { pricesCacheKey } from '../prices';
 
 export default async function handler(req, res) {
 
@@ -48,6 +49,8 @@ export default async function handler(req, res) {
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
 
+        const prices = (await getCacheFromRedis(pricesCacheKey, false)) || {};
+
         const getPol = async (lp: Token & { chainId: string }) => {
             const fedPol = fedPols.find(f => {
                 return f?.strategy?.pools?.[0]?.address === lp.address
@@ -55,14 +58,14 @@ export default async function handler(req, res) {
             const provider = getProvider(lp.chainId);
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
-            const totalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
-            const dolaPart = subBalances.find(d => d.symbol === 'DOLA' || d.symbol === 'INV');
+
+            const isDolaMain = lp.symbol.includes('DOLA');
+            const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * prices[curr.coingeckoId||curr.symbol]||1, 0);
+            const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
 
             let ownedAmount = 0
             if (!fedPol) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
-                // const totalSupply = getBnToNumber(await contract.totalSupply());
-
                 const owned: { [key: string]: number } = {};
                 if (!lp.isUniV3) {
                     owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
@@ -76,14 +79,15 @@ export default async function handler(req, res) {
             } else {
                 ownedAmount = fedPol.supply;
             }
+            const dolaWorth = (mainPart?.balance || 0) * prices[isDolaMain ? 'dola-usd' : 'inverse-finance']||1;
             return {
                 ...lp,
-                totalSupply,
+                tvl,
                 ownedAmount,
-                perc: ownedAmount / totalSupply * 100,
-                pairingDepth: totalSupply - (dolaPart?.balance || 0),
-                dolaBalance: dolaPart?.balance || 0,
-                dolaWeight: dolaPart?.perc || 0,
+                perc: ownedAmount / tvl * 100,
+                pairingDepth: tvl - dolaWorth,
+                dolaBalance: dolaWorth,
+                dolaWeight: dolaWorth / tvl * 100,
             }
         }
 
