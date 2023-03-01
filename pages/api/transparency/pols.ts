@@ -17,7 +17,6 @@ export default async function handler(req, res) {
     const cacheKey = `pols-v1.0.0`;
 
     try {
-
         const validCache = await getCacheFromRedis(cacheKey, true, 300);
         if (validCache) {
             res.status(200).json(validCache);
@@ -60,7 +59,7 @@ export default async function handler(req, res) {
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
 
             const isDolaMain = lp.symbol.includes('DOLA');
-            const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * prices[curr.coingeckoId||curr.symbol]||1, 0);
+            const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId||curr.symbol]||1), 0);
             const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
 
             let ownedAmount = 0
@@ -79,7 +78,8 @@ export default async function handler(req, res) {
             } else {
                 ownedAmount = fedPol.supply;
             }
-            const dolaWorth = (mainPart?.balance || 0) * prices[isDolaMain ? 'dola-usd' : 'inverse-finance']||1;
+            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance']||1);
+
             return {
                 ...lp,
                 tvl,
