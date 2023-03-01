@@ -17,11 +17,11 @@ export default async function handler(req, res) {
     try {
 
         const validCache = await getCacheFromRedis(cacheKey, true, 300);
-        // if (validCache) {
-        //     res.status(200).json(validCache);
-        //     return
-        // }
-        
+        if (validCache) {
+            res.status(200).json(validCache);
+            return
+        }
+
         const fedsOverviewCache = await getCacheFromRedis(fedOverviewCacheKey, false);
 
         const multisigsToShow = MULTISIGS;
@@ -31,8 +31,11 @@ export default async function handler(req, res) {
                 .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ isLP }) => isLP)
                 .map(({ address }) => ({ address, chainId: NetworkIds.mainnet })),
             ...Object
-                .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
-                .map(({ address }) => ({ address, chainId: NetworkIds.ftm })),
+                .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(({ isLP }) => isLP)
+                .map(({ address }) => ({ address, chainId: NetworkIds.optimism })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ isLP }) => isLP)
+                .map(({ address }) => ({ address, chainId: NetworkIds.bsc })),
         ]
 
         const chainTWG: { [key: string]: Multisig } = {
@@ -44,12 +47,12 @@ export default async function handler(req, res) {
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
 
-        const getPol = async (lp: { address: string, chainId: string }) => {            
-            const fedPol = fedPols.find(f => {                
+        const getPol = async (lp: { address: string, chainId: string }) => {
+            const fedPol = fedPols.find(f => {
                 return f?.strategy?.pools?.[0]?.address === lp.address
             });
             if (fedPol) {
-                const totalSupply = fedPol.subBalances.reduce((prev, curr) => prev+curr.balance, 0);
+                const totalSupply = fedPol.subBalances.reduce((prev, curr) => prev + curr.balance, 0);
                 const dolaPart = fedPol.subBalances.find(d => d.symbol === 'DOLA');
                 return {
                     ...lp,
@@ -78,13 +81,13 @@ export default async function handler(req, res) {
 
         const pols = (await Promise.all([
             ...lps.map(lp => getPol(lp))
-        ]))        
+        ]))
 
         const resultData = {
             timestamp: +(new Date()),
             pols,
         }
-        // await redisSetWithTimestamp(cacheKey, resultData);
+        await redisSetWithTimestamp(cacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {

@@ -94,8 +94,11 @@ export const PoLsTable = ({
 }) => {
     return <Container noPadding p="0" label="Liquidity">
         <Table
+            key="address"
             columns={columns}
             items={items}
+            defaultSort="tvl"
+            defaultSortDir="desc"
         />
     </Container>
 }
