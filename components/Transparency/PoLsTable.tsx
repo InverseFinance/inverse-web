@@ -34,7 +34,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ tvl }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(tvl, 2, true)}</CellText>
+                <CellText>{preciseCommify(tvl, 0, true)}</CellText>
             </Cell>
         },
     },
@@ -44,7 +44,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ pairingDepth }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(pairingDepth||0, 2, true)}</CellText>
+                <CellText>{preciseCommify(pairingDepth||0, 0, true)}</CellText>
             </Cell>
         },
     },
@@ -54,7 +54,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ dolaBalance }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(dolaBalance||0, 2, true)}</CellText>
+                <CellText>{preciseCommify(dolaBalance||0, 0, true)}</CellText>
             </Cell>
         },
     },
@@ -74,7 +74,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,
         value: ({ pol }) => {
             return <Cell minWidth="150px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(pol, 2, true)}</CellText>
+                <CellText>{preciseCommify(pol, 0, true)}</CellText>
             </Cell>
         },
     }
