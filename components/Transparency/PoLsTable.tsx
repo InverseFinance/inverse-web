@@ -3,6 +3,7 @@ import Table from "../common/Table"
 import { preciseCommify } from "@app/util/misc"
 import { shortenNumber } from "@app/util/markets"
 import Container from "../common/Container"
+import { UnderlyingItem } from "../common/Assets/UnderlyingItem"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -21,9 +22,9 @@ const columns = [
         field: 'name',
         label: 'Pool',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
-        value: ({ name }) => {
-            return <Cell minWidth='200px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
-                <CellText>{name}</CellText>
+        value: (lp) => {
+            return <Cell minWidth='200px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+                <UnderlyingItem {...lp} label={lp.symbol} />
             </Cell>
         },
     },
