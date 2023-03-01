@@ -104,11 +104,13 @@ const chainTokenAddresses = {
     INV: '0x4C1948bf7E33c711c488f765B3A8dDD9f7bEECb4',
   },
   "56": {
+    WBNB: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     DOLA: '0x2F29Bc0FFAF9bff337b31CBe6CB5Fb3bf12e5840',
     THENA: '0xF4C8E32EaDEC4BFe97E0F595AdD0f4450a863a11',
     VETHENA: '0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D',
     CUSD: '0xFa4BA88Cf97e282c505BEa095297786c16070129',
     THENADOLACUSDLP: '0x7061F52ed4942021924745D454d722E52e057e03',
+    THENADOLAWBNBLP: '0xc5856601712E8a74d57cdc7a47fB1B41C1a6Fae2',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -688,6 +690,14 @@ const chainTokens = {
       image: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png?1644979850',
       decimals: 18,
     },
+    [chainTokenAddresses["56"].WBNB]: {
+      address: chainTokenAddresses["56"].WBNB,
+      name: 'WBNB',
+      symbol: 'WBNB',
+      coingeckoId: 'wbnb',
+      image: 'https://assets.coingecko.com/coins/images/12591/small/binance-coin-logo.png?1600947313',
+      decimals: 18,
+    },
     [chainTokenAddresses["56"].THENA]: {
       address: chainTokenAddresses["56"].THENA,
       name: 'THENA',
@@ -732,6 +742,18 @@ const chainTokens = {
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["56"].DOLA, chainTokenAddresses["56"].CUSD
+      ],
+      protocolImage: 'https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924',
+    },[chainTokenAddresses["56"].THENADOLAWBNBLP]: {
+      address: chainTokenAddresses["56"].THENADOLAWBNBLP,
+      name: 'DOLA-WBNB',
+      symbol: 'DOLA-WBNB',
+      image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374',
+      decimals: 18,
+      isLP: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["56"].DOLA, chainTokenAddresses["56"].WBNB
       ],
       protocolImage: 'https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924',
     },
