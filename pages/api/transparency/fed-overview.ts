@@ -143,7 +143,7 @@ export default async function handler(req, res) {
       } else if (fedConfig.isFirm) {
         tvl = firmTotalTvl;
         borrows = firmMarkets.reduce((prev, curr) => prev + curr.totalDebt, 0);
-        detailsLink = '/firm/positions';
+        detailsLink = '/firm';
         detailsLinkName = 'Positions'
       } else if (fedConfig.type === FedTypes.LP) {
         detailsLink = `https://debank.com/profile/${fedConfig.incomeSrcAd || fedConfig.address}`;
