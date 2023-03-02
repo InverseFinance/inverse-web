@@ -297,8 +297,8 @@ export const MENUS = {
           href: 'https://docs.inverse.finance/',
         },
         {
-          label: 'Risk Docs',
-          href: 'https://docs.inverse.finance-risk/',
+          label: 'Risk Gitbook',
+          href: 'https://inverse-dao.gitbook.io/inverse-finance-risk/',
         },
         {
           label: 'Github',

@@ -46,7 +46,7 @@ export const AboutFirm = () => {
           src={isLargerThan ? "/assets/firm/infographic-optimized.jpg" : "/assets/firm/infographic-mobile.jpg"}
         />
         {/* <Text mt="50px" textAlign="center" fontSize="14px" color="secondaryTextColor">
-            Please read our <Link href="https://docs.inverse.finance/inverse-finance/firm" isExternal target="_blank" as="a" textDecoration="underline" color="secondaryTextColor">
+            Please read our <Link href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm" isExternal target="_blank" as="a" textDecoration="underline" color="secondaryTextColor">
               Docs
             </Link> for further details.
           </Text> */}

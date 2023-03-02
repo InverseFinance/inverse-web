@@ -26,14 +26,14 @@ export const LandingNav = ({
         zIndex="docked"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
-          <Logo minH="30px" minW="30px" boxSize={isBottom ? '2vmax' : '4vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
+          <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={ isBottom ? "brightness(0) invert(1)" : 'unset' } />
           <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor} 
             fontWeight="bold"
             fontSize={isBottom ? normalSize : slightlyBiggerSize}>
             Inverse Finance
           </Text>
         </Stack>
-        <Stack spacing="2vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
+        <Stack spacing="1.6vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
           {NAV_ITEMS.map(({ label, href }, i) => (
             <Link
               key={i}
@@ -42,7 +42,7 @@ export const LandingNav = ({
               isExternal
               color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               _hover={{ textDecoration: 'underline' }}
-              fontSize={isBottom ? smallerSize2 : smallerSize}
+              fontSize={smallerSize2}
             >
               {label}
             </Link>
