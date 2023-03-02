@@ -105,7 +105,7 @@ export const F2CombinedForm = ({
         if (!signer) { return }
         const action = MODES[mode]
         let dbrNeeded, dolaNeededForDbr, maxDolaIn;
-        if (isAutoDBR || isUseNativeCoin) {
+        if (isAutoDBR) {
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             dbrNeeded = approx[1];
