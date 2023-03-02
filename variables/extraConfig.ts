@@ -58,7 +58,7 @@ const mainConfig = {
             escrowImplementation: '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',            
             helper: true,
             oracleType: "chainlink",
-            badgeInfo: 'Voting Preserved',
+            badgeInfo: 'Keep Voting',
             badgeProps: { bgColor: 'accentTextColor', color: 'white' },
             isGovTokenCollateral: true,
         },
