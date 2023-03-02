@@ -10,6 +10,13 @@ import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
 import { getLPBalances } from '@app/util/contracts';
 import { pricesCacheKey } from '../prices';
+import { PROTOCOL_IMAGES } from '@app/variables/images';
+
+const PROTOCOLS = Object.fromEntries(
+    Object
+        .entries(PROTOCOL_IMAGES)
+        .map(([key, value]) => [value, key])
+);;
 
 export default async function handler(req, res) {
 
@@ -59,7 +66,7 @@ export default async function handler(req, res) {
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
 
             const isDolaMain = lp.symbol.includes('DOLA');
-            const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId||curr.symbol]||1), 0);
+            const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId || curr.symbol] || 1), 0);
             const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
 
             let ownedAmount = 0
@@ -74,14 +81,15 @@ export default async function handler(req, res) {
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
                     }
                 }
-                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0) * (prices[lp.coingeckoId||lp.symbol]||1);
+                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0) * (prices[lp.coingeckoId || lp.symbol] || 1);
             } else {
                 ownedAmount = fedPol.supply;
             }
-            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance']||1);
+            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
 
             return {
                 ...lp,
+                protocol: PROTOCOLS[lp.protocolImage],
                 tvl,
                 ownedAmount,
                 perc: ownedAmount / tvl * 100,

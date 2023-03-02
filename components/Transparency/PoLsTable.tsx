@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from "@chakra-ui/react"
+import { Flex, Stack, Text, Image } from "@chakra-ui/react"
 import Table from "../common/Table"
 import { preciseCommify } from "@app/util/misc"
 import { shortenNumber } from "@app/util/markets"
@@ -24,7 +24,17 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: (lp) => {
             return <Cell minWidth='200px' spacing="2" justify="flex-start" alignItems="center" direction="row">
-                <UnderlyingItem {...lp} label={lp.symbol} />
+                <UnderlyingItem {...lp} label={lp.symbol} showAsLp={true} chainId={lp.chainId} />
+            </Cell>
+        },
+    },
+    {
+        field: 'protocolImage',
+        label: 'Protocol',
+        header: ({ ...props }) => <ColHeader minWidth="40px" justify="center"  {...props} />,
+        value: ({ protocol, protocolImage }) => {
+            return <Cell minWidth='40px' spacing="2" justify="center" alignItems="center" direction="row">
+                <Image src={protocolImage} h='20px' w='20px' borderRadius="50px" title={protocol} />
             </Cell>
         },
     },
@@ -93,7 +103,7 @@ const columns = [
 export const PoLsTable = ({
     items,
 }) => {
-    return <Container noPadding p="0" label="Liquidity">
+    return <Container noPadding p="0" label="Liquidity Pools" description="Accross all chains">
         <Table
             key="address"
             columns={columns}
