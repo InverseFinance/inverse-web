@@ -1,11 +1,12 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab, VStack, Text, HStack, Image } from '@chakra-ui/react'
 
-type TabsType = 'overview' | 'treasury' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
+type TabsType = 'overview' | 'treasury' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls';
 
 const TABS = [
     { page: 'overview', label: 'Overview' },
     { page: 'treasury', label: 'Treasury' },
+    { page: 'liquidity', label: 'Liquidity' },
     { page: 'dao', label: 'DAO' },
     { page: 'inv', label: 'INV' },    
     { page: 'dbr', label: 'DBR' },

@@ -14,8 +14,7 @@ import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
-  const { treasury, anchorReserves, bonds, multisigs } = useDAO();
-  const { pols } = usePOLs();
+  const { treasury, anchorReserves, bonds, multisigs } = useDAO();  
   const { currentPayrolls } = useCompensations();
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
@@ -28,15 +27,6 @@ export const Overview = () => {
     { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
     { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds, TWGBSCfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds, TWGBSCfunds) },
   ];
-
-  const polsItems = pols.map(p => {
-    return {
-      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,      
-      pol: p.ownedAmount,
-      polDom: p.perc,
-      ...p,
-    }
-  });
 
   const totalMultisigs = multisigs?.map(m => {
     return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
@@ -55,7 +45,7 @@ export const Overview = () => {
       <AppNav active="Transparency" activeSubmenu="Treasury" hideAnnouncement={true} />
       <TransparencyTabs active="treasury" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
-        <Flex direction="column" py="2" px="5" maxWidth="1200px" w='full'>
+        <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
             <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="100px" spacingY="40px">
               <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
@@ -70,8 +60,6 @@ export const Overview = () => {
               <FundsDetails title="TWG on Optimism" funds={TWGOPfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on BSC" funds={TWGBSCfunds} prices={prices} type='balance' />
             </SimpleGrid>
-            <Divider />
-            <PoLsTable items={polsItems} />
           </Stack>
         </Flex>
       </Flex>
