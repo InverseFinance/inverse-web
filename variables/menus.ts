@@ -46,10 +46,10 @@ export const MENUS = {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
         },
-        // {
-        //   label: 'Liquidate Loans',
-        //   href: '/firm/positions',
-        // },
+        {
+          label: 'Liquidate Loans',
+          href: '/firm/positions',
+        },
         {
           label: 'Replenish DBR',
           href: '/firm/dbr-spenders',
@@ -314,7 +314,7 @@ export const MENUS = {
         },
         {
           label: 'Brand Assets',
-          href: 'https://www.figma.com/proto/PF4RAWkO3MV6i1fEVM2Ymx/Untitled?page-id=0%3A1&node-id=1%3A4&viewport=193%2C3745%2C0.47&scaling=scale-down',
+          href: '/brand-assets.pdf',
         },
       ],
     },
