@@ -222,7 +222,7 @@ export const F2Markets = ({
         label={`${shortenNumber(dbrPrice * 100, 2)}% Fixed Borrow APR`}
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
-        href="https://docs.inverse.finance/inverse-finance/firm"
+        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
         image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         // right={
