@@ -8,7 +8,7 @@ import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
-import { getLPBalances } from '@app/util/contracts';
+import { getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
 import { pricesCacheKey } from '../prices';
 import { PROTOCOL_IMAGES } from '@app/variables/images';
 
@@ -16,7 +16,7 @@ const PROTOCOLS = Object.fromEntries(
     Object
         .entries(PROTOCOL_IMAGES)
         .map(([key, value]) => [value, key])
-);;
+);
 
 export default async function handler(req, res) {
 
@@ -46,8 +46,12 @@ export default async function handler(req, res) {
                 .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
         ]
 
+        const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
+
+        const univ3TWGpositions = await getUniV3PositionsOf(getProvider('1'), TWG.address);
+
         const chainTWG: { [key: string]: Multisig } = {
-            [NetworkIds.mainnet]: multisigsToShow.find(m => m.shortName === 'TWG')!,
+            [NetworkIds.mainnet]: TWG,
             [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
             [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
             [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
@@ -80,6 +84,15 @@ export default async function handler(req, res) {
                         // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
                     }
+                } else {
+                    // univ3 pool liquidity
+                    const univ3liquidity = getBnToNumber(await (new Contract(lp.address, ['function liquidity() public view returns (uint)'], provider)).liquidity());
+                    // share of twg
+                    const univ3liquidityOwnedByTWG = univ3TWGpositions
+                        .filter(p => p.token0 === lp.pairs[0] && p.token1 === lp.pairs[1])
+                        .reduce((prev, curr) => prev + getBnToNumber(curr.liquidity), 0);
+                    const share = univ3liquidity ? univ3liquidityOwnedByTWG / univ3liquidity : 0;
+                    owned.twg = share * tvl;
                 }
                 ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0) * (prices[lp.coingeckoId || lp.symbol] || 1);
             } else {
