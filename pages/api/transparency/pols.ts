@@ -10,13 +10,7 @@ import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
 import { getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
 import { pricesCacheKey } from '../prices';
-import { PROTOCOL_IMAGES } from '@app/variables/images';
-
-const PROTOCOLS = Object.fromEntries(
-    Object
-        .entries(PROTOCOL_IMAGES)
-        .map(([key, value]) => [value, key])
-);
+import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 
 export default async function handler(req, res) {
 
@@ -24,7 +18,7 @@ export default async function handler(req, res) {
     const cacheKey = `pols-v1.0.0`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, true, 300);
+        const validCache = await getCacheFromRedis(cacheKey, true, 900);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -98,11 +92,10 @@ export default async function handler(req, res) {
             } else {
                 ownedAmount = fedPol.supply;
             }
-            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
-
+            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);            
             return {
-                ...lp,
-                protocol: PROTOCOLS[lp.protocolImage],
+                ...lp,                
+                protocol: PROTOCOLS_BY_IMG[lp.protocolImage],
                 tvl,
                 ownedAmount,
                 perc: ownedAmount / tvl * 100,

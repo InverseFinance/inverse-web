@@ -81,8 +81,15 @@ export const PROTOCOL_IMAGES = {
     "CVX": TOKEN_IMAGES.CVX,
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",
     "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",        
+    "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",        
     "BAL": "/assets/projects/balancer.png",
     "LIDO": 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png?1609873644',
     'OHM': 'https://assets.coingecko.com/coins/images/14483/small/token_OHM_%281%29.png?1628311611',
     "EULER": 'https://assets.coingecko.com/coins/images/26149/small/YCvKDfl8_400x400.jpeg?1656041509',
 }
+
+export const PROTOCOLS_BY_IMG = Object.fromEntries(
+    Object
+        .entries(PROTOCOL_IMAGES)
+        .map(([key, value]) => [value, key])
+);

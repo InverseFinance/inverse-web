@@ -268,7 +268,7 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].USDC
       ],
-      protocolImage: PROTOCOL_IMAGES.UNI,
+      protocolImage: PROTOCOL_IMAGES.UNIV3,
     },
     [chainTokenAddresses["1"].DOLADBRUNIV3]: {
       address: chainTokenAddresses["1"].DOLADBRUNIV3,
@@ -281,7 +281,7 @@ const chainTokens = {
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR
       ],
-      protocolImage: PROTOCOL_IMAGES.UNI,
+      protocolImage: PROTOCOL_IMAGES.UNIV3,
     },
     [chainTokenAddresses["1"].INVETHSLP]: {
       address: chainTokenAddresses["1"].INVETHSLP,
