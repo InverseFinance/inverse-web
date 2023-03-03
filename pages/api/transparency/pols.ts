@@ -94,7 +94,8 @@ export default async function handler(req, res) {
             }
             const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);            
             return {
-                ...lp,                
+                ...lp,
+                lpName: lp.symbol.replace(/(-LP|-SLP|-AURA| blp)/ig, ''),             
                 protocol: PROTOCOLS_BY_IMG[lp.protocolImage],
                 tvl,
                 ownedAmount,

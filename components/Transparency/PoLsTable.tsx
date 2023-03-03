@@ -25,12 +25,12 @@ const FilterItem = ({ ...props }) => {
 
 const columns = [
     {
-        field: 'name',
+        field: 'lpName',
         label: 'Pool',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: (lp) => {
             return <Cell minWidth='200px' spacing="2" justify="flex-start" alignItems="center" direction="row">
-                <UnderlyingItem {...lp} label={lp.symbol} showAsLp={true} chainId={lp.chainId} />
+                <UnderlyingItem {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
             </Cell>
         },
     },
