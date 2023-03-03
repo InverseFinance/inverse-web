@@ -511,3 +511,25 @@ export const debtRepay = (
   const contract = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, signer);
   return contract.repayment(dolaAmount);
 }
+
+export const getUniV3PositionsOf = async (signer: Provider | JsonRpcSigner, liqProvider: string) => {
+  const uniV3NFTContract = new Contract(
+    '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+    [
+      'function balanceOf(address) public view returns(uint)',
+      'function tokenOfOwnerByIndex(address, uint) public view returns(uint)',
+      'function positions(uint nftId) public view returns (tuple(uint nonce, address operator, address token0, address token1, uint fee, int24 tickLower, uint tickUpper, uint liquidity, uint feeGrowthInside0LastX128, uint feeGrowthInside1LastX128, uint tokensOwed0, uint tokensOwed1))',
+    ],
+    signer,
+    );
+
+    const nbNfts = getBnToNumber((await uniV3NFTContract.balanceOf(liqProvider)), 0);    
+    const arr = [...Array(nbNfts).keys()];
+    const nftIds = await Promise.all(
+      arr.map(i => uniV3NFTContract.tokenOfOwnerByIndex(liqProvider, i))
+    );    
+    const positions = await Promise.all(
+      nftIds.map(id => uniV3NFTContract.positions(id))
+    );
+    return positions;
+}
