@@ -43,6 +43,7 @@ const chainTokenAddresses = {
     INVDOLAULP: '0xb268c1c44a349d06a42cf24988162dadc48d839e',
     INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
     INVETHLP: '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
+    DOLAWETHULP: '0xecfbe9b182f6477a93065c1c11271232147838e5',
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
     DOLAUSDCUNIV3: '0x7c082BF85e01f9bB343dbb460A14e51F67C58cFB',
     DOLADBRUNIV3: '0x6a279e847965ba5dDc0AbFE8d669642F73334A2C',
@@ -307,6 +308,18 @@ const chainTokens = {
       isLP: true,
       pairs: [
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].WETH
+      ],
+    },
+    [chainTokenAddresses["1"].DOLAWETHULP]: {
+      address: chainTokenAddresses["1"].DOLAWETHULP,
+      name: 'DOLA-WETH LP',
+      symbol: 'DOLA-WETH-LP',
+      image: TOKEN_IMAGES.DOLA,
+      protocolImage: PROTOCOL_IMAGES.UNI,
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].WETH
       ],
     },
     // deprecated
