@@ -80,6 +80,8 @@ const chainTokenAddresses = {
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     GOHM: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
+    CUSD: '0xC285B7E09A4584D027E5BC36571785B515898246',
+    DOLACUSDBLP: '0x384F67aA430376efc4f8987eaBf7F3f84eB9EA5d',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -574,6 +576,30 @@ const chainTokens = {
       coingeckoId: 'balancer',
       image: TOKEN_IMAGES.BAL,     
       decimals: 18,
+    },
+    [chainTokenAddresses["1"].CUSD]: {
+      address: chainTokenAddresses["1"].CUSD,
+      name: 'CUSD',
+      symbol: 'CUSD',
+      coingeckoId: 'coin98-dollar',
+      image: TOKEN_IMAGES.CUSD,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].DOLACUSDBLP]: {
+      address: chainTokenAddresses["1"].DOLACUSDBLP,
+      name: 'DOLA-CUSD blp',
+      symbol: 'DOLA-CUSD blp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      balancerInfos: {
+        poolId: '0x384f67aa430376efc4f8987eabf7f3f84eb9ea5d00020000000000000000043d',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].CUSD
+      ],
+      protocolImage: PROTOCOL_IMAGES.BAL,
     },
   },
   "250": {
