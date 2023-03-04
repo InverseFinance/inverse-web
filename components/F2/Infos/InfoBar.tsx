@@ -1,6 +1,6 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import Link from "@app/components/common/Link"
-import { useAccountDBR, useDBRPrice } from "@app/hooks/useDBR"
+import { useAccountDBR, useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR"
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
@@ -303,8 +303,10 @@ export const FirmBar = ({
     const { price: dbrPrice } = useDBRPrice();
     const { totalSupply, firmSupply } = useDOLA();
     const { firmTotalTvl } = useFirmTVL();
+    const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
+    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
 
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
@@ -318,26 +320,26 @@ export const FirmBar = ({
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
                     <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
-                        DOLA Supply
+                        {isLargerThan ? 'Total ': ''}DOLA Supply
                     </Link>
                     <SubTitle>
                         {shortenNumber(totalSupply, 2)}
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='center'>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/FiRM">
-                        Supply in FiRM
-                    </Link>
-                    <SubTitle>
-                        {shortenNumber(firmSupply, 2)}
-                    </SubTitle>
-                </VStack>
-                <VStack spacing="1" alignItems='flex-end'>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="https://defillama.com/protocol/inverse-finance-firm" isExternal target="_blank">
-                        TVL in FiRM
+                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                        FiRM TVL
                     </Link>
                     <SubTitle>
                         {shortenNumber(firmTotalTvl, 2, true)}
+                    </SubTitle>
+                </VStack>
+                <VStack spacing="1" alignItems='flex-end'>
+                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                        FiRM Borrows
+                    </Link>
+                    <SubTitle>
+                        {shortenNumber(totalDebt, 2, true)}
                     </SubTitle>
                 </VStack>
             </HStack>
