@@ -1,20 +1,15 @@
-import { Divider, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
-
+import { Flex, Stack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useCompensations, useDAO, useLiquidityPools } from '@app/hooks/useDAO'
-import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
+import { useLiquidityPools } from '@app/hooks/useDAO'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
-import { FundsDetails } from '@app/components/Transparency/FundsDetails'
-import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 import { PoLsTable } from '@app/components/Transparency/PoLsTable'
+import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 
 export const Overview = () => {
-  const { prices } = usePricesV2(true)
-  const { liquidity } = useLiquidityPools();
+  const { liquidity, timestamp } = useLiquidityPools();
 
   const polsItems = liquidity.map(p => {
     return {
@@ -39,7 +34,12 @@ export const Overview = () => {
       <TransparencyTabs active="liquidity" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
-          <PoLsTable items={polsItems} />
+          <PoLsTable items={polsItems} timestamp={timestamp} />
+          <Stack pt='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName)} containerProps={{ label: 'TOTAL DOLA Liquidity summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Summary' }} />
+          </Stack>
         </Flex>
       </Flex>
     </Layout>

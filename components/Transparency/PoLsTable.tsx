@@ -8,6 +8,7 @@ import { PROTOCOL_IMAGES } from "@app/variables/images"
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
 import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
+import moment from "moment"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -29,6 +30,11 @@ const columns = [
     {
         field: 'lpName',
         label: 'Pool',
+        showFilter: true,
+        filterWidth: '190px',
+        filterItemRenderer: ({ lpName }) => <FilterItem>
+            <Text>{lpName}</Text>
+        </FilterItem>,
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: (lp) => {
             return <Cell minWidth='200px' spacing="2" justify="flex-start" alignItems="center" direction="row">
@@ -133,8 +139,10 @@ const columns = [
 
 export const PoLsTable = ({
     items,
+    timestamp,
 }: {
     items: any[],
+    timestamp: number,
 }) => {
     const [category, setCategory] = useState('stable');
     const [filtered, setFiltered] = useState(items);
@@ -161,8 +169,11 @@ export const PoLsTable = ({
     return <Container
         noPadding
         p="0"
-        label="Liquidity Pools"
-        description="Accross all chains"
+        label="Main Active Liquidity Pools"
+        description={`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
+        contentProps={{
+            direction: 'column',
+        }}
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
