@@ -40,14 +40,14 @@ const columns = [
         field: 'protocol',
         label: 'Protocol',
         showFilter: true,
-        filterWidth: '70px',
+        filterWidth: '80px',
         filterItemRenderer: ({ protocol }) => <FilterItem>
             <Image src={PROTOCOL_IMAGES[protocol]} h='20px' w='20px' borderRadius="50px" title={protocol} />
             <Text>{protocol}</Text>
         </FilterItem>,
-        header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ protocol, protocolImage }) => {
-            return <Cell minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell minWidth='90px' spacing="2" justify="center" alignItems="center" direction="row">
                 <Image src={protocolImage} h='20px' w='20px' borderRadius="50px" title={protocol} />
             </Cell>
         },
@@ -56,15 +56,15 @@ const columns = [
         field: 'chainId',
         label: 'Chain',
         showFilter: true,
-        filterWidth: '70px',
+        filterWidth: '80px',
         filterItemRenderer: ({ chainId }) => <FilterItem>
             <Image src={NETWORKS_BY_CHAIN_ID[chainId].image} h='20px' w='20px' borderRadius="50px" title={NETWORKS_BY_CHAIN_ID[chainId].name} />
             <Text>{NETWORKS_BY_CHAIN_ID[chainId].name}</Text>
         </FilterItem>,
-        header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ chainId, networkName }) => {
             const net = NETWORKS_BY_CHAIN_ID[chainId];
-            return <Cell minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell minWidth='90px' spacing="2" justify="center" alignItems="center" direction="row">
                 <Image src={net.image} ignoreFallback={true} title={net.name} alt={net.name} w={5} h={5} mr="2" />
             </Cell>
         },
