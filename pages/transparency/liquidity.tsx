@@ -8,7 +8,7 @@ import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 
-export const Overview = () => {
+export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
 
   const polsItems = liquidity.map(p => {
@@ -32,18 +32,18 @@ export const Overview = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
-      <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
+      <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
-          <PoLsTable items={polsItems} timestamp={timestamp} />
-          <Stack pt='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName)} containerProps={{ label: 'TOTAL DOLA Liquidity summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity Summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Summary' }} />
+          <Stack pb='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+            <AggregatedLiquidityData items={polsItems} containerProps={{ label: 'TOTAL DOLA Liquidity summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity Summary' }} />
           </Stack>
+          <PoLsTable items={polsItems} timestamp={timestamp} />
         </Flex>
       </Flex>
     </Layout>
   )
 }
 
-export default Overview
+export default Liquidity

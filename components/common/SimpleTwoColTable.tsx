@@ -5,18 +5,24 @@ export const SimpleTwoColTable = ({
     items,
     containerProps,
     vstackProps,
+    labelProps,
+    valueProps,
 }: {
     items: { label: string, value: string, labelProps?: TextProps, valueProps?: TextProps }[],
     containerProps?: AppContainerProps,
     vstackProps?: StackProps,
+    labelProps?: TextProps, 
+    valueProps?: TextProps
 }) => {
     return <Container noPadding p="0" {...containerProps}>
         <VStack alignItems="flex-start" w='300px' {...vstackProps}>
             {
                 items.map(item => {
+                    const lprops = { ...labelProps, ...item.labelProps };
+                    const vprops = { ...valueProps, ...item.valueProps };
                     return <HStack justify="space-between" w='full'>
-                        <Text {...item.labelProps}>{item.label}:</Text>
-                        <Text {...item.valueProps}>{item.value}</Text>
+                        <Text {...lprops}>{item.label}:</Text>
+                        <Text {...vprops}>{item.value}</Text>
                     </HStack>
                 })
             }            

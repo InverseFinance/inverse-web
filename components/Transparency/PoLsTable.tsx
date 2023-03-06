@@ -9,17 +9,18 @@ import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
 import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
 import moment from "moment"
+import { Token } from "@app/types"
 
 const ColHeader = ({ ...props }) => {
-    return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
+    return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
 }
 
 const Cell = ({ ...props }) => {
-    return <Stack direction="row" fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+    return <Stack direction="row" fontSize="12px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
 const CellText = ({ ...props }) => {
-    return <Text fontSize="15px" {...props} />
+    return <Text fontSize="12px" {...props} />
 }
 
 const FilterItem = ({ ...props }) => {
@@ -152,13 +153,9 @@ export const PoLsTable = ({
             setFiltered(items);
         } else {
             const regEx = new RegExp(category, 'i');
-            if (category === 'volatile') {
+            if (['volatile', 'stable'].includes(category)) {
                 setFiltered(
-                    items.filter(o => !/.*DOLA.*/ig.test(o.lpName) || /.*(DBR|INV|WETH|WBNB).*/ig.test(o.lpName))
-                );
-            } else if (category === 'stable') {
-                setFiltered(
-                    items.filter(o => /.*DOLA.*/ig.test(o.lpName) && !/.*(DBR|INV|WETH|WBNB).*/ig.test(o.lpName))
+                    items.filter(item => category === 'stable' ? item.isStable : !item.isStable)
                 );
             } else {
                 setFiltered(items.filter(o => regEx.test(o.lpName)));

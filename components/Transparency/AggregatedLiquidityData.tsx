@@ -18,12 +18,13 @@ export const AggregatedLiquidityData = ({
 
     return <SimpleTwoColTable
         containerProps={containerProps}
+        valueProps={{ fontWeight: 'bold' }}
         items={[
             { label: 'Total TVL', value: preciseCommify(tvl, 0, true) },
             { label: 'Avg. DOLA weight', value: `${shortenNumber(avgDolaWeight, 2)}%` },
             { label: 'Pairing Depth', value: preciseCommify(pairingDepth, 0, true) },
             { label: 'DOLA Balance', value: preciseCommify(balance, 0, true) },
-            { label: 'PoL', value: preciseCommify(pol, 0, true) },
+            { label: 'Protocol Owned', value: preciseCommify(pol, 0, true) },
         ]}
     />
 }
