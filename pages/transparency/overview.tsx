@@ -8,16 +8,9 @@ import { GovernanceFlowChart } from '@app/components/Transparency/GovernanceFlow
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import useEtherSWR from '@app/hooks/useEtherSWR'
-import { usePricesV2 } from '@app/hooks/usePrices'
-import { useTVL } from '@app/hooks/useTVL'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import Link from '@app/components/common/Link'
-import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@app/hooks/useDAO'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
-import { Funds } from '@app/components/Transparency/Funds'
-import { shortenNumber } from '@app/util/markets'
-import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DBR, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -50,9 +43,7 @@ const defaultValues = {
 }
 
 export const Overview = () => {
-  const { prices } = usePricesV2(true)
-  const { data: tvlData } = useTVL()
-  const { dolaSupplies, invSupplies, treasury, anchorReserves, bonds } = useDAO();
+  const { dolaSupplies, invSupplies } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],

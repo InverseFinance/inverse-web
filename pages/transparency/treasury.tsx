@@ -14,7 +14,7 @@ import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
-  const { treasury, anchorReserves, bonds, multisigs } = useDAO();  
+  const { treasury, anchorReserves, multisigs } = useDAO();  
   const { currentPayrolls } = useCompensations();
 
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
@@ -24,7 +24,7 @@ export const Overview = () => {
   const totalHoldings = [
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices), usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
-    { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
+    // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
     { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds, TWGBSCfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds, TWGBSCfunds) },
   ];
 

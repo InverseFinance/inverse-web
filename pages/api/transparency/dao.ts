@@ -246,14 +246,14 @@ export default async function handler(req, res) {
       })
     })
 
-    // Bonds
-    const bondTokens = [INV, DOLA, DOLA3POOLCRV, INVDOLASLP];
-    const bondManagerBalances: BigNumber[] = await Promise.all(
-      bondTokens.map(tokenAddress => {
-        const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-        return contract.balanceOf(OP_BOND_MANAGER);
-      })
-    )
+    // Bonds v2 - no more used
+    // const bondTokens = [INV, DOLA, DOLA3POOLCRV, INVDOLASLP];
+    // const bondManagerBalances: BigNumber[] = await Promise.all(
+    //   bondTokens.map(tokenAddress => {
+    //     const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+    //     return contract.balanceOf(OP_BOND_MANAGER);
+    //   })
+    // )
 
     const toSupplies = (total: number, bridgedSupplies: BigNumber[], bridgedChains: string[]) => {
       return [
@@ -293,7 +293,7 @@ export default async function handler(req, res) {
       invTotalSupply: invTotalSupplyNum,
       dolaOperator,
       bonds: {
-        balances: bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
+        balances: []//bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
       anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])).filter(d => d.balance > 0),
       treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])).filter(d => d.balance > 0),
