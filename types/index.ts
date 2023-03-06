@@ -14,6 +14,7 @@ export interface Token {
   coingeckoId?: string
   isWrappedChainCoin?: boolean
   isLP?: boolean
+  isStable?: boolean
   isCrvLP?: boolean
   isVeloLP?: boolean
   isUniV3?: boolean

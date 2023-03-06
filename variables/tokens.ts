@@ -282,6 +282,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
+      isStable: true,
       isUniV3: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].USDC
@@ -362,6 +363,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
+      isStable: true,
       isCrvLP: true,
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].THREECRV
@@ -375,6 +377,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
+      isStable: true,
       isCrvLP: true,
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
@@ -388,6 +391,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.BAL,
       decimals: 18,
       isLP: true,
+      isStable: true,
       balancerInfos: {
         poolId: '0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -420,6 +424,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.BAL,
       decimals: 18,
       isLP: true,
+      isStable: true,
       balancerInfos: {
         poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -620,6 +625,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
+      isStable: true,
       balancerInfos: {
         poolId: '0x384f67aa430376efc4f8987eabf7f3f84eb9ea5d00020000000000000000043d',
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -738,6 +744,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
+      isStable: true,
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
@@ -751,6 +758,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
+      isStable: true,
       isVeloLP: true,
       lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
       pairs: [
@@ -813,6 +821,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
+      isStable: true,
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["56"].DOLA, chainTokenAddresses["56"].CUSD
