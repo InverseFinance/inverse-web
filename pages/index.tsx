@@ -133,7 +133,7 @@ export const Landing = ({ posts }: {
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
                   <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
-                    Try Beta
+                    Enter App
                   </LandingSubmitButton>
                   <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance" target="_blank">
                     Learn More <ExternalLinkIcon ml="1" />
@@ -207,7 +207,7 @@ export const Landing = ({ posts }: {
           </Text>
           <Stack zIndex="2" direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
             <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
-              Try Beta
+              Enter App
             </LandingSubmitButton>
             <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance" target="_blank">
               Learn More <ExternalLinkIcon ml="1" />

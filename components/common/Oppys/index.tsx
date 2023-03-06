@@ -11,6 +11,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { preciseCommify } from '@app/util/misc';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -88,10 +89,10 @@ const columns = [
     {
         field: 'symbol',
         label: 'Pool Type',
-        header: ({ ...props }) => <ColHeader minWidth="250px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
         value: ({ symbol, pool, project }) => {
             const link = getPoolLink(project, pool);
-            return <Cell justify="flex-start" minWidth="250px" maxWidth="250px" overflow="hidden" whiteSpace="nowrap">
+            return <Cell justify="flex-start" minWidth="330px" maxWidth="330px" overflow="hidden" whiteSpace="nowrap">
                 <VStack borderBottom={ !link ? undefined : "1px solid #fff" }>
                     {
                         !!link ?
@@ -105,44 +106,44 @@ const columns = [
             </Cell>
         },
         showFilter: true,
-        filterWidth: '190px',
+        filterWidth: '320px',
         filterItemRenderer: ({ symbol }) => <FilterItem><Text>{symbol}</Text></FilterItem>
     },
     {
         field: 'project',
         label: 'Project',
-        header: ({ ...props }) => <ColHeader minWidth="220px" justify="flex-start"  {...props} />,
-        value: ({ project }) => <Cell minWidth="220px" justify="flex-start" >
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        value: ({ project }) => <Cell minWidth="200px" justify="flex-start" >
             <ProjectItem project={project} />
         </Cell>,
         showFilter: true,
-        filterWidth: '210px',
+        filterWidth: '190px',
         filterItemRenderer: (props) => <FilterItem><ProjectItem {...props} /></FilterItem>,
     },
     {
         field: 'chain',
         label: 'Chain',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
-        value: ({ chain }) => <Cell minWidth="200px" justify="flex-start" >
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
+        value: ({ chain }) => <Cell minWidth="120px" justify="flex-start" >
             <ChainItem chain={chain} />
         </Cell>,
         showFilter: true,
-        filterWidth: '190px',
+        filterWidth: '110px',
         filterItemRenderer: (props) => <FilterItem><ChainItem {...props} /></FilterItem>,
     },
     {
         field: 'apy',
         label: 'APY',
-        header: ({ ...props }) => <ColHeader w="100px" justify="flex-end" {...props} />,
-        value: ({ apy }) => <Cell w="100px" justify="flex-end">
-            <Text>{shortenNumber(apy, 2)}%</Text>
+        header: ({ ...props }) => <ColHeader w="80px" justify="flex-end" {...props} />,
+        value: ({ apy }) => <Cell w="80px" justify="flex-end">
+            <Text>{preciseCommify(apy, 2)}%</Text>
         </Cell>,
     },
     {
         field: 'tvlUsd',
         label: 'TVL',
-        header: ({ ...props }) => <ColHeader w="100px" justify="flex-end" {...props} />,
-        value: ({ tvlUsd }) => <Cell w="100px" justify="flex-end">
+        header: ({ ...props }) => <ColHeader w="80px" justify="flex-end" {...props} />,
+        value: ({ tvlUsd }) => <Cell w="80px" justify="flex-end">
             <Text>{shortenNumber(tvlUsd, 2, true)}</Text>
         </Cell>,
     },
@@ -207,7 +208,7 @@ export const OppysTable = ({
                 <VStack w='full' spacing="10">
                     <Table
                         keyName="pool"
-                        defaultSort="tvlUsd"
+                        defaultSort="apy"
                         defaultSortDir="desc"
                         columns={columns}
                         items={filteredOppys}                        

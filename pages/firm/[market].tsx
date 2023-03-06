@@ -138,11 +138,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 }
                                             </VStack>
                                 }
-                                <FirmFAQ collapsable={true} defaultCollapse={true} />
-                                <InfoMessage
-                                    title="Disclaimer"
-                                    description="FiRM is currently activated in beta mode and while its smart contract code has been heavily tested and audited, it is experimental software and is not recommended for novice DeFi users."
-                                />
+                                <FirmFAQ collapsable={true} defaultCollapse={true} />                                
                             </VStack>
                         </F2Context>
                 }
