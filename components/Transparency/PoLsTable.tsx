@@ -6,6 +6,8 @@ import Container from "../common/Container"
 import { UnderlyingItem } from "../common/Assets/UnderlyingItem"
 import { PROTOCOL_IMAGES } from "@app/variables/images"
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
+import { RadioCardGroup } from "../common/Input/RadioCardGroup"
+import { useEffect, useState } from "react"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -131,12 +133,71 @@ const columns = [
 
 export const PoLsTable = ({
     items,
+}: {
+    items: any[],
 }) => {
-    return <Container noPadding p="0" label="Liquidity Pools" description="Accross all chains">
+    const [category, setCategory] = useState('stable');
+    const [filtered, setFiltered] = useState(items);
+
+    useEffect(() => {
+        if (category === 'all') {
+            setFiltered(items);
+        } else {
+            const regEx = new RegExp(category, 'i');
+            if (category === 'volatile') {
+                setFiltered(
+                    items.filter(o => !/.*DOLA.*/ig.test(o.lpName) || /.*(DBR|INV|WETH|WBNB).*/ig.test(o.lpName))
+                );
+            } else if (category === 'stable') {
+                setFiltered(
+                    items.filter(o => /.*DOLA.*/ig.test(o.lpName) && !/.*(DBR|INV|WETH|WBNB).*/ig.test(o.lpName))
+                );
+            } else {
+                setFiltered(items.filter(o => regEx.test(o.lpName)));
+            }
+        }
+    }, [items, category]);
+
+    return <Container
+        noPadding
+        p="0"
+        label="Liquidity Pools"
+        description="Accross all chains"
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+        right={
+            <RadioCardGroup
+                wrapperProps={{ mt: { base: '2' }, overflow: 'auto', maxW: '90vw' }}
+                group={{
+                    name: 'category',
+                    defaultValue: category,
+                    onChange: (v) => { setCategory(v) },
+                }}
+                radioCardProps={{
+                    w: 'fit-content',
+                    textAlign: 'center',
+                    px: { base: '2', md: '3' },
+                    py: '1',
+                    fontSize: '12px',
+                    whiteSpace: 'nowrap'
+                }}
+                options={[
+                    { label: 'All', value: 'all' },
+                    { label: 'Stable', value: 'stable' },
+                    { label: 'Volatile', value: 'volatile' },
+                    { label: 'INV', value: 'inv' },
+                    { label: 'DOLA', value: 'dola' },
+                    { label: 'DBR', value: 'dbr' },
+                ]}
+            />
+        }
+    >
         <Table
             key="address"
             columns={columns}
-            items={items}
+            items={filtered}
             defaultSort="tvl"
             defaultSortDir="desc"
         />
