@@ -77,6 +77,7 @@ const chainTokenAddresses = {
     YVCRV3CRYPTO: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+    INVETHCLP: '0xEAc004214F2ACa7a6BA01C7558cb4a85E7958ddD',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
@@ -230,6 +231,20 @@ const chainTokens = {
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.SUSHI,
+    },
+    [chainTokenAddresses["1"].INVETHCLP]: {
+      address: chainTokenAddresses["1"].INVETHCLP,
+      poolAddress: '0x2AF0a09b3421240f32953FffB13D2D2B8d24fbaE',
+      name: 'INV-ETH LP',
+      symbol: 'INV-ETH-LP',
+      image: TOKEN_IMAGES.INV,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
     },
     [chainTokenAddresses["1"].INVDOLAAURA]: {
       address: chainTokenAddresses["1"].INVDOLAAURA,

@@ -18,6 +18,8 @@ export interface Token {
   isVeloLP?: boolean
   isUniV3?: boolean
   lpBalanceContract?: string
+  // crv pool where lp token != pool contract
+  poolAddress?: string
   lpPrice?: number
   balancerInfos?: {
     poolId: string

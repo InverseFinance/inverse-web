@@ -371,7 +371,7 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
   try {
     if (LPToken.isCrvLP && !!LPToken.pairs) {
       const balancesBn = await Promise.all(
-        tokens.map((token, tokenIndex) => new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
+        tokens.map((token, tokenIndex) => new Contract(LPToken.poolAddress||LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
       );
       const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
       const total = balances.reduce((prev, curr) => prev + curr, 0);
@@ -418,7 +418,7 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
   else if (LPToken.isCrvLP) {
-    return getBnToNumber(await (new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+    return getBnToNumber(await (new Contract(LPToken.poolAddress||LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   } else if (LPToken.convexInfos) {
     return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   } // treat uniV3 nft pos as $1
