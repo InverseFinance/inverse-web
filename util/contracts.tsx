@@ -368,8 +368,8 @@ export const getCrvConvexRewards = async (baseRewardPool: string, account: strin
 
 export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & { balance: number, perc: number }[]> => {
   const tokens = LPToken.pairs?.map(address => CHAIN_TOKENS[chainId][address]) || [];
-  try {    
-    if (LPToken.isCrvLP && !!LPToken.pairs) {      
+  try {
+    if (LPToken.isCrvLP && !!LPToken.pairs) {
       const balancesBn = await Promise.all(
         tokens.map((token, tokenIndex) => new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
       );
@@ -378,7 +378,7 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
       return tokens.map((token, i) => {
         return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
       })
-    } else if (LPToken.balancerInfos && !!LPToken.pairs) {      
+    } else if (LPToken.balancerInfos && !!LPToken.pairs) {
       const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);
       const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i]?.decimals || 18));
       // balancer composable metapools contain the LP itself, we can skip it for our calc
@@ -400,7 +400,7 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
       })
     }
     // Uni/Sushi or Solidly
-    else if (!!LPToken.pairs) {      
+    else if (!!LPToken.pairs) {
       const balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves())
       const balances = balancesBn.slice(0, 2).map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
       const total = balances.reduce((prev, curr) => prev + curr, 0);
@@ -421,6 +421,9 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
     return getBnToNumber(await (new Contract(LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   } else if (LPToken.convexInfos) {
     return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+  } // treat uniV3 nft pos as $1
+   else if (LPToken.isUniV3) {
+    return new Promise(r => r(1))
   }
 
   let lpPrice = 0
@@ -521,15 +524,15 @@ export const getUniV3PositionsOf = async (signer: Provider | JsonRpcSigner, liqP
       'function positions(uint nftId) public view returns (tuple(uint nonce, address operator, address token0, address token1, uint fee, int24 tickLower, uint tickUpper, uint liquidity, uint feeGrowthInside0LastX128, uint feeGrowthInside1LastX128, uint tokensOwed0, uint tokensOwed1))',
     ],
     signer,
-    );
+  );
 
-    const nbNfts = getBnToNumber((await uniV3NFTContract.balanceOf(liqProvider)), 0);    
-    const arr = [...Array(nbNfts).keys()];
-    const nftIds = await Promise.all(
-      arr.map(i => uniV3NFTContract.tokenOfOwnerByIndex(liqProvider, i))
-    );    
-    const positions = await Promise.all(
-      nftIds.map(id => uniV3NFTContract.positions(id))
-    );
-    return positions;
+  const nbNfts = getBnToNumber((await uniV3NFTContract.balanceOf(liqProvider)), 0);
+  const arr = [...Array(nbNfts).keys()];
+  const nftIds = await Promise.all(
+    arr.map(i => uniV3NFTContract.tokenOfOwnerByIndex(liqProvider, i))
+  );
+  const positions = await Promise.all(
+    nftIds.map(id => uniV3NFTContract.positions(id))
+  );
+  return positions;
 }

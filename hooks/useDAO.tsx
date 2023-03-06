@@ -36,11 +36,11 @@ export const useDAO = (): SWR & DAO => {
   }
 }
 
-export const usePOLs = (): SWR & DAO => {
-  const { data, error } = useCustomSWR(`/api/transparency/pols?v=1`, fetcher)
+export const useLiquidityPools = (): SWR & { liquidity: any[] } => {
+  const { data, error } = useCustomSWR(`/api/transparency/liquidity?v=1`, fetcher)
 
   return {    
-    pols: data?.pols || [],
+    liquidity: data?.liquidity || [],
     isLoading: !error && !data,
     isError: error,
   }

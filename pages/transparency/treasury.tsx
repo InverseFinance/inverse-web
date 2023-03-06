@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useCompensations, useDAO, usePOLs } from '@app/hooks/useDAO'
+import { useCompensations, useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'

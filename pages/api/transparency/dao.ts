@@ -5,10 +5,11 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
-import { getBnToNumber } from '@app/util/markets'
+import { getBnToNumber, getNumberToBn } from '@app/util/markets'
 import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
+import { liquidityCacheKey } from './liquidity';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -152,7 +153,10 @@ export default async function handler(req, res) {
       [NetworkIds.bsc]: Object.keys(CHAIN_TOKENS[NetworkIds.bsc]).filter(key => isAddress(key)),
     }
 
-    const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
+    const [multisigBalCache, liquidityCacheData] = await Promise.all([
+      getCacheFromRedis(cacheMulBalKey, true, 300),
+      getCacheFromRedis(liquidityCacheKey, false),
+    ]);
     const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => Array.isArray(bn) ? BigNumber.from(bn[0]) : BigNumber.from(bn))) || (await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
@@ -186,6 +190,15 @@ export default async function handler(req, res) {
             } else if (isLockedConvexPool) {
               const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
               return contract.totalBalanceOf(token.convexInfos.account);
+            } // for uniV3 nft pos, we treat lp price as $1 and balance = ownedAmount $
+            else if (token.isUniV3) {
+              if(liquidityCacheData?.liquidity) {
+                const lpData = liquidityCacheData.liquidity.find(lp => lp.address === tokenAddress);
+                if(lpData) {
+                  return getNumberToBn(lpData.ownedAmount, lpData.decimals);
+                }
+              }
+              return new Promise((res) => res(BigNumber.from('0')));
             } else {
               const contract = new Contract(tokenAddress, ERC20_ABI, provider);
               return contract.balanceOf(m.address);

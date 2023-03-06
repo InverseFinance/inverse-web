@@ -12,13 +12,14 @@ import { getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
 import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 
+export const liquidityCacheKey = `liquidity-v1.0.0`;
+
 export default async function handler(req, res) {
 
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `pols-v1.0.0`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, true, 900);
+        const validCache = await getCacheFromRedis(liquidityCacheKey, true, 900);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -106,22 +107,22 @@ export default async function handler(req, res) {
             }
         }
 
-        const pols = (await Promise.all([
+        const liquidity = (await Promise.all([
             ...lps.map(lp => getPol(lp))
         ]))
 
         const resultData = {
             timestamp: +(new Date()),
-            pols,
+            liquidity,
         }
-        await redisSetWithTimestamp(cacheKey, resultData);
+        await redisSetWithTimestamp(liquidityCacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(cacheKey, false);
+            const cache = await getCacheFromRedis(liquidityCacheKey, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);
