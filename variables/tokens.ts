@@ -40,6 +40,7 @@ const chainTokenAddresses = {
     STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
     INVDOLAAURA: '0xA5D7A7690B72a89B7b720E43fC9cBda5419d0C71',
+    INVDOLABLP: '0x441b8a1980f2F2E43A9397099d15CC2Fe6D36250',
     INVDOLAULP: '0xb268c1c44a349d06a42cf24988162dadc48d839e',
     INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
     INVETHLP: '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
@@ -84,6 +85,7 @@ const chainTokenAddresses = {
     GOHM: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
     CUSD: '0xC285B7E09A4584D027E5BC36571785B515898246',
     DOLACUSDBLP: '0x384F67aA430376efc4f8987eaBf7F3f84eB9EA5d',
+    DOLACUSDALP: '0x0995a508dF9606f1C6D512a2d6BA875Cf3cE94C3',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -262,6 +264,23 @@ const chainTokens = {
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.AURA,
+    },
+    [chainTokenAddresses["1"].INVDOLABLP]: {
+      address: chainTokenAddresses["1"].INVDOLABLP,
+      name: 'INV-DOLA blp',
+      symbol: 'INV-DOLA blp',
+      image: TOKEN_IMAGES.INV,
+      decimals: 18,
+      isLP: true,
+      balancerInfos: {
+        poolId: '0x441b8a1980f2f2e43a9397099d15cc2fe6d3625000020000000000000000035f',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.BAL,
+      deduce: [chainTokenAddresses["1"].INVDOLAAURA],
     },
     // deprecated
     // [chainTokenAddresses["1"].INVDOLAULP]: {
@@ -635,6 +654,24 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].CUSD
       ],
       protocolImage: PROTOCOL_IMAGES.BAL,
+      deduce: [chainTokenAddresses["1"].DOLACUSDALP],
+    },
+    [chainTokenAddresses["1"].DOLACUSDALP]: {
+      address: chainTokenAddresses["1"].DOLACUSDALP,
+      name: 'DOLA-CUSD alp',
+      symbol: 'DOLA-CUSD alp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x384f67aa430376efc4f8987eabf7f3f84eb9ea5d00020000000000000000043d',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].CUSD
+      ],
+      protocolImage: PROTOCOL_IMAGES.AURA,
     },
   },
   "250": {
