@@ -7,6 +7,7 @@ import { useLiquidityPools } from '@app/hooks/useDAO'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
+import { InfoMessage } from '@app/components/common/Messages';
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
@@ -34,12 +35,26 @@ export const Liquidity = () => {
       <TransparencyTabs active="liquidity" />
       <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
-          <Stack pb='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-            <AggregatedLiquidityData items={polsItems} containerProps={{ label: 'TOTAL DOLA Liquidity summary' }} />
+          <PoLsTable items={polsItems} timestamp={timestamp} />
+          <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'TOTAL DOLA Liquidity summary' }} />
             <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity Summary' }} />
             <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity Summary' }} />
           </Stack>
-          <PoLsTable items={polsItems} timestamp={timestamp} />
+          <Stack pb='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV'))} containerProps={{ label: 'TOTAL INV Liquidity summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV') && lp.lpName.includes('DOLA'))} containerProps={{ label: 'INV-DOLA Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV') && !lp.lpName.includes('DOLA'))} containerProps={{ label: 'INV-NON_DOLA Liquidity Summary' }} />
+          </Stack>
+          <Stack pb='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR'))} containerProps={{ label: 'TOTAL DBR Liquidity summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR') && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DBR-DOLA Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR') && !lp.lpName.includes('DOLA'))} containerProps={{ label: 'DBR-NON_DOLA Liquidity Summary' }} />
+          </Stack>
+          <InfoMessage
+            alertProps={{ w: 'full', my: '4' }}
+            description="NB: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."
+          />
         </Flex>
       </Flex>
     </Layout>

@@ -121,7 +121,7 @@ export default async function handler(req, res) {
             }
             const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
 
-            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| blp| alp)/ig, '');
+            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| blp| alp)/ig, '').replace(/-ETH/ig, '-WETH');
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
