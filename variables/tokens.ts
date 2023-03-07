@@ -98,6 +98,7 @@ const chainTokenAddresses = {
     VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
     VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
     VELODOLAUSDCLP: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
+    VELODOLALP: '0x1eBE6427f037385dDcB95aa688c18272415e3F46',
     VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
@@ -748,6 +749,20 @@ const chainTokens = {
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELO,
+    },
+    [chainTokenAddresses["10"].VELODOLALP]: {
+      address: chainTokenAddresses["10"].VELODOLALP,
+      name: 'DOLA-VELO',
+      symbol: 'DOLA-VELO',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["10"].VELO, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },
