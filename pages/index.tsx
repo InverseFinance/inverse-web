@@ -3,7 +3,7 @@ import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, Simp
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
-import { useDOLA } from '@app/hooks/useDOLA'
+import { useDOLA, useDOLAMarketData } from '@app/hooks/useDOLA'
 import { usePrices } from '@app/hooks/usePrices'
 import { useFirmTVL, useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
@@ -39,6 +39,7 @@ export const Landing = ({ posts }: {
   const { price: dbrPrice } = useDBRPrice();
   const { tvl } = useTVL();
   const { firmTotalTvl } = useFirmTVL();
+  const { data: dolaData } = useDOLAMarketData();
 
   const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
   const dolaPrice = prices['dola-usd'] ? prices['dola-usd'].usd : 0;
@@ -47,6 +48,10 @@ export const Landing = ({ posts }: {
     {
       name: 'DOLA Circulation',
       value: totalSupply,
+    },
+    {
+      name: 'DOLA 24h Vol.',
+      value: dolaData?.market_data?.total_volume?.usd,
     },
     {
       name: 'INV price',
