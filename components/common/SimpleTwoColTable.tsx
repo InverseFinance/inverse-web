@@ -20,7 +20,7 @@ export const SimpleTwoColTable = ({
                 items.map(item => {
                     const lprops = { ...labelProps, ...item.labelProps };
                     const vprops = { ...valueProps, ...item.valueProps };
-                    return <HStack justify="space-between" w='full'>
+                    return <HStack key={item.label} justify="space-between" w='full'>
                         <Text {...lprops}>{item.label}:</Text>
                         <Text {...vprops}>{item.value}</Text>
                     </HStack>

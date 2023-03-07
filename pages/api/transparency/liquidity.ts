@@ -72,7 +72,14 @@ export default async function handler(req, res) {
             if (!fedPol) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
                 const owned: { [key: string]: number } = {};
-                if (!lp.isUniV3) {
+                if(lp.isCrvLP && !!lp.poolAddress) {          
+                    const [lpBal, lpSupply] = await Promise.all([
+                        contract.balanceOf(TWG.address),
+                        contract.totalSupply(),
+                    ]);
+                    const share = getBnToNumber(lpBal) / getBnToNumber(lpSupply);
+                    owned.twg = share * tvl;
+                } else if (!lp.isUniV3) {
                     owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
                     if (lp.chainId === NetworkIds.mainnet) {
                         // no more
@@ -100,7 +107,7 @@ export default async function handler(req, res) {
                 protocol: PROTOCOLS_BY_IMG[lp.protocolImage],
                 tvl,
                 ownedAmount,
-                perc: ownedAmount / tvl * 100,
+                perc: Math.min(ownedAmount / tvl * 100, 100),
                 pairingDepth: tvl - dolaWorth,
                 dolaBalance: dolaWorth,
                 dolaWeight: dolaWorth / tvl * 100,
