@@ -252,7 +252,22 @@ export const getYieldOppys = async () => {
         const results = await fetch(url);
         const data = await results.json();
         const pools =  data.status === 'success' ? data.data : [];
-        return pools.filter(p => /^(inv-|dola-)/i.test(p.symbol) || /(-inv|-dola)$/i.test(p.symbol) || /(-inv-|-dola-)/i.test(p.symbol));
+        return pools
+            .filter(p => /^(inv-|dola-)/i.test(p.symbol) || /(-inv|-dola)$/i.test(p.symbol) || /(-inv-|-dola-)/i.test(p.symbol))
+            .map(p => {
+            return {
+              ...p,
+              // clean pool names & make them more homogen
+              symbol: p.symbol
+                .replace(/-3CRV$/i, '-3POOL')
+                .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
+                .replace(/ \([0-9.]+%\)$/i, '')
+                .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
+                .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
+                .toUpperCase()
+              ,
+            }
+          });
     } catch (e) { console.log(e) }
     return {};
 }
