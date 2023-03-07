@@ -9,7 +9,6 @@ import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
 import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
 import moment from "moment"
-import { Token } from "@app/types"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -32,13 +31,13 @@ const columns = [
         field: 'lpName',
         label: 'Pool',
         showFilter: true,
-        filterWidth: '190px',
+        filterWidth: '170px',
         filterItemRenderer: ({ lpName }) => <FilterItem>
             <Text>{lpName}</Text>
         </FilterItem>,
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
         value: (lp) => {
-            return <Cell minWidth='200px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+            return <Cell minWidth='180px' spacing="2" justify="flex-start" alignItems="center" direction="row">
                 <UnderlyingItem {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
             </Cell>
         },
@@ -79,9 +78,9 @@ const columns = [
     {
         field: 'tvl',
         label: 'TVL',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ tvl }) => {
-            return <Cell minWidth="120px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(tvl, 0, true)}</CellText>
             </Cell>
         },
@@ -89,9 +88,9 @@ const columns = [
     {
         field: 'pairingDepth',
         label: 'Pairing Depth',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
         value: ({ pairingDepth }) => {
-            return <Cell minWidth="120px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(pairingDepth || 0, 0, true)}</CellText>
             </Cell>
         },
@@ -99,9 +98,9 @@ const columns = [
     {
         field: 'dolaBalance',
         label: 'DOLA Balance',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
         value: ({ dolaBalance }) => {
-            return <Cell minWidth="120px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
                 <CellText>{preciseCommify(dolaBalance || 0, 0, true)}</CellText>
             </Cell>
         },
@@ -109,30 +108,50 @@ const columns = [
     {
         field: 'dolaWeight',
         label: 'DOLA Weight',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
         value: ({ dolaWeight }) => {
-            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
                 <CellText>{shortenNumber(dolaWeight || 0, 2)}%</CellText>
             </Cell>
         },
-    }
-    , {
-        field: 'pol',
-        label: 'PoL',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
-        value: ({ pol }) => {
-            return <Cell minWidth="120px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(pol, 0, true)}</CellText>
+    },
+    {
+        field: 'apy',
+        label: 'APY',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
+        value: ({ apy }) => {
+            return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
+                <CellText>{typeof apy === 'undefined' ? '-' : `${shortenNumber(apy || 0, 2)}%`}</CellText>
             </Cell>
         },
     }
     , {
         field: 'polDom',
         label: 'Pool Dom',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
         value: ({ polDom }) => {
-            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
                 <CellText>{shortenNumber(polDom, 2)}%</CellText>
+            </Cell>
+        },
+    }
+    , {
+        field: 'pol',
+        label: 'PoL',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
+        value: ({ pol }) => {
+            return <Cell minWidth="100px" justify="flex-end" fontSize="15px">
+                <CellText>{preciseCommify(pol, 0, true)}</CellText>
+            </Cell>
+        },
+    }
+    , {
+        field: 'rewardDay',
+        label: '$/day',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
+        value: ({ rewardDay }) => {
+            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
+                <CellText>{preciseCommify(rewardDay, 2, true)}</CellText>
             </Cell>
         },
     }

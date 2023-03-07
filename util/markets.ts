@@ -253,7 +253,7 @@ export const getYieldOppys = async () => {
         const data = await results.json();
         const pools =  data.status === 'success' ? data.data : [];
         return pools
-            .filter(p => /^(inv-|dola-)/i.test(p.symbol) || /(-inv|-dola)$/i.test(p.symbol) || /(-inv-|-dola-)/i.test(p.symbol))
+            .filter(p => /^(inv-|dola-|dbr-)/i.test(p.symbol) || /(-inv|-dola|-dbr)$/i.test(p.symbol) || /(-inv-|-dola-|-dbr-)/i.test(p.symbol))
             .map(p => {
             return {
               ...p,

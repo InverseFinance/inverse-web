@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Multisig, NetworkIds, Token } from '@app/types';
-import { getBnToNumber } from '@app/util/markets'
+import { getBnToNumber, getYieldOppys } from '@app/util/markets'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
 import { getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
@@ -13,6 +13,19 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 
 export const liquidityCacheKey = `liquidity-v1.0.0`;
+
+const PROTOCOL_DEFILLAMA_MAPPING = {
+    "VELO": 'velodrome',    
+    "THENA": 'thena',
+    "AURA": 'aura',
+    "CRV": 'curve',
+    "YFI": 'yearn',
+    "CVX": "convex-finance",
+    "SUSHI": "sushiswap",
+    "UNI": "uniswap-v2",        
+    "UNIV3": "uniswap-v3",        
+    "BAL": "balancer-v2",    
+}
 
 export default async function handler(req, res) {
 
@@ -43,7 +56,10 @@ export default async function handler(req, res) {
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
-        const univ3TWGpositions = await getUniV3PositionsOf(getProvider('1'), TWG.address);
+        const [univ3TWGpositions, yields] = await Promise.all([
+            getUniV3PositionsOf(getProvider('1'), TWG.address),
+            getYieldOppys(),
+        ]);
 
         const chainTWG: { [key: string]: Multisig } = {
             [NetworkIds.mainnet]: TWG,
@@ -72,7 +88,7 @@ export default async function handler(req, res) {
             if (!fedPol) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
                 const owned: { [key: string]: number } = {};
-                if(lp.isCrvLP && !!lp.poolAddress) {          
+                if (lp.isCrvLP && !!lp.poolAddress) {
                     const [lpBal, lpSupply] = await Promise.all([
                         contract.balanceOf(TWG.address),
                         contract.totalSupply(),
@@ -100,17 +116,31 @@ export default async function handler(req, res) {
             } else {
                 ownedAmount = fedPol.supply;
             }
-            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);            
+            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
+
+            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| blp)/ig, '');
+            const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
+            const perc = Math.min(ownedAmount / tvl * 100, 100);
+
+            const yieldData = yields.find(y => {
+                const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
+                return defiLlamaProjectName === y.project
+                    && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
+            });
+
             return {
                 ...lp,
-                lpName: lp.symbol.replace(/(-LP|-SLP|-AURA| blp)/ig, ''),             
-                protocol: PROTOCOLS_BY_IMG[lp.protocolImage],
+                lpName,
+                apy: yieldData?.apy,
+                apyMean30d: yieldData?.apyMean30d,
+                protocol,
                 tvl,
                 ownedAmount,
-                perc: Math.min(ownedAmount / tvl * 100, 100),
+                perc,
                 pairingDepth: tvl - dolaWorth,
                 dolaBalance: dolaWorth,
                 dolaWeight: dolaWorth / tvl * 100,
+                rewardDay: ownedAmount * (yieldData?.apy||0)/100 / 365,
             }
         }
 
