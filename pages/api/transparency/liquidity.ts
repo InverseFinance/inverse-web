@@ -28,16 +28,19 @@ const PROTOCOL_DEFILLAMA_MAPPING = {
 }
 
 export default async function handler(req, res) {
-
+    const { cacheFirst } = req.query;
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     try {
-        const validCache = await getCacheFromRedis(liquidityCacheKey, true, 900);
+        const validCache = await getCacheFromRedis(liquidityCacheKey,  cacheFirst !== 'true', 60);        
         if (validCache) {
             res.status(200).json(validCache);
             return
         }
 
+        // TODO: refacto as service
+        // refresh Fed overview data
+        await fetch('https://www.inverse.finance/api/transparency/fed-overview');
         const fedsOverviewCache = await getCacheFromRedis(fedOverviewCacheKey, false);
 
         const multisigsToShow = MULTISIGS;
