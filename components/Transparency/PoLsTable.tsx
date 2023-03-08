@@ -9,6 +9,7 @@ import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
 import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
 import moment from "moment"
+import { SkeletonBlob } from "../common/Skeleton"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -221,12 +222,15 @@ export const PoLsTable = ({
             />
         }
     >
-        <Table
-            key="address"
-            columns={columns}
-            items={filtered}
-            defaultSort="tvl"
-            defaultSortDir="desc"
-        />
+        {
+            !items.length ? <SkeletonBlob /> :
+                <Table
+                    key="address"
+                    columns={columns}
+                    items={filtered}
+                    defaultSort="tvl"
+                    defaultSortDir="desc"
+                />
+        }
     </Container>
 }
