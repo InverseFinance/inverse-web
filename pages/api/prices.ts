@@ -10,6 +10,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 
 export const pricesCacheKey = `prices-v1.0.5`;
+export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
 
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const allMarkets: string[] = [...await comptroller.getAllMarkets()];
-    
+
     const markets = allMarkets
       .filter(address => !!UNDERLYING[address]
         // && !UNDERLYING[address].coingeckoId
@@ -68,12 +69,15 @@ export default async function handler(req, res) {
       const res = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
       geckoPrices = await res.json();
 
-      Object.entries(geckoPrices).forEach(([key, value]) => {
-        prices[key] = value.usd;
-      })
+      await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
     } catch (e) {
       console.log('Error fetching gecko prices');
+      geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
     }
+
+    Object.entries(geckoPrices).forEach(([key, value]) => {
+      prices[key] = value.usd;
+    })
 
     let lps: { token: Token, chainId: string }[] = [];
 
@@ -94,10 +98,12 @@ export default async function handler(req, res) {
     ]);
 
     lps.forEach((lpToken, i) => {
-      if(lpData[i]) {
+      if (lpData[i]) {
         prices[lpToken.token.symbol] = lpData[i];
       }
     })
+
+    prices['_timestamp'] = +(new Date());
 
     await redisSetWithTimestamp(pricesCacheKey, prices);
 
