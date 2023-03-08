@@ -15,16 +15,16 @@ import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 export const liquidityCacheKey = `liquidity-v1.0.0`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
-    "VELO": 'velodrome',    
+    "VELO": 'velodrome',
     "THENA": 'thena',
     "AURA": 'aura',
     "CRV": 'curve',
     "YFI": 'yearn',
     "CVX": "convex-finance",
     "SUSHI": "sushiswap",
-    "UNI": "uniswap-v2",        
-    "UNIV3": "uniswap-v3",        
-    "BAL": "balancer-v2",    
+    "UNI": "uniswap-v2",
+    "UNIV3": "uniswap-v3",
+    "BAL": "balancer-v2",
 }
 
 export default async function handler(req, res) {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     try {
-        const validCache = await getCacheFromRedis(liquidityCacheKey,  cacheFirst !== 'true', 300);        
+        const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', 300);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -80,17 +80,20 @@ export default async function handler(req, res) {
                 return f?.strategy?.pools?.[0]?.address === lp.address
             });
             const provider = getProvider(lp.chainId);
+            const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
 
             const isDolaMain = lp.symbol.includes('DOLA');
+            const virtualTotalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
             const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId || curr.symbol] || 1), 0);
+            const virtualLpPrice = tvl / virtualTotalSupply;
             const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
 
-            let ownedAmount = 0
+            let ownedAmount = 0;
+            const owned: { [key: string]: number } = {};
             if (!fedPol) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
-                const owned: { [key: string]: number } = {};
                 if (lp.isCrvLP && !!lp.poolAddress) {
                     const [lpBal, lpSupply] = await Promise.all([
                         contract.balanceOf(TWG.address),
@@ -115,14 +118,14 @@ export default async function handler(req, res) {
                     const share = univ3liquidity ? univ3liquidityOwnedByTWG / univ3liquidity : 0;
                     owned.twg = share * tvl;
                 }
-                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0) * (prices[lp.coingeckoId || lp.symbol] || 1);
+                ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0)
+                    * (lp.isStable ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
             } else {
                 ownedAmount = fedPol.supply;
             }
             const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
 
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| blp| alp)/ig, '').replace(/-ETH/ig, '-WETH');
-            const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
             const yieldData = yields.find(y => {
@@ -138,12 +141,13 @@ export default async function handler(req, res) {
                 apyMean30d: yieldData?.apyMean30d,
                 protocol,
                 tvl,
+                owned,
                 ownedAmount,
                 perc,
                 pairingDepth: tvl - dolaWorth,
                 dolaBalance: dolaWorth,
                 dolaWeight: dolaWorth / tvl * 100,
-                rewardDay: ownedAmount * (yieldData?.apy||0)/100 / 365,
+                rewardDay: ownedAmount * (yieldData?.apy || 0) / 100 / 365,
             }
         }
 
