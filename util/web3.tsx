@@ -47,6 +47,9 @@ export async function fetchWithTimeout(input: RequestInfo, options: RequestInit 
   });
 }
 
+export const fetcher60sectimeout = (input: RequestInfo, init?: RequestInit) => fetcher(input, init, 60000);
+export const fetcher30sectimeout = (input: RequestInfo, init?: RequestInit) => fetcher(input, init, 30000);
+
 export const fetcher = async (input: RequestInfo, init?: RequestInit, timeout = 6000) => {
   const res = await fetchWithTimeout(input, init, timeout);
 
