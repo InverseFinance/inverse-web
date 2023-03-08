@@ -101,9 +101,11 @@ const chainTokenAddresses = {
     VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
     VELODOLAUSDCLP: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
     VELODOLALP: '0x1eBE6427f037385dDcB95aa688c18272415e3F46',
+    VELODOLAMAILP: '0x21950a0cA249A0ef3d182338c86c8C066B24D801',
     VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
+    MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -766,6 +768,14 @@ const chainTokens = {
       decimals: 6,
       coingeckoId: 'usd',
     },
+    [chainTokenAddresses["10"].MAI]: {
+      address: chainTokenAddresses["10"].MAI,
+      name: 'MIMATIC',
+      symbol: 'MAI',
+      image: TOKEN_IMAGES['MAI'],
+      decimals: 18,
+      coingeckoId: 'mimatic',
+    },
     [chainTokenAddresses["10"].VEVELO]: {
       address: chainTokenAddresses["10"].VEVELO,
       name: 'veVELO',
@@ -799,6 +809,20 @@ const chainTokens = {
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["10"].VELO, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELO,
+    },
+    [chainTokenAddresses["10"].VELODOLAMAILP]: {
+      address: chainTokenAddresses["10"].VELODOLAMAILP,
+      name: 'DOLA-MAI',
+      symbol: 'DOLA-MAI',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].MAI
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },

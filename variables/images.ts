@@ -26,6 +26,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "MAI": "https://assets.coingecko.com/coins/images/15264/small/mimatic-red.png?1620281018",
     "ETH": "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
     "DAI": "https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png",
     "USDT": "https://assets.coingecko.com/coins/images/325/small/Tether-logo.png",
