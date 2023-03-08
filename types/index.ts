@@ -14,8 +14,13 @@ export interface Token {
   coingeckoId?: string
   isWrappedChainCoin?: boolean
   isLP?: boolean
+  isStable?: boolean
   isCrvLP?: boolean
   isVeloLP?: boolean
+  isUniV3?: boolean
+  lpBalanceContract?: string
+  // crv pool where lp token != pool contract
+  poolAddress?: string
   lpPrice?: number
   balancerInfos?: {
     poolId: string

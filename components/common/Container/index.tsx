@@ -4,6 +4,23 @@ import Link from '@app/components/common/Link'
 import { NotifBadge } from '../NotifBadge'
 import { useEffect, useState } from 'react'
 
+export type AppContainerProps = Partial<Omit<FlexProps, "right">> & {
+  label?: React.ReactNode
+  description?: React.ReactNode
+  href?: string
+  right?: React.ReactNode
+  image?: React.ReactNode
+  noPadding?: boolean
+  nbNotif?: number
+  contentBgColor?: FlexProps["bgColor"]
+  contentProps?: FlexProps
+  children?: React.ReactNode
+  collapsable?: boolean,
+  defaultCollapse?: boolean,
+  headerProps?: FlexProps
+  labelProps?: TextProps
+}
+
 export const Container = ({
   label,
   description,
@@ -20,22 +37,7 @@ export const Container = ({
   headerProps,
   labelProps,
   ...props
-}: Partial<Omit<FlexProps, "right">> & {
-  label?: React.ReactNode
-  description?: React.ReactNode
-  href?: string
-  right?: React.ReactNode
-  image?: React.ReactNode
-  noPadding?: boolean
-  nbNotif?: number
-  contentBgColor?: FlexProps["bgColor"]
-  contentProps?: FlexProps
-  children?: React.ReactNode
-  collapsable?: boolean,
-  defaultCollapse?: boolean,
-  headerProps?: FlexProps
-  labelProps?: TextProps
-}) => {
+}: AppContainerProps) => {
   const [collapsed, setCollapsed] = useState(defaultCollapse);
   const [showImage, setShowImage] = useState(!!image);
   const title = (

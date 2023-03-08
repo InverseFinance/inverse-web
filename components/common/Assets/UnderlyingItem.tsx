@@ -2,8 +2,9 @@ import { BoxProps, ImageProps, Text, TextProps } from '@chakra-ui/react'
 import { OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
 import React from 'react'
-import { Token } from '@app/types';
+import { NetworkIds, Token } from '@app/types';
 import { MarketImage } from './MarketImage';
+import { LPImages } from './LPImg';
 
 const DEFAULT_CONTAINER = React.Fragment;
 
@@ -19,6 +20,9 @@ export const UnderlyingItem = ({
     Container = DEFAULT_CONTAINER,
     containerProps,
     protocolImage,
+    showAsLp = false,
+    pairs,
+    chainId,
 }: {
     label: string,
     image: string,
@@ -31,17 +35,24 @@ export const UnderlyingItem = ({
     Container?: React.ComponentType<any>,
     containerProps?: any,
     protocolImage?: string,
+    showAsLp?: boolean
+    pairs?: string[]
+    chainId?: NetworkIds,
 }) => {
     const paused = /(-v1|old)/i.test(label);
     return <Container {...containerProps}>
-        <MarketImage
-            size={imgSize}
-            image={image}
-            protocolImage={protocolImage}
-            isInPausedSection={paused}
-            imgProps={imgProps}
-            {...imgContainerProps}
-        />
+        {
+            showAsLp ?
+                <LPImages lpToken={{ pairs, image, protocolImage }} chainId={chainId} />
+                : <MarketImage
+                    size={imgSize}
+                    image={image}
+                    protocolImage={protocolImage}
+                    isInPausedSection={paused}
+                    imgProps={imgProps}
+                    {...imgContainerProps}
+                />
+        }
         <Text opacity={paused ? 0.5 : undefined} {...textProps}>{label}{address === OLD_XINV ? ' (OLD)' : ''}</Text>
         {
             !!badge &&

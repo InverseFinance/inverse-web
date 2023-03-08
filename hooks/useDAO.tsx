@@ -36,6 +36,17 @@ export const useDAO = (): SWR & DAO => {
   }
 }
 
+export const useLiquidityPools = (): SWR & { liquidity: any[], timestamp: number } => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/liquidity?v=1`, fetcher)
+
+  return {    
+    timestamp: data?.timestamp,
+    liquidity: data?.liquidity || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useCompensations = (): SWR & {
   currentPayrolls: Payroll[]
   currentVesters: Vester[]

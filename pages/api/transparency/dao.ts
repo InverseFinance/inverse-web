@@ -5,10 +5,11 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
-import { getBnToNumber } from '@app/util/markets'
+import { getBnToNumber, getNumberToBn } from '@app/util/markets'
 import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
+import { liquidityCacheKey } from './liquidity';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -26,8 +27,7 @@ const ANCHOR_RESERVES_TO_CHECK = [
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-export const cachePolKey = `dao-pols-v1.0.0`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.0`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.1`;
 export const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
@@ -36,7 +36,7 @@ export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.0`;
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.2.9`;
+  const cacheKey = `dao-cache-v1.3.0`;
 
   try {
 
@@ -147,13 +147,16 @@ export default async function handler(req, res) {
     const multisigsFundsToCheck = {
       [NetworkIds.mainnet]: Object.keys(CHAIN_TOKENS[NetworkIds.mainnet])
         .filter(key => isAddress(key))
-        .filter(key => ![mainnetTokens.MIM, mainnetTokens.FLOKI, mainnetTokens.THREECRV, mainnetTokens.XSUSHI].includes(key)),        
+        .filter(key => ![mainnetTokens.MIM, mainnetTokens.FLOKI, mainnetTokens.THREECRV, mainnetTokens.XSUSHI, mainnetTokens.DOLAUSDCUNIV3].includes(key)),
       [NetworkIds.ftm]: [],// not used anymore
       [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
       [NetworkIds.bsc]: Object.keys(CHAIN_TOKENS[NetworkIds.bsc]).filter(key => isAddress(key)),
     }
 
-    const multisigBalCache = await getCacheFromRedis(cacheMulBalKey, true, 300);
+    const [multisigBalCache, liquidityCacheData] = await Promise.all([
+      getCacheFromRedis(cacheMulBalKey, true, 300),
+      getCacheFromRedis(liquidityCacheKey, false),
+    ]);
     const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => Array.isArray(bn) ? BigNumber.from(bn[0]) : BigNumber.from(bn))) || (await Promise.all([
       ...multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
@@ -187,6 +190,15 @@ export default async function handler(req, res) {
             } else if (isLockedConvexPool) {
               const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
               return contract.totalBalanceOf(token.convexInfos.account);
+            } // for uniV3 nft pos, we treat lp price as $1 and balance = ownedAmount $
+            else if (token.isUniV3) {
+              if(liquidityCacheData?.liquidity) {
+                const lpData = liquidityCacheData.liquidity.find(lp => lp.address === tokenAddress);
+                if(lpData) {
+                  return getNumberToBn(lpData.ownedAmount, lpData.decimals);
+                }
+              }
+              return new Promise((res) => res(BigNumber.from('0')));
             } else {
               const contract = new Contract(tokenAddress, ERC20_ABI, provider);
               return contract.balanceOf(m.address);
@@ -247,55 +259,14 @@ export default async function handler(req, res) {
       })
     })
 
-    // Bonds
-    const bondTokens = [INV, DOLA, DOLA3POOLCRV, INVDOLASLP];
-    const bondManagerBalances: BigNumber[] = await Promise.all(
-      bondTokens.map(tokenAddress => {
-        const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-        return contract.balanceOf(OP_BOND_MANAGER);
-      })
-    )
-
-    // POL
-    const lps = [
-      ...Object
-        .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ isLP }) => isLP)
-        .map(({ address }) => ({ address, chainId: NetworkIds.mainnet })),
-      ...Object
-        .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
-        .map(({ address }) => ({ address, chainId: NetworkIds.ftm })),
-    ]
-
-    const chainTWG: { [key: string]: Multisig } = {
-      [NetworkIds.mainnet]: multisigsToShow.find(m => m.shortName === 'TWG')!,
-      [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
-      [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
-      [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
-    }
-
-    const getPol = async (lp: { address: string, chainId: string }) => {
-      const provider = getProvider(lp.chainId);
-      const contract = new Contract(lp.address, ERC20_ABI, provider);
-      const totalSupply = getBnToNumber(await contract.totalSupply());
-
-      const owned: { [key: string]: number } = {};
-      owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
-      if (lp.chainId === NetworkIds.mainnet) {
-        owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
-        owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
-      }
-      const ownedAmount: number = Object.values(owned).reduce((prev, curr) => prev + curr, 0);
-      const perc = ownedAmount / totalSupply * 100;
-      return { totalSupply, ownedAmount, perc, ...lp, owned };
-    }
-
-    const polsCache = await getCacheFromRedis(cachePolKey, true, 600);
-    const pols = polsCache || (await Promise.all([
-      ...lps.map(lp => getPol(lp))
-    ]))
-    if (!polsCache) {
-      await redisSetWithTimestamp(cachePolKey, pols);
-    }
+    // Bonds v2 - no more used
+    // const bondTokens = [INV, DOLA, DOLA3POOLCRV, INVDOLASLP];
+    // const bondManagerBalances: BigNumber[] = await Promise.all(
+    //   bondTokens.map(tokenAddress => {
+    //     const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+    //     return contract.balanceOf(OP_BOND_MANAGER);
+    //   })
+    // )
 
     const toSupplies = (total: number, bridgedSupplies: BigNumber[], bridgedChains: string[]) => {
       return [
@@ -330,13 +301,12 @@ export default async function handler(req, res) {
     }));
 
     const resultData = {
-      timestamp: +(new Date()),
-      pols,
+      timestamp: +(new Date()),      
       dolaTotalSupply: dolaTotalSupplyNum,
       invTotalSupply: invTotalSupplyNum,
       dolaOperator,
       bonds: {
-        balances: bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
+        balances: []//bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
       anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])).filter(d => d.balance > 0),
       treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])).filter(d => d.balance > 0),
