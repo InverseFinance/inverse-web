@@ -37,19 +37,19 @@ export const Liquidity = () => {
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <PoLsTable items={polsItems} timestamp={timestamp} />
           <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'TOTAL DOLA Liquidity summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity Summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'TOTAL DOLA Liquidity' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
           </Stack>
           <Stack pb='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV'))} containerProps={{ label: 'TOTAL INV Liquidity summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV') && lp.lpName.includes('DOLA'))} containerProps={{ label: 'INV-DOLA Liquidity Summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV') && !lp.lpName.includes('DOLA'))} containerProps={{ label: 'INV-NON_DOLA Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV'))} containerProps={{ label: 'TOTAL INV Liquidity' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV') && lp.lpName.includes('DOLA'))} containerProps={{ label: 'INV-DOLA Liquidity' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('INV') && !lp.lpName.includes('DOLA'))} containerProps={{ label: 'INV-NON_DOLA Liquidity' }} />
           </Stack>
           <Stack pb='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR'))} containerProps={{ label: 'TOTAL DBR Liquidity summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR') && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DBR-DOLA Liquidity Summary' }} />
-            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR') && !lp.lpName.includes('DOLA'))} containerProps={{ label: 'DBR-NON_DOLA Liquidity Summary' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR'))} containerProps={{ label: 'TOTAL DBR Liquidity' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR') && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DBR-DOLA Liquidity' }} />
+            <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DBR') && !lp.lpName.includes('DOLA'))} containerProps={{ label: 'DBR-NON_DOLA Liquidity' }} />
           </Stack>
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
