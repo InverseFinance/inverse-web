@@ -795,8 +795,7 @@ const chainTokens = {
       symbol: 'DOLA-VELO',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,
-      isStable: true,
+      isLP: true,      
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["10"].VELO, chainTokenAddresses["10"].DOLA
