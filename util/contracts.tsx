@@ -26,10 +26,10 @@ import { Bond, GovEra, NetworkIds, Token } from '@app/types'
 import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils';
 import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { getProvider } from './providers'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
 import { BigNumber } from 'ethers'
+import { PROTOCOL_IMAGES } from '@app/variables/images'
 
 const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
 
@@ -371,7 +371,7 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
   try {
     if (LPToken.isCrvLP && !!LPToken.pairs) {
       const balancesBn = await Promise.all(
-        tokens.map((token, tokenIndex) => new Contract(LPToken.poolAddress||LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
+        tokens.map((token, tokenIndex) => new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).balances(tokenIndex))
       );
       const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
       const total = balances.reduce((prev, curr) => prev + curr, 0);
@@ -380,7 +380,17 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
       })
     } else if (LPToken.balancerInfos && !!LPToken.pairs) {
       const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);
-      const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i]?.decimals || 18));
+      let subShareFactor = 1;
+      if (LPToken.protocolImage === PROTOCOL_IMAGES.AURA) {
+        const [balSupply, auraSupply] = await Promise.all([
+          // blp supply
+          (new Contract(LPToken.balancerInfos.poolId.substring(0, 42), ERC20_ABI, providerOrSigner)).totalSupply(),
+          // aura lp supply
+          (new Contract(LPToken.address, ERC20_ABI, providerOrSigner)).totalSupply(),
+        ]);
+        subShareFactor = getBnToNumber(auraSupply) / getBnToNumber(balSupply);
+      }
+      const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i]?.decimals || 18) * subShareFactor);
       // balancer composable metapools contain the LP itself, we can skip it for our calc
       const balances = _balances.filter((v, i) => tokens[i].address !== LPToken.address);
       const total = balances.reduce((prev, curr) => prev + curr, 0);
@@ -418,11 +428,11 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
   else if (LPToken.isCrvLP) {
-    return getBnToNumber(await (new Contract(LPToken.poolAddress||LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+    return getBnToNumber(await (new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   } else if (LPToken.convexInfos) {
     return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
   } // treat uniV3 nft pos as $1
-   else if (LPToken.isUniV3) {
+  else if (LPToken.isUniV3) {
     return new Promise(r => r(1))
   }
 
