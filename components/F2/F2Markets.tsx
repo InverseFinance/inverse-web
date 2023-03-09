@@ -13,6 +13,7 @@ import { OracleType } from "./Infos/OracleType";
 import { SkeletonList } from "../common/Skeleton";
 import { UnderlyingItemBlock } from "../common/Assets/UnderlyingItemBlock";
 import Link from "../common/Link";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -210,6 +211,7 @@ export const F2Markets = ({
     const { debt } = useAccountDBR(account);
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
+    const { themeStyles } = useAppTheme();
 
     const isLoading = tvlLoading || !markets?.length;
 
@@ -219,7 +221,11 @@ export const F2Markets = ({
     }
 
     return <Container
-        label={`${shortenNumber(dbrPrice * 100, 2)}% Fixed Borrow APR`}
+        label={
+            <Text fontWeight="bold">
+                <b style={{ color: themeStyles.colors.success, fontSize: '22px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR
+            </Text>
+        }
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
