@@ -11,6 +11,8 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
 import { parseUnits } from "@ethersproject/units"
 import { getNetworkConfigConstants } from "@app/util/networks"
+import { getBnToNumber } from "@app/util/markets"
+import { showToast } from "@app/util/notify"
 
 const { F2_HELPER } = getNetworkConfigConstants();
 
@@ -43,6 +45,7 @@ export const F2WalkthroughRecap = ({
         dbrPrice,
         riskColor,
         newPerc,
+        maxBorrow,
         dbrCoverDebt,
         newDBRExpiryDate,
         handleDebtChange,
@@ -79,11 +82,19 @@ export const F2WalkthroughRecap = ({
 
     const handleAction = async () => {
         if (market.helper) {
-            let dolaNeededForDbr, maxDolaIn;            
+            let dolaNeededForDbr, maxDolaIn;   
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             const slippage = parseFloat(dbrBuySlippage)+100;
-            maxDolaIn = dolaNeededForDbr.mul(slippage).div(100);   
+            maxDolaIn = dolaNeededForDbr.mul(Math.floor(slippage*100)).div(10000);
+            const maxDolaInNum = getBnToNumber(maxDolaIn);
+            if(maxDolaInNum > maxBorrow) {
+                return showToast({
+                    title: "Borrow amount / slippage combination too high",
+                    status: 'warning',
+                    description: "Please reduce borrow amount and/or max. slippage",
+                });
+            }
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,

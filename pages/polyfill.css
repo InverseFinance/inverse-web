@@ -42,6 +42,34 @@ body {
     .warning-bg {
         background-color: #ed893622 !important;
     }
+
+    .infoLight-bg2 {
+        background-color: #4299e1bb !important;
+    }  
+    .info-bg2 {
+        background-color: #4299e188 !important;
+    }    
+    .primary-bg2 {
+        background-color: #5E17EB88 !important;
+    }
+    .dark-bg2 {
+        background-color: #5E17EB88 !important;
+    }
+    .light-bg2 {
+        background-color: rgba(250, 250, 250, 0.8) !important;
+    }
+    .loading-bg2 {
+        background-color: #4299e188 !important;
+    }
+    .success-bg2 {
+        background-color: #25C9A188 !important;
+    }    
+    .error-bg2 {
+        background-color: #F4406188 !important;
+    }
+    .warning-bg2 {
+        background-color: #ed893688 !important;
+    }
   }
   
   /* slightly transparent fallback for Firefox (not supporting backdrop-filter) */

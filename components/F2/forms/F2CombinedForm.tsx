@@ -22,6 +22,7 @@ import WethModal from '@app/components/common/Modal/WethModal'
 import { roundFloorString } from '@app/util/misc'
 import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
+import { showToast } from '@app/util/notify'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -86,6 +87,7 @@ export const F2CombinedForm = ({
         setDbrSellAmount,
         dbrBuySlippage,
         setDbrBuySlippage,
+        maxBorrow,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
     } = useContext(F2MarketContext);
@@ -109,8 +111,18 @@ export const F2CombinedForm = ({
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
             dolaNeededForDbr = approx[0];
             dbrNeeded = approx[1];
-            const slippage = parseFloat(dbrBuySlippage)+100;
+            const slippage = parseFloat(dbrBuySlippage) + 100;
             maxDolaIn = dolaNeededForDbr.mul(slippage).div(100)
+            if (isBorrowCase) {
+                const maxDolaInNum = getBnToNumber(maxDolaIn);
+                if (maxDolaInNum > maxBorrow) {
+                    return showToast({
+                        title: "Borrow amount / slippage combination too high",
+                        status: 'warning',
+                        description: "Please reduce borrow amount and/or max. slippage",
+                    });
+                }
+            }
         }
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
