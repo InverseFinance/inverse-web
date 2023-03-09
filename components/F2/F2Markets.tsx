@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text, VStack } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -11,8 +11,6 @@ import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
 import { OracleType } from "./Infos/OracleType";
 import { SkeletonList } from "../common/Skeleton";
-import { UnderlyingItemBlock } from "../common/Assets/UnderlyingItemBlock";
-import Link from "../common/Link";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const ColHeader = ({ ...props }) => {
