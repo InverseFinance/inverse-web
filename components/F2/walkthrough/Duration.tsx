@@ -62,6 +62,7 @@ export const F2WalkthroughDuration = ({
                         <VStack alignItems="flex-start">
                             <Text>Maximum Borrowing Power will be <b>~{preciseCommify(maxBorrowable, 0)} DOLA</b> (depends on duration)</Text>
                             <Text>You can terminate the loan at any time</Text>
+                            <Text>Depending on DBR price fluctation, actual duration may vary a little bit</Text>
                         </VStack>
                         :
                         <VStack alignItems="flex-start">

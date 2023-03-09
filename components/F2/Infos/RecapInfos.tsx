@@ -75,15 +75,15 @@ export const RecapInfos = ({
             </TextInfo>
         }
         {
-            isAutoDBR && isTuto && hasHelper && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate. Gradually and automatically paid via the DBR tokens that you will receive alongside DOLA.">
-                <Text fontSize={fontSize}>You will lock-In a <b>~{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
+            isAutoDBR && isTuto && hasHelper && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate. Gradually and automatically paid via the DBR tokens that you will receive alongside DOLA. Actual duration may vary a little bit due to DBR price fluctuations.">
+                <Text fontSize={fontSize}>You will lock-In a <b>~{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>~{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
             </TextInfo>
         }
-        {
+        {/* {
             isAutoDBR && hasHelper && <TextInfo message="DBRs will be spent over time as fees to cover the loan, they should stay in your wallet while the loan is active">
-                <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs (~{shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
+                <Text fontSize={fontSize}>You will purchase <b>~{shortenNumber(dbrCover, 2)} DBRs (~{shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
             </TextInfo>
-        }
+        } */}
         {/* {
             isAutoDBR && hasHelper && <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
                 <Text fontSize={fontSize}>Your total loan amount including DBR will be <b>~{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
@@ -118,7 +118,7 @@ export const RecapInfos = ({
                     <TextInfo
                         message="DBR price can vary while trying to buy, the max. slippage % allows the resulting total DOLA debt created to be within a certain range, if out of range, tx will revert or fail">
                         <Text fontSize={fontSize}>
-                            Max. slippage %:
+                            Max. slippage % on DBR cost:
                         </Text>
                     </TextInfo>
                     <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />

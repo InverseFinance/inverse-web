@@ -404,7 +404,7 @@ export const F2CombinedForm = ({
             </HStack>
             <InfoMessage
                 alertProps={{ w: 'full', fontStyle: 'italic' }}
-                description="NB: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt."
+                description="NB: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt. Actual duration may vary a little bit due to DBR price fluctuations."
             />
         </VStack>
     </VStack>
