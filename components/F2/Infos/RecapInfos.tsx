@@ -1,4 +1,5 @@
 import { Input } from "@app/components/common/Input"
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { getDBRRiskColor, getDepletionDate } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
@@ -65,38 +66,38 @@ export const RecapInfos = ({
                 <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 4)} {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
             </TextInfo>
         }
-        <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
+        {/* <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
             <Text fontSize={fontSize}>With the collateral factor of {shortenNumber(market.collateralFactor * 100, 0)}% your deposit is worth {shortenNumber(worth, 2, true)}</Text>
-        </TextInfo>
+        </TextInfo> */}
         {
             !!debtAmountNum && <TextInfo message="The amount of DOLA you will receive">
                 <Text fontSize={fontSize}>You will {debtWording} <b>{shortenNumber(debtAmountNum, 2)} DOLA</b></Text>
             </TextInfo>
         }
         {
-            isAutoDBR && isTuto && hasHelper && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate">
+            isAutoDBR && isTuto && hasHelper && <TextInfo message="Loan Annual Percentage Rate and duration of the Fixed-Rate. Gradually and automatically paid via the DBR tokens that you will receive alongside DOLA.">
                 <Text fontSize={fontSize}>You will lock-In a <b>~{shortenNumber(dbrPrice * 100, 2)}% APR</b> for <b>{durationTypedValue} {durationTypedValue > 1 ? durationType : durationType.replace(/s$/, '')}{durationType !== 'days' ? ` (${duration} days)` : ''}</b></Text>
             </TextInfo>
         }
-        {
+        {/* {
             isAutoDBR && hasHelper && <TextInfo message="DBRs will be spent over time as fees to cover the loan, they should stay in your wallet while the loan is active">
                 <Text fontSize={fontSize}>You will purchase <b>{shortenNumber(dbrCover, 2)} DBRs (~{shortenNumber(dbrCoverDebt, 2, true)})</b> to cover the loan duration</Text>
             </TextInfo>
-        }
-        {
+        } */}
+        {/* {
             isAutoDBR && hasHelper && <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
                 <Text fontSize={fontSize}>Your total loan amount including DBR will be <b>~{shortenNumber(debtAmountNum + (isAutoDBR ? dbrCoverDebt : 0), 2)} DOLA</b></Text>
             </TextInfo>
-        }
+        } */}
         {
             newPerc !== 100 && <>
-                {
+                {/* {
                     <TextInfo color={dbrRiskColor} message="Moment at which you will run out of DBR tokens to cover the loan duration, please top-up your DBR before it, otherwise your debt will increase">
                         <Text fontSize={fontSize} fontWeight="bold" color={dbrRiskColor}>
                             The DBR depletion date will be <b style={{ fontWeight: '1000' }}>{getDepletionDate(newDBRExpiryDate, now)}</b>
                         </Text>
                     </TextInfo>
-                }
+                } */}
                 <TextInfo color={riskColor} message="How much of the maximum borrow capacity is used, at 100% the loan can be liquidated">
                     <Text fontSize={fontSize} fontWeight="bold" color={riskColor}>You will use <b style={{ fontWeight: '1000' }}>~{shortenNumber(100 - newPerc, 2)}%</b> of your Borrow Limit</Text>
                 </TextInfo>
@@ -123,6 +124,12 @@ export const RecapInfos = ({
                     <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
                 </HStack>
             </>
+        }
+        {
+            newPerc <= 5 && <WarningMessage
+                alertProps={{ w: 'full' }}
+                description="The borrow limit is very high, please be aware of liquidation risks."
+            />
         }
     </VStack>
 }
