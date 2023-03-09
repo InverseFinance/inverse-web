@@ -90,7 +90,7 @@ export const F2WalkthroughRecap = ({
             const maxDolaInNum = getBnToNumber(maxDolaIn);
             if(maxDolaInNum > maxBorrow) {
                 return showToast({
-                    title: "Borrow amount + Slippage too high",
+                    title: "Borrow amount / slippage combination too high",
                     status: 'warning',
                     description: "Please reduce borrow amount and/or max. slippage",
                 });
