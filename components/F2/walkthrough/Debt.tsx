@@ -77,7 +77,7 @@ export const F2WalkthroughDebt = ({
             <PercentagesOfMax max={maxBorrow} usableMax={maxBorrowable} isSmallerThan728={isSmallerThan728} onChange={onChange} />
             <InfoMessage
                 alertProps={{ w: 'full' }}
-                description={<Text>Maximum Borrowing Power is <b>~{preciseCommify(maxBorrow, 0)} DOLA</b> with current parameters.</Text>}
+                description={<Text>Maximum Borrowing Power is <b>~{preciseCommify(maxBorrowable, 0)} DOLA</b> with current parameters.</Text>}
             />
             {
                 debtAmountNum > maxBorrowable &&
