@@ -106,13 +106,15 @@ export const F2CombinedForm = ({
     const handleAction = async () => {
         if (!signer) { return }
         const action = MODES[mode]
-        let dbrNeeded, dolaNeededForDbr, maxDolaIn;
+        let maxDolaIn;
         if (isAutoDBR) {
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
-            dolaNeededForDbr = approx[0];
-            dbrNeeded = approx[1];
-            const slippage = parseFloat(dbrBuySlippage) + 100;
-            maxDolaIn = dolaNeededForDbr.mul(slippage).div(100)
+            const totalDolaNeeded = approx[0];
+            const dolaNeededForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
+            const slippage = parseFloat(dbrBuySlippage)+100;
+            const dolaNeededForDbrWithSlippage = dolaNeededForDbr * slippage/100;
+            const maxDolaInNum = dolaNeededForDbrWithSlippage+debtAmountNum;
+            maxDolaIn = getNumberToBn(maxDolaInNum);
             if (isBorrowCase) {
                 const maxDolaInNum = getBnToNumber(maxDolaIn);
                 if (maxDolaInNum > maxBorrow) {

@@ -11,7 +11,7 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { useRouter } from "next/router"
 import { parseUnits } from "@ethersproject/units"
 import { getNetworkConfigConstants } from "@app/util/networks"
-import { getBnToNumber } from "@app/util/markets"
+import { getBnToNumber, getNumberToBn } from "@app/util/markets"
 import { showToast } from "@app/util/notify"
 
 const { F2_HELPER } = getNetworkConfigConstants();
@@ -82,12 +82,14 @@ export const F2WalkthroughRecap = ({
 
     const handleAction = async () => {
         if (market.helper) {
-            let dolaNeededForDbr, maxDolaIn;   
+            let maxDolaIn;   
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
-            dolaNeededForDbr = approx[0];
+            const totalDolaNeeded = approx[0];
+            const dolaNeededForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
             const slippage = parseFloat(dbrBuySlippage)+100;
-            maxDolaIn = dolaNeededForDbr.mul(Math.floor(slippage*100)).div(10000);
-            const maxDolaInNum = getBnToNumber(maxDolaIn);
+            const dolaNeededForDbrWithSlippage = dolaNeededForDbr * slippage/100;
+            const maxDolaInNum = dolaNeededForDbrWithSlippage+debtAmountNum;
+            maxDolaIn = getNumberToBn(maxDolaInNum);
             if(maxDolaInNum > maxBorrow) {
                 return showToast({
                     title: "Borrow amount / slippage combination too high",
