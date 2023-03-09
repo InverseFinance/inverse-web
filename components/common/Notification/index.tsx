@@ -97,7 +97,7 @@ export const Notification = ({
             p={3}
             border="1px solid"
             borderColor={mode.borderColor}
-            className={`blurred-container ${status}-bg`}
+            className={`blurred-container ${status}-bg2`}
             {...boxProps}
             position="relative"
             maxWidth={{ base: '300px', sm: '400px', md: '600px' }}
