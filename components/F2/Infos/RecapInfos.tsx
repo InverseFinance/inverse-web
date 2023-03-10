@@ -63,7 +63,7 @@ export const RecapInfos = ({
         } */}
         {
             !!collateralAmountNum && <TextInfo message="The more you deposit the more you can borrow">
-                <Text fontSize={fontSize}>You will {collateralWording} <b>{shortenNumber(collateralAmountNum, 4)} {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
+                <Text fontSize={fontSize}>You will {collateralWording} <b>{preciseCommify(collateralAmountNum, 4)} {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol} ({shortenNumber(collateralAmountNum * market.price, 2, true)})</b></Text>
             </TextInfo>
         }
         {/* <TextInfo message="The debt to repay for this loan, total debt can increase if you exceed the chosen loan duration or run out of DBRs">
@@ -71,7 +71,7 @@ export const RecapInfos = ({
         </TextInfo> */}
         {
             !!debtAmountNum && <TextInfo message="The amount of DOLA you will receive">
-                <Text fontSize={fontSize}>You will {debtWording} <b>{shortenNumber(debtAmountNum, 2)} DOLA</b></Text>
+                <Text fontSize={fontSize}>You will {debtWording} <b>{preciseCommify(debtAmountNum, 2)} DOLA</b></Text>
             </TextInfo>
         }
         {

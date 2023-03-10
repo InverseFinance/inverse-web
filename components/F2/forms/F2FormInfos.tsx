@@ -154,24 +154,24 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'The current DOLA liquidity available to borrow in this market',
                 title: 'Market DOLA liquidity',
-                value: `${shortenNumber(market.dolaLiquidity, 2, true)}`,
+                value: `${preciseCommify(market.dolaLiquidity, 0, true)}`,
             },
             {
                 tooltip: 'Total amount of DOLA already borrowed from this market',
                 title: 'Total Already Borrowed',
-                value: `${shortenNumber(market.totalDebt, 2, true)}`,
+                value: `${preciseCommify(market.totalDebt, 0, true)}`,
             },
         ],
         [
             {
                 tooltip: 'The daily limit of borrowable DOLAs in the market (UTC timezone)',
                 title: 'Daily Borrow Limit',
-                value: market.dailyLimit > 0 ? `${shortenNumber(market.dailyLimit, 2, true)}` : 'No daily limit',
+                value: market.dailyLimit > 0 ? `${preciseCommify(market.dailyLimit, 0, true)}` : 'No daily limit',
             },
             {
                 tooltip: 'The remaining DOLA borrowable today (UTC timezone)',
                 title: 'Remaining liquidity',
-                value: market.dailyLimit > 0 ? `${shortenNumber(market.leftToBorrow, 2, true)}` : 'No daily limit',
+                value: market.dailyLimit > 0 ? `${preciseCommify(market.leftToBorrow, 0, true)}` : 'No daily limit',
             },
         ],
         [
@@ -273,24 +273,24 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'The total amount of collateral after you deposit/withdraw',
                 title: 'Total Deposits',
-                value: `${newDeposits ? `${shortenNumber(newDeposits, 4)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
+                value: `${newDeposits ? `${shortenNumber(newDeposits, 2)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
             },
             {
                 tooltip: 'The total amount of debt after you borrow/repay',
                 title: 'Total Debt',
-                value: `${newTotalDebt ? `${shortenNumber(newTotalDebt, 2)} DOLA` : '-'}`,
+                value: `${newTotalDebt ? `${preciseCommify(newTotalDebt, 2)} DOLA` : '-'}`,
             },
         ],
         [
             {
                 tooltip: 'Technical Max Borrowing Power, usually you would avoid borrowing the maximum to reduce liquidation risk',
                 title: 'Your borrowing power',
-                value: `${maxBorrow ? `${shortenNumber(maxBorrow, 2)} DOLA` : '-'}`,
+                value: `${maxBorrow ? `${preciseCommify(maxBorrow, 2)} DOLA` : '-'}`,
             },
             {
                 tooltip: 'Max debt before liquidation',
                 title: 'Max Debt',
-                value: `${newCreditLimit ? `${shortenNumber(newCreditLimit < 0 ? 0 : newCreditLimit, 0)} DOLA` : '-'}`,
+                value: `${newCreditLimit ? `${preciseCommify(newCreditLimit < 0 ? 0 : newCreditLimit, 0)} DOLA` : '-'}`,
                 color: newCreditLimit <= 0 && newDeposits > 0 ? 'error' : undefined
             },
         ],
