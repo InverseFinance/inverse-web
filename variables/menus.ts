@@ -127,10 +127,10 @@ export const MENUS = {
           href: '/analytics',
           label: 'Analytics',
         },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
+        // {
+        //   label: 'Blog',
+        //   href: '/blog',
+        // },
         // {
         //   href: '/transparency/treasury',
         //   label: 'Treasury',
