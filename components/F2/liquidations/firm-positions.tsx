@@ -124,13 +124,13 @@ const columns = [
         },
     },
     {
-        field: 'perc',
+        field: 'userBorrowLimit',
         label: 'Borrow Limit',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
-        value: ({ perc, debt }) => {
+        value: ({ perc, debt, userBorrowLimit }) => {
             const color = getRiskColor(perc);
             return <Cell minWidth="100px" justify="flex-end" >
-                <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(100-perc, 2)}%` : '-'}</CellText>
+                <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(userBorrowLimit, 2)}%` : '-'}</CellText>
             </Cell>
         },
     },
