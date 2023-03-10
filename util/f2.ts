@@ -277,7 +277,7 @@ export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, 
             res(0);
         } else if (newPerc < 1) {
             setTimeout(() => {
-                res(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax - 0.1, perc, isAutoDBR));
+                res(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax - 0.01*naiveMax, perc, isAutoDBR));
             }, 1);
         } else {
             res(naiveMax < 0 ? 0 : Math.floor(naiveMax));
