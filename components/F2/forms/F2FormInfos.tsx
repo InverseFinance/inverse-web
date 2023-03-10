@@ -15,6 +15,7 @@ import { useAccount } from '@app/hooks/misc'
 import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { OracleType } from '../Infos/OracleType'
+import { gaEvent } from '@app/util/analytics'
 
 type Data = {
     tooltip: string
@@ -317,11 +318,16 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const tabItems = lists[infoTab];
 
+    const handleTabChange = (v: string) => {
+        setInfoTab(v);        
+        gaEvent({ action: `FiRM-info-tab-${v.toLowerCase().replace(' ', '_')}` });
+    }
+
     return <VStack spacing="0" w='full'>
         <NavButtons
             active={infoTab}
             options={['Summary', 'My Activity', 'DBR Details', 'Market Details']}
-            onClick={(v) => setInfoTab(v)}
+            onClick={(v) => handleTabChange(v)}
         />
         {
             !debtAmountNumInfo && !collateralAmountNumInfo && !debt && infoTab === 'Summary' ?

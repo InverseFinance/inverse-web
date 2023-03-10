@@ -12,6 +12,7 @@ import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
 import { OracleType } from "./Infos/OracleType";
 import { SkeletonList } from "../common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
+import { gaEvent } from "@app/util/analytics";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -213,7 +214,8 @@ export const F2Markets = ({
 
     const isLoading = tvlLoading || !markets?.length;
 
-    const openMarket = (market: any) => {
+    const openMarket = (market: any) => {        
+        gaEvent({ action: `FiRM-list-open-market-${market.name}` });
         const newPath = router.asPath.replace(router.pathname, `/firm/${market.name}`);
         router.push(debt > 0 ? newPath : `${newPath}#step1`);
     }

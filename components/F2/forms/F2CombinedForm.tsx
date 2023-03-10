@@ -470,7 +470,8 @@ export const F2CombinedForm = ({
             btnProps={{
                 h: '50px',
                 w: 'fit-content',
-                fontSize: '18px'
+                fontSize: '18px',
+                gaAction: 'FiRM-action-btn-standard',
             }} />
     </HStack>
 

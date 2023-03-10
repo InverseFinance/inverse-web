@@ -86,7 +86,7 @@ export const F2WalkthroughDuration = ({
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
-            <StepNavBtn onClick={() => onStepChange(step + 1)} disabled={duration <= 0}>
+            <StepNavBtn gaAction="FiRM-walkthrough-next-btn-from-duration" onClick={() => onStepChange(step + 1)} disabled={duration <= 0}>
                 Next <ChevronRightIcon fontSize="20px" />
             </StepNavBtn>
         </HStack>
