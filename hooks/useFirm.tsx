@@ -40,6 +40,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       creditLimit: newCreditLimit,
       liquidationPrice: newLiquidationPrice,
       creditLeft: newCreditLeft,
+      userBorrowLimit: 100-newPerc,
       key: `${p.user}-${p.marketIndex}`,
     }
   });

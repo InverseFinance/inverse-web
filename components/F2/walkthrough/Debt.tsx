@@ -97,7 +97,7 @@ export const F2WalkthroughDebt = ({
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' alignItems="flex-start" spaing="0">
-                            <Text>There's only {shortenNumber(leftToBorrow, 2)} DOLA liquidity available</Text>
+                            <Text>There's only {preciseCommify(leftToBorrow, 2)} DOLA liquidity available</Text>
                         </VStack>
                     }
                 />
@@ -108,6 +108,7 @@ export const F2WalkthroughDebt = ({
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
             <StepNavBtn
+                gaAction="FiRM-walkthrough-next-btn-from-debt"
                 onClick={() => onStepChange(step + 1)}
                 disabled={newPerc < 1 || !debtAmountNum || isDisabled || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />

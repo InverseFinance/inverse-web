@@ -123,6 +123,7 @@ export const F2WalkthroughCollateral = ({
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
             <StepNavBtn
+                gaAction="FiRM-walkthrough-next-btn-from-collateral"
                 onClick={() => onStepChange(step + 1)}
                 disabled={collateralAmountNum <= 0 || collateralAmountNum > collateralBalance || !market.leftToBorrow}>
                 Next <ChevronRightIcon fontSize="20px" />
