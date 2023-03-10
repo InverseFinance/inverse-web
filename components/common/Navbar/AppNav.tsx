@@ -44,7 +44,6 @@ import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import useFantomBalance from '@app/hooks/useFantomBalance'
 import { GasInfo } from '@app/components/common/Gas'
 import { formatUnits } from 'ethers/lib/utils';
 import { gaEvent } from '@app/util/analytics'
@@ -115,8 +114,7 @@ const INVBalance = () => {
   const router = useRouter()
   const { query } = router;
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const userAddress = (query?.viewAddress as string) || account;
-  const { inv: invBalOnFantom } = useFantomBalance(userAddress)
+  const userAddress = (query?.viewAddress as string) || account;  
   const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { exchangeRates } = useExchangeRatesV2()
   const { data } = useEtherSWR([
@@ -159,21 +157,14 @@ const INVBalance = () => {
 
   const invBal = data[0] / ETH_MANTISSA;
   const onMainnetCase = invBal >= 0.01
-  const onFantomCase = invBalOnFantom >= 0.01
 
   return (
     <NavBadge>
       {
-        onMainnetCase || onFantomCase ?
+        onMainnetCase ?
           <AnimatedInfoTooltip message={
             <>
               {onMainnetCase && <Text>You have {invBal.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
-              {onFantomCase && <Text mt={onMainnetCase && onFantomCase ? '2' : '0'}>
-                You have {invBalOnFantom.toFixed(2)} <b>{RTOKEN_SYMBOL}</b> on Fantom
-              </Text>}
-              <Text mt="2">
-                We recommend {onFantomCase && "bridging and"} staking all your {RTOKEN_SYMBOL} on Frontier to <b>earn rewards and avoid dilution</b>
-              </Text>
             </>
           }>
             <WarningIcon color="orange.300" mr="1" />
