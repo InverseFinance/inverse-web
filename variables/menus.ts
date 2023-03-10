@@ -172,7 +172,11 @@ export const MENUS = {
         //   label: 'Liquidations',
         // },
       ]
-    },        
+    },
+    {
+      label: 'Blog',
+      href: '/blog',
+    },
     {
       label: 'Transparency',
       href: '/transparency/overview',
