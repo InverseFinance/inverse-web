@@ -186,6 +186,10 @@ export const MENUS = {
           label: 'Treasury',
         },
         {
+          href: '/transparency/liquidity',
+          label: 'Liquidity',
+        },
+        {
           href: '/transparency/dao',
           label: 'DAO',
         },
