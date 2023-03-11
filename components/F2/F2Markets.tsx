@@ -115,7 +115,7 @@ const columns = [
         tooltip: 'Total DOLA borrowed in the Market',
         value: ({ totalDebt }) => {
             return <Cell minWidth="80px" justify="center" >
-                <CellText>{shortenNumber(totalDebt, 2, true)}</CellText>
+                <CellText>{shortenNumber(totalDebt, 2)}</CellText>
             </Cell>
         },
     },    
@@ -126,7 +126,7 @@ const columns = [
         tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
         value: ({ dolaLiquidity }) => {
             return <Cell minWidth="120px" justify="center" >
-                <CellText>{shortenNumber(dolaLiquidity, 2, true)}</CellText>
+                <CellText>{shortenNumber(dolaLiquidity, 2)}</CellText>
             </Cell>
         },
     },
@@ -137,7 +137,7 @@ const columns = [
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt }) => {
             return <Cell minWidth="120px" justify="center" alignItems="center" direction="column" spacing="0" >
-                <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2, true) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
+                <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
             </Cell>
         },
     },
