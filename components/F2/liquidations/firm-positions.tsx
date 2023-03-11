@@ -176,7 +176,7 @@ export const FirmPositions = ({
                     </VStack>
                     <VStack alignItems="flex-end">
                         <Text textAlign="right" fontWeight="bold">Total Debt</Text>
-                        <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, true)}</Text>
+                        <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, 0)}</Text>
                     </VStack>
                 </HStack>
             }

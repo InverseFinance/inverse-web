@@ -307,13 +307,15 @@ export const FirmBar = ({
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
+    const dolaPrice = prices?.['dola-usd']?.usd;
+    const totalDebtUsd = totalDebt * dolaPrice;
 
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
-                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={prices?.['dola-usd']?.usd} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
@@ -339,7 +341,7 @@ export const FirmBar = ({
                         FiRM Borrows
                     </Link>
                     <SubTitle>
-                        {shortenNumber(totalDebt, 2, true)}
+                        {shortenNumber(totalDebt, 0, false)} ({shortenNumber(totalDebtUsd, 0, true)})
                     </SubTitle>
                 </VStack>
             </HStack>
