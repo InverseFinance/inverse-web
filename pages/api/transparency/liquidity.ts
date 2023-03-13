@@ -159,7 +159,7 @@ export default async function handler(req, res) {
         ]))
 
         const resultData = {
-            timestamp: +(new Date()),
+            timestamp: (+(new Date())-1000),
             liquidity,
         }
         await redisSetWithTimestamp(liquidityCacheKey, resultData);

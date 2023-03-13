@@ -1,4 +1,4 @@
-import { Flex, Stack, VStack, Text } from '@chakra-ui/react'
+import { Flex, Stack, VStack, Text, Divider } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
@@ -13,6 +13,7 @@ import { capitalize } from '@app/util/misc';
 import { RadioSelector } from '@app/components/common/Input/RadioSelector';
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
 import { useState } from 'react';
+import moment from 'moment';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   return Object.entries(
@@ -59,6 +60,9 @@ export const Liquidity = () => {
       <TransparencyTabs active="liquidity" />
       <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
+          <Text fontSize="12px">
+            {`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
+          </Text>
           <Flex>
             <RadioSelector
               defaultValue="DOLA"
@@ -87,18 +91,19 @@ export const Liquidity = () => {
           }
           <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >
             <VStack alignItems="flex-start" direction="column-reverse">
-              <Text fontWeight="bold">TVL By Pairs</Text>
+              <Text fontWeight="bold">{category} LPs TVL By Pair</Text>
               <Funds innerRadius={5} funds={byPairs} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
             <VStack alignItems="flex-start" direction="column-reverse">
-              <Text fontWeight="bold">TVL By Chain</Text>
+              <Text fontWeight="bold">{category} LPs TVL By Chain</Text>
               <Funds innerRadius={5} funds={byChain} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
             <VStack alignItems="flex-start" direction="column-reverse">
-              <Text fontWeight="bold">TVL By Protocol</Text>
+              <Text fontWeight="bold">{category} LPs TVL By Protocol</Text>
               <Funds innerRadius={5} funds={byProtocol} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
           </Stack>
+          <Divider my="4" />
           <PoLsTable items={polsItems} timestamp={timestamp} />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}

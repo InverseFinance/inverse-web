@@ -186,7 +186,7 @@ export const PoLsTable = ({
     return <Container
         noPadding
         p="0"
-        label="Main Active Liquidity Pools"
+        label="Liquidity Pools Details"
         description={`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
         contentProps={{
             direction: 'column',
