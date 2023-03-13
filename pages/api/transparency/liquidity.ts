@@ -151,6 +151,7 @@ export default async function handler(req, res) {
                 dolaBalance: dolaWorth,
                 dolaWeight: dolaWorth / tvl * 100,
                 rewardDay: ownedAmount * (yieldData?.apy || 0) / 100 / 365,
+                isFed: !!fedPol,
             }
         }
 

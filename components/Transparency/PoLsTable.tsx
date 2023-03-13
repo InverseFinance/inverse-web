@@ -32,14 +32,14 @@ const columns = [
         field: 'lpName',
         label: 'Pool',
         showFilter: true,
-        filterWidth: '170px',
+        filterWidth: '140px',
         filterItemRenderer: ({ lpName }) => <FilterItem>
             <Text>{lpName}</Text>
         </FilterItem>,
-        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         value: (lp) => {
-            return <Cell minWidth='180px' spacing="2" justify="flex-start" alignItems="center" direction="row">
-                <UnderlyingItem {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
+            return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+                <UnderlyingItem textProps={{ fontSize: '12px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
             </Cell>
         },
     },
@@ -47,14 +47,14 @@ const columns = [
         field: 'protocol',
         label: 'Protocol',
         showFilter: true,
-        filterWidth: '80px',
+        filterWidth: '70px',
         filterItemRenderer: ({ protocol }) => <FilterItem>
             <Image src={PROTOCOL_IMAGES[protocol]} h='20px' w='20px' borderRadius="50px" title={protocol} />
             <Text>{protocol}</Text>
         </FilterItem>,
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         value: ({ protocol, protocolImage }) => {
-            return <Cell minWidth='90px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
                 <Image src={protocolImage} h='20px' w='20px' borderRadius="50px" title={protocol} />
             </Cell>
         },
@@ -63,16 +63,28 @@ const columns = [
         field: 'chainId',
         label: 'Chain',
         showFilter: true,
-        filterWidth: '80px',
+        filterWidth: '70px',
         filterItemRenderer: ({ chainId }) => <FilterItem>
             <Image src={NETWORKS_BY_CHAIN_ID[chainId].image} h='20px' w='20px' borderRadius="50px" title={NETWORKS_BY_CHAIN_ID[chainId].name} />
             <Text>{NETWORKS_BY_CHAIN_ID[chainId].name}</Text>
         </FilterItem>,
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         value: ({ chainId, networkName }) => {
             const net = NETWORKS_BY_CHAIN_ID[chainId];
-            return <Cell minWidth='90px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
                 <Image src={net.image} ignoreFallback={true} title={net.name} alt={net.name} w={5} h={5} mr="2" />
+            </Cell>
+        },
+    },
+    {
+        field: 'isFed',
+        label: 'Has Fed?',
+        showFilter: true,
+        filterWidth: '70px',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ isFed }) => {            
+            return <Cell minWidth='70px' spacing="2" justify="center" alignItems="center" direction="row">
+                <CellText>{isFed ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
     },
@@ -109,9 +121,9 @@ const columns = [
     {
         field: 'dolaWeight',
         label: 'DOLA Weight',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ dolaWeight }) => {
-            return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
                 <CellText>{shortenNumber(dolaWeight || 0, 2)}%</CellText>
             </Cell>
         },
@@ -152,7 +164,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ rewardDay }) => {
             return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(rewardDay, 2, true)}</CellText>
+                <CellText>{preciseCommify(rewardDay, 0, true)}</CellText>
             </Cell>
         },
     }
