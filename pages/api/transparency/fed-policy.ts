@@ -41,7 +41,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
     value: getBnToNumber(amountBn) * (isContraction ? -1 : 1),
     timestamp: timestampInSec * 1000,
   }
-}L
+}
 
 export default async function handler(req, res) {
 
