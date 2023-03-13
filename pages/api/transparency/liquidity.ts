@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     try {
-        const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', 300);
+        const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', 60);
         if (validCache) {
             res.status(200).json(validCache);
             return

@@ -41,7 +41,7 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
     value: getBnToNumber(amountBn) * (isContraction ? -1 : 1),
     timestamp: timestampInSec * 1000,
   }
-}
+}L
 
 export default async function handler(req, res) {
 
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKeyNew, true, 900);
+    const validCache = await getCacheFromRedis(cacheKeyNew, true, 60);
 
     if (validCache) {
       res.status(200).json(validCache);
