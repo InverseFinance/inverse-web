@@ -49,6 +49,7 @@ export const PieChart = ({
     handleDrill,
     showTotalUsd = false,
     showAsAmountOnly = false,
+    innerRadius,
 }: {
     data: Props,
     width?: number,
@@ -58,6 +59,7 @@ export const PieChart = ({
     handleDrill?: (datum: any) => void,
     showTotalUsd?: boolean,
     showAsAmountOnly?: boolean,
+    innerRadius?: number,
 }) => {
     const [chartData, setChartData] = useState(defaultGraphicData);
     const { themeStyles, themeParams } = useAppTheme();
@@ -106,7 +108,7 @@ export const PieChart = ({
                     data={chartData}
                     labelComponent={<CustomLabel themeStyles={themeStyles} showAsAmountOnly={showAsAmountOnly} />}
                     padAngle={20}
-                    innerRadius={35}
+                    innerRadius={innerRadius ?? 35}
                     colorScale={_colorScale}
                     events={[
                         {

@@ -97,6 +97,7 @@ type FundsProps = {
     minUsd?: number
     type?: 'both' | 'allowance' | 'balance'
     showAsAmountOnly?: boolean
+    innerRadius?: number
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
@@ -125,6 +126,7 @@ export const Funds = ({
     minUsd = 0,
     type = 'both',
     showAsAmountOnly = false,
+    innerRadius,
 }: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
@@ -171,7 +173,7 @@ export const Funds = ({
     return (
         <>
             {
-                chartMode ? <PieChart showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly} data={
+                chartMode ? <PieChart innerRadius={innerRadius} showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly} data={
                     fundsWithPerc
                         .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
                         .map(fund => {
@@ -184,7 +186,8 @@ export const Funds = ({
                                 labelFill: fund.chartLabelFillColor,
                             }
                         })
-                } />
+                }
+                />
                     :
                     <>
                         {

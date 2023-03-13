@@ -11,8 +11,9 @@ import { fedOverviewCacheKey } from './fed-overview';
 import { getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
 import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
+import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.0`;
+export const liquidityCacheKey = `liquidity-v1.0.1`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     try {
-        const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', 300);
+        const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', 60);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -81,6 +82,7 @@ export default async function handler(req, res) {
             });
             const provider = getProvider(lp.chainId);
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
+            const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
 
@@ -128,8 +130,7 @@ export default async function handler(req, res) {
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| blp| alp)/ig, '').replace(/-ETH/ig, '-WETH');
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
-            const yieldData = yields.find(y => {
-                const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
+            const yieldData = yields.find(y => {                
                 return defiLlamaProjectName === y.project
                     && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
             });
@@ -140,6 +141,8 @@ export default async function handler(req, res) {
                 apy: yieldData?.apy,
                 apyMean30d: yieldData?.apyMean30d,
                 protocol,
+                project: defiLlamaProjectName,
+                networkName: NETWORKS_BY_CHAIN_ID[lp.chainId].name,
                 tvl,
                 owned,
                 ownedAmount,
@@ -148,6 +151,7 @@ export default async function handler(req, res) {
                 dolaBalance: dolaWorth,
                 dolaWeight: dolaWorth / tvl * 100,
                 rewardDay: ownedAmount * (yieldData?.apy || 0) / 100 / 365,
+                isFed: !!fedPol,
             }
         }
 
@@ -156,7 +160,7 @@ export default async function handler(req, res) {
         ]))
 
         const resultData = {
-            timestamp: +(new Date()),
+            timestamp: (+(new Date())-1000),
             liquidity,
         }
         await redisSetWithTimestamp(liquidityCacheKey, resultData);

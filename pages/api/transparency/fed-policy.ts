@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKeyNew, true, 900);
+    const validCache = await getCacheFromRedis(cacheKeyNew, true, 60);
 
     if (validCache) {
       res.status(200).json(validCache);

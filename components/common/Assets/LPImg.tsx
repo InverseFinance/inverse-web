@@ -1,25 +1,31 @@
 import { NetworkIds, Token } from '@app/types'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
-import { Flex, HStack, Image } from '@chakra-ui/react'
+import { BoxProps, Flex, HStack, Image, ImageProps } from '@chakra-ui/react'
 import { MarketImage } from './MarketImage';
 
 export const LPImages = ({
     lpToken,
     chainId = NetworkIds.mainnet,
-    includeSubLps = false
+    includeSubLps = false,
+    imgSize = 20,
+    imgProps,
+    imgContainerProps,
 }: {
     lpToken: Token,
     chainId?: NetworkIds,
+    imgSize?: number,
+    imgProps?: Partial<ImageProps>,
+    imgContainerProps?: Partial<BoxProps>,
     includeSubLps?: boolean
 }) => {
     const subtokens = (lpToken.pairs?.map(address => CHAIN_TOKENS[chainId][address]) || []).filter(t => includeSubLps || (!includeSubLps && !t.isLP));
     if(subtokens?.length === 2 && subtokens[1].symbol === 'DOLA' && subtokens[0].symbol !== 'INV'){
         subtokens.reverse();
     }
-    return <HStack spacing="1">
+    return <HStack spacing="1" {...imgContainerProps}>
         {
             subtokens.map(t => {
-                return <MarketImage key={t.address} size={20} image={t.image} protocolImage={t.protocolImage} imgProps={{ borderRadius: '50px' }} />
+                return <MarketImage key={t.address} size={imgSize} image={t.image} protocolImage={t.protocolImage} imgProps={{ borderRadius: '50px', ...imgProps }} />
             })
         }
     </HStack>

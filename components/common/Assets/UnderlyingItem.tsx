@@ -43,7 +43,7 @@ export const UnderlyingItem = ({
     return <Container {...containerProps}>
         {
             showAsLp ?
-                <LPImages lpToken={{ pairs, image, protocolImage }} chainId={chainId} />
+                <LPImages lpToken={{ pairs, image, protocolImage }} chainId={chainId} imgSize={imgSize} imgProps={imgProps} {...imgContainerProps} />
                 : <MarketImage
                     size={imgSize}
                     image={image}
