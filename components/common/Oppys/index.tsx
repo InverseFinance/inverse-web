@@ -245,5 +245,6 @@ export const OppysTable = ({
 
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
-    return <OppysTable isLoading={isLoading} oppys={oppys} />
+    // temp: dont show bb euler pools
+    return <OppysTable isLoading={isLoading} oppys={oppys.filter(o => !o.symbol.includes('-BB-'))} />
 }
