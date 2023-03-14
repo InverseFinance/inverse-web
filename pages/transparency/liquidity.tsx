@@ -21,7 +21,8 @@ const groupLpsBy = (lps: any[], attribute: string) => {
       return { ...prev, [curr[attribute]]: (prev[curr[attribute]] || 0) + curr.tvl };
     }, {})
   ).map(([key, val]) => {
-    return { balance: val, usdPrice: 1, token: { symbol: key } }
+    const symbol = key.replace('true', 'With Fed').replace('false', 'Without Fed');
+    return { balance: val, usdPrice: 1, token: { symbol } }
   });
 }
 
@@ -43,6 +44,7 @@ export const Liquidity = () => {
 
   const categoryLps = itemsWithoutChildren.filter(lp => lp.lpName.includes(category));
   const byPairs = groupLpsBy(categoryLps, 'lpName');
+  const byFed = groupLpsBy(categoryLps, 'isFed');
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
   const byProtocol = groupLpsBy(categoryLps, 'project').map(f => ({ ...f, token: { symbol: capitalize(f.token.symbol) } }));
 
@@ -90,17 +92,21 @@ export const Liquidity = () => {
               </Stack>
           }
           <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >
-            <VStack alignItems="flex-start" direction="column-reverse">
+            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Pair</Text>
               <Funds innerRadius={5} funds={byPairs} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
-            <VStack alignItems="flex-start" direction="column-reverse">
+            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Chain</Text>
               <Funds innerRadius={5} funds={byChain} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
-            <VStack alignItems="flex-start" direction="column-reverse">
+            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Protocol</Text>
               <Funds innerRadius={5} funds={byProtocol} chartMode={true} showTotal={false} showChartTotal={false} />
+            </VStack>
+            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+              <Text fontWeight="bold">{category} LPs TVL By Strategy</Text>
+              <Funds innerRadius={5} funds={byFed} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
           </Stack>
           <Divider my="4" />
