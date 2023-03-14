@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         // refresh Fed overview data & prices
         await Promise.all([
             fetch('https://www.inverse.finance/api/transparency/fed-overview'),
-            fetch('https://www.inverse.finance/api/prices'),
+            // fetch('https://www.inverse.finance/api/prices'),
         ]);
         const fedsOverviewCache = await getCacheFromRedis(fedOverviewCacheKey, false);
 
