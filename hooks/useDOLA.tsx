@@ -69,7 +69,8 @@ export const useDOLABalance = (account: string) => {
 }
 
 export const useDOLAMarketData = (): SWR & { hasError: boolean, data: { market_data: { total_volume: { usd: number } } } } => {
-  const  url = `https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`;
+  // const  url = `https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`;
+  const  url = `/api/dola/market`;
   const { data, error } = useCustomSWR(url, fetcher);
   return {
     data,

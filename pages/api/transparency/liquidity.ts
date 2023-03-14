@@ -40,8 +40,11 @@ export default async function handler(req, res) {
         }
 
         // TODO: refacto as service
-        // refresh Fed overview data
-        await fetch('https://www.inverse.finance/api/transparency/fed-overview');
+        // refresh Fed overview data & prices
+        await Promise.all([
+            fetch('https://www.inverse.finance/api/transparency/fed-overview'),
+            fetch('https://www.inverse.finance/api/prices'),
+        ]);
         const fedsOverviewCache = await getCacheFromRedis(fedOverviewCacheKey, false);
 
         const multisigsToShow = MULTISIGS;
