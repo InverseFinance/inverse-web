@@ -104,7 +104,7 @@ export default async function handler(req, res) {
 
     const lpData = await Promise.all([
       ...lps.map(lp => {
-        return getLPPrice(lp.token, lp.chainId, getProvider(lp.chainId));
+        return getLPPrice(lp.token, lp.chainId, getProvider(lp.chainId), geckoPrices);
       })
     ]);
 
