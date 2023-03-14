@@ -8,6 +8,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { COMPTROLLER_ABI, ORACLE_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
+import { getTokenData } from '@app/util/livecoinwatch'
 
 export const pricesCacheKey = `prices-v1.0.5`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
@@ -74,6 +75,16 @@ export default async function handler(req, res) {
       console.log('Error fetching gecko prices');
       geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
     }
+    
+    // try {
+    //   geckoPrices['dola-usd-cg'] = geckoPrices['dola-usd'];
+    //   const dolaData = await getTokenData('DOLA');
+    //   if(dolaData?.rate){        
+    //     geckoPrices['dola-usd'] = dolaData.rate;
+    //   }
+    // } catch (e) {
+    //   console.log('Error livecoinwatch gecko prices');     
+    // }
 
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
