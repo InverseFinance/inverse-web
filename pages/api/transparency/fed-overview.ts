@@ -12,6 +12,7 @@ import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 import { CTOKEN_ABI } from '@app/config/abis';
 import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { pricesCacheKey } from '../prices';
 
 const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -38,6 +39,8 @@ export default async function handler(req, res) {
       res.status(200).json(validCache);
       return
     }
+    
+    const prices = (await getCacheFromRedis(pricesCacheKey, false)) || {};
 
     const provider = getProvider(NetworkIds.mainnet);
 
@@ -96,7 +99,7 @@ export default async function handler(req, res) {
           const chainId = lpFed.incomeChainId || lpFed.chainId;
           const token = CHAIN_TOKENS[chainId][lpFed.strategy?.pools[0].address];
           const chainProvider = getProvider(chainId);
-          return getLPPrice(token, chainId, chainProvider);
+          return getLPPrice(token, chainId, chainProvider, prices);
         })
       ),
       Promise.all(
