@@ -41,6 +41,8 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       liquidationPrice: newLiquidationPrice,
       creditLeft: newCreditLeft,
       userBorrowLimit: 100-newPerc,
+      tvl: p.deposits * market.price,
+      debtRiskWeight: newPerc * p.debt,
       key: `${p.user}-${p.marketIndex}`,
     }
   });

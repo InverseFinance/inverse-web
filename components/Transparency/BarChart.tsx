@@ -17,6 +17,7 @@ export type BarChartProps = {
     precision?: number
     labelProps?: VictoryLabelProps | any,
     titleProps?: VictoryLabelProps,
+    isPercentages?: boolean
 }
 
 export const BarChart = ({
@@ -29,6 +30,7 @@ export const BarChart = ({
     precision = 2,
     labelProps,
     titleProps,
+    isPercentages = false,
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(65);
@@ -83,7 +85,7 @@ export const BarChart = ({
                 />
                 <VictoryAxis
                     dependentAxis
-                    tickFormat={y => shortenNumber(y, 0, isDollars)}
+                    tickFormat={y => `${shortenNumber(y, 0, isDollars)}${isPercentages && '%'}`}
                     style={defaultAxisStyle}
                 />
                 <VictoryBar
@@ -94,7 +96,7 @@ export const BarChart = ({
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}
                 />
-                <VictoryStack domain={{ x: [0.5, 1], y: [0, 0] }} colorScale={colorScale}>
+                <VictoryStack domain={{ x: [0.5, 1], y: [0, isPercentages ? 100: 0] }} colorScale={colorScale}>
                     {Object.entries(groupedData).map(([key, dataGroup]) => {
                         return (
                             <VictoryBar
