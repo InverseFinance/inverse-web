@@ -13,7 +13,7 @@ import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const firmTvlCacheKey = 'f2-tvl-v1.0.1'
+export const firmTvlCacheKey = 'f2-tvl-v1.0.2'
 
 export default async function handler(req, res) {    
     try {
