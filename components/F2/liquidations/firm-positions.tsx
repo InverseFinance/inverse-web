@@ -11,6 +11,18 @@ import moment from 'moment'
 import { useState } from "react";
 import { FirmLiquidationModal } from "./FirmLiquidationModal";
 import Table from "@app/components/common/Table";
+import { Funds } from "@app/components/Transparency/Funds";
+
+const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
+    return Object.entries(
+        positions.reduce((prev, curr) => {
+            return { ...prev, [curr[groupBy]]: (prev[curr[groupBy]] || 0) + curr[attributeToSum] };
+        }, {})
+    ).map(([key, val]) => {
+        const symbol = key.replace('true', 'With Fed').replace('false', 'Without Fed');
+        return { balance: val, usdPrice: 1, token: { symbol } }
+    });
+}
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -149,13 +161,26 @@ export const FirmPositions = ({
         setPosition(data);
         onOpen();
     }
-    
+
     const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
     const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.perc * curr.debt, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
 
+    const groupMarketsByDeposits = groupPositionsBy(positions, 'marketName', 'tvl');
+    const groupMarketsByDebt = groupPositionsBy(positions, 'marketName', 'debt');
+
     return <VStack w='full'>
+        <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
+            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                <Text fontWeight="bold">TVL By Market</Text>
+                <Funds labelWithPercInChart={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} />
+            </VStack>
+            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                <Text fontWeight="bold">Debt By Markets</Text>
+                <Funds labelWithPercInChart={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} />
+            </VStack>
+        </Stack>
         <Container
             label="FiRM Positions"
             description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
@@ -168,7 +193,7 @@ export const FirmPositions = ({
                 <HStack justify="space-between" spacing="4">
                     <VStack alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text fontWeight="bold">Avg Borrow Limit</Text>
-                        <Text color={avgRiskColor}>{shortenNumber(100-avgHealth, 2)}%</Text>
+                        <Text color={avgRiskColor}>{shortenNumber(100 - avgHealth, 2)}%</Text>
                     </VStack>
                     <VStack alignItems="center">
                         <Text textAlign="center" fontWeight="bold">Total Value Locked</Text>
