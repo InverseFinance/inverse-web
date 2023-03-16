@@ -170,7 +170,7 @@ const mainConfig = {
         },
         {
             address: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
-            name: 'Treasury Working Group on ARB',
+            name: 'Treasury Working Group on ARB 1',
             shortName: 'TWG on ARB 1',
             purpose: 'Optimize Inverse Treasury management on ARB',            
             chainId: NetworkIds.arbitrum,
@@ -178,7 +178,7 @@ const mainConfig = {
         },
         {
             address: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
-            name: 'Treasury Working Group on ARB',
+            name: 'Treasury Working Group on ARB 2',
             shortName: 'TWG on ARB 2',
             purpose: 'Optimize Inverse Treasury management on ARB',            
             chainId: NetworkIds.arbitrum,

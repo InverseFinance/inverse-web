@@ -929,6 +929,9 @@ const chainTokens = {
     },
   },
   "42161": {
+    CHAIN_COIN: {
+      ...ETH,
+    },
     [chainTokenAddresses["42161"].DOLA]: {
       ...DOLA,
       address: [chainTokenAddresses["42161"].DOLA],
@@ -969,6 +972,7 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'sterling-finance',
       veNftId: '23',
+      twgAddress: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
     },
     [chainTokenAddresses["42161"].VESLIZ]: {
       address: chainTokenAddresses["42161"].VESLIZ,
@@ -978,6 +982,7 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'solidlizard',
       veNftId: '1449',
+      twgAddress: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
     },
     [chainTokenAddresses["42161"].VERAM]: {
       address: chainTokenAddresses["42161"].VERAM,
@@ -987,6 +992,7 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'ramses-exchange',
       veNftId: '31',
+      twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
     },
     [chainTokenAddresses["42161"].RAMDOLAUSDCLP]: {
       address: chainTokenAddresses["42161"].RAMDOLAUSDCLP,
