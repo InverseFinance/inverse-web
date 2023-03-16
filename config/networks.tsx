@@ -119,6 +119,7 @@ const networks: Network[] = [
     isTestnet: false,
     isSupported: false,
     image: `/assets/networks/${NETWORK_CODENAMES.bsc}.png`,
+    scan: 'https://bscscan.com',
   },
   {
     id: '97',
@@ -185,6 +186,8 @@ const networks: Network[] = [
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.arbitrum}.png`,
+    scan: 'https://arbiscan.io',
   },
   {
     id: '250',

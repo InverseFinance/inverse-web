@@ -70,7 +70,10 @@ export const TOKEN_IMAGES = {
     "THENA": "https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924",
     "veTHENA": "https://assets.coingecko.com/coins/images/28864/small/IMG_20230129_155910_852.png?1674984924",
     "CUSD": "https://assets.coingecko.com/coins/images/26588/small/CUSD-01.png?1658909049",
-    "FTM": "https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016"
+    "FTM": "https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016",
+    "SLIZ": "https://assets.coingecko.com/coins/images/28968/small/sliz-logo.png?1675746291",
+    "RAM": "https://assets.coingecko.com/coins/images/29420/small/RAM_Token_32x32.png?1678678321",
+    "STR": "https://assets.coingecko.com/coins/images/29167/small/FullLogo_Transparent_NoBuffer.png?1677048104",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -87,6 +90,9 @@ export const PROTOCOL_IMAGES = {
     "LIDO": 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png?1609873644',
     'OHM': 'https://assets.coingecko.com/coins/images/14483/small/token_OHM_%281%29.png?1628311611',
     "EULER": 'https://assets.coingecko.com/coins/images/26149/small/YCvKDfl8_400x400.jpeg?1656041509',
+    "SOLIDLIZARD": TOKEN_IMAGES.SLIZ,
+    "RAMSES": TOKEN_IMAGES.RAM,
+    "STERLING": TOKEN_IMAGES.STR,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(

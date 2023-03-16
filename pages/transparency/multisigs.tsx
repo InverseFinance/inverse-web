@@ -99,13 +99,8 @@ export const MultisigsDiagram = () => {
                     <Link
                       ml="1"
                       isExternal
-                      href={
-                        multisig.chainId === NetworkIds.mainnet ?
-                          `https://gnosis-safe.io/app/eth:${multisig.address}/transactions/history`
-                          :
-                          `https://safe.fantom.network/#/safes/${multisig.address}/transactions`
-                      }>
-                      View on Gnosis Safe <ExternalLinkIcon mb="2px" />
+                      href={`https://debank.com/profile/${multisig.address}`}>
+                      View on Debank <ExternalLinkIcon mb="2px" />
                     </Link>
                   </Flex>
                   {

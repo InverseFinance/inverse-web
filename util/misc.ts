@@ -1,7 +1,7 @@
 import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
 
-export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length);
+export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
 
 export const removeScientificFormat = (x: number) => {
     if (!x) { return x }

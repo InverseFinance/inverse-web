@@ -11,8 +11,12 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     }
     else if(chainId === NetworkIds.optimism) {
         return new JsonRpcProvider('https://rpc.ankr.com/optimism');
-    } else if(chainId === NetworkIds.bsc) {
+    } 
+    else if(chainId === NetworkIds.bsc) {
         return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
+    }
+    else if(chainId === NetworkIds.arbitrum) {
+        return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
     }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];

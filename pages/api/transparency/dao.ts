@@ -25,13 +25,13 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
 
-export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.0`;
+export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.1`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.1`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.2`;
 export const cacheMulAllKey = `dao-multisigs-all-v1.0.0`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
-export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.0`;
+export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.1`;
 
 export default async function handler(req, res) {
 
@@ -151,6 +151,7 @@ export default async function handler(req, res) {
       [NetworkIds.ftm]: [],// not used anymore
       [NetworkIds.optimism]: Object.keys(CHAIN_TOKENS[NetworkIds.optimism]).filter(key => isAddress(key)),
       [NetworkIds.bsc]: Object.keys(CHAIN_TOKENS[NetworkIds.bsc]).filter(key => isAddress(key)),
+      [NetworkIds.arbitrum]: Object.keys(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(key => isAddress(key)),
     }
 
     const [multisigBalCache, liquidityCacheData] = await Promise.all([
@@ -172,6 +173,8 @@ export default async function handler(req, res) {
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
               // skip yearn vaults
               || token?.symbol?.startsWith('yv')
+              // skip token with specific twg address if diff
+              || (!!token?.twgAddress && token?.twgAddress !== m.address)
             ) {
               return new Promise((res) => res(BigNumber.from('0')));
             }
@@ -183,7 +186,7 @@ export default async function handler(req, res) {
               } else {
                 const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
                 return contract.balanceOfNFT(token.veNftId);
-              }              
+              }
             } else if (token.symbol === 'vlAURA') {
               const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
               return contract.balances(m.address);
@@ -227,7 +230,7 @@ export default async function handler(req, res) {
               // reduce numbers of check
               (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
-              || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
+              || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'TWG on ARB 1', 'TWG on ARB 2', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
               // skip yearn vaults
               || token?.symbol?.startsWith('yv')
             ) {
