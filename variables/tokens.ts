@@ -131,6 +131,8 @@ const chainTokenAddresses = {
     VESLIZ: '0x29d3622c78615A1E7459e4bE434d816b7de293e4',
     VESTR: '0x450330Df68E1ed6e0683373D684064bDa9115fEe',
     VERAM: '0xAAA343032aA79eE9a6897Dab03bef967c3289a06',
+    SLIZDOLAUSDCLP: '0xDf58C5f73ea1c9003ABFEB9194EB817D256cb3Ad',
+    RAMDOLAUSDCLP: '0xDd8b120DdaE0F19b922324012816F2F3Ce529BF8',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -150,6 +152,14 @@ const DOLA = {
   coingeckoId: 'dola-usd',
   image: TOKEN_IMAGES.DOLA,
   decimals: 18,
+}
+
+const USDC = {
+  name: 'USD Coin',
+  symbol: 'USDC',
+  coingeckoId: 'usd-coin',
+  image: TOKEN_IMAGES.USDC,
+  decimals: 6,
 }
 
 const chainTokens = {
@@ -176,12 +186,8 @@ const chainTokens = {
       decimals: 6,
     },
     [chainTokenAddresses["1"].USDC]: {
+      ...USDC,
       address: chainTokenAddresses["1"].USDC,
-      name: 'USD Coin',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      image: TOKEN_IMAGES.USDC,
-      decimals: 6,
     },
     [chainTokenAddresses["1"].WETH]: {
       address: chainTokenAddresses["1"].WETH,
@@ -755,12 +761,8 @@ const chainTokens = {
       ...DOLA,
     },
     [chainTokenAddresses["10"].USDC]: {
+      ...USDC,
       address: chainTokenAddresses["10"].USDC,
-      name: 'USD Coin',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      image: TOKEN_IMAGES.USDC,
-      decimals: 6,
     },
     [chainTokenAddresses["10"].VELO]: {
       address: chainTokenAddresses["10"].VELO,
@@ -932,12 +934,8 @@ const chainTokens = {
       address: [chainTokenAddresses["42161"].DOLA],
     },
     [chainTokenAddresses["42161"].USDC]: {
+      ...USDC,
       address: chainTokenAddresses["42161"].USDC,
-      name: 'USDC',
-      symbol: 'USDC',
-      coingeckoId: 'usd-coin',
-      image: TOKEN_IMAGES.USDC,
-      decimals: 18,
     },
     [chainTokenAddresses["42161"].RAM]: {
       address: chainTokenAddresses["42161"].RAM,
@@ -990,6 +988,35 @@ const chainTokens = {
       coingeckoId: 'ramses-exchange',
       veNftId: '31',
     },
+    [chainTokenAddresses["42161"].RAMDOLAUSDCLP]: {
+      address: chainTokenAddresses["42161"].RAMDOLAUSDCLP,
+      name: 'DOLA-USDC rlp',
+      symbol: 'DOLA-USDC rlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.RAMSES,
+      twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+    },
+    [chainTokenAddresses["42161"].SLIZDOLAUSDCLP]: {
+      address: chainTokenAddresses["42161"].SLIZDOLAUSDCLP,
+      name: 'DOLA-USDC sliz lp',
+      symbol: 'DOLA-USDC slizlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.SOLIDLIZARD,
+    }
   }
 }
 chainTokens["31337"] = chainTokens["1"];
