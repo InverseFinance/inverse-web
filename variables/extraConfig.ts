@@ -168,6 +168,22 @@ const mainConfig = {
             chainId: NetworkIds.bsc,
             order: 3,
         },
+        {
+            address: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
+            name: 'Treasury Working Group on ARB',
+            shortName: 'TWG on ARB 1',
+            purpose: 'Optimize Inverse Treasury management on ARB',            
+            chainId: NetworkIds.arbitrum,
+            order: 3.1,
+        },
+        {
+            address: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+            name: 'Treasury Working Group on ARB',
+            shortName: 'TWG on ARB 2',
+            purpose: 'Optimize Inverse Treasury management on ARB',            
+            chainId: NetworkIds.arbitrum,
+            order: 3.2,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };
