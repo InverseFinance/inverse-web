@@ -12,13 +12,6 @@ const elementsOptions = {
   xGap: 300,
 };
 
-const positions: { [key: string]: { [key: string]: { x: number, y: number } } } = {
-  '1': {},
-  '250': {},
-  '10': {},
-  '56': {},
-}
-
 export const MultisigsFlowChart = ({
   multisigs,
   chainId,
@@ -48,14 +41,14 @@ export const MultisigsFlowChart = ({
 
   const links = multisigs?.map((multisig, i) => {
     const multisigX = multisig.owners.length * 200 / 2;
-    const pos = positions[chainId][multisig.address.toLowerCase()] || { x: multisigX, y: 0 }
+    const pos = { x: multisigX, y: 0 }
     return {
       label: `👥 ${namedAddress(multisig.address)}`,
       id: multisig.address,
       style: primaryStyle,
       ...pos,
       targets: multisig.owners.map((owner, j) => {
-        const ownerPos = positions[chainId][owner.toLowerCase()] || {
+        const ownerPos = {
           x: 100 + j * 200,
           y: 300,
         }
