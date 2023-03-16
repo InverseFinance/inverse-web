@@ -122,6 +122,16 @@ const chainTokenAddresses = {
     THENADOLACUSDLP: '0x7061F52ed4942021924745D454d722E52e057e03',
     THENADOLAWBNBLP: '0xc5856601712E8a74d57cdc7a47fB1B41C1a6Fae2',
   },
+  "42161": {
+    DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
+    USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    RAM: '0xAAA6C1E32C55A7Bfa8066A6FAE9b42650F262418',
+    STR: '0x5DB7b150c5F38c5F5db11dCBDB885028fcC51D68',
+    SLIZ: '0x463913D3a3D3D291667D53B8325c598Eb88D3B0e',
+    VESLIZ: '0x29d3622c78615A1E7459e4bE434d816b7de293e4',
+    VESTR: '0x450330Df68E1ed6e0683373D684064bDa9115fEe',
+    VERAM: '0xAAA343032aA79eE9a6897Dab03bef967c3289a06',
+  },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
@@ -914,6 +924,71 @@ const chainTokens = {
         chainTokenAddresses["56"].DOLA, chainTokenAddresses["56"].WBNB
       ],
       protocolImage: PROTOCOL_IMAGES.THENA,
+    },
+  },
+  "42161": {
+    [chainTokenAddresses["42161"].DOLA]: {
+      ...DOLA,
+      address: [chainTokenAddresses["42161"].DOLA],
+    },
+    [chainTokenAddresses["42161"].USDC]: {
+      address: chainTokenAddresses["42161"].USDC,
+      name: 'USDC',
+      symbol: 'USDC',
+      coingeckoId: 'usd-coin',
+      image: TOKEN_IMAGES.USDC,
+      decimals: 18,
+    },
+    [chainTokenAddresses["42161"].RAM]: {
+      address: chainTokenAddresses["42161"].RAM,
+      name: 'RAM',
+      symbol: 'RAM',
+      coingeckoId: 'ramses-exchange',
+      image: TOKEN_IMAGES.RAM,
+      decimals: 18,
+    },
+    [chainTokenAddresses["42161"].STR]: {
+      address: chainTokenAddresses["42161"].STR,
+      name: 'STR',
+      symbol: 'STR',
+      coingeckoId: 'sterling-finance',
+      image: TOKEN_IMAGES.STR,
+      decimals: 18,
+    },
+    [chainTokenAddresses["42161"].SLIZ]: {
+      address: chainTokenAddresses["42161"].SLIZ,
+      name: 'SLIZ',
+      symbol: 'SLIZ',
+      image: TOKEN_IMAGES.SLIZ,
+      decimals: 18,
+      coingeckoId: 'solidlizard',
+    },
+    [chainTokenAddresses["42161"].VESTR]: {
+      address: chainTokenAddresses["42161"].VESTR,
+      name: 'veSTR',
+      symbol: 'veSTR',
+      image: TOKEN_IMAGES.STR,
+      decimals: 18,
+      coingeckoId: 'sterling-finance',
+      veNftId: '23',
+    },
+    [chainTokenAddresses["42161"].VESLIZ]: {
+      address: chainTokenAddresses["42161"].VESLIZ,
+      name: 'veSLIZ',
+      symbol: 'veSLIZ',
+      image: TOKEN_IMAGES.SLIZ,
+      decimals: 18,
+      coingeckoId: 'solidlizard',
+      veNftId: '1449',
+    },
+    [chainTokenAddresses["42161"].VERAM]: {
+      address: chainTokenAddresses["42161"].VERAM,
+      name: 'veRAM',
+      symbol: 'veRAM',
+      image: TOKEN_IMAGES.RAM,
+      decimals: 18,
+      coingeckoId: 'ramses-exchange',
+      veNftId: '31',
     },
   }
 }
