@@ -59,6 +59,9 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
         ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
@@ -73,6 +76,7 @@ export default async function handler(req, res) {
             [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
             [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
             [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
+            [NetworkIds.arbitrum]: multisigsToShow.find(m => m.shortName === 'TWG on ARB 1')!,
         }
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
@@ -107,7 +111,7 @@ export default async function handler(req, res) {
                     const share = getBnToNumber(lpBal) / getBnToNumber(lpSupply);
                     owned.twg = share * tvl;
                 } else if (!lp.isUniV3) {
-                    owned.twg = getBnToNumber(await contract.balanceOf(chainTWG[lp.chainId].address));
+                    owned.twg = getBnToNumber(await contract.balanceOf(lp.twgAddress || chainTWG[lp.chainId].address));
                     if (lp.chainId === NetworkIds.mainnet) {
                         // no more
                         // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
@@ -130,10 +134,10 @@ export default async function handler(req, res) {
             }
             const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
 
-            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| blp| alp)/ig, '').replace(/-ETH/ig, '-WETH');
+            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
-            const yieldData = yields.find(y => {                
+            const yieldData = yields.find(y => {
                 return defiLlamaProjectName === y.project
                     && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
             });
@@ -144,7 +148,7 @@ export default async function handler(req, res) {
                 apy: yieldData?.apy,
                 apyMean30d: yieldData?.apyMean30d,
                 protocol,
-                project: defiLlamaProjectName,
+                project: defiLlamaProjectName || protocol,
                 networkName: NETWORKS_BY_CHAIN_ID[lp.chainId].name,
                 tvl,
                 owned,
@@ -155,6 +159,7 @@ export default async function handler(req, res) {
                 dolaWeight: dolaWorth / tvl * 100,
                 rewardDay: ownedAmount * (yieldData?.apy || 0) / 100 / 365,
                 isFed: !!fedPol,
+                // subBalances,
             }
         }
 
@@ -163,7 +168,7 @@ export default async function handler(req, res) {
         ]))
 
         const resultData = {
-            timestamp: (+(new Date())-1000),
+            timestamp: (+(new Date()) - 1000),
             liquidity,
         }
         await redisSetWithTimestamp(liquidityCacheKey, resultData);
