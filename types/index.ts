@@ -41,6 +41,7 @@ export interface Token {
   order?: number
   veNftId?: string
   isLockedVeNft?: boolean
+  twgAddress?: string
 }
 
 export interface TokenWithBalance extends Token {
