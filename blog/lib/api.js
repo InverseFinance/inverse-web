@@ -129,7 +129,7 @@ export async function getPinnedPost({
       ) {
       items {
         post {
-          slug
+          ${POST_GRAPHQL_FIELDS}
         }
       }
     }

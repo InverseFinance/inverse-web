@@ -16,10 +16,10 @@ export default function BlogHome({ preview, pinnedPost, homePosts, categories, l
       return <div>Loading...</div>
     }
   
-    const posts = homePosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
-    const hasPinnedPost = !!pinnedPost?.post?.slug;
-    const pinnedPostIndex = hasPinnedPost ? posts.findIndex(p => p.slug === pinnedPost?.post?.slug) : 0;
-    const heroPost = { ...posts[pinnedPostIndex] };
+    const posts = homePosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];    
+    const pinnedPostIndex = !!pinnedPost?.post?.slug ? posts.findIndex(p => p.slug === pinnedPost?.post?.slug) : 0;
+    const hasPinnedPost = !!pinnedPost?.post?.slug && pinnedPostIndex !== -1;
+    const heroPost = hasPinnedPost ? pinnedPost.post : { ...posts[0] };
     posts.splice(pinnedPostIndex, 1);
     const categoryObject = categories.find(c => c.name === category) || {};
   
