@@ -185,6 +185,7 @@ const networks: Network[] = [
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.arbitrum}.png`,
   },
   {
     id: '250',
