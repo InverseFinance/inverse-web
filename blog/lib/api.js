@@ -119,6 +119,28 @@ export async function getLandingPosts() {
   return extractPostEntries(entries)
 }
 
+export async function getPinnedPost({
+  preview,
+}) {  
+  const q = `query {
+    pinnedPostCollection(
+        preview: ${preview ? 'true' : 'false'},        
+        limit: 1,
+      ) {
+      items {
+        post {
+          slug
+        }
+      }
+    }
+  }`
+  const fetchResponse = await fetchGraphQL(
+    q,
+    preview
+  )
+  return fetchResponse?.data?.pinnedPostCollection?.items?.filter(item => !!item)?.[0];
+}
+
 export async function getAllPostsForHome({
   preview,
   locale = 'en-US',
