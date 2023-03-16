@@ -187,7 +187,7 @@ const networks: Network[] = [
     isTestnet: false,
     isSupported: false,
     image: `/assets/networks/${NETWORK_CODENAMES.arbitrum}.png`,
-    scan: 'https://arbiscan.io/',
+    scan: 'https://arbiscan.io',
   },
   {
     id: '250',
