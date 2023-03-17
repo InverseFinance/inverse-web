@@ -1,4 +1,4 @@
-import { getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag, getLandingPosts } from './api';
+import { getPinnedPost, getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag, getLandingPosts } from './api';
 import { BLOG_PAGINATION_SIZE } from './constants';
 
 export const getBlogContext = (context) => {
@@ -17,6 +17,7 @@ export const getBlogContext = (context) => {
 export const getBlogHomeProps = async ({ preview = false, ...context }) => {
     const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
+    const pinnedPost = await getPinnedPost({ isPreview });
     const homePosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: BLOG_PAGINATION_SIZE }) ?? []
     const totalPostsToCount = (await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: 100, isCount: true }) ?? [])
     const categories = await getCategories(isPreview, locale) ?? []
@@ -24,7 +25,7 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
     const nbTotalPosts = totalPostsToCount.length;
 
     return {
-        props: { preview: isPreview, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts },
+        props: { preview: isPreview, pinnedPost, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts },
     }
 }
 

@@ -9,16 +9,18 @@ import Intro from '../intro';
 import Layout from '../layout';
 import MoreStories from '../more-stories';
 
-export default function BlogHome({ preview, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts }) {
+export default function BlogHome({ preview, pinnedPost, homePosts, categories, locale, category, byAuthor, tag, nbTotalPosts }) {
     const router = useRouter();
   
     if (router.isFallback) {
       return <div>Loading...</div>
     }
   
-    const posts = homePosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];
-    const heroPost = posts[0];
-    const morePosts = posts.slice(1);
+    const posts = homePosts?.filter(p => Date.parse(p.date) <= Date.now()) || [];    
+    const pinnedPostIndex = !!pinnedPost?.post?.slug ? posts.findIndex(p => p.slug === pinnedPost?.post?.slug) : 0;
+    const hasPinnedPost = !!pinnedPost?.post?.slug && pinnedPostIndex !== -1;
+    const heroPost = hasPinnedPost ? pinnedPost.post : { ...posts[0] };
+    posts.splice(pinnedPostIndex, 1);
     const categoryObject = categories.find(c => c.name === category) || {};
   
     return (
@@ -50,10 +52,11 @@ export default function BlogHome({ preview, homePosts, categories, locale, categ
             }
             {heroPost && (
               <HeroPost
+                isPinned={hasPinnedPost}
                 {...heroPost}
               />
             )}
-            {morePosts.length > 0 && <MoreStories byAuthor={byAuthor} posts={morePosts} nbTotalPosts={nbTotalPosts} mt="8" />}
+            {posts.length > 0 && <MoreStories byAuthor={byAuthor} posts={posts} nbTotalPosts={nbTotalPosts} mt="8" />}
           </Container>
         </Layout>
       </BlogContext.Provider>
