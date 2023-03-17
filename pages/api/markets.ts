@@ -19,7 +19,7 @@ import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 
 const NB_DAYS_MONTH = 365/12;
 
-export const frontierMarketsCacheKey = `1-markets-cache-v1.4.4`;
+export const frontierMarketsCacheKey = `1-markets-cache-v1.4.5`;
 
 export default async function handler(req, res) {
   // defaults to mainnet data if unsupported network
