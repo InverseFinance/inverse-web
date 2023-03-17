@@ -17,15 +17,18 @@ export const Overview = () => {
   const { treasury, anchorReserves, multisigs } = useDAO();  
   const { currentPayrolls } = useCompensations();
 
+  // TODO: refacto
   const TWGfunds = multisigs?.find(m => m.shortName === 'TWG')?.funds || [];
   const TWGOPfunds = multisigs?.find(m => m.shortName === 'TWG on OP')?.funds || [];
   const TWGBSCfunds = multisigs?.find(m => m.shortName === 'TWG on BSC')?.funds || [];
+  const TWGARB1funds = multisigs?.find(m => m.shortName === 'TWG on ARB 1')?.funds || [];
+  const TWGARB2funds = multisigs?.find(m => m.shortName === 'TWG on ARB 2')?.funds || [];
 
   const totalHoldings = [
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices), usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
     // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
-    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds, TWGBSCfunds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds, TWGBSCfunds) },
+    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds.concat(TWGOPfunds, TWGBSCfunds, TWGARB1funds, TWGARB2funds), prices), usdPrice: 1, drill: TWGfunds.concat(TWGOPfunds, TWGBSCfunds, TWGARB1funds, TWGARB2funds) },
   ];
 
   const totalMultisigs = multisigs?.map(m => {
@@ -59,6 +62,8 @@ export const Overview = () => {
               <FundsDetails title="TWG on Ethereum" funds={TWGfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on Optimism" funds={TWGOPfunds} prices={prices} type='balance' />
               <FundsDetails title="TWG on BSC" funds={TWGBSCfunds} prices={prices} type='balance' />
+              <FundsDetails title="TWG on ARB 1" funds={TWGARB1funds} prices={prices} type='balance' />
+              <FundsDetails title="TWG on ARB 2" funds={TWGARB2funds} prices={prices} type='balance' />
             </SimpleGrid>
           </Stack>
         </Flex>

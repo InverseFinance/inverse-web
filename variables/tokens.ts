@@ -106,6 +106,8 @@ const chainTokenAddresses = {
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
     MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
+    VELODOLAFRAXLP: '0xD29DE64c1a9Dd3e829A7345BE1E9c32a9414541f',
+    FRAX: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -788,6 +790,14 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'mimatic',
     },
+    [chainTokenAddresses["10"].FRAX]: {
+      address: chainTokenAddresses["10"].FRAX,
+      name: 'FRAX',
+      symbol: 'FRAX',
+      image: TOKEN_IMAGES['FRAX'],
+      decimals: 18,
+      coingeckoId: 'frax',
+    },
     [chainTokenAddresses["10"].VEVELO]: {
       address: chainTokenAddresses["10"].VEVELO,
       name: 'veVELO',
@@ -835,6 +845,20 @@ const chainTokens = {
       isStable: true,
       pairs: [
         chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].MAI
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELO,
+    },
+    [chainTokenAddresses["10"].VELODOLAFRAXLP]: {
+      address: chainTokenAddresses["10"].VELODOLAFRAXLP,
+      name: 'DOLA-FRAX',
+      symbol: 'DOLA-FRAX',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["10"].FRAX, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },
