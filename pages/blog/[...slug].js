@@ -29,7 +29,7 @@ export async function getStaticPaths() {
     return `/blog/${l}`
   });
   BLOG_LOCALES.forEach(l => {
-    categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+    categories?.filter(c => !c.isCustomPage).forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
     // authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
     // tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
   });
