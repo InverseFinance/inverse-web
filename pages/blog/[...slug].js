@@ -16,19 +16,19 @@ export async function getStaticPaths() {
   if(!process.env.CONTENTFUL_SPACE_ID) {
     return { paths: [], fallback: true }
   }
-  const [categories, authors, tags] = await Promise.all([
-    getCategories(true, 'en-US'),
-    getAuthors(true, 'en-US'),
-    getTags(true, 'en-US'),
-  ])
+  // const [categories, authors, tags] = await Promise.all([
+  //   getCategories(true, 'en-US'),
+  //   getAuthors(true, 'en-US'),
+  //   getTags(true, 'en-US'),
+  // ])
   const paths = BLOG_LOCALES.map(l => {
     return `/blog/${l}`
   });
-  BLOG_LOCALES.forEach(l => {
-    categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
-    authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
-    tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
-  });
+  // BLOG_LOCALES.forEach(l => {
+  //   categories?.forEach(({ name }) => paths.push(`/blog/${l}/${name}`))
+  //   authors?.forEach(({ name }) => paths.push(`/blog/${l}/author/${name}`))
+  //   tags?.forEach(({ name }) => paths.push(`/blog/${l}/tag/${name}`))
+  // });
   // console.log('main paths', paths);
   return {
     paths: paths,
