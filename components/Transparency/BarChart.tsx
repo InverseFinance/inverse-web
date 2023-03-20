@@ -85,7 +85,7 @@ export const BarChart = ({
                 />
                 <VictoryAxis
                     dependentAxis
-                    tickFormat={y => `${shortenNumber(y, 0, isDollars)}${isPercentages && '%'}`}
+                    tickFormat={y => `${shortenNumber(y, 0, isDollars)}${isPercentages ? '%' : ''}`}
                     style={defaultAxisStyle}
                 />
                 <VictoryBar

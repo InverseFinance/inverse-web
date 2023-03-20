@@ -35,8 +35,14 @@ export default async function handler(req, res) {
     );
     const timestamps = await getCachedBlockTimestamps();
 
+    let daoFeeAcc = 0;
+
     const resultData = {
       events: events.map(e => {
+        const replenishmentCost = getBnToNumber(e.args?.replenishmentCost);
+        const replenisherReward = getBnToNumber(e.args?.replenisherReward);
+        const daoDolaReward = replenishmentCost - replenisherReward;
+        daoFeeAcc += daoDolaReward;
         return {
           txHash: e.transactionHash,
           blockNumber: e.blockNumber,
@@ -45,11 +51,13 @@ export default async function handler(req, res) {
           replenisher: e.args?.replenisher,
           marketAddress: e.args?.market,
           deficit: getBnToNumber(e.args?.deficit),
-          replenishmentCost: getBnToNumber(e.args?.replenishmentCost),
-          replenisherReward: getBnToNumber(e.args?.replenisherReward),
+          replenishmentCost,
+          replenisherReward,
+          daoDolaReward,
+          daoFeeAcc,
         }
       }),
-      timestamp: +(new Date()),
+      timestamp: (+(new Date())-1000),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

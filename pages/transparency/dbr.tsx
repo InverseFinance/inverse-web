@@ -12,15 +12,36 @@ import { useDBR } from '@app/hooks/useDBR'
 import { DbrSpenders } from '@app/components/F2/liquidations/dbr-spenders'
 import { DBRFlowChart } from '@app/components/Transparency/DBRFlowChart'
 import { shortenNumber } from '@app/util/markets'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
 import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
+import { useEventsAsChartData } from '@app/hooks/misc'
+import { useDBRReplenishments } from '@app/hooks/useFirm'
+import { DbrIncome } from '@app/components/Transparency/DbrIncome'
+import { useRouter } from 'next/router'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
+const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income'];
+
 export const DBRTransparency = () => {
+    const router = useRouter();
     const { totalSupply, operator, totalDueTokensAccrued, price } = useDBR();
-    const [tab, setTab] = useState('Spenders');
+    const { events, timestamp, isLoading } = useDBRReplenishments();
+    const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
+    const [tab, setTab] = useState('Flowchart');
+
+    const handleTabChange = (v: string) => {
+        location.hash = v;
+        setTab(v);
+    }
+
+    useEffect(() => {
+        const hash = location.hash.replace('#', '');
+        if (tabsOptions.includes(hash) && tab !== hash) {
+            setTab(hash);
+        }
+    }, [router, tab]);
 
     return (
         <Layout>
@@ -35,55 +56,36 @@ export const DBRTransparency = () => {
             <AppNav active="Transparency" activeSubmenu="DBR" hideAnnouncement={true} />
             <TransparencyTabs active="dbr" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1200px'>
-                <VStack w={{ base: 'full', xl: '850px' }}>
-                    <DBRFlowChart operator={operator || TREASURY} />
+                <VStack w={{ base: 'full', xl: '900px' }}>
+                    <VStack mt="4" spacing="8" w='full'>
+                        <VStack alignItems="flex-start" maxW={{ base: '300px', sm: '600px' }} w='full'>
+                            <NavButtons onClick={handleTabChange} active={tab} options={tabsOptions} textProps={{ p: '1', fontSize: { base: '12px', sm: '14px' } }} />
+                        </VStack>
+                        {
+                            tab === 'Spenders' && <DbrSpenders />
+                        }
+                        {
+                            tab === 'Replenishments' && <DbrReplenishments />
+                        }
+                        {
+                            tab === 'Flowchart' && <DBRFlowChart operator={operator || TREASURY} />
+                        }
+                        {
+                            tab === 'Income' && <DbrIncome chartData={chartData} />
+                        }
+                    </VStack>
                 </VStack>
-                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
+                <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
                     <ShrinkableInfoMessage
                         description={
                             <VStack spacing="0" alignItems="flex-start">
-                                <Text>DBR stands for DOLA Borrowing Right</Text>
-                                <Text>1 DBR gives the right to borrow 1 DOLA for 1 year</Text>
+                                <Text>DBR stands for DOLA Borrowing Right.</Text>
+                                <Text>1 DBR = right for 1 DOLA a year.</Text>
                                 <HStack w='full' justify="space-between">
                                     <Text>Current DBR price: </Text>
                                     <Text>{shortenNumber(price, 4, true)}</Text>
                                 </HStack>
                             </VStack>
-                        }
-                    />
-                    <SupplyInfos token={TOKENS[DBR]} supplies={[
-                        { chainId: NetworkIds.mainnet, supply: totalSupply },
-                    ]}
-                    />
-                    <ShrinkableInfoMessage
-                        title="💸&nbsp;&nbsp;DBR Emissions"
-                        description={
-                            <VStack spacing="0" alignItems="flex-start">
-                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
-                                    See initial emission of 4,646,000 for FiRM launch
-                                </Link>
-                                <Text>
-                                    There is no max supply
-                                </Text>
-                                <Text>
-                                    Future emissions to be voted by Governance
-                                </Text>
-                            </VStack>
-                        }
-                    />
-                    <ShrinkableInfoMessage
-                        title="⚡&nbsp;&nbsp;Roles & Powers"
-                        description={
-                            <>
-                                <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- DBR operator:</Text>
-                                    <Text>Add/remove DBR minters, mint</Text>
-                                </Flex>
-                                {/* <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- Controller:</Text>
-                                    <Text>A contract whitelisting contracts that can borrow</Text>
-                                </Flex> */}
-                            </>
                         }
                     />
                     <ShrinkableInfoMessage
@@ -108,17 +110,43 @@ export const DBRTransparency = () => {
                             </VStack>
                         }
                     />
+                    <SupplyInfos token={TOKENS[DBR]} supplies={[
+                        { chainId: NetworkIds.mainnet, supply: totalSupply },
+                    ]}
+                    />
+                    <ShrinkableInfoMessage
+                        title="💸&nbsp;&nbsp;DBR Emissions"
+                        description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
+                                    See initial emission of 4,646,000 for FiRM launch.
+                                </Link>
+                                <Text>
+                                    There is no max supply.
+                                </Text>
+                                <Text>
+                                    Future emissions to be voted by Governance.
+                                </Text>
+                            </VStack>
+                        }
+                    />
+                    <ShrinkableInfoMessage
+                        title="⚡&nbsp;&nbsp;Roles & Powers"
+                        description={
+                            <>
+                                <Flex direction="column" w='full' justify="space-between">
+                                    <Text fontWeight="bold">- DBR operator:</Text>
+                                    <Text>Add/remove DBR minters, mint</Text>
+                                </Flex>
+                                {/* <Flex direction="row" w='full' justify="space-between">
+                                    <Text fontWeight="bold">- Controller:</Text>
+                                    <Text>A contract whitelisting contracts that can borrow</Text>
+                                </Flex> */}
+                            </>
+                        }
+                    />
                 </VStack>
             </Flex>
-            <Divider mt="4" />
-            <VStack mt="4" spacing="0" w='full'>
-                <VStack alignItems="flex-start" maxW='400px' w='full'>
-                    <NavButtons onClick={setTab} active={tab} options={['Spenders', 'Replenishments']} />
-                </VStack>
-                {
-                    tab === 'Spenders' ? <DbrSpenders /> : <DbrReplenishments />
-                }
-            </VStack>
         </Layout>
     )
 }
