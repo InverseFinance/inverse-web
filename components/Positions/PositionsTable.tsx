@@ -2,7 +2,7 @@ import { Flex, Stack, Text, HStack, useDisclosure } from '@chakra-ui/react'
 
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
-import { shortenNumber } from '@app/util/markets'
+import { getToken, shortenNumber } from '@app/util/markets'
 import { AccountPosition, AccountPositionDetailed, AccountPositionsDetailed, Token } from '@app/types'
 import { ViewIcon } from '@chakra-ui/icons'
 import Link from '@app/components/common/Link'
@@ -10,6 +10,9 @@ import { useState } from 'react'
 import { UNDERLYING } from '@app/variables/tokens'
 import { PositionSlide } from './PositionSlide'
 import { MarketImage } from '../common/Assets/MarketImage'
+import { getNetworkConfigConstants } from '@app/util/networks'
+
+const { TOKENS } = getNetworkConfigConstants();
 
 const getAssetSize = (usdWorth: number) => {
     if (usdWorth >= 1e6) {
@@ -42,7 +45,12 @@ const AssetIcons = ({ list, minW = '100px' }: {
     return <HStack minW={minW} position="relative" maxW="150px" overflow="hidden">
         {
             list?.map((item, i) => {
-                const { image, protocolImage, isInPausedSection, symbol } = item.underlying;
+                // floki exception, was removed in config
+                const underlyingToken = item?.ctoken === "0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B" ? getToken(TOKENS, 'FLOKI') : item?.underlying;
+                const { image, protocolImage, isInPausedSection, symbol } = underlyingToken || {};
+                if(!image) {
+                    return <></>
+                }
                 return <MarketImage
                     key={item.marketIndex}
                     size={getAssetSize(item.usdWorth)}

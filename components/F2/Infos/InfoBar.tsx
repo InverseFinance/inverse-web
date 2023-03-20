@@ -254,7 +254,7 @@ export const DbrBar = ({
                         DBR Depletion Date
                     </Title>
                     <SubTitle fontWeight={needsRechargeSoon ? 'bold' : 'inherit'} color={needsRechargeSoon ? 'warning' : 'secondaryTextColor'}>
-                        {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Mo, YYYY')}
+                        {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
                     </SubTitle>
                 </VStack>
             </HStack>
