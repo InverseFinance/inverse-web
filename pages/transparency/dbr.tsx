@@ -15,11 +15,16 @@ import { shortenNumber } from '@app/util/markets'
 import { useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
 import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
+import { useEventsAsChartData } from '@app/hooks/misc'
+import { useDBRReplenishments } from '@app/hooks/useFirm'
+import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DBRTransparency = () => {
     const { totalSupply, operator, totalDueTokensAccrued, price } = useDBR();
+    const { events, timestamp, isLoading } = useDBRReplenishments();
+    const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
     const [tab, setTab] = useState('Flowchart');
 
     return (
@@ -39,7 +44,7 @@ export const DBRTransparency = () => {
                     <VStack mt="4" spacing="8" w='full'>
                         <VStack alignItems="flex-start" maxW='600px' w='full'>
                             <NavButtons onClick={setTab} active={tab} options={['Flowchart', 'Spenders', 'Replenishments', 'Income']} />
-                        </VStack>                        
+                        </VStack>
                         {
                             tab === 'Spenders' && <DbrSpenders />
                         }
@@ -48,6 +53,9 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Flowchart' && <DBRFlowChart operator={operator || TREASURY} />
+                        }
+                        {
+                            tab === 'Income' && <DbrIncome chartData={chartData} />
                         }
                     </VStack>
                 </VStack>
