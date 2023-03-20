@@ -62,6 +62,9 @@ export const getPositionsDetails = async ({
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const allMarkets: string[] = marketsData?.allMarkets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
+    // TODO: floki hotfix clean
+    const flokiMarket = '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B';
+    allMarkets.push(flokiMarket);
 
     const contracts = allMarkets
         .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
@@ -83,7 +86,7 @@ export const getPositionsDetails = async ({
                     : new Promise(r => r('')))
             ),
             Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
-            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
+            Promise.all(allMarkets.map(address => address === flokiMarket ? new Promise((res) => res(BigNumber.from('0'))) : oracle.getUnderlyingPrice(address))),
             Promise.all(
                 contracts.map((contract) =>
                     [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
