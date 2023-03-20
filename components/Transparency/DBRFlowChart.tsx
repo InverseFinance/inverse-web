@@ -5,6 +5,7 @@ import { Box, HStack, Image, useMediaQuery, Text } from '@chakra-ui/react';
 import { namedAddress } from '@app/util';
 import { FlowChart } from '@app/components/common/Dataviz/FlowChart';
 import { useEffect, useState } from 'react';
+import { UnderlyingItemBlock } from '../common/Assets/UnderlyingItemBlock';
 
 const { DOLA, DBR, TOKENS, F2_MARKETS, F2_ORACLE, F2_CONTROLLER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -34,11 +35,10 @@ export const DBRFlowChart = ({
   }, [isLargerThan]);
 
   const marketLinks = F2_MARKETS?.map((m, i) => {
-    const y = 200 + i * 300;
+    const y = 200 + i * 150;
     return {
-      label: <HStack w='full'>
-        <Image borderRadius="10px" src={`${m.icon}`} w={'20px'} h={'20px'} />
-        <Text whiteSpace="nowrap" color="white">{m.name} Market</Text>
+      label: <HStack w='full' color="white !important">        
+        <UnderlyingItemBlock imgSize={20} symbol={m.name} textProps={{ color: 'white' }} />        
       </HStack>,
       id: m.address,
       style: primaryStyle,
@@ -47,7 +47,7 @@ export const DBRFlowChart = ({
       sourcePosition: 'top',
       targetPosition: 'top',
       targets: [
-        { label: `🔐 ${namedAddress(m.escrowImplementation)}`, x: 0, y, id: m.escrowImplementation, targetPosition: 'top', linkLabel: "Escrow Type", style: greenStyle },       
+        { label: `🔐 ${namedAddress(m.escrowImplementation)}`, x: 0, y, id: `${m.address}-${m.escrowImplementation}`, targetPosition: 'top', linkLabel: "Escrow Type", style: greenStyle },       
         // { label: ``, id: DBR, targetPosition: 'bottom', linkLabel: "Uses DOLA Borrowing Right Tokens as cost", style: greenStyle, labelContainerStyle: { width: '280px' } },
       ]
     }
@@ -66,26 +66,26 @@ export const DBRFlowChart = ({
       ]
     },
     {
-      label: `📜 Oracle`, x: 700, y: 350, id: F2_ORACLE, sourcePosition: 'bottom', linkLabel: "Pessimistic Oracle", style: greenStyle,
-      targets: F2_MARKETS?.map((m, i) => {
-        return { label: '', id: m.address, linkLabel: 'Pessimistic Oracle', targetPosition: 'right' }
-      })
+      label: `📜 Oracle`, x: 700, y: 150, id: F2_ORACLE, sourcePosition: 'bottom', linkLabel: "Pessimistic Oracle", style: greenStyle,
+      // targets: F2_MARKETS?.map((m, i) => {
+      //   return { label: '', id: m.address, linkLabel: 'Pessimistic Oracle', targetPosition: 'right' }
+      // })
     },
     {
       label: `🛡️ Borrow Controller`,
       id: F2_CONTROLLER,
       style: greenStyle,
       x: 700,
-      y: 200,
+      y: 0,
       sourcePosition: 'top',
-      targets: [
-        { label: <>{dolaImg}DOLA</>, id: DOLA, x: 700, y: 0, linkLabel: 'Can limit / restrict Borrowing', labelContainerStyle: { width: '195px' }, targetPosition: 'bottom' }
-      ]
-        .concat(
-          F2_MARKETS?.map((m, i) => {
-            return { label: '', id: m.address, linkLabel: 'Controller' }
-          })
-        )
+      // targets: [
+      //   { label: <>{dolaImg}DOLA</>, id: DOLA, x: 700, y: 0, linkLabel: 'Can limit / restrict Borrowing', labelContainerStyle: { width: '195px' }, targetPosition: 'bottom' }
+      // ]
+      //   .concat(
+      //     F2_MARKETS?.map((m, i) => {
+      //       return { label: '', id: m.address, linkLabel: 'Controller' }
+      //     })
+      //   )
     },
     ...marketLinks,
   ]
@@ -103,6 +103,7 @@ export const DBRFlowChart = ({
         showBackground: !isLargerThan,
         autofit: true,
         elementsOptions,
+        height: 1800,
       }}
       flowData={links}
       boxProps={boxProps}

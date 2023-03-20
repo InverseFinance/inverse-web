@@ -26,8 +26,8 @@ export const DbrIncome = ({
             domainYpadding={1000}
             mainColor="secondary"
             isDollars={true}
-            title="Accumulated DOLA income over time from replenishments"
+            title="Replenishments income over time"
         />
-        <BarChart12Months title="DOLA income in the last 12 months from replenishments" chartData={chartData} maxChartWidth={chartWidth} eventName="Income" yAttribute="yDay" colorScale={defaultColorScale} isDollars={true} />
+        <BarChart12Months title="Replenishments income in the last 12 months" chartData={chartData} maxChartWidth={chartWidth} eventName="Income" yAttribute="yDay" colorScale={defaultColorScale} isDollars={true} />
     </Stack>
 }
