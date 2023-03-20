@@ -23,6 +23,8 @@ export default async function handler(req, res) {
             accounts,
         });
 
+        console.log('getPositionDetails done');
+
         const _positionDetails = _resultData.positions.concat(positionDetails);
 
         _positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
@@ -36,6 +38,6 @@ export default async function handler(req, res) {
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: true });
+        res.status(500).json({ error: true, e: err });
     }
 };

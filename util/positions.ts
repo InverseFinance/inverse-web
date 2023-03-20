@@ -62,9 +62,11 @@ export const getPositionsDetails = async ({
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const allMarkets: string[] = marketsData?.allMarkets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
-    // TODO: floki hotfix clean
-    const flokiMarket = '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B';
-    allMarkets.push(flokiMarket);
+    // // TODO: floki hotfix clean
+    // const flokiMarket = '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B';
+    // allMarkets.push(flokiMarket);
+    console.log('markets');
+    console.log(allMarkets);
 
     const contracts = allMarkets
         .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
@@ -86,7 +88,7 @@ export const getPositionsDetails = async ({
                     : new Promise(r => r('')))
             ),
             Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
-            Promise.all(allMarkets.map(address => address === flokiMarket ? new Promise((res) => res(BigNumber.from('0'))) : oracle.getUnderlyingPrice(address))),
+            Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
             Promise.all(
                 contracts.map((contract) =>
                     [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
@@ -94,6 +96,8 @@ export const getPositionsDetails = async ({
             ),
             Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
         ])
+        console.log('fetched data');
+
         borrowPaused = borrowPausedData;
 
         exRates = bnExRates.map(v => getBnToNumber(v));
@@ -101,7 +105,7 @@ export const getPositionsDetails = async ({
         marketDecimals = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
         )
-
+        console.log('decimals');
         marketDecimals = marketDecimals.map(v => parseInt(v));
 
         collateralFactors = marketsDetails.map(m => parseFloat(formatUnits(m[1])));
@@ -110,6 +114,8 @@ export const getPositionsDetails = async ({
             .map((v, i) => {
                 return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
             })
+
+        console.log('prices');
 
         // potential borrowers list won't change for Frontier as it's borrowing is disabled
         const cachedUserAddresses = (await getCacheFromRedis('frontier-unique-past-users', false)) || [];
@@ -129,7 +135,7 @@ export const getPositionsDetails = async ({
                 });
             });
 
-            uniqueUsers = Array.from(usersSet);            
+            uniqueUsers = Array.from(usersSet);
             await redisSetWithTimestamp('frontier-unique-past-users', uniqueUsers);
         } else {
             uniqueUsers = cachedUserAddresses;
@@ -204,6 +210,8 @@ export const getPositionsDetails = async ({
         )
     ])
 
+    console.log('shortfallAccounts:' + shortfallAccounts.length);
+
     const positionDetails = shortfallAccounts.map((position, i) => {
         const { account } = position;
         const borrowed = borrowedAssets[i].map((b, j) => {
@@ -240,6 +248,8 @@ export const getPositionsDetails = async ({
             supplied,
         }
     })
+
+    console.log('positions details done')
 
     return {
         positionDetails: positionDetails,
