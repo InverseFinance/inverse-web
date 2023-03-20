@@ -15,6 +15,9 @@ import { usePrices } from "@app/hooks/usePrices"
 import { useDOLA } from "@app/hooks/useDOLA"
 import { BUY_LINKS } from "@app/config/constants"
 import { useFirmTVL } from "@app/hooks/useTVL"
+import 'add-to-calendar-button';
+import { shortenAddress } from '@app/util'
+import { timestampToUTC } from '@app/util/misc'
 
 const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
@@ -250,12 +253,26 @@ export const DbrBar = ({
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>
-                    <Title>
+                    {/* <Title>
                         DBR Depletion Date
-                    </Title>
-                    <SubTitle fontWeight={needsRechargeSoon ? 'bold' : 'inherit'} color={needsRechargeSoon ? 'warning' : 'secondaryTextColor'}>
+                    </Title> */}
+                    <add-to-calendar-button
+                        name="FiRM - DBR reminder"
+                        options="'Apple','Google', 'iCal', 'Outlook.com'"
+                        description={`NB: My DBR balance for ${shortenAddress('account')} will be in deficit at this date (with current debt, needs an update if debt changes). I need to buy DBRs before so that I don't get force replenished which has a high cost!`}
+                        location="https://inverse.finance/firm"
+                        startDate={timestampToUTC(dbrExpiryDate)}
+                        timeZone="UTC"
+                        uid={`dbr-${account}`}
+                        size={1}
+                        inline={true}
+                        buttonStyle="date"
+                        label={dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
+                        // lightMode={}
+                    ></add-to-calendar-button>
+                    {/* <SubTitle fontWeight={needsRechargeSoon ? 'bold' : 'inherit'} color={needsRechargeSoon ? 'warning' : 'secondaryTextColor'}>
                         {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
-                    </SubTitle>
+                    </SubTitle> */}
                 </VStack>
             </HStack>
         </Stack>
@@ -322,7 +339,7 @@ export const FirmBar = ({
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
                     <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
-                        {isLargerThan ? 'Total ': ''}DOLA Supply
+                        {isLargerThan ? 'Total ' : ''}DOLA Supply
                     </Link>
                     <SubTitle>
                         {shortenNumber(totalSupply, 2)}
