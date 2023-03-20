@@ -124,7 +124,7 @@ export const DbrSpenders = ({
     const monthlyBurn = totalDailyBurn * 30.416;
     const yearlyBurn = totalDailyBurn * 365;
 
-    const fontSize = { base: '12px', sm: '14px', lg: '16px' };
+    const fontSize = { base: '12px', sm: '14px' };
 
     return <Container
         label="Active DBR Spenders"

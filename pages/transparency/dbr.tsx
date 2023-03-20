@@ -20,7 +20,7 @@ const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const DBRTransparency = () => {
     const { totalSupply, operator, totalDueTokensAccrued, price } = useDBR();
-    const [tab, setTab] = useState('Spenders');
+    const [tab, setTab] = useState('Flowchart');
 
     return (
         <Layout>
@@ -35,8 +35,21 @@ export const DBRTransparency = () => {
             <AppNav active="Transparency" activeSubmenu="DBR" hideAnnouncement={true} />
             <TransparencyTabs active="dbr" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1200px'>
-                <VStack w={{ base: 'full', xl: '850px' }}>
-                    <DBRFlowChart operator={operator || TREASURY} />
+                <VStack w={{ base: 'full', xl: '900px' }}>
+                    <VStack mt="4" spacing="8" w='full'>
+                        <VStack alignItems="flex-start" maxW='600px' w='full'>
+                            <NavButtons onClick={setTab} active={tab} options={['Flowchart', 'Spenders', 'Replenishments', 'Income']} />
+                        </VStack>                        
+                        {
+                            tab === 'Spenders' && <DbrSpenders />
+                        }
+                        {
+                            tab === 'Replenishments' && <DbrReplenishments />
+                        }
+                        {
+                            tab === 'Flowchart' && <DBRFlowChart operator={operator || TREASURY} />
+                        }
+                    </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '350px' }}>
                     <ShrinkableInfoMessage
@@ -110,15 +123,6 @@ export const DBRTransparency = () => {
                     />
                 </VStack>
             </Flex>
-            <Divider mt="4" />
-            <VStack mt="4" spacing="0" w='full'>
-                <VStack alignItems="flex-start" maxW='400px' w='full'>
-                    <NavButtons onClick={setTab} active={tab} options={['Spenders', 'Replenishments']} />
-                </VStack>
-                {
-                    tab === 'Spenders' ? <DbrSpenders /> : <DbrReplenishments />
-                }
-            </VStack>
         </Layout>
     )
 }
