@@ -12,6 +12,9 @@ import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { preciseCommify } from '@app/util/misc';
+import { UnderlyingItem } from '../Assets/UnderlyingItem';
+import { NETWORKS_BY_NAME } from '@app/config/networks';
+import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -90,19 +93,21 @@ const columns = [
         field: 'symbol',
         label: 'Pool Type',
         header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
-        value: ({ symbol, pool, project }) => {
+        value: ({ symbol, pool, project, chain, underlyingTokens }) => {
             const link = getPoolLink(project, pool);
+            const pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
             return <Cell justify="flex-start" minWidth="330px" maxWidth="330px" overflow="hidden" whiteSpace="nowrap">
-                <VStack borderBottom={ !link ? undefined : "1px solid #fff" }>
+                <HStack borderBottom={!link ? undefined : "1px solid #fff"}>
                     {
                         !!link ?
-                            <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank">
-                                <ExternalLinkIcon /> {symbol}
+                            <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
+                                <UnderlyingItem textProps={{ fontSize: '12px', ml: '2' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={NETWORKS_BY_NAME[chain]?.id} />
+                                <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <Text>{symbol}</Text>
+                            <UnderlyingItem textProps={{ fontSize: '12px'  }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={NETWORKS_BY_NAME[chain]?.id} />
                     }
-                </VStack>
+                </HStack>
             </Cell>
         },
         showFilter: true,
@@ -168,11 +173,13 @@ export const OppysTable = ({
         }
     }, [oppys, category]);
 
+    const yieldChains = Object.keys(oppys.reduce((prev, curr) => ({ ...prev, [curr.chain]: curr.chain }), {})).join(', ');
+
     return <Container
         noPadding
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="Earn with INV & DOLA on external platforms"
-        description="DeFi yield opportunities on Ethereum, Optimism and Fantom"
+        description={`DeFi yield opportunities on ${yieldChains} `}
         href="https://docs.inverse.finance/inverse-finance/yield-opportunities"
         headerProps={{
             direction: { base: 'column', md: 'row' },
@@ -211,7 +218,7 @@ export const OppysTable = ({
                         defaultSort="apy"
                         defaultSortDir="desc"
                         columns={columns}
-                        items={filteredOppys}                        
+                        items={filteredOppys}
                         colBoxProps={{ fontWeight: "extrabold" }}
                     />
                     <InfoMessage

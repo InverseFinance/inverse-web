@@ -1,5 +1,5 @@
 import { NetworkIds, Token } from '@app/types'
-import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { BoxProps, Flex, HStack, Image, ImageProps } from '@chakra-ui/react'
 import { MarketImage } from './MarketImage';
 
@@ -18,7 +18,7 @@ export const LPImages = ({
     imgContainerProps?: Partial<BoxProps>,
     includeSubLps?: boolean
 }) => {
-    const subtokens = (lpToken.pairs?.map(address => CHAIN_TOKENS[chainId][address]) || []).filter(t => includeSubLps || (!includeSubLps && !t.isLP));
+    const subtokens = (lpToken.pairs?.map(address => getToken(CHAIN_TOKENS[chainId], address)) || []).filter(t => !!t && (includeSubLps || (!includeSubLps && !t.isLP)));
     if(subtokens?.length === 2 && subtokens[1].symbol === 'DOLA' && subtokens[0].symbol !== 'INV'){
         subtokens.reverse();
     }

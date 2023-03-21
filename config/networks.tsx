@@ -243,3 +243,4 @@ if(envConfig.chainId === '31337'){
 
 export const NETWORKS = networks;
 export const NETWORKS_BY_CHAIN_ID = networks.reduce((prev, curr) => ({ ...prev, [curr.id]: curr }), {});
+export const NETWORKS_BY_NAME = networks.reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {});
