@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { F2_MARKET_ABI, F2_SIMPLE_ESCROW_ABI } from '@app/config/abis'
+import { F2_MARKET_ABI, F2_ESCROW_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
         await Promise.all(firmMarketUsers.map((f, i) => {
           const marketAd = F2_MARKETS[f.marketIndex].address;
           const users = marketUsersAndEscrows[marketAd].users;
-          const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_SIMPLE_ESCROW_ABI, provider);
+          const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
           return escrow.balance();
         })),
         await Promise.all(firmMarketUsers.map((f, i) => {

@@ -4,7 +4,7 @@ import { F2MarketContext } from "../F2Contex";
 import { useContext, useEffect, useState } from "react";
 import ScannerLink from "@app/components/common/ScannerLink";
 import useEtherSWR from "@app/hooks/useEtherSWR";
-import { F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
+import { F2_ESCROW_ABI } from "@app/config/abis";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
 import { Input } from "@app/components/common/Input";
@@ -24,7 +24,7 @@ export const FirmGovToken = () => {
     const { market, escrow } = useContext(F2MarketContext);
     const { data } = useEtherSWR({
         args: [[escrow, 'delegatingTo']],
-        abi: F2_SIMPLE_ESCROW_ABI,
+        abi: F2_ESCROW_ABI,
     });
     const delegatingTo = data ? data[0] : '';
 
@@ -38,7 +38,7 @@ export const FirmGovToken = () => {
     }, [newDelegate, account]);
 
     const handleOk = async () => {
-        const contract = new Contract(escrow, F2_SIMPLE_ESCROW_ABI, library?.getSigner());
+        const contract = new Contract(escrow, F2_ESCROW_ABI, library?.getSigner());
         return contract.delegate(newDelegate);
     }
 

@@ -1,4 +1,4 @@
-import { F2_HELPER_ABI, F2_MARKET_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
+import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
 import { JsonRpcSigner } from "@ethersproject/providers";
@@ -201,7 +201,7 @@ export const f2exitMarket = async (signer: JsonRpcSigner, market: string) => {
     const account = await signer.getAddress();
     const marketContract = new Contract(market, F2_MARKET_ABI, signer);
     const escrow = await marketContract.escrows(account);
-    const escrowContract = new Contract(escrow, F2_SIMPLE_ESCROW_ABI, signer);
+    const escrowContract = new Contract(escrow, F2_ESCROW_ABI, signer);
     const balance = await escrowContract.balance();
     const debt = await marketContract.debts(account);
     return marketContract.repayAndWithdraw(debt, balance);
