@@ -5,7 +5,7 @@ import { fetcher } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/dist/client/router'
-import { useCustomSWR } from './useCustomSWR'
+import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR'
 
 type Markets = {
   markets: Market[]
@@ -43,7 +43,7 @@ export const useAccountMarkets = (address?: string): SWR & Markets => {
 export const useOppys = (): SWR & {
   oppys: YieldOppy[]
 } => {
-  const { data, error, isLoading } = useCustomSWR(`/api/oppys`, fetcher)
+  const { data, error, isLoading } = useCacheFirstSWR(`/api/oppys`, fetcher)
 
   return {
     oppys: data?.pools || [],
