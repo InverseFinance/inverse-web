@@ -4,9 +4,10 @@ import { getYieldOppys } from '@app/util/markets'
 
 export default async function handler(req, res) {
   const cacheKey = `oppys-v1.0.0`;
+  const { cacheFirst } = req.query;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 60);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 60);
     if (validCache) {
       res.status(200).json(validCache);
       return
