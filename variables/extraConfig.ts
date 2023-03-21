@@ -1,6 +1,12 @@
 import { FEDS_PARAMS } from '@app/config/feds-params';
 import { NetworkIds } from '@app/types';
 
+export enum FIRM_ESCROWS {
+    'simple' = '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
+    'gOHM' = '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',
+    'cvxCRV' = '',
+}
+
 const mainConfig = {
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
     DOLA3POOLCRV: '0xAA5A67c256e27A5d80712c51971408db3370927D',
@@ -34,7 +40,7 @@ const mainConfig = {
             name: 'WETH',
             collateral: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
             address: '0x63Df5e23Db45a2066508318f172bA45B9CD37035',
-            escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
+            escrowImplementation: FIRM_ESCROWS.simple,
             icon: '/assets/projects/Ether.png',
             helper: true,
             oracleType: "chainlink",
@@ -44,7 +50,7 @@ const mainConfig = {
             name: 'stETH',
             collateral: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
             address: '0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf',
-            escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
+            escrowImplementation: FIRM_ESCROWS.simple,
             icon: 'https://assets.coingecko.com/coins/images/13442/large/steth_logo.png',
             helper: true,
             oracleType: "chainlink",
@@ -55,7 +61,7 @@ const mainConfig = {
             name: 'gOHM',
             collateral: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
             address: '0x7Cd3ab8354289BEF52c84c2BF0A54E3608e66b37',
-            escrowImplementation: '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',            
+            escrowImplementation: FIRM_ESCROWS.gOHM,            
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'Keep Voting',
@@ -66,11 +72,20 @@ const mainConfig = {
             name: 'CRV',
             collateral: '0xD533a949740bb3306d119CC777fa900bA034cd52',
             address: '0x63fAd99705a255fE2D500e498dbb3A9aE5AA1Ee8',
-            escrowImplementation: '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',            
+            escrowImplementation: FIRM_ESCROWS.simple,            
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
         },
+        // {
+        //     name: 'cvxCRV',
+        //     collateral: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
+        //     address: '0x63fAd99705a255fE2D500e498dbb3A9aE5AA1Ee8',
+        //     escrowImplementation: FIRM_ESCROWS.cvxCRV,            
+        //     helper: true,
+        //     oracleType: "Curve-EMA",
+        //     badgeInfo: 'Keep Rewards',
+        // },
     ],
     feds: FEDS_PARAMS,
     multisigs: [
