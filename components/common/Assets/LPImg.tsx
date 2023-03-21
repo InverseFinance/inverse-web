@@ -18,10 +18,15 @@ export const LPImages = ({
     imgContainerProps?: Partial<BoxProps>,
     includeSubLps?: boolean
 }) => {
-    const subtokens = (lpToken.pairs?.map(address => getToken(CHAIN_TOKENS[chainId], address)) || []).filter(t => !!t && (includeSubLps || (!includeSubLps && !t.isLP)));
-    if(subtokens?.length === 2 && subtokens[1].symbol === 'DOLA' && subtokens[0].symbol !== 'INV'){
+    const subtokens = (lpToken.pairs?.map(address => {
+        return CHAIN_TOKENS[chainId][address] || getToken(CHAIN_TOKENS[chainId], address);
+    }) || [])
+        .filter(t => !!t && (includeSubLps || (!includeSubLps && !t.isLP)))
+
+    if (subtokens?.length === 2 && subtokens[1].symbol === 'DOLA' && subtokens[0].symbol !== 'INV') {
         subtokens.reverse();
     }
+
     return <HStack spacing="1" {...imgContainerProps}>
         {
             subtokens.map(t => {
@@ -48,7 +53,7 @@ export const LpPairImages = ({
 }) => {
 
     return (
-        <Flex alignItems="center" w={`${leftSize+rightSize+rightDeltaX}px`}>
+        <Flex alignItems="center" w={`${leftSize + rightSize + rightDeltaX}px`}>
             <Image zIndex="1" borderRadius={'50px'} w={`${leftSize}px`} h={`${leftSize}px`} ignoreFallback={true} src={leftImg} />
             <Image borderRadius={'50px'} transform={`translate3d(${rightDeltaX}px, ${rightDeltaY}px, 0)`} w={`${rightSize}px`} h={`${rightSize}px`} ignoreFallback={true} src={rightImg} />
         </Flex>
