@@ -15,6 +15,7 @@ import { preciseCommify } from '@app/util/misc';
 import { UnderlyingItem } from '../Assets/UnderlyingItem';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
+import { gaEvent } from '@app/util/analytics';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -97,7 +98,7 @@ const columns = [
             const link = getPoolLink(project, pool);
             const pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
             return <Cell justify="flex-start" minWidth="330px" maxWidth="330px" overflow="hidden" whiteSpace="nowrap">
-                <HStack borderBottom={!link ? undefined : "1px solid #fff"}>
+                <HStack borderBottom={!link ? undefined : "1px solid #fff"} onClick={() => gaEvent({ action: `oppys-lp-click-${symbol}-${project}` })}>
                     {
                         !!link ?
                             <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
