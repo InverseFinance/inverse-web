@@ -15,14 +15,14 @@ export const F2PAGE = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>              
+                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>
-                <VStack pt={{ base: 4, md: 8, '2xl': 20 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>                    
+                <VStack pt={{ base: 4, md: 8, '2xl': 20 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
                             <FirmBar />
@@ -39,7 +39,7 @@ export const F2PAGE = () => {
                     <ErrorBoundary description="Failed to Markets">
                         <F2Markets />
                     </ErrorBoundary>
-                    <VStack py="6" px='6' w='full'>                        
+                    <VStack py="6" px='6' w='full'>
                         <FirmFAQ defaultCollapse={true} collapsable={true} />
                     </VStack>
                 </VStack>
