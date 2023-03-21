@@ -32,8 +32,8 @@ export default async function handler(req, res) {
             meta = result.meta;
             positions = result.positionDetails;
         } else {
-            meta = JSON.parse(await client.get('positions-meta') || '{}');
-            const positionsCache = JSON.parse(await client.get('positions') || '{"positions": []}');
+            meta = JSON.parse(await client.get('frontier-positions-meta') || '{}');
+            const positionsCache = (await getCacheFromRedis('frontier-positions', false, 1, true) || {positions: []});
             positions = positionsCache.positions;
         }
 

@@ -7,7 +7,6 @@ import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
 import { throttledPromises } from '@app/util/misc';
-import { getCacheFromRedis, redisSetWithTimestamp } from "./redis";
 
 const fillPositionsWithRetry = async (
     positions: [number, BigNumber, BigNumber, string, number][],
@@ -62,11 +61,6 @@ export const getPositionsDetails = async ({
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const allMarkets: string[] = marketsData?.allMarkets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
-    // // TODO: floki hotfix clean
-    // const flokiMarket = '0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B';
-    // allMarkets.push(flokiMarket);
-    console.log('markets');
-    console.log(allMarkets);
 
     const contracts = allMarkets
         .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
@@ -96,7 +90,6 @@ export const getPositionsDetails = async ({
             ),
             Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
         ])
-        console.log('fetched data');
 
         borrowPaused = borrowPausedData;
 
@@ -105,7 +98,6 @@ export const getPositionsDetails = async ({
         marketDecimals = await Promise.all(
             underlyings.map(underlying => underlying ? new Contract(underlying, ERC20_ABI, provider).decimals() : new Promise(r => r('18')))
         )
-        console.log('decimals');
         marketDecimals = marketDecimals.map(v => parseInt(v));
 
         collateralFactors = marketsDetails.map(m => parseFloat(formatUnits(m[1])));
@@ -115,31 +107,23 @@ export const getPositionsDetails = async ({
                 return parseFloat(formatUnits(v, BigNumber.from(36).sub(marketDecimals[i])))
             })
 
-        console.log('prices');
+        const holders = await Promise.all(
+            contracts.map(contract => getTokenHolders(contract.address))
+        )
 
-        // potential borrowers list won't change for Frontier as it's borrowing is disabled
-        const cachedUserAddresses = (await getCacheFromRedis('frontier-unique-past-users', false)) || [];
-        if (!cachedUserAddresses?.length) {
-            const holders = await Promise.all(
-                contracts.map(contract => getTokenHolders(contract.address))
-            )
+        const usersSet = new Set();
+        balances = {};
 
-            const usersSet = new Set();
-            balances = {};
-
-            holders.forEach((res, i) => {
-                res.data.items.forEach(anTokenHolder => {
-                    usersSet.add(anTokenHolder.address);
-                    if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
-                    balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
-                });
+        holders.forEach((res, i) => {
+            res.data.items.forEach(anTokenHolder => {
+                usersSet.add(anTokenHolder.address);
+                if (!balances[anTokenHolder.address]) { balances[anTokenHolder.address] = {} }
+                balances[anTokenHolder.address][anTokenHolder.contract_address] = anTokenHolder.balance;
             });
+        });
 
-            uniqueUsers = Array.from(usersSet);
-            await redisSetWithTimestamp('frontier-unique-past-users', uniqueUsers);
-        } else {
-            uniqueUsers = cachedUserAddresses;
-        }
+        uniqueUsers = Array.from(usersSet);
+
         lastUpdate = Date.now();
     } else {
         lastUpdate = marketsData.lastUpdate;
@@ -210,8 +194,6 @@ export const getPositionsDetails = async ({
         )
     ])
 
-    console.log('shortfallAccounts:' + shortfallAccounts.length);
-
     const positionDetails = shortfallAccounts.map((position, i) => {
         const { account } = position;
         const borrowed = borrowedAssets[i].map((b, j) => {
@@ -248,8 +230,6 @@ export const getPositionsDetails = async ({
             supplied,
         }
     })
-
-    console.log('positions details done')
 
     return {
         positionDetails: positionDetails,

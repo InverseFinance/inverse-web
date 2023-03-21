@@ -1,5 +1,5 @@
 import "source-map-support";
-import { getRedisClient } from '@app/util/redis';
+import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis';
 import { getPositionsDetails } from '@app/util/positions';
 
 const client = getRedisClient();
@@ -12,8 +12,8 @@ export default async function handler(req, res) {
 
     try {
         const isFirstBatch = pageOffset === '0';
-        const _resultData = isFirstBatch ? { positions: [] } : JSON.parse(await client.get('positions') || '{ "positions": [] }');
-        const _resultMeta = isFirstBatch ? undefined : JSON.parse(await client.get('positions-meta') || '{}');
+        const _resultData = isFirstBatch ? { positions: [] } : (await getCacheFromRedis('frontier-positions',  false, 1, true) || { positions: [] });
+        const _resultMeta = isFirstBatch ? undefined : JSON.parse(await client.get('frontier-positions-meta') || '{}');
 
         const { positionDetails, meta } = await getPositionsDetails({
             isFirstBatch,
@@ -23,16 +23,14 @@ export default async function handler(req, res) {
             accounts,
         });
 
-        console.log('getPositionDetails done');
-
         const _positionDetails = _resultData.positions.concat(positionDetails);
 
         _positionDetails.sort((a, b) => b.usdShortfall - a.usdShortfall)
 
         if (isFirstBatch) {
-            await client.set('positions-meta', JSON.stringify(meta));
+            await client.set('frontier-positions-meta', JSON.stringify(meta));
         }
-        await client.set('positions', JSON.stringify({ positions: _positionDetails }));
+        await redisSetWithTimestamp('frontier-positions', { positions: _positionDetails }, true);
 
         res.status(200).json({ success: true, positionsAdded: positionDetails.length });
 
