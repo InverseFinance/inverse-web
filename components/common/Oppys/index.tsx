@@ -50,9 +50,13 @@ const projectLinks = {
     'convex-finance': 'https://www.convexfinance.com/stake',
     'aura': 'https://app.aura.finance',
     'stakedao': 'https://lockers.stakedao.org',
+    'thena': 'https://thena.fi/liquidity',
+    'balancer-v2': 'https://app.balancer.fi/#/ethereum',
+    'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
+    'velodrome': 'https://app.velodrome.finance/liquidity/manage',
 }
 
-const getPoolLink = (project, pool) => {
+const getPoolLink = (project, pool, underlyingTokens) => {
     let url;
     switch (project) {
         case 'balancer':
@@ -64,12 +68,11 @@ const getPoolLink = (project, pool) => {
         case 'uniswap':
             url = `https://info.uniswap.org/#/pools/${pool}`
             break;
-        case 'beefy-finance':
-        case 'beefy':
-            url = `https://app.beefy.com/vault/${pool.replace(/-[0-9]+$/, '')}`
-            break;
-        case 'velodrome':
-            url = `https://app.velodrome.finance/liquidity/manage?address=${pool}`
+        // case 'velodrome':
+        //     url = `https://app.velodrome.finance/liquidity/manage?address=${pool}`
+        //     break;
+        case 'uniswap-v2':
+            url = underlyingTokens ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
             break;
     }
     return poolLinks[pool] || url || projectLinks[project];
@@ -95,7 +98,7 @@ const columns = [
         label: 'Pool Type',
         header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
         value: ({ symbol, pool, project, chain, underlyingTokens }) => {
-            const link = getPoolLink(project, pool);
+            const link = getPoolLink(project, pool, underlyingTokens);
             const pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
             return <Cell justify="flex-start" minWidth="330px" maxWidth="330px" overflow="hidden" whiteSpace="nowrap">
                 <HStack borderBottom={!link ? undefined : "1px solid #fff"} onClick={() => gaEvent({ action: `oppys-lp-click-${symbol}-${project}` })}>
@@ -106,7 +109,7 @@ const columns = [
                                 <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <UnderlyingItem textProps={{ fontSize: '12px'  }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={NETWORKS_BY_NAME[chain]?.id} />
+                            <UnderlyingItem textProps={{ fontSize: '12px' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={NETWORKS_BY_NAME[chain]?.id} />
                     }
                 </HStack>
             </Cell>
