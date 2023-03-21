@@ -4,7 +4,7 @@ import { NetworkIds } from '@app/types';
 export enum FIRM_ESCROWS {
     'simple' = '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
     'gOHM' = '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',
-    'cvxCRV' = '',
+    'cvxCRV' = '0x40A633EeF249F21D95C8803b7144f19AAfeEF7ae',
 }
 
 const mainConfig = {
@@ -77,15 +77,15 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'High CF',
         },
-        // {
-        //     name: 'cvxCRV',
-        //     collateral: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
-        //     address: '0x63fAd99705a255fE2D500e498dbb3A9aE5AA1Ee8',
-        //     escrowImplementation: FIRM_ESCROWS.cvxCRV,            
-        //     helper: true,
-        //     oracleType: "Curve-EMA",
-        //     badgeInfo: 'Keep Rewards',
-        // },
+        {
+            name: 'cvxCRV',
+            collateral: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
+            address: '0x532802f2F9E0e3EE9d5Ba70C35E1F43C0498772D',
+            escrowImplementation: FIRM_ESCROWS.cvxCRV,            
+            helper: true,
+            oracleType: "curve-ema",
+            badgeInfo: 'Keep Rewards',
+        },
     ],
     feds: FEDS_PARAMS,
     multisigs: [
