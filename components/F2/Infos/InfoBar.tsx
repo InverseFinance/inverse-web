@@ -259,11 +259,11 @@ export const DbrBar = ({
                     <add-to-calendar-button
                         name="FiRM - DBR reminder"
                         options="'Apple','Google', 'iCal', 'Outlook.com'"
-                        description={`NB: My DBR balance for ${shortenAddress('account')} will be in deficit at this date (with current debt, needs an update if debt changes). I need to buy DBRs before so that I don't get force replenished which has a high cost!`}
+                        description={`NB: My DBR balance for will be in deficit at this date (with current debt, needs an update if debt changes). I need to buy DBRs before so that I don't get force replenished which has a high cost!`}
                         location="https://inverse.finance/firm"
                         startDate={timestampToUTC(dbrExpiryDate)}
                         timeZone="UTC"
-                        uid={`dbr-${account}`}
+                        uid={`dbr-reminder`}
                         size={1}
                         inline={true}
                         buttonStyle="date"
