@@ -142,6 +142,7 @@ export default async function handler(req, res) {
                     && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
             });
 
+            // bb-e-usd exception due to euler exploit to not throw off avgs
             const apy = lp.address === '0x133d241F225750D2c92948E464A5a80111920331' ? 0 : yieldData?.apy;
 
             return {
