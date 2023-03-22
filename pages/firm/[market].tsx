@@ -19,6 +19,7 @@ import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
 import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
+import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -136,6 +137,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 </ErrorBoundary>
                                                 {
                                                     (f2market.isGovTokenCollateral) && <FirmGovToken />
+                                                }
+                                                {
+                                                    (true || f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                 }
                                             </VStack>
                                 }
