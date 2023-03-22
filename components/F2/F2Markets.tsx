@@ -238,7 +238,7 @@ export const F2Markets = ({
         }}
         right={
             <VStack pt={{ base: '4', sm: '0' }} display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
-                <Link href="https://chain.link/badge">
+                <Link href="https://chain.link/badge" isExternal target="_blank">
                     <Image ignoreFallback={true} h="50px" src="https://chain.link/badge-market-data-white" alt="market data secured with chainlink" />
                 </Link>
             </VStack>
