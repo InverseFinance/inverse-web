@@ -139,7 +139,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     (f2market.isGovTokenCollateral) && <FirmGovToken />
                                                 }
                                                 {
-                                                    (true || f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
+                                                    (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                 }
                                             </VStack>
                                 }
