@@ -1,13 +1,15 @@
 import Container from "@app/components/common/Container";
 import Link from "@app/components/common/Link";
 import { InfoMessage } from "@app/components/common/Messages";
-import { shortenNumber } from "@app/util/markets";
+import { getBnToNumber, shortenNumber } from "@app/util/markets";
 import { VStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, HStack } from "@chakra-ui/react"
 import { useState, useContext } from "react";
 import { PercentagesBar } from "../forms/PercentagesOfMax";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { F2MarketContext } from "../F2Contex";
 import { setRewardWeight } from "@app/util/firm-extra";
+import useEtherSWR from "@app/hooks/useEtherSWR";
+import { F2_ESCROW_ABI } from "@app/config/abis";
 
 export const CvxCrvWeightBar = ({
     perc,
@@ -31,6 +33,31 @@ export const CvxCrvWeightBar = ({
     </VStack>
 }
 
+const cvxCRVStakingAddress = '0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434';
+
+const useCvxCrvRewards = (escrow = '0x83664B8a83b9845Ac7b177DF86d0F5BF3b7739AD') => {
+    const { data, error } = useEtherSWR({
+        args: [
+            [cvxCRVStakingAddress, 'userRewardWeight', escrow],
+            // there's two reward groups for cvxCrv
+            [cvxCRVStakingAddress, 'userRewardBalance', escrow, 0],
+            [cvxCRVStakingAddress, 'userRewardBalance', escrow, 1],
+        ],
+        abi: [
+            'function userRewardWeight(address) public view returns (uint)',
+            'function userRewardBalance(address, uint) public view returns (uint)',
+        ],
+    });)
+
+    return {
+        userRewardWeight: data ? getBnToNumber(data[0], 0) : 0,
+        group1Rewards: data ? getBnToNumber(data[1]) : 0,
+        group2Rewards: data ? getBnToNumber(data[2]) : 0,
+        isLoading: !error,
+        error,
+    }
+}
+
 export const CvxCrvRewards = ({
     currentValue = 0,
 }: {
@@ -38,6 +65,8 @@ export const CvxCrvRewards = ({
 }) => {
     const { escrow, signer } = useContext(F2MarketContext);
     const [perc, setPerc] = useState(0);
+    const { userRewardWeight } = useCvxCrvRewards(escrow);
+
     const hasChanged = !!escrow && perc !== currentValue;
 
     const handleRewardsRepartitionUpdate = async () => {
