@@ -872,13 +872,13 @@ const chainTokens = {
       symbol: 'DOLA-USDC archlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,      
+      isLP: true, 
       isVeloLP: true,
       isStable: true,
       pairs: [
         chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
       ],
-      protocolImage: PROTOCOL_IMAGES.VELO,
+      protocolImage: PROTOCOL_IMAGES.ARCHLY,
     },
     [chainTokenAddresses["10"].VELODOLAUSDplusLP]: {
       address: chainTokenAddresses["10"].VELODOLAUSDplusLP,
@@ -934,6 +934,14 @@ const chainTokens = {
     [chainTokenAddresses["56"].DOLA]: {
       address: chainTokenAddresses["56"].DOLA,
       ...DOLA,
+    },
+    [chainTokenAddresses["56"].FRAX]: {
+      address: chainTokenAddresses["56"].FRAX,
+      name: 'FRAX',
+      symbol: 'FRAX',
+      coingeckoId: 'frax',
+      image: TOKEN_IMAGES.FRAX,      
+      decimals: 18,
     },
     [chainTokenAddresses["56"].CUSD]: {
       address: chainTokenAddresses["56"].CUSD,
