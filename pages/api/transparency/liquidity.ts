@@ -142,10 +142,13 @@ export default async function handler(req, res) {
                     && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
             });
 
+            // bb-e-usd exception due to euler exploit to not throw off avgs
+            const apy = lp.address === '0x133d241F225750D2c92948E464A5a80111920331' ? 0 : yieldData?.apy;
+
             return {
                 ...lp,
                 lpName,
-                apy: yieldData?.apy,
+                apy,
                 apyMean30d: yieldData?.apyMean30d,
                 protocol,
                 project: defiLlamaProjectName || protocol,
@@ -157,7 +160,7 @@ export default async function handler(req, res) {
                 pairingDepth: tvl - dolaWorth,
                 dolaBalance: dolaWorth,
                 dolaWeight: dolaWorth / tvl * 100,
-                rewardDay: ownedAmount * (yieldData?.apy || 0) / 100 / 365,
+                rewardDay: ownedAmount * (apy || 0) / 100 / 365,
                 isFed: !!fedPol,
                 // subBalances,
             }

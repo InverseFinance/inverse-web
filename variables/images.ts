@@ -74,6 +74,7 @@ export const TOKEN_IMAGES = {
     "SLIZ": "https://assets.coingecko.com/coins/images/28968/small/sliz-logo.png?1675746291",
     "RAM": "https://assets.coingecko.com/coins/images/29420/small/RAM_Token_32x32.png?1678678321",
     "STR": "https://assets.coingecko.com/coins/images/29167/small/FullLogo_Transparent_NoBuffer.png?1677048104",
+    "ARCHLY": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/6432.png",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -93,6 +94,7 @@ export const PROTOCOL_IMAGES = {
     "SOLIDLIZARD": TOKEN_IMAGES.SLIZ,
     "RAMSES": TOKEN_IMAGES.RAM,
     "STERLING": TOKEN_IMAGES.STR,
+    "ARCHLY": TOKEN_IMAGES.ARCHLY,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(

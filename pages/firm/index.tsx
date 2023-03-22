@@ -1,4 +1,4 @@
-import { Divider, VStack } from '@chakra-ui/react'
+import { Divider, VStack, Image } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -8,6 +8,7 @@ import { useAccount } from '@app/hooks/misc'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { DbrBar, FirmBar } from '@app/components/F2/Infos/InfoBar'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
+import Link from '@app/components/common/Link'
 
 export const F2PAGE = () => {
     const account = useAccount();
@@ -37,9 +38,9 @@ export const F2PAGE = () => {
                         </ErrorBoundary>
                     }
                     <ErrorBoundary description="Failed to Markets">
-                        <F2Markets />
+                        <F2Markets />                        
                     </ErrorBoundary>
-                    <VStack py="6" px='6' w='full'>
+                    <VStack py="6" px='6' w='full'>                    
                         <FirmFAQ defaultCollapse={true} collapsable={true} />
                     </VStack>
                 </VStack>

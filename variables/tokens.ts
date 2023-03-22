@@ -108,6 +108,7 @@ const chainTokenAddresses = {
     MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
     VELODOLAFRAXLP: '0xD29DE64c1a9Dd3e829A7345BE1E9c32a9414541f',
     FRAX: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
+    ARCHLYDOLAUSDCLP: '0x5b701874FFFc9dFF9305E1cA09705247E13cF717',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -123,6 +124,8 @@ const chainTokenAddresses = {
     CUSD: '0xFa4BA88Cf97e282c505BEa095297786c16070129',
     THENADOLACUSDLP: '0x7061F52ed4942021924745D454d722E52e057e03',
     THENADOLAWBNBLP: '0xc5856601712E8a74d57cdc7a47fB1B41C1a6Fae2',
+    THENADOLAFRAXLP: '0xFD66A4a4c921CD7194ABAb38655476a06fbAEa05',
+    FRAX: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
   },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
@@ -135,6 +138,7 @@ const chainTokenAddresses = {
     VERAM: '0xAAA343032aA79eE9a6897Dab03bef967c3289a06',
     SLIZDOLAUSDCLP: '0xDf58C5f73ea1c9003ABFEB9194EB817D256cb3Ad',
     RAMDOLAUSDCLP: '0xDd8b120DdaE0F19b922324012816F2F3Ce529BF8',
+    STERLINGDOLAUSDCLP: '0x8806e6B5F57C780180827E77115794d9C8100Cb7',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -862,6 +866,20 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },
+    [chainTokenAddresses["10"].ARCHLYDOLAUSDCLP]: {
+      address: chainTokenAddresses["10"].ARCHLYDOLAUSDCLP,
+      name: 'DOLA-USDC archlp',
+      symbol: 'DOLA-USDC archlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true, 
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.ARCHLY,
+    },
     [chainTokenAddresses["10"].VELODOLAUSDplusLP]: {
       address: chainTokenAddresses["10"].VELODOLAUSDplusLP,
       name: 'DOLA-USD+',
@@ -917,6 +935,14 @@ const chainTokens = {
       address: chainTokenAddresses["56"].DOLA,
       ...DOLA,
     },
+    [chainTokenAddresses["56"].FRAX]: {
+      address: chainTokenAddresses["56"].FRAX,
+      name: 'FRAX',
+      symbol: 'FRAX',
+      coingeckoId: 'frax',
+      image: TOKEN_IMAGES.FRAX,      
+      decimals: 18,
+    },
     [chainTokenAddresses["56"].CUSD]: {
       address: chainTokenAddresses["56"].CUSD,
       name: 'CUSD',
@@ -938,7 +964,22 @@ const chainTokens = {
         chainTokenAddresses["56"].DOLA, chainTokenAddresses["56"].CUSD
       ],
       protocolImage: PROTOCOL_IMAGES.THENA,
-    },[chainTokenAddresses["56"].THENADOLAWBNBLP]: {
+    },
+    [chainTokenAddresses["56"].THENADOLAFRAXLP]: {
+      address: chainTokenAddresses["56"].THENADOLAFRAXLP,
+      name: 'DOLA-FRAX tlp',
+      symbol: 'DOLA-FRAX tlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["56"].DOLA, chainTokenAddresses["56"].FRAX
+      ],
+      protocolImage: PROTOCOL_IMAGES.THENA,
+    },
+    [chainTokenAddresses["56"].THENADOLAWBNBLP]: {
       address: chainTokenAddresses["56"].THENADOLAWBNBLP,
       name: 'DOLA-WBNB',
       symbol: 'DOLA-WBNB',
@@ -1032,6 +1073,21 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.RAMSES,
       twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+    },
+    [chainTokenAddresses["42161"].STERLINGDOLAUSDCLP]: {
+      address: chainTokenAddresses["42161"].STERLINGDOLAUSDCLP,
+      name: 'DOLA-USDC stlp',
+      symbol: 'DOLA-USDC stlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.STERLING,
+      twgAddress: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
     },
     [chainTokenAddresses["42161"].SLIZDOLAUSDCLP]: {
       address: chainTokenAddresses["42161"].SLIZDOLAUSDCLP,
