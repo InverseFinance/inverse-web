@@ -3,7 +3,7 @@ import Link from "@app/components/common/Link";
 import { InfoMessage } from "@app/components/common/Messages";
 import { getBnToNumber, shortenNumber } from "@app/util/markets";
 import { VStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, HStack } from "@chakra-ui/react"
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { PercentagesBar } from "../forms/PercentagesOfMax";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { F2MarketContext } from "../F2Contex";
@@ -12,7 +12,7 @@ import useEtherSWR from "@app/hooks/useEtherSWR";
 import { F2_ESCROW_ABI } from "@app/config/abis";
 
 export const CvxCrvWeightBar = ({
-    perc,
+    perc,    
     onChange,
 }) => {
     return <VStack w='full'>
@@ -22,8 +22,7 @@ export const CvxCrvWeightBar = ({
             min={0}
             max={100}
             step={5}
-            aria-label='slider-ex-4'
-            defaultValue={perc}
+            aria-label='slider-ex-4'            
         >
             <SliderTrack h="15px" bg='mainTextColor'>
                 <SliderFilledTrack bg={'info'} />
@@ -35,7 +34,7 @@ export const CvxCrvWeightBar = ({
 
 const cvxCRVStakingAddress = '0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434';
 
-const useCvxCrvRewards = (escrow = '0x83664B8a83b9845Ac7b177DF86d0F5BF3b7739AD') => {
+const useCvxCrvRewards = (escrow = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9') => {
     const { data, error } = useEtherSWR({
         args: [
             [cvxCRVStakingAddress, 'userRewardWeight', escrow],
@@ -47,27 +46,32 @@ const useCvxCrvRewards = (escrow = '0x83664B8a83b9845Ac7b177DF86d0F5BF3b7739AD')
             'function userRewardWeight(address) public view returns (uint)',
             'function userRewardBalance(address, uint) public view returns (uint)',
         ],
-    });)
+    });
 
     return {
-        userRewardWeight: data ? getBnToNumber(data[0], 0) : 0,
+        userRewardWeight: data ? getBnToNumber(data[0], 2) : null,
         group1Rewards: data ? getBnToNumber(data[1]) : 0,
         group2Rewards: data ? getBnToNumber(data[2]) : 0,
-        isLoading: !error,
+        isLoading: !error && !data,
         error,
     }
 }
 
-export const CvxCrvRewards = ({
-    currentValue = 0,
-}: {
-    currentValue: number
-}) => {
+export const CvxCrvRewards = () => {
     const { escrow, signer } = useContext(F2MarketContext);
-    const [perc, setPerc] = useState(0);
-    const { userRewardWeight } = useCvxCrvRewards(escrow);
+    const [perc, setPerc] = useState<number | null>(null);
+    const [defaultPerc, setDefaultPerc] = useState<number | null>(null);
+    const { userRewardWeight, group1Rewards, group2Rewards } = useCvxCrvRewards(escrow);
 
-    const hasChanged = !!escrow && perc !== currentValue;
+    useEffect(() => {
+        if (userRewardWeight === null) { return }
+        setDefaultPerc(userRewardWeight);
+        if(perc === null) {
+            setPerc(userRewardWeight);
+        }        
+    }, [userRewardWeight]);
+
+    const hasChanged = perc !== defaultPerc;
 
     const handleRewardsRepartitionUpdate = async () => {
         if (!escrow || !hasChanged || !signer) { return }
