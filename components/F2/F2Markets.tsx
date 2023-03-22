@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, Image, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -13,6 +13,7 @@ import { OracleType } from "./Infos/OracleType";
 import { SkeletonList } from "../common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
+import Link from "../common/Link";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -118,7 +119,7 @@ const columns = [
                 <CellText>{shortenNumber(totalDebt, 2)}</CellText>
             </Cell>
         },
-    },    
+    },
     {
         field: 'dolaLiquidity',
         label: 'DOLA Liquidity',
@@ -214,7 +215,7 @@ export const F2Markets = ({
 
     const isLoading = tvlLoading || !markets?.length;
 
-    const openMarket = (market: any) => {        
+    const openMarket = (market: any) => {
         gaEvent({ action: `FiRM-list-open-market-${market.name}` });
         const newPath = router.asPath.replace(router.pathname, `/firm/${market.name}`);
         router.push(debt > 0 ? newPath : `${newPath}#step1`);
@@ -231,14 +232,17 @@ export const F2Markets = ({
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
         image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        // right={
-        //     <VStack display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
-        //         <Link textDecoration="underline" href="https://www.inverse.finance/governance/proposals/mills/90" fontSize={{ base: '12px', sm: '16px' }} fontWeight="extrabold" color="mainTextColor">
-        //             New Proposal:
-        //         </Link>
-        //         <UnderlyingItemBlock symbol="gOHM" fontSize={{ base: '12px', sm: '14px' }} />
-        //     </VStack>
-        // }
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+        right={
+            <VStack pt={{ base: '4', sm: '0' }} display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
+                <Link href="https://chain.link/badge">
+                    <Image h="50px" src="https://chain.link/badge-market-data-white" alt="market data secured with chainlink" />
+                </Link>
+            </VStack>
+        }
     >
         {
             isLoading ?
