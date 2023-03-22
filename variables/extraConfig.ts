@@ -85,6 +85,7 @@ const mainConfig = {
             helper: true,
             oracleType: "curve-ema",
             badgeInfo: 'Keep Rewards',
+            hasClaimableRewards: true,
         },
     ],
     feds: FEDS_PARAMS,

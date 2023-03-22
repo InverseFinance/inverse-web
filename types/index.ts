@@ -712,6 +712,7 @@ export type F2Market = {
   borrowController: string
   icon?: string
   isGovTokenCollateral?: boolean
+  hasClaimableRewards?: boolean
   marketIcon?: string
   helper?: boolean
   oracleType: string
