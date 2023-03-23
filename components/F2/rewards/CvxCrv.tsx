@@ -7,12 +7,14 @@ import { useState, useContext, useEffect } from "react";
 import { PercentagesBar } from "../forms/PercentagesOfMax";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { F2MarketContext } from "../F2Contex";
-import { setRewardWeight } from "@app/util/firm-extra";
+import { claim, setRewardWeight } from "@app/util/firm-extra";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { F2_ESCROW_ABI } from "@app/config/abis";
+import { BigNumber, Contract } from "ethers";
+import useSWR from "swr";
 
 export const CvxCrvWeightBar = ({
-    perc,    
+    perc,
     onChange,
 }) => {
     return <VStack w='full'>
@@ -21,8 +23,8 @@ export const CvxCrvWeightBar = ({
             onChange={onChange}
             min={0}
             max={100}
-            step={5}
-            aria-label='slider-ex-4'            
+            step={1}
+            aria-label='slider-ex-4'
         >
             <SliderTrack h="15px" bg='mainTextColor'>
                 <SliderFilledTrack bg={'info'} />
@@ -34,24 +36,44 @@ export const CvxCrvWeightBar = ({
 
 const cvxCRVStakingAddress = '0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434';
 
-const useCvxCrvRewards = (escrow = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9') => {
+const useCvxCrvRewards = (escrow = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9', signer) => {
     const { data, error } = useEtherSWR({
         args: [
             [cvxCRVStakingAddress, 'userRewardWeight', escrow],
             // there's two reward groups for cvxCrv
             [cvxCRVStakingAddress, 'userRewardBalance', escrow, 0],
             [cvxCRVStakingAddress, 'userRewardBalance', escrow, 1],
+            [cvxCRVStakingAddress, 'rewards', 0],
+            [cvxCRVStakingAddress, 'rewards', 1],
+            [cvxCRVStakingAddress, 'rewards', 2],
+            [cvxCRVStakingAddress, 'rewardSupply', 0],
+            [cvxCRVStakingAddress, 'rewardSupply', 1],
+            [cvxCRVStakingAddress, 'totalSupply'],
+            ['0xD533a949740bb3306d119CC777fa900bA034cd52', 'balanceOf', cvxCRVStakingAddress],
         ],
         abi: [
             'function userRewardWeight(address) public view returns (uint)',
             'function userRewardBalance(address, uint) public view returns (uint)',
+            'function rewards(uint) public view returns (tuple(address, uint, uint, uint))',
+            'function rewardSupply(uint) public view returns (uint)',
+            'function totalSupply() public view returns (uint)',
+            'function balanceOf(address) public view returns (uint)',
         ],
     });
+
+    // console.log(error)
 
     return {
         userRewardWeight: data ? getBnToNumber(data[0], 2) : null,
         group1Rewards: data ? getBnToNumber(data[1]) : 0,
         group2Rewards: data ? getBnToNumber(data[2]) : 0,
+        rewards1: data ? data[3] : ['0xD533a949740bb3306d119CC777fa900bA034cd52', BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')],
+        rewards2: data ? data[4] : ['0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')],
+        rewards3: data ? data[5] : ['0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490', BigNumber.from('0'), BigNumber.from('0'), BigNumber.from('0')],
+        group1Supply: data ? getBnToNumber(data[6]) : 0,
+        group2Supply: data ? getBnToNumber(data[7]) : 0,
+        totalSupply: data ? getBnToNumber(data[8]) : 0,
+        reward1Balance: data ? getBnToNumber(data[9]) : 0,
         isLoading: !error && !data,
         error,
     }
@@ -61,14 +83,29 @@ export const CvxCrvRewards = () => {
     const { escrow, signer } = useContext(F2MarketContext);
     const [perc, setPerc] = useState<number | null>(null);
     const [defaultPerc, setDefaultPerc] = useState<number | null>(null);
-    const { userRewardWeight, group1Rewards, group2Rewards } = useCvxCrvRewards(escrow);
+    const { userRewardWeight, totalSupply, reward1Balance, group1Rewards, group2Rewards, rewards1, rewards2, rewards3, group1Supply, group2Supply } = useCvxCrvRewards(escrow, signer);
+
+    // console.log('--');
+    // console.log(group1Rewards);
+    // console.log(group2Rewards);
+    // console.log(rewards1);    
+    // console.log(rewards2);
+    // console.log(rewards3);
+    // console.log(group1Supply);
+    // console.log(group2Supply);
+    // console.log('==');
+    // const reward1 = { integral: getBnToNumber(rewards1[2]), remaining: getBnToNumber(rewards1[3]) };    
+    // console.log(reward1)
+    // console.log('totalSupply')
+    // console.log(totalSupply)
+    // console.log(reward1Balance)
 
     useEffect(() => {
         if (userRewardWeight === null) { return }
         setDefaultPerc(userRewardWeight);
-        if(perc === null) {
+        if (perc === null) {
             setPerc(userRewardWeight);
-        }        
+        }
     }, [userRewardWeight]);
 
     const hasChanged = perc !== defaultPerc;
@@ -78,10 +115,14 @@ export const CvxCrvRewards = () => {
         return setRewardWeight(escrow, perc * 100, signer);
     }
 
+    const handleClaim = async () => {
+        return claim(escrow, signer);
+    }
+
     return <Container label="Rewards Preferences" noPadding p='0'>
         <VStack spacing="8" w='full' alignItems="flex-start" p="2">
             {
-                !!escrow && <VStack w='full' spacing="4">
+                <VStack w='full' spacing="4">
                     <HStack fontSize="20px" fontWeight="bold" w='full' justify="space-between">
                         <HStack w='33%'>
                             <Text>CVX+CRV rewards:</Text>
@@ -111,6 +152,15 @@ export const CvxCrvRewards = () => {
                     </HStack>
                     <CvxCrvWeightBar perc={perc} onChange={setPerc} />
                     <PercentagesBar showAsRepartition={true} onChange={setPerc} tickProps={{ fontSize: '18px', fontWeight: 'bold' }} />
+                    <HStack justify="flex-start" w='full' pt='4'>
+                        <HStack>
+                            <Text>Rewards:</Text>
+                            <Text>$</Text>
+                        </HStack>
+                        <RSubmitButton onClick={handleClaim} w='fit-content' fontSize='16px'>
+                            Claim
+                        </RSubmitButton>
+                    </HStack>
                 </VStack>
             }
             <InfoMessage
