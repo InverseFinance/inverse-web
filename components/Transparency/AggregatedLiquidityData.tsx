@@ -32,7 +32,7 @@ export const AggregatedLiquidityData = ({
             { label: 'DOLA Balance', value: preciseCommify(balance, 0, true) },
             { label: 'Protocol Owned', value: preciseCommify(pol, 0, true) },
             { label: '$/day', value: preciseCommify(rewardDay, 0, true) },
-            { label: 'Avg. apy', value: `${shortenNumber(avgApy, 2)}%` },
+            { label: 'Avg. APY', value: `${shortenNumber(avgApy, 2)}%` },
         ]}
     />
 }
