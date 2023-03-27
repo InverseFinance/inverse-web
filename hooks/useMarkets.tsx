@@ -51,3 +51,20 @@ export const useOppys = (): SWR & {
     isError: error,
   }
 }
+
+export const useTokensData = (): SWR & {
+  hasError: boolean,
+  dola: { volume: number },
+  inv: { volume: number },
+  dbr: {volume: number },
+} => {  
+  const url = `/api/tokens-data`;
+  const { data, error } = useCustomSWR(url, fetcher);
+  return {
+    dola: data ? data?.dola : { volume: null },
+    dbr: data ? data?.dbr : { volume: null },
+    inv: data ? data?.inv : { volume: null },
+    isLoading: !data && !error,
+    hasError: !data && !!error,
+  };
+}
