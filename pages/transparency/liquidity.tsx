@@ -14,6 +14,8 @@ import { RadioSelector } from '@app/components/common/Input/RadioSelector';
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
 import { useState } from 'react';
 import moment from 'moment';
+import { useTokensData } from '@app/hooks/useMarkets';
+import { shortenNumber } from '@app/util/markets';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   return Object.entries(
@@ -28,7 +30,10 @@ const groupLpsBy = (lps: any[], attribute: string) => {
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
+  const { dola, inv, dbr } = useTokensData();
   const [category, setCategory] = useState('DOLA');
+
+  const volumes = { DOLA: dola?.volume||0, INV: inv?.volume||0, DBR: dbr?.volume||0 }
 
   const polsItems = liquidity.map(p => {
     return {
@@ -65,7 +70,7 @@ export const Liquidity = () => {
           <Text fontSize="12px">
             {`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
           </Text>
-          <Flex>
+          <Stack direction={{ base: 'column', sm: 'row' }}>
             <RadioSelector
               defaultValue="DOLA"
               value={category}
@@ -76,11 +81,15 @@ export const Liquidity = () => {
                 { value: 'DBR', label: <UnderlyingItemBlock symbol="DBR" /> },
               ]}
             />
-          </Flex>
+            <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
+              <Text>{category} 24h Vol.</Text>
+              <Text fontWeight="bold">{volumes[category] ? shortenNumber(volumes[category], 2, true) : '-'}</Text>
+            </VStack>
+          </Stack>
           {
             category === 'DOLA' ?
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: 'TOTAL DOLA Liquidity' }} />
+                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: `TOTAL DOLA Liquidity` }} />
                 <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity' }} />
                 <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
               </Stack>
