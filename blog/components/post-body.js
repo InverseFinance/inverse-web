@@ -26,8 +26,8 @@ const customMarkdownOptions = (content) => ({
         return <IframeContainer><iframe src={node.data.uri} frameBorder="0" allowFullScreen></iframe></IframeContainer>
       } else if ((node.data.uri).includes("youtube.com/embed")) {
         return <IframeContainer><iframe src={node.data.uri} allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" frameBorder="0" allowFullScreen></iframe></IframeContainer>
-      } else if ((node.data.uri).includes("youtube.com/watch") && !!node.data.uri.match(/v=([A-Za-z0-9]+)/)) {
-        const videoId = node.data.uri.match(/v=([A-Za-z0-9]+)/)[1]
+      } else if ((node.data.uri).includes("youtube.com/watch") && !!node.data.uri.match(/v=([A-Za-z0-9\-]+)/)) {
+        const videoId = node.data.uri.match(/v=([A-Za-z0-9\-]+)/)[1]
         const embedUri = `https://youtube.com/embed/${videoId}`
         return <IframeContainer><iframe src={embedUri} allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" frameBorder="0" allowFullScreen></iframe></IframeContainer>
       } else if (node.data.uri.includes('https://twitter.com') && node.data.uri.includes('/status/')) {
