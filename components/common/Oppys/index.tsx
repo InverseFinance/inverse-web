@@ -1,6 +1,6 @@
 
 import { useOppys } from '@app/hooks/useMarkets'
-import { YieldOppy } from '@app/types';
+import { NetworkIds, YieldOppy } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { Flex, HStack, Image, Text, VStack } from '@chakra-ui/react';
 import Container from '@app/components/common/Container';
@@ -14,7 +14,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { preciseCommify } from '@app/util/misc';
 import { UnderlyingItem } from '../Assets/UnderlyingItem';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
-import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
+import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 import { gaEvent } from '@app/util/analytics';
 
 const ColHeader = ({ ...props }) => {
@@ -99,17 +99,33 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
         value: ({ symbol, pool, project, chain, underlyingTokens }) => {
             const link = getPoolLink(project, pool, underlyingTokens);
-            const pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
+            let pairs = [];
+            let isFallbackCase = false;
+            try {
+                pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
+            } catch (e) {
+                isFallbackCase = true;
+            }
+            if (isFallbackCase) {
+                try {
+                    pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(TOKENS, sym)?.address) : underlyingTokens;
+                } catch (e) {}
+            }
+            const chainId = isFallbackCase ? NetworkIds.mainnet : NETWORKS_BY_NAME[chain]?.id;
             return <Cell justify="flex-start" minWidth="330px" maxWidth="330px" overflow="hidden" whiteSpace="nowrap">
                 <HStack borderBottom={!link ? undefined : "1px solid #fff"} onClick={() => gaEvent({ action: `oppys-lp-click-${symbol}-${project}` })}>
                     {
-                        !!link ?
-                            <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                <UnderlyingItem textProps={{ fontSize: '12px', ml: '2' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={NETWORKS_BY_NAME[chain]?.id} />
-                                <ExternalLinkIcon color="info" ml="1" />
-                            </Link>
-                            :
-                            <UnderlyingItem textProps={{ fontSize: '12px' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={NETWORKS_BY_NAME[chain]?.id} />
+                        pairs?.length > 0 ? <>
+                            {
+                                !!link ?
+                                    <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
+                                        <UnderlyingItem textProps={{ fontSize: '12px', ml: '2' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                                        <ExternalLinkIcon color="info" ml="1" />
+                                    </Link>
+                                    :
+                                    <UnderlyingItem textProps={{ fontSize: '12px' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            }
+                        </> : <Text>{symbol}</Text>
                     }
                 </HStack>
             </Cell>
