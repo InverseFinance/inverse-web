@@ -34,9 +34,11 @@ export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & {
     }
   }, [data]);
 
+  const _data = data || apiCacheData || localCacheData;
+
   return {
-    data: data || apiCacheData || localCacheData,
-    isLoading: !error && !data,
+    data: _data,
+    isLoading: !error && !_data,
     isError: error,
     error,
   }
