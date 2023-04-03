@@ -63,7 +63,7 @@ const columns = [
         value: ({ market }) => {
             const { name, icon, marketIcon, underlying } = market;
             return <Cell minWidth="100px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="20px" w="20px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <BigImageButton bg={`url('${marketIcon || icon || underlying?.image}')`} h="20px" w="20px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 <CellText>{name}</CellText>
             </Cell>
         },
@@ -121,7 +121,7 @@ export const DbrReplenishments = ({
 
     }) => {
     const { events, timestamp, isLoading } = useDBRReplenishments();
-   
+
     return <Container
         label="Last 100 Forced Replenishments"
         noPadding
