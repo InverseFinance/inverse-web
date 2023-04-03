@@ -1,4 +1,4 @@
-import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed } from '@app/types'
+import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed, NetworkIds } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR';
@@ -29,7 +29,7 @@ export const useDAO = (): SWR & DAO => {
     dolaSupplies: data?.dolaSupplies || [],
     invSupplies: data?.invSupplies || [],
     feds: data?.feds || defaultFedsData,
-    multisigs: data?.multisigs?.sort((a, b) => a.order - b.order) || [],
+    multisigs: (data?.multisigs?.sort((a, b) => a.order - b.order) || []).filter(m => m.chainId !== NetworkIds.polygon),
     pols: data?.pols || [],
     isLoading: !error && !data,
     isError: error,
