@@ -170,9 +170,10 @@ export const useDBRReplenishments = (): SWR & {
   timestamp: number,
 } => {
   const { data, error } = useCustomSWR(`/api/f2/dbr-replenishments`, fetcher);
+  const { markets } = useDBRMarkets();
 
   const eventsWithMarket = (data?.events || []).map(e => {
-    const market = F2_MARKETS.find(m => m.address === e.marketAddress);
+    const market = markets?.find(m => m.address === e.marketAddress);
     return {
       ...e,
       key: `${e.txHash}-${e.account}-${e.marketAddress}`,

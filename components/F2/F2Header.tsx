@@ -4,9 +4,8 @@ import { usePrices } from '@app/hooks/usePrices'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import { dollarify, shortenNumber } from '@app/util/markets'
 import { AnchorBigButton } from '../Anchor/AnchorBigButton'
-import { useAccountDBR, useDBRPrice } from '@app/hooks/useDBR'
+import { useDBRPrice } from '@app/hooks/useDBR'
 import { useRouter } from 'next/router'
-import { useAccount } from '@app/hooks/misc'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
 import { BUY_LINKS } from '@app/config/constants'
 
@@ -38,12 +37,10 @@ export const F2Header = () => {
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
   const { price: dbrPrice } = useDBRPrice();
-  const account = useAccount();
-  const { debt } = useAccountDBR(account);
 
   const getStarted = () => {
-    const newPath = router.asPath.replace(router.pathname, '/firm/WETH');
-    router.push(debt > 0 ? newPath : `${newPath}#step1`);
+    const newPath = router.asPath.replace(router.pathname, '/firm');
+    router.push(newPath);
   }
 
   // const apy = (rewardTokenMarket?.supplyApy || 100)?.toFixed(2);

@@ -218,7 +218,7 @@ export const F2Markets = ({
     const openMarket = (market: any) => {
         gaEvent({ action: `FiRM-list-open-market-${market.name}` });
         const newPath = router.asPath.replace(router.pathname, `/firm/${market.name}`);
-        router.push(debt > 0 ? newPath : `${newPath}#step1`);
+        router.push(newPath);
     }
 
     return <Container
