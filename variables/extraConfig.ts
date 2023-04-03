@@ -184,6 +184,15 @@ const mainConfig = {
             chainId: NetworkIds.arbitrum,
             order: 3.2,
         },
+        {
+            // placeholder address for now
+            address: '0xA4b291Ed1220310d3120f515B5B7AccaecD66F17',
+            name: 'Treasury Working Group on PLG',
+            shortName: 'TWG on PLG',
+            purpose: 'Optimize Inverse Treasury management on Polygon',            
+            chainId: NetworkIds.polygon,
+            order: 3.3,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };

@@ -26,6 +26,8 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "CASH": "https://assets.coingecko.com/coins/images/27558/small/cash.png?1677063931",
+    "MATIC": "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912",
     "MAI": "https://assets.coingecko.com/coins/images/15264/small/mimatic-red.png?1620281018",
     "ETH": "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
     "DAI": "https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png",
@@ -84,8 +86,7 @@ export const PROTOCOL_IMAGES = {
     "AURA": TOKEN_IMAGES.AURA,
     "CRV": TOKEN_IMAGES.CRV,
     "YFI": TOKEN_IMAGES.YFI,
-    "CVX": TOKEN_IMAGES.CVX,
-    "SATIN": TOKEN_IMAGES.SATIN,
+    "CVX": TOKEN_IMAGES.CVX,    
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",
     "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",        
     "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",        
@@ -97,6 +98,7 @@ export const PROTOCOL_IMAGES = {
     "RAMSES": TOKEN_IMAGES.RAM,
     "STERLING": TOKEN_IMAGES.STR,
     "ARCHLY": TOKEN_IMAGES.ARCHLY,
+    "SATIN": TOKEN_IMAGES.SATIN,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(
