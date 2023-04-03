@@ -18,14 +18,28 @@ import { useTokensData } from '@app/hooks/useMarkets';
 import Link from '@app/components/common/Link';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
-  return Object.entries(
+  const items = Object.entries(
     lps.reduce((prev, curr) => {
       return { ...prev, [curr[attribute]]: (prev[curr[attribute]] || 0) + curr.tvl };
     }, {})
   ).map(([key, val]) => {
-    const symbol = key.replace('true', 'With Fed').replace('false', 'Without Fed');
+    const symbol = key
+    .replace('true', 'With Fed')
+    .replace('false', 'Without Fed')
+    .replace(/-exchange/i, '')
+    .replace(/Arbitrum one/i, 'ARB')
+    .replace(/optimism/i, 'OP')
     return { balance: val, usdPrice: 1, token: { symbol } }
   });
+  // return items;
+  items.sort((a, b) => b.balance - a.balance);
+  if(items.length > 6) {    
+    const top5 = items.splice(0, 6);
+    const others = items.reduce((prev, curr) => ({ balance: prev.balance+curr.balance }), { balance: 0 });
+    return top5.concat({ balance: others.balance, usdPrice: 1, token: { symbol: 'Others' }  });
+  } else {
+    return items;
+  }
 }
 
 const VOLUME_LINKS = {
