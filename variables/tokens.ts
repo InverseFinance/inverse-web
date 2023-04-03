@@ -304,8 +304,8 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLADBRCLP]: {
       address: chainTokenAddresses["1"].DOLADBRCLP,
       poolAddress: '0x056ef502C1Fc5335172bc95EC4cAE16C2eB9b5b6',
-      name: 'DOLA-DBR CLP',
-      symbol: 'DOLA-DBR-CLP',
+      name: 'DOLA-DBR clp',
+      symbol: 'DOLA-DBR clp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
