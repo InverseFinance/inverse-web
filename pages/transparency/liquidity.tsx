@@ -27,7 +27,7 @@ const groupLpsBy = (lps: any[], attribute: string) => {
     .replace('true', 'With Fed')
     .replace('false', 'Without Fed')
     .replace(/-exchange/i, '')
-    .replace(/Arbitrum one/i, 'ARB')
+    .replace(/Arbitrum/i, 'ARB')
     .replace(/optimism/i, 'OP')
     return { balance: val, usdPrice: 1, token: { symbol } }
   });

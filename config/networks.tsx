@@ -184,7 +184,7 @@ const networks: Network[] = [
   {
     id: '42161',
     codename: NETWORK_CODENAMES.arbitrum,
-    name: 'Arbitrum One',
+    name: 'Arbitrum',
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: false,
