@@ -16,8 +16,7 @@ import { useDOLA } from "@app/hooks/useDOLA"
 import { BUY_LINKS } from "@app/config/constants"
 import { useFirmTVL } from "@app/hooks/useTVL"
 import 'add-to-calendar-button';
-import { shortenAddress } from '@app/util'
-import { timestampToUTC } from '@app/util/misc'
+import { DbrReminder } from "../DbrReminder"
 
 const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
@@ -110,7 +109,7 @@ export const MarketBar = ({
                     </SubTitle>
                 }
                 {
-                    needTopUp && <SubTitle color="inherit">
+                    needTopUp && <SubTitle color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
                         {shortenNumber(dbrBalance, 2)} Top-up now
                     </SubTitle>
                 }
@@ -207,7 +206,7 @@ export const DbrBar = ({
                 </SubTitle>
             }
             {
-                needTopUp && <SubTitle color="inherit">
+                needTopUp && <SubTitle textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
                     {shortenNumber(dbrBalance, 2)} Top-up now
                 </SubTitle>
             }
@@ -247,7 +246,7 @@ export const DbrBar = ({
                     <Title>
                         DBR Depletion Time
                     </Title>
-                    <SubTitle fontWeight={needsRechargeSoon ? 'bold' : 'inherit'} color={needsRechargeSoon ? 'warning' : 'secondaryTextColor'}>
+                    <SubTitle fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
                         {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
                         {/* {isLargerThan1000 && ` - ${moment(dbrExpiryDate).fromNow()}`} */}
                     </SubTitle>
@@ -256,20 +255,7 @@ export const DbrBar = ({
                     {/* <Title>
                         DBR Depletion Date
                     </Title> */}
-                    <add-to-calendar-button
-                        name="FiRM - DBR reminder"
-                        options="'Apple','Google', 'iCal', 'Outlook.com'"
-                        description={`NB: My DBR balance will be in deficit at this date (with current debt, needs an update if debt changes). I need to buy DBRs before so that I don't get force replenished which would be at a high cost for me!`}
-                        location="https://inverse.finance/firm"
-                        startDate={timestampToUTC(dbrExpiryDate)}
-                        timeZone="UTC"
-                        uid={`dbr-reminder`}
-                        size={1}
-                        inline={true}
-                        buttonStyle="date"
-                        label={dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
-                        // lightMode={}
-                    ></add-to-calendar-button>
+                    <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
                     {/* <SubTitle fontWeight={needsRechargeSoon ? 'bold' : 'inherit'} color={needsRechargeSoon ? 'warning' : 'secondaryTextColor'}>
                         {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
                     </SubTitle> */}
