@@ -136,6 +136,8 @@ const networks: Network[] = [
     coinSymbol: 'matic',
     isTestnet: false,
     isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.polygon}.png`,
+    scan: 'https://polygonscan.com',
   },
   {
     id: '80001',

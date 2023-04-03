@@ -177,6 +177,7 @@ export enum NetworkIds {
   optimism = '10',
   bsc = '56',
   arbitrum = '42161',
+  polygon = '137',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',
