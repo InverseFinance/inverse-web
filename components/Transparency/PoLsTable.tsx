@@ -91,7 +91,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ isFed }) => {
             return <Cell minWidth='70px' spacing="2" justify="center" alignItems="center" direction="row">
-                <CellText>{isFed ? 'Yes' : 'No'}</CellText>
+                <CellText fontWeight={isFed ? 'bold' : 'normal'}>{isFed ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
     },
