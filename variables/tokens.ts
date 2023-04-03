@@ -79,6 +79,7 @@ const chainTokenAddresses = {
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     INVETHCLP: '0xEAc004214F2ACa7a6BA01C7558cb4a85E7958ddD',
+    DOLADBRCLP: '0x0a6B1d9F920019BAbc4De3F10c94ECB822106104',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
@@ -270,6 +271,20 @@ const chainTokens = {
       isCrvLP: true,
       pairs: [
         chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+    },
+    [chainTokenAddresses["1"].DOLADBRCLP]: {
+      address: chainTokenAddresses["1"].DOLADBRCLP,
+      poolAddress: '0x056ef502C1Fc5335172bc95EC4cAE16C2eB9b5b6',
+      name: 'DOLA-DBR CLP',
+      symbol: 'DOLA-DBR-CLP',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
     },
