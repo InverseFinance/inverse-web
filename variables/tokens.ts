@@ -314,6 +314,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
+      link: 'https://curve.fi/#/ethereum/pools/factory-crypto-233/deposit',
     },
     [chainTokenAddresses["1"].INVDOLAAURA]: {
       address: chainTokenAddresses["1"].INVDOLAAURA,
@@ -454,7 +455,8 @@ const chainTokens = {
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].THREECRV
       ],
-      image: TOKEN_IMAGES.DOLA
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-v2-27/deposit',
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDC,
@@ -468,7 +470,8 @@ const chainTokens = {
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
       ],
-      image: TOKEN_IMAGES.DOLA
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
     },
     [chainTokenAddresses["1"].DOLAUSDCBALANCER]: {
       address: chainTokenAddresses["1"].DOLAUSDCBALANCER,
