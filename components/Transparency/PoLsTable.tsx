@@ -4,7 +4,7 @@ import { preciseCommify } from "@app/util/misc"
 import { shortenNumber } from "@app/util/markets"
 import Container from "../common/Container"
 import { UnderlyingItem } from "../common/Assets/UnderlyingItem"
-import { PROTOCOL_IMAGES, PROTOCOL_LINKS } from "@app/variables/images"
+import { PROTOCOL_IMAGES } from "@app/variables/images"
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
 import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
@@ -12,6 +12,7 @@ import moment from "moment"
 import { SkeletonBlob } from "../common/Skeleton"
 import Link from "../common/Link"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
+import { getLpLink } from "@app/variables/tokens"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -40,7 +41,7 @@ const columns = [
         </FilterItem>,
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         value: (lp) => {
-            const link = PROTOCOL_LINKS[lp.protocol] && PROTOCOL_LINKS[lp.protocol](lp);
+            const link = getLpLink(lp);
             return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
                 <Link textDecoration="underline" href={link} isExternal target="_blank" display="flex" justify="flex-start" alignItems="center" direction="row">
                     <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />

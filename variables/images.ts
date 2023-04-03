@@ -108,22 +108,3 @@ export const PROTOCOLS_BY_IMG = Object.fromEntries(
         .entries(PROTOCOL_IMAGES)
         .map(([key, value]) => [value, key])
 );
-
-export const PROTOCOL_LINKS = {
-    "VELO": (lp: Token) => 'https://app.velodrome.finance/liquidity/manage?address='+lp?.address?.toLowerCase(),
-    "THENA": (lp: Token) => 'https://thena.fi/liquidity',
-    "AURA": (lp: Token) => 'https://app.aura.finance',
-    "CRV": (lp: Token) => lp?.link || 'https://curve.fi/#/ethereum/pools',    
-    "CVX": (lp: Token) => 'https://www.convexfinance.com/stake',
-    "SUSHI": (lp: Token) => `https://www.sushi.com/earn/1:${lp?.address?.toLowerCase()}`,
-    "UNI": (lp: Token) => `https://v2.info.uniswap.org/pair/${lp?.address?.toLowerCase()}`,
-    "UNIV3": (lp: Token) => `https://info.uniswap.org/#/pools/${lp?.address?.toLowerCase()}`,
-    "BAL": (lp: Token) => `https://app.balancer.fi/#/ethereum/pool/${lp?.balancerInfos?.poolId}`,
-    "EULER": (lp: Token) => 'https://app.euler.finance',
-    "SOLIDLIZARD": (lp: Token) => `https://solidlizard.finance/liquidity/${lp?.address?.toLowerCase()}`,
-    "RAMSES": (lp: Token) => `https://app.ramses.exchange/liquidity/${lp?.address?.toLowerCase()}`,
-    "STERLING": (lp: Token) => `https://www.sterling.finance/liquidity/${lp?.address?.toLowerCase()}`,
-    "ARCHLY": (lp: Token) => `https://archly.fi/liquidity/${lp?.address}`,
-    // 404 on link with address
-    "SATIN": (lp: Token) => `https://satin.exchange/liquidity`,
-}
