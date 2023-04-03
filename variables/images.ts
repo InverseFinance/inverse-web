@@ -75,6 +75,7 @@ export const TOKEN_IMAGES = {
     "RAM": "https://assets.coingecko.com/coins/images/29420/small/RAM_Token_32x32.png?1678678321",
     "STR": "https://assets.coingecko.com/coins/images/29167/small/FullLogo_Transparent_NoBuffer.png?1677048104",
     "ARCHLY": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/6432.png",
+    "SATIN": "https://assets.coingecko.com/coins/images/29169/small/satin.png?1677050689",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -84,6 +85,7 @@ export const PROTOCOL_IMAGES = {
     "CRV": TOKEN_IMAGES.CRV,
     "YFI": TOKEN_IMAGES.YFI,
     "CVX": TOKEN_IMAGES.CVX,
+    "SATIN": TOKEN_IMAGES.SATIN,
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",
     "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",        
     "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",        
