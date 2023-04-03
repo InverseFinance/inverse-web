@@ -18,6 +18,9 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     else if(chainId === NetworkIds.arbitrum) {
         return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
     }
+    else if(chainId === NetworkIds.polygon) {
+        return new JsonRpcProvider('https://polygon.llamarpc.com');
+    }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
 

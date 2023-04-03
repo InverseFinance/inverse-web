@@ -1,3 +1,5 @@
+import { Token } from "@app/types";
+
 export const IMAGES = {
     INV: "/assets/inv-square-dark.jpeg",
     DOLA: "/assets/v2/dola-small.png",
@@ -26,6 +28,8 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "CASH": "https://assets.coingecko.com/coins/images/27558/small/cash.png?1677063931",
+    "MATIC": "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912",
     "MAI": "https://assets.coingecko.com/coins/images/15264/small/mimatic-red.png?1620281018",
     "ETH": "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
     "DAI": "https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png",
@@ -52,7 +56,7 @@ export const TOKEN_IMAGES = {
     "CRV": "https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484",
     "sdCRV": "https://assets.coingecko.com/coins/images/27756/small/scCRV-2.png?1665654580",
     "sdCRV-g": "https://assets.coingecko.com/coins/images/27756/small/scCRV-2.png?1665654580",
-    "vlCVX": "https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328",    
+    "vlCVX": "https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328",
     "vlAURA": "https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187",
     "AURA": "https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187",
     "BAL": "https://assets.coingecko.com/coins/images/11683/small/Balancer.png?1592792958",
@@ -61,7 +65,7 @@ export const TOKEN_IMAGES = {
     "yvUSDT": "https://assets.coingecko.com/coins/images/325/small/Tether-logo.png",
     "yvDAI": "https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png",
     "yvYFI": "https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png",
-    "yvWETH": "https://assets.coingecko.com/coins/images/2518/small/weth.png",    
+    "yvWETH": "https://assets.coingecko.com/coins/images/2518/small/weth.png",
     "VELO": "https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876",
     "USD+": "https://assets.coingecko.com/coins/images/25757/small/USD__logo.png?1653519267",
     "veVELO": "https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876",
@@ -75,18 +79,19 @@ export const TOKEN_IMAGES = {
     "RAM": "https://assets.coingecko.com/coins/images/29420/small/RAM_Token_32x32.png?1678678321",
     "STR": "https://assets.coingecko.com/coins/images/29167/small/FullLogo_Transparent_NoBuffer.png?1677048104",
     "ARCHLY": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/6432.png",
+    "SATIN": "https://assets.coingecko.com/coins/images/29169/small/satin.png?1677050689",
 }
 
 export const PROTOCOL_IMAGES = {
-    "VELO": TOKEN_IMAGES.VELO,    
+    "VELO": TOKEN_IMAGES.VELO,
     "THENA": TOKEN_IMAGES.THENA,
     "AURA": TOKEN_IMAGES.AURA,
     "CRV": TOKEN_IMAGES.CRV,
     "YFI": TOKEN_IMAGES.YFI,
     "CVX": TOKEN_IMAGES.CVX,
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",
-    "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",        
-    "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",        
+    "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",
+    "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",
     "BAL": "/assets/projects/balancer.png",
     "LIDO": 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png?1609873644',
     'OHM': 'https://assets.coingecko.com/coins/images/14483/small/token_OHM_%281%29.png?1628311611',
@@ -95,6 +100,7 @@ export const PROTOCOL_IMAGES = {
     "RAMSES": TOKEN_IMAGES.RAM,
     "STERLING": TOKEN_IMAGES.STR,
     "ARCHLY": TOKEN_IMAGES.ARCHLY,
+    "SATIN": TOKEN_IMAGES.SATIN,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(

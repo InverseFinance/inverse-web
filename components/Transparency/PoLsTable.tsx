@@ -10,6 +10,9 @@ import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
 import moment from "moment"
 import { SkeletonBlob } from "../common/Skeleton"
+import Link from "../common/Link"
+import { ExternalLinkIcon } from "@chakra-ui/icons"
+import { getLpLink } from "@app/variables/tokens"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -38,8 +41,12 @@ const columns = [
         </FilterItem>,
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         value: (lp) => {
+            const link = getLpLink(lp);
             return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
-                <UnderlyingItem textProps={{ fontSize: '12px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
+                <Link textDecoration="underline" href={link} isExternal target="_blank" display="flex" justify="flex-start" alignItems="center" direction="row">
+                    <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
+                    <ExternalLinkIcon color="info" ml="1" />
+                </Link>
             </Cell>
         },
     },
@@ -82,9 +89,9 @@ const columns = [
         showFilter: true,
         filterWidth: '70px',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
-        value: ({ isFed }) => {            
+        value: ({ isFed }) => {
             return <Cell minWidth='70px' spacing="2" justify="center" alignItems="center" direction="row">
-                <CellText>{isFed ? 'Yes' : 'No'}</CellText>
+                <CellText fontWeight={isFed ? 'bold' : 'normal'}>{isFed ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
     },

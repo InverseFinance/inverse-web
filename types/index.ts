@@ -18,6 +18,7 @@ export interface Token {
   isCrvLP?: boolean
   isVeloLP?: boolean
   isUniV3?: boolean
+  link?: string
   lpBalanceContract?: string
   // crv pool where lp token != pool contract
   poolAddress?: string
@@ -177,6 +178,7 @@ export enum NetworkIds {
   optimism = '10',
   bsc = '56',
   arbitrum = '42161',
+  polygon = '137',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',

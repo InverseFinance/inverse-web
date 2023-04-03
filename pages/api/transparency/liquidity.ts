@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.1`;
+export const liquidityCacheKey = `liquidity-v1.0.2`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -26,6 +26,12 @@ const PROTOCOL_DEFILLAMA_MAPPING = {
     "UNI": "uniswap-v2",
     "UNIV3": "uniswap-v3",
     "BAL": "balancer-v2",
+    // TODO: check if correct project names for the following when defillama adds support
+    "RAMSES": "ramses-exchange",
+    "STERLING": "sterling-exchange",
+    "SOLIDLIZARD": "solidlizard",
+    "SATIN": "satin-exchange",
+    "ARCHLY": "archly-exchange",
 }
 
 export default async function handler(req, res) {
@@ -62,6 +68,9 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.polygon]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.polygon, ...lp })),
         ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
@@ -75,8 +84,9 @@ export default async function handler(req, res) {
             [NetworkIds.mainnet]: TWG,
             [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
             [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
-            [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
+            [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,            
             [NetworkIds.arbitrum]: multisigsToShow.find(m => m.shortName === 'TWG on ARB 1')!,
+            [NetworkIds.polygon]: multisigsToShow.find(m => m.shortName === 'TWG on PLG')!,
         }
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];

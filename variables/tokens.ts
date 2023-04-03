@@ -1,7 +1,7 @@
 import { HAS_REWARD_TOKEN } from '@app/config/constants';
 import { Token, TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
-import { PROTOCOL_IMAGES, TOKEN_IMAGES } from './images';
+import { PROTOCOLS_BY_IMG, PROTOCOL_IMAGES, TOKEN_IMAGES } from './images';
 
 // TODO: refacto in cleaner way with markets and tokens
 
@@ -79,6 +79,7 @@ const chainTokenAddresses = {
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     INVETHCLP: '0xEAc004214F2ACa7a6BA01C7558cb4a85E7958ddD',
+    DOLADBRCLP: '0x0a6B1d9F920019BAbc4De3F10c94ECB822106104',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
@@ -127,9 +128,18 @@ const chainTokenAddresses = {
     THENADOLAFRAXLP: '0xFD66A4a4c921CD7194ABAb38655476a06fbAEa05',
     FRAX: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
   },
+  "137": {
+    DOLA: '0xbC2b48BC930Ddc4E5cFb2e87a45c379Aab3aac5C',
+    CASH: '0x80487b4f8f70e793A81a42367c225ee0B94315DF',
+    MAI: '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1',
+    MAIDOLASATLP: '0x72b11596523B35b2ACac5A33915b6297f5e942Ac',
+    CASHDOLASATLP: '0x2c5BE0526343A5057B2e10372e64845d666e7140',
+  },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
     USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    FRAX: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+    MAI: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
     RAM: '0xAAA6C1E32C55A7Bfa8066A6FAE9b42650F262418',
     STR: '0x5DB7b150c5F38c5F5db11dCBDB885028fcC51D68',
     SLIZ: '0x463913D3a3D3D291667D53B8325c598Eb88D3B0e',
@@ -138,6 +148,8 @@ const chainTokenAddresses = {
     VERAM: '0xAAA343032aA79eE9a6897Dab03bef967c3289a06',
     SLIZDOLAUSDCLP: '0xDf58C5f73ea1c9003ABFEB9194EB817D256cb3Ad',
     RAMDOLAUSDCLP: '0xDd8b120DdaE0F19b922324012816F2F3Ce529BF8',
+    RAMDOLAMAILP: '0x052f7890E50fb5b921BCAb3B10B79a58A3B9d40f',
+    RAMDOLAFRAXLP: '0x1850e96550d6716d43bA4d7DF815FfC32bD0d03e',
     STERLINGDOLAUSDCLP: '0x8806e6B5F57C780180827E77115794d9C8100Cb7',
   },
 }
@@ -166,6 +178,22 @@ const USDC = {
   coingeckoId: 'usd-coin',
   image: TOKEN_IMAGES.USDC,
   decimals: 6,
+}
+
+const FRAX = {
+  name: 'FRAX',
+  symbol: 'FRAX',
+  coingeckoId: 'frax',
+  image: TOKEN_IMAGES.FRAX,      
+  decimals: 18,
+}
+
+const MAI = {
+  name: 'MIMATIC',
+  symbol: 'MAI',
+  image: TOKEN_IMAGES['MAI'],
+  decimals: 18,
+  coingeckoId: 'mimatic',
 }
 
 const chainTokens = {
@@ -272,6 +300,21 @@ const chainTokens = {
         chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
+    },
+    [chainTokenAddresses["1"].DOLADBRCLP]: {
+      address: chainTokenAddresses["1"].DOLADBRCLP,
+      poolAddress: '0x056ef502C1Fc5335172bc95EC4cAE16C2eB9b5b6',
+      name: 'DOLA-DBR CLP',
+      symbol: 'DOLA-DBR-CLP',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      link: 'https://curve.fi/#/ethereum/pools/factory-crypto-233/deposit',
     },
     [chainTokenAddresses["1"].INVDOLAAURA]: {
       address: chainTokenAddresses["1"].INVDOLAAURA,
@@ -412,7 +455,8 @@ const chainTokens = {
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].THREECRV
       ],
-      image: TOKEN_IMAGES.DOLA
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-v2-27/deposit',
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDC,
@@ -426,7 +470,8 @@ const chainTokens = {
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
       ],
-      image: TOKEN_IMAGES.DOLA
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
     },
     [chainTokenAddresses["1"].DOLAUSDCBALANCER]: {
       address: chainTokenAddresses["1"].DOLAUSDCBALANCER,
@@ -506,11 +551,7 @@ const chainTokens = {
     },
     [chainTokenAddresses["1"].FRAX]: {
       address: chainTokenAddresses["1"].FRAX,
-      name: 'FRAX',
-      symbol: 'FRAX',
-      coingeckoId: 'frax',
-      image: TOKEN_IMAGES.FRAX,      
-      decimals: 18,
+      ...FRAX,
     },
     [chainTokenAddresses["1"].FLOKI]: {
       address: chainTokenAddresses["1"].FLOKI,
@@ -788,19 +829,11 @@ const chainTokens = {
     },
     [chainTokenAddresses["10"].MAI]: {
       address: chainTokenAddresses["10"].MAI,
-      name: 'MIMATIC',
-      symbol: 'MAI',
-      image: TOKEN_IMAGES['MAI'],
-      decimals: 18,
-      coingeckoId: 'mimatic',
+      ...MAI,
     },
     [chainTokenAddresses["10"].FRAX]: {
       address: chainTokenAddresses["10"].FRAX,
-      name: 'FRAX',
-      symbol: 'FRAX',
-      image: TOKEN_IMAGES['FRAX'],
-      decimals: 18,
-      coingeckoId: 'frax',
+      ...FRAX,
     },
     [chainTokenAddresses["10"].VEVELO]: {
       address: chainTokenAddresses["10"].VEVELO,
@@ -937,11 +970,7 @@ const chainTokens = {
     },
     [chainTokenAddresses["56"].FRAX]: {
       address: chainTokenAddresses["56"].FRAX,
-      name: 'FRAX',
-      symbol: 'FRAX',
-      coingeckoId: 'frax',
-      image: TOKEN_IMAGES.FRAX,      
-      decimals: 18,
+      ...FRAX,
     },
     [chainTokenAddresses["56"].CUSD]: {
       address: chainTokenAddresses["56"].CUSD,
@@ -993,17 +1022,79 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.THENA,
     },
   },
+  "137": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'MATIC',
+      symbol: 'MATIC',
+      coingeckoId: 'matic-network',
+      image: TOKEN_IMAGES.MATIC,
+      decimals: 18,
+    },
+    [chainTokenAddresses["137"].DOLA]: {
+      ...DOLA,
+      address: chainTokenAddresses["137"].DOLA,
+    },
+    [chainTokenAddresses["137"].MAI]: {
+      address: chainTokenAddresses["137"].MAI,
+      ...MAI,
+    },
+    [chainTokenAddresses["137"].CASH]: {
+      address: chainTokenAddresses["137"].CASH,
+      name: 'CASH',
+      symbol: 'CASH',
+      image: TOKEN_IMAGES['CASH'],
+      decimals: 18,
+      // coingeckoId: 'cash',
+    },
+    [chainTokenAddresses["137"].MAIDOLASATLP]: {
+      address: chainTokenAddresses["137"].MAIDOLASATLP,
+      name: 'DOLA-MAI satlp',
+      symbol: 'DOLA-MAI satlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["137"].MAI, chainTokenAddresses["137"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.SATIN,      
+    },
+    [chainTokenAddresses["137"].CASHDOLASATLP]: {
+      address: chainTokenAddresses["137"].CASHDOLASATLP,
+      name: 'DOLA-CASH satlp',
+      symbol: 'DOLA-CASH satlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["137"].CASH, chainTokenAddresses["137"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.SATIN,      
+    },
+  },
   "42161": {
     CHAIN_COIN: {
       ...ETH,
     },
     [chainTokenAddresses["42161"].DOLA]: {
       ...DOLA,
-      address: [chainTokenAddresses["42161"].DOLA],
+      address: chainTokenAddresses["42161"].DOLA,
     },
     [chainTokenAddresses["42161"].USDC]: {
       ...USDC,
       address: chainTokenAddresses["42161"].USDC,
+    },
+    [chainTokenAddresses["42161"].FRAX]: {
+      ...FRAX,
+      address: chainTokenAddresses["42161"].FRAX,
+    },
+    [chainTokenAddresses["42161"].MAI]: {
+      ...MAI,
+      address: chainTokenAddresses["42161"].MAI,
     },
     [chainTokenAddresses["42161"].RAM]: {
       address: chainTokenAddresses["42161"].RAM,
@@ -1074,6 +1165,36 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.RAMSES,
       twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
     },
+    [chainTokenAddresses["42161"].RAMDOLAMAILP]: {
+      address: chainTokenAddresses["42161"].RAMDOLAMAILP,
+      name: 'DOLA-MAI rlp',
+      symbol: 'DOLA-MAI rlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["42161"].MAI, chainTokenAddresses["42161"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.RAMSES,
+      twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+    },
+    [chainTokenAddresses["42161"].RAMDOLAFRAXLP]: {
+      address: chainTokenAddresses["42161"].RAMDOLAFRAXLP,
+      name: 'DOLA-FRAX rlp',
+      symbol: 'DOLA-FRAX rlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["42161"].FRAX, chainTokenAddresses["42161"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.RAMSES,
+      twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+    },
     [chainTokenAddresses["42161"].STERLINGDOLAUSDCLP]: {
       address: chainTokenAddresses["42161"].STERLINGDOLAUSDCLP,
       name: 'DOLA-USDC stlp',
@@ -1102,7 +1223,7 @@ const chainTokens = {
         chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
       ],
       protocolImage: PROTOCOL_IMAGES.SOLIDLIZARD,
-    }
+    },
   }
 }
 chainTokens["31337"] = chainTokens["1"];
@@ -1275,3 +1396,27 @@ export const REPAY_ALL_CONTRACTS = {
 }
 
 export const CHAIN_TOKEN_ADDRESSES = chainTokenAddresses;
+
+export const PROTOCOL_LINKS = {
+  "VELO": (lp: Token) => 'https://app.velodrome.finance/liquidity/manage?address='+lp?.address?.toLowerCase(),
+  "THENA": (lp: Token) => 'https://thena.fi/liquidity',
+  "AURA": (lp: Token) => 'https://app.aura.finance',
+  "CRV": (lp: Token) => lp?.link || 'https://curve.fi/#/ethereum/pools',    
+  "CVX": (lp: Token) => 'https://www.convexfinance.com/stake',
+  "SUSHI": (lp: Token) => `https://www.sushi.com/earn/1:${lp?.address?.toLowerCase()}`,
+  "UNI": (lp: Token) => `https://v2.info.uniswap.org/pair/${lp?.address?.toLowerCase()}`,
+  "UNIV3": (lp: Token) => `https://info.uniswap.org/#/pools/${lp?.address?.toLowerCase()}`,
+  "BAL": (lp: Token) => `https://app.balancer.fi/#/ethereum/pool/${lp?.balancerInfos?.poolId}`,
+  "EULER": (lp: Token) => 'https://app.euler.finance',
+  "SOLIDLIZARD": (lp: Token) => `https://solidlizard.finance/liquidity/${lp?.address?.toLowerCase()}`,
+  "RAMSES": (lp: Token) => `https://app.ramses.exchange/liquidity/${lp?.address?.toLowerCase()}`,
+  "STERLING": (lp: Token) => `https://www.sterling.finance/liquidity/${lp?.address?.toLowerCase()}`,
+  "ARCHLY": (lp: Token) => `https://archly.fi/liquidity/${lp?.address}`,
+  // 404 on link with address
+  "SATIN": (lp: Token) => `https://satin.exchange/liquidity`,
+}
+
+export const getLpLink = (lp: Token) => {
+  const protocol = PROTOCOLS_BY_IMG[lp?.protocolImage];
+  return PROTOCOL_LINKS[protocol] ? PROTOCOL_LINKS[protocol](lp) : '';
+}
