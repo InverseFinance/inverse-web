@@ -9,13 +9,13 @@ import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 import { InfoMessage } from '@app/components/common/Messages';
 import { Funds } from '@app/components/Transparency/Funds';
-import { capitalize } from '@app/util/misc';
+import { capitalize, preciseCommify } from '@app/util/misc';
 import { RadioSelector } from '@app/components/common/Input/RadioSelector';
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
 import { useState } from 'react';
 import moment from 'moment';
 import { useTokensData } from '@app/hooks/useMarkets';
-import { shortenNumber } from '@app/util/markets';
+import Link from '@app/components/common/Link';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   return Object.entries(
@@ -28,12 +28,18 @@ const groupLpsBy = (lps: any[], attribute: string) => {
   });
 }
 
+const VOLUME_LINKS = {
+  'DBR': 'https://www.livecoinwatch.com/price/DolaBorrowingRight-DBR',
+  'DOLA': 'https://www.livecoinwatch.com/price/DolaUSDStablecoin-DOLA',
+  'INV': 'https://www.livecoinwatch.com/price/InverseFinance-_INV',
+}
+
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
   const { dola, inv, dbr } = useTokensData();
   const [category, setCategory] = useState('DOLA');
 
-  const volumes = { DOLA: dola?.volume||0, INV: inv?.volume||0, DBR: dbr?.volume||0 }
+  const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
   const polsItems = liquidity.map(p => {
     return {
@@ -83,7 +89,9 @@ export const Liquidity = () => {
             />
             <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
               <Text>{category} 24h Vol.</Text>
-              <Text fontWeight="bold">{volumes[category] ? shortenNumber(volumes[category], 2, true) : '-'}</Text>
+              <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={VOLUME_LINKS[category]}>
+                {volumes[category] ? preciseCommify(volumes[category], 0, true) : '-'}
+              </Link>
             </VStack>
           </Stack>
           {
