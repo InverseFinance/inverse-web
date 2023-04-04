@@ -138,7 +138,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 }
                                             </VStack>
                                 }
-                                <FirmFAQ collapsable={true} defaultCollapse={true} />                                
+                                <FirmFAQ collapsable={true} defaultCollapse={false} />                                
                             </VStack>
                         </F2Context>
                 }
