@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, FormControl, FormLabel, Switch, useDisclosure, Checkbox } from '@chakra-ui/react'
+import { VStack, Text, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { useEffect, useState } from 'react'
@@ -18,13 +18,12 @@ import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContain
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
-import ConfirmModal from '@app/components/common/Modal/ConfirmModal'
+import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const { isOpen, onOpen, onClose } = useDisclosure();
     const [inited, setInited] = useState(false);
     const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
@@ -53,32 +52,13 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
-            <ErrorBoundary description="Error in the market page, please try reloading">
-            <ConfirmModal                
-                title="Before borrowing"
-                isOpen={true}
-                onClose={onClose}
-                onOk={onOpen}
-                onCancel={onClose}
-                // okDisabled={hasError}
-                okLabel="Continue"
-                modalProps={{ minW: { base: '98vw', lg: '500px' }, scrollBehavior: 'inside' }}
-            >
-                <VStack spacing="4" p='4' alignItems="flex-start">
-                    <FirmFAQ collapsable={true} defaultCollapse={true} />
-                    <Checkbox spacing='1rem' size='sm' value='true' fontSize='14px'>
-                        I read the FAQ and know that my DBR balance will go down over time when having an active loan. To avoid replenishment fees, I need to keep a positive DBR balance.
-                    </Checkbox>
-                    <Checkbox spacing='1rem' size='sm'>
-                        Don't show this modal again.
-                    </Checkbox>
-                </VStack>
-            </ConfirmModal>
+            <ErrorBoundary description="Error in the market page, please try reloading">            
                 {
                     !f2market || !market ? <Text mt="8">
                         {!f2market ? 'Loading...' : 'Market not found!'}
                     </Text>
                         : <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
+                            <FirstTimeModal />
                             <VStack
                                 pt="4"
                                 w='full'

@@ -1,4 +1,4 @@
-import { useMediaQuery, FlexProps } from '@chakra-ui/react'
+import { useMediaQuery, FlexProps, useDisclosure } from '@chakra-ui/react'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
@@ -12,6 +12,7 @@ import { useAccount } from '@app/hooks/misc'
 import React from 'react'
 import { useRouter } from 'next/router'
 import { useDOLABalance } from '@app/hooks/useDOLA'
+import useStorage from '@app/hooks/useStorage'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -74,6 +75,9 @@ export const F2Context = ({
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { price: dbrPrice } = useDBRPrice();
     const isMountedRef = useRef(true)
+    const firstTimeModalResolverRef = useRef(() => {});
+    const { isOpen: isFirstTimeModalOpen, onOpen: onFirstTimeModalOpen, onClose: onFirstTimeModalClose } = useDisclosure();
+    const { value: notFirstTime, setter: setNotFirstTime } = useStorage('firm-first-time-modal-no-more');
     const colDecimals = market.underlying.decimals;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow } = useAccountDBRMarket(market, account, isUseNativeCoin);
@@ -279,6 +283,17 @@ export const F2Context = ({
             handleDurationChange,
             handleDebtChange,
             handleCollateralChange,
+            notFirstTime,
+            setNotFirstTime,
+            isFirstTimeModalOpen,
+            onFirstTimeModalOpen: async () => {
+                onFirstTimeModalOpen();
+                return new Promise((res) => {
+                    firstTimeModalResolverRef.current = res;                                     
+                });
+            },            
+            onFirstTimeModalClose,
+            firstTimeModalResolverRef,
         }}
         {...props}
     />
