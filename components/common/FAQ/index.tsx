@@ -1,10 +1,11 @@
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel } from "@chakra-ui/accordion"
-import { Box } from "@chakra-ui/react"
+import { Box, TextProps } from "@chakra-ui/react"
 import Container from "../Container"
 import { useAppTheme } from "@app/hooks/useAppTheme"
 
 export type FAQType = {
     label: string
+    labelProps?: TextProps
     defaultCollapse?: boolean
     collapsable?: boolean
     items: {
@@ -37,6 +38,7 @@ export const AccordionItemTemplate = ({
 
 export const FAQ = ({
     label = 'FAQ',
+    labelProps,
     items,
     collapsable = false,
     defaultCollapse = false,
@@ -44,6 +46,7 @@ export const FAQ = ({
     const { themeStyles } = useAppTheme();
     return <Container
         label={label}
+        labelProps={labelProps}
         noPadding
         p="0"
         collapsable={collapsable}

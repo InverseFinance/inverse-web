@@ -19,7 +19,6 @@ import { NavButtons } from '@app/components/common/Button'
 import Link from '@app/components/common/Link'
 import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
-import { roundFloorString } from '@app/util/misc'
 import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
 import { showToast } from '@app/util/notify'
@@ -89,7 +88,8 @@ export const F2CombinedForm = ({
         setDbrBuySlippage,
         maxBorrow,
         deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
-        newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt
+        newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newTotalDebt,
+        notFirstTime, onFirstTimeModalOpen,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -105,6 +105,12 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
+        if(!notFirstTime) {
+            const firstTimeAction = await onFirstTimeModalOpen();
+            if(firstTimeAction !== 'continue') {
+                return
+            }
+        }
         const action = MODES[mode]
         let maxDolaIn;
         if (isAutoDBR) {

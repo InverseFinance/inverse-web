@@ -56,6 +56,8 @@ export const F2WalkthroughRecap = ({
         isUseNativeCoin,
         dbrBuySlippage,
         setDbrBuySlippage,
+        notFirstTime,
+        onFirstTimeModalOpen,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -81,6 +83,12 @@ export const F2WalkthroughRecap = ({
     }
 
     const handleAction = async () => {
+        if(!notFirstTime) {
+            const firstTimeAction = await onFirstTimeModalOpen();
+            if(firstTimeAction !== 'continue') {
+                return
+            }
+        }
         if (market.helper) {
             let maxDolaIn;   
             const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
