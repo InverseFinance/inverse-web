@@ -3,6 +3,7 @@ import { Checkbox, VStack } from "@chakra-ui/react"
 import { FirmFAQ } from "../Infos/FirmFAQ"
 import { useContext, useState } from "react";
 import { F2MarketContext } from "../F2Contex";
+import { gaEvent } from "@app/util/analytics";
 
 export const FirstTimeModal = () => {
     const [isFaqRead, setIsFaqRead] = useState(false);
@@ -19,6 +20,7 @@ export const FirstTimeModal = () => {
         onFirstTimeModalClose();
         setIsFaqRead(false);
         setDontRemindMe(true);
+        gaEvent({ action: 'FiRM-first-time-modal-cancel' });
     };
 
     const ok = () => {
@@ -27,6 +29,7 @@ export const FirstTimeModal = () => {
         if(dontRemindMe) {
             setNotFirstTime(true);
         }
+        gaEvent({ action: 'FiRM-first-time-modal-continue' });
     };
 
     return <ConfirmModal

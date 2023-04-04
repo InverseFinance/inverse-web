@@ -6,13 +6,13 @@ import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useD
 import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
-
 import { useWeb3React } from '@web3-react/core'
 import { useAccount } from '@app/hooks/misc'
 import React from 'react'
 import { useRouter } from 'next/router'
 import { useDOLABalance } from '@app/hooks/useDOLA'
 import useStorage from '@app/hooks/useStorage'
+import { gaEvent } from '@app/util/analytics'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -287,6 +287,7 @@ export const F2Context = ({
             setNotFirstTime,
             isFirstTimeModalOpen,
             onFirstTimeModalOpen: async () => {
+                gaEvent({ action: 'FiRM-first-time-modal-open' });
                 onFirstTimeModalOpen();
                 return new Promise((res) => {
                     firstTimeModalResolverRef.current = res;                                     
