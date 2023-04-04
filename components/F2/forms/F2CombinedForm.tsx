@@ -105,7 +105,7 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
-        if(!notFirstTime) {
+        if(!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
             if(firstTimeAction !== 'continue') {
                 return
