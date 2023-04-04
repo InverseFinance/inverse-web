@@ -57,6 +57,9 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                         <FaqLink href="/transparency/dbr">
                             Transparency page
                         </FaqLink>
+                        <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr">
+                            Docs: DBR
+                        </FaqLink>
                         <iframe style={{ maxWidth: '500px', marginTop: "10px" }} width="100%" height="300px" src="https://www.youtube.com/embed/KcVz1l4VXrM" title="DBR explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                     </FaqStack>
                 },
@@ -64,10 +67,13 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     title: 'What is DOLA?',
                     body: <FaqStack alignItems="flex-start">
                         <FaqText>
-                            DOLA is a stablecoin pegged to the US Dollar. This means it is designed to be valued as close to $1 as possible with minimal volatility. <b>DOLA is debt-backed</b> rather than algorithmic, meaning that <b>DOLA is backed by retractable debt</b>.
+                            DOLA is a <b>debt-backed stablecoin</b> that is pegged to the US Dollar, ensuring minimal volatility and a value close to $1. Contrary to algorithmic stablecoins, DOLA's value is <b>backed by retractable debt</b>.
                         </FaqText>
                         <FaqLink href="/transparency/dola">
                             Transparency page
+                        </FaqLink>
+                        <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola">
+                            Docs: DOLA
                         </FaqLink>
                         <iframe style={{ maxWidth: '500px', marginTop: "10px" }} width="100%" height="300px" src="https://www.youtube.com/embed/OiOL0xaRdug" title="DOLA explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                     </FaqStack>,
@@ -85,6 +91,9 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                         <FaqLink href={BUY_LINKS.DBR}>
                             Buy DBR
                         </FaqLink>
+                        <FaqLink href={'/claim-dbr'}>
+                            Check DBR airdrop eligibility
+                        </FaqLink>
                     </FaqStack>
                 },
                 {
@@ -99,14 +108,17 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     title: 'What happens if I run out of DBRs?',
                     body: <FaqStack>
                         <FaqText>
-                            If you have a <b>DBR deficit</b> and an active loan then <b>someone can top-up your DBR balance</b>, this process called replenishment can be costly for you as replenishment uses a premium price for DBR.
+                            In case of a <b>DBR deficit</b> and an active loan, your <b>DBR balance can be force recharged</b> by someone through a <b>costly</b> process called replenishment, which uses a <b>premium price for DBR</b>.
                         </FaqText>
                         <FaqText>
-                            The cost of this forced top-up is <b>added to your debt</b> which <b>can lead to liquidations if left unchecked</b>, so it is <b>recommended that you top up your DBR</b> wallet balance yourself <b>before it runs out</b>.
+                            <b>This cost is added to your debt</b>, which can result in <b>liquidations</b> if not taken care of.
                         </FaqText>
                         <FaqText>
-                            Tip: use the "add to calendar feature" to not forget about the DBR depletion date
+                            <b>Tip</b>: use the <b>FiRM DBR reminder</b> feature and add the <b>DBR depletion date</b> to your calendar to ensure that you do not forget to buy DBRs before that date.
                         </FaqText>
+                        <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr">
+                            Docs: Recharging & Liquidations
+                        </FaqLink>
                     </FaqStack>
                 },
                 {
