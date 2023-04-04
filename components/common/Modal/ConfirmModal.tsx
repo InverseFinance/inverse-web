@@ -1,5 +1,5 @@
 import { Modal } from '@app/components/common/Modal';
-import { HStack, Stack, Text, TextareaProps } from '@chakra-ui/react';
+import { HStack, ModalProps, Stack, Text, TextareaProps } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { ReactNode } from 'react';
 
@@ -18,6 +18,7 @@ export type Props = {
     onOk?: () => void
     onSuccess?: (t?: any) => any
     children?: ReactNode
+    modalProps?: ModalProps
 }
 
 const ConfirmModal = ({
@@ -30,6 +31,7 @@ const ConfirmModal = ({
     onClose,
     onSuccess,
     onOk,
+    modalProps,
     children,
 }: Props) => {
     const handleOk = () => {
@@ -60,6 +62,7 @@ const ConfirmModal = ({
                     <SubmitButton disabled={okDisabled} refreshOnSuccess={true} onClick={handleOk} onSuccess={handleSuccess}>{okLabel}</SubmitButton>
                 </HStack>
             }
+            {...modalProps}
         >
             {children ? children : <></>}
         </Modal>
