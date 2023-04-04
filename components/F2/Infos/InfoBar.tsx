@@ -122,7 +122,11 @@ export const MarketBar = ({
             </SubTitle>
         </VStack>
         {isLargerThan && <DbrBalance alignItems={{ base: 'flex-end', md: 'flex-start' }} />}
-        {isLargerThan && debt > 0 && <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />}
+        {isLargerThan && debt > 0 && <VStack h='80px' w='202px'>
+            <VStack position="absolute">
+                <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
+            </VStack>
+        </VStack>}
         {/* {
             debt > 0 && isLargerThan1000 && loanInfos
         } */}
@@ -179,8 +183,10 @@ export const MarketBar = ({
             {
                 debt > 0 && !isLargerThan && <HStack w='full' justify="space-between">
                     <DbrBalance alignItems={{ base: 'flex-start' }} depletedLabel='Top-up' />
-                    <VStack>
-                        <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
+                    <VStack h='80px' w='202px'>
+                        <VStack position="absolute">
+                            <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
+                        </VStack>
                     </VStack>
                 </HStack>
             }
