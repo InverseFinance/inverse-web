@@ -12,6 +12,7 @@ export type FAQType = {
         title: string
         body: any
     }[]
+    smaller?: boolean
 }
 
 export const AccordionItemTemplate = ({
@@ -42,6 +43,7 @@ export const FAQ = ({
     items,
     collapsable = false,
     defaultCollapse = false,
+    smaller = false,
 }: FAQType) => {
     const { themeStyles } = useAppTheme();
     return <Container
@@ -52,6 +54,7 @@ export const FAQ = ({
         collapsable={collapsable}
         defaultCollapse={defaultCollapse}
         lineHeight="0"
+        fontSize={smaller ? '14px' : undefined}
     >
         <Accordion w='full' allowMultiple>
             {
@@ -59,13 +62,13 @@ export const FAQ = ({
                     return <AccordionItem border="none" borderBottom={i < (items.length - 1) ? `1px solid ${themeStyles.colors.mainTextColor}33` : 'none'} key={item.title}>
                         <h2>
                             <AccordionButton >
-                                <Box flex='1' lineHeight="normal" textAlign='left' color="mainTextColor" fontWeight="bold" fontSize="lg">
+                                <Box flex='1' lineHeight="normal" textAlign='left' color="mainTextColor" fontWeight="bold" fontSize={smaller ? '14px' : 'lg'}>
                                     {item.title}
                                 </Box>
                                 <AccordionIcon />
                             </AccordionButton>
                         </h2>
-                        <AccordionPanel lineHeight="1.5" pb={4} color="secondaryTextColor">
+                        <AccordionPanel lineHeight="1.5" pb={4} color="secondaryTextColor" fontSize={smaller ? '14px' : undefined}>
                             {item.body}
                         </AccordionPanel>
                     </AccordionItem>

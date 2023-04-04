@@ -40,11 +40,11 @@ export const FirstTimeModal = () => {
         modalProps={{ minW: { base: '98vw', lg: '600px' }, scrollBehavior: 'inside' }}
     >
         <VStack spacing="4" p='4' alignItems="flex-start">
-            <FirmFAQ collapsable={true} defaultCollapse={true} labelProps={{ fontSize: '14px' }} />
+            <FirmFAQ smaller={true} collapsable={true} defaultCollapse={true} labelProps={{ fontSize: '14px' }} />
             <Checkbox isChecked={isFaqRead} onChange={() => setIsFaqRead(!isFaqRead)} spacing='1rem' size='sm' value='true' fontSize='14px'>
                 I read the FAQ and know that my DBR balance will go down over time when having an active loan. To avoid replenishment fees, I need to keep a positive DBR balance in my wallet.
             </Checkbox>
-            <Checkbox isChecked={dontRemindMe} onChange={() => setIsFaqRead(!dontRemindMe)} spacing='1rem' size='sm'>
+            <Checkbox isChecked={dontRemindMe} onChange={() => setDontRemindMe(!dontRemindMe)} spacing='1rem' size='sm'>
                 Don't show this modal again.
             </Checkbox>
         </VStack>

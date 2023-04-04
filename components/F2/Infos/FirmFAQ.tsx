@@ -14,7 +14,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
             [
                 {
                     title: 'What is FiRM?',
-                    body: <FaqStack>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
                         <FaqText><b>FiRM</b> is a new <b>Fixed-Rate Market</b> for borrowing DOLA using DBR tokens and it is focused on <b>simplicity and safety</b>.</FaqText>
                         <FaqText>
                             All markets are isolated and collaterals cannot be borrowed by others.
@@ -24,7 +24,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'How safe is FiRM?',
-                    body: <FaqStack>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
                         <FaqText>
                             <b>FiRM</b> has a <b>high score of 87% on DefiSafety</b> and has <b>several unique safety features</b>.
                         </FaqText>
@@ -84,7 +84,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'How can I get DBR tokens?',
-                    body: <FaqStack>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
                         <FaqText color="secondaryTextColor">
                             Either via the airdrop if you're eligible, on DEXes, or via the auto-buy DBR feature when borrowing.
                         </FaqText>
@@ -106,7 +106,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'What happens if I run out of DBRs?',
-                    body: <FaqStack>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
                         <FaqText>
                             In case of a <b>DBR deficit</b> and an active loan, your <b>DBR balance can be force recharged</b> by someone through a <b>costly</b> process called replenishment, which uses a <b>premium price for DBR</b>.
                         </FaqText>
