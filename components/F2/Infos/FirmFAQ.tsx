@@ -4,7 +4,7 @@ import { BUY_LINKS } from "@app/config/constants"
 import { VStack, Text, TextProps } from "@chakra-ui/react"
 
 const FaqText = (props: TextProps) => <Text color="secondaryTextColor" lineHeight="1.5" {...props} />
-const FaqStack = (props: TextProps) => <VStack alignItems="flex-start" spacing="1" {...props} />
+const FaqStack = (props: TextProps) => <VStack alignItems="flex-start" spacing="2" {...props} />
 const FaqLink = (props: TextProps) => <Link fontWeight="bold" style={{ 'text-decoration-skip-ink': 'none' }} mt="10px" color="mainTextColor" textDecoration="underline" isExternal target="_blank" {...props} />
 
 export const FirmFAQ = (props: Partial<FAQType>) => {
