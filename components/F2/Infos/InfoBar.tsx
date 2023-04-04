@@ -269,7 +269,7 @@ export const DbrBar = ({
                         DBR Depletion Time
                     </Title>
                     <SubTitle display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
-                        <WarningTwoIcon mr="1" />{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
+                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
                         {/* {isLargerThan1000 && ` - ${moment(dbrExpiryDate).fromNow()}`} */}
                     </SubTitle>
                 </VStack>
