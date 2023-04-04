@@ -41,7 +41,7 @@ export const F2PAGE = () => {
                         <F2Markets />                        
                     </ErrorBoundary>
                     <VStack py="6" px='6' w='full'>                    
-                        <FirmFAQ defaultCollapse={true} collapsable={true} />
+                        <FirmFAQ collapsable={true} defaultCollapse={false} />
                     </VStack>
                 </VStack>
             </ErrorBoundary>

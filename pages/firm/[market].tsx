@@ -17,8 +17,8 @@ import { F2Context } from '@app/components/F2/F2Contex'
 import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { InfoMessage } from '@app/components/common/Messages'
 import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
+import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -52,12 +52,13 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
-            <ErrorBoundary description="Error in the market page, please try reloading">
+            <ErrorBoundary description="Error in the market page, please try reloading">            
                 {
                     !f2market || !market ? <Text mt="8">
                         {!f2market ? 'Loading...' : 'Market not found!'}
                     </Text>
                         : <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
+                            <FirstTimeModal />
                             <VStack
                                 pt="4"
                                 w='full'
@@ -138,7 +139,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 }
                                             </VStack>
                                 }
-                                <FirmFAQ collapsable={true} defaultCollapse={true} />                                
+                                <FirmFAQ collapsable={true} defaultCollapse={false} />                            
                             </VStack>
                         </F2Context>
                 }
