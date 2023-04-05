@@ -4,7 +4,7 @@ import { NetworkIds } from '@app/types';
 export enum FIRM_ESCROWS {
     'simple' = '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
     'gOHM' = '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',
-    'cvxCRV' = '0x40A633EeF249F21D95C8803b7144f19AAfeEF7ae',
+    'cvxCRV' = '0x9e7F7d0E8b8F38e3CF2b3F7dd362ba2e9E82baa4',
 }
 
 const mainConfig = {
@@ -80,12 +80,14 @@ const mainConfig = {
         {
             name: 'cvxCRV',
             collateral: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
-            address: '0x532802f2F9E0e3EE9d5Ba70C35E1F43C0498772D',
+            address: '0x0724F18B2aA7D6413D3fDcF6c0c27458a8170Dd9',
             escrowImplementation: FIRM_ESCROWS.cvxCRV,            
             helper: true,
             oracleType: "curve-ema",
             badgeInfo: 'Keep Rewards',
+            badgeProps: { bgColor: 'accentTextColor', color: 'white' },
             hasClaimableRewards: true,
+            zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
         },
     ],
     feds: FEDS_PARAMS,

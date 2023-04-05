@@ -189,3 +189,17 @@ export const useDBRReplenishments = (): SWR & {
     isError: error,
   }
 }
+
+export const useEscrowRewards = (escrow: string): SWR & {
+  apps: any[],
+  timestamp: number,
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/escrow-apps?escrow=${escrow}`, fetcher);
+
+  return {
+    appGroupPositions: data?.appGroupPositions || [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
