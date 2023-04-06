@@ -134,6 +134,7 @@ const chainTokenAddresses = {
     MAI: '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1',
     MAIDOLASATLP: '0x72b11596523B35b2ACac5A33915b6297f5e942Ac',
     CASHDOLASATLP: '0x2c5BE0526343A5057B2e10372e64845d666e7140',
+    USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
   },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
@@ -1038,6 +1039,10 @@ const chainTokens = {
     [chainTokenAddresses["137"].MAI]: {
       address: chainTokenAddresses["137"].MAI,
       ...MAI,
+    },
+    [chainTokenAddresses["137"].USDC]: {
+      address: chainTokenAddresses["137"].USDC,
+      ...USDC,
     },
     [chainTokenAddresses["137"].CASH]: {
       address: chainTokenAddresses["137"].CASH,

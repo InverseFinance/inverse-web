@@ -184,9 +184,8 @@ const mainConfig = {
             chainId: NetworkIds.arbitrum,
             order: 3.2,
         },
-        {
-            // placeholder address for now
-            address: '0xA4b291Ed1220310d3120f515B5B7AccaecD66F17',
+        {            
+            address: '0x5D18b089e838DFFbb417A87874435175F3A9B000',
             name: 'Treasury Working Group on PLG',
             shortName: 'TWG on PLG',
             purpose: 'Optimize Inverse Treasury management on Polygon',            
