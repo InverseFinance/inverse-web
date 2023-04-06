@@ -34,22 +34,28 @@ export const PercentagesBar = ({
     ticks = DEFAULT_TICKS,
     tickProps,
     showAsRepartition = false,
+    leftLabel,
+    rightLabel,
 }: {
     onChange: (v: string) => void,
     ticks?: number[],
     tickProps?: TextProps,
     showAsRepartition?: boolean,
+    leftLabel?: string,
+    rightLabel?: string,
 }) => {
     return <HStack w='full' justify="space-between" spacing="0">
         {
             ticks.map(tick => {
                 const isIntermediate = tick !== 0 && tick !== 100 && tick !== 50;
+                const hasCustomLeft = tick === 0 && !!leftLabel;
+                const hasCustomRight = tick === 100 && !!rightLabel;
                 return <Text
                     align={tick === 0 ? 'left' : tick == 100 ? 'right' : 'center'}
                     key={tick}
-                    w={showAsRepartition || tick === 50 ? '94px' : '60px'}
+                    w={showAsRepartition || tick === 50 ? '94px' : (hasCustomLeft || hasCustomRight) ? '33%' : '60px'}
                     position={isIntermediate ? 'absolute' : 'relative'}
-                    left={isIntermediate ? `calc(${tick}% + ${handleWidth/2-tick/100*handleWidth}px)` : undefined}
+                    left={isIntermediate ? `calc(${tick}% + ${handleWidth / 2 - tick / 100 * handleWidth}px)` : undefined}
                     transform={isIntermediate ? `translateX(-${tick}%)` : undefined}
                     color="accentTextColor"
                     _hover={{ color: 'mainTextColor' }}
@@ -58,7 +64,13 @@ export const PercentagesBar = ({
                     onClick={() => onChange(tick)}
                     {...tickProps}
                 >
-                    {showAsRepartition || tick === 50 ? `${100 - tick}% | ${tick}%` : `${tick}%`}
+                    {
+                        hasCustomRight ? rightLabel :
+                            hasCustomLeft ? leftLabel :
+                                showAsRepartition || tick === 50 ?
+                                    `${100 - tick}% | ${tick}%`
+                                    : `${tick}%`
+                    }
                 </Text>
             })
         }

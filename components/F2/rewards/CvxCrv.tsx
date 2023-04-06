@@ -91,7 +91,7 @@ export const CvxCrvRewards = () => {
             {
                 <VStack w='full' spacing="4">
                     {
-                        !!rewardsInfos && <>                            
+                        !!rewardsInfos && <>
                             <ZapperTokens rewardsInfos={rewardsInfos} handleClaim={handleClaim} />
                             <Divider />
                         </>
@@ -120,11 +120,18 @@ export const CvxCrvRewards = () => {
                         </HStack>
                         <HStack w='33%' justify="flex-end">
                             <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
-                            <Text><b>stablecoin</b> rewards</Text>                            
+                            <Text><b>stablecoin</b> rewards</Text>
                         </HStack>
                     </HStack>
                     <CvxCrvWeightBar perc={perc} onChange={setPerc} />
-                    <PercentagesBar ticks={[0, 50, 100]} showAsRepartition={false} onChange={setPerc} tickProps={{ fontSize: '18px', fontWeight: 'bold' }} />                                        
+                    <PercentagesBar
+                        leftLabel='100% crv & cvx gov tokens'
+                        rightLabel='100% 3crv'
+                        ticks={[0, 50, 100]}
+                        showAsRepartition={false}
+                        onChange={setPerc}
+                        tickProps={{ fontSize: '18px', fontWeight: 'bold' }}
+                    />
                 </VStack>
             }
             <InfoMessage
