@@ -76,15 +76,15 @@ export default async function handler(req, res) {
       geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
     }
     
-    // try {
-    //   geckoPrices['dola-usd-cg'] = geckoPrices['dola-usd'];
-    //   const dolaData = await getTokenData('DOLA');
-    //   if(dolaData?.rate){        
-    //     geckoPrices['dola-usd'] = dolaData.rate;
-    //   }
-    // } catch (e) {
-    //   console.log('Error livecoinwatch gecko prices');     
-    // }
+    try {
+      geckoPrices['dola-usd-cg'] = geckoPrices['dola-usd'];
+      const dolaData = await getTokenData('DOLA');
+      if(dolaData?.rate){        
+        geckoPrices['dola-usd'] = { usd: dolaData.rate };
+      }
+    } catch (e) {
+      console.log('Error livecoinwatch gecko prices');     
+    }
 
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
