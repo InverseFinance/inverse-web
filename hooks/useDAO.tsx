@@ -29,7 +29,7 @@ export const useDAO = (): SWR & DAO => {
     dolaSupplies: data?.dolaSupplies || [],
     invSupplies: data?.invSupplies || [],
     feds: data?.feds || defaultFedsData,
-    multisigs: (data?.multisigs?.sort((a, b) => a.order - b.order) || []).filter(m => m.chainId !== NetworkIds.polygon),
+    multisigs: (data?.multisigs?.sort((a, b) => a.order - b.order) || []),
     pols: data?.pols || [],
     isLoading: !error && !data,
     isError: error,
