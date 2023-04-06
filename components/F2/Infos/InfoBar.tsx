@@ -11,7 +11,7 @@ import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
 import Container from "@app/components/common/Container"
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
-import { usePrices } from "@app/hooks/usePrices"
+import { useDOLAPrice, usePrices } from "@app/hooks/usePrices"
 import { useDOLA } from "@app/hooks/useDOLA"
 import { BUY_LINKS } from "@app/config/constants"
 import { useFirmTVL } from "@app/hooks/useTVL"
@@ -333,12 +333,12 @@ export const FirmBar = ({
     const { prices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
     const { totalSupply, firmSupply } = useDOLA();
+    const { price: dolaPrice } = useDOLAPrice();
     const { firmTotalTvl } = useFirmTVL();
     const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
-    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
-    const dolaPrice = prices?.['dola-usd']?.usd;
+    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;    
     const totalDebtUsd = totalDebt * dolaPrice;
 
     return <VStack w='full' {...props}>

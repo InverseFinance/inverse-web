@@ -4,7 +4,7 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm";
 import { F2_MARKET_ABI } from "@app/config/abis";
 import { useAccountDBRMarket } from "@app/hooks/useDBR";
-import { usePrices, useTransactionCost } from "@app/hooks/usePrices";
+import { useDOLAPrice, useTransactionCost } from "@app/hooks/usePrices";
 import { f2liquidate } from "@app/util/f2";
 import { getNumberToBn, shortenNumber } from "@app/util/markets";
 import { preciseCommify, roundFloorString } from "@app/util/misc";
@@ -27,7 +27,7 @@ export const FirmLiquidationModal = ({
     isOpen: boolean,
 }) => {
     const { library, account } = useWeb3React();
-    const prices = usePrices();
+    const { price: dolaMarketPrice } = useDOLAPrice();
 
     const [repayAmount, setRepayAmount] = useState('');
     const [seizeAmount, setSeizeAmount] = useState(0);
@@ -44,8 +44,7 @@ export const FirmLiquidationModal = ({
 
     const liveData = useAccountDBRMarket(position.market, position.user);
     const dataSource = !!account && !!liveData ? liveData : position;
-    const { debt, liquidatableDebt, seizableWorth, perc, deposits, liquidationPrice } = dataSource;
-    const dolaMarketPrice = prices && prices['dola-usd'] ? prices['dola-usd'] : 1;
+    const { debt, liquidatableDebt, seizableWorth, perc, deposits, liquidationPrice } = dataSource;    
     const estimatedProfit = seizeWorth - costUsd - (parseFloat(repayAmount) || 0) * dolaMarketPrice;
 
     const handleLiquidation = async (repayAmountBn: BigNumber) => {
