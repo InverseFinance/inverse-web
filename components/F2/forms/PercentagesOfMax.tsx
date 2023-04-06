@@ -43,13 +43,14 @@ export const PercentagesBar = ({
     return <HStack w='full' justify="space-between" spacing="0">
         {
             ticks.map(tick => {
-                const isMiddle = tick !== 0 && tick !== 100;
+                const isIntermediate = tick !== 0 && tick !== 100 && tick !== 50;
                 return <Text
+                    align={tick === 0 ? 'left' : tick == 100 ? 'right' : 'center'}
                     key={tick}
-                    w='94px'
-                    position={isMiddle ? 'absolute' : 'relative'}
-                    left={isMiddle ? `calc(${tick}% + ${handleWidth/2-tick/100*handleWidth}px)` : undefined}
-                    transform={isMiddle ? `translateX(-${tick}%)` : undefined}
+                    w={showAsRepartition || tick === 50 ? '94px' : '60px'}
+                    position={isIntermediate ? 'absolute' : 'relative'}
+                    left={isIntermediate ? `calc(${tick}% + ${handleWidth/2-tick/100*handleWidth}px)` : undefined}
+                    transform={isIntermediate ? `translateX(-${tick}%)` : undefined}
                     color="accentTextColor"
                     _hover={{ color: 'mainTextColor' }}
                     cursor="pointer"
@@ -57,7 +58,7 @@ export const PercentagesBar = ({
                     onClick={() => onChange(tick)}
                     {...tickProps}
                 >
-                    {showAsRepartition ? `${100 - tick}% | ${tick}%` : `${tick}%`}
+                    {showAsRepartition || tick === 50 ? `${100 - tick}% | ${tick}%` : `${tick}%`}
                 </Text>
             })
         }

@@ -98,8 +98,8 @@ export const CvxCrvRewards = () => {
                     }
                     <HStack fontSize="17px" fontWeight="bold" w='full' justify="space-between">
                         <HStack w='33%'>
-                            <Text>CVX+CRV rewards:</Text>
                             <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
+                            <Text><b>governance</b> token rewards</Text>
                         </HStack>
                         <HStack w='33%' fontWeight="bold" justify="center">
                             <RSubmitButton
@@ -119,12 +119,12 @@ export const CvxCrvRewards = () => {
                             </RSubmitButton>
                         </HStack>
                         <HStack w='33%' justify="flex-end">
-                            <Text>3CRV stablecoin rewards:</Text>
                             <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
+                            <Text><b>stablecoin</b> rewards</Text>                            
                         </HStack>
                     </HStack>
                     <CvxCrvWeightBar perc={perc} onChange={setPerc} />
-                    <PercentagesBar showAsRepartition={true} onChange={setPerc} tickProps={{ fontSize: '18px', fontWeight: 'bold' }} />                                        
+                    <PercentagesBar ticks={[0, 50, 100]} showAsRepartition={false} onChange={setPerc} tickProps={{ fontSize: '18px', fontWeight: 'bold' }} />                                        
                 </VStack>
             }
             <InfoMessage
