@@ -9,18 +9,20 @@ export const CvxCrvRewards = ({
     signer,
     claimables,
     totalRewardsUSD,
+    label = 'Rewards'
 }: {
     escrow: string,
     claimables: any,
     totalRewardsUSD: number,
     signer: JsonRpcSigner,
+    label?: string
 }) => {
 
     const handleClaim = async () => {
         return claim(escrow, signer);
     }
 
-    return <Container label="Rewards" noPadding p='0' collapsable={true} defaultCollapse={!totalRewardsUSD}>
+    return <Container label={label} noPadding p='0' collapsable={true} defaultCollapse={!totalRewardsUSD}>
         {
             totalRewardsUSD > 0 ?
                 <ZapperTokens claimables={claimables} totalRewardsUSD={totalRewardsUSD} handleClaim={handleClaim} />

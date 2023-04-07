@@ -7,9 +7,11 @@ import { F2MarketContext } from "../F2Contex";
 const exampleAddress = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9';
 
 export const FirmRewardWrapper = ({
-    market
+    market,
+    label,
 }: {
     market: F2Market
+    label?: string
 }) => {
     const { escrow, signer, deposits } = useContext(F2MarketContext);
     const { appGroupPositions, isLoading } = useEscrowRewards(exampleAddress);
@@ -23,6 +25,7 @@ export const FirmRewardWrapper = ({
         return <></>
     } else if (market.name === 'cvxCRV') {
         return <CvxCrvRewards
+            label={label || `${market?.name} Rewards`}
             escrow={escrow}
             claimables={claimables}
             totalRewardsUSD={totalRewardsUSD}
