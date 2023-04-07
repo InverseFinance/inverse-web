@@ -8,6 +8,10 @@ export const MENUS = {
           label: 'FiRM',
           href: '/firm',
         },
+        {
+          label: 'FiRM rewards',
+          href: '/firm/rewards',
+        },
         // {
         //   label: 'WETH Market',
         //   href: '/firm/WETH',
@@ -45,6 +49,10 @@ export const MENUS = {
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
+        },
+        {
+          label: 'FiRM rewards',
+          href: '/firm',
         },
         {
           label: 'Liquidate Loans',

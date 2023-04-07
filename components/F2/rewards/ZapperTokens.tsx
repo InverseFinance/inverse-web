@@ -1,5 +1,6 @@
 import { UnderlyingItem } from "@app/components/common/Assets/UnderlyingItem";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
+import { F2Market } from "@app/types";
 import { shortenNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc"
 import { TOKENS, getToken } from "@app/variables/tokens";
@@ -9,9 +10,13 @@ export const ZapperTokens = ({
     claimables,
     totalRewardsUSD,
     handleClaim,
+    market,
+    showMarketBtn = false,
 }: {
     claimables: any,
     totalRewardsUSD: number,
+    market: F2Market,
+    showMarketBtn?: boolean,
     handleClaim: () => void,
 }) => {
     return <VStack spacing='4' w='full' alignItems="flex-start">
