@@ -81,7 +81,7 @@ export const CvxCrvPreferences = () => {
                     description={<VStack w='full' alignItems="flex-start" lineHeight="1.5">
                         {
                             !escrow && <Text fontWeight="bold">
-                                NB: You can choose the reward preferences after making a first deposit.
+                                NB: You can choose the reward preferences after making a deposit.
                             </Text>
                         }
                         <Text>
@@ -98,11 +98,11 @@ export const CvxCrvPreferences = () => {
                 {
                     <VStack w='full' spacing="4" maxW='900px' alignItems="center">
                         <HStack fontSize="17px" fontWeight="bold" w='full' justify="space-between">
-                            <Stack direction={{ base: 'column', sm: 'row' }}>
-                                <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
+                            <Stack direction={{ base: 'column-reverse', sm: 'row' }} alignItems='center'>                                
                                 <Text><b>Gov</b> token rewards</Text>
+                                <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
                             </Stack>                           
-                            <Stack direction={{ base: 'column', sm: 'row' }} alignItems='flex-end' justify="flex-end">
+                            <Stack direction={{ base: 'column', sm: 'row' }} alignItems='center' justify="flex-end">
                                 <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
                                 <Text align='right'><b>Stablecoin</b> rewards</Text>
                             </Stack>
