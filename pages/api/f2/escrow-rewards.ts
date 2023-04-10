@@ -1,6 +1,6 @@
 import 'source-map-support'
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
-import { getZapperApps } from '@app/util/zapper';
+import { getZapperApps, formatAndFilterZapperData } from '@app/util/zapper';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { isAddress } from 'ethers/lib/utils';
 
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const cacheKey = `escrow-apps-${escrow}`;
+  const cacheKey = `escrow-rewards-1--${escrow}`;
 
   const APP_GROUPS = F2_MARKETS.filter(m => !!m.zapperAppGroup).map(m => m.zapperAppGroup);
 
@@ -25,41 +25,18 @@ export default async function handler(req, res) {
       return
     }
 
-    const data = await getZapperApps(escrow);
+    const data = await getZapperApps([escrow]);
 
-    let appGroupPositions = [];
-
-    data
-      .forEach(app => {
-        app.products.filter(
-          product => !!product.assets
-            .find(a => APP_GROUPS.includes(`${app.appId}+${a.groupId}`))
-        ).forEach(
-          product => {
-            appGroupPositions = appGroupPositions.concat(
-              product.assets.filter(a => APP_GROUPS.includes(`${app.appId}+${a.groupId}`))
-                .map(a => {
-                  return {
-                    updatedAt: app.updatedAt,
-                    timestamp: +(new Date(app.updatedAt)),
-                    appGroup: `${app.appId}+${a.groupId}`,
-                    tokens: a.tokens,
-                    balanceUSD: a.balanceUSD,
-                    address: a.address,
-                  }
-                })
-            )
-          })
-      })
+    let appGroupPositions = formatAndFilterZapperData(data, APP_GROUPS);
 
     const resultData = {
       timestamp: +(new Date()),
-      appGroupPositions,
+      appGroupPositions,      
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
 
-    res.status(200).json(assets)
+    res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
