@@ -2,7 +2,7 @@
 import { useOppys } from '@app/hooks/useMarkets'
 import { NetworkIds, YieldOppy } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
-import { Flex, HStack, Image, Stack, Text, VStack } from '@chakra-ui/react';
+import { Flex, HStack, Image, Stack, Text, VStack, useMediaQuery } from '@chakra-ui/react';
 import Container from '@app/components/common/Container';
 import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
@@ -213,6 +213,11 @@ const columnsShort = [
     },
 ]
 
+const columnsShortMobile = [
+    columnsShort[0],
+    columnsShort[3],
+];
+
 export const OppysTable = ({
     oppys,
     isLoading,
@@ -317,9 +322,11 @@ export const OppysTop5 = ({
     oppys,
     title,
     isLoading,
+    isLargerThan = false,
 }: {
     oppys: YieldOppy[],
     isLoading?: boolean,
+    isLargerThan?: boolean,
     title?: string,
 }) => {
 
@@ -336,7 +343,7 @@ export const OppysTop5 = ({
                     showHeader={false}
                     defaultSort="apy"
                     defaultSortDir="desc"
-                    columns={columnsShort}
+                    columns={isLargerThan ? columnsShort : columnsShortMobile}
                     items={oppys}
                     colBoxProps={{ fontWeight: "extrabold" }}
                 />
@@ -346,6 +353,7 @@ export const OppysTop5 = ({
 
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
+    const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
     // temp: dont show bb euler pools
     const _oppys = oppys.filter(o => !o.symbol.includes('-BB-'));
 
@@ -354,8 +362,8 @@ export const Oppys = () => {
 
     return <VStack>
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
-            <OppysTop5 title={'Top 5 stablecoin pools APYs'} isLoading={isLoading} oppys={top5Stable} />
-            <OppysTop5 title={'Top 5 volatile pools APYs'} isLoading={isLoading} oppys={top5Volatile} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pools APYs'} isLoading={isLoading} oppys={top5Stable} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pools APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
         <OppysTable isLoading={isLoading} oppys={_oppys} />
     </VStack>
