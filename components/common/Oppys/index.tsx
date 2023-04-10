@@ -80,7 +80,7 @@ const getPoolLink = (project, pool, underlyingTokens) => {
 
 const ProjectItem = ({ project, showImage = true }: { project: string, showImage?: boolean }) => {
     return <>
-        <Image title={project} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
+        <Image ignoreFallback={true} alt='' title={project} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
         {
             showImage && <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
         }
@@ -89,7 +89,7 @@ const ProjectItem = ({ project, showImage = true }: { project: string, showImage
 
 const ChainItem = ({ chain, showImage = false }: { chain: string, showImage?: boolean }) => {
     return <>
-        <Image title={chain} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=24&h=24`} />
+        <Image ignoreFallback={true} alt='' title={chain} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=24&h=24`} />
         {
             showImage && <Text textTransform="capitalize">{chain}</Text>
         }
