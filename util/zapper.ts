@@ -40,4 +40,25 @@ export const formatAndFilterZapperData = (data, APP_GROUPS) => {
     return appGroupPositions
 }
 
-const pointsUrl = 'https://api.zapper.xyz/v1/api-clients/points';
+export const getZapperRemainingPoints = async () => {
+    const path = `/v2/api-clients/points`
+    const res = await fetch(`${baseUrl}${path}`, {
+        method: 'GET',
+        headers: {
+            'accept': "*/*",
+            'Authorization': `Basic ${Buffer.from(`${process.env.ZAPPER_KEY}:`, "binary").toString("base64")}`,
+        },
+    });
+
+    let pointsRemaining = 0
+    try {
+        const resData = await res.json();        
+        pointsRemaining = parseFloat(resData?.pointsRemaining);
+    } catch (e) {
+        console.log(e);
+    }
+
+    const hasPoints = pointsRemaining > 0;
+
+    return { hasPoints, pointsRemaining };
+}
