@@ -1,4 +1,4 @@
-import { Flex, Stack, VStack, Text, Divider } from '@chakra-ui/react'
+import { Flex, Stack, VStack, Text, Divider, HStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
@@ -16,6 +16,7 @@ import { useState } from 'react';
 import moment from 'moment';
 import { useTokensData } from '@app/hooks/useMarkets';
 import Link from '@app/components/common/Link';
+import { usePricesV2 } from '@app/hooks/usePrices';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -47,10 +48,21 @@ const VOLUME_LINKS = {
   'DOLA': 'https://www.livecoinwatch.com/price/DolaUSDStablecoin-DOLA',
   'INV': 'https://www.livecoinwatch.com/price/InverseFinance-_INV',
 }
+const PRICE_LINKS = {
+  'DBR': 'https://www.coingecko.com/en/coins/dola-borrowing-right',
+  'DOLA': 'https://www.livecoinwatch.com/price/DolaUSDStablecoin-DOLA',
+  'INV': 'https://www.coingecko.com/en/coins/inverse-finance',
+}
+const cgIds = {
+  'DBR': 'dola-borrowing-right',
+  'DOLA': 'dola-usd',
+  'INV': 'inverse-finance',
+}
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
   const { dola, inv, dbr } = useTokensData();
+  const { prices } = usePricesV2();
   const [category, setCategory] = useState('DOLA');
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
@@ -101,12 +113,20 @@ export const Liquidity = () => {
                 { value: 'DBR', label: <UnderlyingItemBlock symbol="DBR" /> },
               ]}
             />
-            <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
-              <Text>{category} 24h Vol.</Text>
-              <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={VOLUME_LINKS[category]}>
-                {volumes[category] ? preciseCommify(volumes[category], 0, true) : '-'}
-              </Link>
-            </VStack>
+            <HStack>
+              <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
+                <Text>{category} 24h Vol.</Text>
+                <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={VOLUME_LINKS[category]}>
+                  {volumes[category] ? preciseCommify(volumes[category], 0, true) : '-'}
+                </Link>
+              </VStack>
+              <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
+                <Text>{category} Price</Text>
+                <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={PRICE_LINKS[category]}>
+                  {!!prices && prices[cgIds[category]]?.usd ? preciseCommify(prices[cgIds[category]]?.usd, 4, true) : '-'}
+                </Link>
+              </VStack>
+            </HStack>
           </Stack>
           {
             category === 'DOLA' ?
