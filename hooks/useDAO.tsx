@@ -81,7 +81,7 @@ export const useFedHistory = (): SWR & {
   feds: (Fed & { supply: number })[],
   dolaSupplies: { chainId: string, supply: number }[],
 } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-policy?v=2`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-policy?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
 
@@ -106,7 +106,7 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
 }
 
 export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncomes: { [key: string]: number } } => {
-  const { data, error } = useCustomSWR(`/api/transparency/fed-income?v=2`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-income?v=2`, fetcher)
 
   const totalEvents = data?.totalEvents || [];
   const totalFedsIncomes = data?.totalFedsIncomes || {};

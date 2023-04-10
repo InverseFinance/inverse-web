@@ -44,16 +44,17 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
 }
 
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
   // to keep for archive
   const cacheKeyOld = `fed-policy-cache-v1.0.95`;  
   // temp migration
-  const cacheKeyNew = `fed-policy-cache-v1.0.96`;  
+  const cacheKeyNew = `fed-policy-cache-v1.0.96`;
 
   try {
 
-    const validCache = await getCacheFromRedis(cacheKeyNew, true, 60);
+    const validCache = await getCacheFromRedis(cacheKeyNew, cacheFirst !== 'true', 60);
 
     if (validCache) {
       res.status(200).json(validCache);
