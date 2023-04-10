@@ -1,6 +1,6 @@
 import 'source-map-support'
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
-import { getZapperApps, formatAndFilterZapperData } from '@app/util/zapper';
+import { getZapperApps, formatAndFilterZapperData, getZapperRemainingPoints } from '@app/util/zapper';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { isAddress } from 'ethers/lib/utils';
 
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const cacheKey = `escrow-rewards-1--${escrow}`;
+  const cacheKey = `escrow-rewards-1-${escrow}`;  
 
   const APP_GROUPS = F2_MARKETS.filter(m => !!m.zapperAppGroup).map(m => m.zapperAppGroup);
 
@@ -25,13 +25,15 @@ export default async function handler(req, res) {
       return
     }
 
-    const data = await getZapperApps([escrow]);
+    const pointsData = await getZapperRemainingPoints();
+    const data = pointsData.hasPoints ? await getZapperApps(activeEscrows) : [];
 
     let appGroupPositions = formatAndFilterZapperData(data, APP_GROUPS);
 
     const resultData = {
       timestamp: +(new Date()),
-      appGroupPositions,      
+      appGroupPositions,
+      rateLimited: !pointsData.hasPoints,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
