@@ -121,13 +121,13 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 }
 
 export default async function handler(req, res) {
-
+    const { cacheFirst } = req.query;
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
     const cacheKey = `revenues-v1.0.14`;
 
     try {
 
-        const validCache = await getCacheFromRedis(cacheKey, true, 900);
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 900);
         if (validCache) {
             res.status(200).json(validCache);
             return
