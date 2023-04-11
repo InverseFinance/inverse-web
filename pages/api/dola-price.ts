@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             console.log('Error livecoinwatch gecko prices');
         }
 
-        prices['dola-usd'] = prices['dola-usd-lcw'] || prices['dola-usd-cg'];
+        prices['dola-usd'] = prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
         prices['_timestamp'] = +(new Date());
 
