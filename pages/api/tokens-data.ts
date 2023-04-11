@@ -15,16 +15,16 @@ export default async function handler(req, res) {
         }
 
         const [dola, inv, dbr] = await Promise.all([
-            getTokenData('DOLA'),
-            getTokenData('_INV'),
-            getTokenData('DBR'),
+            fetch(`https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`),
+            fetch(`https://api.coingecko.com/api/v3/coins/inverse-finance?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`),
+            fetch(`https://api.coingecko.com/api/v3/coins/dola-borrowing-right?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`),
         ]);
 
         const resultData = {
             timestamp: (+(new Date())-1000),
-            dola,
-            inv,
-            dbr,
+            dola: { volume: (await dola?.json())?.market_data?.total_volume?.usd },
+            inv: { volume: (await inv?.json())?.market_data?.total_volume?.usd },
+            dbr: { volume: (await dbr?.json())?.market_data?.total_volume?.usd },            
         }
         await redisSetWithTimestamp(cacheKey, resultData);
 

@@ -77,10 +77,10 @@ export default async function handler(req, res) {
     }
     
     try {
-      geckoPrices['dola-usd-cg'] = geckoPrices['dola-usd'];
+      prices['dola-usd-cg'] = geckoPrices['dola-usd'];
       const dolaData = await getTokenData('DOLA');
       if(dolaData?.rate){        
-        geckoPrices['dola-usd'] = { usd: dolaData.rate };
+        prices['dola-usd-lcw'] = { usd: dolaData.rate };
       }
     } catch (e) {
       console.log('Error livecoinwatch gecko prices');     
@@ -89,6 +89,7 @@ export default async function handler(req, res) {
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
     })
+    prices['dola-usd'] = prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
     let lps: { token: Token, chainId: string }[] = [];
 
