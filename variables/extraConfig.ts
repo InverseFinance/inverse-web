@@ -60,7 +60,8 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Keep Voting',
             badgeProps: { bgColor: 'accentTextColor', color: 'white' },
-            isGovTokenCollateral: true,         
+            isGovTokenCollateral: true,
+            govLink: 'https://snapshot.org/#/olympusdao.eth',
         },
         {
             name: 'CRV',
