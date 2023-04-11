@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import { useLiquidityPools } from '@app/hooks/useDAO'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
-import { PoLsTable } from '@app/components/Transparency/PoLsTable'
+import { LiquidityPoolsTable } from '@app/components/Transparency/LiquidityPoolsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 import { InfoMessage } from '@app/components/common/Messages';
 import { Funds } from '@app/components/Transparency/Funds';
@@ -156,7 +156,7 @@ export const Liquidity = () => {
             </VStack>
           </Stack>
           <Divider my="4" />
-          <PoLsTable items={polsItems} timestamp={timestamp} />
+          <LiquidityPoolsTable items={polsItems} timestamp={timestamp} />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
             description="NB: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."

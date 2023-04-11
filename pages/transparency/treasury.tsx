@@ -1,4 +1,4 @@
-import { Divider, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -7,10 +7,8 @@ import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import { useCompensations, useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
-import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
-import { PoLsTable } from '@app/components/Transparency/PoLsTable'
 
 export const Overview = () => {
   const { prices } = usePricesV2(true)
