@@ -1,0 +1,12 @@
+name: day-prices-cron
+on:
+  schedule:
+    - cron: '55 23 * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prices trigger before liquidity snapshot
+        run: |
+          curl -v --request GET \
+          --url 'https://www.inverse.finance/api/prices'          
