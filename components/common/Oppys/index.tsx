@@ -185,15 +185,15 @@ const columnsShort = [
     {
         field: 'rank',
         label: 'Rank',
-        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-start"  {...props} />,
-        value: ({ rank }) => <Cell minWidth="50px" justify="flex-start">
+        header: ({ ...props }) => <ColHeader minWidth="40px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="40px" justify="flex-start">
             <Text>#{rank}</Text>
         </Cell>,
     },
     {
         ...columns[0],
-        value: (p) => poolColumn({ ...p, width: '200px' }),
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        value: (p) => poolColumn({ ...p, width: '180px' }),
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
         showFilter: false,
     },
     {
@@ -255,7 +255,7 @@ export const OppysTable = ({
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="All yield opportunities"
         description={`DeFi yield opportunities on ${yieldChains} `}
-        href="https://docs.inverse.finance/inverse-finance/yield-opportunities"
+        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#yield-opportunities"
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
@@ -340,9 +340,11 @@ export const OppysTop5 = ({
 }) => {
 
     return <Container
-        noPadding
+        noPadding        
         contentProps={{ p: { base: '2', sm: '4' } }}
         label={title}
+        description={'More infos on Liquidity Pools'}
+        href='https://docs.inverse.finance/inverse-finance/inverse-finance/other/providing-liquidity/dola-liquidity-pools'
     >
         {
             isLoading ? <SkeletonBlob />
@@ -369,7 +371,7 @@ export const Oppys = () => {
     const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
     const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
 
-    return <VStack>
+    return <VStack alignItems="flex-start">
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
             <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
             <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
