@@ -54,6 +54,7 @@ const projectLinks = {
     'balancer-v2': 'https://app.balancer.fi/#/ethereum',
     'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
     'velodrome': 'https://app.velodrome.finance/liquidity/manage',
+    'pickle': 'https://app.pickle.finance/farms',
 }
 
 const getPoolLink = (project, pool, underlyingTokens) => {
@@ -78,20 +79,20 @@ const getPoolLink = (project, pool, underlyingTokens) => {
     return poolLinks[pool] || url || projectLinks[project];
 }
 
-const ProjectItem = ({ project, showImage = true }: { project: string, showImage?: boolean }) => {
+const ProjectItem = ({ project, showText = true }: { project: string, showText?: boolean }) => {
     return <>
         <Image ignoreFallback={true} alt='' title={project} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
         {
-            showImage && <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
+            showText && <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
         }
     </>
 }
 
-const ChainItem = ({ chain, showImage = false }: { chain: string, showImage?: boolean }) => {
+const ChainItem = ({ chain, showText = true }: { chain: string, showText?: boolean }) => {
     return <>
         <Image ignoreFallback={true} alt='' title={chain} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=24&h=24`} />
         {
-            showImage && <Text textTransform="capitalize">{chain}</Text>
+            showText && <Text textTransform="capitalize">{chain}</Text>
         }
     </>
 }
@@ -133,7 +134,7 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
 const columns = [
     {
         field: 'symbol',
-        label: 'Pool Type',
+        label: 'Pool',
         header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
         value: (p) => poolColumn({ ...p, width: '330px' }),
         showFilter: true,
@@ -182,9 +183,17 @@ const columns = [
 
 const columnsShort = [
     {
+        field: 'rank',
+        label: 'Rank',
+        header: ({ ...props }) => <ColHeader minWidth="40px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="40px" justify="flex-start">
+            <Text>#{rank}</Text>
+        </Cell>,
+    },
+    {
         ...columns[0],
-        value: (p) => poolColumn({ ...p, width: '200px' }),
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        value: (p) => poolColumn({ ...p, width: '180px' }),
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
         showFilter: false,
     },
     {
@@ -192,7 +201,7 @@ const columnsShort = [
         label: 'Project',
         header: ({ ...props }) => <ColHeader minWidth="60px" justify="center"  {...props} />,
         value: ({ project }) => <Cell minWidth="60px" justify="center" >
-            <ProjectItem project={project} showImage={false} />
+            <ProjectItem project={project} showText={false} />
         </Cell>,
     },
     {
@@ -200,7 +209,7 @@ const columnsShort = [
         label: 'Chain',
         header: ({ ...props }) => <ColHeader minWidth="60px" justify="center"  {...props} />,
         value: ({ chain }) => <Cell minWidth="60px" justify="center" >
-            <ChainItem chain={chain} showImage={false} />
+            <ChainItem chain={chain} showText={false} />
         </Cell>,
     },
     {
@@ -214,7 +223,7 @@ const columnsShort = [
 ]
 
 const columnsShortMobile = [
-    columnsShort[0],
+    columnsShort[1],
     columnsShort[3],
 ];
 
@@ -246,7 +255,7 @@ export const OppysTable = ({
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="All yield opportunities"
         description={`DeFi yield opportunities on ${yieldChains} `}
-        href="https://docs.inverse.finance/inverse-finance/yield-opportunities"
+        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#yield-opportunities"
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
@@ -331,16 +340,18 @@ export const OppysTop5 = ({
 }) => {
 
     return <Container
-        noPadding
+        noPadding        
         contentProps={{ p: { base: '2', sm: '4' } }}
         label={title}
+        description={'More infos on Liquidity Pools'}
+        href='https://docs.inverse.finance/inverse-finance/inverse-finance/other/providing-liquidity/dola-liquidity-pools'
     >
         {
             isLoading ? <SkeletonBlob />
                 :
                 <Table
                     keyName="pool"
-                    showHeader={false}
+                    showHeader={true}
                     defaultSort="apy"
                     defaultSortDir="desc"
                     columns={isLargerThan ? columnsShort : columnsShortMobile}
@@ -357,13 +368,13 @@ export const Oppys = () => {
     // temp: dont show bb euler pools
     const _oppys = oppys.filter(o => !o.symbol.includes('-BB-'));
 
-    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5);
-    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5);
+    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
+    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
 
-    return <VStack>
+    return <VStack alignItems="flex-start">
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pools APYs'} isLoading={isLoading} oppys={top5Stable} />
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pools APYs'} isLoading={isLoading} oppys={top5Volatile} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
         <OppysTable isLoading={isLoading} oppys={_oppys} />
     </VStack>
