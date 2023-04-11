@@ -177,7 +177,7 @@ const columns = [
     }
 ];
 
-export const PoLsTable = ({
+export const LiquidityPoolsTable = ({
     items,
     timestamp,
 }: {
