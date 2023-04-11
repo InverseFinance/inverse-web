@@ -43,14 +43,9 @@ const groupLpsBy = (lps: any[], attribute: string) => {
   }
 }
 
-const VOLUME_LINKS = {
-  'DBR': 'https://www.livecoinwatch.com/price/DolaBorrowingRight-DBR',
-  'DOLA': 'https://www.livecoinwatch.com/price/DolaUSDStablecoin-DOLA',
-  'INV': 'https://www.livecoinwatch.com/price/InverseFinance-_INV',
-}
-const PRICE_LINKS = {
+const LINKS = {
   'DBR': 'https://www.coingecko.com/en/coins/dola-borrowing-right',
-  'DOLA': 'https://www.livecoinwatch.com/price/DolaUSDStablecoin-DOLA',
+  'DOLA': 'https://www.coingecko.com/en/coins/dola-usd',
   'INV': 'https://www.coingecko.com/en/coins/inverse-finance',
 }
 const cgIds = {
@@ -116,13 +111,13 @@ export const Liquidity = () => {
             <HStack>
               <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
                 <Text>{category} 24h Vol.</Text>
-                <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={VOLUME_LINKS[category]}>
+                <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={LINKS[category]}>
                   {volumes[category] ? preciseCommify(volumes[category], 0, true) : '-'}
                 </Link>
               </VStack>
               <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
                 <Text>{category} Price</Text>
-                <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={PRICE_LINKS[category]}>
+                <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={LINKS[category]}>
                   {!!prices && prices[cgIds[category]]?.usd ? preciseCommify(prices[cgIds[category]]?.usd, 4, true) : '-'}
                 </Link>
               </VStack>
