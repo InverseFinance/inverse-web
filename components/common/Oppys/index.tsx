@@ -54,6 +54,7 @@ const projectLinks = {
     'balancer-v2': 'https://app.balancer.fi/#/ethereum',
     'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
     'velodrome': 'https://app.velodrome.finance/liquidity/manage',
+    'pickle': 'https://app.pickle.finance/farms',
 }
 
 const getPoolLink = (project, pool, underlyingTokens) => {
@@ -133,7 +134,7 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
 const columns = [
     {
         field: 'symbol',
-        label: 'Pool Type',
+        label: 'Pool',
         header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
         value: (p) => poolColumn({ ...p, width: '330px' }),
         showFilter: true,
@@ -182,6 +183,14 @@ const columns = [
 
 const columnsShort = [
     {
+        field: 'rank',
+        label: 'Rank',
+        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="50px" justify="flex-start">
+            <Text>#{rank}</Text>
+        </Cell>,
+    },
+    {
         ...columns[0],
         value: (p) => poolColumn({ ...p, width: '200px' }),
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
@@ -214,7 +223,7 @@ const columnsShort = [
 ]
 
 const columnsShortMobile = [
-    columnsShort[0],
+    columnsShort[1],
     columnsShort[3],
 ];
 
@@ -340,7 +349,7 @@ export const OppysTop5 = ({
                 :
                 <Table
                     keyName="pool"
-                    showHeader={false}
+                    showHeader={true}
                     defaultSort="apy"
                     defaultSortDir="desc"
                     columns={isLargerThan ? columnsShort : columnsShortMobile}
@@ -357,13 +366,13 @@ export const Oppys = () => {
     // temp: dont show bb euler pools
     const _oppys = oppys.filter(o => !o.symbol.includes('-BB-'));
 
-    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5);
-    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5);
+    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
+    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
 
     return <VStack>
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pools APYs'} isLoading={isLoading} oppys={top5Stable} />
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pools APYs'} isLoading={isLoading} oppys={top5Volatile} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
         <OppysTable isLoading={isLoading} oppys={_oppys} />
     </VStack>
