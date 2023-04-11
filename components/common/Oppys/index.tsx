@@ -118,12 +118,12 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
                 pairs?.length > 0 ? <>
                     {
                         !!link ?
-                            <Link textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2' }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            <Link alignItems='center' textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
+                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                                 <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <UnderlyingItem textProps={{ fontSize: '14px' }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                     }
                 </> : <Text>{symbol}</Text>
             }
@@ -185,15 +185,15 @@ const columnsShort = [
     {
         field: 'rank',
         label: 'Rank',
-        header: ({ ...props }) => <ColHeader minWidth="40px" justify="flex-start"  {...props} />,
-        value: ({ rank }) => <Cell minWidth="40px" justify="flex-start">
+        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="50px" justify="flex-start">
             <Text>#{rank}</Text>
         </Cell>,
     },
     {
         ...columns[0],
-        value: (p) => poolColumn({ ...p, width: '180px' }),
-        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
+        value: (p) => poolColumn({ ...p, width: '160px' }),
+        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
         showFilter: false,
     },
     {
