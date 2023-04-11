@@ -44,7 +44,7 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
 // asUsdObject to get the same formatting as coingecko
 export const usePricesV2 = (asUsdObject = true): SWR & Prices => {
   const { data, error } = useCustomSWR(
-    `/api/prices`,
+    `/api/prices?v2`,
     fetcher
   )
 
