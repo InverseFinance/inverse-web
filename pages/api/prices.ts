@@ -10,7 +10,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
 
-export const pricesCacheKey = `prices-v1.0.5`;
+export const pricesCacheKey = `prices-v1.0.6`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
@@ -77,10 +77,10 @@ export default async function handler(req, res) {
     }
     
     try {
-      prices['dola-usd-cg'] = geckoPrices['dola-usd'];
+      prices['dola-usd-cg'] = geckoPrices['dola-usd']?.usd;
       const dolaData = await getTokenData('DOLA');
-      if(dolaData?.rate){        
-        prices['dola-usd-lcw'] = { usd: dolaData.rate };
+      if(dolaData?.rate){
+        prices['dola-usd-lcw'] = dolaData.rate;
       }
     } catch (e) {
       console.log('Error livecoinwatch gecko prices');     
