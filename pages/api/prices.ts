@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
     })
-    prices['dola-usd'] = prices['dola-usd-cg']?.usd || prices['dola-usd-lcw'].usd;
+    prices['dola-usd'] = prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
     let lps: { token: Token, chainId: string }[] = [];
 
