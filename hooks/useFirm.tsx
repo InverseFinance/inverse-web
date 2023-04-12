@@ -1,7 +1,7 @@
 
 import { F2Market, FirmAction, SWR } from "@app/types"
 import { fetcher } from '@app/util/web3'
-import { useCustomSWR } from "./useCustomSWR";
+import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
@@ -194,7 +194,7 @@ export const useDBRBurns = (): SWR & {
   events: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/transparency/dbr-burns`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`, fetcher);
 
   return {
     events: data ? data.totalBurns : [],    
