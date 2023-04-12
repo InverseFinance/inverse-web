@@ -26,10 +26,10 @@ export const DbrBurns = ({
             domainYpadding={10000}
             mainColor="secondary"
             isDollars={false}
-            title="DBR burns over time"
+            title="DBR burned over time"
         />
         <BarChart12Months
-            title="DBR burns in the last 12 months"
+            title="DBR burned in the last 12 months"
             chartData={chartData}
             maxChartWidth={chartWidth}
             eventName="Burn"
