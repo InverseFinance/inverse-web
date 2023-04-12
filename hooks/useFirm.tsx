@@ -189,3 +189,17 @@ export const useDBRReplenishments = (): SWR & {
     isError: error,
   }
 }
+
+export const useDBRBurns = (): SWR & {
+  events: any,
+  timestamp: number,
+} => {
+  const { data, error } = useCustomSWR(`/api/transparency/dbr-burns`, fetcher);
+
+  return {
+    events: data ? data.totalBurns : [],    
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}

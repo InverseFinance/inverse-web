@@ -11,12 +11,14 @@ export const BarChart12Months = ({
     maxChartWidth = 900,
     eventName,
     yAttribute,
-    ...props,
+    isDollars,
+    ...props
 }: {
     chartData: any,
     maxChartWidth?: number,
     eventName: string,
     yAttribute: string,
+    isDollars?: boolean,
 }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
@@ -36,7 +38,7 @@ export const BarChart12Months = ({
             const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c[yAttribute], 0);
 
             return {
-                label: `${event}s: ${shortenNumber(y, 2, true)}`,
+                label: `${event}s: ${shortenNumber(y, 2, isDollars)}`,
                 x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
                 y,
             }

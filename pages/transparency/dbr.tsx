@@ -16,19 +16,22 @@ import { useEffect, useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
 import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
 import { useEventsAsChartData } from '@app/hooks/misc'
-import { useDBRReplenishments } from '@app/hooks/useFirm'
+import { useDBRBurns, useDBRReplenishments } from '@app/hooks/useFirm'
 import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
+import { DbrBurns } from '@app/components/Transparency/DbrBurns'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income'];
+const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, totalDueTokensAccrued, price } = useDBR();
-    const { events, timestamp, isLoading } = useDBRReplenishments();
+    const { totalSupply, operator, price } = useDBR();
+    const { events } = useDBRReplenishments();
+    const { events: burnEvents } = useDBRBurns();
     const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
+    const { chartData: burnChartData } = useEventsAsChartData(burnEvents, 'accBurn', 'amount');
     const [tab, setTab] = useState('Flowchart');
 
     const handleTabChange = (v: string) => {
@@ -72,6 +75,9 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Income' && <DbrIncome chartData={chartData} />
+                        }
+                        {
+                            tab === 'Burns' && <DbrBurns chartData={burnChartData} />
                         }
                     </VStack>
                 </VStack>
