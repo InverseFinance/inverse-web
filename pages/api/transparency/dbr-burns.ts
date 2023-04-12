@@ -13,9 +13,10 @@ const { DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const cacheKey = `dbr-burns-v1.0.0`;
+    const { cacheFirst } = req.query;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, true, 1800, true);
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800, true);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -51,9 +52,13 @@ export default async function handler(req, res) {
             };
         }).filter(e => e.amount > 0);
 
+        let accBurn = 0;
+
         const resultData = {
             timestamp: +(new Date()),
-            totalBurns: pastTotalEvents.concat(newBurns),            
+            totalBurns: pastTotalEvents.concat(newBurns).map(e => {
+                return { ...e, accBurn: accBurn += e.amount}
+            }),
         };
 
         await redisSetWithTimestamp(cacheKey, resultData, true);
