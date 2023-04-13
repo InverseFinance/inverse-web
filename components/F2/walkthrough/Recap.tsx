@@ -148,7 +148,7 @@ export const F2WalkthroughRecap = ({
 
     return <>
         <RecapInfos {...recapData} />
-        <HStack w='full' justify="space-between">
+        <HStack w='full' justify="space-between" alignItems="flex-start">
             <StepNavBtn onClick={() => onStepChange(step - 1)}>
                 <ChevronLeftIcon fontSize="20px" /> Back
             </StepNavBtn>
