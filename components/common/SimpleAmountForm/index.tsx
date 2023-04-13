@@ -192,8 +192,8 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             address={address}
                             toAddress={destination}
                             signer={signer}
-                            isDisabled={balance <= 0}
-                            onSuccess={() => setFreshTokenApproved(true)}
+                            isDisabled={isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)}
+                            onSuccess={() => setFreshTokenApproved(isInfiniteApprovalMode)}
                             ButtonComp={ButtonComp}
                             amount={isInfiniteApprovalMode ? undefined : _bnAmount}
                             {...btnProps}
@@ -204,7 +204,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             enableCustomApprove && <Checkbox
                                 isChecked={isInfiniteApprovalMode}
                                 onChange={() => setIsInfiniteApprovalMode(!isInfiniteApprovalMode)}
-                                isDisabled={isDisabled}
+                                isDisabled={balance <= 0}
                             >
                                 Infinite Approval
                             </Checkbox>
