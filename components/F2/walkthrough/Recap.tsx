@@ -171,6 +171,7 @@ export const F2WalkthroughRecap = ({
                     hideButtons={false}
                     ButtonComp={StepNavBtn}
                     onSuccess={() => handleSuccess()}
+                    enableCustomApprove={true}
                     btnProps={{ gaAction: 'FiRM-action-btn-walkthrough' }}                   
                 />
             </HStack>

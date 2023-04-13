@@ -473,6 +473,7 @@ export const F2CombinedForm = ({
             hideInput={true}
             hideButtons={false}
             onSuccess={resetForm}
+            enableCustomApprove={true}
             btnProps={{
                 h: '50px',
                 w: 'fit-content',
