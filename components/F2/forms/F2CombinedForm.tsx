@@ -314,8 +314,8 @@ export const F2CombinedForm = ({
                                 signer={signer}
                                 decimals={18}
                                 maxAmountFrom={isDeposit ? [bnLeftToBorrow, parseEther((newCreditLimit * 0.99).toFixed(0))] : [bnDebt, bnDolaBalance]}
-                                onAction={({ bnAmount }) => handleAction(bnAmount)}
-                                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                                onAction={({ bnAmount }) => handleAction()}
+                                onMaxAction={({ bnAmount }) => handleAction()}
                                 actionLabel={btnLabel}
                                 maxActionLabel={btnMaxlabel}
                                 onAmountChange={handleDebtChange}
@@ -352,9 +352,9 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < deltaDebt
+                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt+dbrCoverDebt : deltaDebt)
                     && <WarningMessage alertProps={{ w: 'full' }} description={
-                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment`
+                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but ${shortenNumber(dbrCoverDebt+deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
                     } />
                 }
                 {
@@ -455,14 +455,14 @@ export const F2CombinedForm = ({
 
     const actionBtn = <HStack>
         <SimpleAmountForm
-            defaultAmount={collateralAmount}
-            address={isWithdrawOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
+            defaultAmount={isRepayCase ? debtAmount : collateralAmount}
+            address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
             destination={isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
-            onAction={({ bnAmount }) => handleAction(bnAmount)}
-            onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+            onAction={({ bnAmount }) => handleAction()}
+            onMaxAction={({ bnAmount }) => handleAction()}
             actionLabel={(isAutoDBR && hasDebtChange) || (isUseNativeCoin && hasCollateralChange) ? `Sign + ${mode}` : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
@@ -473,6 +473,7 @@ export const F2CombinedForm = ({
             hideInput={true}
             hideButtons={false}
             onSuccess={resetForm}
+            enableCustomApprove={true}
             btnProps={{
                 h: '50px',
                 w: 'fit-content',

@@ -3,7 +3,7 @@ import { useAllowances } from "@app/hooks/useApprovals";
 import { useBalances } from "@app/hooks/useBalances";
 import { getBnToNumber } from "@app/util/markets";
 import { hasAllowance } from "@app/util/web3";
-import { ButtonProps, FlexProps, InputProps, Stack, TextProps, VStack } from "@chakra-ui/react"
+import { ButtonProps, Checkbox, FlexProps, InputProps, Stack, TextProps, VStack } from "@chakra-ui/react"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
@@ -43,6 +43,8 @@ type Props = {
     showMax?: boolean
     inputRightProps?: TextProps
     inputLeftProps?: FlexProps
+    enableCustomApprove?: boolean
+    defaultInfiniteApprovalMode?: boolean
     onSuccess?: () => void
 }
 
@@ -98,8 +100,11 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         inputRightProps,
         inputLeftProps,
         onSuccess,
+        enableCustomApprove = false,
+        defaultInfiniteApprovalMode = true,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
+    const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
     const [tokenApproved, setTokenApproved] = useState(false);
     const [freshTokenApproved, setFreshTokenApproved] = useState(false);
     const { approvals } = useAllowances([address], destination);
@@ -112,12 +117,15 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
-    
+
     maxBn.sort((a, b) => getBnToNumber(a) > getBnToNumber(b) ? 1 : -1);
-    if(!maxBn.length || !maxBn[0]){
+    if (!maxBn.length || !maxBn[0]) {
         maxBn = [zeroBn];
     }
     const maxFloat = parseFloat(formatUnits(maxBn[0], decimals));
+
+    const _amount = (amount || '')?.toString()?.startsWith('.') ? `0${amount}` : amount;
+    const _bnAmount = parseUnits((roundFloorString(_amount, decimals) || '0'), decimals);
 
     useEffect(() => {
         setAmount(defaultAmount);
@@ -128,14 +136,13 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     }, [approvals, address, freshTokenApproved]);
 
     const setToMaxDeposit = () => {
-        const max = formatUnits(maxBn[0], decimals);        
+        const max = formatUnits(maxBn[0], decimals);
         setAmount(max);
         handleChange(max);
     }
 
     const handleAction = (isMax = false) => {
-        const _amount = (amount||'')?.toString()?.startsWith('.') ? `0${amount}` : amount;
-        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(_amount, decimals) || '0'), decimals);        
+        const bnAmount = isMax ? maxBn[0] : parseUnits((roundFloorString(_amount, decimals) || '0'), decimals);
         const params = {
             bnAmount,
             floatAmount: isMax ? getBnToNumber(maxBn[0]) : parseFloat(_amount) || 0,
@@ -178,19 +185,31 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         {
             hideButtons && !onlyShowApproveBtn ? null :
                 !tokenApproved && !noApprovalNeeded ?
-                    <ApproveButton
-                        w='full'
-                        themeColor={btnThemeColor}
-                        address={address}
-                        toAddress={destination}
-                        signer={signer}
-                        isDisabled={balance <= 0}
-                        onSuccess={() => setFreshTokenApproved(true)}
-                        ButtonComp={ButtonComp}
-                        {...btnProps}
-                    >
-                        {approveLabel}
-                    </ApproveButton> :
+                    <>
+                        <ApproveButton
+                            w='full'
+                            themeColor={btnThemeColor}
+                            address={address}
+                            toAddress={destination}
+                            signer={signer}
+                            isDisabled={isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)}
+                            onSuccess={() => setFreshTokenApproved(isInfiniteApprovalMode)}
+                            ButtonComp={ButtonComp}
+                            amount={isInfiniteApprovalMode ? undefined : _bnAmount}
+                            {...btnProps}
+                        >
+                            {approveLabel}
+                        </ApproveButton>
+                        {
+                            enableCustomApprove && <Checkbox
+                                isChecked={isInfiniteApprovalMode}
+                                onChange={() => setIsInfiniteApprovalMode(!isInfiniteApprovalMode)}
+                                isDisabled={balance <= 0}
+                            >
+                                Infinite Approval
+                            </Checkbox>
+                        }
+                    </> :
                     !onlyShowApproveBtn &&
                     <Stack w='full' direction={{ base: 'column', lg: 'row' }}>
                         <ButtonComp

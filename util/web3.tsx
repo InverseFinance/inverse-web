@@ -13,6 +13,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { getBnToNumber } from './markets'
+import { roundFloorString } from './misc'
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -162,7 +163,7 @@ export const hasAllowance = (approvals: BigNumberList, address: string, decimals
     return !!allowanceValue
   }
   const _amount = (amount||'')?.toString()?.startsWith('.') ? `0${amount}` : amount;
-  return allowanceValue >= getBnToNumber(parseUnits(_amount, decimals));
+  return allowanceValue >= getBnToNumber(parseUnits((roundFloorString(_amount, decimals) || '0'), decimals));
 }
 
 export const getTokenBalance = async (token: Token, signer: JsonRpcSigner) => {
