@@ -4,8 +4,6 @@ import { useContext } from "react";
 import { useEscrowRewards } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 
-const exampleAddress = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9';
-
 export const FirmRewardWrapper = ({
     market,
     label,
@@ -15,9 +13,33 @@ export const FirmRewardWrapper = ({
     label?: string
     showMarketBtn?: boolean
 }) => {
-    const { escrow, signer, deposits } = useContext(F2MarketContext);
-    const { appGroupPositions, isLoading } = useEscrowRewards(exampleAddress);
+    const { escrow } = useContext(F2MarketContext);
+    const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
     const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+    
+    return <FirmRewards
+        market={market}        
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        isLoading={isLoading}        
+    />
+}
+
+export const FirmRewards = ({
+    market,
+    rewardsInfos,
+    label,
+    showMarketBtn = false,    
+    isLoading,
+}: {
+    market: F2Market
+    rewardsInfos: any[]
+    label?: string
+    showMarketBtn?: boolean
+    isLoading?: boolean
+}) => {
+    const { escrow, signer } = useContext(F2MarketContext);    
 
     const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
@@ -34,6 +56,7 @@ export const FirmRewardWrapper = ({
             signer={signer}
             market={market}
             showMarketBtn={showMarketBtn}
+            defaultCollapse={false}
         />
     }
     return <></>

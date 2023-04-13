@@ -1,7 +1,7 @@
 
 import { F2Market, FirmAction, SWR } from "@app/types"
 import { fetcher } from '@app/util/web3'
-import { useCustomSWR } from "./useCustomSWR";
+import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
@@ -194,7 +194,7 @@ export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/escrow-rewards?escrow=${escrow}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow||''}`, fetcher);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -208,7 +208,7 @@ export const useUserRewards = (user: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/user-rewards?user=${user}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user||''}`, fetcher);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],

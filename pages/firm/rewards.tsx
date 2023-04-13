@@ -8,12 +8,12 @@ import { useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR'
 import { useUserRewards } from '@app/hooks/useFirm'
 import { preciseCommify } from '@app/util/misc'
 import { useAppTheme } from '@app/hooks/useAppTheme'
-import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
+import { FirmRewards } from '@app/components/F2/rewards/FirmRewardWrapper'
 
-export const FirmRewards = () => {
+export const FirmRewardsPage = () => {
     const account = useAccount();
-    const { themeStyles } = useAppTheme();    
+    const { themeStyles } = useAppTheme();
     const { markets } = useDBRMarkets();
     const accountMarkets = useAccountF2Markets(markets, account);
 
@@ -53,7 +53,13 @@ export const FirmRewards = () => {
                         isLoading ? <SkeletonBlob />
                             :
                             accountMarkets.filter(m => m.hasClaimableRewards).map(market => {
-                                return <FirmRewardWrapper key={market.address} market={market} />
+                                const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+                                return <FirmRewards
+                                    key={market.address}
+                                    market={market}
+                                    rewardsInfos={rewardsInfos}
+                                    showMarketBtn={true}
+                                />
                             })
                     }
                 </VStack>
@@ -62,4 +68,4 @@ export const FirmRewards = () => {
     )
 }
 
-export default FirmRewards
+export default FirmRewardsPage

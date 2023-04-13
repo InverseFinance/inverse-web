@@ -33,7 +33,7 @@ export const CvxCrvWeightBar = ({
 
 const cvxCRVStakingAddress = '0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434';
 
-const useCvxCrvRewards = (escrow = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9') => {
+const useCvxCrvRewards = (escrow: string) => {
     const { data, error } = useEtherSWR({
         args: [
             [cvxCRVStakingAddress, 'userRewardWeight', escrow],
@@ -49,13 +49,12 @@ const useCvxCrvRewards = (escrow = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9')
         error,
     }
 }
-const exampleAddress = '0x5a78917b84d3946f7e093ad4d9944fffffb451a9';
 
 export const CvxCrvPreferences = () => {
     const { escrow, signer } = useContext(F2MarketContext);
     const [perc, setPerc] = useState<number | null>(null);
     const [defaultPerc, setDefaultPerc] = useState<number | null>(null);
-    const { userRewardWeight } = useCvxCrvRewards(exampleAddress);
+    const { userRewardWeight } = useCvxCrvRewards(escrow);
     const [isLargerThan] = useMediaQuery('(min-width: 400px)');
 
     useEffect(() => {

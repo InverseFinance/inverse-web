@@ -13,6 +13,7 @@ export const CvxCrvRewards = ({
     totalRewardsUSD,
     label = 'Rewards',
     showMarketBtn = false,
+    defaultCollapse = undefined,
     market,
 }: {
     escrow: string,
@@ -21,6 +22,7 @@ export const CvxCrvRewards = ({
     signer: JsonRpcSigner,
     label?: string
     showMarketBtn?: boolean
+    defaultCollapse?: boolean
     market: F2Market
 }) => {
 
@@ -33,8 +35,8 @@ export const CvxCrvRewards = ({
         noPadding
         p='0'
         collapsable={true}
-        defaultCollapse={!totalRewardsUSD}
-        right={showMarketBtn ? <Link href={`/firm/${market.name}`}>
+        defaultCollapse={defaultCollapse ?? !totalRewardsUSD}
+        right={showMarketBtn ? <Link textDecoration='underline' href={`/firm/${market.name}`}>
             Go to market
         </Link> : undefined}
     >
