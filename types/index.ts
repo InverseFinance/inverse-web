@@ -720,6 +720,7 @@ export type F2Market = {
   escrowImplementation: string
   badgeInfo: string
   badgeProps?: BadgeProps
+  startingBlock: number
 }
 
 export type FirmAction = {

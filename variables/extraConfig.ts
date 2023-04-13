@@ -39,6 +39,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
+            startingBlock: 16159015,
         },
         {
             name: 'stETH',
@@ -50,6 +51,7 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'white' },
+            startingBlock: 16441143,
         },
         {
             name: 'gOHM',
@@ -62,6 +64,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'accentTextColor', color: 'white' },
             isGovTokenCollateral: true,
             govLink: 'https://snapshot.org/#/olympusdao.eth',
+            startingBlock: 16657838,
         },
         {
             name: 'CRV',
@@ -71,6 +74,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
+            startingBlock: 16791157,
         },
     ],
     feds: FEDS_PARAMS,
