@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from 'ethers'
+import { Contract } from 'ethers'
 import 'source-map-support'
 import { F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -16,22 +16,34 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 const cacheKey = 'firm-debt-histo-v1.0.0';
 
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 3600, true);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 3600);
     if (validCache) {
       res.status(200).json(validCache);
       return
     }
-    
-    const provider = getProvider(CHAIN_ID);
+
+    // not using fallbackprovider because it's not working with call & blockNumber
+    const provider = getProvider(CHAIN_ID, '', true);
+
     const currentBlock = await provider.getBlockNumber();
-    const archived = await getCacheFromRedis(cacheKey, false, 0, true) || FIRM_DEBT_HISTORY_INIT;
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || FIRM_DEBT_HISTORY_INIT;
     const intBlockPerDay = Math.floor(BLOCKS_PER_DAY);
-    const startingBlock = archived.blocks[archived.blocks.length - 1] + intBlockPerDay;    
+    const startingBlock = archived.blocks[archived.blocks.length - 1] + intBlockPerDay;
     const nbDays = Math.floor((currentBlock - startingBlock) / intBlockPerDay);
     const blocksFromStartUntilCurrent = [...Array(nbDays).keys()].map((i) => startingBlock + (i * intBlockPerDay));
 
-    if(!blocksFromStartUntilCurrent.length) {
+    const marketTemplate = new Contract(F2_MARKETS[0].address, F2_MARKET_ABI, provider);
+    // Function signature and encoding
+    const functionName = 'totalDebt';
+    const functionSignature = marketTemplate.interface.getSighash(functionName);
+
+    if (!blocksFromStartUntilCurrent.includes(currentBlock)) {
+      blocksFromStartUntilCurrent.push(currentBlock);
+    }
+
+    if (!blocksFromStartUntilCurrent.length) {
       res.status(200).json(archived);
     }
 
@@ -47,8 +59,11 @@ export default async function handler(req, res) {
           return Promise.all(F2_MARKETS.map((m, i) => {
             const market = new Contract(m.address, F2_MARKET_ABI, provider);
             return block >= m.startingBlock ?
-              market.totalDebt({ blockTag: block }) :
-              new Promise((resolve) => resolve(BigNumber.from('0')));
+              market.provider.call({
+                to: m.address,
+                data: functionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
+              }, block) :
+              new Promise((resolve) => resolve(null));
           }))
         },
         blocksFromStartUntilCurrent,
@@ -57,8 +72,8 @@ export default async function handler(req, res) {
       );
 
     const newDebts = newDebtsBn.map((d, i) => {
-      return d.map((bn, j) => getBnToNumber(bn));
-    })
+      return d.map((v, j) => v === null ? 0 : getBnToNumber(marketTemplate.interface.decodeFunctionResult(functionName, v)[0]));
+    });
 
     const resultData = {
       debts: archived.debts.concat(newDebts),
@@ -68,7 +83,7 @@ export default async function handler(req, res) {
       timestamps: archived.timestamps.concat(blocksFromStartUntilCurrent.map(b => timestamps[NetworkIds.mainnet][b])),
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData, true);
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
