@@ -9,11 +9,14 @@ export const EarnPage = () => {
         <Layout>
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Yield Opportunities</title>
-                <meta name="og:title" content="Inverse Finance - Yield Opportunities" />
-                <meta name="og:description" content="INV & DOLA Yield Opportunities" />
-                <meta name="description" content="INV & DOLA Yield Opportunities" />
-                <meta name="keywords" content="Inverse Finance, inv, dola, DeFi, yield, earn" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/alerts.jpeg" />
+                <meta name="og:title" content="" />
+                <meta name="og:description" content="" />
+                <meta name="description" content="" />
+                <meta name="keywords" content="" />
+                <meta name="twitter:image:alt" content="" />
+                <meta name="twitter:site" content="" />
+                <meta name="twitter:image:alt" content="" />
+                <meta property="twitter:card" content="" />
             </Head>
             <AppNav active="Earn" activeSubmenu="Yield Opportunities" />
             <Flex direction="column" w={{ base: 'full' }} pt='8' maxWidth="1100px">
