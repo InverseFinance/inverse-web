@@ -57,8 +57,8 @@ const columns = [
     },
     {
         field: 'supplyApy',
-        label: 'Supply Apy',
-        tooltip: 'Apy for the supplied asset',
+        label: 'Intrinsic APY',
+        tooltip: 'The APY provided by the asset itself and that is kept even after supplying, this is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ supplyApy, price, underlying }) => {
             return <Cell minWidth="100px" justify="center" fontSize="15px">
