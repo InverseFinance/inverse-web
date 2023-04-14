@@ -52,16 +52,14 @@ const App = ({ Component, pageProps }: AppProps) => {
           <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, WBTC, YFI, INV, DOLA, FLOKI, xSushi, borrow, lend, bonds, positive-sum, rewards, transparency, anchor, frontier, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
 
           <meta name="og:title" content="Inverse Finance" />
-          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Stake INV to earn interests and borrow DOLA our decentralized stablecoin." />
+          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Stake INV to earn interests and borrow DOLA our decentralized stablecoin." />          
           <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/1Ma9aOfVoZhPqBSfWypXPO/51c94241f900cd3f3252e4628916250e/inv_medium_article_image_1.png?w=3840&q=75" />
-
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:image:alt" content="inverse finance" />
-          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <meta property="twitter:card" content="summary_large_image" />
+          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />          
 
-          <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
-          <meta property="twitter:card" content="summary_large_image" />
+          <link rel="icon" type="image/png" href="/assets/favicon.png"></link>          
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <link rel="apple-touch-icon" href="/assets/apple-touch.png" />
           <script
