@@ -24,7 +24,7 @@ import { DbrDebt } from '@app/components/Transparency/DbrDebt'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Debt'];
+const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
@@ -80,11 +80,11 @@ export const DBRTransparency = () => {
                             tab === 'Income' && <DbrIncome chartData={chartData} />
                         }
                         {
-                            tab === 'Burns' && <DbrBurns chartData={burnChartData} />
-                        }
-                        {
-                            tab === 'Debt' && <DbrDebt chartData={debtChartData} />
-                        }
+                            tab === 'Burns' && <VStack>
+                                <DbrDebt chartData={debtChartData} />
+                                <DbrBurns chartData={burnChartData} />
+                            </VStack>
+                        }                        
                     </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>

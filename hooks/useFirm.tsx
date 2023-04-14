@@ -208,15 +208,15 @@ export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`, fetcher);
 
-  const debts = data ? data.debts : [];  
-  const history = data ? debts.map((d,i) => {
+  const debts = data?.debts || [];
+  const history = debts.map((d, i) => {
     return {
       debt: d.reduce((a, b) => a + b, 0),
       timestamp: data.timestamps[i] * 1000,
     }
-  }) : [];
+  });
 
   return {
     history,
