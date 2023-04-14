@@ -13,9 +13,8 @@ import { FIRM_DEBT_HISTORY_INIT } from '@app/fixtures/firm-debt-history-init';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-const cacheKey = 'firm-debt-histo-v1.0.0';
-
 export default async function handler(req, res) {
+  const cacheKey = 'firm-debt-histo-v1.0.4';
   const { cacheFirst } = req.query;
   try {
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 3600);
@@ -30,21 +29,29 @@ export default async function handler(req, res) {
     const currentBlock = await provider.getBlockNumber();
     const archived = await getCacheFromRedis(cacheKey, false, 0) || FIRM_DEBT_HISTORY_INIT;
     const intBlockPerDay = Math.floor(BLOCKS_PER_DAY);
-    const startingBlock = archived.blocks[archived.blocks.length - 1] + intBlockPerDay;
-    const nbDays = Math.floor((currentBlock - startingBlock) / intBlockPerDay);
-    const blocksFromStartUntilCurrent = [...Array(nbDays).keys()].map((i) => startingBlock + (i * intBlockPerDay));
+    const lastBlock = archived.blocks[archived.blocks.length - 1];
+    // skip if last block is less than 5 blocks ago
+    if(currentBlock - lastBlock < 5) {
+      res.status(200).json(archived);
+      return;
+    }
+    const startingBlock = lastBlock + intBlockPerDay < currentBlock ? lastBlock + intBlockPerDay : currentBlock;
 
+    const nbDays = Math.floor((currentBlock - startingBlock) / intBlockPerDay);
+
+    const blocksFromStartUntilCurrent = [...Array(nbDays).keys()].map((i) => startingBlock + (i * intBlockPerDay));
     const marketTemplate = new Contract(F2_MARKETS[0].address, F2_MARKET_ABI, provider);
     // Function signature and encoding
     const functionName = 'totalDebt';
     const functionSignature = marketTemplate.interface.getSighash(functionName);
 
-    if (!blocksFromStartUntilCurrent.includes(currentBlock)) {
+    if (!blocksFromStartUntilCurrent.includes(currentBlock) && !archived.blocks.includes(currentBlock)) {
       blocksFromStartUntilCurrent.push(currentBlock);
     }
 
     if (!blocksFromStartUntilCurrent.length) {
       res.status(200).json(archived);
+      return;
     }
 
     await addBlockTimestamps(
