@@ -410,7 +410,7 @@ export const F2CombinedForm = ({
             </HStack>
             <InfoMessage
                 alertProps={{ w: 'full', fontStyle: 'italic' }}
-                description="NB: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt. Actual duration may vary a little bit due to DBR price fluctuations."
+                description="Note: auto-buying DBR requires an additional signature step. The cost of DBR will be added to your DOLA debt. Actual duration may vary a little bit due to DBR price fluctuations."
             />
         </VStack>
     </VStack>
@@ -439,7 +439,7 @@ export const F2CombinedForm = ({
             />
             <InfoMessage
                 alertProps={{ w: 'full', fontStyle: 'italic' }}
-                description="NB: auto-selling DBR requires an additional signature step. The DOLA received from the swap will be sent to your wallet."
+                description="Note: auto-selling DBR requires an additional signature step. The DOLA received from the swap will be sent to your wallet."
             />
         </VStack>
     </VStack>

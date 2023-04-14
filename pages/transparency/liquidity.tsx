@@ -159,7 +159,7 @@ export const Liquidity = () => {
           <LiquidityPoolsTable items={polsItems} timestamp={timestamp} />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
-            description="NB: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."
+            description="Note: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."
           />
         </Flex>
       </Flex>
