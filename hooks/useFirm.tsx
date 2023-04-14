@@ -40,7 +40,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       creditLimit: newCreditLimit,
       liquidationPrice: newLiquidationPrice,
       creditLeft: newCreditLeft,
-      userBorrowLimit: 100-newPerc,
+      userBorrowLimit: 100 - newPerc,
       tvl: p.deposits * market.price,
       debtRiskWeight: newPerc * p.debt,
       key: `${p.user}-${p.marketIndex}`,
@@ -67,7 +67,7 @@ export const useDBRActiveHolders = (): SWR & {
   const activeDbrHoldersWithMarkets = activeDbrHolders.map(s => {
     const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
     const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
-    const dailyBurn = s.debt/oneYear * ONE_DAY_MS;
+    const dailyBurn = s.debt / oneYear * ONE_DAY_MS;
     const dbrNbDaysExpiry = dailyBurn ? s.signedBalance / dailyBurn : 0;
     const dbrExpiryDate = !s.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
     return {
@@ -122,7 +122,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const decimals = isCollateralEvent ? market.underlying.decimals : 18;
 
     // Deposit can be associated with Borrow, withdraw with repay
-    let combinedEvent;    
+    let combinedEvent;
     const combinedEventName = COMBINATIONS[e.event];
     if (combinedEventName) {
       combinedEvent = flatenedEvents.find(e2 => e.transactionHash === e2.transactionHash && e2.event === combinedEventName);
@@ -154,7 +154,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
     }
   });
-  
+
   const grouped = uniqueBy(events, (o1, o2) => o1.combinedKey === o2.combinedKey);
   grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
 
@@ -197,7 +197,29 @@ export const useDBRBurns = (): SWR & {
   const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`, fetcher);
 
   return {
-    events: data ? data.totalBurns : [],    
+    events: data ? data.totalBurns : [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useDBRDebtHisto = (): SWR & {
+  timestamp: number,
+  history: { debt: number, timestamp: number }[],
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo`, fetcher);
+
+  const debts = data ? data.debts : [];  
+  const history = data ? debts.map((d,i) => {
+    return {
+      debt: d.reduce((a, b) => a + b, 0),
+      timestamp: data.timestamps[i] * 1000,
+    }
+  }) : [];
+
+  return {
+    history,
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,
