@@ -22,7 +22,7 @@ export const DbrDebt = ({
             domainYpadding={200000}
             mainColor="secondary"
             isDollars={false}
-            title="DBR annual burn-rate over time"
+            title="DBR annualized burn-rate over time"
         />
     </Stack>
 }
