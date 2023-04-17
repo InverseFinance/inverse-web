@@ -104,7 +104,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     useEffect(() => {
         let interval = setInterval(() => {
             setNow(Date.now());
-        });
+        }, 60000);
         return () => {
             if (interval) {
                 clearInterval(interval);
