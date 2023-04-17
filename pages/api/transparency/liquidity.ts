@@ -71,6 +71,9 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.polygon]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.polygon, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.avalanche]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.avalanche, ...lp })),
         ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
@@ -84,9 +87,10 @@ export default async function handler(req, res) {
             [NetworkIds.mainnet]: TWG,
             [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
             [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
-            [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,            
+            [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
             [NetworkIds.arbitrum]: multisigsToShow.find(m => m.shortName === 'TWG on ARB 1')!,
             [NetworkIds.polygon]: multisigsToShow.find(m => m.shortName === 'TWG on PLG')!,
+            [NetworkIds.avalanche]: multisigsToShow.find(m => m.shortName === 'TWG on AVAX')!,
         }
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];

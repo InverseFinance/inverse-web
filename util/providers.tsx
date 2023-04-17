@@ -20,6 +20,9 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     }
     else if(chainId === NetworkIds.polygon) {
         return new JsonRpcProvider('https://polygon.llamarpc.com');
+    }    
+    else if(chainId === NetworkIds.avalanche) {
+        return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
     }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
