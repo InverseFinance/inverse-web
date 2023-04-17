@@ -102,7 +102,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const { events, isLoading: isLoadingEvents } = useFirmMarketEvents(market, account);
 
     useEffect(() => {
-        let interval = setInterval(() => {           
+        let interval = setInterval(() => {
             setNow(Date.now());
         }, 60000);
         return () => {

@@ -197,23 +197,23 @@ export const F2CombinedForm = ({
         setDbrSellAmount('');
     }
 
-    useEffect(() => {
-        const adapt = (reset = true) => {
-            if (reset && (infoTab === 'Summary' || !['Deposit & Borrow', 'Repay & Withdraw'].includes(mode))) {
-                setSyncedMinH('230px');
-            } else {
-                const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
-                const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
-                if (formHeight && recapHeight && Math.abs(formHeight - recapHeight) <= 50) {
-                    setSyncedMinH(Math.max(formHeight, recapHeight));
-                }
-            }
-        }
-        adapt(true);
-        setTimeout(() => {
-            adapt(false);
-        }, 1)
-    }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough, infoTab]);
+    // useEffect(() => {
+    //     const adapt = (reset = true) => {
+    //         if (reset && (infoTab === 'Summary' || !['Deposit & Borrow', 'Repay & Withdraw'].includes(mode))) {
+    //             setSyncedMinH('230px');
+    //         } else {
+    //             const formHeight = document.getElementById('f2-combined-form')?.clientHeight;
+    //             const recapHeight = document.getElementById('f2-recap-container')?.clientHeight;
+    //             if (formHeight && recapHeight && Math.abs(formHeight - recapHeight) <= 50) {
+    //                 setSyncedMinH(Math.max(formHeight, recapHeight));
+    //             }
+    //         }
+    //     }
+    //     adapt(true);
+    //     setTimeout(() => {
+    //         adapt(false);
+    //     }, 1)
+    // }, [market, mode, deposits, debt, dbrPrice, duration, collateralAmount, perc, isAutoDBR, isWalkthrough, infoTab]);
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;

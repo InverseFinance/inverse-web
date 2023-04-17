@@ -167,7 +167,7 @@ const columns = [
             return <Cell minWidth="120px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account && deposits > 0 ? <>
-                        <CellText>{shortenNumber(deposits, 4)}</CellText>
+                        <CellText>{shortenNumber(deposits, 2)}</CellText>
                         <CellText>({shortenNumber(deposits * price, 2, true)})</CellText>
                     </> : <>-</>
                 }
