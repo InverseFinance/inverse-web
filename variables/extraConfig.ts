@@ -197,6 +197,14 @@ const mainConfig = {
             chainId: NetworkIds.polygon,
             order: 3.3,
         },
+        {            
+            address: '0x1A927B237a57421C414EB511a33C4B82C2718677',
+            name: 'Treasury Working Group on AVAX',
+            shortName: 'TWG on AVAX',
+            purpose: 'Optimize Inverse Treasury management on Avalanche',            
+            chainId: NetworkIds.avalanche,
+            order: 3.4,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };

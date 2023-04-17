@@ -170,6 +170,8 @@ const networks: Network[] = [
     coinSymbol: 'avax',
     isTestnet: false,
     isSupported: false,
+    scan: 'https://snowtrace.io',
+    image: `/assets/networks/${NETWORK_CODENAMES.avalanche}.png`,
   },
   {
     id: '10',
