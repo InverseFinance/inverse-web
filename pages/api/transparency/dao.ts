@@ -25,13 +25,13 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
 
-export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.3`;
+export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.4`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.4`;
-export const cacheMulAllKey = `dao-multisigs-all-v1.0.2`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.5`;
+export const cacheMulAllKey = `dao-multisigs-all-v1.0.3`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
-export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.3`;
+export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.4`;
 
 export default async function handler(req, res) {
 
