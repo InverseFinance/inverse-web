@@ -153,6 +153,11 @@ const chainTokenAddresses = {
     RAMDOLAFRAXLP: '0x1850e96550d6716d43bA4d7DF815FfC32bD0d03e',
     STERLINGDOLAUSDCLP: '0x8806e6B5F57C780180827E77115794d9C8100Cb7',
   },
+  "43114": {
+    DOLA: '0x221743dc9E954bE4f86844649Bf19B43D6F8366d',
+    USDC: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+    DOLAUSDCSOLISNEDKLP: '0x7680D9F07f80B11A7a96E4443398245D917998e6',
+  },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
@@ -738,6 +743,38 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].CUSD
       ],
       protocolImage: PROTOCOL_IMAGES.AURA,
+    },
+  },
+  "43114": {
+    CHAIN_COIN: {
+      address: '',
+      name: 'Avax',
+      symbol: 'AVAX',
+      coingeckoId: 'avalanche-2',
+      image: TOKEN_IMAGES.AVAX,
+      decimals: 18,
+    },
+    [chainTokenAddresses["43114"].DOLA]: {
+      address: chainTokenAddresses["43114"].DOLA,
+      ...DOLA,
+    },
+    [chainTokenAddresses["43114"].USDC]: {
+      address: chainTokenAddresses["43114"].USDC,
+      ...USDC,
+    },
+    [chainTokenAddresses["43114"].DOLAUSDCSOLISNEDKLP]: {
+      address: chainTokenAddresses["43114"].DOLAUSDCSOLISNEDKLP,
+      name: 'DOLA-USDC solisnek lp',
+      symbol: 'DOLA-USDC slsnk',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["43114"].DOLA, chainTokenAddresses["43114"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.SOLISNEK,
     },
   },
   "250": {
