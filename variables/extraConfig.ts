@@ -205,6 +205,13 @@ const mainConfig = {
             chainId: NetworkIds.avalanche,
             order: 3.4,
         },
+        {            
+            address: '0xD9a3f7E1AEC3ED77d5Eb7f738Eb27a936bf7F790',
+            name: 'Product Working Group',
+            shortName: 'PWG',
+            purpose: 'Optimize Inverse Treasury management on Avalanche',            
+            chainId: NetworkIds.mainnet,            
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };
