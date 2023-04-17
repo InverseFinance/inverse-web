@@ -114,20 +114,23 @@ const INVBalance = () => {
   const router = useRouter()
   const { query } = router;
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const userAddress = (query?.viewAddress as string) || account;  
+  const userAddress = (query?.viewAddress as string) || account;
   const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { exchangeRates } = useExchangeRatesV2()
   const { data } = useEtherSWR([
     [INV, 'balanceOf', userAddress],
     [XINV, 'balanceOf', userAddress],
   ])
-  const [formattedBalance, setFormattedBalance] = useState<ReactNode>(null)
 
+  const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
+  const inv = invBalance / ETH_MANTISSA
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA)
+  const hasUnstakedBal = inv >= 0.01;
 
-  useDualSpeedEffect(() => {
-    setFormattedBalance(userAddress ? formatData(data, exRate) : null)
-  }, [data, userAddress, exRate], !userAddress, 1000)
+  if (!data) {
+    return <></>
+  }
 
   const goToSupply = () => {
     if (router.pathname === '/frontier') {
@@ -138,25 +141,7 @@ const INVBalance = () => {
     }
   }
 
-  const formatData = (data: [number, number] | undefined, exchangeRate: BigNumber) => {
-    const [invBalance, xinvBalance] = data || [0, 0, 1]
-    const inv = invBalance / ETH_MANTISSA
-    const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
-    const hasUnstakedBal = inv >= 0.01
-    return <>
-      <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
-        {inv.toFixed(2)} {RTOKEN_SYMBOL}
-      </Text>
-      ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
-    </>
-  }
-
-  if (!formattedBalance || !data) {
-    return <></>
-  }
-
-  const invBal = data[0] / ETH_MANTISSA;
-  const onMainnetCase = invBal >= 0.01
+  const onMainnetCase = inv >= 0.01
 
   return (
     <NavBadge>
@@ -164,14 +149,19 @@ const INVBalance = () => {
         onMainnetCase ?
           <AnimatedInfoTooltip message={
             <>
-              {onMainnetCase && <Text>You have {invBal.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
+              {onMainnetCase && <Text>You have {inv.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
             </>
           }>
             <WarningIcon color="orange.300" mr="1" />
           </AnimatedInfoTooltip>
           : null
       }
-      {formattedBalance}
+      <>
+        <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
+          {inv.toFixed(2)} {RTOKEN_SYMBOL}
+        </Text>
+        ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
+      </>
     </NavBadge>
   )
 }
@@ -446,8 +436,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { themeName, themeStyles } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
-  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);  
-  const [showAirdropModal, setShowAirdropModal] = useState(false);  
+  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
+  const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
 
