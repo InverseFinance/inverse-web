@@ -6,7 +6,7 @@ import { VStack, Text, HStack } from "@chakra-ui/react"
 import { parseEther } from "@ethersproject/units"
 import { useContext } from "react"
 import { F2MarketContext } from "@app/components/F2/F2Contex"
-import { InfoMessage } from "@app/components/common/Messages"
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
 import { preciseCommify } from "@app/util/misc"
 import { StepNavBtn } from "./StepNavBtn"
 import { useAppTheme } from "@app/hooks/useAppTheme"
@@ -25,7 +25,7 @@ export const F2WalkthroughDebt = ({
     const {
         step,
         market,
-        signer,    
+        signer,
         isDeposit,
         dolaLiquidity,
         newCreditLimit,
@@ -35,6 +35,8 @@ export const F2WalkthroughDebt = ({
         debtAmount,
         debtAmountNum,
         dbrCover,
+        dbrCoverDebt,
+        isAutoDBR,
         newLiquidationPrice,
         collateralAmount,
         newCreditLeft,
@@ -46,7 +48,7 @@ export const F2WalkthroughDebt = ({
         isSmallerThan728,
     } = useContext(F2MarketContext);
 
-    const notEnoughLiq = debtAmountNum > leftToBorrow && leftToBorrow > 0;
+    const notEnoughLiq = leftToBorrow > 0 && debtAmountNum > 0 && leftToBorrow < (isAutoDBR ? debtAmountNum + dbrCoverDebt : debtAmountNum);
     const isDisabled = notEnoughLiq || (leftToBorrow === 0)
 
     return <>
@@ -92,15 +94,10 @@ export const F2WalkthroughDebt = ({
                 />
             }
             {
-                notEnoughLiq &&
-                <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    description={
-                        <VStack w='full' alignItems="flex-start" spaing="0">
-                            <Text>There's only {preciseCommify(leftToBorrow, 2)} DOLA liquidity available</Text>
-                        </VStack>
-                    }
-                />
+                
+                notEnoughLiq && <WarningMessage alertProps={{ w: 'full' }} description={
+                    `Only ${shortenNumber(leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt + debtAmountNum, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
+                } />
             }
         </VStack>
         <HStack w='full' justify="space-between">
