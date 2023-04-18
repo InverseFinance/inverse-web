@@ -354,7 +354,7 @@ export const F2CombinedForm = ({
                 {
                     isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt+dbrCoverDebt : deltaDebt)
                     && <WarningMessage alertProps={{ w: 'full' }} description={
-                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but ${shortenNumber(dbrCoverDebt+deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
+                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt+deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
                     } />
                 }
                 {

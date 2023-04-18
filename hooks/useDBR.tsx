@@ -136,7 +136,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
       return {
         ...m,
-        ...cachedMarkets[i],        
+        ...cachedMarkets[i],
         price: data ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
@@ -180,20 +180,21 @@ export const useAccountDBRMarket = (
   account: string,
   isUseNativeCoin = false,
 ): AccountDBRMarket => {
-  const { data: accountMarketData, error } = useEtherSWR([
-    [market.address, 'escrows', account],
-    [market.address, 'getCreditLimit', account],
-    [market.address, 'getWithdrawalLimit', account],
-    [market.address, 'debts', account],
-  ]);
+  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
+  const { data: accountMarketData } = useEtherSWR(
+    !escrow || escrow === BURN_ADDRESS ? [] : [
+      [market.address, 'getCreditLimit', account],
+      [market.address, 'getWithdrawalLimit', account],
+      [market.address, 'debts', account],
+    ]
+  );
 
   const { data: balances } = useEtherSWR([
-    [market.collateral, 'balanceOf', account],
-    ['getBalance', account, 'latest'],
+    isUseNativeCoin ? ['getBalance', account, 'latest'] : [market.collateral, 'balanceOf', account],
   ]);
 
-  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
-  const bnCollateralBalance: BigNumber = balances ? isUseNativeCoin ? balances[1] : balances[0] : zero;
+  const [bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero, zero];
+  const bnCollateralBalance: BigNumber = balances ? balances[0] : zero;
   const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
   const { data: escrowData } = useEtherSWR({
