@@ -117,15 +117,15 @@ export const Liquidity = () => {
           {
             category === 'DOLA' ?
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: `TOTAL DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={liquidity.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity' }} />
-                <AggregatedLiquidityData items={liquidity.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
+                <AggregatedLiquidityData items={liquidity} include='DOLA' containerProps={{ label: `TOTAL DOLA Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity} include='DOLA' isStable={true} containerProps={{ label: 'DOLA Stable Liquidity' }} />
+                <AggregatedLiquidityData items={liquidity} include='DOLA' isStable={false} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
               </Stack>
               :
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes(category))} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
-                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes(category) && lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes(category) && !lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity} include={category} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity} include={[category, 'DOLA']}  containerProps={{ label: `${category}-DOLA Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
           <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >

@@ -6,9 +6,15 @@ import { getPoolsAggregatedStats } from "@app/util/pools"
 
 export const AggregatedLiquidityData = ({
     items,
+    isStable,
+    include,
+    exclude,
     containerProps,
 }: {
     items: any[],
+    isStable?: boolean,
+    include?: string | string[],
+    exclude?: string | string[],
     containerProps?: AppContainerProps,
 }) => {
     const {
@@ -19,7 +25,7 @@ export const AggregatedLiquidityData = ({
         pol,
         rewardDay,
         avgApy,
-    } = getPoolsAggregatedStats(items);
+    } = getPoolsAggregatedStats(items, isStable, include, exclude);
 
     return <SimpleTwoColTable
         containerProps={containerProps}
