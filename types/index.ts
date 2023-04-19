@@ -746,3 +746,5 @@ export type FirmAction = {
   tokenName: string,
   tokenNameCombined?: string,
 }
+
+export type CoordinatesArray = { x: number, y: number }[]

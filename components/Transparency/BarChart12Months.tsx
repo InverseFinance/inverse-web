@@ -1,10 +1,19 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { BarChart } from './BarChart'
+import { BarChart, BarChartProps } from './BarChart'
 import moment from 'moment'
 import { shortenNumber } from '@app/util/markets';
+import { CoordinatesArray } from '@app/types';
 
 const months = [...Array(12).keys()];
+
+export type BarChart12MonthsProps = {
+    chartData: CoordinatesArray,
+    maxChartWidth?: number,
+    eventName: string,
+    yAttribute: string,
+    isDollars?: boolean,
+}
 
 export const BarChart12Months = ({
     chartData,
@@ -13,13 +22,7 @@ export const BarChart12Months = ({
     yAttribute,
     isDollars,
     ...props
-}: {
-    chartData: any,
-    maxChartWidth?: number,
-    eventName: string,
-    yAttribute: string,
-    isDollars?: boolean,
-}) => {
+}: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
 
@@ -48,8 +51,8 @@ export const BarChart12Months = ({
     return (
         <BarChart
             width={chartWidth}
-            groupedData={barChartData}
             {...props}
+            groupedData={barChartData}
         />
     )
 }

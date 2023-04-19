@@ -5,8 +5,7 @@ import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
 import { useAppTheme } from '@app/hooks/useAppTheme';
-
-type Props = { x: number, y: number }[]
+import { CoordinatesArray } from '@app/types';
 
 const strokeColors = {
     primary: '#8881c9',
@@ -15,7 +14,7 @@ const strokeColors = {
 }
 
 export type AreaChartProps = {
-    data: Props,
+    data: CoordinatesArray,
     title?: string,
     width?: number,
     height?: number,
