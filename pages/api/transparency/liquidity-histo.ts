@@ -5,7 +5,7 @@ import { liquidityCacheKey } from './liquidity';
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;    
-    const cacheKey = 'liquidity-history-aggregated'
+    const cacheKey = 'liquidity-history-aggregated-v1.0.0'
 
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 300);
@@ -30,19 +30,19 @@ export default async function handler(req, res) {
             { name: 'DBR', args: [undefined, 'DBR'] },
             { name: 'DBR-DOLA', args: [undefined, ['DBR', 'DOLA']] },
             { name: 'DBR-NON_DOLA', args: [undefined, 'DBR', 'DOLA'] },
-        ]
+        ];
 
-        const aggregatedHistory = categories.map(cat => {
+        const aggregatedHistory = categories.reduce((prev, curr) => {
             return {
-                name: cat.name,
-                items: totalEntries.map((entry) => {
+                ...prev,
+                [curr.name]: totalEntries.map((entry) => {
                     return {
                         timestamp: entry.timestamp,
-                        ...getPoolsAggregatedStats(entry.liquidity, ...cat.args),
+                        ...getPoolsAggregatedStats(entry.liquidity, ...curr.args),
                     };
                 }),
             }
-        });
+        }, {});
 
         const resultData = {
             aggregatedHistory,
