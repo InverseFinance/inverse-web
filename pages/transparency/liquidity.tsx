@@ -62,17 +62,8 @@ export const Liquidity = () => {
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
-  const polsItems = liquidity.map(p => {
-    return {
-      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,
-      pol: p.ownedAmount,
-      polDom: p.perc,
-      ...p,
-    }
-  });
-
-  const toExcludeFromAggregate = polsItems.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
-  const itemsWithoutChildren = polsItems.filter(lp => !toExcludeFromAggregate.includes(lp.address));
+  const toExcludeFromAggregate = liquidity.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
+  const itemsWithoutChildren = liquidity.filter(lp => !toExcludeFromAggregate.includes(lp.address));
 
   const categoryLps = itemsWithoutChildren.filter(lp => lp.lpName.includes(category));
   const byPairs = groupLpsBy(categoryLps, 'lpName');
@@ -126,15 +117,15 @@ export const Liquidity = () => {
           {
             category === 'DOLA' ?
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: `TOTAL DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity' }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
+                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: `TOTAL DOLA Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity' }} />
+                <AggregatedLiquidityData items={liquidity.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
               </Stack>
               :
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes(category))} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes(category) && lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes(category) && !lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes(category))} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes(category) && lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-DOLA Liquidity` }} />
+                <AggregatedLiquidityData items={liquidity.filter(lp => lp.lpName.includes(category) && !lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
           <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >
@@ -156,7 +147,7 @@ export const Liquidity = () => {
             </VStack>
           </Stack>
           <Divider my="4" />
-          <LiquidityPoolsTable items={polsItems} timestamp={timestamp} />
+          <LiquidityPoolsTable items={liquidity} timestamp={timestamp} />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
             description="Note: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."

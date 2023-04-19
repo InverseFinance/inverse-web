@@ -146,22 +146,22 @@ const columns = [
         },
     }
     , {
-        field: 'polDom',
+        field: 'perc',
         label: 'Pool Dom',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
-        value: ({ polDom }) => {
+        value: ({ perc }) => {
             return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
-                <CellText>{shortenNumber(polDom, 2)}%</CellText>
+                <CellText>{shortenNumber(perc, 2)}%</CellText>
             </Cell>
         },
     }
     , {
-        field: 'pol',
+        field: 'ownedAmount',
         label: 'PoL',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
-        value: ({ pol }) => {
+        value: ({ ownedAmount }) => {
             return <Cell minWidth="100px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(pol, 0, true)}</CellText>
+                <CellText>{preciseCommify(ownedAmount, 0, true)}</CellText>
             </Cell>
         },
     }
