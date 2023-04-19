@@ -17,7 +17,7 @@ export const getPoolsAggregatedStats = (
 
     const _items = isStable === undefined && !include && !exclude ?
         items : items.filter(lp => {
-            return (isStable === undefined || lp.isStable === isStable)
+            return (isStable === undefined || (lp.isStable||false) === isStable)
                 && _include.every(inc => lp.name.includes(inc))
                 && (!!exclude ? _exclude.every(exc => !lp.name.includes(exc)) : true);
         });
