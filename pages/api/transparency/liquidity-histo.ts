@@ -13,13 +13,14 @@ export default async function handler(req, res) {
             res.status(200).json(validCache);
             return
         }
-        
+
         const [snapshots, latestLiquidityCache] = await Promise.all([
             getCacheFromRedis('liquidity-history', false, 0, true),
             excludeCurrent === 'true' ? new Promise((res) => res(undefined)) : fetch(`https://www.inverse.finance/api/transparency/liquidity?cacheFirst=${cacheFirst}`),
         ]);
 
-        const totalEntries = (snapshots?.entries || []).concat(latestLiquidityCache || { liquidity: [] });
+        const totalEntries = (snapshots?.entries || [])
+            .concat(latestLiquidityCache ? await latestLiquidityCache?.json() : { liquidity: [] });
 
         const categories = [
             { name: 'DOLA', args: [undefined, 'DOLA'] },
