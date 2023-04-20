@@ -70,8 +70,7 @@ export const Liquidity = () => {
   const [histoAttributeLabel, setHistoAttributeLabel] = useState('TVL');
   const [histoTitle, setHistoTitle] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
-
+  const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);  
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
   const toExcludeFromAggregate = liquidity.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
@@ -83,10 +82,10 @@ export const Liquidity = () => {
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
   const byProtocol = groupLpsBy(categoryLps, 'project').map(f => ({ ...f, token: { symbol: capitalize(f.token.symbol) } }));
 
-  const handleOpenHistoChart = (isStable: boolean, exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
-    const isDola = category === 'DOLA';
+  const handleOpenHistoChart = (isStable: boolean, include: string | string[], exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
+    const isDolaPaired = Array.isArray(include) && include.length > 1 && include[1] === 'DOLA';
     setHistoAttribute(attribute);
-    setCategoryChartHisto(`${category}${isStable === true ? '-stable' : isStable === false ? '-volatile' : ''}${exclude ? '-NON_DOLA' : isDola ? '' : '-DOLA'}`);
+    setCategoryChartHisto(`${category}${isStable === true ? '-stable' : isStable === false ? '-volatile' : ''}${exclude ? '-NON_DOLA' : isDolaPaired ? '-DOLA' : ''}`);
     setHistoAttributeLabel(label);
     setHistoTitle(title);
     setHistoIsPerc(!!isPerc);
@@ -169,7 +168,7 @@ export const Liquidity = () => {
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
-          <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >
+          <Stack direction={{ base: 'column', md: 'row' }} pt='2' w='full' justify="space-between" >
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Pair</Text>
               <Funds innerRadius={5} funds={byPairs} chartMode={true} showTotal={false} showChartTotal={false} />

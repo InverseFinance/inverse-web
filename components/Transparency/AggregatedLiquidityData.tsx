@@ -24,6 +24,7 @@ export const AggregatedLiquidityData = ({
     containerProps?: AppContainerProps,
     handleClick?: (
         isStable: boolean | undefined,
+        include: string | string[],
         exclude: string | string[] | undefined,
         attribute: string,
         attributeLabel: string,
@@ -50,7 +51,7 @@ export const AggregatedLiquidityData = ({
                 value: preciseCommify(tvl, 0, true),
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'tvl', 'Total TVL', containerProps?.label)
+                    onClick: () => handleClick(isStable, include, exclude, 'tvl', 'Total TVL', containerProps?.label)
                 }
             },
             {
@@ -58,7 +59,7 @@ export const AggregatedLiquidityData = ({
                 value: `${shortenNumber(avgDolaWeight, 2)}%`,
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'avgDolaWeight', 'Avg. DOLA weight', containerProps?.label, true)
+                    onClick: () => handleClick(isStable, include, exclude, 'avgDolaWeight', 'Avg. DOLA weight', containerProps?.label, true)
                 }
             },
             {
@@ -66,7 +67,7 @@ export const AggregatedLiquidityData = ({
                 value: preciseCommify(pairingDepth, 0, true),
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'pairingDepth', 'Pairing Depth', containerProps?.label)
+                    onClick: () => handleClick(isStable, include, exclude, 'pairingDepth', 'Pairing Depth', containerProps?.label)
                 }
             },
             {
@@ -74,7 +75,7 @@ export const AggregatedLiquidityData = ({
                 value: preciseCommify(balance, 0, true),
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'balance', 'DOLA Balance', containerProps?.label)
+                    onClick: () => handleClick(isStable, include, exclude, 'balance', 'DOLA Balance', containerProps?.label)
                 }
             },
             {
@@ -82,7 +83,7 @@ export const AggregatedLiquidityData = ({
                 value: preciseCommify(pol, 0, true),
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'pol', 'Protocol Owned', containerProps?.label)
+                    onClick: () => handleClick(isStable, include, exclude, 'pol', 'Protocol Owned', containerProps?.label)
                 }
             },
             {
@@ -90,7 +91,7 @@ export const AggregatedLiquidityData = ({
                 value: preciseCommify(rewardDay, 0, true),
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'rewardDay', '$/day', containerProps?.label)
+                    onClick: () => handleClick(isStable, include, exclude, 'rewardDay', '$/day', containerProps?.label)
                 }
             },
             {
@@ -98,7 +99,7 @@ export const AggregatedLiquidityData = ({
                 value: `${shortenNumber(avgApy, 2)}%`,
                 valueProps: {
                     ...commonTextProps,
-                    onClick: () => handleClick(isStable, exclude, 'avgApy', 'Avg. APY', containerProps?.label, true)
+                    onClick: () => handleClick(isStable, include, exclude, 'avgApy', 'Avg. APY', containerProps?.label, true)
                 }
             },
             ]
