@@ -47,7 +47,7 @@ export const useLiquidityPools = (): SWR & { liquidity: any[], timestamp: number
   }
 }
 
-export const useLiquidityPoolsAggregatedHistory = (): SWR & {
+export const useLiquidityPoolsAggregatedHistory = (excludeCurrent = false): SWR & {
   aggregatedHistory: {
     "DOLA": LiquidityPoolAggregatedData[]
     "DOLA-stable": LiquidityPoolAggregatedData[]
@@ -60,7 +60,7 @@ export const useLiquidityPoolsAggregatedHistory = (): SWR & {
     "DBR-NON_DOLA": LiquidityPoolAggregatedData[]
   },
 } => {
-  const { data, error } = useCustomSWR(`/api/transparency/liquidity-histo?v=2`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/liquidity-histo?excludeCurrent=${excludeCurrent}`, fetcher)
 
   return {
     aggregatedHistory: data?.aggregatedHistory || {},

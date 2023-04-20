@@ -11,6 +11,7 @@ export const DefaultCharts = ({
     areaProps,
     barProps,
     isDollars,
+    isPerc,
     showAreaChart = true,
     showMonthlyBarChart = false,
 }: {
@@ -19,6 +20,7 @@ export const DefaultCharts = ({
     areaProps?: AreaChartProps,
     barProps?: BarChart12MonthsProps,
     isDollars?: boolean
+    isPerc?: boolean
     showAreaChart?: boolean
     showMonthlyBarChart?: boolean
 }) => {
@@ -41,6 +43,7 @@ export const DefaultCharts = ({
                 domainYpadding={'auto'}
                 mainColor="secondary"
                 isDollars={isDollars}
+                isPerc={isPerc}
                 {...areaProps}
             />
         }

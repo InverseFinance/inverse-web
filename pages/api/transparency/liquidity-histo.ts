@@ -20,7 +20,8 @@ export default async function handler(req, res) {
         ]);
 
         const totalEntries = (snapshots?.entries || [])
-            .concat(latestLiquidityCache ? await latestLiquidityCache?.json() : { liquidity: [] });
+            .concat(latestLiquidityCache ? await latestLiquidityCache?.json() : { liquidity: [] })
+            .filter((entry) => entry.liquidity.length > 0);
 
         const categories = [
             { name: 'DOLA', args: [undefined, 'DOLA'] },

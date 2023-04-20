@@ -25,6 +25,7 @@ export type AreaChartProps = {
     axisStyle?: VictoryAxisProps["style"],
     domainYpadding?: number | 'auto',
     isDollars?: boolean,
+    isPerc?: boolean,
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
 };
@@ -42,6 +43,7 @@ export const AreaChart = ({
     domainYpadding = 0,
     mainColor = 'primary',
     isDollars = false,
+    isPerc = false,
     titleProps,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -83,7 +85,7 @@ export const AreaChart = ({
                         labelComponent={<FlyoutTooltip />}
                         labels={({ datum }) => {
                             return (
-                                moment(datum.x).format('MMM Do YYYY') + '\n' + shortenNumber(datum.y, 2, isDollars)
+                                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}}`
                             )
                         }}
                     />
@@ -92,7 +94,7 @@ export const AreaChart = ({
                 {
                     !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                 }
-                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
+                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, 0, isDollars)}${isPerc ? '%' : ''}`} />
                 <VictoryAxis style={_axisStyle} />
                 <VictoryArea
                     domain={{ y: [0, maxY + _yPad] }}
@@ -108,7 +110,7 @@ export const AreaChart = ({
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2)}` : ''
+                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : ''
                         }
                     }
                     style={{

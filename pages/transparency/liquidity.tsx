@@ -1,10 +1,9 @@
-import { Flex, Stack, VStack, Text, Divider, HStack } from '@chakra-ui/react'
+import { Flex, Stack, VStack, Text, Divider, HStack, useDisclosure } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useLiquidityPools } from '@app/hooks/useDAO'
-import { CHAIN_TOKENS } from '@app/variables/tokens'
+import { useLiquidityPools, useLiquidityPoolsAggregatedHistory } from '@app/hooks/useDAO'
 import { LiquidityPoolsTable } from '@app/components/Transparency/LiquidityPoolsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 import { InfoMessage } from '@app/components/common/Messages';
@@ -17,6 +16,9 @@ import moment from 'moment';
 import { useTokensData } from '@app/hooks/useMarkets';
 import Link from '@app/components/common/Link';
 import { usePricesV2 } from '@app/hooks/usePrices';
+import { useEventsAsChartData } from '@app/hooks/misc';
+import { DefaultCharts } from '@app/components/Transparency/DefaultCharts';
+import InfoModal from '@app/components/common/Modal/InfoModal';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -56,9 +58,17 @@ const cgIds = {
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
+  const { aggregatedHistory } = useLiquidityPoolsAggregatedHistory(false);
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
   const [category, setCategory] = useState('DOLA');
+  const [categoryChartHisto, setCategoryChartHisto] = useState(category);
+  const [histoAttribute, setHistoAttribute] = useState('tvl');
+  const [histoIsPerc, setHistoIsPerc] = useState(false);
+  const [histoAttributeLabel, setHistoAttributeLabel] = useState('TVL');
+  const [histoTitle, setHistoTitle] = useState('');
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { chartData } = useEventsAsChartData(aggregatedHistory[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
@@ -70,6 +80,16 @@ export const Liquidity = () => {
   const byFed = groupLpsBy(categoryLps, 'isFed');
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
   const byProtocol = groupLpsBy(categoryLps, 'project').map(f => ({ ...f, token: { symbol: capitalize(f.token.symbol) } }));
+
+  const handleOpenHistoChart = (isStable: boolean, exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
+    const isDola = category === 'DOLA';
+    setHistoAttribute(attribute);
+    setCategoryChartHisto(`${category}${isStable === true ? '-stable' : isStable === false ? '-volatile' : ''}${exclude ? '-NON_DOLA' : isDola ? '' : '-DOLA'}`);
+    setHistoAttributeLabel(label);
+    setHistoTitle(title);
+    setHistoIsPerc(!!isPerc);
+    onOpen();
+  }
 
   return (
     <Layout>
@@ -83,6 +103,18 @@ export const Liquidity = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
+      <InfoModal
+        title={`${histoTitle} ${histoAttributeLabel} over time`}
+        onClose={onClose}
+        onOk={onClose}
+        isOpen={isOpen}
+        minW={{ base: '98vw', lg: '850px' }}
+        okLabel="Close"
+      >
+        <VStack pl='8' w='full' alignItems="center" justifu='center'>
+          <DefaultCharts chartData={chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{}} />
+        </VStack>
+      </InfoModal>
       <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <Text fontSize="12px">
@@ -117,15 +149,15 @@ export const Liquidity = () => {
           {
             category === 'DOLA' ?
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={liquidity} include='DOLA' containerProps={{ label: `TOTAL DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={liquidity} include='DOLA' isStable={true} containerProps={{ label: 'DOLA Stable Liquidity' }} />
-                <AggregatedLiquidityData items={liquidity} include='DOLA' isStable={false} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' containerProps={{ label: `TOTAL DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' isStable={true} containerProps={{ label: 'DOLA Stable Liquidity' }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' isStable={false} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
               </Stack>
               :
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={liquidity} include={category} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
-                <AggregatedLiquidityData items={liquidity} include={[category, 'DOLA']}  containerProps={{ label: `${category}-DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={[category, 'DOLA']} containerProps={{ label: `${category}-DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
           <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >
