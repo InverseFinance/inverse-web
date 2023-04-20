@@ -19,6 +19,7 @@ import { usePricesV2 } from '@app/hooks/usePrices';
 import { useEventsAsChartData } from '@app/hooks/misc';
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts';
 import InfoModal from '@app/components/common/Modal/InfoModal';
+import { addCurrentToHistory } from '@app/util/pools';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -58,7 +59,8 @@ const cgIds = {
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
-  const { aggregatedHistory } = useLiquidityPoolsAggregatedHistory(false);
+  const { aggregatedHistory } = useLiquidityPoolsAggregatedHistory(true);
+  const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp });
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
   const [category, setCategory] = useState('DOLA');
@@ -68,7 +70,7 @@ export const Liquidity = () => {
   const [histoAttributeLabel, setHistoAttributeLabel] = useState('TVL');
   const [histoTitle, setHistoTitle] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { chartData } = useEventsAsChartData(aggregatedHistory[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
+  const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
@@ -104,15 +106,22 @@ export const Liquidity = () => {
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
       <InfoModal
-        title={`${histoTitle} ${histoAttributeLabel} over time`}
+        title={`${histoTitle} ${histoAttributeLabel} since April 12th, 2023`}
         onClose={onClose}
         onOk={onClose}
         isOpen={isOpen}
         minW={{ base: '98vw', lg: '850px' }}
         okLabel="Close"
       >
-        <VStack pl='8' w='full' alignItems="center" justifu='center'>
-          <DefaultCharts chartData={chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{}} />
+        <VStack pl='8' py='4' w='full' alignItems="center" justify='center'>
+          {
+            chartData?.length > 0 && <>
+              <Text>Current value: <b>{preciseCommify(chartData[chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
+              {
+                isOpen && <DefaultCharts chartData={chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} />
+              }
+            </>
+          }
         </VStack>
       </InfoModal>
       <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>

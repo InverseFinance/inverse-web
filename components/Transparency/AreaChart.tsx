@@ -85,7 +85,7 @@ export const AreaChart = ({
                         labelComponent={<FlyoutTooltip />}
                         labels={({ datum }) => {
                             return (
-                                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}}`
+                                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
                             )
                         }}
                     />

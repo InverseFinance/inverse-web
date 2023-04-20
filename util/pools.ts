@@ -15,11 +15,11 @@ export const getPoolsAggregatedStats = (
     const _include = Array.isArray(include) ? include : [include||''];
     const _exclude = Array.isArray(exclude) ? exclude : [exclude||''];
 
-    const filteredItems = items.filter(lp => {
+    const filteredItems = items?.filter(lp => {
             return (isStable === undefined || (lp.isStable||false) === isStable)
                 && _include.every(inc => lp.name.includes(inc))
                 && (!!exclude ? _exclude.every(exc => !lp.name.includes(exc)) : true);
-        });
+        }) || [];
 
     const toExcludeFromAggregate = filteredItems.filter(lp => !!lp.deduce).flatMap(lp => lp.deduce);
     const itemsWithoutChildren = filteredItems.filter(lp => !toExcludeFromAggregate.includes(lp.address));
@@ -42,4 +42,41 @@ export const getPoolsAggregatedStats = (
         rewardDay,
         avgApy,
     }
+}
+
+export const POOL_CATEGORIES = [
+    { name: 'DOLA', args: [undefined, 'DOLA'] },
+    { name: 'DOLA-stable', args: [true, 'DOLA'] },
+    { name: 'DOLA-volatile', args: [false, 'DOLA'] },
+    { name: 'INV', args: [undefined, 'INV'] },
+    { name: 'INV-DOLA', args: [undefined, ['INV', 'DOLA']] },
+    { name: 'INV-NON_DOLA', args: [undefined, 'INV', 'DOLA'] },
+    { name: 'DBR', args: [undefined, 'DBR'] },
+    { name: 'DBR-DOLA', args: [undefined, ['DBR', 'DOLA']] },
+    { name: 'DBR-NON_DOLA', args: [undefined, 'DBR', 'DOLA'] },
+];
+
+export const getAggregatedDataFromPools = (totalEntries: any) => {
+    return POOL_CATEGORIES.reduce((prev, curr) => {
+        return {
+            ...prev,
+            [curr.name]: totalEntries.map((entry) => {
+                return {
+                    timestamp: entry.timestamp,
+                    ...getPoolsAggregatedStats(entry.liquidity, ...curr.args),
+                };
+            }),
+        }
+    }, {});
+}
+
+export const addCurrentToHistory = (aggregatedHistory, currentEntry: any) => {
+    if(!currentEntry) return aggregatedHistory;
+    const historyAndCurrent = { ...aggregatedHistory };
+    const currentAggregated = getAggregatedDataFromPools([currentEntry]);
+    POOL_CATEGORIES.forEach((category) => {
+        const histo = aggregatedHistory[category.name] || [];
+        historyAndCurrent[category.name] = [...histo, (currentAggregated[category.name]||[])[0]];
+    });
+    return historyAndCurrent;
 }
