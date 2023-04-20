@@ -7,6 +7,7 @@ import { getPoolsAggregatedStats } from "@app/util/pools"
 const commonTextProps = {
     textDecoration: 'underline',
     cursor: 'pointer',
+    style: { 'text-decoration-skip-ink': 'none' },
 }
 
 export const AggregatedLiquidityData = ({
