@@ -1,24 +1,25 @@
 import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getPoolsAggregatedStats } from '@app/util/pools';
-import { liquidityCacheKey } from './liquidity';
 
 export default async function handler(req, res) {
-    const { cacheFirst } = req.query;    
-    const cacheKey = 'liquidity-history-aggregated-v1.0.0'
+    const { cacheFirst, excludeCurrent } = req.query;
+    const isExlcudeCurrent = excludeCurrent === 'true';
+    const cacheKey = `liquidity-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.0`
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 300);
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 60);
         if (validCache) {
             res.status(200).json(validCache);
             return
         }
+        
         const [snapshots, latestLiquidityCache] = await Promise.all([
             getCacheFromRedis('liquidity-history', false, 0, true),
-            getCacheFromRedis(liquidityCacheKey, false),
+            excludeCurrent === 'true' ? new Promise((res) => res(undefined)) : fetch(`https://www.inverse.finance/api/transparency/liquidity?cacheFirst=${cacheFirst}`),
         ]);
 
-        const totalEntries = (snapshots?.entries || []).concat(latestLiquidityCache || []);
+        const totalEntries = (snapshots?.entries || []).concat(latestLiquidityCache || { liquidity: [] });
 
         const categories = [
             { name: 'DOLA', args: [undefined, 'DOLA'] },
@@ -45,6 +46,7 @@ export default async function handler(req, res) {
         }, {});
 
         const resultData = {
+            timestamp: +(new Date()),
             aggregatedHistory,
         }
         await redisSetWithTimestamp(cacheKey, resultData);
