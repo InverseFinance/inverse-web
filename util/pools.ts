@@ -12,14 +12,14 @@ export const getPoolsAggregatedStats = (
     rewardDay: number,
     avgApy: number,
 } => {
-    const _include = Array.isArray(include) ? include : [include||''];
-    const _exclude = Array.isArray(exclude) ? exclude : [exclude||''];
+    const _include = Array.isArray(include) ? include : [include || ''];
+    const _exclude = Array.isArray(exclude) ? exclude : [exclude || ''];
 
     const filteredItems = items?.filter(lp => {
-            return (isStable === undefined || (lp.isStable||false) === isStable)
-                && _include.every(inc => lp.name.includes(inc))
-                && (!!exclude ? _exclude.every(exc => !lp.name.includes(exc)) : true);
-        }) || [];
+        return (isStable === undefined || (lp.isStable || false) === isStable)
+            && _include.every(inc => lp.name.includes(inc))
+            && (!!exclude ? _exclude.every(exc => !lp.name.includes(exc)) : true);
+    }) || [];
 
     const toExcludeFromAggregate = filteredItems.filter(lp => !!lp.deduce).flatMap(lp => lp.deduce);
     const itemsWithoutChildren = filteredItems.filter(lp => !toExcludeFromAggregate.includes(lp.address));
@@ -70,13 +70,22 @@ export const getAggregatedDataFromPools = (totalEntries: any, categories = POOL_
     }, {});
 }
 
-export const addCurrentToHistory = (aggregatedHistory, currentEntry: any) => {
-    if(!currentEntry) return aggregatedHistory;
+export const addCurrentToHistory = (aggregatedHistory, currentEntry: any, categories = POOL_CATEGORIES) => {
+    if (!currentEntry) return aggregatedHistory;
     const historyAndCurrent = { ...aggregatedHistory };
-    const currentAggregated = getAggregatedDataFromPools([currentEntry]);
-    POOL_CATEGORIES.forEach((category) => {
+    const currentAggregated = getAggregatedDataFromPools([currentEntry], categories);
+    categories.forEach((category) => {
         const histo = aggregatedHistory[category.name] || [];
-        historyAndCurrent[category.name] = [...histo, (currentAggregated[category.name]||[])[0]];
+        historyAndCurrent[category.name] = [...histo, (currentAggregated[category.name] || [])[0]];
     });
     return historyAndCurrent;
 }
+
+export const getLpHistory = async (address: string) => {
+    let data;
+    try {
+        const res = await fetch('/api/transparency/lp-histo?address=' + address)
+        data = await res.json();
+    } catch (e) { }
+    return data;
+}   
