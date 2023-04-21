@@ -27,7 +27,12 @@ const CellText = ({ ...props }) => {
 }
 
 const ClickableCellText = ({ ...props }) => {
-    return <CellText textDecoration="underline" cursor="pointer" style={{ 'text-decoration-skip-ink': 'none' }} {...props} />
+    return <CellText
+        // textDecoration="underline"
+        //  cursor="pointer" 
+        //  style={{ 'text-decoration-skip-ink': 'none' }}
+        {...props}
+    />
 }
 
 const FilterItem = ({ ...props }) => {

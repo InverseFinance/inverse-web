@@ -212,7 +212,11 @@ export const Liquidity = () => {
             </VStack>
           </Stack>
           <Divider my="4" />
-          <LiquidityPoolsTable onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)} items={liquidity} timestamp={timestamp} />
+          <LiquidityPoolsTable
+            // onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)}
+            items={liquidity}
+            timestamp={timestamp}
+          />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
             description="Note: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."
