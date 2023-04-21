@@ -33,7 +33,7 @@ export const FirstTimeModal = () => {
     };
 
     return <ConfirmModal
-        title="First time borrowing on FiRM?"
+        title="Before borrowing"
         isOpen={isFirstTimeModalOpen}
         onClose={cancel}
         onOk={ok}
@@ -45,10 +45,10 @@ export const FirstTimeModal = () => {
         <VStack spacing="4" p='4' alignItems="flex-start">
             <FirmFAQ smaller={true} collapsable={true} defaultCollapse={true} labelProps={{ fontSize: '14px' }} />
             <Checkbox isChecked={isFaqRead} onChange={() => setIsFaqRead(!isFaqRead)} spacing='1rem' size='sm' value='true' fontSize='14px'>
-                I read the FAQ and know that my DBR balance will go down over time when having an active loan. To avoid replenishment fees, I need to keep a positive DBR balance in my wallet.
+                I read the FAQ and know that my DBR balance will go down over time with an active loan. To avoid replenishment fees, I need to keep a positive DBR balance in my wallet.
             </Checkbox>
             <Checkbox isChecked={dontRemindMe} onChange={() => setDontRemindMe(!dontRemindMe)} spacing='1rem' size='sm'>
-                Don't show this modal again.
+                Don't show this message again.
             </Checkbox>
         </VStack>
     </ConfirmModal>
