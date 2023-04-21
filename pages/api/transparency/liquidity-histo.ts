@@ -1,10 +1,14 @@
 import 'source-map-support'
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getAggregatedDataFromPools } from '@app/util/pools';
 
 export default async function handler(req, res) {
     const { cacheFirst, excludeCurrent } = req.query;
     const isExlcudeCurrent = excludeCurrent === 'true';
+    if (isInvalidGenericParam(excludeCurrent)) {
+        res.status(400).json({ msg: 'invalid request' });
+        return;
+    }
     const cacheKey = `liquidity-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.0`
 
     try {
