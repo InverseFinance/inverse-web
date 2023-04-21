@@ -234,8 +234,8 @@ export const Table = ({
       } : undefined}
       _hover={{ bgColor: 'primary.850' }}
     >
-      {columns.map(({ value }, j) => (
-        <Fragment key={j}>{value(item, i)}</Fragment>
+      {columns.map(({ value, field }, j) => (
+        <Box key={j} data-col={field}>{value(item, i)}</Box>
       ))}
     </Flex>
   ));
