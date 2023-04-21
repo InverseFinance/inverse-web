@@ -4,7 +4,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import { useLiquidityPools, useLiquidityPoolsAggregatedHistory } from '@app/hooks/useDAO'
-import { LiquidityPoolsTable } from '@app/components/Transparency/LiquidityPoolsTable'
+import { LP_COLS, LiquidityPoolsTable } from '@app/components/Transparency/LiquidityPoolsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 import { InfoMessage } from '@app/components/common/Messages';
 import { Funds } from '@app/components/Transparency/Funds';
@@ -19,7 +19,7 @@ import { usePricesV2 } from '@app/hooks/usePrices';
 import { useEventsAsChartData } from '@app/hooks/misc';
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts';
 import InfoModal from '@app/components/common/Modal/InfoModal';
-import { addCurrentToHistory } from '@app/util/pools';
+import { addCurrentToHistory, getLpHistory } from '@app/util/pools';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -64,13 +64,18 @@ export const Liquidity = () => {
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
   const [category, setCategory] = useState('DOLA');
+  const [lpHistoArray, setLpHistoArray] = useState([]);
   const [categoryChartHisto, setCategoryChartHisto] = useState(category);
   const [histoAttribute, setHistoAttribute] = useState('tvl');
   const [histoIsPerc, setHistoIsPerc] = useState(false);
   const [histoAttributeLabel, setHistoAttributeLabel] = useState('TVL');
   const [histoTitle, setHistoTitle] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);  
+  const [isLpChart, setIsLpChart] = useState(false);
+  const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
+  const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
+  const _chartData = isLpChart ? lpChartData : chartData;
+
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
   const toExcludeFromAggregate = liquidity.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
@@ -89,6 +94,26 @@ export const Liquidity = () => {
     setHistoAttributeLabel(label);
     setHistoTitle(title);
     setHistoIsPerc(!!isPerc);
+    setIsLpChart(false);
+    onOpen();
+  }
+
+  const handleOpenHistoChartFromTable = async ({ address, lpName }, event, liquidity) => {
+    const target = event.target;
+    const cellBox = target.closest('[data-col]');
+    const col = cellBox.dataset.col;
+    const d = await getLpHistory(address);
+    const lpWithCurrent = addCurrentToHistory(
+      d.lpHistory,
+      { liquidity: liquidity.filter(lp => lp.address === address), timestamp },
+      [{ name: 'LP', args: [undefined, undefined, ''] }],
+    );
+    setHistoAttribute(col.replace('dolaBalance', 'balance').replace('ownedAmount', 'pol').replace('dolaWeight', 'avgDolaWeight').replace('apy', 'avgApy'));
+    setHistoAttributeLabel(LP_COLS.find(c => c.field === col)?.label);
+    setLpHistoArray(lpWithCurrent.LP);
+    setHistoTitle(lpName);
+    setHistoIsPerc(['dolaWeight', 'apy', 'perc'].includes(col));
+    setIsLpChart(true);
     onOpen();
   }
 
@@ -114,10 +139,10 @@ export const Liquidity = () => {
       >
         <VStack pl='8' py='4' w='full' alignItems="center" justify='center'>
           {
-            chartData?.length > 0 && <>
-              <Text>Current value: <b>{preciseCommify(chartData[chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
+            _chartData?.length > 0 && <>
+              <Text>Current value: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
               {
-                isOpen && <DefaultCharts chartData={chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} />
+                isOpen && <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} />
               }
             </>
           }
@@ -187,7 +212,7 @@ export const Liquidity = () => {
             </VStack>
           </Stack>
           <Divider my="4" />
-          <LiquidityPoolsTable items={liquidity} timestamp={timestamp} />
+          <LiquidityPoolsTable onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)} items={liquidity} timestamp={timestamp} />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
             description="Note: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."

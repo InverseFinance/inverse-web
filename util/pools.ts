@@ -81,10 +81,10 @@ export const addCurrentToHistory = (aggregatedHistory, currentEntry: any, catego
     return historyAndCurrent;
 }
 
-export const getLpHistory = async (address: string) => {
+export const getLpHistory = async (address: string, excludeCurrent = true) => {
     let data;
     try {
-        const res = await fetch('/api/transparency/lp-histo?address=' + address)
+        const res = await fetch(`/api/transparency/lp-histo?excludeCurrent=${excludeCurrent}&address=${address}`)
         data = await res.json();
     } catch (e) { }
     return data;

@@ -19,18 +19,24 @@ const ColHeader = ({ ...props }) => {
 }
 
 const Cell = ({ ...props }) => {
-    return <Stack direction="row" fontSize="12px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+    return <Stack cursor="default" direction="row" fontSize="12px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
 const CellText = ({ ...props }) => {
     return <Text fontSize="12px" {...props} />
 }
 
+const ClickableCellText = ({ ...props }) => {
+    return <CellText textDecoration="underline" cursor="pointer" style={{ 'text-decoration-skip-ink': 'none' }} {...props} />
+}
+
 const FilterItem = ({ ...props }) => {
     return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" {...props} />
 }
 
-const columns = [
+const noPropagation = (e: React.MouseEvent<HTMLElement>) => e.stopPropagation();
+
+export const LP_COLS = [
     {
         field: 'lpName',
         label: 'Pool',
@@ -42,7 +48,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         value: (lp) => {
             const link = getLpLink(lp);
-            return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+            return <Cell onClick={noPropagation} minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
                 <Link textDecoration="underline" href={link} isExternal target="_blank" display="flex" justify="flex-start" alignItems="center" direction="row">
                     <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
                     <ExternalLinkIcon color="info" ml="1" />
@@ -61,7 +67,7 @@ const columns = [
         </FilterItem>,
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         value: ({ protocol, protocolImage }) => {
-            return <Cell minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell onClick={noPropagation} minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
                 <Image src={protocolImage} h='20px' w='20px' borderRadius="50px" title={protocol} />
             </Cell>
         },
@@ -78,7 +84,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         value: ({ chainId, networkName }) => {
             const net = NETWORKS_BY_CHAIN_ID[chainId];
-            return <Cell minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell onClick={noPropagation} minWidth='80px' spacing="2" justify="center" alignItems="center" direction="row">
                 <Image src={net.image} ignoreFallback={true} title={net.name} alt={net.name} w={5} h={5} mr="2" />
             </Cell>
         },
@@ -90,7 +96,7 @@ const columns = [
         filterWidth: '70px',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ isFed }) => {
-            return <Cell minWidth='70px' spacing="2" justify="center" alignItems="center" direction="row">
+            return <Cell onClick={noPropagation} minWidth='70px' spacing="2" justify="center" alignItems="center" direction="row">
                 <CellText fontWeight={isFed ? 'bold' : 'normal'}>{isFed ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
@@ -101,7 +107,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ tvl }) => {
             return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(tvl, 0, true)}</CellText>
+                <ClickableCellText>{preciseCommify(tvl, 0, true)}</ClickableCellText>
             </Cell>
         },
     },
@@ -111,7 +117,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
         value: ({ pairingDepth }) => {
             return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(pairingDepth || 0, 0, true)}</CellText>
+                <ClickableCellText>{preciseCommify(pairingDepth || 0, 0, true)}</ClickableCellText>
             </Cell>
         },
     },
@@ -121,7 +127,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
         value: ({ dolaBalance }) => {
             return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(dolaBalance || 0, 0, true)}</CellText>
+                <ClickableCellText>{preciseCommify(dolaBalance || 0, 0, true)}</ClickableCellText>
             </Cell>
         },
     },
@@ -131,7 +137,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ dolaWeight }) => {
             return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
-                <CellText>{shortenNumber(dolaWeight || 0, 2)}%</CellText>
+                <ClickableCellText>{shortenNumber(dolaWeight || 0, 2)}%</ClickableCellText>
             </Cell>
         },
     },
@@ -141,7 +147,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
         value: ({ apy }) => {
             return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
-                <CellText>{typeof apy === 'undefined' ? '-' : `${shortenNumber(apy || 0, 2)}%`}</CellText>
+                <ClickableCellText>{typeof apy === 'undefined' ? '-' : `${shortenNumber(apy || 0, 2)}%`}</ClickableCellText>
             </Cell>
         },
     }
@@ -151,7 +157,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
         value: ({ perc }) => {
             return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
-                <CellText>{shortenNumber(perc, 2)}%</CellText>
+                <ClickableCellText>{shortenNumber(perc, 2)}%</ClickableCellText>
             </Cell>
         },
     }
@@ -161,7 +167,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
         value: ({ ownedAmount }) => {
             return <Cell minWidth="100px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(ownedAmount, 0, true)}</CellText>
+                <ClickableCellText>{preciseCommify(ownedAmount, 0, true)}</ClickableCellText>
             </Cell>
         },
     }
@@ -171,7 +177,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ rewardDay }) => {
             return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
-                <CellText>{preciseCommify(rewardDay, 0, true)}</CellText>
+                <ClickableCellText>{preciseCommify(rewardDay, 0, true)}</ClickableCellText>
             </Cell>
         },
     }
@@ -180,9 +186,11 @@ const columns = [
 export const LiquidityPoolsTable = ({
     items,
     timestamp,
+    onRowClick,
 }: {
     items: any[],
     timestamp: number,
+    onRowClick: (item: any) => void,
 }) => {
     const [category, setCategory] = useState('stable');
     const [filtered, setFiltered] = useState(items);
@@ -245,10 +253,11 @@ export const LiquidityPoolsTable = ({
             !items.length ? <SkeletonBlob /> :
                 <Table
                     key="address"
-                    columns={columns}
+                    columns={LP_COLS}
                     items={filtered}
                     defaultSort="tvl"
                     defaultSortDir="desc"
+                    onClick={onRowClick}
                 />
         }
     </Container>
