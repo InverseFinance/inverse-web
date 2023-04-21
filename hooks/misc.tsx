@@ -42,6 +42,8 @@ export const useEventsAsChartData = (
     events: (any & { timestamp: number })[],
     yAccAttribute: string,
     yAttribute: string,
+    autoAddToday = true,
+    autoAddZeroYAtStart = true,
 ): SWR & { chartData: any } => {
     const now = new Date();
     const chartData = [...events.sort((a, b) => a.timestamp - b.timestamp).map(event => {
@@ -54,11 +56,14 @@ export const useEventsAsChartData = (
             year: date.getUTCFullYear(),
         }
     })];
-
-    // add today's timestamp and zero one day before first supply
-    const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-    chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
-    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+    
+    if(autoAddZeroYAtStart) {
+        const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+        chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
+    }
+    if(autoAddToday) {
+        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+    }
 
     return {
         chartData,

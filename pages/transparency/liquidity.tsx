@@ -1,11 +1,10 @@
-import { Flex, Stack, VStack, Text, Divider, HStack } from '@chakra-ui/react'
+import { Flex, Stack, VStack, Text, Divider, HStack, useDisclosure } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useLiquidityPools } from '@app/hooks/useDAO'
-import { CHAIN_TOKENS } from '@app/variables/tokens'
-import { LiquidityPoolsTable } from '@app/components/Transparency/LiquidityPoolsTable'
+import { useLiquidityPools, useLiquidityPoolsAggregatedHistory } from '@app/hooks/useDAO'
+import { LP_COLS, LiquidityPoolsTable } from '@app/components/Transparency/LiquidityPoolsTable'
 import { AggregatedLiquidityData } from '@app/components/Transparency/AggregatedLiquidityData'
 import { InfoMessage } from '@app/components/common/Messages';
 import { Funds } from '@app/components/Transparency/Funds';
@@ -17,6 +16,10 @@ import moment from 'moment';
 import { useTokensData } from '@app/hooks/useMarkets';
 import Link from '@app/components/common/Link';
 import { usePricesV2 } from '@app/hooks/usePrices';
+import { useEventsAsChartData } from '@app/hooks/misc';
+import { DefaultCharts } from '@app/components/Transparency/DefaultCharts';
+import InfoModal from '@app/components/common/Modal/InfoModal';
+import { addCurrentToHistory, getLpHistory } from '@app/util/pools';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -56,29 +59,63 @@ const cgIds = {
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
+  const { aggregatedHistory } = useLiquidityPoolsAggregatedHistory(true);
+  const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp });
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
   const [category, setCategory] = useState('DOLA');
+  const [lpHistoArray, setLpHistoArray] = useState([]);
+  const [categoryChartHisto, setCategoryChartHisto] = useState(category);
+  const [histoAttribute, setHistoAttribute] = useState('tvl');
+  const [histoIsPerc, setHistoIsPerc] = useState(false);
+  const [histoAttributeLabel, setHistoAttributeLabel] = useState('TVL');
+  const [histoTitle, setHistoTitle] = useState('');
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isLpChart, setIsLpChart] = useState(false);
+  const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
+  const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
+  const _chartData = isLpChart ? lpChartData : chartData;
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
-  const polsItems = liquidity.map(p => {
-    return {
-      name: `${CHAIN_TOKENS[p.chainId][p.address]?.symbol}`,
-      pol: p.ownedAmount,
-      polDom: p.perc,
-      ...p,
-    }
-  });
-
-  const toExcludeFromAggregate = polsItems.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
-  const itemsWithoutChildren = polsItems.filter(lp => !toExcludeFromAggregate.includes(lp.address));
+  const toExcludeFromAggregate = liquidity.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
+  const itemsWithoutChildren = liquidity.filter(lp => !toExcludeFromAggregate.includes(lp.address));
 
   const categoryLps = itemsWithoutChildren.filter(lp => lp.lpName.includes(category));
   const byPairs = groupLpsBy(categoryLps, 'lpName');
   const byFed = groupLpsBy(categoryLps, 'isFed');
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
   const byProtocol = groupLpsBy(categoryLps, 'project').map(f => ({ ...f, token: { symbol: capitalize(f.token.symbol) } }));
+
+  const handleOpenHistoChart = (isStable: boolean, include: string | string[], exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
+    const isDolaPaired = Array.isArray(include) && include.length > 1 && include[1] === 'DOLA';
+    setHistoAttribute(attribute);
+    setCategoryChartHisto(`${category}${isStable === true ? '-stable' : isStable === false ? '-volatile' : ''}${exclude ? '-NON_DOLA' : isDolaPaired ? '-DOLA' : ''}`);
+    setHistoAttributeLabel(label);
+    setHistoTitle(title);
+    setHistoIsPerc(!!isPerc);
+    setIsLpChart(false);
+    onOpen();
+  }
+
+  const handleOpenHistoChartFromTable = async ({ address, lpName }, event, liquidity) => {
+    const target = event.target;
+    const cellBox = target.closest('[data-col]');
+    const col = cellBox.dataset.col;
+    const d = await getLpHistory(address);
+    const lpWithCurrent = addCurrentToHistory(
+      d.lpHistory,
+      { liquidity: liquidity.filter(lp => lp.address === address), timestamp },
+      [{ name: 'LP', args: [undefined, undefined, ''] }],
+    );
+    setHistoAttribute(col.replace('dolaBalance', 'balance').replace('ownedAmount', 'pol').replace('dolaWeight', 'avgDolaWeight').replace('apy', 'avgApy'));
+    setHistoAttributeLabel(LP_COLS.find(c => c.field === col)?.label);
+    setLpHistoArray(lpWithCurrent.LP);
+    setHistoTitle(lpName);
+    setHistoIsPerc(['dolaWeight', 'apy', 'perc'].includes(col));
+    setIsLpChart(true);
+    onOpen();
+  }
 
   return (
     <Layout>
@@ -92,6 +129,25 @@ export const Liquidity = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
+      <InfoModal
+        title={`${histoTitle} ${histoAttributeLabel} since April 12th, 2023`}
+        onClose={onClose}
+        onOk={onClose}
+        isOpen={isOpen}
+        minW={{ base: '98vw', lg: '850px' }}
+        okLabel="Close"
+      >
+        <VStack pl='8' py='4' w='full' alignItems="center" justify='center'>
+          {
+            _chartData?.length > 0 && <>
+              <Text>Current value: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
+              {
+                isOpen && <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} />
+              }
+            </>
+          }
+        </VStack>
+      </InfoModal>
       <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <Text fontSize="12px">
@@ -126,18 +182,18 @@ export const Liquidity = () => {
           {
             category === 'DOLA' ?
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes('DOLA'))} containerProps={{ label: `TOTAL DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Stable Liquidity' }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => !lp.isStable && lp.lpName.includes('DOLA'))} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' containerProps={{ label: `TOTAL DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' isStable={true} containerProps={{ label: 'DOLA Stable Liquidity' }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' isStable={false} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
               </Stack>
               :
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes(category))} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes(category) && lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-DOLA Liquidity` }} />
-                <AggregatedLiquidityData items={polsItems.filter(lp => lp.lpName.includes(category) && !lp.lpName.includes('DOLA'))} containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={[category, 'DOLA']} containerProps={{ label: `${category}-DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
-          <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between" >
+          <Stack direction={{ base: 'column', md: 'row' }} pt='2' w='full' justify="space-between" >
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Pair</Text>
               <Funds innerRadius={5} funds={byPairs} chartMode={true} showTotal={false} showChartTotal={false} />
@@ -156,7 +212,11 @@ export const Liquidity = () => {
             </VStack>
           </Stack>
           <Divider my="4" />
-          <LiquidityPoolsTable items={polsItems} timestamp={timestamp} />
+          <LiquidityPoolsTable
+            // onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)}
+            items={liquidity}
+            timestamp={timestamp}
+          />
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
             description="Note: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."

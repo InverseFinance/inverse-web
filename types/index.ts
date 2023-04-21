@@ -746,3 +746,16 @@ export type FirmAction = {
   tokenName: string,
   tokenNameCombined?: string,
 }
+
+export type CoordinatesArray = { x: number, y: number }[]
+
+export type LiquidityPoolAggregatedData = {
+  timestamp: number
+  tvl: number
+  balance: number
+  pairingDepth: number
+  avgDolaWeight: number
+  pol: number
+  rewardDay: number
+  avgApy: number
+}

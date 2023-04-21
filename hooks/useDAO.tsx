@@ -1,4 +1,4 @@
-import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed, NetworkIds } from '@app/types'
+import { FedEvent, SWR, StabilizerEvent, DAO, Payroll, Vester, Fed, NetworkIds, LiquidityPoolAggregatedData } from '@app/types'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR';
@@ -39,9 +39,31 @@ export const useDAO = (): SWR & DAO => {
 export const useLiquidityPools = (): SWR & { liquidity: any[], timestamp: number } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/liquidity?v=1`, fetcher)
 
-  return {    
+  return {
     timestamp: data?.timestamp,
     liquidity: data?.liquidity || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useLiquidityPoolsAggregatedHistory = (excludeCurrent = false): SWR & {
+  aggregatedHistory: {
+    "DOLA": LiquidityPoolAggregatedData[]
+    "DOLA-stable": LiquidityPoolAggregatedData[]
+    "DOLA-volatile": LiquidityPoolAggregatedData[]
+    "INV": LiquidityPoolAggregatedData[]
+    "INV-DOLA": LiquidityPoolAggregatedData[]
+    "INV-NON_DOLA": LiquidityPoolAggregatedData[]
+    "DBR": LiquidityPoolAggregatedData[]
+    "DBR-DOLA": LiquidityPoolAggregatedData[]
+    "DBR-NON_DOLA": LiquidityPoolAggregatedData[]
+  },
+} => {
+  const { data, error } = useCustomSWR(`/api/transparency/liquidity-histo?excludeCurrent=${excludeCurrent}`, fetcher)
+
+  return {
+    aggregatedHistory: data?.aggregatedHistory || {},
     isLoading: !error && !data,
     isError: error,
   }
@@ -123,7 +145,7 @@ export const useFedOverview = (): SWR & { fedOverviews: any[] } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/fed-overview`, fetcher)
 
   return {
-    fedOverviews: data?.fedOverviews || [],    
+    fedOverviews: data?.fedOverviews || [],
     isLoading: !error && !data,
     isError: error,
   }
