@@ -56,8 +56,8 @@ export const POOL_CATEGORIES = [
     { name: 'DBR-NON_DOLA', args: [undefined, 'DBR', 'DOLA'] },
 ];
 
-export const getAggregatedDataFromPools = (totalEntries: any) => {
-    return POOL_CATEGORIES.reduce((prev, curr) => {
+export const getAggregatedDataFromPools = (totalEntries: any, categories = POOL_CATEGORIES) => {
+    return categories.reduce((prev, curr) => {
         return {
             ...prev,
             [curr.name]: totalEntries.map((entry) => {
