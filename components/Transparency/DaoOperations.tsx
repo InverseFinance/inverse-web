@@ -45,10 +45,6 @@ export const DaoOperationsTable = () => {
     const { transactions: items, isLoading, cachedMostRecentTimestamp } = useEligibleRefunds(chosenStartDate, chosenEndDate, reloadIndex, false, chosenServerFilter, chosenServerMultisigFilter);
 
     useEffect(() => {
-        setTableItems(refundFilter === 'all' ? eligibleTxs : eligibleTxs.filter(t => t.refunded === (refundFilter === 'refunded')));
-    }, [refundFilter, eligibleTxs])
-
-    useEffect(() => {
         if (isLoading) {
             return;
         }
@@ -193,22 +189,6 @@ export const DaoOperationsTable = () => {
                             direction="row"
                             justifyContent="space-between"
                             alignItems="center">
-                            <HStack alignItems="center" justifyItems="center">
-                                <RadioCardGroup
-                                    wrapperProps={{ w: 'full', justify: 'center' }}
-                                    group={{
-                                        name: 'bool',
-                                        defaultValue: refundFilter,
-                                        onChange: (value) => setRefundFilter(value),
-                                    }}
-                                    radioCardProps={{ w: 'fit-content', textAlign: 'center', px: '3', py: '1' }}
-                                    options={[
-                                        { label: 'All', value: 'all' },
-                                        { label: 'Refunded', value: 'refunded' },
-                                        { label: 'Non-Refunded', value: 'non-refunded' }
-                                    ]}
-                                />
-                            </HStack>
                             <HStack>
                                 <InputGroup>
                                     <InputLeftElement fontSize="12px" children={<Text color="secondaryTextColor" pl="4">From:</Text>} />
