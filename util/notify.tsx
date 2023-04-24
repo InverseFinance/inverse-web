@@ -60,3 +60,11 @@ export const showFailNotif = (e: any, isFromTx?: boolean) => {
         })
     }
 }
+
+export const closeToast = (id: string) => {
+    try {
+        toast.close(id);
+    } catch (e) {
+        console.log('Error closing toast: ', e);
+    }    
+}
