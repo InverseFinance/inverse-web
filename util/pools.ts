@@ -30,7 +30,7 @@ export const getPoolsAggregatedStats = (
     const avgDolaWeight = itemsWithoutChildren.reduce((prev, curr) => prev + (curr.dolaWeight / 100 * curr.tvl), 0) / tvl * 100;
     // pol, apy, should include derived pools such as Aura
     const pol = itemsWithoutChildren.reduce((prev, curr) => prev + curr.ownedAmount, 0);
-    const rewardDay = filteredItems.filter(lp => !lp.deduce).reduce((prev, curr) => prev + curr.rewardDay, 0);       
+    const rewardDay = filteredItems.filter(lp => !lp.deduce).reduce((prev, curr) => prev + curr.rewardDay, 0);
     const avgApy = filteredItems.reduce((prev, curr) => prev + ((curr.apy || 0) / 100 * curr.tvl), 0) / tvl * 100;
 
     return {
@@ -88,4 +88,54 @@ export const getLpHistory = async (address: string, excludeCurrent = true) => {
         data = await res.json();
     } catch (e) { }
     return data;
-}   
+}
+
+// Recreate / update histo,
+export const getPoolFixtures = (oldEntries) => {
+    // index: 0 new pool, index: original derived pool to copy from (eg: bal pool related to aura pool)
+    const fixture = [
+        // cvx
+        ['0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', '0xE57180685E3348589E9521aa53Af0BCD497E884d'],
+        // aura ee
+        ['0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29', '0x133d241F225750D2c92948E464A5a80111920331'],
+        // aura usdc
+        ['0x22915f309ec0182c85cd8331c23bd187fd761360', '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6'],
+    ];
+
+    const metas = {};
+    fixture.forEach(([key, val]) => {
+        const last = oldEntries[oldEntries.length - 1];
+        const found = last.liquidity.find((pool) => pool.address === key);
+        metas[key] = found;
+    });
+
+    const fixedEntries = [...oldEntries];
+
+    oldEntries.forEach((entry, i) => {
+        fixture.forEach(([key, val]) => {
+            const found = entry.liquidity.find((pool) => pool.address === key);
+            if (!found) {
+                const og = entry.liquidity.find((pool) => pool.address === val);
+                const ogIndex = entry.liquidity.findIndex((pool) => pool.address === val);
+                if (!!og) {
+                    fixedEntries[i].liquidity.push({
+                        ...metas[key],
+                        apy: og.apy,
+                        apyMean30d: og.apyMean30d,
+                        owned: og.owned,
+                        ownedAmount: og.ownedAmount,
+                        perc: og.perc,
+                        pairingDepth: og.pairingDepth,
+                        dolaBalance: og.dolaBalance,
+                        dolaWeight: og.dolaWeight,
+                        rewardDay: og.rewardDay,
+                        isFed: true,
+                    });
+                    fixedEntries[i].liquidity[ogIndex] = { ...og, isFed: false };
+                } else {
+                    console.log('og not found', val);
+                }
+            }
+        });
+    });
+}
