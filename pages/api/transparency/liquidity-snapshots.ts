@@ -12,5 +12,6 @@ export default async function handler(req, res) {
         res.status(400).json({ msg: 'liquidity-history not initialized' });
     } catch (err) {
         console.error(err);
+        res.status(500).json({ status: 'ko' });
     }
 }
