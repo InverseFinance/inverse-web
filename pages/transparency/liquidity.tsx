@@ -20,6 +20,7 @@ import { useEventsAsChartData } from '@app/hooks/misc';
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts';
 import InfoModal from '@app/components/common/Modal/InfoModal';
 import { addCurrentToHistory, getLpHistory } from '@app/util/pools';
+import { closeToast, showToast } from '@app/util/notify';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -72,6 +73,7 @@ export const Liquidity = () => {
   const [histoTitle, setHistoTitle] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLpChart, setIsLpChart] = useState(false);
+  const [lpsHisto, setLpsHisto] = useState({});
   const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
   const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
   const _chartData = isLpChart ? lpChartData : chartData;
@@ -98,11 +100,14 @@ export const Liquidity = () => {
     onOpen();
   }
 
-  const handleOpenHistoChartFromTable = async ({ address, lpName }, event, liquidity) => {
+  const handleOpenHistoChartFromTable = async ({ address, lpName, project }, event, liquidity) => {
     const target = event.target;
     const cellBox = target.closest('[data-col]');
     const col = cellBox.dataset.col;
-    const lpHistoRes = await getLpHistory(address, true);
+    showToast({ title: 'Loading pool history...', id: 'pool-histo', status: 'info' });
+    const lpHistoRes = lpsHisto[address] || await getLpHistory(address, true);
+    setLpsHisto(lpHistoRes);    
+    closeToast('pool-histo');
     const lpWithCurrent = addCurrentToHistory(
       lpHistoRes.lpHistory,
       { liquidity: liquidity.filter(lp => lp.address === address), timestamp },
@@ -111,7 +116,7 @@ export const Liquidity = () => {
     setHistoAttribute(col.replace('dolaBalance', 'balance').replace('ownedAmount', 'pol').replace('dolaWeight', 'avgDolaWeight').replace('apy', 'avgApy'));
     setHistoAttributeLabel(LP_COLS.find(c => c.field === col)?.label);
     setLpHistoArray(lpWithCurrent.LP);
-    setHistoTitle(lpName);
+    setHistoTitle(`${lpName} (${capitalize(project)})`);
     setHistoIsPerc(['dolaWeight', 'apy', 'perc'].includes(col));
     setIsLpChart(true);
     onOpen();
