@@ -9,4 +9,9 @@ jobs:
       - name: Prices trigger before liquidity snapshot
         run: |
           curl -v --request GET \
-          --url 'https://www.inverse.finance/api/prices'          
+          --url 'https://www.inverse.finance/api/prices'
+      - name: Fed overview trigger before liquidity snapshot
+        run: |
+          curl -v --request GET \
+          --url 'https://www.inverse.finance/api/transparency/fed-overview'
+      
