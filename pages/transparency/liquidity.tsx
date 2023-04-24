@@ -1,4 +1,4 @@
-import { Flex, Stack, VStack, Text, Divider, HStack, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, VStack, Text, Divider, HStack, useDisclosure, Select } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
@@ -91,12 +91,15 @@ export const Liquidity = () => {
 
   const handleOpenHistoChart = (isStable: boolean, include: string | string[], exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
     const isDolaPaired = Array.isArray(include) && include.length > 1 && include[1] === 'DOLA';
-    setHistoAttribute(attribute);
     setCategoryChartHisto(`${category}${isStable === true ? '-stable' : isStable === false ? '-volatile' : ''}${exclude ? '-NON_DOLA' : isDolaPaired ? '-DOLA' : ''}`);
-    setHistoAttributeLabel(label);
     setHistoTitle(title);
-    setHistoIsPerc(!!isPerc);
     setIsLpChart(false);
+    handleNewLpCol(attribute.replace('balance', 'dolaBalance')
+      .replace('pol', 'ownedAmount')
+      .replace('avgDolaWeight', 'dolaWeight')
+      .replace('avgApy', 'apy')
+      .replace('avgDom', 'perc')
+    );
     onOpen();
   }
 
@@ -106,20 +109,30 @@ export const Liquidity = () => {
     const col = cellBox.dataset.col;
     showToast({ title: 'Loading pool history...', id: 'pool-histo', status: 'info' });
     const lpHistoRes = lpsHisto[address] || await getLpHistory(address, true);
-    setLpsHisto(lpHistoRes);    
+    setLpsHisto(lpHistoRes);
     closeToast('pool-histo');
     const lpWithCurrent = addCurrentToHistory(
       lpHistoRes.lpHistory,
       { liquidity: liquidity.filter(lp => lp.address === address), timestamp },
       [{ name: 'LP', args: [undefined, undefined, ''] }],
     );
-    setHistoAttribute(col.replace('dolaBalance', 'balance').replace('ownedAmount', 'pol').replace('dolaWeight', 'avgDolaWeight').replace('apy', 'avgApy'));
-    setHistoAttributeLabel(LP_COLS.find(c => c.field === col)?.label);
     setLpHistoArray(lpWithCurrent.LP);
     setHistoTitle(`${lpName} (${capitalize(project)})`);
-    setHistoIsPerc(['dolaWeight', 'apy', 'perc'].includes(col));
     setIsLpChart(true);
+    handleNewLpCol(col);
     onOpen();
+  }
+
+  const handleNewLpCol = (col: string) => {
+    setHistoAttribute(col
+      .replace('dolaBalance', 'balance')
+      .replace('ownedAmount', 'pol')
+      .replace('dolaWeight', 'avgDolaWeight')
+      .replace('apy', 'avgApy')
+      .replace('perc', 'avgDom')
+    );
+    setHistoAttributeLabel(LP_COLS.find(c => c.field === col)?.label);
+    setHistoIsPerc(['dolaWeight', 'apy', 'perc'].includes(col));
   }
 
   return (
@@ -135,7 +148,7 @@ export const Liquidity = () => {
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
       <InfoModal
-        title={`${histoTitle} ${histoAttributeLabel} since April 12th, 2023`}
+        title={`${histoTitle}`}
         onClose={onClose}
         onOk={onClose}
         isOpen={isOpen}
@@ -145,7 +158,21 @@ export const Liquidity = () => {
         <VStack pl='8' py='4' w='full' alignItems="center" justify='center'>
           {
             _chartData?.length > 0 && <>
-              <Text>Current value: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
+              <HStack w='full' justify="space-between" pr="16">
+                <Select
+                  cursor="pointer"
+                  borderWidth="1px"
+                  borderColor="mainTextColor"
+                  maxW='200px'
+                  onChange={(e) => handleNewLpCol(e.target.value)}>
+                  {
+                    LP_COLS
+                      .filter(col => !col.showFilter)
+                      .map(col => <option key={col.field} value={col.field} selected={col.label === histoAttributeLabel}>{col.label}</option>)
+                  }
+                </Select>
+                <Text>Current {histoAttributeLabel}: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
+              </HStack>
               {
                 isOpen && <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{ autoMinY: true }} />
               }

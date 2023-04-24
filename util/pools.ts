@@ -11,6 +11,7 @@ export const getPoolsAggregatedStats = (
     pol: number,
     rewardDay: number,
     avgApy: number,
+    avgDom: number,
 } => {
     const _include = Array.isArray(include) ? include : [include || ''];
     const _exclude = Array.isArray(exclude) ? exclude : [exclude || ''];
@@ -32,6 +33,7 @@ export const getPoolsAggregatedStats = (
     const pol = itemsWithoutChildren.reduce((prev, curr) => prev + curr.ownedAmount, 0);
     const rewardDay = filteredItems.filter(lp => !lp.deduce).reduce((prev, curr) => prev + curr.rewardDay, 0);
     const avgApy = filteredItems.reduce((prev, curr) => prev + ((curr.apy || 0) / 100 * curr.tvl), 0) / tvl * 100;
+    const avgDom = filteredItems.reduce((prev, curr) => prev + ((curr.perc || 0) / 100 * curr.tvl), 0) / tvl * 100;
 
     return {
         tvl,
@@ -41,6 +43,7 @@ export const getPoolsAggregatedStats = (
         pol,
         rewardDay,
         avgApy,
+        avgDom,
     }
 }
 
