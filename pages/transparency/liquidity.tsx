@@ -102,9 +102,9 @@ export const Liquidity = () => {
     const target = event.target;
     const cellBox = target.closest('[data-col]');
     const col = cellBox.dataset.col;
-    const d = await getLpHistory(address);
+    const lpHistoRes = await getLpHistory(address, true);
     const lpWithCurrent = addCurrentToHistory(
-      d.lpHistory,
+      lpHistoRes.lpHistory,
       { liquidity: liquidity.filter(lp => lp.address === address), timestamp },
       [{ name: 'LP', args: [undefined, undefined, ''] }],
     );
@@ -213,7 +213,7 @@ export const Liquidity = () => {
           </Stack>
           <Divider my="4" />
           <LiquidityPoolsTable
-            // onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)}
+            onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)}
             items={liquidity}
             timestamp={timestamp}
           />
