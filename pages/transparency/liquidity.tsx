@@ -142,7 +142,7 @@ export const Liquidity = () => {
             _chartData?.length > 0 && <>
               <Text>Current value: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
               {
-                isOpen && <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} />
+                isOpen && <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{ autoMinY: true }} />
               }
             </>
           }
