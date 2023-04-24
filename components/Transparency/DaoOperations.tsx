@@ -21,13 +21,10 @@ import moment from 'moment';
 const { MULTISIGS } = getNetworkConfigConstants();
 
 export const DaoOperationsTable = () => {    
-    const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
-    // given to table
-    const [tableItems, setTableItems] = useState<RefundableTransaction[]>([]);
+    const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);   
     // filtered inside table with subfilters
     const [visibleItems, setVisibleItems] = useState<RefundableTransaction[]>([]);
-    const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);
-    const [refundFilter, setRefundFilter] = useState<'all' | 'refunded' | 'non-refunded'>('non-refunded');
+    const [txsToRefund, setTxsToRefund] = useState<RefundableTransaction[]>([]);    
 
     const now = new Date();
     // const startOfMonth = `${now.getUTCFullYear()}-${(now.getUTCMonth() + 1).toString().padStart(2, '0')}-01`;    
@@ -206,7 +203,7 @@ export const DaoOperationsTable = () => {
                         <Divider />
                         <Table
                             columns={columns}
-                            items={tableItems}
+                            items={eligibleTxs}
                             keyName={'txHash'}
                             defaultSort="timestamp"
                             defaultSortDir="desc"
