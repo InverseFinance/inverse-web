@@ -26,6 +26,7 @@ export type AreaChartProps = {
     domainYpadding?: number | 'auto',
     isDollars?: boolean,
     isPerc?: boolean,
+    autoMinY?: boolean,
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
 };
@@ -44,11 +45,13 @@ export const AreaChart = ({
     mainColor = 'primary',
     isDollars = false,
     isPerc = false,
+    autoMinY = false,
     titleProps,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
+    const minY = data.length > 0 ? Math.min(...data.map(d => d.y)) : 0;
     const { themeStyles } = useAppTheme();
     
     const _axisStyle = axisStyle || {
@@ -97,7 +100,7 @@ export const AreaChart = ({
                 <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, 0, isDollars)}${isPerc ? '%' : ''}`} />
                 <VictoryAxis style={_axisStyle} />
                 <VictoryArea
-                    domain={{ y: [0, maxY + _yPad] }}
+                    domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}
                     labelComponent={
