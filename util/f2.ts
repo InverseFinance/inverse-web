@@ -1,11 +1,11 @@
 import { F2_HELPER_ABI, F2_MARKET_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
 import { CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
-import { JsonRpcSigner } from "@ethersproject/providers";
+import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { splitSignature } from "ethers/lib/utils";
+import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 
 const { F2_HELPER } = getNetworkConfigConstants();
@@ -62,7 +62,6 @@ export const getFirmSignature = (
     })
 }
 
-// OK
 export const f2approxDbrAndDolaNeeded = async (
     signer: JsonRpcSigner,
     dolaAmount: BigNumber,
@@ -72,26 +71,27 @@ export const f2approxDbrAndDolaNeeded = async (
 ) => {
     const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
     const durationSecs = durationDays * ONE_DAY_SECS;
+
     const approx = await helperContract
         // 8 iterations are used in the helper
-        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, 8);
-        
+        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);
+
     let dolaForDbr, totalDolaNeeded = 0;
     const debtAmountNum = getBnToNumber(dolaAmount);
 
-    if(helperType === 'balancer') {
+    if (helperType === 'balancer') {
         totalDolaNeeded = approx[0];
         dolaForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
-    } else if(helperType === 'curve-v2') {
-        dolaForDbr = getBnToNumber(appox[0]);        
-        totalDolaNeeded = dolaForDbr+debtAmountNum;
+    } else if (helperType === 'curve-v2') {
+        dolaForDbr = getBnToNumber(approx[0]);
+        totalDolaNeeded = dolaForDbr + debtAmountNum;
     }
-    const dbrNeeded = getBnToNumber(appox[1]);
+    const dbrNeeded = getBnToNumber(approx[1]);
 
-    const slippage = parseFloat(dbrBuySlippage)+100;
-    const dolaForDbrWithSlippage = dolaForDbr * slippage/100;
-    const maxDola = dolaForDbrWithSlippage+debtAmountNum;
-    const minDbr = dbrNeeded * slippage/100;
+    const slippage = parseFloat(dbrBuySlippage) + 100;
+    const dolaForDbrWithSlippage = dolaForDbr * slippage / 100;
+    const maxDola = dolaForDbrWithSlippage + debtAmountNum;
+    const minDbr = dbrNeeded * slippage / 100;
     return { dolaForDbr, dolaForDbrWithSlippage, dbrNeeded, totalDolaNeeded, maxDola, minDbr, maxDolaBn: getNumberToBn(maxDola), minDbrBn: getNumberToBn(minDbr) };
 }
 
@@ -149,13 +149,13 @@ export const f2sellAndWithdrawHelper = async (
 export const getHelperDolaAndDbrParams = (
     helperType: 'curve-v2' | 'balancer',
     durationDays: number,
-    appox: { maxDola: number, minDrb: number, maxDolaBn: BigNumber, minDbrBn: BigNumber },
+    approx: { maxDola: number, minDrb: number, maxDolaBn: BigNumber, minDbrBn: BigNumber },
 ) => {
     const durationSecs = durationDays * ONE_DAY_SECS;
     if (helperType === 'curve-v2') {
-        return { dolaParam: appox.maxDolaBn, dbrParam: durationSecs.toString() };
+        return { dolaParam: approx.maxDolaBn, dbrParam: durationSecs.toString() };
     } else if (helperType === 'balancer') {
-        return { dolaParam: appox.dolaForDbrBn, dbrParam: durationSecs.toString() };
+        return { dolaParam: approx.dolaForDbrBn, dbrParam: durationSecs.toString() };
     }
     return { dolaParam: '0', dbrParam: '0' };
 }
@@ -338,4 +338,14 @@ export const getDepletionDate = (timestamp: number, comparedTo: number) => {
 
 export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
     return getRiskColor((timestamp - comparedTo) / (365 * ONE_DAY_MS) * 200);
+}
+
+export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, ask = '1') => {
+    const crvPool = new Contract(
+        '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
+        ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
+        SignerOrProvider
+    );
+    const dy = await crvPool.get_dy(0, 1, parseUnits(ask));
+    return {  priceInDolaBn: dy, priceInDola: getBnToNumber(dy) }
 }
