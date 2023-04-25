@@ -98,19 +98,19 @@ export const F2WalkthroughRecap = ({
             const dolaNeededForDbrWithSlippage = dolaNeededForDbr * slippage/100;
             const maxDolaInNum = dolaNeededForDbrWithSlippage+debtAmountNum;
             maxDolaIn = getNumberToBn(maxDolaInNum);
-            if(maxDolaInNum > maxBorrow) {
-                return showToast({
-                    title: "Borrow amount / slippage combination too high",
-                    status: 'warning',
-                    description: "Please reduce borrow amount and/or max. slippage",
-                });
-            }
+            // if(maxDolaInNum > maxBorrow) {
+            //     return showToast({
+            //         title: "Borrow amount / slippage combination too high",
+            //         status: 'warning',
+            //         description: "Please reduce borrow amount and/or max. slippage",
+            //     });
+            // }
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,
                 parseUnits(collateralAmount, market.underlying.decimals),
                 parseUnits(debtAmount),
-                maxDolaIn,
+                dbrBuySlippage,
                 duration,
                 isUseNativeCoin,
                 false,
