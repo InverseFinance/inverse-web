@@ -27,19 +27,19 @@ export default async function handler(req, res) {
 
     const queries = [
       balancerVault.getPoolTokens('0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415'),
+      getDbrPriceOnCurve(provider, '1000'),
     ].concat(withExtra ? [
       contract.totalSupply(),      
       contract.totalDueTokensAccrued(),
-      contract.operator(),
-      getDbrPriceOnCurve(provider, '1000'),
+      contract.operator(),      
     ] : []);
 
     const results = await Promise.all(queries);
 
-    const [poolData] = results;
+    const [poolData, curvePriceData] = results;
     const priceOnBalancer = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.05;
 
-    const { priceInDola: priceOnCurve } = results[4];
+    const { priceInDola: priceOnCurve } = curvePriceData;
 
     const resultData = {
       timestamp: +(new Date()),
@@ -64,6 +64,7 @@ export default async function handler(req, res) {
       }
     } catch (e) {
       console.error(e);
+      res.status(500).json({ status: 'ko' });
     }
   }
 }

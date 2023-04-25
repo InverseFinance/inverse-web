@@ -74,8 +74,7 @@ export const f2approxDbrAndDolaNeeded = async (
 
     const approx = await helperContract
         // 8 iterations are used in the helper
-        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);
-
+        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);    
     let dolaForDbr, totalDolaNeeded = 0;
     const debtAmountNum = getBnToNumber(dolaAmount);
 
@@ -347,5 +346,6 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
         SignerOrProvider
     );
     const dy = await crvPool.get_dy(0, 1, parseUnits(ask));
-    return {  priceInDolaBn: dy, priceInDola: getBnToNumber(dy) }
+    const price = dy.div(ask);
+    return {  priceInDolaBn: price, priceInDola: getBnToNumber(price) }
 }
