@@ -112,26 +112,18 @@ export const F2CombinedForm = ({
             }
         }
         const action = MODES[mode]
-        let maxDolaIn;
-        if (isAutoDBR) {
-            const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
-            const totalDolaNeeded = approx[0];
-            const dolaNeededForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
-            const slippage = parseFloat(dbrBuySlippage)+100;
-            const dolaNeededForDbrWithSlippage = dolaNeededForDbr * slippage/100;
-            const maxDolaInNum = dolaNeededForDbrWithSlippage+debtAmountNum;
-            maxDolaIn = getNumberToBn(maxDolaInNum);
-            if (isBorrowCase) {
-                const maxDolaInNum = getBnToNumber(maxDolaIn);
-                if (maxDolaInNum > maxBorrow) {
-                    return showToast({
-                        title: "Borrow amount / slippage combination too high",
-                        status: 'warning',
-                        description: "Please reduce borrow amount and/or max. slippage",
-                    });
-                }
-            }
-        }
+        // if (isAutoDBR) {
+        //     const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), dbrBuySlippage, duration);
+        //     if (isBorrowCase) {
+        //         if (approx.maxDola > maxBorrow) {
+        //             return showToast({
+        //                 title: "Borrow amount / slippage combination too high",
+        //                 status: 'warning',
+        //                 description: "Please reduce borrow amount and/or max. slippage",
+        //             });
+        //         }
+        //     }
+        // }
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
@@ -141,7 +133,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits('0', market.underlying.decimals),
                     parseUnits(debtAmount),
-                    maxDolaIn,
+                    dbrBuySlippage,
                     duration,
                     false,
                     true,
@@ -164,7 +156,7 @@ export const F2CombinedForm = ({
                     market.address,
                     parseUnits(collateralAmount, market.underlying.decimals),
                     parseUnits(debtAmount),
-                    maxDolaIn,
+                    dbrBuySlippage,
                     isAutoDBR ? duration : 0,
                     isUseNativeCoin,
                 );

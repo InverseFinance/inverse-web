@@ -6,6 +6,7 @@ import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
 import { splitSignature } from "ethers/lib/utils";
+import { getBnToNumber, getNumberToBn } from "./markets";
 
 const { F2_HELPER } = getNetworkConfigConstants();
 
@@ -61,23 +62,48 @@ export const getFirmSignature = (
     })
 }
 
-export const f2approxDbrAndDolaNeeded = async (signer: JsonRpcSigner, dolaAmount: string | BigNumber, durationDays: number) => {
+// OK
+export const f2approxDbrAndDolaNeeded = async (
+    signer: JsonRpcSigner,
+    dolaAmount: BigNumber,
+    dbrBuySlippage: string | number,
+    durationDays: number,
+    helperType: 'curve-v2' | 'balancer' = 'curve-v2',
+) => {
     const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
     const durationSecs = durationDays * ONE_DAY_SECS;
-    return helperContract
+    const approx = await helperContract
         // 8 iterations are used in the helper
-        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, 8);    
+        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, 8);
+        
+    let dolaForDbr, totalDolaNeeded = 0;
+    const debtAmountNum = getBnToNumber(dolaAmount);
+
+    if(helperType === 'balancer') {
+        totalDolaNeeded = approx[0];
+        dolaForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
+    } else if(helperType === 'curve-v2') {
+        dolaForDbr = getBnToNumber(appox[0]);        
+        totalDolaNeeded = dolaForDbr+debtAmountNum;
+    }
+    const dbrNeeded = getBnToNumber(appox[1]);
+
+    const slippage = parseFloat(dbrBuySlippage)+100;
+    const dolaForDbrWithSlippage = dolaForDbr * slippage/100;
+    const maxDola = dolaForDbrWithSlippage+debtAmountNum;
+    const minDbr = dbrNeeded * slippage/100;
+    return { dolaForDbr, dolaForDbrWithSlippage, dbrNeeded, totalDolaNeeded, maxDola, minDbr, maxDolaBn: getNumberToBn(maxDola), minDbrBn: getNumberToBn(minDbr) };
 }
 
 export const f2sellAndRepayHelper = async (
     signer: JsonRpcSigner,
     market: string,
-    repay: string | BigNumber,    
+    repay: string | BigNumber,
     minDolaOut: string | BigNumber,
-    dbrAmountToSell: string | BigNumber,    
+    dbrAmountToSell: string | BigNumber,
 ) => {
-    const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);   
-    return helperContract        
+    const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+    return helperContract
         .sellDbrAndRepayOnBehalf(market, repay, minDolaOut, dbrAmountToSell);
 }
 
@@ -85,7 +111,7 @@ export const f2repayAndWithdrawNative = async (
     signer: JsonRpcSigner,
     market: string,
     repay: string | BigNumber,
-    withdraw: string | BigNumber,    
+    withdraw: string | BigNumber,
 ) => {
     const signatureResult = await getFirmSignature(signer, market, withdraw, 'WithdrawOnBehalf');
     if (signatureResult) {
@@ -120,42 +146,59 @@ export const f2sellAndWithdrawHelper = async (
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
 
+export const getHelperDolaAndDbrParams = (
+    helperType: 'curve-v2' | 'balancer',
+    durationDays: number,
+    appox: { maxDola: number, minDrb: number, maxDolaBn: BigNumber, minDbrBn: BigNumber },
+) => {
+    const durationSecs = durationDays * ONE_DAY_SECS;
+    if (helperType === 'curve-v2') {
+        return { dolaParam: appox.maxDolaBn, dbrParam: durationSecs.toString() };
+    } else if (helperType === 'balancer') {
+        return { dolaParam: appox.dolaForDbrBn, dbrParam: durationSecs.toString() };
+    }
+    return { dolaParam: '0', dbrParam: '0' };
+}
+
 export const f2depositAndBorrowHelper = async (
     signer: JsonRpcSigner,
     market: string,
     deposit: string | BigNumber,
-    borrow: string | BigNumber,
-    maxDolaIn: string | BigNumber,
+    borrow: BigNumber,
+    dbrBuySlippage: string | number,
     durationDays: number,
     isNativeCoin = false,
     isBorrowOnly = false,
+    helperType = 'curve-v2',
 ) => {
-    const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : maxDolaIn, 'BorrowOnBehalf');
+    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays);
+    const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDolaBn, 'BorrowOnBehalf');
+    const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(helperType, durationDays, approx);
+
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
-        const durationSecs = durationDays * ONE_DAY_SECS;        
         if (isNativeCoin) {
-            if(!durationDays) {
+            if (!durationDays) {
                 return helperContract
                     .depositNativeEthAndBorrowOnBehalf(market, borrow, deadline.toString(), v.toString(), r, s, { value: deposit });
             }
             return helperContract
-                .depositNativeEthBuyDbrAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s, { value: deposit });
+                .depositNativeEthBuyDbrAndBorrowOnBehalf(market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s, { value: deposit });
         }
-        if(isBorrowOnly) {
+        if (isBorrowOnly) {
             return helperContract
-            .buyDbrAndBorrowOnBehalf(market, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
+                .buyDbrAndBorrowOnBehalf(market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s);
         }
         return helperContract
-            .depositBuyDbrAndBorrowOnBehalf(market, deposit, borrow, maxDolaIn, durationSecs.toString(), deadline.toString(), v.toString(), r, s);
+            .depositBuyDbrAndBorrowOnBehalf(market, deposit, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s);
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
 
 export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin = false) => {
-    const account = await signer.getAddress();    
-    if(isNativeCoin) {
+    const account = await signer.getAddress();
+    if (isNativeCoin) {
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         return helperContract.depositNativeEthOnBehalf(market, { value: amount });
     }
@@ -164,7 +207,7 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
 }
 
 export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin?: boolean) => {
-    if(isNativeCoin) {
+    if (isNativeCoin) {
         const signatureResult = await getFirmSignature(signer, market, amount, 'WithdrawOnBehalf');
         if (signatureResult) {
             const { deadline, r, s, v } = signatureResult;
@@ -277,7 +320,7 @@ export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, 
             res(0);
         } else if (newPerc < 1) {
             setTimeout(() => {
-                res(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax - 0.01*naiveMax, perc, isAutoDBR));
+                res(findMaxBorrow(market, deposits, debt, dbrPrice, duration, collateralAmount, debtAmount, naiveMax - 0.01 * naiveMax, perc, isAutoDBR));
             }, 1);
         } else {
             res(naiveMax < 0 ? 0 : Math.floor(naiveMax));
