@@ -253,7 +253,7 @@ export const useAccountF2Markets = (
   });
 }
 
-export const useDBRPriceLive = (): { price: number | undefined } => {
+export const useDBRBalancePrice = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
       [
@@ -275,12 +275,27 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
   }
 }
 
-export const useDBRPrice = (): { price: number } => {
-  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
-  const { price: livePrice } = useDBRPriceLive();
+export const useDBRPriceLive = (ask = '1000'): { price: number | undefined } => {
+  const { data } = useEtherSWR({
+    args: [
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 0, 1, parseUnits(ask)],
+    ],
+    abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
+  });
+  
+  const price = data && data[0] ? getBnToNumber(data[0].div(ask)) : undefined;
 
   return {
-    price: livePrice ?? (apiData?.price || 0.04),
+    price,
+  }
+}
+
+export const useDBRPrice = (ask = '1000'): { price: number } => {
+  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
+  const { price: livePrice } = useDBRPriceLive(ask);
+
+  return {
+    price: livePrice ?? (apiData?.price || 0.05),
   }
 }
 
@@ -293,6 +308,7 @@ export const useDBR = (): {
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
   const { price: livePrice } = useDBRPriceLive();
+
   const { data: extraData } = useEtherSWR([
     [DBR, 'totalSupply'],
     [DBR, 'totalDueTokensAccrued'],
