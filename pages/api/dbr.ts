@@ -6,6 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
+import { getDbrPriceOnCurve } from '@app/util/f2';
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -30,16 +31,20 @@ export default async function handler(req, res) {
       contract.totalSupply(),      
       contract.totalDueTokensAccrued(),
       contract.operator(),
+      getDbrPriceOnCurve(provider, '1000'),
     ] : []);
 
     const results = await Promise.all(queries);
 
     const [poolData] = results;
-    const price = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.04;
+    const priceOnBalancer = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.05;
+
+    const { priceInDola: priceOnCurve } = results[4];
 
     const resultData = {
       timestamp: +(new Date()),
-      price,
+      priceOnBalancer,
+      price: priceOnCurve,
       totalSupply: withExtra ? getBnToNumber(results[1]) : undefined,      
       totalDueTokensAccrued: withExtra ? getBnToNumber(results[2]) : undefined,
       operator: withExtra ? results[3] : undefined,
