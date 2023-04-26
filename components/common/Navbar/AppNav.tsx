@@ -606,7 +606,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             :
             <>
               <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
-                {isLargerThan300 && <ThemeBtn />}
+                <ThemeBtn />
                 <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
               </Stack>
 
@@ -620,15 +620,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
                     : null
                 }
-                <NavBadge
-                  cursor="pointer"
-                  bg={BUTTON_BG}
-                  border={`1px solid ${BUTTON_BORDER_COLOR}`}
-                  color={BUTTON_TEXT_COLOR}
-                  onClick={() => switchTheme()}
-                >
-                  {themeName === 'dark' ? <SunIcon boxSize={4} /> : <MoonIcon boxSize={4} />}
-                </NavBadge>
+                <ThemeBtn />
                 <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
               </Stack>
             </>
