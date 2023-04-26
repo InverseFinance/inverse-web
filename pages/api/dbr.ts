@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     const queries = [
       balancerVault.getPoolTokens('0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415'),
-      getDbrPriceOnCurve(provider, '1000'),
+      getDbrPriceOnCurve(provider),
     ].concat(withExtra ? [
       contract.totalSupply(),      
       contract.totalDueTokensAccrued(),

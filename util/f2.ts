@@ -348,13 +348,13 @@ export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
     return getRiskColor((timestamp - comparedTo) / (365 * ONE_DAY_MS) * 200);
 }
 
-export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, ask = '1') => {
+export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
     const crvPool = new Contract(
         '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
-        ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
-        SignerOrProvider
+        ['function price_oracle() public view returns(uint)',],
+        SignerOrProvider,
     );
-    const dy = await crvPool.get_dy(0, 1, parseUnits(ask));
-    const price = dy.div(ask);
-    return { priceInDolaBn: price, priceInDola: getBnToNumber(price) }
+    const dolaPriceInDbr = await crvPool.price_oracle();
+    const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
+    return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
 }
