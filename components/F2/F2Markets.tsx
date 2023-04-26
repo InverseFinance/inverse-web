@@ -133,7 +133,7 @@ const columns = [
     },
     {
         field: 'leftToBorrow',
-        label: "Daily Borrow Limit",
+        label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt }) => {
