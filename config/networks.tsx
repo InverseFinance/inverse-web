@@ -33,6 +33,7 @@ const ftmConfig: NetworkConfig = {
 
 export enum NETWORK_CODENAMES {
   ethereum = 'ethereum',
+  localhost = 'localhost',
   ropsten = 'ropsten',
   kovan = 'kovan',
   rinkeby = 'rinkeby',
@@ -66,7 +67,7 @@ const networks: Network[] = [
   },
   {
     id: '31337',
-    codename: NETWORK_CODENAMES.ethereum,
+    codename: NETWORK_CODENAMES.localhost,
     name: 'Localhost',
     coinSymbol: 'eth',
     isTestnet: false,

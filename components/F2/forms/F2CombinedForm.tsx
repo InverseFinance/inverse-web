@@ -496,7 +496,7 @@ export const F2CombinedForm = ({
             {...props}
         >
             {
-                (deposits > 0 || debt > 0 || !isDeposit) && <FormControl boxShadow="0px 0px 2px 2px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+                (deposits > 0 || debt > 0 || !isDeposit) && <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
                     <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
                         Repay / Withdraw?
                     </FormLabel>

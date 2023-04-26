@@ -88,7 +88,8 @@ const NetworkBadge = ({
   isWrongNetwork: boolean,
   showWrongNetworkModal: () => void
 }) => {
-  const [isSmallerThan] = useMediaQuery('(max-width: 1200px)')
+  const [isSmallerThan1200] = useMediaQuery('(max-width: 1200px)')
+  const [isSmallerThan1000] = useMediaQuery('(max-width: 1000px)')
   const { data } = useEtherSWR(['getGasPrice']);
 
   const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
@@ -99,7 +100,7 @@ const NetworkBadge = ({
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
+      <NetworkItem chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1200 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -296,12 +297,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           justify="center"
           bg={BUTTON_BG}
           border={`1px solid ${BUTTON_BORDER_COLOR}`}
+          color={BUTTON_TEXT_COLOR}
           cursor="pointer"
           fontSize="sm"
           align="center"
           borderRadius={4}
-          fontWeight="semibold"
-          color={BUTTON_TEXT_COLOR}
+          fontWeight="semibold"          
           p={2.5}
           pl={4}
           pr={4}
@@ -348,14 +349,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
-              <ConnectionMenuItem
+              {/* <ConnectionMenuItem
                 onClick={() => switchTheme()}
               >
                 {themeName === 'dark' ? <SunIcon boxSize={6} /> : <MoonIcon boxSize={6} />}
                 <Text fontWeight="semibold">
                   {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
                 </Text>
-              </ConnectionMenuItem>
+              </ConnectionMenuItem> */}
             </Stack>
           </PopoverBody>
         )}
@@ -440,6 +441,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
+  const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
 
@@ -619,6 +621,15 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
                     : null
                 }
+                <NavBadge
+                  cursor="pointer"
+                  bg={BUTTON_BG}
+                  border={`1px solid ${BUTTON_BORDER_COLOR}`}
+                  color={BUTTON_TEXT_COLOR}
+                  onClick={() => switchTheme()}
+                >
+                  {themeName === 'dark' ? <SunIcon boxSize={4} /> : <MoonIcon boxSize={4} />}
+                </NavBadge>
                 <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
               </Stack>
             </>
