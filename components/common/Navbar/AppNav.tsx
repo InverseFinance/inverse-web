@@ -60,7 +60,21 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
 const NAV_ITEMS = MENUS.nav
 
-const NavBadge = (props: any) => {
+export const ThemeBtn = () => {
+  const { themeName } = useAppTheme();
+  const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
+  return <NavBadge
+    cursor="pointer"
+    bg={BUTTON_BG}
+    border={`1px solid ${BUTTON_BORDER_COLOR}`}
+    color={BUTTON_TEXT_COLOR}
+    onClick={() => switchTheme()}
+  >
+    {themeName === 'dark' ? <SunIcon boxSize={4} /> : <MoonIcon boxSize={4} />}
+  </NavBadge>
+}
+
+export const NavBadge = (props: any) => {
   const { NAV_BUTTON_BG, NAV_BUTTON_BORDER_COLOR, NAV_BUTTON_TEXT_COLOR } = useAppThemeParams();
   return <Flex
     justify="center"
@@ -223,7 +237,6 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const { themeName } = useAppTheme();
   const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
@@ -302,7 +315,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           fontSize="sm"
           align="center"
           borderRadius={4}
-          fontWeight="semibold"          
+          fontWeight="semibold"
           p={2.5}
           pl={4}
           pr={4}
@@ -349,14 +362,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
-              {/* <ConnectionMenuItem
-                onClick={() => switchTheme()}
-              >
-                {themeName === 'dark' ? <SunIcon boxSize={6} /> : <MoonIcon boxSize={6} />}
-                <Text fontWeight="semibold">
-                  {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                </Text>
-              </ConnectionMenuItem> */}
             </Stack>
           </PopoverBody>
         )}
@@ -394,14 +399,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 </ConnectionMenuItem>
               </CoinbasePayButton>
             }
-            <ConnectionMenuItem
-              onClick={() => switchTheme()}
-            >
-              {themeName === 'dark' ? <SunIcon boxSize={3} /> : <MoonIcon boxSize={3} />}
-              <Text fontWeight="semibold">
-                {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </Text>
-            </ConnectionMenuItem>
             {/* {
               !!account && <LiquidationsMenuItem account={userAddress} />
             } */}
@@ -434,7 +431,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
-  const { themeName, themeStyles } = useAppTheme();
+  const [isLargerThan300] = useMediaQuery('(min-width: 300px)');
+  const { themeName } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
   const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
@@ -608,6 +606,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             :
             <>
               <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
+                {isLargerThan300 && <ThemeBtn />}
                 <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
               </Stack>
 
