@@ -281,7 +281,7 @@ export const Table = ({
                 >
                   {
                     col.tooltip ?
-                      <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
+                      <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'mainTextColorLight2' }} zIndex="2" message={col.tooltip} size="small" />
                       : null
                   }
                   <VStack alignItems={i === 0 ? 'flex-start' : i === (columns.length - 1) ? 'flex-end' : 'center'} justifyContent="flex-start" cursor="pointer">
@@ -295,7 +295,7 @@ export const Table = ({
                       }}
                       userSelect="none"
                       position="relative"
-                      color="accentTextColor"
+                      color="mainTextColorLight2"
                       fontSize="12px"
                     >
                       {col.label}
