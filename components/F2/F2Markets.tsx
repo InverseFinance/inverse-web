@@ -9,7 +9,7 @@ import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
-import { OracleType } from "./Infos/OracleType";
+import { OracleType, OracleTypeTooltipContent } from "./Infos/OracleType";
 import { SkeletonList } from "../common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
@@ -69,11 +69,11 @@ const columns = [
     {
         field: 'oracleType',
         label: 'Oracle Type',
-        tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
+        tooltip: <OracleTypeTooltipContent />,
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ oracleType, underlying }) => {
             return <Cell alignItems="center" minWidth="150px" justify="center" fontSize="15px">
-                <OracleType oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
+                <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
             </Cell>
         },
     },
