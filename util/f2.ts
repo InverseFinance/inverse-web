@@ -62,38 +62,6 @@ export const getFirmSignature = (
     })
 }
 
-export const f2approxDbrAndDolaNeeded = async (
-    signer: JsonRpcSigner,
-    dolaAmount: BigNumber,
-    dbrBuySlippage: string | number,
-    durationDays: number,
-    helperType: 'curve-v2' | 'balancer' = DEFAULT_FIRM_HELPER_TYPE,
-) => {
-    const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
-    const durationSecs = durationDays * ONE_DAY_SECS;
-
-    const approx = await helperContract
-        // 8 iterations are used in the helper
-        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);    
-    let dolaForDbr, totalDolaNeeded = 0;
-    const debtAmountNum = getBnToNumber(dolaAmount);
-
-    if (helperType === 'balancer') {
-        totalDolaNeeded = approx[0];
-        dolaForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
-    } else if (helperType === 'curve-v2') {
-        dolaForDbr = getBnToNumber(approx[0]);
-        totalDolaNeeded = dolaForDbr + debtAmountNum;
-    }
-    const dbrNeeded = getBnToNumber(approx[1]);
-
-    const slippage = parseFloat(dbrBuySlippage) + 100;
-    const dolaForDbrWithSlippage = dolaForDbr * slippage / 100;
-    const maxDola = dolaForDbrWithSlippage + debtAmountNum;
-    const minDbr = dbrNeeded * slippage / 100;
-    return { dolaForDbr, dolaForDbrBn: getNumberToBn(dolaForDbr), dolaForDbrWithSlippage, dbrNeeded, totalDolaNeeded, maxDola, minDbr, maxDolaBn: getNumberToBn(maxDola), minDbrBn: getNumberToBn(minDbr) };
-}
-
 export const f2sellAndRepayHelper = async (
     signer: JsonRpcSigner,
     market: string,
@@ -148,15 +116,55 @@ export const f2sellAndWithdrawHelper = async (
 export const getHelperDolaAndDbrParams = (
     helperType: 'curve-v2' | 'balancer',
     durationDays: number,
-    approx: { maxDola: number, minDrb: number, maxDolaBn: BigNumber, minDbrBn: BigNumber, dolaForDbrBn: BigNumber },
+    approx: { maxDola: number, minDrb: number, maxDolaBn: BigNumber, minDbrBn: BigNumber, dolaForDbrBn: BigNumber, dolaForDbrWithSlippageBn: BigNumber },
 ) => {
     const durationSecs = durationDays * ONE_DAY_SECS;
     if (helperType === 'curve-v2') {
-        return { dolaParam: approx.dolaForDbrBn, dbrParam: approx.minDbrBn };
+        return { dolaParam: approx.dolaForDbrWithSlippage, dbrParam: approx.minDbr };
     } else if (helperType === 'balancer') {
-        return { dolaParam: approx.maxDolaBn, dbrParam: durationSecs.toString() };
+        return { dolaParam: approx.maxDola, dbrParam: durationSecs.toString() };
     }
     return { dolaParam: '0', dbrParam: '0' };
+}
+
+export const f2approxDbrAndDolaNeeded = async (
+    signer: JsonRpcSigner,
+    dolaAmount: BigNumber,
+    dbrBuySlippage: string | number,
+    durationDays: number,
+    helperType: 'curve-v2' | 'balancer' = DEFAULT_FIRM_HELPER_TYPE,
+) => {
+    const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+    const durationSecs = durationDays * ONE_DAY_SECS;
+
+    const approx = await helperContract
+        // Balancer: 8 iterations are used inside the Balancer helper contract
+        // Curve: after 18 is precise enough
+        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);
+
+    let dolaForDbr, totalDolaNeeded = BigNumber.from(0);
+    const debtAmountNum = getBnToNumber(dolaAmount);
+
+    if (helperType === 'balancer') {
+        totalDolaNeeded = approx[0];
+        dolaForDbr = totalDolaNeeded.sub(dolaAmount)//getBnToNumber(totalDolaNeeded) - debtAmountNum;
+    } else if (helperType === 'curve-v2') {
+        dolaForDbr = approx[0];
+        totalDolaNeeded = dolaForDbr.add(debtAmountNum);
+    }
+    const dbrNeeded = approx[1];
+
+    const dbrCostSlippage = parseFloat(dbrBuySlippage) + 100;
+    const dbrAmountSlippage = 100 - parseFloat(dbrBuySlippage);
+    const dolaForDbrWithSlippage = dolaForDbr.mul(dbrCostSlippage).div(100);
+    const maxDola = dolaForDbrWithSlippage.add(dolaAmount);
+    const minDbr = dbrNeeded.mul(dbrAmountSlippage).div(100);
+    const bns = { minDbr, maxDola, dolaForDbrWithSlippage, dolaForDbr, totalDolaNeeded, dbrNeeded };
+    const nums = Object.entries(bns).reduce(
+        (prev, [k, v]) => {
+            return { ...prev, [`${k}Num`]: getBnToNumber(v) };
+        }, {});
+    return { ...bns, ...nums };
 }
 
 export const f2depositAndBorrowHelper = async (
@@ -170,8 +178,9 @@ export const f2depositAndBorrowHelper = async (
     isBorrowOnly = false,
     helperType = DEFAULT_FIRM_HELPER_TYPE,
 ) => {
-    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays);
-    const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDolaBn, 'BorrowOnBehalf');
+    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, helperType);
+
+    const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDola, 'BorrowOnBehalf');
     const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(helperType, durationDays, approx);
 
     if (signatureResult) {
@@ -347,5 +356,5 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     );
     const dy = await crvPool.get_dy(0, 1, parseUnits(ask));
     const price = dy.div(ask);
-    return {  priceInDolaBn: price, priceInDola: getBnToNumber(price) }
+    return { priceInDolaBn: price, priceInDola: getBnToNumber(price) }
 }

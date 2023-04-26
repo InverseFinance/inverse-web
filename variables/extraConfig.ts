@@ -1,3 +1,4 @@
+import { DEFAULT_FIRM_HELPER_TYPE } from '@app/config/constants';
 import { FEDS_PARAMS } from '@app/config/feds-params';
 import { NetworkIds } from '@app/types';
 
@@ -28,7 +29,7 @@ const mainConfig = {
     dbr: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     f2Oracle: '0xaBe146CF570FD27ddD985895ce9B138a7110cce8',
     f2controller: '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D',
-    f2helper: '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1',    
+    f2helper: DEFAULT_FIRM_HELPER_TYPE === 'balancer' ? '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1' : '0x44863F234b137A395e5c98359d16057A9A1fAc55',
     f2markets: [
         {
             name: 'WETH',

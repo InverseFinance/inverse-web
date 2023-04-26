@@ -49,4 +49,4 @@ export const DOLA_BRIDGED_CHAINS = [NetworkIds.ftm, NetworkIds.optimism, Network
 export const INV_BRIDGED_CHAINS = [NetworkIds.ftm];
 
 export const DWF_PURCHASER = '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647';
-export const DEFAULT_FIRM_HELPER_TYPE = 'balancer'//'curve-v2'
+export const DEFAULT_FIRM_HELPER_TYPE = 'curve-v2'
