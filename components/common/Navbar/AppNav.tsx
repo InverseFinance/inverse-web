@@ -236,7 +236,8 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
-  const { query } = useRouter()
+  const { query } = useRouter();
+  const [isLargerThan300] = useMediaQuery('(min-width: 300px)');
   const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
@@ -325,7 +326,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           data-testid={TEST_IDS.connectBtn}
           position="relative"
         >
-          {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
+          {!!userAddress && isLargerThan300 && <Avatar mr="2" sizePx={20} address={userAddress} />}
           <Text color={BUTTON_TEXT_COLOR}>{connectBtnLabel}</Text>
           {/* {
             !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
@@ -430,8 +431,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
-  const [isLargerThan300] = useMediaQuery('(min-width: 300px)');
+  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');  
   const { themeName } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
@@ -439,7 +439,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
-  const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
 
