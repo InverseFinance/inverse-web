@@ -159,6 +159,9 @@ const chainTokenAddresses = {
   "43114": {
     DOLA: '0x221743dc9E954bE4f86844649Bf19B43D6F8366d',
     USDC: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+    SOLISNEK: '0xeeee99b35Eb6aF5E7d76dd846DbE4bcc0c60cA1d',
+    VESOLISNEK: '0xeeee3Bf0E550505C0C17a8432065F2f6b9D06350',
+    CHRONOS: '0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851',
     DOLAUSDCSOLISNEDKLP: '0x7680D9F07f80B11A7a96E4443398245D917998e6',
   },
 }
@@ -833,6 +836,31 @@ const chainTokens = {
     [chainTokenAddresses["43114"].USDC]: {
       address: chainTokenAddresses["43114"].USDC,
       ...USDC,
+    },
+    [chainTokenAddresses["43114"].SOLISNEK]: {
+      address: chainTokenAddresses["43114"].SOLISNEK,
+      name: 'SoliSnek',
+      symbol: 'SNEK',
+      coingeckoId: 'solisnek',
+      image: TOKEN_IMAGES.SOLISNEK,
+      decimals: 18,
+    },
+    [chainTokenAddresses["43114"].VESOLISNEK]: {
+      address: chainTokenAddresses["43114"].VESOLISNEK,
+      name: 'veSNEK',
+      symbol: 'veSNEK',
+      image: TOKEN_IMAGES.SOLISNEK,
+      decimals: 18,
+      coingeckoId: 'solisnek',
+      veNftId: '892',
+    },
+    [chainTokenAddresses["43114"].CHRONOS]: {
+      address: chainTokenAddresses["43114"].CHRONOS,
+      name: 'CHRONOS',
+      symbol: 'CHRONOS',
+      coingeckoId: 'chronos-finance',
+      image: TOKEN_IMAGES.CHRONOS,
+      decimals: 18,
     },
     [chainTokenAddresses["43114"].DOLAUSDCSOLISNEDKLP]: {
       address: chainTokenAddresses["43114"].DOLAUSDCSOLISNEDKLP,
