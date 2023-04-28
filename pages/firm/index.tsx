@@ -12,28 +12,37 @@ import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { useState } from 'react'
 import useStorage from '@app/hooks/useStorage'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
+import { ACTIVE_POLL, answerPoll } from '@app/util/analytics'
+import { showToast } from '@app/util/notify'
 
 export const F2PAGE = () => {
     const account = useAccount();
     const [radioValue, setRadioValue] = useState('');
     const { debt } = useAccountDBR(account);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { value: alreadyAnswered, setter } = useStorage('poll-1');
+    const { value: alreadyAnswered, setter } = useStorage(ACTIVE_POLL);
 
     useDebouncedEffect(() => {
-        if (!alreadyAnswered) {
+        if (!alreadyAnswered && !!ACTIVE_POLL) {
             onOpen();
         }
-    }, [alreadyAnswered], 2000);
+    }, [alreadyAnswered, ACTIVE_POLL], 2000);
 
     const handleManualClose = () => {
-        setter('abstain');
+        answerPoll(ACTIVE_POLL, 'abstain', () => {
+            setter('abstain');            
+        });
         onClose();
     }
 
     const handleRadioChange = (value: string) => {
-        setter(value);
         setRadioValue(value);
+        setTimeout(() => {
+            answerPoll(ACTIVE_POLL, value,  () => {
+                setter(value);
+                showToast({ status: 'success', title: 'Thank you for your answer!'});
+            });
+        }, 100);
         onClose();
     }
 
@@ -51,10 +60,9 @@ export const F2PAGE = () => {
                     <Text fontWeight="bold" fontSize='18px'>Are you new to DeFi?</Text>
                     <RadioGroup onChange={handleRadioChange} value={radioValue}>
                         <VStack w='full' justify="flex-start" alignItems="flex-start">
-                            <Radio cursor="pointer" value='1'>What is DeFi?</Radio>
-                            <Radio cursor="pointer" value='2'>I never borrowed on DeFi</Radio>
-                            <Radio cursor="pointer" value='3'>I'm familiar with borrowing on DeFi</Radio>
-                            <Radio cursor="pointer" value='4'>Borrowing, providing liquidity, you name it!</Radio>
+                            <Radio cursor="pointer" value='1'>Yes I'm fairly new to DeFi, I mostly hodl / stake</Radio>
+                            <Radio cursor="pointer" value='2'>I'm familiar with DeFi but never borrowed</Radio>                            
+                            <Radio cursor="pointer" value='3'>Borrowing, providing liquidity, you name it!</Radio>
                         </VStack>
                     </RadioGroup>
                 </VStack>

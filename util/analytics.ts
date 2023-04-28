@@ -2,6 +2,9 @@
 const isProd = () => {
     return ["https://www.inverse.finance", "https://inverse.finance"].includes(location.origin);
 }
+
+export const ACTIVE_POLL = 'poll-0';
+
 export const gaPageview = (url: string) => {
     if(!isProd()){
         return
