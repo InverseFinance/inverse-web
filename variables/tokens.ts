@@ -851,6 +851,7 @@ const chainTokens = {
       symbol: 'veSNEK',
       image: TOKEN_IMAGES.SOLISNEK,
       decimals: 18,
+      isLockedVeNft: true,
       coingeckoId: 'solisnek',
       veNftId: '892',
     },
