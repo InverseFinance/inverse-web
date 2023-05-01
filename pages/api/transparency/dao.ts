@@ -27,7 +27,7 @@ const ANCHOR_RESERVES_TO_CHECK = [
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.4`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.6`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.7`;
 export const cacheMulAllKey = `dao-multisigs-all-v1.0.4`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
