@@ -199,6 +199,11 @@ const columns = [
     },
 ]
 
+const firmImages = {
+    'dark': 'firm-final-logo-white.png',
+    'light': 'firm-final-logo.png',
+}
+
 export const F2Markets = ({
 
 }: {
@@ -211,7 +216,7 @@ export const F2Markets = ({
     const { debt } = useAccountDBR(account);
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
-    const { themeStyles } = useAppTheme();
+    const { themeStyles, themeName } = useAppTheme();
 
     const isLoading = tvlLoading || !markets?.length;
 
@@ -230,7 +235,7 @@ export const F2Markets = ({
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
-        image={<BigImageButton filter="drop-shadow(0px 1px 3px #AAAAAA)" transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
+        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/${firmImages[themeName]}')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },
