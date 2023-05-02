@@ -1,6 +1,9 @@
 import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 import { getBnToNumber } from "./markets";
+import { NetworkIds, SWR } from "@app/types";
+import { useCustomSWR } from "@app/hooks/useCustomSWR";
+import { fetcher } from "./web3";
 
 export const getPoolsAggregatedStats = (
     items: any[],
@@ -97,16 +100,30 @@ export const getLpHistory = async (address: string, excludeCurrent = true) => {
     return data;
 }
 
+export const useMultichainPoolsForDola = (): SWR & { data: { [key: string]: number | undefined | null } } => {
+    const { data, error } = useCustomSWR(`multichain-pools`, getMultichainPoolsForDola);
+
+    return {
+        data: data || {},
+        isLoading: !error && !data,
+        isError: error,
+    }
+}
+
+const multichainNotSupportedYet = [NetworkIds.arbitrum, NetworkIds.polygon];
+
 export const getMultichainPoolsForDola = async () => {
     let data = {};
     try {
         const res = await fetch(`https://bridgeapi.anyswap.exchange/data/router/v2/pools`)
         const multichainData = await res.json();
-        DOLA_BRIDGED_CHAINS.forEach(chainId => {
+        DOLA_BRIDGED_CHAINS.concat('1').forEach(chainId => {
             const chainData = multichainData[chainId];
             const chainDola = Object.values(chainData).find(t => t.symbol === 'DOLA');
-            if(chainDola) {
-                data[chainId] = getBnToNumber(parseUnits(chainDola.liquidity));
+            if (chainDola) {
+                data[chainId] = getBnToNumber(parseUnits(chainDola.liquidity, 0));
+            } else {
+                data[chainId] = multichainNotSupportedYet.includes(chainId) ? undefined : null;
             }
         });
     } catch (e) { }

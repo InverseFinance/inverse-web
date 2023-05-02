@@ -171,7 +171,7 @@ export const _getProp = (object: Object, key: string) => {
     return found?.[1];
 }
 
-export const preciseCommify = (v: number, precision: number, isDollar = false) => {    
+export const preciseCommify = (v: number, precision = 2, isDollar = false) => {    
     if(precision === 0 || !v){
         return `${isDollar ? '$' : ''}${commify((v||0).toFixed(0))}`;
     }

@@ -98,7 +98,7 @@ export const Liquidity = () => {
 
     const networkPoolsByApy = liquidity
       .filter(lp => lp.networkName.substring(0, 2).toLowerCase() === f.token.symbol.substring(0, 2).toLowerCase())
-      .sort((a, b) => b.apy || 0 - a.apy || 0);
+      .sort((a, b) => (b.apy || 0) - (a.apy || 0));
     const top1Apy = networkPoolsByApy[0];
 
     return {
@@ -112,7 +112,6 @@ export const Liquidity = () => {
       address: top1Apy.address,
     };
   });
-  console.log(networkItems)
 
   const handleOpenHistoChart = (isStable: boolean, include: string | string[], exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
     const isDolaPaired = Array.isArray(include) && include.length > 1 && include[1] === 'DOLA';

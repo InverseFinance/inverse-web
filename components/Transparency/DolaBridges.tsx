@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image } from "@chakra-ui/react"
+import { Flex, Stack, Text, Image, VStack } from "@chakra-ui/react"
 import Table from "../common/Table"
 import { preciseCommify } from "@app/util/misc"
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
@@ -8,9 +8,11 @@ import { ExternalLinkIcon } from "@chakra-ui/icons"
 import Link from "../common/Link"
 import { shortenNumber } from "@app/util/markets"
 import Container from "../common/Container"
+import { useMultichainPoolsForDola } from "@app/util/pools"
+import { useMemo } from "react"
 
 const ColHeader = ({ ...props }) => {
-    return <Flex justify="center" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
+    return <Flex textTransform="initial" justify="center" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
 }
 
 const Cell = ({ ...props }) => {
@@ -29,8 +31,6 @@ const nativeBridges = {
     'Arbitrum': { url: 'https://bridge.arbitrum.io/', name: 'Native bridge' },
     'Polygon': { url: 'https://wallet.polygon.technology/polygon/bridge/deposit', name: 'Native bridge' },
     'Avalanche': { url: 'https://core.app/bridge/', name: 'Native bridge' },
-    'BSC': defaultBridge,
-    'Ethereum': defaultBridge,
 };
 
 
@@ -38,10 +38,10 @@ const columns = [
     {
         field: 'networkName',
         label: 'Chain',
-        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
         value: ({ chainId, networkName }) => {
             const net = NETWORKS_BY_CHAIN_ID[chainId];
-            return <Cell onClick={noPropagation} minWidth='80px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+            return <Cell onClick={noPropagation} minWidth='120px' spacing="2" justify="flex-start" alignItems="center" direction="row">
                 <Image src={net.image} ignoreFallback={true} title={net.name} alt={net.name} w={5} h={5} mr="2" />
                 <CellText>{networkName}</CellText>
             </Cell>
@@ -49,24 +49,49 @@ const columns = [
     },
     {
         field: 'mainBridge',
-        label: 'Main Bridge',
-        header: ({ ...props }) => <ColHeader minWidth="190px" justify="center"  {...props} />,
+        label: 'Native Bridge',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ networkName }) => {
-            const bridge = nativeBridges[networkName] || defaultBridge;
-            return <Cell minWidth="190px" justify="center" fontSize="15px">
-                <Link fontSize="12px" textDecoration="underline" isExternal _target="_blank" href={bridge.url}>
-                    {bridge.name} <ExternalLinkIcon />
+            const bridge = nativeBridges[networkName];
+            return <Cell minWidth="120px" justify="center" fontSize="15px">
+                {
+                    !!bridge ? <VStack>
+                        <Link fontSize="12px" textDecoration="underline" isExternal _target="_blank" href={bridge.url}>
+                            {bridge.name} <ExternalLinkIcon />
+                        </Link>
+                        {/* <CellText>
+                            In: fast, to Ethereum: ~7days
+                        </CellText> */}
+                    </VStack> : <CellText>-</CellText>
+                }
+            </Cell>
+        },
+    },
+    {
+        field: 'multichainLiquidity',
+        label: 'Multichain Bridge',
+        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
+        value: ({ multichainLiquidity }) => {
+            return <Cell minWidth="160px" justify="center" fontSize="15px">
+                <Link fontSize="12px" textDecoration="underline" isExternal _target="_blank" href={defaultBridge.url}>
+                    {defaultBridge.name} <ExternalLinkIcon />
                 </Link>
+                <CellText>
+                    {
+                        multichainLiquidity === undefined ? 'Not available yet' :
+                            ((multichainLiquidity === null ? 'Unlimited' : preciseCommify(multichainLiquidity, 0)) + ' DOLA liquidity')
+                    }
+                </CellText>
             </Cell>
         },
     },
     {
         field: 'apy',
         label: 'Highest LP APY',
-        header: ({ ...props }) => <ColHeader minWidth="170px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
         value: ({ apy, top1Apy }) => {
             const link = getLpLink(top1Apy);
-            return <Cell minWidth="170px" justify="center" fontSize="15px">
+            return <Cell minWidth="160px" justify="center" fontSize="15px">
                 <Link textDecoration="underline" href={link} isExternal target="_blank" display="flex" justify="flex-start" alignItems="center" direction="row">
                     <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...top1Apy} label={top1Apy.lpName} showAsLp={true} chainId={top1Apy.chainId} />
                     <ExternalLinkIcon color="info" ml="1" />
@@ -78,10 +103,10 @@ const columns = [
     {
         field: 'tvl',
         label: 'Highest LP TVL',
-        header: ({ ...props }) => <ColHeader minWidth="190px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
         value: ({ tvl, top1Tvl }) => {
             const link = getLpLink(top1Tvl);
-            return <Cell alignItems="center" minWidth="190px" justify="center" fontSize="15px">
+            return <Cell alignItems="center" minWidth="160px" justify="center" fontSize="15px">
                 <Link textDecoration="underline" href={link} isExternal target="_blank" display="flex" justify="flex-start" alignItems="center" direction="row">
                     <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...top1Tvl} label={top1Tvl.lpName} showAsLp={true} chainId={top1Tvl.chainId} />
                     <ExternalLinkIcon color="info" ml="1" />
@@ -95,6 +120,14 @@ const columns = [
 export const DolaBridges = ({
     items
 }) => {
+    const { data } = useMultichainPoolsForDola();
+    const itemsWithMultichainLiquidity = useMemo(() => {
+        if (!data?.["1"]) return items;
+        return items.map(item => {
+            return { ...item, multichainLiquidity: data[item.chainId] }
+        });
+    }, [data, items]);
+
     return <Container
         noPadding
         p="0"
@@ -105,7 +138,7 @@ export const DolaBridges = ({
         <Table
             key="chainId"
             columns={columns}
-            items={items}
+            items={itemsWithMultichainLiquidity}
             defaultSort="tvlChain"
             defaultSortDir="desc"
         />
