@@ -21,6 +21,7 @@ import { DefaultCharts } from '@app/components/Transparency/DefaultCharts';
 import InfoModal from '@app/components/common/Modal/InfoModal';
 import { addCurrentToHistory, getLpHistory } from '@app/util/pools';
 import { closeToast, showToast } from '@app/util/notify';
+import { DolaBridges } from '@app/components/Transparency/DolaBridges';
 
 const groupLpsBy = (lps: any[], attribute: string) => {
   const items = Object.entries(
@@ -88,6 +89,29 @@ export const Liquidity = () => {
   const byFed = groupLpsBy(categoryLps, 'isFed');
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
   const byProtocol = groupLpsBy(categoryLps, 'project').map(f => ({ ...f, token: { symbol: capitalize(f.token.symbol) } }));
+
+  const networkItems = byChain.map(f => {
+    const networkPoolsByTvl = liquidity
+      .filter(lp => lp.networkName.substring(0, 2).toLowerCase() === f.token.symbol.substring(0, 2).toLowerCase())
+      .sort((a, b) => b.tvl - a.tvl);
+    const top1Tvl = networkPoolsByTvl[0];
+
+    const networkPoolsByApy = liquidity
+      .filter(lp => lp.networkName.substring(0, 2).toLowerCase() === f.token.symbol.substring(0, 2).toLowerCase())
+      .sort((a, b) => (b.apy || 0) - (a.apy || 0));
+    const top1Apy = networkPoolsByApy[0];
+
+    return {
+      networkName: top1Tvl.networkName,
+      chainId: top1Tvl.chainId,
+      tvl: top1Tvl.tvl,
+      apy: top1Apy.apy,
+      top1Tvl,
+      top1Apy,
+      tvlChain: f.balance,
+      address: top1Apy.address,
+    };
+  });
 
   const handleOpenHistoChart = (isStable: boolean, include: string | string[], exclude: string, attribute: string, label: string, title: string, isPerc: boolean | undefined) => {
     const isDolaPaired = Array.isArray(include) && include.length > 1 && include[1] === 'DOLA';
@@ -252,6 +276,9 @@ export const Liquidity = () => {
           <InfoMessage
             alertProps={{ w: 'full', my: '4' }}
             description="Note: some pools are derived from other pools, Aura LPs take Balancer LPs as deposits for example, their TVLs will not be summed in the aggregated data."
+          />
+          <DolaBridges
+            items={networkItems}
           />
         </Flex>
       </Flex>
