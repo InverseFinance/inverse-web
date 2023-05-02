@@ -21,7 +21,7 @@ export const F2PAGE = () => {
     const [radioValue, setRadioValue] = useState('');
     const { debt } = useAccountDBR(account);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { value: alreadyAnswered, setter } = useStorage(ACTIVE_POLL);
+    const { value: alreadyAnswered, setter } = useStorage(`poll-${ACTIVE_POLL}`);
 
     useDebouncedEffect(() => {
         if (!alreadyAnswered && !!ACTIVE_POLL) {
