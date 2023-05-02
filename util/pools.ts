@@ -1,3 +1,7 @@
+import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
+import { parseUnits } from "@ethersproject/units";
+import { getBnToNumber } from "./markets";
+
 export const getPoolsAggregatedStats = (
     items: any[],
     isStable?: boolean,
@@ -89,6 +93,22 @@ export const getLpHistory = async (address: string, excludeCurrent = true) => {
     try {
         const res = await fetch(`/api/transparency/lp-histo?excludeCurrent=${excludeCurrent}&address=${address}`)
         data = await res.json();
+    } catch (e) { }
+    return data;
+}
+
+export const getMultichainPoolsForDola = async () => {
+    let data = {};
+    try {
+        const res = await fetch(`https://bridgeapi.anyswap.exchange/data/router/v2/pools`)
+        const multichainData = await res.json();
+        DOLA_BRIDGED_CHAINS.forEach(chainId => {
+            const chainData = multichainData[chainId];
+            const chainDola = Object.values(chainData).find(t => t.symbol === 'DOLA');
+            if(chainDola) {
+                data[chainId] = getBnToNumber(parseUnits(chainDola.liquidity));
+            }
+        });
     } catch (e) { }
     return data;
 }
