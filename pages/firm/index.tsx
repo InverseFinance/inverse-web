@@ -1,4 +1,4 @@
-import { Divider, VStack, Text, useDisclosure, RadioGroup, Radio } from '@chakra-ui/react'
+import { Divider, VStack, Text, useDisclosure, RadioGroup, Radio, Box } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -12,8 +12,9 @@ import { SlideModal } from '@app/components/common/Modal/SlideModal'
 import { useState } from 'react'
 import useStorage from '@app/hooks/useStorage'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
-import { ACTIVE_POLL, answerPoll } from '@app/util/analytics'
+import { answerPoll } from '@app/util/analytics'
 import { showToast } from '@app/util/notify'
+import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
 
 export const F2PAGE = () => {
     const account = useAccount();
@@ -30,7 +31,7 @@ export const F2PAGE = () => {
 
     const handleManualClose = () => {
         answerPoll(ACTIVE_POLL, 'abstain', () => {
-            setter('abstain');            
+            setter('abstain');
         });
         onClose();
     }
@@ -38,9 +39,9 @@ export const F2PAGE = () => {
     const handleRadioChange = (value: string) => {
         setRadioValue(value);
         setTimeout(() => {
-            answerPoll(ACTIVE_POLL, value,  () => {
+            answerPoll(ACTIVE_POLL, value, () => {
                 setter(value);
-                showToast({ status: 'success', title: 'Thank you for your answer!'});
+                showToast({ status: 'success', title: 'Thank you for your answer!' });
             });
         }, 100);
         onClose();
@@ -55,14 +56,29 @@ export const F2PAGE = () => {
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
-            <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'contrastMainTextColor' }}>
+            <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                 <VStack w='full' justify="flex-start" alignItems="flex-start">
-                    <Text fontWeight="bold" fontSize='18px'>Are you new to DeFi?</Text>
-                    <RadioGroup onChange={handleRadioChange} value={radioValue}>
+                    <Text fontWeight="bold" fontSize='18px'>
+                        {POLLS[ACTIVE_POLL].question}
+                    </Text>
+                    <RadioGroup onChange={handleRadioChange} value={radioValue} w='full'>
                         <VStack w='full' justify="flex-start" alignItems="flex-start">
-                            <Radio cursor="pointer" value='1'>Yes I'm fairly new to DeFi, I mostly hodl / stake</Radio>
-                            <Radio cursor="pointer" value='2'>I'm familiar with DeFi but never borrowed</Radio>                            
-                            <Radio cursor="pointer" value='3'>Borrowing, providing liquidity, you name it!</Radio>
+                            {
+                                POLLS[ACTIVE_POLL].answers.map((answer) => {
+                                    return <Box
+                                        p='1'
+                                        borderRadius='md'
+                                        transition="background-color 200ms"
+                                        key={answer.value}
+                                        _hover={{ backgroundColor: 'navBarBorderColor' }}
+                                        w='full'
+                                    >
+                                        <Radio cursor="pointer" value={answer.value}>
+                                            <Text cursor="pointer">{answer.label}</Text>
+                                        </Radio>
+                                    </Box>
+                                })
+                            }
                         </VStack>
                     </RadioGroup>
                 </VStack>

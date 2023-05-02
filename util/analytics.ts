@@ -3,8 +3,6 @@ const isProd = () => {
     return ["https://www.inverse.finance", "https://inverse.finance"].includes(location.origin);
 }
 
-export const ACTIVE_POLL = 'poll-0';
-
 export const gaPageview = (url: string) => {
     if(!isProd()){
         return
@@ -30,15 +28,15 @@ export const gaEvent = ({ action, params }: GTagEvent) => {
     window.gtag('event', action, params)
 }
 
-export const answerPoll = async (poll: string, answer: string, onSuccess?: () => void) => {
-    gaEvent({ action: 'answer-poll-'+poll });
+export const answerPoll = async (pollCode: string, answerValue: string, onSuccess?: () => void) => {
+    gaEvent({ action: 'answer-poll-'+pollCode });
     const rawResponse = await fetch(`/api/polls`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ poll, answer }),
+        body: JSON.stringify({ poll: pollCode, answer: answerValue }),
     });
     const result = await rawResponse.json();
     if (onSuccess && result.status === 'success') { onSuccess() }
