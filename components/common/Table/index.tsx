@@ -94,7 +94,7 @@ export const MobileTable = ({
                   <HStack display={isNotFirstCol ? 'inline-flex' : 'none'}>
                     {
                       col.tooltip ?
-                        <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
+                        <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'mainTextColorLight2' }} zIndex="2" message={col.tooltip} size="small" />
                         : null
                     }
                     <Text>{col.label}</Text>
