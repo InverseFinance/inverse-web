@@ -33,7 +33,7 @@ export const LandingNav = ({
             Inverse Finance
           </Text>
         </Stack>
-        <Stack spacing="1.6vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
+        <Stack spacing="1.4vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
           {NAV_ITEMS.map(({ label, href }, i) => (
             <Link
               key={i}
