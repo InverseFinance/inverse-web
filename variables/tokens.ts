@@ -1567,8 +1567,9 @@ export const PROTOCOL_LINKS = {
   "RAMSES": (lp: Token) => `https://app.ramses.exchange/liquidity/${lp?.address?.toLowerCase()}`,
   "STERLING": (lp: Token) => `https://www.sterling.finance/liquidity/${lp?.address?.toLowerCase()}`,
   "ARCHLY": (lp: Token) => `https://archly.fi/liquidity/${lp?.address}`,
-  // 404 on link with address
+  // Satin: 404 on link with address
   "SATIN": (lp: Token) => `https://satin.exchange/liquidity`,
+  "SOLISNEK": (lp: Token) => `https://www.solisnek.finance/liquidity/${lp?.address?.toLowerCase()}`,
 }
 
 export const getLpLink = (lp: Token) => {
