@@ -73,9 +73,11 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
         value: ({ multichainLiquidity }) => {
             return <Cell minWidth="160px" justify="center" fontSize="15px">
-                <Link fontSize="12px" textDecoration="underline" isExternal _target="_blank" href={defaultBridge.url}>
-                    {defaultBridge.name} <ExternalLinkIcon />
-                </Link>
+                {
+                    multichainLiquidity !== undefined && <Link fontSize="12px" textDecoration="underline" isExternal _target="_blank" href={defaultBridge.url}>
+                        {defaultBridge.name} <ExternalLinkIcon />
+                    </Link>
+                }
                 <CellText>
                     {
                         multichainLiquidity === undefined ? 'Not available yet' :
