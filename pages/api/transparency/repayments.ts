@@ -3,9 +3,10 @@ import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/u
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { Contract } from "ethers";
-import { DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI } from "@app/config/abis";
+import { DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
+import { DWF_PURCHASER } from "@app/config/constants";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
@@ -47,16 +48,22 @@ export default async function handler(req, res) {
 
         const debtConverter = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, provider);
         const debtRepayer = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, provider);
+        const dwfOtc = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, provider);
 
         const [
             debtConverterRepayments,
             debtConverterConversions,
             debtRepayerRepayments,
+            dwfOtcBuy,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
             debtConverter.queryFilter(debtConverter.filters.Conversion()),
             debtRepayer.queryFilter(debtRepayer.filters.debtRepayment()),
+            dwfOtc.lifetimeBuy(),
         ]);
+
+        // USDC decimals
+        repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
 
         debtConverterRepayments.forEach(event => {
             repayments.iou += getBnToNumber(event.args.dolaAmount);
