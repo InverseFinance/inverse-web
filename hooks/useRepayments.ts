@@ -3,8 +3,7 @@ import { useCustomSWR } from "./useCustomSWR"
 import { fetcher } from "@app/util/web3"
 
 export const useRepayments = (): SWR => {
-    const { data, error } = useCustomSWR(`/api/transparency/repayments`, fetcher);
-  
+    const { data, error } = useCustomSWR(`/api/transparency/repayments`, fetcher);    
     return {
       data,
       isLoading: !error && !data,

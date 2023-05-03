@@ -22,6 +22,7 @@ export type Column = {
   showFilter?: boolean
   filterWidth?: any
   customSubheader?: React.ReactChild
+  boxProps?: BoxProps
   filterItemRenderer?: AutocompleteProps["itemRenderer"]
 }
 
@@ -198,7 +199,7 @@ export const Table = ({
     }
   }
 
-  const chevronProps = { color: 'accentTextColor', w: 4, h: 4, ...sortChevronProps };
+  const chevronProps = { color: 'mainTextColorLight2', w: 4, h: 4, ...sortChevronProps };
 
   if (isReady && !isLargerThan && enableMobileRender) {
     return <MobileTable
@@ -277,7 +278,7 @@ export const Table = ({
                   fontWeight={sortBy === col.field ? 'bold' : 'normal'}
                   alignItems="center"
                   color="primary.300"
-                  {...colBoxProps}
+                  {...colBoxProps}                  
                 >
                   {
                     col.tooltip ?
@@ -297,12 +298,13 @@ export const Table = ({
                       position="relative"
                       color="mainTextColorLight2"
                       fontSize="12px"
+                      {...col.boxProps}
                     >
                       {col.label}
                       {
                         sortBy === col.field ?
                           <Box position="absolute" display="inline-block" right="-14px">
-                            {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
+                            {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} color={col.boxProps?.color} /> : <ChevronUpIcon {...chevronProps} color={col.boxProps?.color} />}
                           </Box>
                           : null
                       }
