@@ -361,6 +361,7 @@ export const DEBT_REPAYER_ABI = [
   "function currentDiscount(address anToken) public view returns(uint)",
   "function remainingDebt(address anToken) public view returns(uint)",
   "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
+  "event debtRepayment(address underlying, uint receiveAmount, uint paidAmount)",
 ]
 
 export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
