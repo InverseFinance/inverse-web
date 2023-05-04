@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image } from '@chakra-ui/react'
+import { Flex, Stack, Text, Image, VStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -47,52 +47,51 @@ const columns = [
   },
   {
     field: 'badDebtUsd',
-    label: 'Bad Debt',
-    boxProps: { color: 'warning' },
+    label: 'Remaining Bad Debt',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ badDebtBalance, badDebtUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         <CellText fontWeight="bold" >{preciseCommify(badDebtUsd, 0, true)}</CellText>
-        <CellText >{preciseCommify(badDebtBalance, symbol === 'DOLA' ? 0 : 2)} {symbol}</CellText>        
+        <CellText >{preciseCommify(badDebtBalance, symbol === 'DOLA' ? 0 : 2)} {symbol}</CellText>
       </Cell>
     },
   },
   {
     field: 'sold',
     label: 'Repayer: Debt sold',
-    
+
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center" {...props} />,
     value: ({ sold, priceUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         {!!sold && <CellText fontWeight="bold" >{preciseCommify(sold * priceUsd, 0, true)}</CellText>}
-        <CellText >{sold ? `${preciseCommify(sold, 2)} ${symbol}` : '-'}</CellText>        
+        <CellText >{sold ? `${preciseCommify(sold, 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
   },
-  {
-    field: 'soldFor',
-    label: 'Repayer: Paid by Treasury',
-    
-    header: ({ ...props }) => <ColHeader  minWidth="150px" justify="center"  {...props} />,
-    value: ({ soldFor, priceUsd, symbol }) => {
-      return <Cell  minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        {!!soldFor && <CellText fontWeight="bold" >{preciseCommify(soldFor * priceUsd, 0, true)}</CellText>}
-        <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>        
-      </Cell>
-    },
-  },
+  // {
+  //   field: 'soldFor',
+  //   label: 'Repayer: Paid by Treasury',
+
+  //   header: ({ ...props }) => <ColHeader  minWidth="150px" justify="center"  {...props} />,
+  //   value: ({ soldFor, priceUsd, symbol }) => {
+  //     return <Cell  minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+  //       {!!soldFor && <CellText fontWeight="bold" >{preciseCommify(soldFor * priceUsd, 0, true)}</CellText>}
+  //       <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>        
+  //     </Cell>
+  //   },
+  // },
   {
     field: 'converted',
     label: 'Converter: sold for IOUs',
-    
+
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ converted, priceUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        {!!converted && <CellText  fontWeight="bold">{preciseCommify(converted * priceUsd, 0, true)}</CellText>}
-        <CellText >{converted ? `${preciseCommify(converted, 2)} ${symbol}` : '-'}</CellText>        
+        {!!converted && <CellText fontWeight="bold">{preciseCommify(converted * priceUsd, 0, true)}</CellText>}
+        <CellText >{converted ? `${preciseCommify(converted, 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
-  },  
+  },
   {
     field: 'repaidViaDwf',
     label: 'Repayment via DWF deal',
@@ -102,16 +101,36 @@ const columns = [
         <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
       </Cell>
     },
+  },  
+  {
+    field: 'totalBadDebtReduced',
+    label: 'Total Bad Debt Reduced',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    value: ({ totalBadDebtReduced, symbol, priceUsd }) => {
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced * priceUsd, 0, true)}` : '-'}</CellText>
+        <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+      </Cell>
+    },
   },
 ];
 
 export const ShortfallsPage = () => {
-  const { data } = useRepayments();  
+  const { data } = useRepayments();
   const { prices } = usePrices();
+
   const items = Object.values(data?.badDebts || {}).map(item => {
-    const priceUsd = prices[item.coingeckoId]?.usd||1;
-    return { ...item, badDebtUsd: item.badDebtBalance * priceUsd, priceUsd };
+    const priceUsd = prices[item.coingeckoId]?.usd || 1;
+    return {
+      ...item,
+      badDebtUsd: item.badDebtBalance * priceUsd,
+      priceUsd,
+      totalBadDebtReduced: item.repaidViaDwf||0 + item.sold + item.converted,
+    };
   }).filter(item => item.badDebtBalance > 0.1);
+
+  const totalBadDebtReducedUsd = items.reduce((prev, curr) => prev + curr.totalBadDebtReduced * curr.priceUsd, 0);
+
   return (
     <Layout>
       <Head>
@@ -129,6 +148,18 @@ export const ShortfallsPage = () => {
           <Container
             noPadding
             label={`Bad debt and repayment details`}
+            description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
+            href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
+            right={
+              <VStack spacing="0" alignItems="flex-end">
+                <Text>
+                  Total Bad debt reduced:
+                </Text>
+                <Text color="success" fontSize="22px" fontWeight="extrabold">
+                  {preciseCommify(totalBadDebtReducedUsd, 0, true)}
+                </Text>
+              </VStack>
+            }
           >
             <Table
               items={items}
