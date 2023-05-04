@@ -146,7 +146,9 @@ export const ShortfallsPage = () => {
     };
   }).filter(item => item.badDebtBalance > 0.1);
 
-  // const totalBadDebtReducedUsd = items.reduce((prev, curr) => prev + curr.totalBadDebtReduced * curr.priceUsd, 0);
+  const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0)||0;
+  const item = items.find(item => item.symbol.toLowerCase() === selected);
+  const totalBadDebtReducedUsd = totalBadDebtReduced * prices[item?.coingeckoId]?.usd||1;
 
   return (
     <Layout>
@@ -172,6 +174,12 @@ export const ShortfallsPage = () => {
                   <option value="wbtc">WBTC Frontier Repayments by the DAO</option>
                   <option value="yfi">YFI Frontier Repayments by the DAO</option>
                 </Select>
+              }
+              right={
+                <VStack spacing="0" alignItems="flex-end">
+                  <Text fontWeight="bold">{preciseCommify(totalBadDebtReducedUsd, 0, true)}</Text>
+                  <Text>{preciseCommify(totalBadDebtReduced, selected === 'dola' ? 0 : 2)} {selected.toUpperCase()}</Text>                  
+                </VStack>
               }
             >
               <DefaultCharts
