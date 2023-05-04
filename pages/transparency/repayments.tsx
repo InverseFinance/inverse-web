@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image, VStack } from '@chakra-ui/react'
+import { Flex, Stack, Text, Image, VStack, Select } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -13,6 +13,7 @@ import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
+import { useState } from 'react'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -94,16 +95,6 @@ const columns = [
       </Cell>
     },
   },
-  {
-    field: 'repaidViaDwf',
-    label: 'Repayment via DWF deal',
-    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ repaidViaDwf }) => {
-      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
-      </Cell>
-    },
-  },
   // {
   //   field: 'totalBadDebtReduced',
   //   label: 'Total Bad Debt Reduced',
@@ -126,15 +117,23 @@ const columns = [
       </Cell>
     },
   },
+  {
+    field: 'repaidViaDwf',
+    label: 'Coming from DWF deal',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    value: ({ repaidViaDwf }) => {
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
+      </Cell>
+    },
+  },
 ];
 
 export const ShortfallsPage = () => {
   const { data } = useRepayments();
   const { prices } = usePrices();
-  const { chartData: dolaChart } = useEventsAsChartData(data?.dolaRepayedByDAO || [], '_acc_', 'amount', false, false);
-  const { chartData: ethChart } = useEventsAsChartData(data?.ethRepayedByDAO || [], '_acc_', 'amount', false, false);
-  const { chartData: wbtcChart } = useEventsAsChartData(data?.wbtcRepayedByDAO || [], '_acc_', 'amount', false, false);
-  const { chartData: yfiChart } = useEventsAsChartData(data?.yfiRepayedByDAO || [], '_acc_', 'amount', false, false);
+  const [selected, setSelected] = useState('dola');
+  const { chartData } = useEventsAsChartData(data[`${selected}RepayedByDAO`] || [], '_acc_', 'amount', false, false);
 
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
@@ -147,7 +146,7 @@ export const ShortfallsPage = () => {
     };
   }).filter(item => item.badDebtBalance > 0.1);
 
-  const totalBadDebtReducedUsd = items.reduce((prev, curr) => prev + curr.totalBadDebtReduced * curr.priceUsd, 0);
+  // const totalBadDebtReducedUsd = items.reduce((prev, curr) => prev + curr.totalBadDebtReduced * curr.priceUsd, 0);
 
   return (
     <Layout>
@@ -166,11 +165,24 @@ export const ShortfallsPage = () => {
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
             <Container
               noPadding
-              collapsable={true}
-              defaultCollapse={false}
-              label={`DOLA Frontier Repayments`}
+              label={
+                <Select onChange={(e) => setSelected(e.target.value)}>
+                  <option value="dola">DOLA Frontier Repayments by the DAO</option>
+                  <option value="eth">ETH Frontier Repayments by the DAO</option>
+                  <option value="wbtc">WBTC Frontier Repayments by the DAO</option>
+                  <option value="yfi">YFI Frontier Repayments by the DAO</option>
+                </Select>
+              }
             >
-              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={dolaChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
+              <DefaultCharts
+                barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }}
+                direction={'row'}
+                showMonthlyBarChart={true}
+                maxChartWidth={550}
+                chartData={chartData}
+                isDollars={false}
+                areaProps={{ showMaxY: false, showTooltips: true }}
+              />
             </Container>
             {/* <Container
               noPadding

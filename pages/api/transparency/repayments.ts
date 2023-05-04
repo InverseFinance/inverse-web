@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     const frontierShortfallsKey = `1-positions-v1.1.0`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 9990);
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 3600);
         if (validCache) {
             res.status(200).json(validCache);
             return
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
         const nonFrontierDolaBadDebt = fedOverviews
             .filter(({ name }) => ['Badger Fed', '0xb1 Fed'].includes(name))
             .reduce((acc, { supply }) => acc + supply, 0);
-            
+
         badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
 
         const blocksNeedingTs =
