@@ -53,9 +53,9 @@ export default async function handler(req, res) {
         const dwfOtc = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, provider);
 
         const [
-            debtConverterRepayments,
-            debtConverterConversions,
-            debtRepayerRepayments,
+            debtConverterRepaymentsEvents,
+            debtConverterConversionsEvents,
+            debtRepayerRepaymentsEvents,
             dwfOtcBuy,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
@@ -67,21 +67,29 @@ export default async function handler(req, res) {
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
 
-        debtConverterRepayments.forEach(event => {
+        debtConverterRepaymentsEvents.forEach(event => {
             repayments.iou += getBnToNumber(event.args.dolaAmount);
         });
 
-        debtConverterConversions.forEach(event => {
+        const debtConverterConversions = debtConverterConversionsEvents.map(event => {
             const underlying = UNDERLYING[event.args.anToken];
-            badDebts[underlying.symbol.replace('-v1', '')].converted += getBnToNumber(event.args.underlyingAmount, underlying.decimals);
+            const symbol = underlying.symbol.replace('WETH', 'ETH').replace('-v1', '');
+            const converted = getBnToNumber(event.args.underlyingAmount, underlying.decimals);
+            const convertedFor = getBnToNumber(event.args.dolaAmount);
+            badDebts[symbol].converted += converted;
+            badDebts[symbol].convertedFor += convertedFor;
+            return { ...event, symbol, converted, convertedFor }
         });
         
-        debtRepayerRepayments.forEach(event => {
+        const debtConverterRepayments = debtRepayerRepaymentsEvents.map(event => {
             const underlying = getToken(TOKENS, event.args.underlying);
             const symbol = underlying.symbol.replace('WETH', 'ETH').replace('-v1', '');
             const marketIndex = frontierShortfalls.markets.map(m => UNDERLYING[m]?.address||WETH).indexOf(event.args.underlying);
-            badDebts[symbol].sold += getBnToNumber(event.args.paidAmount, underlying.decimals) * frontierShortfalls.exRates[marketIndex];
-            badDebts[symbol].soldFor += getBnToNumber(event.args.receiveAmount, underlying.decimals);
+            const sold = getBnToNumber(event.args.paidAmount, underlying.decimals) * frontierShortfalls.exRates[marketIndex];
+            const soldFor = getBnToNumber(event.args.receiveAmount, underlying.decimals);
+            badDebts[symbol].sold += sold;
+            badDebts[symbol].soldFor += soldFor;            
+            return { event, sold, soldFor, symbol };
         });
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
@@ -89,6 +97,8 @@ export default async function handler(req, res) {
         res.status(200).json({
             badDebts,
             repayments,
+            debtConverterConversions,
+            debtConverterRepayments,
         });
     } catch (err) {
         console.error(err);
