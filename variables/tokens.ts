@@ -1595,6 +1595,7 @@ export const PROTOCOL_LINKS = {
   // Satin: 404 on link with address
   "SATIN": (lp: Token) => `https://satin.exchange/liquidity`,
   "SOLISNEK": (lp: Token) => `https://www.solisnek.finance/liquidity/${lp?.address?.toLowerCase()}`,
+  "CHRONOS": (lp: Token) => `https://app.chronos.exchange/liquidity`,
 }
 
 export const getLpLink = (lp: Token) => {
