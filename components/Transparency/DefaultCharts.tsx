@@ -14,6 +14,7 @@ export const DefaultCharts = ({
     isPerc,
     showAreaChart = true,
     showMonthlyBarChart = false,
+    direction = 'column',
 }: {
     chartData: CoordinatesArray,
     maxChartWidth?: number,
@@ -23,6 +24,7 @@ export const DefaultCharts = ({
     isPerc?: boolean
     showAreaChart?: boolean
     showMonthlyBarChart?: boolean
+    direction?: 'column' | 'row'
 }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -33,7 +35,7 @@ export const DefaultCharts = ({
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    return <Stack w='full' direction={{ base: 'column' }}>
+    return <Stack w='full' direction={direction} justify="space-between">
         {
             showAreaChart && <AreaChart
                 showTooltips={true}

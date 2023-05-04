@@ -13,6 +13,7 @@ export type BarChart12MonthsProps = {
     eventName: string,
     yAttribute: string,
     isDollars?: boolean,
+    xDateFormat?: string,
 }
 
 export const BarChart12Months = ({
@@ -21,6 +22,7 @@ export const BarChart12Months = ({
     eventName,
     yAttribute,
     isDollars,
+    xDateFormat = '',
     ...props
 }: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
@@ -42,7 +44,7 @@ export const BarChart12Months = ({
 
             return {
                 label: `${event}s: ${shortenNumber(y, 2, isDollars)}`,
-                x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
+                x: moment(date).utc().format(xDateFormat || (chartWidth <= 400 ? 'MMM' : 'MMM-YY')),
                 y,
             }
         });

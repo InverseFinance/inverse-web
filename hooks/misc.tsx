@@ -46,11 +46,13 @@ export const useEventsAsChartData = (
     autoAddZeroYAtStart = true,
 ): SWR & { chartData: any } => {
     const now = new Date();
+    let acc = 0;
     const chartData = [...events.sort((a, b) => a.timestamp - b.timestamp).map(event => {
         const date = new Date(event.timestamp);
+        acc += event[yAttribute];
         return {
             x: event.timestamp,
-            y: event[yAccAttribute],
+            y: event[yAccAttribute]??acc,
             yDay: event[yAttribute],
             month: date.getUTCMonth(),
             year: date.getUTCFullYear(),

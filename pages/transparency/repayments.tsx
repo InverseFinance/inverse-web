@@ -11,6 +11,8 @@ import Table from '@app/components/common/Table'
 import { preciseCommify } from '@app/util/misc'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { usePrices } from '@app/hooks/usePrices'
+import { useEventsAsChartData } from '@app/hooks/misc'
+import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -101,15 +103,26 @@ const columns = [
         <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
       </Cell>
     },
-  },  
+  },
+  // {
+  //   field: 'totalBadDebtReduced',
+  //   label: 'Total Bad Debt Reduced',
+  //   header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+  //   value: ({ totalBadDebtReduced, symbol, priceUsd }) => {
+  //     return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+  //       <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced * priceUsd, 0, true)}` : '-'}</CellText>
+  //       <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+  //     </Cell>
+  //   },
+  // },  
   {
-    field: 'totalBadDebtReduced',
-    label: 'Total Bad Debt Reduced',
+    field: 'totalBadDebtRepaidByDao',
+    label: 'Repaid by the DAO',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ totalBadDebtReduced, symbol, priceUsd }) => {
+    value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced * priceUsd, 0, true)}` : '-'}</CellText>
-        <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+        <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao * priceUsd, 0, true)}` : '-'}</CellText>
+        <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
   },
@@ -118,6 +131,10 @@ const columns = [
 export const ShortfallsPage = () => {
   const { data } = useRepayments();
   const { prices } = usePrices();
+  const { chartData: dolaChart } = useEventsAsChartData(data?.dolaRepayedByDAO || [], '_acc_', 'amount', false, false);
+  const { chartData: ethChart } = useEventsAsChartData(data?.ethRepayedByDAO || [], '_acc_', 'amount', false, false);
+  const { chartData: wbtcChart } = useEventsAsChartData(data?.wbtcRepayedByDAO || [], '_acc_', 'amount', false, false);
+  const { chartData: yfiChart } = useEventsAsChartData(data?.yfiRepayedByDAO || [], '_acc_', 'amount', false, false);
 
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
@@ -125,7 +142,8 @@ export const ShortfallsPage = () => {
       ...item,
       badDebtUsd: item.badDebtBalance * priceUsd,
       priceUsd,
-      totalBadDebtReduced: item.repaidViaDwf||0 + item.sold + item.converted,
+      totalBadDebtReduced: item.repaidViaDwf || 0 + item.sold + item.converted,
+      totalBadDebtRepaidByDao: data[`${item.symbol.toLowerCase()}RepayedByDAO`]?.reduce((prev, curr) => prev + curr.amount, 0) || 0,
     };
   }).filter(item => item.badDebtBalance > 0.1);
 
@@ -145,21 +163,52 @@ export const ShortfallsPage = () => {
       <TransparencyFrontierTabs active="frontier-shortfalls" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
+          <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
+            <Container
+              noPadding
+              collapsable={true}
+              defaultCollapse={false}
+              label={`DOLA Frontier Repayments`}
+            >
+              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={dolaChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
+            </Container>
+            {/* <Container
+              noPadding
+              collapsable={true}
+              defaultCollapse={true}
+              label={`WBTC Frontier Repayments`}>
+              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={wbtcChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
+            </Container>
+            <Container
+              noPadding
+              collapsable={true}
+              defaultCollapse={true}
+              label={`WBTC Frontier Repayments`}>
+              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={ethChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
+            </Container>
+            <Container
+              noPadding
+              collapsable={true}
+              defaultCollapse={true}
+              label={`WBTC Frontier Repayments`}>
+              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={yfiChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
+            </Container> */}
+          </Stack>
           <Container
             noPadding
-            label={`Bad debt and repayment details`}
+            label={`Bad Debt Converter and Repayer`}
             description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
             href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
-            right={
-              <VStack spacing="0" alignItems="flex-end">
-                <Text>
-                  Total Bad debt reduced:
-                </Text>
-                <Text color="success" fontSize="22px" fontWeight="extrabold">
-                  {preciseCommify(totalBadDebtReducedUsd, 0, true)}
-                </Text>
-              </VStack>
-            }
+          // right={
+          //   <VStack spacing="0" alignItems="flex-end">
+          //     <Text>
+          //       Total Bad debt reduced:
+          //     </Text>
+          //     <Text color="success" fontSize="22px" fontWeight="extrabold">
+          //       {preciseCommify(totalBadDebtReducedUsd, 0, true)}
+          //     </Text>
+          //   </VStack>
+          // }
           >
             <Table
               items={items}

@@ -91,7 +91,7 @@ export const BarChart = ({
                 <VictoryBar
                     alignment="middle"
                     labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: '600' }} dy={-10} {...labelProps} />}
-                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, precision, isDollars) }))}
+                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: value ? shortenNumber(value, precision, isDollars) : '' }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}
