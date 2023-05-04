@@ -159,7 +159,7 @@ export const ShortfallsPage = () => {
         <meta name="keywords" content="Inverse Finance, transparency, frontier, shortfalls" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
-      <TransparencyFrontierTabs active="frontier-shortfalls" />
+      {/* <TransparencyFrontierTabs active="frontier-shortfalls" /> */}
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
@@ -175,52 +175,21 @@ export const ShortfallsPage = () => {
               }
             >
               <DefaultCharts
-                barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }}
+                barProps={{ eventName: 'Repayment' }}
                 direction={'row'}
                 showMonthlyBarChart={true}
-                maxChartWidth={550}
+                maxChartWidth={700}
                 chartData={chartData}
                 isDollars={false}
                 areaProps={{ showMaxY: false, showTooltips: true }}
               />
-            </Container>
-            {/* <Container
-              noPadding
-              collapsable={true}
-              defaultCollapse={true}
-              label={`WBTC Frontier Repayments`}>
-              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={wbtcChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
-            </Container>
-            <Container
-              noPadding
-              collapsable={true}
-              defaultCollapse={true}
-              label={`WBTC Frontier Repayments`}>
-              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={ethChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
-            </Container>
-            <Container
-              noPadding
-              collapsable={true}
-              defaultCollapse={true}
-              label={`WBTC Frontier Repayments`}>
-              <DefaultCharts barProps={{ eventName: 'Repayment', xDateFormat: 'MMM' }} direction={'row'} showMonthlyBarChart={true} maxChartWidth={550} chartData={yfiChart} isDollars={false} areaProps={{ showMaxY: false, showTooltips: true }} />
-            </Container> */}
+            </Container>            
           </Stack>
           <Container
             noPadding
             label={`Bad Debt Converter and Repayer`}
             description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
             href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
-          // right={
-          //   <VStack spacing="0" alignItems="flex-end">
-          //     <Text>
-          //       Total Bad debt reduced:
-          //     </Text>
-          //     <Text color="success" fontSize="22px" fontWeight="extrabold">
-          //       {preciseCommify(totalBadDebtReducedUsd, 0, true)}
-          //     </Text>
-          //   </VStack>
-          // }
           >
             <Table
               items={items}
