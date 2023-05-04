@@ -8,17 +8,26 @@ import { getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { fedOverviewCacheKey } from "./fed-overview";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
+const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
+
 const { DEBT_CONVERTER, DEBT_REPAYER, TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
+    const { cacheFirst } = req.query;
     // defaults to mainnet data if unsupported network
     const cacheKey = `repayments-v1.0.0`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
 
     try {
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 9990);
+        if (validCache) {
+            res.status(200).json(validCache);
+            return
+        }
         const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);
 
         const badDebts = {};
@@ -68,6 +77,7 @@ export default async function handler(req, res) {
             ethRepayEvents,
             yfiRepayEvents,
             dolaRepayEvents,
+            fedsOverviewData,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
             debtConverter.queryFilter(debtConverter.filters.Conversion()),
@@ -77,19 +87,27 @@ export default async function handler(req, res) {
             anEth.queryFilter(anEth.filters.RepayBorrow(), 14886483),
             anYfi.queryFilter(anYfi.filters.RepayBorrow(), 14886483),
             anDola.queryFilter(anDola.filters.RepayBorrow(), 14886483),
+            getCacheFromRedis(fedOverviewCacheKey, false),
         ]);
+
+        const fedOverviews = fedsOverviewData?.fedOverviews || [];
+        const nonFrontierDolaBadDebt = fedOverviews
+            .filter(({ name }) => ['Badger Fed', '0xb1 Fed'].includes(name))
+            .reduce((acc, { supply }) => acc + supply, 0);
+            
+        badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
 
         const blocksNeedingTs =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
-                    return [TREASURY, TWG].includes(event.args.payer);
+                    return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => event.blockNumber);
             }).flat();
 
         await addBlockTimestamps(blocksNeedingTs, '1');
         const timestamps = await getCachedBlockTimestamps();
 
-        const [wbtcRepayedByDAO, ethRepayEventsByDAO, yfiRepayEventsByDAO, dolaRepayEventsByDAO] =
+        const [wbtcRepayedByDAO, ethRepayedByDAO, yfiRepayedByDAO, dolaRepayedByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
                     return [TREASURY, TWG].includes(event.args.payer);
@@ -97,7 +115,7 @@ export default async function handler(req, res) {
                     return {
                         blocknumber: event.blockNumber,
                         amount: getBnToNumber(event.args.repayAmount, i === 0 ? 8 : 18),
-                        timestamp: timestamps['1'][event.blockNumber],
+                        timestamp: timestamps['1'][event.blockNumber] * 1000,
                         txHash: event.transactionHash,
                     }
                 });
@@ -133,16 +151,20 @@ export default async function handler(req, res) {
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
 
-        res.status(200).json({
+        const resultData = {
             wbtcRepayedByDAO,
-            ethRepayEventsByDAO,
-            yfiRepayEventsByDAO,
-            dolaRepayEventsByDAO,
+            ethRepayedByDAO,
+            yfiRepayedByDAO,
+            dolaRepayedByDAO,
             badDebts,
             repayments,
             debtConverterConversions,
             debtConverterRepayments,
-        });
+        };
+
+        await redisSetWithTimestamp(cacheKey, resultData);
+
+        res.status(200).json(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
