@@ -58,6 +58,7 @@ export const CTOKEN_ABI = [
   "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
   "function getAccountSnapshot(address account) external view returns (uint, uint, uint, uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
+  "event RepayBorrow(address payer, address borrower, uint repayAmount, uint accountBorrows, uint totalBorrows)",
 ];
 
 export const CETHER_ABI = [

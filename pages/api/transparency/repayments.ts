@@ -3,13 +3,15 @@ import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/u
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { Contract } from "ethers";
-import { DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
+import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER } from "@app/config/constants";
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
-const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
+const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
+const { DEBT_CONVERTER, DEBT_REPAYER, TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     // defaults to mainnet data if unsupported network
@@ -52,17 +54,54 @@ export default async function handler(req, res) {
         const debtRepayer = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, provider);
         const dwfOtc = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, provider);
 
+        const anWbtc = new Contract('0x17786f3813E6bA35343211bd8Fe18EC4de14F28b', CTOKEN_ABI, provider);
+        const anEth = new Contract('0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8', CTOKEN_ABI, provider);
+        const anYfi = new Contract('0xde2af899040536884e062D3a334F2dD36F34b4a4', CTOKEN_ABI, provider);
+        const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);
+
         const [
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
             debtRepayerRepaymentsEvents,
             dwfOtcBuy,
+            wbtcRepayEvents,
+            ethRepayEvents,
+            yfiRepayEvents,
+            dolaRepayEvents,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
             debtConverter.queryFilter(debtConverter.filters.Conversion()),
             debtRepayer.queryFilter(debtRepayer.filters.debtRepayment()),
             dwfOtc.lifetimeBuy(),
+            anWbtc.queryFilter(anWbtc.filters.RepayBorrow(), 14886483),
+            anEth.queryFilter(anEth.filters.RepayBorrow(), 14886483),
+            anYfi.queryFilter(anYfi.filters.RepayBorrow(), 14886483),
+            anDola.queryFilter(anDola.filters.RepayBorrow(), 14886483),
         ]);
+
+        const blocksNeedingTs =
+            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
+                return arr.filter(event => {
+                    return [TREASURY, TWG].includes(event.args.payer);
+                }).map(event => event.blockNumber);
+            }).flat();
+
+        await addBlockTimestamps(blocksNeedingTs, '1');
+        const timestamps = await getCachedBlockTimestamps();
+
+        const [wbtcRepayedByDAO, ethRepayEventsByDAO, yfiRepayEventsByDAO, dolaRepayEventsByDAO] =
+            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
+                return arr.filter(event => {
+                    return [TREASURY, TWG].includes(event.args.payer);
+                }).map(event => {
+                    return {
+                        blocknumber: event.blockNumber,
+                        amount: getBnToNumber(event.args.repayAmount, i === 0 ? 8 : 18),
+                        timestamp: timestamps['1'][event.blockNumber],
+                        txHash: event.transactionHash,
+                    }
+                });
+            });
 
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
@@ -80,21 +119,25 @@ export default async function handler(req, res) {
             badDebts[symbol].convertedFor += convertedFor;
             return { ...event, symbol, converted, convertedFor }
         });
-        
+
         const debtConverterRepayments = debtRepayerRepaymentsEvents.map(event => {
             const underlying = getToken(TOKENS, event.args.underlying);
             const symbol = underlying.symbol.replace('WETH', 'ETH').replace('-v1', '');
-            const marketIndex = frontierShortfalls.markets.map(m => UNDERLYING[m]?.address||WETH).indexOf(event.args.underlying);
+            const marketIndex = frontierShortfalls.markets.map(m => UNDERLYING[m]?.address || WETH).indexOf(event.args.underlying);
             const sold = getBnToNumber(event.args.paidAmount, underlying.decimals) * frontierShortfalls.exRates[marketIndex];
             const soldFor = getBnToNumber(event.args.receiveAmount, underlying.decimals);
             badDebts[symbol].sold += sold;
-            badDebts[symbol].soldFor += soldFor;            
+            badDebts[symbol].soldFor += soldFor;
             return { event, sold, soldFor, symbol };
         });
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
 
         res.status(200).json({
+            wbtcRepayedByDAO,
+            ethRepayEventsByDAO,
+            yfiRepayEventsByDAO,
+            dolaRepayEventsByDAO,
             badDebts,
             repayments,
             debtConverterConversions,
