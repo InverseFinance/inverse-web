@@ -1296,6 +1296,14 @@ const chainTokens = {
       image: TOKEN_IMAGES.CHRONOS,
       decimals: 18,
     },
+    [chainTokenAddresses["42161"].USDPLUS]: {
+      address: chainTokenAddresses["42161"].USDPLUS,
+      name: 'USD+',
+      symbol: 'USD+',
+      image: TOKEN_IMAGES['USD+'],
+      decimals: 6,
+      coingeckoId: 'usd',
+    },
     [chainTokenAddresses["42161"].VECHRONOS]: {
       address: chainTokenAddresses["42161"].VECHRONOS,
       name: 'veCHR',
