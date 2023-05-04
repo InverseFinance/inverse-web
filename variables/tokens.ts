@@ -157,6 +157,8 @@ const chainTokenAddresses = {
     STERLINGDOLAUSDCLP: '0x8806e6B5F57C780180827E77115794d9C8100Cb7',
     CHRONOS: '0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851',
     VECHRONOS: '0x9A01857f33aa382b1d5bb96C3180347862432B0d',
+    DOLAUSDPLUSCHRONOS: '0xBbD7fF1728963A5Eb582d26ea90290F84E89bd66',
+    USDPLUS: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
   },
   "43114": {
     DOLA: '0x221743dc9E954bE4f86844649Bf19B43D6F8366d',
@@ -1294,6 +1296,14 @@ const chainTokens = {
       image: TOKEN_IMAGES.CHRONOS,
       decimals: 18,
     },
+    [chainTokenAddresses["42161"].USDPLUS]: {
+      address: chainTokenAddresses["42161"].USDPLUS,
+      name: 'USD+',
+      symbol: 'USD+',
+      image: TOKEN_IMAGES['USD+'],
+      decimals: 6,
+      coingeckoId: 'usd',
+    },
     [chainTokenAddresses["42161"].VECHRONOS]: {
       address: chainTokenAddresses["42161"].VECHRONOS,
       name: 'veCHR',
@@ -1378,6 +1388,21 @@ const chainTokens = {
         chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
       ],
       protocolImage: PROTOCOL_IMAGES.SOLIDLIZARD,
+    },
+    [chainTokenAddresses["42161"].DOLAUSDPLUSCHRONOS]: {
+      address: chainTokenAddresses["42161"].DOLAUSDPLUSCHRONOS,
+      name: 'DOLA-USD+ chlp',
+      symbol: 'DOLA-USD+ chlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDPLUS
+      ],
+      protocolImage: PROTOCOL_IMAGES.CHRONOS,
+      twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
     },
   }
 }
@@ -1570,6 +1595,7 @@ export const PROTOCOL_LINKS = {
   // Satin: 404 on link with address
   "SATIN": (lp: Token) => `https://satin.exchange/liquidity`,
   "SOLISNEK": (lp: Token) => `https://www.solisnek.finance/liquidity/${lp?.address?.toLowerCase()}`,
+  "CHRONOS": (lp: Token) => `https://app.chronos.exchange/liquidity`,
 }
 
 export const getLpLink = (lp: Token) => {
