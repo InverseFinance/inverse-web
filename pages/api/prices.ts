@@ -115,9 +115,6 @@ export default async function handler(req, res) {
       }
     });
 
-    // temp fix
-    prices['DOLA-USD+ chlp'] = 1;
-
     prices['_timestamp'] = +(new Date());
 
     await redisSetWithTimestamp(pricesCacheKey, prices);
