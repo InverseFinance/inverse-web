@@ -6,7 +6,7 @@ import { Contract } from "ethers";
 import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
-import { DWF_PURCHASER, ONE_DAY_MS } from "@app/config/constants";
+import { DWF_PURCHASER } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
 
@@ -98,6 +98,7 @@ export default async function handler(req, res) {
             .reduce((acc, { supply }) => acc + supply, 0);
 
         badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
+        badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
 
         const blocksNeedingTs =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
@@ -153,25 +154,26 @@ export default async function handler(req, res) {
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;        
         
+        // todo: account for bad debt interest accrual
         const badDebtEvents = [
             {
                 timestamp: 1648857600000, // april 2nd 2022
-                amount: -3650000,
+                amount: -3612193,//-3650000,
                 eventPointLabel: 'Frontier Exploit',
             },
             {
                 timestamp: 1651276800000, // april 30th
-                amount: -471000,
+                amount: -522830,
                 eventPointLabel: 'Fuse Exploit',
             },
             {
                 timestamp: 1655337600000, // 16 june
-                amount: -5830000,
+                amount: -5866992,//-5830000,
                 eventPointLabel: 'Frontier June Exploit',
             },
             {
                 timestamp: 1663632000000, // 20 sep
-                amount: 303000,
+                amount: 354830,
                 eventPointLabel: 'Sep. Fuse Repayment',
             },
             {
