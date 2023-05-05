@@ -6,13 +6,15 @@ import { Contract } from "ethers";
 import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
-import { DWF_PURCHASER } from "@app/config/constants";
+import { DWF_PURCHASER, ONE_DAY_MS } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
+const EULER_EXPLOIT_TIMESTAMP = 1679961600000;
+const EULER_EXPLOIT_AMOUNT = 863157.87;
 
 const { DEBT_CONVERTER, DEBT_REPAYER, TREASURY } = getNetworkConfigConstants();
 
@@ -92,7 +94,7 @@ export default async function handler(req, res) {
 
         const fedOverviews = fedsOverviewData?.fedOverviews || [];
         const nonFrontierDolaBadDebt = fedOverviews
-            .filter(({ name }) => ['Badger Fed', '0xb1 Fed'].includes(name))
+            .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
             .reduce((acc, { supply }) => acc + supply, 0);
 
         badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
@@ -151,7 +153,30 @@ export default async function handler(req, res) {
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
 
+        const dolaRepayedByDAOCopy = [...dolaRepayedByDAO];
+        const findIndexForEuler = dolaRepayedByDAOCopy.findIndex(({ timestamp }) => timestamp > EULER_EXPLOIT_TIMESTAMP);
+        dolaRepayedByDAOCopy.splice(findIndexForEuler - 1, 0, {
+            timestamp: EULER_EXPLOIT_TIMESTAMP,
+            amount: -EULER_EXPLOIT_AMOUNT,            
+            eventPointLabel: 'Euler Exploit',
+        });
+
+        const dolaBadDebtStartAmount = 10676380
+        const dolaBadDebtEvolution = [
+            {
+                badDebt: dolaBadDebtStartAmount,
+                timestamp: dolaRepayedByDAOCopy[0].timestamp - ONE_DAY_MS,
+                delta: dolaBadDebtStartAmount,
+            },
+        ];
+
+        dolaRepayedByDAOCopy.forEach(({ amount, timestamp, eventPointLabel }) => {
+            const lastValue = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
+            dolaBadDebtEvolution.push({ timestamp, badDebt: lastValue - amount, delta: -amount, eventPointLabel });
+        });
+
         const resultData = {
+            dolaBadDebtEvolution,
             wbtcRepayedByDAO,
             ethRepayedByDAO,
             yfiRepayedByDAO,
