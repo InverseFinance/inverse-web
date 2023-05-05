@@ -92,6 +92,8 @@ export default async function handler(req, res) {
             getCacheFromRedis(fedOverviewCacheKey, false),
         ]);
 
+        // TODO: add repayments for non-frontier feds
+
         const fedOverviews = fedsOverviewData?.fedOverviews || [];
         const nonFrontierDolaBadDebt = fedOverviews
             .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
@@ -151,26 +153,37 @@ export default async function handler(req, res) {
             return { event, sold, soldFor, symbol };
         });
 
-        badDebts['DOLA'].repaidViaDwf = repayments.dwf;
-
-        const dolaRepayedByDAOCopy = [...dolaRepayedByDAO];
-        const findIndexForEuler = dolaRepayedByDAOCopy.findIndex(({ timestamp }) => timestamp > EULER_EXPLOIT_TIMESTAMP);
-        dolaRepayedByDAOCopy.splice(findIndexForEuler - 1, 0, {
-            timestamp: EULER_EXPLOIT_TIMESTAMP,
-            amount: -EULER_EXPLOIT_AMOUNT,            
-            eventPointLabel: 'Euler Exploit',
-        });
-
-        const dolaBadDebtStartAmount = 10676380
-        const dolaBadDebtEvolution = [
+        badDebts['DOLA'].repaidViaDwf = repayments.dwf;        
+        
+        const badDebtEvents = [
             {
-                badDebt: dolaBadDebtStartAmount,
-                timestamp: dolaRepayedByDAOCopy[0].timestamp - ONE_DAY_MS,
-                delta: dolaBadDebtStartAmount,
+                timestamp: 1648857600000, // april 2nd
+                amount: -3650000,
+                eventPointLabel: 'April 2nd',
+            },
+            {
+                timestamp: 1655337600000, // june
+                amount: -5830000,
+                eventPointLabel: 'June 16th',
+            },
+            {
+                timestamp: EULER_EXPLOIT_TIMESTAMP,
+                amount: -EULER_EXPLOIT_AMOUNT,            
+                eventPointLabel: 'Euler Exploit',
             },
         ];
 
-        dolaRepayedByDAOCopy.forEach(({ amount, timestamp, eventPointLabel }) => {
+        const allDolaDeltas = [...dolaRepayedByDAO, ...badDebtEvents].sort((a, b) => a.timestamp - b.timestamp);
+
+        const dolaBadDebtEvolution = [
+            {
+                badDebt: 0,
+                amount: 0,
+                timestamp: 1648000000000,
+            },
+        ];
+
+        allDolaDeltas.forEach(({ amount, timestamp, eventPointLabel }) => {
             const lastValue = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
             dolaBadDebtEvolution.push({ timestamp, badDebt: lastValue - amount, delta: -amount, eventPointLabel });
         });

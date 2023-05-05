@@ -200,7 +200,7 @@ export const ShortfallsPage = () => {
                 maxChartWidth={700}
                 chartData={dolaBadDebtEvo}
                 isDollars={false}
-                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true }}
+                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, interpolation: 'stepAfter' }}
               />
           </Stack>
           <Container
