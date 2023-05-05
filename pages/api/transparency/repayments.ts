@@ -13,8 +13,6 @@ import { fedOverviewCacheKey } from "./fed-overview";
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
-const EULER_EXPLOIT_TIMESTAMP = 1679961600000;
-const EULER_EXPLOIT_AMOUNT = 863157.87;
 
 const { DEBT_CONVERTER, DEBT_REPAYER, TREASURY } = getNetworkConfigConstants();
 
@@ -157,18 +155,28 @@ export default async function handler(req, res) {
         
         const badDebtEvents = [
             {
-                timestamp: 1648857600000, // april 2nd
+                timestamp: 1648857600000, // april 2nd 2022
                 amount: -3650000,
-                eventPointLabel: 'April 2nd',
+                eventPointLabel: 'Frontier Exploit',
             },
             {
-                timestamp: 1655337600000, // june
+                timestamp: 1651276800000, // april 30th
+                amount: -471000,
+                eventPointLabel: 'Fuse Exploit',
+            },
+            {
+                timestamp: 1655337600000, // 16 june
                 amount: -5830000,
-                eventPointLabel: 'June 16th',
+                eventPointLabel: 'Frontier June Exploit',
             },
             {
-                timestamp: EULER_EXPLOIT_TIMESTAMP,
-                amount: -EULER_EXPLOIT_AMOUNT,            
+                timestamp: 1663632000000, // 20 sep
+                amount: 303000,
+                eventPointLabel: 'Sep. Fuse Repayment',
+            },
+            {
+                timestamp: 1679961600000,// 28 mars 2023
+                amount: -863157,
                 eventPointLabel: 'Euler Exploit',
             },
         ];
@@ -179,7 +187,7 @@ export default async function handler(req, res) {
             {
                 badDebt: 0,
                 amount: 0,
-                timestamp: 1648000000000,
+                timestamp: 1642000000000,
             },
         ];
 
