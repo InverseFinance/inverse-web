@@ -56,6 +56,7 @@ export const useEventsAsChartData = (
             yDay: event[yAttribute],
             month: date.getUTCMonth(),
             year: date.getUTCFullYear(),
+            eventPointLabel: event.eventPointLabel,
         }
     })];
     
