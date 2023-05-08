@@ -108,7 +108,7 @@ export const f2sellAndWithdrawHelper = async (
                 .sellDbrRepayAndWithdrawNativeEthOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
         }
         return helperContract
-            .sellDbrRepayAndWithdrawOnBehalf(market, repay, withdraw, deadline.toString(), v.toString(), r, s);
+            .sellDbrRepayAndWithdrawOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
@@ -179,6 +179,7 @@ export const f2depositAndBorrowHelper = async (
     helperType = DEFAULT_FIRM_HELPER_TYPE,
 ) => {
     const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, helperType);
+    console.log(approx)
 
     const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDola, 'BorrowOnBehalf');
     const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(helperType, durationDays, approx);

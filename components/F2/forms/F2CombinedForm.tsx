@@ -98,16 +98,19 @@ export const F2CombinedForm = ({
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
+    const isDepositCase = ['deposit', 'd&b'].includes(MODES[mode]);
     const isBorrowCase = ['borrow', 'd&b'].includes(MODES[mode]);
+    const isWithdrawCase = ['r&w', 'withdraw'].includes(MODES[mode]);
     const isRepayCase = ['repay', 'r&w'].includes(MODES[mode]);
     const isBorrowOnlyCase = 'borrow' === MODES[mode];
     const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
+    const isSigNeeded = ((isBorrowCase || isWithdrawCase) && isAutoDBR) || ((isDepositCase || isWithdrawCase) && isUseNativeCoin);
 
     const handleAction = async () => {
         if (!signer) { return }
-        if(!notFirstTime && isBorrowCase) {
+        if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
-            if(firstTimeAction !== 'continue') {
+            if (firstTimeAction !== 'continue') {
                 return
             }
         }
@@ -144,7 +147,7 @@ export const F2CombinedForm = ({
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'repay') {
             if (isAutoDBR) {
-                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
+                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * (dbrPrice * (1-parseFloat(dbrBuySlippage)/100))));
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
             }
@@ -167,7 +170,7 @@ export const F2CombinedForm = ({
                 if (!isAutoDBR) {
                     return f2repayAndWithdrawNative(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
                 }
-                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * dbrPrice) * 0.96);
+                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * (dbrPrice * (1-parseFloat(dbrBuySlippage)/100))));
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isUseNativeCoin);
             }
@@ -344,9 +347,9 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt+dbrCoverDebt : deltaDebt)
+                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + dbrCoverDebt : deltaDebt)
                     && <WarningMessage alertProps={{ w: 'full' }} description={
-                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt+deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
+                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt + deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
                     } />
                 }
                 {
@@ -429,6 +432,15 @@ export const F2CombinedForm = ({
                 // balance decreases if debt, calling with higher sell amount to contract is ok
                 isError={dbrBalance < parseFloat(dbrSellAmount) * 1.01}
             />
+            <HStack w='full' justify="space-between">
+                <TextInfo
+                    message="DBR price can vary while trying to sell, the max. slippage % allows the resulting total DOLA received to be within a certain range, if out of range, tx will revert or fail">
+                    <Text>
+                        Max. slippage %:
+                    </Text>
+                </TextInfo>
+                <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
+            </HStack>
             <InfoMessage
                 alertProps={{ w: 'full', fontStyle: 'italic' }}
                 description="Note: auto-selling DBR requires an additional signature step. The DOLA received from the swap will be sent to your wallet."
@@ -455,7 +467,7 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleAction()}
-            actionLabel={(isAutoDBR && hasDebtChange) || (isUseNativeCoin && hasCollateralChange) ? `Sign + ${mode}` : mode}
+            actionLabel={isSigNeeded ? `Sign + ${mode}` : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
