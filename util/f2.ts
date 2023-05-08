@@ -143,14 +143,13 @@ export const f2approxDbrAndDolaNeeded = async (
         .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);
 
     let dolaForDbr, totalDolaNeeded = BigNumber.from(0);
-    const debtAmountNum = getBnToNumber(dolaAmount);
 
     if (helperType === 'balancer') {
         totalDolaNeeded = approx[0];
         dolaForDbr = totalDolaNeeded.sub(dolaAmount)//getBnToNumber(totalDolaNeeded) - debtAmountNum;
     } else if (helperType === 'curve-v2') {
         dolaForDbr = approx[0];
-        totalDolaNeeded = dolaForDbr.add(debtAmountNum);
+        totalDolaNeeded = dolaForDbr.add(dolaAmount);
     }
     const dbrNeeded = approx[1];
 
