@@ -6,12 +6,13 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
+import { getDbrPriceOnCurve } from '@app/util/f2';
 
 const { DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
-  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.0`;
+  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.1`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 1800);
@@ -26,20 +27,24 @@ export default async function handler(req, res) {
 
     const queries = [
       balancerVault.getPoolTokens('0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415'),
+      getDbrPriceOnCurve(provider),
     ].concat(withExtra ? [
       contract.totalSupply(),      
       contract.totalDueTokensAccrued(),
-      contract.operator(),
+      contract.operator(),      
     ] : []);
 
     const results = await Promise.all(queries);
 
-    const [poolData] = results;
-    const price = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.04;
+    const [poolData, curvePriceData] = results;
+    const priceOnBalancer = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.05;
+
+    const { priceInDola: priceOnCurve } = curvePriceData;
 
     const resultData = {
       timestamp: +(new Date()),
-      price,
+      priceOnBalancer,
+      price: priceOnCurve,
       totalSupply: withExtra ? getBnToNumber(results[1]) : undefined,      
       totalDueTokensAccrued: withExtra ? getBnToNumber(results[2]) : undefined,
       operator: withExtra ? results[3] : undefined,
@@ -59,6 +64,7 @@ export default async function handler(req, res) {
       }
     } catch (e) {
       console.error(e);
+      res.status(500).json({ status: 'ko' });
     }
   }
 }
