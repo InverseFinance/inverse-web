@@ -11,7 +11,7 @@ import { ONE_DAY_SECS } from '@app/config/constants';
 
 const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
 
-export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.3'
+export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.4'
 export const BONDS_V2_IDS_API_CACHE_KEY = 'bonds-ids-v1.0.0'
 
 export default async function handler(req, res) {
@@ -50,8 +50,10 @@ export default async function handler(req, res) {
         const now = Date.now();
 
         const bonds = liveMarketsIds.map((id, i) => {
-            const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 36) : 0
+            const scale = getBnToNumber(marketInfos[i][11], 0);
+            const bondPrice = !!prices && !!prices[i] ? getBnToNumber(prices[i], 0)/scale : 0
             const conclusion = parseFloat(terms[i][3].toString()) * 1000;
+
             return {
                 id,
                 bondContract: BOND_V2_FIXED_TERM,
@@ -66,11 +68,11 @@ export default async function handler(req, res) {
                 capacityInQuote: marketInfos[i][4],
                 capacity: getBnToNumber(marketInfos[i][5], REWARD_TOKEN?.decimals),
                 totalDebt: getBnToNumber(marketInfos[i][6], REWARD_TOKEN?.decimals),
-                minPrice: getBnToNumber(marketInfos[i][7], REWARD_TOKEN?.decimals),
+                minPrice: getBnToNumber(marketInfos[i][7], 0)/scale,
                 maxPayout: getBnToNumber(marketInfos[i][8], REWARD_TOKEN?.decimals),
                 sold: getBnToNumber(marketInfos[i][9], REWARD_TOKEN?.decimals),
                 purchased: getBnToNumber(marketInfos[i][10], REWARD_TOKEN?.decimals),
-                scale: getBnToNumber(marketInfos[i][11], REWARD_TOKEN?.decimals),
+                scale: getBnToNumber(marketInfos[i][11], 0),
                 // terms
                 controlVar: terms[i][0],
                 maxDebt: parseFloat(terms[i][1].toString()),
