@@ -9,7 +9,7 @@ import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
-import { OracleType } from "./Infos/OracleType";
+import { OracleType, OracleTypeTooltipContent } from "./Infos/OracleType";
 import { SkeletonList } from "../common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
@@ -57,8 +57,8 @@ const columns = [
     },
     {
         field: 'supplyApy',
-        label: 'Supply Apy',
-        tooltip: 'Apy for the supplied asset',
+        label: 'Intrinsic APY',
+        tooltip: 'The APY provided by the asset itself and that is kept even after supplying, this is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ supplyApy, price, underlying }) => {
             return <Cell minWidth="100px" justify="center" fontSize="15px">
@@ -69,11 +69,11 @@ const columns = [
     {
         field: 'oracleType',
         label: 'Oracle Type',
-        tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
+        tooltip: <OracleTypeTooltipContent />,
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ oracleType, underlying }) => {
             return <Cell alignItems="center" minWidth="150px" justify="center" fontSize="15px">
-                <OracleType oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
+                <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
             </Cell>
         },
     },
@@ -133,7 +133,7 @@ const columns = [
     },
     {
         field: 'leftToBorrow',
-        label: "Daily Borrow Limit",
+        label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt }) => {
@@ -167,7 +167,7 @@ const columns = [
             return <Cell minWidth="120px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account && deposits > 0 ? <>
-                        <CellText>{shortenNumber(deposits, 4)}</CellText>
+                        <CellText>{shortenNumber(deposits, 2)}</CellText>
                         <CellText>({shortenNumber(deposits * price, 2, true)})</CellText>
                     </> : <>-</>
                 }
@@ -199,6 +199,11 @@ const columns = [
     },
 ]
 
+const firmImages = {
+    'dark': 'firm-final-logo-white.png',
+    'light': 'firm-final-logo.png',
+}
+
 export const F2Markets = ({
 
 }: {
@@ -211,7 +216,7 @@ export const F2Markets = ({
     const { debt } = useAccountDBR(account);
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
-    const { themeStyles } = useAppTheme();
+    const { themeStyles, themeName } = useAppTheme();
 
     const isLoading = tvlLoading || !markets?.length;
 
@@ -223,14 +228,14 @@ export const F2Markets = ({
 
     return <Container
         label={
-            <Text fontWeight="bold">
-                <b style={{ color: themeStyles.colors.success, fontSize: '20px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR
+            <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
+                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR
             </Text>
         }
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
-        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/firm-final-logo.png')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
+        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/${firmImages[themeName]}')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },

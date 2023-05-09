@@ -22,6 +22,7 @@ const NB_DAYS_MONTH = 365/12;
 export const frontierMarketsCacheKey = `1-markets-cache-v1.4.5`;
 
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
   // defaults to mainnet data if unsupported network
   const networkConfig = getNetworkConfig(CHAIN_ID, true)!;  
 
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
       ESCROW_OLD,
     } = getNetworkConfigConstants(networkConfig);
 
-    const validCache = await getCacheFromRedis(frontierMarketsCacheKey, true, 600);
+    const validCache = await getCacheFromRedis(frontierMarketsCacheKey, cacheFirst !== 'true', 600);
     if (validCache) {
       res.status(200).json(validCache);
       return

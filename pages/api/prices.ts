@@ -10,7 +10,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
 
-export const pricesCacheKey = `prices-v1.0.5`;
+export const pricesCacheKey = `prices-v1.0.7`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
@@ -76,19 +76,20 @@ export default async function handler(req, res) {
       geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
     }
     
-    // try {
-    //   geckoPrices['dola-usd-cg'] = geckoPrices['dola-usd'];
-    //   const dolaData = await getTokenData('DOLA');
-    //   if(dolaData?.rate){        
-    //     geckoPrices['dola-usd'] = dolaData.rate;
-    //   }
-    // } catch (e) {
-    //   console.log('Error livecoinwatch gecko prices');     
-    // }
+    try {
+      prices['dola-usd-cg'] = geckoPrices['dola-usd']?.usd;
+      const dolaData = await getTokenData('DOLA');
+      if(dolaData?.rate){
+        prices['dola-usd-lcw'] = dolaData.rate;
+      }
+    } catch (e) {
+      console.log('Error livecoinwatch gecko prices');     
+    }
 
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
     })
+    prices['dola-usd'] = prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
     let lps: { token: Token, chainId: string }[] = [];
 
@@ -112,7 +113,7 @@ export default async function handler(req, res) {
       if (lpData[i]) {
         prices[lpToken.token.symbol] = lpData[i];
       }
-    })
+    });
 
     prices['_timestamp'] = +(new Date());
 

@@ -179,6 +179,7 @@ export enum NetworkIds {
   bsc = '56',
   arbitrum = '42161',
   polygon = '137',
+  avalanche = '43114',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',
@@ -713,6 +714,7 @@ export type F2Market = {
   icon?: string
   isGovTokenCollateral?: boolean
   hasClaimableRewards?: boolean
+  govLink?: string
   marketIcon?: string
   helper?: boolean
   oracleType: string
@@ -720,6 +722,7 @@ export type F2Market = {
   escrowImplementation: string
   badgeInfo: string
   badgeProps?: BadgeProps
+  startingBlock: number
 }
 
 export type FirmAction = {
@@ -743,4 +746,17 @@ export type FirmAction = {
   isCollateralEvent: boolean,
   tokenName: string,
   tokenNameCombined?: string,
+}
+
+export type CoordinatesArray = { x: number, y: number }[]
+
+export type LiquidityPoolAggregatedData = {
+  timestamp: number
+  tvl: number
+  balance: number
+  pairingDepth: number
+  avgDolaWeight: number
+  pol: number
+  rewardDay: number
+  avgApy: number
 }

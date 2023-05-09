@@ -5,7 +5,7 @@ import { BigNumber, Contract } from 'ethers'
 import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
-import { useCustomSWR } from './useCustomSWR'
+import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR'
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
@@ -44,7 +44,7 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
 // asUsdObject to get the same formatting as coingecko
 export const usePricesV2 = (asUsdObject = true): SWR & Prices => {
   const { data, error } = useCustomSWR(
-    `/api/prices`,
+    `/api/prices?v2`,
     fetcher
   )
 
@@ -54,6 +54,19 @@ export const usePricesV2 = (asUsdObject = true): SWR & Prices => {
 
   return {
     prices: asUsdObject ? usdObjects : d,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useDOLAPrice = (): SWR & { price: number } => {
+  const { data, error } = useCacheFirstSWR(
+    `/api/dola-price`,
+    fetcher
+  )
+
+  return {
+    price: data ? data['dola-usd'] : 1,
     isLoading: !error && !data,
     isError: error,
   }

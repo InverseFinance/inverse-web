@@ -60,7 +60,21 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
 const NAV_ITEMS = MENUS.nav
 
-const NavBadge = (props: any) => {
+export const ThemeBtn = () => {
+  const { themeName } = useAppTheme();
+  const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
+  return <NavBadge
+    cursor="pointer"
+    bg={BUTTON_BG}
+    border={`1px solid ${BUTTON_BORDER_COLOR}`}
+    color={BUTTON_TEXT_COLOR}
+    onClick={() => switchTheme()}
+  >
+    {themeName === 'dark' ? <SunIcon boxSize={4} /> : <MoonIcon boxSize={4} />}
+  </NavBadge>
+}
+
+export const NavBadge = (props: any) => {
   const { NAV_BUTTON_BG, NAV_BUTTON_BORDER_COLOR, NAV_BUTTON_TEXT_COLOR } = useAppThemeParams();
   return <Flex
     justify="center"
@@ -88,7 +102,8 @@ const NetworkBadge = ({
   isWrongNetwork: boolean,
   showWrongNetworkModal: () => void
 }) => {
-  const [isSmallerThan] = useMediaQuery('(max-width: 1200px)')
+  const [isSmallerThan1200] = useMediaQuery('(max-width: 1200px)')
+  const [isSmallerThan1000] = useMediaQuery('(max-width: 1000px)')
   const { data } = useEtherSWR(['getGasPrice']);
 
   const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
@@ -99,7 +114,7 @@ const NetworkBadge = ({
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem chainId={chainId} networkAttribute={isSmallerThan ? null : 'name'} />
+      <NetworkItem chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1200 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -114,20 +129,23 @@ const INVBalance = () => {
   const router = useRouter()
   const { query } = router;
   const { account, chainId } = useWeb3React<Web3Provider>()
-  const userAddress = (query?.viewAddress as string) || account;  
+  const userAddress = (query?.viewAddress as string) || account;
   const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { exchangeRates } = useExchangeRatesV2()
   const { data } = useEtherSWR([
     [INV, 'balanceOf', userAddress],
     [XINV, 'balanceOf', userAddress],
   ])
-  const [formattedBalance, setFormattedBalance] = useState<ReactNode>(null)
 
+  const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
+  const inv = invBalance / ETH_MANTISSA
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA)
+  const hasUnstakedBal = inv >= 0.01;
 
-  useDualSpeedEffect(() => {
-    setFormattedBalance(userAddress ? formatData(data, exRate) : null)
-  }, [data, userAddress, exRate], !userAddress, 1000)
+  if (!data) {
+    return <></>
+  }
 
   const goToSupply = () => {
     if (router.pathname === '/frontier') {
@@ -138,25 +156,7 @@ const INVBalance = () => {
     }
   }
 
-  const formatData = (data: [number, number] | undefined, exchangeRate: BigNumber) => {
-    const [invBalance, xinvBalance] = data || [0, 0, 1]
-    const inv = invBalance / ETH_MANTISSA
-    const xinv = (xinvBalance / ETH_MANTISSA) * (exchangeRate / ETH_MANTISSA)
-    const hasUnstakedBal = inv >= 0.01
-    return <>
-      <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
-        {inv.toFixed(2)} {RTOKEN_SYMBOL}
-      </Text>
-      ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
-    </>
-  }
-
-  if (!formattedBalance || !data) {
-    return <></>
-  }
-
-  const invBal = data[0] / ETH_MANTISSA;
-  const onMainnetCase = invBal >= 0.01
+  const onMainnetCase = inv >= 0.01
 
   return (
     <NavBadge>
@@ -164,14 +164,19 @@ const INVBalance = () => {
         onMainnetCase ?
           <AnimatedInfoTooltip message={
             <>
-              {onMainnetCase && <Text>You have {invBal.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
+              {onMainnetCase && <Text>You have {inv.toFixed(2)} <b>unstaked {RTOKEN_SYMBOL}</b></Text>}
             </>
           }>
             <WarningIcon color="orange.300" mr="1" />
           </AnimatedInfoTooltip>
           : null
       }
-      {formattedBalance}
+      <>
+        <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
+          {inv.toFixed(2)} {RTOKEN_SYMBOL}
+        </Text>
+        ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
+      </>
     </NavBadge>
   )
 }
@@ -231,8 +236,8 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
 
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
   const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
-  const { query } = useRouter()
-  const { themeName } = useAppTheme();
+  const { query } = useRouter();
+  const [isLargerThan300] = useMediaQuery('(min-width: 300px)');
   const userAddress = (query?.viewAddress as string) || account;
   const [isOpen, setIsOpen] = useState(false)
   const [connectBtnLabel, setConnectBtnLabel] = useState('Connect')
@@ -306,12 +311,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           justify="center"
           bg={BUTTON_BG}
           border={`1px solid ${BUTTON_BORDER_COLOR}`}
+          color={BUTTON_TEXT_COLOR}
           cursor="pointer"
           fontSize="sm"
           align="center"
           borderRadius={4}
           fontWeight="semibold"
-          color={BUTTON_TEXT_COLOR}
           p={2.5}
           pl={4}
           pr={4}
@@ -321,7 +326,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
           data-testid={TEST_IDS.connectBtn}
           position="relative"
         >
-          {userAddress && <Avatar mr="2" sizePx={20} address={userAddress} />}
+          {!!userAddress && isLargerThan300 && <Avatar mr="2" sizePx={20} address={userAddress} />}
           <Text color={BUTTON_TEXT_COLOR}>{connectBtnLabel}</Text>
           {/* {
             !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
@@ -357,14 +362,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               >
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
-              </ConnectionMenuItem>
-              <ConnectionMenuItem
-                onClick={() => switchTheme()}
-              >
-                {themeName === 'dark' ? <SunIcon boxSize={6} /> : <MoonIcon boxSize={6} />}
-                <Text fontWeight="semibold">
-                  {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                </Text>
               </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
@@ -403,14 +400,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 </ConnectionMenuItem>
               </CoinbasePayButton>
             }
-            <ConnectionMenuItem
-              onClick={() => switchTheme()}
-            >
-              {themeName === 'dark' ? <SunIcon boxSize={3} /> : <MoonIcon boxSize={3} />}
-              <Text fontWeight="semibold">
-                {themeName === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </Text>
-            </ConnectionMenuItem>
             {/* {
               !!account && <LiquidationsMenuItem account={userAddress} />
             } */}
@@ -442,12 +431,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
-  const { themeName, themeStyles } = useAppTheme();
+  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');  
+  const { themeName } = useAppTheme();
   const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
-  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);  
-  const [showAirdropModal, setShowAirdropModal] = useState(false);  
+  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
+  const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
 
@@ -616,6 +605,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             :
             <>
               <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
+                <ThemeBtn />
                 <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
               </Stack>
 
@@ -629,6 +619,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
                     : null
                 }
+                <ThemeBtn />
                 <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
               </Stack>
             </>

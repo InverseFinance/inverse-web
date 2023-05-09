@@ -136,7 +136,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
       return {
         ...m,
-        ...cachedMarkets[i],        
+        ...cachedMarkets[i],
         price: data ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
@@ -180,20 +180,21 @@ export const useAccountDBRMarket = (
   account: string,
   isUseNativeCoin = false,
 ): AccountDBRMarket => {
-  const { data: accountMarketData, error } = useEtherSWR([
-    [market.address, 'escrows', account],
-    [market.address, 'getCreditLimit', account],
-    [market.address, 'getWithdrawalLimit', account],
-    [market.address, 'debts', account],
-  ]);
+  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
+  const { data: accountMarketData } = useEtherSWR(
+    !escrow || escrow === BURN_ADDRESS ? [] : [
+      [market.address, 'getCreditLimit', account],
+      [market.address, 'getWithdrawalLimit', account],
+      [market.address, 'debts', account],
+    ]
+  );
 
   const { data: balances } = useEtherSWR([
-    [market.collateral, 'balanceOf', account],
-    ['getBalance', account, 'latest'],
+    isUseNativeCoin ? ['getBalance', account, 'latest'] : [market.collateral, 'balanceOf', account],
   ]);
 
-  const [escrow, bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [undefined, zero, zero, zero];
-  const bnCollateralBalance: BigNumber = balances ? isUseNativeCoin ? balances[1] : balances[0] : zero;
+  const [bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero, zero];
+  const bnCollateralBalance: BigNumber = balances ? balances[0] : zero;
   const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
   const { data: escrowData } = useEtherSWR({
@@ -252,7 +253,7 @@ export const useAccountF2Markets = (
   });
 }
 
-export const useDBRPriceLive = (): { price: number | undefined } => {
+export const useDBRBalancePrice = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
       [
@@ -274,12 +275,44 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
   }
 }
 
+export const useDBRPriceLive = (): { price: number | undefined } => {
+  const { data } = useEtherSWR({
+    args: [
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_oracle'],
+    ],
+    abi: [
+      'function price_oracle() public view returns(uint)',
+    ],
+  });
+  
+  const priceInDbr = data && data[0] ? getBnToNumber(data[0]) : undefined;
+
+  return {
+    price: priceInDbr ? (1 / priceInDbr) : undefined,
+  }
+}
+
+export const useDBRSwapPrice = (ask = '1000'): { price: number | undefined } => {
+  const { data } = useEtherSWR({
+    args: [
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 0, 1, parseUnits(ask)],
+    ],
+    abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
+  });
+  
+  const price = data && data[0] ? getBnToNumber(data[0].div(ask)) : undefined;
+
+  return {
+    price,
+  }
+}
+
 export const useDBRPrice = (): { price: number } => {
   const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
   const { price: livePrice } = useDBRPriceLive();
 
   return {
-    price: livePrice ?? (apiData?.price || 0.04),
+    price: livePrice ?? (apiData?.price || 0.05),
   }
 }
 
@@ -292,6 +325,7 @@ export const useDBR = (): {
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
   const { price: livePrice } = useDBRPriceLive();
+
   const { data: extraData } = useEtherSWR([
     [DBR, 'totalSupply'],
     [DBR, 'totalDueTokensAccrued'],

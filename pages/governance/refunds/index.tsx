@@ -23,7 +23,7 @@ export const GovRefunds = () => {
           title="Eligible Refunds Data"
           description={<VStack alignItems="flex-start">
             <Text>Cron jobs for each filter & multisig run around every 3 hours, data freshness can be older due to failed cron jobs sometimes (third-party rate limits etc).</Text>
-            <Text fontWeight="bold">NB: data freshness can be different per tx type & multisig, overall freshness should be below 24h.</Text>
+            <Text fontWeight="bold">Note: data freshness can be different per tx type & multisig, overall freshness should be below 24h.</Text>
             <Text fontWeight="bold">Refunds possible by TWG or TWG members only</Text>
           </VStack>
           }

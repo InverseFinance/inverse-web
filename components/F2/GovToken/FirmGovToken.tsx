@@ -87,9 +87,11 @@ export const FirmGovToken = () => {
                 </Stack>
                     : <Text>Once you do your first deposit the escrow contract will delegate to your address (can be changed later)</Text>
             }
-            <Link textDecoration="underline" href="https://snapshot.org/#/olympusdao.eth" target="_blank" isExternal>
-                Vote on Olympus DAO proposals<ExternalLinkIcon ml="1" />
-            </Link>
+            {
+                !!market.govLink && <Link textDecoration="underline" href={market.govLink} target="_blank" isExternal>
+                    Vote on proposals<ExternalLinkIcon ml="1" />
+                </Link>
+            }
         </VStack>
     </Container>
 }

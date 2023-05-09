@@ -76,6 +76,7 @@ export const ApproveButton = ({
   onSuccess = () => { },
   tooltipMsg,
   ButtonComp = SubmitButton,
+  amount = constants.MaxUint256,
   ...props
 }: {
   address: string,
@@ -84,13 +85,14 @@ export const ApproveButton = ({
   isDisabled: boolean,
   onSuccess?: () => void,
   tooltipMsg?: string
+  amount?: string | BigNumber,
   ButtonComp?: React.ReactNode
 }) => {
   return (
     <ButtonComp
       onClick={async () =>
         handleTx(
-          await getERC20Contract(address, signer).approve(toAddress, constants.MaxUint256),
+          await getERC20Contract(address, signer).approve(toAddress, amount),
           { onSuccess },
         )
       }

@@ -25,18 +25,18 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
 
-export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.2`;
+export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.4`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.3`;
-export const cacheMulAllKey = `dao-multisigs-all-v1.0.1`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.7`;
+export const cacheMulAllKey = `dao-multisigs-all-v1.0.4`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
-export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.2`;
+export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.5`;
 
 export default async function handler(req, res) {
 
   const { DOLA, INV, INVDOLASLP, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.3.1`;
+  const cacheKey = `dao-cache-v1.3.6`;
 
   try {
 
@@ -153,6 +153,7 @@ export default async function handler(req, res) {
       [NetworkIds.bsc]: Object.keys(CHAIN_TOKENS[NetworkIds.bsc]).filter(key => isAddress(key)),
       [NetworkIds.arbitrum]: Object.keys(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(key => isAddress(key)),
       [NetworkIds.polygon]: Object.keys(CHAIN_TOKENS[NetworkIds.polygon]).filter(key => isAddress(key)),
+      [NetworkIds.avalanche]: Object.keys(CHAIN_TOKENS[NetworkIds.avalanche]).filter(key => isAddress(key)),
     }
 
     const [multisigBalCache, liquidityCacheData] = await Promise.all([

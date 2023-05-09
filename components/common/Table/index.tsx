@@ -42,6 +42,7 @@ type TableProps = {
   showRowBorder?: boolean
   mobileThreshold?: number
   mobileClickBtnLabel?: string
+  showHeader?: boolean
 }
 
 const emptyObj = {};
@@ -93,7 +94,7 @@ export const MobileTable = ({
                   <HStack display={isNotFirstCol ? 'inline-flex' : 'none'}>
                     {
                       col.tooltip ?
-                        <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
+                        <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'mainTextColorLight2' }} zIndex="2" message={col.tooltip} size="small" />
                         : null
                     }
                     <Text>{col.label}</Text>
@@ -131,11 +132,12 @@ export const Table = ({
   mobileThreshold = 821,
   mobileClickBtnLabel = 'View Details',
   showRowBorder = false,
+  showHeader = true,
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
   const [isReady, setIsReady] = useState(false);
-  const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);  
+  const [isLargerThan] = useMediaQuery(`(min-width: ${mobileThreshold}px)`);
   const [sortBy, setSortBy] = useState(defaultSort === null ? defaultSort : defaultSort || columns[0].field);
   const [sortDir, setSortDir] = useState(defaultSortDir);
   const [filters, setFilters] = useState(defaultFilters);
@@ -232,8 +234,8 @@ export const Table = ({
       } : undefined}
       _hover={{ bgColor: 'primary.850' }}
     >
-      {columns.map(({ value }, j) => (
-        <Fragment key={j}>{value(item, i)}</Fragment>
+      {columns.map(({ value, field }, j) => (
+        <Box key={j} data-col={field}>{value(item, i)}</Box>        
       ))}
     </Flex>
   ));
@@ -242,100 +244,102 @@ export const Table = ({
 
   return (
     <Stack w="full" spacing={1} overflowX={{ base: 'auto', lg: 'visible' }} data-sort-by={sortBy} data-sort-dir={sortDir} {...props}>
-      <Flex
-        w="full"
-        fontSize="11px"
-        fontWeight="semibold"
-        justify="space-between"
-        textTransform="capitalize"
-        pb={showRowBorder ? 4 : 2}
-        pl={4}
-        pr={4}
-      >
-        {columns.map((col: Column, i) => {
-          const ColHeader = col.header;
-          const FilterItem = col.filterItemRenderer;
-          const filterItems = uniqueBy(
-            sortedItems?.map(item => {
-              const v = item[col.field]?.toString();
-              const label = isAddress(v) ? namedAddress(v) : v;
-              return {
-                value: v,
-                label: label || '',
-              }
-            }),
-            (a, b) => a.value === b.value,
-          )
-          return (
-            <ColHeader key={i}>
-              <Box
-                data-testid={`${TEST_IDS.colHeaderBox}-${col.field}`}
-                display="inline-flex"
-                fontWeight={sortBy === col.field ? 'bold' : 'normal'}
-                alignItems="center"
-                color="primary.300"
-                {...colBoxProps}
-              >
-                {
-                  col.tooltip ?
-                    <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'accentTextColor' }} zIndex="2" message={col.tooltip} size="small" />
-                    : null
+      {
+        showHeader && <Flex
+          w="full"
+          fontSize="11px"
+          fontWeight="semibold"
+          justify="space-between"
+          textTransform="capitalize"
+          pb={showRowBorder ? 4 : 2}
+          pl={4}
+          pr={4}
+        >
+          {columns.map((col: Column, i) => {
+            const ColHeader = col.header;
+            const FilterItem = col.filterItemRenderer;
+            const filterItems = uniqueBy(
+              sortedItems?.map(item => {
+                const v = item[col.field]?.toString();
+                const label = isAddress(v) ? namedAddress(v) : v;
+                return {
+                  value: v,
+                  label: label || '',
                 }
-                <VStack alignItems={i === 0 ? 'flex-start' : i === (columns.length - 1) ? 'flex-end' : 'center'} justifyContent="flex-start" cursor="pointer">
-                  <Box
-                    data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
-                    onClick={(e) => {
-                      if (!!e && e.target.id.startsWith('popover-')) {
-                        return;
-                      }
-                      return toggleSort(col)
-                    }}
-                    userSelect="none"
-                    position="relative"
-                    color="accentTextColor"
-                    fontSize="12px"
-                  >
-                    {col.label}
-                    {
-                      sortBy === col.field ?
-                        <Box position="absolute" display="inline-block" right="-14px">
-                          {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
-                        </Box>
-                        : null
-                    }
-                  </Box>
+              }),
+              (a, b) => a.value === b.value,
+            )
+            return (
+              <ColHeader key={i}>
+                <Box
+                  data-testid={`${TEST_IDS.colHeaderBox}-${col.field}`}
+                  display="inline-flex"
+                  fontWeight={sortBy === col.field ? 'bold' : 'normal'}
+                  alignItems="center"
+                  color="primary.300"
+                  {...colBoxProps}
+                >
                   {
-                    col.showFilter && <Autocomplete
-                      color="secondaryTextColor"
-                      list={filterItems}
-                      textTransform="capitalize"
-                      w={col.filterWidth}
-                      p="0"
-                      showChevron={false}
-                      inputProps={{ p: '0' }}
-                      defaultValue={filters[col.field]}
-                      itemRenderer={
-                        col.filterItemRenderer ?
-                          (value) => <FilterItem {...{ [col.field]: value }} />
-                          : undefined
-                      }
-                      onItemSelect={(item) => {
-                        setFilters({ ...filters, [col.field]: item.value === '' ? null : item.value })
+                    col.tooltip ?
+                      <AnimatedInfoTooltip iconProps={{ fontSize: '12px', mr: "1", color: 'mainTextColorLight2' }} zIndex="2" message={col.tooltip} size="small" />
+                      : null
+                  }
+                  <VStack alignItems={i === 0 ? 'flex-start' : i === (columns.length - 1) ? 'flex-end' : 'center'} justifyContent="flex-start" cursor="pointer">
+                    <Box
+                      data-testid={`${TEST_IDS.colHeaderText}-${col.field}`}
+                      onClick={(e) => {
+                        if (!!e && e.target.id.startsWith('popover-')) {
+                          return;
+                        }
+                        return toggleSort(col)
                       }}
-                    />
-                  }
-                  {
-                    hasSubheader && !col.showFilter && !col.customSubheader && <Box w='full' cursor="default" h="40px">&nbsp;</Box>
-                  }
-                  {
-                    !!col.customSubheader && col.customSubheader
-                  }
-                </VStack>
-              </Box>
-            </ColHeader>
-          )
-        })}
-      </Flex>
+                      userSelect="none"
+                      position="relative"
+                      color="mainTextColorLight2"
+                      fontSize="12px"
+                    >
+                      {col.label}
+                      {
+                        sortBy === col.field ?
+                          <Box position="absolute" display="inline-block" right="-14px">
+                            {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
+                          </Box>
+                          : null
+                      }
+                    </Box>
+                    {
+                      col.showFilter && <Autocomplete
+                        color="secondaryTextColor"
+                        list={filterItems}
+                        textTransform="capitalize"
+                        w={col.filterWidth}
+                        p="0"
+                        showChevron={false}
+                        inputProps={{ p: '0' }}
+                        defaultValue={filters[col.field]}
+                        itemRenderer={
+                          col.filterItemRenderer ?
+                            (value) => <FilterItem {...{ [col.field]: value }} />
+                            : undefined
+                        }
+                        onItemSelect={(item) => {
+                          setFilters({ ...filters, [col.field]: item.value === '' ? null : item.value })
+                        }}
+                      />
+                    }
+                    {
+                      hasSubheader && !col.showFilter && !col.customSubheader && <Box w='full' cursor="default" h="40px">&nbsp;</Box>
+                    }
+                    {
+                      !!col.customSubheader && col.customSubheader
+                    }
+                  </VStack>
+                </Box>
+              </ColHeader>
+            )
+          })}
+        </Flex>
+      }
       {
         showRowBorder ? <VStack mt={showRowBorder ? "0 !important" : undefined} w='full' spacing={showRowBorder ? '4' : '0'}>
           {filteredRows}

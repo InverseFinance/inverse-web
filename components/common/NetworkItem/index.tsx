@@ -1,6 +1,7 @@
 import { getNetwork, getNetworkImage, isSupportedNetwork } from '@app/util/networks';
 import { Image, Tooltip } from '@chakra-ui/react';
 import { WarningIcon } from '@chakra-ui/icons';
+import { capitalize } from '@app/util/misc';
 
 export const NetworkItem = ({
     chainId,
@@ -27,7 +28,7 @@ export const NetworkItem = ({
                         <WarningIcon color="warning" w={5} h={5} mr="2" />
                     </Tooltip>
             }
-            {network && network[networkAttribute] ? network[networkAttribute] : networkAttribute === null ? null : 'Unknown Network'}
+            {network && network[networkAttribute] ? capitalize(network[networkAttribute]) : networkAttribute === null ? null : 'Unknown Network'}
         </>
     )
 }

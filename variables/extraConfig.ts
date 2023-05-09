@@ -1,3 +1,4 @@
+import { DEFAULT_FIRM_HELPER_TYPE } from '@app/config/constants';
 import { FEDS_PARAMS } from '@app/config/feds-params';
 import { NetworkIds } from '@app/types';
 
@@ -34,7 +35,7 @@ const mainConfig = {
     dbr: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     f2Oracle: '0xaBe146CF570FD27ddD985895ce9B138a7110cce8',
     f2controller: '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D',
-    f2helper: '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1',    
+    f2helper: DEFAULT_FIRM_HELPER_TYPE === 'balancer' ? '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1' : '0xae8165f37FC453408Fb1cd1064973df3E6499a76',
     f2markets: [
         {
             name: 'WETH',
@@ -45,6 +46,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
+            startingBlock: 16159015,
         },
         {
             name: 'stETH',
@@ -56,6 +58,7 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'white' },
+            startingBlock: 16441143,
         },
         {
             name: 'gOHM',
@@ -66,7 +69,9 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Keep Voting',
             badgeProps: { bgColor: 'accentTextColor', color: 'white' },
-            isGovTokenCollateral: true,         
+            isGovTokenCollateral: true,
+            govLink: 'https://snapshot.org/#/olympusdao.eth',
+            startingBlock: 16657838,
         },
         {
             name: 'CRV',
@@ -76,6 +81,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
+            startingBlock: 16791157,
         },
         {
             name: 'cvxCRV',
@@ -202,14 +208,28 @@ const mainConfig = {
             chainId: NetworkIds.arbitrum,
             order: 3.2,
         },
-        {
-            // placeholder address for now
-            address: '0xA4b291Ed1220310d3120f515B5B7AccaecD66F17',
+        {            
+            address: '0x5D18b089e838DFFbb417A87874435175F3A9B000',
             name: 'Treasury Working Group on PLG',
             shortName: 'TWG on PLG',
             purpose: 'Optimize Inverse Treasury management on Polygon',            
             chainId: NetworkIds.polygon,
             order: 3.3,
+        },
+        {            
+            address: '0x1A927B237a57421C414EB511a33C4B82C2718677',
+            name: 'Treasury Working Group on AVAX',
+            shortName: 'TWG on AVAX',
+            purpose: 'Optimize Inverse Treasury management on Avalanche',            
+            chainId: NetworkIds.avalanche,
+            order: 3.4,
+        },
+        {            
+            address: '0xD9a3f7E1AEC3ED77d5Eb7f738Eb27a936bf7F790',
+            name: 'Product Working Group',
+            shortName: 'PWG',
+            purpose: 'Ad hoc expenses and short-term hires',            
+            chainId: NetworkIds.mainnet,            
         },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],

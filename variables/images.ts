@@ -28,6 +28,8 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "CHRONOS": "https://assets.coingecko.com/coins/images/29622/small/chronos_icono-01.png?1680077336",
+    "AVAX": "https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png?1670992574",
     "CASH": "https://assets.coingecko.com/coins/images/27558/small/cash.png?1677063931",
     "MATIC": "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912",
     "cvxCRV": 'https://assets.coingecko.com/coins/images/15586/small/convex-crv.png?1621255952',
@@ -81,6 +83,7 @@ export const TOKEN_IMAGES = {
     "STR": "https://assets.coingecko.com/coins/images/29167/small/FullLogo_Transparent_NoBuffer.png?1677048104",
     "ARCHLY": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/6432.png",
     "SATIN": "https://assets.coingecko.com/coins/images/29169/small/satin.png?1677050689",
+    "SOLISNEK": "https://assets.coingecko.com/markets/images/1121/small/solisnek.jpeg?1681696649",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -90,6 +93,7 @@ export const PROTOCOL_IMAGES = {
     "CRV": TOKEN_IMAGES.CRV,
     "YFI": TOKEN_IMAGES.YFI,
     "CVX": TOKEN_IMAGES.CVX,
+    "SOLISNEK": TOKEN_IMAGES.SOLISNEK,
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",
     "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",
     "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",
@@ -102,6 +106,7 @@ export const PROTOCOL_IMAGES = {
     "STERLING": TOKEN_IMAGES.STR,
     "ARCHLY": TOKEN_IMAGES.ARCHLY,
     "SATIN": TOKEN_IMAGES.SATIN,
+    "CHRONOS": TOKEN_IMAGES.CHRONOS,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(

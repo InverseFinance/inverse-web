@@ -4,7 +4,7 @@ import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
 import { useDOLA, useDOLAMarketData } from '@app/hooks/useDOLA'
-import { usePrices } from '@app/hooks/usePrices'
+import { useDOLAPrice, usePrices } from '@app/hooks/usePrices'
 import { useFirmTVL, useTVL } from '@app/hooks/useTVL'
 import Link from '@app/components/common/Link'
 import Head from 'next/head'
@@ -37,12 +37,12 @@ export const Landing = ({ posts }: {
   const { totalSupply } = useDOLA();
   const { prices } = usePrices();
   const { price: dbrPrice } = useDBRPrice();
+  const { price: dolaPrice } = useDOLAPrice();
   const { tvl } = useTVL();
   const { firmTotalTvl } = useFirmTVL();
   const { data: dolaData } = useDOLAMarketData();
 
-  const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
-  const dolaPrice = prices['dola-usd'] ? prices['dola-usd'].usd : 0;
+  const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;  
 
   const stats = [
     {

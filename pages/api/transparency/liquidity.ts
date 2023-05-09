@@ -13,11 +13,12 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.2`;
+export const liquidityCacheKey = `liquidity-v1.0.5`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
-    "THENA": 'thena',
+    "THENA": 'thena-v1',
+    "THENAV2": 'thena-v2',
     "AURA": 'aura',
     "CRV": 'curve',
     "YFI": 'yearn',
@@ -71,6 +72,9 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.polygon]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.polygon, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.avalanche]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.avalanche, ...lp })),
         ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
@@ -84,9 +88,10 @@ export default async function handler(req, res) {
             [NetworkIds.mainnet]: TWG,
             [NetworkIds.ftm]: multisigsToShow.find(m => m.shortName === 'TWG on FTM')!,
             [NetworkIds.optimism]: multisigsToShow.find(m => m.shortName === 'TWG on OP')!,
-            [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,            
+            [NetworkIds.bsc]: multisigsToShow.find(m => m.shortName === 'TWG on BSC')!,
             [NetworkIds.arbitrum]: multisigsToShow.find(m => m.shortName === 'TWG on ARB 1')!,
             [NetworkIds.polygon]: multisigsToShow.find(m => m.shortName === 'TWG on PLG')!,
+            [NetworkIds.avalanche]: multisigsToShow.find(m => m.shortName === 'TWG on AVAX')!,
         }
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
@@ -94,24 +99,39 @@ export default async function handler(req, res) {
         const prices = (await getCacheFromRedis(pricesCacheKey, false)) || {};
 
         const getPol = async (lp: Token & { chainId: string }) => {
+            // final protocol in the Fed strategy for the lp
             const fedPol = fedPols.find(f => {
-                return f?.strategy?.pools?.[0]?.address === lp.address
+                return f?.strategy?.pools?.[f?.strategy?.pools?.length - 1]?.address?.toLowerCase() === lp.address?.toLowerCase();
             });
+            // case where Fed has an LP that is then staked in a protocol, relatedFedPol is the original protocol for the lp
+            const relatedFedPol = fedPols.find(f => {
+                return !!f?.strategy?.pools?.find(p => p.address?.toLowerCase() === lp.address?.toLowerCase());
+            });
+            const fedPolData = fedPol || relatedFedPol;
+
             const provider = getProvider(lp.chainId);
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
+
+            const yieldData = yields.find(y => {
+                return defiLlamaProjectName === y.project
+                    && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
+            });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
 
             const isDolaMain = lp.symbol.includes('DOLA');
             const virtualTotalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
-            const tvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId || curr.symbol] || 1), 0);
+            const srcTvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId || curr.symbol] || 1), 0);
+            const tvl = yieldData?.tvlUsd || srcTvl;
             const virtualLpPrice = tvl / virtualTotalSupply;
             const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
+            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
+            const dolaPerc = dolaWorth / srcTvl;
 
             let ownedAmount = 0;
             const owned: { [key: string]: number } = {};
-            if (!fedPol) {
+            if (!fedPolData) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
                 if (lp.isCrvLP && !!lp.poolAddress) {
                     const [lpBal, lpSupply] = await Promise.all([
@@ -140,20 +160,14 @@ export default async function handler(req, res) {
                 ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0)
                     * (lp.isStable ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
             } else {
-                ownedAmount = fedPol.supply;
+                ownedAmount = fedPolData.supply;
             }
-            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
 
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
-            const yieldData = yields.find(y => {
-                return defiLlamaProjectName === y.project
-                    && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
-            });
-
             // bb-e-usd exception due to euler exploit to not throw off avgs
-            const apy = lp.address === '0x133d241F225750D2c92948E464A5a80111920331' ? 0 : yieldData?.apy;
+            const apy = lpName.toLowerCase().includes('-bb-e') ? 0 : yieldData?.apy;
 
             return {
                 ...lp,
@@ -167,9 +181,9 @@ export default async function handler(req, res) {
                 owned,
                 ownedAmount,
                 perc,
-                pairingDepth: tvl - dolaWorth,
-                dolaBalance: dolaWorth,
-                dolaWeight: dolaWorth / tvl * 100,
+                pairingDepth: tvl - (tvl * dolaPerc),
+                dolaBalance: tvl * dolaPerc,
+                dolaWeight: dolaPerc * 100,
                 rewardDay: ownedAmount * (apy || 0) / 100 / 365,
                 isFed: !!fedPol,
                 // subBalances,

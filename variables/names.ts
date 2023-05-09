@@ -85,7 +85,8 @@ const namedAddresses: { [key: string]: string } = {
     '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow', 
     '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A': 'FiRMgOHMEscrow', 
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
-    '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMHelper',
+    '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMBalancerHelper',
+    '0xae8165f37FC453408Fb1cd1064973df3E6499a76': 'FiRMCurveHelper',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
@@ -99,7 +100,7 @@ export const ADDRESS_ROLES = {
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'Engineering',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'Growth',
     '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'Growth',
-    '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Community',
+    '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Community, Docs, Videos',
     '0x2723723FDd3Db8ba2D6f0e1B333e90A7E60A0411': 'Risk',
     '0xED9376094Ce37635827E0Cfddc23bFbb6D788469': 'Risk',
     '0x5f151f98D5962938607bf54ebe872B0a4C068238': 'Risk',
@@ -108,8 +109,8 @@ export const ADDRESS_ROLES = {
     '0x8E199c07E9c8D5CCbCA86fF5665A5b171b20D5E7': 'Marketing',
     '0xFDa9365E2CDf21d72cb0dc4F5FF46F29e4aC59CE': 'Analytics',
     '0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb': 'Founder',
-    '0xD32066c2E31961aDf2A6fd0D57326dFf1e33FC29': 'Moderation / Other',
-    '0xC8A6fDd2586AF7980776DC610C159A92E9Db11C3': 'Moderation / Other',
+    '0xD32066c2E31961aDf2A6fd0D57326dFf1e33FC29': 'Moderation, Socials, CEX',
+    '0xC8A6fDd2586AF7980776DC610C159A92E9Db11C3': 'Moderation, Socials, CEX',
     '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'Operations',
 }
 

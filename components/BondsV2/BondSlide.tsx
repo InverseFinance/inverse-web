@@ -134,16 +134,20 @@ export const BondSlide = ({
                     </Text>
                 </HStack>
                 <HStack fontSize="12px" w='full' justify="space-between">
-                    <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='33%' >
+                    <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='25%' >
                         <Text>Bond Market ID: </Text>
                         <Text>{bond.id.toString()}</Text>
                     </Stack>
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='33%' alignItems="center" justify="center">
-                        <Text>Teller Contract: </Text>
+                    <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='25%' >
+                        <Text>Min bond price: </Text>
+                        <Text>{shortenNumber(bond.minPrice, 2, true)}</Text>
+                    </Stack>
+                    <Stack direction={{ base: 'column', sm: 'row' }} w='25%' alignItems="center" justify="center">
+                        <Text>Teller: </Text>
                         <ScannerLink value={BOND_V2_FIXED_TERM_TELLER} />
                     </Stack>
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='33%' alignItems="center" justify="flex-end">
-                        <Text>Bond Contract: </Text>
+                    <Stack direction={{ base: 'column', sm: 'row' }} w='25%' alignItems="center" justify="flex-end">
+                        <Text>Auctioneer: </Text>
                         <ScannerLink value={bond.bondContract} />
                     </Stack>
                 </HStack>

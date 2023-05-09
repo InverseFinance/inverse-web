@@ -2,7 +2,7 @@
 import { useOppys } from '@app/hooks/useMarkets'
 import { NetworkIds, YieldOppy } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
-import { Flex, HStack, Image, Text, VStack } from '@chakra-ui/react';
+import { Flex, HStack, Image, Stack, Text, VStack, useMediaQuery } from '@chakra-ui/react';
 import Container from '@app/components/common/Container';
 import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
@@ -22,7 +22,7 @@ const ColHeader = ({ ...props }) => {
 }
 
 const Cell = ({ ...props }) => {
-    return <HStack fontSize="16px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
+    return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" minWidth="150px" {...props} />
 }
 
 const FilterItem = ({ ...props }) => {
@@ -50,10 +50,12 @@ const projectLinks = {
     'convex-finance': 'https://www.convexfinance.com/stake',
     'aura': 'https://app.aura.finance',
     'stakedao': 'https://lockers.stakedao.org',
-    'thena': 'https://thena.fi/liquidity',
+    'thena-v1': 'https://thena.fi/liquidity',
+    'thena-v2': 'https://thena.fi/liquidity',
     'balancer-v2': 'https://app.balancer.fi/#/ethereum',
     'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
     'velodrome': 'https://app.velodrome.finance/liquidity/manage',
+    'pickle': 'https://app.pickle.finance/farms',
 }
 
 const getPoolLink = (project, pool, underlyingTokens) => {
@@ -78,58 +80,64 @@ const getPoolLink = (project, pool, underlyingTokens) => {
     return poolLinks[pool] || url || projectLinks[project];
 }
 
-const ProjectItem = ({ project }: { project: string }) => {
+const ProjectItem = ({ project, showText = true }: { project: string, showText?: boolean }) => {
     return <>
-        <Image w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
-        <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
+        <Image ignoreFallback={true} alt='' title={project} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
+        {
+            showText && <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
+        }
     </>
 }
 
-const ChainItem = ({ chain }: { chain: string }) => {
+const ChainItem = ({ chain, showText = true }: { chain: string, showText?: boolean }) => {
     return <>
-        <Image w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=24&h=24`} />
-        <Text textTransform="capitalize">{chain}</Text>
+        <Image ignoreFallback={true} alt='' title={chain} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=24&h=24`} />
+        {
+            showText && <Text textTransform="capitalize">{chain}</Text>
+        }
     </>
 }
+
+const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) => {
+    const link = getPoolLink(project, pool, underlyingTokens);
+    let pairs = [];
+    let isFallbackCase = false;
+    try {
+        pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
+    } catch (e) {
+        isFallbackCase = true;
+    }
+    if (isFallbackCase) {
+        try {
+            pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(TOKENS, sym)?.address) : underlyingTokens;
+        } catch (e) { }
+    }
+    const chainId = isFallbackCase ? NetworkIds.mainnet : NETWORKS_BY_NAME[chain]?.id;
+    return <Cell justify="flex-start" minWidth={width} maxWidth={width} overflow="hidden" whiteSpace="nowrap">
+        <HStack onClick={() => gaEvent({ action: `oppys-lp-click-${symbol}-${project}` })}>
+            {
+                pairs?.length > 0 ? <>
+                    {
+                        !!link ?
+                            <Link alignItems='center' textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
+                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                                <ExternalLinkIcon color="info" ml="1" />
+                            </Link>
+                            :
+                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                    }
+                </> : <Text>{symbol}</Text>
+            }
+        </HStack>
+    </Cell>
+};
 
 const columns = [
     {
         field: 'symbol',
-        label: 'Pool Type',
+        label: 'Pool',
         header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
-        value: ({ symbol, pool, project, chain, underlyingTokens }) => {
-            const link = getPoolLink(project, pool, underlyingTokens);
-            let pairs = [];
-            let isFallbackCase = false;
-            try {
-                pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
-            } catch (e) {
-                isFallbackCase = true;
-            }
-            if (isFallbackCase) {
-                try {
-                    pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(TOKENS, sym)?.address) : underlyingTokens;
-                } catch (e) {}
-            }
-            const chainId = isFallbackCase ? NetworkIds.mainnet : NETWORKS_BY_NAME[chain]?.id;
-            return <Cell justify="flex-start" minWidth="330px" maxWidth="330px" overflow="hidden" whiteSpace="nowrap">
-                <HStack borderBottom={!link ? undefined : "1px solid #fff"} onClick={() => gaEvent({ action: `oppys-lp-click-${symbol}-${project}` })}>
-                    {
-                        pairs?.length > 0 ? <>
-                            {
-                                !!link ?
-                                    <Link color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                        <UnderlyingItem textProps={{ fontSize: '12px', ml: '2' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
-                                        <ExternalLinkIcon color="info" ml="1" />
-                                    </Link>
-                                    :
-                                    <UnderlyingItem textProps={{ fontSize: '12px' }} imgSize={15} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
-                            }
-                        </> : <Text>{symbol}</Text>
-                    }
-                </HStack>
-            </Cell>
-        },
+        value: (p) => poolColumn({ ...p, width: '330px' }),
         showFilter: true,
         filterWidth: '320px',
         filterItemRenderer: ({ symbol }) => <FilterItem><Text>{symbol}</Text></FilterItem>
@@ -174,6 +182,52 @@ const columns = [
     },
 ]
 
+const columnsShort = [
+    {
+        field: 'rank',
+        label: 'Rank',
+        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="50px" justify="flex-start">
+            <Text>#{rank}</Text>
+        </Cell>,
+    },
+    {
+        ...columns[0],
+        value: (p) => poolColumn({ ...p, width: '160px' }),
+        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
+        showFilter: false,
+    },
+    {
+        field: 'project',
+        label: 'Project',
+        header: ({ ...props }) => <ColHeader minWidth="60px" justify="center"  {...props} />,
+        value: ({ project }) => <Cell minWidth="60px" justify="center" >
+            <ProjectItem project={project} showText={false} />
+        </Cell>,
+    },
+    {
+        field: 'chain',
+        label: 'Chain',
+        header: ({ ...props }) => <ColHeader minWidth="60px" justify="center"  {...props} />,
+        value: ({ chain }) => <Cell minWidth="60px" justify="center" >
+            <ChainItem chain={chain} showText={false} />
+        </Cell>,
+    },
+    {
+        field: 'apy',
+        label: 'APY',
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
+        value: ({ apy }) => <Cell minWidth="80px" justify="flex-end">
+            <Text fontWeight="bold">{preciseCommify(apy, 2)}%</Text>
+        </Cell>,
+    },
+]
+
+const columnsShortMobile = [
+    columnsShort[1],
+    columnsShort[3],
+];
+
 export const OppysTable = ({
     oppys,
     isLoading,
@@ -187,9 +241,11 @@ export const OppysTable = ({
     useEffect(() => {
         if (category === 'all') {
             setFilteredOppys(oppys);
-        } else {
+        } else if (['dola', 'inv'].includes(category)) {
             const regEx = new RegExp(category, 'i');
             setFilteredOppys(oppys.filter(o => regEx.test(o.symbol)));
+        } else {
+            setFilteredOppys(oppys.filter(o => category === 'stable' ? o.stablecoin : !o.stablecoin));
         }
     }, [oppys, category]);
 
@@ -198,9 +254,9 @@ export const OppysTable = ({
     return <Container
         noPadding
         contentProps={{ p: { base: '2', sm: '8' } }}
-        label="Earn with INV & DOLA on external platforms"
+        label="All yield opportunities"
         description={`DeFi yield opportunities on ${yieldChains} `}
-        href="https://docs.inverse.finance/inverse-finance/yield-opportunities"
+        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#yield-opportunities"
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
@@ -223,6 +279,8 @@ export const OppysTable = ({
                 }}
                 options={[
                     { label: 'All', value: 'all' },
+                    { label: 'Stable', value: 'stable' },
+                    { label: 'Volatile', value: 'volatile' },
                     { label: 'INV', value: 'inv' },
                     { label: 'DOLA', value: 'dola' },
                 ]}
@@ -270,8 +328,55 @@ export const OppysTable = ({
     </Container>
 }
 
+export const OppysTop5 = ({
+    oppys,
+    title,
+    isLoading,
+    isLargerThan = false,
+}: {
+    oppys: YieldOppy[],
+    isLoading?: boolean,
+    isLargerThan?: boolean,
+    title?: string,
+}) => {
+
+    return <Container
+        noPadding        
+        contentProps={{ p: { base: '2', sm: '4' } }}
+        label={title}
+        description={'More infos on Liquidity Pools'}
+        href='https://docs.inverse.finance/inverse-finance/inverse-finance/other/providing-liquidity/dola-liquidity-pools'
+    >
+        {
+            isLoading ? <SkeletonBlob />
+                :
+                <Table
+                    keyName="pool"
+                    showHeader={true}
+                    defaultSort="apy"
+                    defaultSortDir="desc"
+                    columns={isLargerThan ? columnsShort : columnsShortMobile}
+                    items={oppys}
+                    colBoxProps={{ fontWeight: "extrabold" }}
+                />
+        }
+    </Container>
+}
+
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
+    const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
     // temp: dont show bb euler pools
-    return <OppysTable isLoading={isLoading} oppys={oppys.filter(o => !o.symbol.includes('-BB-'))} />
+    const _oppys = oppys.filter(o => !o.symbol.includes('-BB-'));
+
+    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
+    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
+
+    return <VStack alignItems="flex-start">
+        <Stack direction={{ base: 'column', md: 'row' }} w='full'>
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
+            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
+        </Stack>
+        <OppysTable isLoading={isLoading} oppys={_oppys} />
+    </VStack>
 }

@@ -80,14 +80,14 @@ export const CvxCrvPreferences = () => {
                     description={<VStack w='full' alignItems="flex-start" lineHeight="1.5">
                         {
                             !escrow && <Text fontWeight="bold">
-                                NB: You can choose the reward preferences after making a deposit.
+    Note: You can choose the reward preferences after making a deposit.
                             </Text>
                         }
                         <Text>
-                            Staked cvxCRV can earn two groups of rewards: CRV+CVX or 3CRV, or a combination of both groups.
+                            Staked cvxCRV can earn two types of rewards: CRV+CVX or 3CRV, or a combination of both types.
                         </Text>
                         <Text>
-                            By default the weight of the 3CRV rewards are 0% and the weight of the CRV+CVX group reward is 100%.
+                            By default the weight of the 3CRV rewards are 0% and the weight of the CRV+CVX reward is 100%.
                         </Text>
                         <Link href="https://docs.convexfinance.com/convexfinance/guides/depositing/crv" isExternal target="_blank">
                             Read more about how weights work.
@@ -128,7 +128,7 @@ export const CvxCrvPreferences = () => {
                             maxW="300px"                            
                             onClick={handleRewardsRepartitionUpdate}
                         >
-                            Update Rewards Repartition
+                            Update Rewards Allocation
                         </RSubmitButton>
                     </VStack>
                 }

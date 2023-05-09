@@ -5,8 +5,7 @@ import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
 import { useAppTheme } from '@app/hooks/useAppTheme';
-
-type Props = { x: number, y: number }[]
+import { CoordinatesArray } from '@app/types';
 
 const strokeColors = {
     primary: '#8881c9',
@@ -15,7 +14,7 @@ const strokeColors = {
 }
 
 export type AreaChartProps = {
-    data: Props,
+    data: CoordinatesArray,
     title?: string,
     width?: number,
     height?: number,
@@ -26,6 +25,8 @@ export type AreaChartProps = {
     axisStyle?: VictoryAxisProps["style"],
     domainYpadding?: number | 'auto',
     isDollars?: boolean,
+    isPerc?: boolean,
+    autoMinY?: boolean,
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
 };
@@ -43,11 +44,14 @@ export const AreaChart = ({
     domainYpadding = 0,
     mainColor = 'primary',
     isDollars = false,
+    isPerc = false,
+    autoMinY = false,
     titleProps,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
+    const minY = data.length > 0 ? Math.min(...data.map(d => d.y)) : 0;
     const { themeStyles } = useAppTheme();
     
     const _axisStyle = axisStyle || {
@@ -84,7 +88,7 @@ export const AreaChart = ({
                         labelComponent={<FlyoutTooltip />}
                         labels={({ datum }) => {
                             return (
-                                moment(datum.x).format('MMM Do YYYY') + '\n' + shortenNumber(datum.y, 2, isDollars)
+                                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
                             )
                         }}
                     />
@@ -93,10 +97,10 @@ export const AreaChart = ({
                 {
                     !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                 }
-                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => shortenNumber(t, 0, isDollars)} />
+                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, 0, isDollars)}${isPerc ? '%' : ''}`} />
                 <VictoryAxis style={_axisStyle} />
                 <VictoryArea
-                    domain={{ y: [0, maxY + _yPad] }}
+                    domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
                     groupComponent={<VictoryClipContainer clipId="area-chart" />}
                     data={data}
                     labelComponent={
@@ -109,7 +113,7 @@ export const AreaChart = ({
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2)}` : ''
+                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : ''
                         }
                     }
                     style={{
