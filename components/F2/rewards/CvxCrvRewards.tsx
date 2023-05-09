@@ -2,9 +2,10 @@ import Container from "@app/components/common/Container";
 import { ZapperTokens } from "./ZapperTokens"
 import { claim } from "@app/util/firm-extra";
 import { JsonRpcSigner } from "@ethersproject/providers";
-import { InfoMessage } from "@app/components/common/Messages";
+import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { F2Market } from "@app/types";
 import Link from "@app/components/common/Link";
+import { useState } from "react";
 
 export const CvxCrvRewards = ({
     escrow,
@@ -25,9 +26,14 @@ export const CvxCrvRewards = ({
     defaultCollapse?: boolean
     market: F2Market
 }) => {
+    const [hasJustClaimed, setHasJustClaimed] = useState(false);
 
     const handleClaim = async () => {
         return claim(escrow, signer);
+    }
+
+    const handleClaimSuccess = () => {
+        setHasJustClaimed(true);
     }
 
     return <Container
@@ -41,12 +47,22 @@ export const CvxCrvRewards = ({
         </Link> : undefined}
     >
         {
-            totalRewardsUSD > 0 ?
-                <ZapperTokens showMarketBtn={showMarketBtn} market={market} claimables={claimables} totalRewardsUSD={totalRewardsUSD} handleClaim={handleClaim} />
+            hasJustClaimed ?
+                <SuccessMessage description="Rewards claimed!" />
                 :
-                <InfoMessage
-                    description="This market has rewards but you don't have any at the moment"
-                />
+                totalRewardsUSD > 0 ?
+                    <ZapperTokens
+                        showMarketBtn={showMarketBtn}
+                        market={market}
+                        claimables={claimables}
+                        totalRewardsUSD={totalRewardsUSD}
+                        handleClaim={handleClaim}
+                        onSuccess={handleClaimSuccess}
+                    />
+                    :
+                    <InfoMessage
+                        description="This market has rewards but you don't have any at the moment"
+                    />
         }
     </Container>
 }

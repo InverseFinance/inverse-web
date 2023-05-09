@@ -72,7 +72,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
-  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v8`, fetcher);
+  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v11`, fetcher);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)

@@ -9,6 +9,7 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { F2MarketContext } from "../F2Contex";
 import { setRewardWeight } from "@app/util/firm-extra";
 import useEtherSWR from "@app/hooks/useEtherSWR";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 export const CvxCrvWeightBar = ({
     perc,
@@ -68,7 +69,7 @@ export const CvxCrvPreferences = () => {
     const hasChanged = perc !== defaultPerc;
 
     const handleRewardsRepartitionUpdate = async () => {
-        if (!escrow || !hasChanged || !signer) { return }
+        if (!escrow || escrow === BURN_ADDRESS || !hasChanged || !signer) { return }
         return setRewardWeight(escrow, perc * 100, signer);
     }
 
@@ -79,7 +80,7 @@ export const CvxCrvPreferences = () => {
                     alertProps={{ w: 'full', fontSize: '16px' }}
                     description={<VStack w='full' alignItems="flex-start" lineHeight="1.5">
                         {
-                            !escrow && <Text fontWeight="bold">
+                            (!escrow || escrow === BURN_ADDRESS) && <Text fontWeight="bold">
     Note: You can choose the reward preferences after making a deposit.
                             </Text>
                         }
@@ -95,6 +96,7 @@ export const CvxCrvPreferences = () => {
                     </VStack>}
                 />
                 {
+                    (!!escrow && escrow !== BURN_ADDRESS) && 
                     <VStack w='full' spacing="4" maxW='900px' alignItems="center">
                         <HStack fontSize="17px" fontWeight="bold" w='full' justify="space-between">
                             <Stack direction={{ base: 'column-reverse', sm: 'row' }} alignItems='center'>                                
@@ -114,7 +116,7 @@ export const CvxCrvPreferences = () => {
                             showAsRepartition={false}
                             onChange={setPerc}
                             tickProps={{
-                                fontSize: '18px',
+                                fontSize: '16px',
                                 fontWeight: 'bold',
                                 textDecoration: 'underline',
                                 style: { 'text-decoration-skip-ink': 'none' }

@@ -3,6 +3,7 @@ import { CvxCrvRewards } from "./CvxCrvRewards";
 import { useContext } from "react";
 import { useEscrowRewards } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 export const FirmRewardWrapper = ({
     market,
@@ -14,15 +15,36 @@ export const FirmRewardWrapper = ({
     showMarketBtn?: boolean
 }) => {
     const { escrow } = useContext(F2MarketContext);
+    if (!escrow || escrow === BURN_ADDRESS) return <></>;
+
+    return <FirmRewardWrapperContent
+        market={market}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        escrow={escrow}
+    />
+}
+
+export const FirmRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    escrow,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+}) => {
     const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
     const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
-    
+
     return <FirmRewards
-        market={market}        
+        market={market}
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
-        isLoading={isLoading}        
+        isLoading={isLoading}
     />
 }
 
@@ -30,7 +52,7 @@ export const FirmRewards = ({
     market,
     rewardsInfos,
     label,
-    showMarketBtn = false,    
+    showMarketBtn = false,
     isLoading,
 }: {
     market: F2Market
@@ -39,7 +61,7 @@ export const FirmRewards = ({
     showMarketBtn?: boolean
     isLoading?: boolean
 }) => {
-    const { escrow, signer } = useContext(F2MarketContext);    
+    const { escrow, signer } = useContext(F2MarketContext);
 
     const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)

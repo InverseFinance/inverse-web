@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const APP_GROUPS = F2_MARKETS.filter(m => !!m.zapperAppGroup).map(m => m.zapperAppGroup);
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, fresh !== 'true', 60000);
+    const validCache = await getCacheFromRedis(cacheKey, fresh !== 'true', 60);
     if (validCache) {
       res.status(200).json(validCache);
       return

@@ -10,6 +10,7 @@ export const ZapperTokens = ({
     claimables,
     totalRewardsUSD,
     handleClaim,
+    onSuccess,
     market,
     showMarketBtn = false,
 }: {
@@ -18,6 +19,7 @@ export const ZapperTokens = ({
     market: F2Market,
     showMarketBtn?: boolean,
     handleClaim: () => void,
+    onSuccess?: () => void,
 }) => {
     return <VStack spacing='4' w='full' alignItems="flex-start">
         <Stack spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
@@ -26,7 +28,12 @@ export const ZapperTokens = ({
                 <Text color="success" fontWeight="extrabold" fontSize="20px">{preciseCommify(totalRewardsUSD, 2, true)}</Text>
             </HStack>
             {
-                totalRewardsUSD > 0.1 && <RSubmitButton disabled={!totalRewardsUSD} fontSize='16px' onClick={() => handleClaim()}>
+                totalRewardsUSD > 0.1 && <RSubmitButton
+                    disabled={!totalRewardsUSD}
+                    fontSize='16px'
+                    onClick={() => handleClaim()}
+                    onSuccess={onSuccess}
+                >
                     Claim rewards
                 </RSubmitButton>
             }
