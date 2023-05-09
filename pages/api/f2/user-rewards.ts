@@ -33,18 +33,20 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
 
     const userEscrows = await Promise.all(
-      F2_MARKETS.map(market => {
-        const contract = new Contract(market.address, F2_MARKET_ABI, provider);
-        return contract.escrows(user); 
-      })
+      F2_MARKETS
+        .filter(market => market.hasClaimableRewards)
+        .map(market => {
+          const contract = new Contract(market.address, F2_MARKET_ABI, provider);
+          return contract.escrows(user);
+        })
     );
 
     const activeEscrows = userEscrows.filter(escrow => escrow !== BURN_ADDRESS);
 
     const pointsData = await getZapperRemainingPoints();
-    const data = pointsData.hasPoints ? await getZapperApps(activeEscrows) : [];
+    const data = pointsData.hasPoints && activeEscrows.length ? await getZapperApps(activeEscrows) : [];
 
-    let appGroupPositions = formatAndFilterZapperData(data, APP_GROUPS);    
+    let appGroupPositions = formatAndFilterZapperData(data, APP_GROUPS);
 
     const resultData = {
       timestamp: +(new Date()),
@@ -63,9 +65,12 @@ export default async function handler(req, res) {
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
+      } else {
+        res.status(200).json({ status: 'ko' });
       }
     } catch (e) {
       console.error(e);
+      res.status(200).json({ status: 'ko' });
     }
   }
 }

@@ -74,7 +74,7 @@ export const CvxCrvPreferences = () => {
     }
 
     return <Stack w='full' direction={{ base: 'column', md: 'row' }}>
-        <Container label='Rewards Preferences' collapsable={true} defaultCollapse={true} noPadding p='0'>
+        <Container label='Rewards Preferences' collapsable={true} defaultCollapse={false} noPadding p='0'>
             <Stack direction={{ base: 'column', md: 'row' }} spacing="8" w='full' alignItems="center" p="2">
                 <InfoMessage
                     alertProps={{ w: 'full', fontSize: '16px' }}
