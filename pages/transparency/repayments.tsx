@@ -147,9 +147,9 @@ export const ShortfallsPage = () => {
     };
   }).filter(item => item.badDebtBalance > 0.1);
 
-  const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0)||0;
+  const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
   const item = items.find(item => item.symbol.toLowerCase() === selected);
-  const totalBadDebtReducedUsd = totalBadDebtReduced * prices[item?.coingeckoId]?.usd||1;
+  const totalBadDebtReducedUsd = totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1;
 
   return (
     <Layout>
@@ -166,6 +166,18 @@ export const ShortfallsPage = () => {
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
+          <Container
+              noPadding>
+              <DefaultCharts
+                barProps={{ eventName: 'Repayment' }}
+                direction={'row'}
+                showMonthlyBarChart={false}
+                maxChartWidth={1200}
+                chartData={dolaBadDebtEvo}
+                isDollars={false}
+                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, interpolation: 'stepAfter' }}
+              />
+            </Container>
             <Container
               noPadding
               label={
@@ -179,7 +191,7 @@ export const ShortfallsPage = () => {
               right={
                 <VStack spacing="0" alignItems="flex-end">
                   <Text fontWeight="bold">{preciseCommify(totalBadDebtReducedUsd, 0, true)}</Text>
-                  <Text>{preciseCommify(totalBadDebtReduced, selected === 'dola' ? 0 : 2)} {selected.toUpperCase()}</Text>                  
+                  <Text>{preciseCommify(totalBadDebtReduced, selected === 'dola' ? 0 : 2)} {selected.toUpperCase()}</Text>
                 </VStack>
               }
             >
@@ -192,16 +204,7 @@ export const ShortfallsPage = () => {
                 isDollars={false}
                 areaProps={{ showMaxY: false, showTooltips: true }}
               />
-            </Container>            
-            <DefaultCharts
-                barProps={{ eventName: 'Repayment' }}
-                direction={'row'}
-                showMonthlyBarChart={false}
-                maxChartWidth={700}
-                chartData={dolaBadDebtEvo}
-                isDollars={false}
-                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, interpolation: 'stepAfter' }}
-              />
+            </Container>          
           </Stack>
           <Container
             noPadding

@@ -9,6 +9,7 @@ import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
+import { dolaFrontierDebts } from "@app/fixtures/dola";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
@@ -105,7 +106,7 @@ export default async function handler(req, res) {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => event.blockNumber);
-            }).flat();
+            }).flat().concat(dolaFrontierDebts.blocks);
 
         await addBlockTimestamps(blocksNeedingTs, '1');
         const timestamps = await getCachedBlockTimestamps();
@@ -113,7 +114,7 @@ export default async function handler(req, res) {
         const [wbtcRepayedByDAO, ethRepayedByDAO, yfiRepayedByDAO, dolaRepayedByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
-                    return [TREASURY, TWG].includes(event.args.payer);
+                    return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => {
                     return {
                         blocknumber: event.blockNumber,
@@ -152,25 +153,25 @@ export default async function handler(req, res) {
             return { event, sold, soldFor, symbol };
         });
 
-        badDebts['DOLA'].repaidViaDwf = repayments.dwf;        
-        
+        badDebts['DOLA'].repaidViaDwf = repayments.dwf;
+
         // todo: account for bad debt interest accrual
         const badDebtEvents = [
-            {
-                timestamp: 1648857600000, // april 2nd 2022
-                amount: -3612193,//-3650000,
-                eventPointLabel: 'Frontier Exploit',
-            },
-            {
-                timestamp: 1651276800000, // april 30th
-                amount: -522830,
-                eventPointLabel: 'Fuse Exploit',
-            },
-            {
-                timestamp: 1655337600000, // 16 june
-                amount: -5866992,//-5830000,
-                eventPointLabel: 'Frontier June Exploit',
-            },
+            // {
+            //     timestamp: 1648857600000, // april 2nd 2022
+            //     amount: -3612193,//-3650000,
+            //     eventPointLabel: 'Frontier Exploit',
+            // },
+            // {
+            //     timestamp: 1651276800000, // april 30th
+            //     amount: -522830,
+            //     eventPointLabel: 'Fuse Exploit',
+            // },
+            // {
+            //     timestamp: 1655337600000, // 16 june
+            //     amount: -5866992,//-5830000,
+            //     eventPointLabel: 'Frontier June Exploit',
+            // },
             {
                 timestamp: 1663632000000, // 20 sep
                 amount: 354830,
@@ -183,7 +184,7 @@ export default async function handler(req, res) {
             },
         ];
 
-        const allDolaDeltas = [...dolaRepayedByDAO, ...badDebtEvents].sort((a, b) => a.timestamp - b.timestamp);
+        // const allDolaDeltas = [...dolaRepayedByDAO, ...badDebtEvents].sort((a, b) => a.timestamp - b.timestamp);
 
         const dolaBadDebtEvolution = [
             {
