@@ -9,7 +9,7 @@ import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
-import { dolaFrontierDebts } from "@app/fixtures/dola";
+import { dolaFrontierDebts } from "@app/fixtures/frontier-dola";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
@@ -91,8 +91,6 @@ export default async function handler(req, res) {
             getCacheFromRedis(fedOverviewCacheKey, false),
         ]);
 
-        // TODO: add repayments for non-frontier feds
-
         const fedOverviews = fedsOverviewData?.fedOverviews || [];
         const nonFrontierDolaBadDebt = fedOverviews
             .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
@@ -106,7 +104,9 @@ export default async function handler(req, res) {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => event.blockNumber);
-            }).flat().concat(dolaFrontierDebts.blocks);
+            })
+                .flat()
+                .concat(dolaFrontierDebts.blocks);
 
         await addBlockTimestamps(blocksNeedingTs, '1');
         const timestamps = await getCachedBlockTimestamps();
@@ -155,48 +155,41 @@ export default async function handler(req, res) {
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
 
-        // todo: account for bad debt interest accrual
         const badDebtEvents = [
-            // {
-            //     timestamp: 1648857600000, // april 2nd 2022
-            //     amount: -3612193,//-3650000,
-            //     eventPointLabel: 'Frontier Exploit',
-            // },
-            // {
-            //     timestamp: 1651276800000, // april 30th
-            //     amount: -522830,
-            //     eventPointLabel: 'Fuse Exploit',
-            // },
-            // {
-            //     timestamp: 1655337600000, // 16 june
-            //     amount: -5866992,//-5830000,
-            //     eventPointLabel: 'Frontier June Exploit',
-            // },
+            {
+                timestamp: 1651276800000, // april 30th
+                nonFrontierDelta: 522830,
+                eventPointLabel: 'Fuse Exploit',
+            },
             {
                 timestamp: 1663632000000, // 20 sep
-                amount: 354830,
+                nonFrontierDelta: -354830,
                 eventPointLabel: 'Sep. Fuse Repayment',
             },
             {
-                timestamp: 1679961600000,// 28 mars 2023
-                amount: -863157,
+                timestamp: 1678665600000,// 13 mars 2023
+                nonFrontierDelta: 863157,
                 eventPointLabel: 'Euler Exploit',
             },
         ];
 
-        // const allDolaDeltas = [...dolaRepayedByDAO, ...badDebtEvents].sort((a, b) => a.timestamp - b.timestamp);
+        const frontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
+            const delta = badDebt - dolaFrontierDebts.totals[i - 1];
+            return {
+                timestamp: timestamps["1"][dolaFrontierDebts.blocks[i]] * 1000,
+                frontierBadDebt: badDebt,
+                frontierDelta: delta,
+            };
+        });
+        const dolaBadDebtEvolution = [...frontierDolaEvolution, ...badDebtEvents].sort((a, b) => a.timestamp - b.timestamp);
 
-        const dolaBadDebtEvolution = [
-            {
-                badDebt: 0,
-                amount: 0,
-                timestamp: 1642000000000,
-            },
-        ];
-
-        allDolaDeltas.forEach(({ amount, timestamp, eventPointLabel }) => {
-            const lastValue = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
-            dolaBadDebtEvolution.push({ timestamp, badDebt: lastValue - amount, delta: -amount, eventPointLabel });
+        dolaBadDebtEvolution.forEach((ev, i) => {
+            if (i > 0) {
+                const last = dolaBadDebtEvolution[i - 1];
+                dolaBadDebtEvolution[i].badDebt = last.badDebt + (ev.frontierDelta || ev.nonFrontierDelta);
+            } else {
+                dolaBadDebtEvolution[i].badDebt = dolaBadDebtEvolution[i].frontierBadDebt;
+            }
         });
 
         const resultData = {

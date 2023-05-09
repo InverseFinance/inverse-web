@@ -134,8 +134,10 @@ export const ShortfallsPage = () => {
   const { prices } = usePrices();
   const [selected, setSelected] = useState('dola');
   const { chartData } = useEventsAsChartData(data[`${selected}RepayedByDAO`] || [], '_acc_', 'amount', false, false);
-  const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
-
+  const { chartData: _dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
+  const dolaBadDebtEvo = _dolaBadDebtEvo.filter(d => d.x > 1672531200000);
+  // console.log(_dolaBadDebtEvo)
+  // console.log(dolaBadDebtEvo)
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
     return {
@@ -175,7 +177,7 @@ export const ShortfallsPage = () => {
                 maxChartWidth={1200}
                 chartData={dolaBadDebtEvo}
                 isDollars={false}
-                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, interpolation: 'stepAfter' }}
+                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, interpolation: 'stepAfter', mainColor: 'info' }}
               />
             </Container>
             <Container
