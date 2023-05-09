@@ -52,7 +52,7 @@ export const MENUS = {
         },
         {
           label: 'FiRM rewards',
-          href: '/firm',
+          href: '/firm/rewards',
         },
         {
           label: 'Liquidate Loans',
