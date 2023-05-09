@@ -5,7 +5,7 @@ import { NetworkIds } from '@app/types';
 export enum FIRM_ESCROWS {
     'simple' = '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
     'gOHM' = '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',
-    'cvxCRV' = '0x9e7F7d0E8b8F38e3CF2b3F7dd362ba2e9E82baa4',
+    'cvxCRV' = '0x2F32a5E5E000d1a7257090DF260fC08F0Bab2125',
 }
 
 const mainConfig = {
@@ -57,7 +57,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'Yield-Bearing',
-            badgeProps: { bgColor: 'success', color: 'white' },
+            badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             startingBlock: 16441143,
         },
         {
@@ -68,7 +68,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'Keep Voting',
-            badgeProps: { bgColor: 'accentTextColor', color: 'white' },
+            badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             isGovTokenCollateral: true,
             govLink: 'https://snapshot.org/#/olympusdao.eth',
             startingBlock: 16657838,
@@ -86,12 +86,12 @@ const mainConfig = {
         {
             name: 'cvxCRV',
             collateral: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
-            address: '0x0724F18B2aA7D6413D3fDcF6c0c27458a8170Dd9',
+            address: '0x3474ad0e3a9775c9F68B415A7a9880B0CAB9397a',
             escrowImplementation: FIRM_ESCROWS.cvxCRV,            
             helper: true,
             oracleType: "curve-ema",
             badgeInfo: 'Keep Rewards',
-            badgeProps: { bgColor: 'accentTextColor', color: 'white' },
+            badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,
             zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
         },
