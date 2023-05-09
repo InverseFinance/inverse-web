@@ -54,6 +54,7 @@ const chainTokenAddresses = {
     MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+    CVXCRV: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
     CRV: '0xD533a949740bb3306d119CC777fa900bA034cd52',
     VLCVX: '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
     VLAURA: '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
@@ -685,6 +686,14 @@ const chainTokens = {
       image: TOKEN_IMAGES.CVX,
       decimals: 18,
       coingeckoId: 'convex-finance',
+    },
+    [chainTokenAddresses["1"].CVXCRV]: {
+      address: chainTokenAddresses["1"].CVXCRV,
+      name: 'cvxCRV',
+      symbol: 'cvxCRV',
+      image: TOKEN_IMAGES.cvxCRV,
+      decimals: 18,
+      coingeckoId: 'convex-crv',
     },
     [chainTokenAddresses["1"].CRV]: {
       address: chainTokenAddresses["1"].CRV,

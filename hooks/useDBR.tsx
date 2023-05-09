@@ -1,4 +1,4 @@
-import { BALANCER_VAULT_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
+import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
@@ -72,7 +72,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
-  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v8`, fetcher);
+  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v11`, fetcher);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
@@ -199,7 +199,7 @@ export const useAccountDBRMarket = (
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
-    abi: F2_SIMPLE_ESCROW_ABI,
+    abi: F2_ESCROW_ABI,
   });
   const bnDeposits = (escrowData && escrow ? escrowData[0] : zero);
 

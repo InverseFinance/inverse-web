@@ -347,7 +347,7 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + dbrCoverDebt : deltaDebt)
+                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt*(1+parseFloat(dbrBuySlippage||0)/100)) : deltaDebt)
                     && <WarningMessage alertProps={{ w: 'full' }} description={
                         `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt + deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
                     } />

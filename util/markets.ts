@@ -182,6 +182,13 @@ export const getStethData = async () => {
     return [];
 }
 
+export const getCvxCrvData = async () => {
+    try {
+        return getPoolYield('ef32dd3b-a03b-4f79-9b65-8420d7e04ad0');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getGOhmData = async () => {
     try {        
         const results = await fetch("https://api.thegraph.com/subgraphs/name/olympusdao/olympus-protocol-metrics", {

@@ -225,3 +225,32 @@ export const useDBRDebtHisto = (): SWR & {
     isError: error,
   }
 }
+
+
+export const useEscrowRewards = (escrow: string): SWR & {
+  appGroupPositions: any[],
+  timestamp: number,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow||''}`, fetcher);
+
+  return {
+    appGroupPositions: data?.appGroupPositions || [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useUserRewards = (user: string): SWR & {
+  appGroupPositions: any[],
+  timestamp: number,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user||''}`, fetcher);
+
+  return {
+    appGroupPositions: data?.appGroupPositions || [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}

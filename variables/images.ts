@@ -32,6 +32,7 @@ export const TOKEN_IMAGES = {
     "AVAX": "https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png?1670992574",
     "CASH": "https://assets.coingecko.com/coins/images/27558/small/cash.png?1677063931",
     "MATIC": "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912",
+    "cvxCRV": 'https://assets.coingecko.com/coins/images/15586/small/convex-crv.png?1621255952',
     "MAI": "https://assets.coingecko.com/coins/images/15264/small/mimatic-red.png?1620281018",
     "ETH": "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
     "DAI": "https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png",

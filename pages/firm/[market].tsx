@@ -19,6 +19,8 @@ import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
 import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
+import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
+import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -40,7 +42,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     }
 
     const toggleWalkthrough = () => {
-        router.replace({ hash: isWalkthrough ? '' : 'step1', query: router.query })        
+        router.replace({ hash: isWalkthrough ? '' : 'step1', query: router.query })
     }
 
     return (
@@ -52,7 +54,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
-            <ErrorBoundary description="Error in the market page, please try reloading">            
+            <ErrorBoundary description="Error in the market page, please try reloading">
                 {
                     !f2market || !market ? <Text mt="8">
                         {!f2market ? 'Loading...' : 'Market not found!'}
@@ -129,17 +131,23 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 alignItems="center"
                                                 w='full'
                                                 direction={{ base: 'column', lg: 'row' }}
-                                                spacing="12"
+                                                spacing="6"
                                             >
                                                 <ErrorBoundary description="Error in the standard mode, please try reloading">
+                                                    {
+                                                        (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
+                                                    }
                                                     <F2CombinedForm />
                                                 </ErrorBoundary>
+                                                {
+                                                    (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
+                                                }
                                                 {
                                                     (f2market.isGovTokenCollateral) && <FirmGovToken />
                                                 }
                                             </VStack>
                                 }
-                                <FirmFAQ collapsable={true} defaultCollapse={false} />                            
+                                <FirmFAQ collapsable={true} defaultCollapse={false} />
                             </VStack>
                         </F2Context>
                 }

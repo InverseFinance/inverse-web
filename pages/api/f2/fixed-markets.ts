@@ -5,11 +5,11 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getGOhmData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvData, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.97`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.0`;
 
 export default async function handler(req, res) {
 
@@ -136,15 +136,17 @@ export default async function handler(req, res) {
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
       getGOhmData(),
+      getCvxCrvData(),
     ]);
 
-    const [stethData, gohmData] = externalYieldResults.map(r => {
+    const [stethData, gohmData, cvxCrvData] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
     const externalApys = {
       'stETH': stethData?.apy||0,
       'gOHM': gohmData?.apy||0,
+      'cvxCRV': cvxCrvData?.apy||0,
     }
 
     const markets = F2_MARKETS.map((m, i) => {
