@@ -1,6 +1,8 @@
 import { AlchemyProvider, InfuraProvider, CloudflareProvider, JsonRpcProvider, FallbackProvider } from "@ethersproject/providers";
 import { NetworkIds } from '@app/types';
 import { getRandomFromStringList } from './misc';
+import { Contract } from "ethers";
+import { AbiCoder } from "ethers/lib/utils";
 
 export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
     if(chainId === '31337') {
@@ -35,4 +37,16 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     }
 
     return new FallbackProvider(providers, 1);
+}
+
+/** provider needs to support historical data, example: AlchemyProvider */
+export const getHistoricValue = (contract: Contract, block: number, functionName: string, args: any[]) => {
+    const functionSignature = contract.interface.getSighash(functionName);
+    const functionInputTypes = contract.interface.fragments
+        .find(f => f.name === functionName && f.type === 'function')?.inputs.map(i => i.type) || [];
+    const callData = (new AbiCoder().encode(functionInputTypes, args)).replace('0x', '');
+    return contract.provider.call({
+        to: contract.address,
+        data: functionSignature + callData,
+    }, block);
 }
