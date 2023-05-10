@@ -59,10 +59,18 @@ const columns = [
         field: 'supplyApy',
         label: 'Intrinsic APY',
         tooltip: 'The APY provided by the asset itself and that is kept even after supplying, this is not an additional APY from FiRM',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ supplyApy, price, underlying }) => {
-            return <Cell minWidth="100px" justify="center" fontSize="15px">
-                <AnchorPoolInfo protocolImage={underlying.protocolImage} value={supplyApy} priceUsd={price} symbol={underlying.symbol} type={'supply'} textProps={{ textAlign: "end" }} />
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        value: ({ supplyApy, supplyApyLow, price, underlying }) => {
+            return <Cell direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="15px">
+                <AnchorPoolInfo
+                    protocolImage={underlying.protocolImage}
+                    value={supplyApy}
+                    valueLow={supplyApyLow}
+                    priceUsd={price}
+                    symbol={underlying.symbol}
+                    type={'supply'}
+                    textProps={{ textAlign: "end" }}
+                />
             </Cell>
         },
     },
@@ -70,9 +78,9 @@ const columns = [
         field: 'oracleType',
         label: 'Oracle Type',
         tooltip: <OracleTypeTooltipContent />,
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ oracleType, underlying }) => {
-            return <Cell alignItems="center" minWidth="150px" justify="center" fontSize="15px">
+            return <Cell alignItems="center" minWidth="100px" justify="center" fontSize="15px">
                 <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
             </Cell>
         },

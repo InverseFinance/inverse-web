@@ -694,6 +694,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.cvxCRV,
       decimals: 18,
       coingeckoId: 'convex-crv',
+      protocolImage: PROTOCOL_IMAGES.CVX,
     },
     [chainTokenAddresses["1"].CRV]: {
       address: chainTokenAddresses["1"].CRV,

@@ -31,7 +31,7 @@ export const OracleType = ({
 <Stack alignItems="center" spacing="1" direction="row">
             {
                 showTooltip && <InfoTooltip
-                    iconProps={{ boxSize: 3 }}
+                    iconProps={{ boxSize: 2.5 }}
                     tooltipProps={{
                         className: 'blurred-container info-bg',
                         borderColor: 'info',
@@ -41,8 +41,8 @@ export const OracleType = ({
                 />
             }
             {showImage && <Image src={`/assets/oracles/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
-            {showText && <Text>{capitalize(oracleType)}+PPO</Text>}
+            {showText && <Text>{capitalize(oracleType)}</Text>}
         </Stack>
-        {!!subText && <Text>+{capitalize(subText)}</Text>}
+        <Text>{!!subText ? `+${capitalize(subText)}` : ''}+PPO</Text>
     </Stack>
 }
