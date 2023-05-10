@@ -358,3 +358,7 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
 }
+
+export const zapperRefresh = (account: string) => {    
+    return fetch(`/api/f2/rewards-post?account=${account||''}`);
+}

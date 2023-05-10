@@ -6,9 +6,11 @@ import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { F2Market } from "@app/types";
 import Link from "@app/components/common/Link";
 import { useState } from "react";
+import { zapperRefresh } from "@app/util/f2";
 
 export const CvxCrvRewards = ({
     escrow,
+    account,
     signer,
     claimables,
     totalRewardsUSD,
@@ -18,6 +20,7 @@ export const CvxCrvRewards = ({
     market,
 }: {
     escrow: string,
+    account: string,
     claimables: any,
     totalRewardsUSD: number,
     signer: JsonRpcSigner,
@@ -34,6 +37,7 @@ export const CvxCrvRewards = ({
 
     const handleClaimSuccess = () => {
         setHasJustClaimed(true);
+        zapperRefresh(account);
     }
 
     return <Container
@@ -50,7 +54,7 @@ export const CvxCrvRewards = ({
             hasJustClaimed ?
                 <SuccessMessage description="Rewards claimed!" />
                 :
-                totalRewardsUSD > 0 ?
+                totalRewardsUSD > 0.1 ?
                     <ZapperTokens
                         showMarketBtn={showMarketBtn}
                         market={market}
@@ -61,7 +65,7 @@ export const CvxCrvRewards = ({
                     />
                     :
                     <InfoMessage
-                        description="This market has rewards but you don't have any at the moment"
+                        description="This market has rewards but you don't have any at the moment, it will show when when you have at least $0.1 worth of rewards."
                     />
         }
     </Container>

@@ -10,6 +10,8 @@ import { preciseCommify } from '@app/util/misc'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { FirmRewards } from '@app/components/F2/rewards/FirmRewardWrapper'
+import { useEffect } from 'react'
+import { zapperRefresh } from '@app/util/f2'
 
 export const FirmRewardsPage = () => {
     const account = useAccount();
@@ -27,6 +29,11 @@ export const FirmRewardsPage = () => {
 
     const depositsWithRewards = accountMarkets?.filter(m => m.hasClaimableRewards)
         .reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
+
+    useEffect(() => {
+        if(!account) { return }
+        zapperRefresh(account);
+    }, [account]);
 
     return (
         <Layout>

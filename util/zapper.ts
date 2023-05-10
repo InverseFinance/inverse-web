@@ -1,9 +1,10 @@
 const baseUrl = 'https://api.zapper.xyz'
 
-export const getZapperApps = async (accounts: string[]) => {
-    const path = `/v2/balances/apps?addresses%5B%5D=${accounts.join('%2C')}&networks%5B%5D=ethereum`
+export const getZapperApps = async (accounts: string[], needFresh = false) => {
+    const addressesQueryString = accounts.map(ad => `addresses%5B%5D=${ad}`).join('&');
+    const path = `/v2/balances/apps?${addressesQueryString}&networks%5B%5D=ethereum`
     const res = await fetch(`${baseUrl}${path}`, {
-        method: 'GET',
+        method: needFresh ? 'POST' : 'GET',
         headers: {
             'accept': "*/*",
             'Authorization': `Basic ${Buffer.from(`${process.env.ZAPPER_KEY}:`, "binary").toString("base64")}`,
@@ -61,4 +62,17 @@ export const getZapperRemainingPoints = async () => {
     const hasPoints = pointsRemaining > 0;
 
     return { hasPoints, pointsRemaining };
+}
+
+export const getZapperJobStatus = async (jobId: string) => {
+    const path = `/v2/balances/job-status?jobId=${jobId}`
+    const res = await fetch(`${baseUrl}${path}`, {
+        method: 'GET',
+        headers: {
+            'accept': "*/*",
+            'Authorization': `Basic ${Buffer.from(`${process.env.ZAPPER_KEY}:`, "binary").toString("base64")}`,
+        },
+    });
+
+    return await res.json();   
 }

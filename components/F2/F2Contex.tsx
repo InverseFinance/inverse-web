@@ -69,6 +69,7 @@ export const F2Context = ({
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
+    const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
     const [mode, setMode] = useState('Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
@@ -270,6 +271,8 @@ export const F2Context = ({
             dbrSellAmount,
             escrow,
             dbrBuySlippage,
+            needRefreshRewards,
+            setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,
             setInfoTab,
