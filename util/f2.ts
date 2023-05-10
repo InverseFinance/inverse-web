@@ -153,11 +153,11 @@ export const f2approxDbrAndDolaNeeded = async (
     }
     const dbrNeeded = approx[1];
 
-    const dbrCostSlippage = parseFloat(dbrBuySlippage) + 100;
-    const dbrAmountSlippage = 100 - parseFloat(dbrBuySlippage);
-    const dolaForDbrWithSlippage = dolaForDbr.mul(dbrCostSlippage).div(100);
+    const dbrCostSlippage = 10000 + parseFloat(dbrBuySlippage) * 100;
+    const dbrAmountSlippage = 10000 - parseFloat(dbrBuySlippage) * 100;
+    const dolaForDbrWithSlippage = dolaForDbr.mul(dbrCostSlippage).div(10000);
     const maxDola = dolaForDbrWithSlippage.add(dolaAmount);
-    const minDbr = dbrNeeded.mul(dbrAmountSlippage).div(100);
+    const minDbr = dbrNeeded.mul(dbrAmountSlippage).div(10000);
     const bns = { minDbr, maxDola, dolaForDbrWithSlippage, dolaForDbr, totalDolaNeeded, dbrNeeded };
     const nums = Object.entries(bns).reduce(
         (prev, [k, v]) => {
@@ -178,7 +178,6 @@ export const f2depositAndBorrowHelper = async (
     helperType = DEFAULT_FIRM_HELPER_TYPE,
 ) => {
     const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, helperType);
-    console.log(approx)
 
     const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDola, 'BorrowOnBehalf');
     const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(helperType, durationDays, approx);
