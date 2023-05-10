@@ -359,6 +359,11 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
 }
 
-export const zapperRefresh = (account: string) => {    
-    return fetch(`/api/f2/rewards-post?account=${account||''}`);
+export const zapperRefresh = (account: string) => {
+    return fetch(
+        `/api/f2/rewards-post?account=${account || ''}`,
+        {
+            method: 'POST',
+        }
+    );
 }
