@@ -1,9 +1,10 @@
 import { F2Market } from "@app/types"
 import { CvxCrvRewards } from "./CvxCrvRewards";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useEscrowRewards } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { zapperRefresh } from "@app/util/f2";
 
 export const FirmRewardWrapper = ({
     market,
@@ -36,8 +37,15 @@ export const FirmRewardWrapperContent = ({
     escrow?: string
     showMarketBtn?: boolean
 }) => {
+    const { needRefreshRewards, setNeedRefreshRewards, account } = useContext(F2MarketContext);
     const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
     const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+
+    useEffect(() => {        
+        if(!account || !needRefreshRewards) { return }        
+        zapperRefresh(account);
+        setNeedRefreshRewards(false);
+    }, [needRefreshRewards, account]);
 
     return <FirmRewards
         market={market}
@@ -61,7 +69,7 @@ export const FirmRewards = ({
     showMarketBtn?: boolean
     isLoading?: boolean
 }) => {
-    const { escrow, signer } = useContext(F2MarketContext);
+    const { escrow, signer, account } = useContext(F2MarketContext);
 
     const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
@@ -73,6 +81,7 @@ export const FirmRewards = ({
         return <CvxCrvRewards
             label={label || `${market?.name} Rewards`}
             escrow={escrow}
+            account={account}
             claimables={claimables}
             totalRewardsUSD={totalRewardsUSD}
             signer={signer}
