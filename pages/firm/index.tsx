@@ -56,33 +56,35 @@ export const F2PAGE = () => {
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
-            <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
-                <VStack w='full' justify="flex-start" alignItems="flex-start">
-                    <Text fontWeight="bold" fontSize='18px'>
-                        {POLLS[ACTIVE_POLL].question}
-                    </Text>
-                    <RadioGroup onChange={handleRadioChange} value={radioValue} w='full'>
-                        <VStack w='full' justify="flex-start" alignItems="flex-start">
-                            {
-                                POLLS[ACTIVE_POLL].answers.map((answer) => {
-                                    return <Box
-                                        p='1'
-                                        borderRadius='md'
-                                        transition="background-color 200ms"
-                                        key={answer.value}
-                                        _hover={{ backgroundColor: 'navBarBorderColor' }}
-                                        w='full'
-                                    >
-                                        <Radio cursor="pointer" value={answer.value}>
-                                            <Text cursor="pointer">{answer.label}</Text>
-                                        </Radio>
-                                    </Box>
-                                })
-                            }
-                        </VStack>
-                    </RadioGroup>
-                </VStack>
-            </SlideModal>
+            {
+                !!ACTIVE_POLL && POLLS[ACTIVE_POLL] && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
+                    <VStack w='full' justify="flex-start" alignItems="flex-start">
+                        <Text fontWeight="bold" fontSize='18px'>
+                            {POLLS[ACTIVE_POLL].question}
+                        </Text>
+                        <RadioGroup onChange={handleRadioChange} value={radioValue} w='full'>
+                            <VStack w='full' justify="flex-start" alignItems="flex-start">
+                                {
+                                    POLLS[ACTIVE_POLL].answers.map((answer) => {
+                                        return <Box
+                                            p='1'
+                                            borderRadius='md'
+                                            transition="background-color 200ms"
+                                            key={answer.value}
+                                            _hover={{ backgroundColor: 'navBarBorderColor' }}
+                                            w='full'
+                                        >
+                                            <Radio cursor="pointer" value={answer.value}>
+                                                <Text cursor="pointer">{answer.label}</Text>
+                                            </Radio>
+                                        </Box>
+                                    })
+                                }
+                            </VStack>
+                        </RadioGroup>
+                    </VStack>
+                </SlideModal>
+            }
             <ErrorBoundary>
                 <VStack pt={{ base: 4, md: 8, '2xl': 20 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to FiRM header">

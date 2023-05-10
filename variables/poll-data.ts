@@ -1,4 +1,4 @@
-export const ACTIVE_POLL = 'defi-level';
+export const ACTIVE_POLL = '';
 
 export const POLLS = {
     'defi-level': {
