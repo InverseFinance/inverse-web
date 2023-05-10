@@ -38,6 +38,7 @@ const ApyTooltipContent = ({
 
 export const AnchorPoolInfo = ({
     value,
+    valueLow,
     monthlyValue,
     symbol,
     type,
@@ -51,6 +52,7 @@ export const AnchorPoolInfo = ({
     type: 'supply' | 'borrow',
     symbol: string,
     value?: number,
+    valueLow?: number,
     monthlyValue?: number,
     priceUsd?: number,
     isReward?: boolean,
@@ -75,6 +77,7 @@ export const AnchorPoolInfo = ({
 
     return (
         <Text {...textProps} opacity={(value && value > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
+            {valueLow ? `${shortenNumber(valueLow, 2)}% - ` : null}
             {label}
             {
                 !!protocolImage
