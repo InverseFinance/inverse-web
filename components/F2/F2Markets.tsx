@@ -24,18 +24,18 @@ const Cell = ({ ...props }) => {
 }
 
 const CellText = ({ ...props }) => {
-    return <Text fontSize="15px" {...props} />
+    return <Text fontSize="14px" {...props} />
 }
 
 const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="100px">
-                <Cell minWidth='100px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+            return <Cell minWidth="90px">
+                <Cell minWidth='90px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                         <CellText fontWeight="bold">{name}</CellText>
@@ -61,7 +61,7 @@ const columns = [
         tooltip: 'The APY provided by the asset itself and that is kept even after supplying, this is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ supplyApy, supplyApyLow, price, underlying }) => {
-            return <Cell direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="15px">
+            return <Cell direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
                     value={supplyApy}
@@ -78,9 +78,9 @@ const columns = [
         field: 'oracleType',
         label: 'Oracle Type',
         tooltip: <OracleTypeTooltipContent />,
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="center"  {...props} />,
         value: ({ oracleType, underlying }) => {
-            return <Cell alignItems="center" minWidth="100px" justify="center" fontSize="15px">
+            return <Cell alignItems="center" minWidth="110px" justify="center" fontSize="14px">
                 <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
             </Cell>
         },
@@ -101,7 +101,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         tooltip: 'Collateral Factor: maximum percentage of collateral value that can be used for borrowing',
         value: ({ collateralFactor }) => {
-            return <Cell minWidth="70px" justify="center" >
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
                 <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
             </Cell>
         },
