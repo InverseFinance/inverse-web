@@ -50,7 +50,7 @@ export const CvxCrvRewards = ({
             hasJustClaimed ?
                 <SuccessMessage description="Rewards claimed!" />
                 :
-                totalRewardsUSD > 0 ?
+                totalRewardsUSD > 0.1 ?
                     <ZapperTokens
                         showMarketBtn={showMarketBtn}
                         market={market}
@@ -61,7 +61,7 @@ export const CvxCrvRewards = ({
                     />
                     :
                     <InfoMessage
-                        description="This market has rewards but you don't have any at the moment"
+                        description="This market has rewards but you don't have any at the moment, it will show when when you have at least $0.1 worth of rewards."
                     />
         }
     </Container>
