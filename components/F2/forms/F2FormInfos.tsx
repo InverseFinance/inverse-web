@@ -136,7 +136,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'On-chain source for the collateral price. PPO is the Pessimistic Price Oracle, it uses the two-day low price of the source oracle.',
                 title: 'Oracle Type',
-                value: <OracleType oracleType={market.oracleType} showImage={false} />,
+                value: <OracleType oracleType={market.oracleType} showImage={false} simplify={true} />,
             },
         ],
         [
