@@ -85,7 +85,7 @@ export const AnchorPoolInfo = ({
                 !!protocolImage
                 && <AnimatedInfoTooltip message={
                     isYieldBearingApyKnown ?
-                        hasClaimableRewards ? 'Claimable rewards APY' : 'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
+                        hasClaimableRewards ? 'Claimable rewards APR' : 'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
                 >
                     <Image borderRadius="20px" zIndex="2" position="absolute" bottom="0" right="-15px" src={protocolImage} width="12px" />
                 </AnimatedInfoTooltip>
