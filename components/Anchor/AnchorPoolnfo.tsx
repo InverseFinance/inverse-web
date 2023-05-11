@@ -48,6 +48,7 @@ export const AnchorPoolInfo = ({
     underlyingSymbol = '',
     textProps,
     protocolImage,
+    hasClaimableRewards,
 }: {
     type: 'supply' | 'borrow',
     symbol: string,
@@ -57,6 +58,7 @@ export const AnchorPoolInfo = ({
     priceUsd?: number,
     isReward?: boolean,
     isBalance?: boolean,
+    hasClaimableRewards?: boolean,
     underlyingSymbol?: string,
     textProps?: TextProps,
     protocolImage?: string,
@@ -83,7 +85,7 @@ export const AnchorPoolInfo = ({
                 !!protocolImage
                 && <AnimatedInfoTooltip message={
                     isYieldBearingApyKnown ?
-                        'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
+                        hasClaimableRewards ? 'Claimable rewards APY' : 'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
                 >
                     <Image borderRadius="20px" zIndex="2" position="absolute" bottom="0" right="-15px" src={protocolImage} width="12px" />
                 </AnimatedInfoTooltip>
