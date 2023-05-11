@@ -130,9 +130,11 @@ export const F2Context = ({
     );
 
     const { signedBalance: dbrBalance, bnBalance: bnDbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
+    // in sellAndRepay case, dbr worth is sent as DOLA to the borrower (not used to repay debt)
     const newTotalDebt = currentTotalDebt + (isDeposit && isAutoDBR && hasDebtChange ? dbrCoverDebt : 0) + deltaDebt;
     // burn rate and fictional "depletion date" in the market
     const { dbrExpiryDate: newDBRExpiryDateInMarket, dailyDebtAccrual: newDailyDBRBurnInMarket } = useAccountDBR(account, newTotalDebtInMarket, isAutoDBR ? isDeposit ? dbrCover : -parseFloat(dbrSellAmount||'0') : 0);
+    // global dbr burn rate and new global "depletion date"
     const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? isDeposit ? dbrCover : -parseFloat(dbrSellAmount||'0') : 0);
 
     useEffect(() => {
