@@ -57,10 +57,10 @@ const columns = [
     },
     {
         field: 'supplyApy',
-        label: 'Intrinsic APY',
-        tooltip: 'The APY provided by the asset itself and that is kept even after supplying, this is not an additional APY from FiRM',
+        label: 'Underlying APY',
+        tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, price, underlying }) => {
+        value: ({ supplyApy, supplyApyLow, price, underlying, hasClaimableRewards }) => {
             return <Cell direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
@@ -70,7 +70,13 @@ const columns = [
                     symbol={underlying.symbol}
                     type={'supply'}
                     textProps={{ textAlign: "end" }}
+                    hasClaimableRewards={hasClaimableRewards}
                 />
+                {
+                    supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
+                        {hasClaimableRewards ? 'Claimable rewards APY' : 'Rebase APY'}
+                    </Text>
+                }
             </Cell>
         },
     },
