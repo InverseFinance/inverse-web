@@ -62,7 +62,7 @@ const columns = [
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ supplyApy, supplyApyLow, price, underlying, hasClaimableRewards }) => {
-            return <Cell direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
+            return <Cell spacing="0" direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
                     value={supplyApy}
