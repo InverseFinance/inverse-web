@@ -157,7 +157,7 @@ const columns = [
                 {
                     leftToBorrow < dailyLimit && totalDebt > 0
                     && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign="left" fontSize="12px" color="mainTextColorLight2">
-                        <DailyLimitCountdown prefix="Limit reset in " />                                
+                        <DailyLimitCountdown prefix="Limit resets in " />                                
                     </CellText>
                 }
             </Cell>
