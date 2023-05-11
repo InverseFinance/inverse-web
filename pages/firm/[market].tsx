@@ -64,7 +64,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         borderBottomLeftRadius="md"
                         bgColor="secondaryTextColor"
                         transform="translateY(-2px)"
-                        position={{ base: 'relative', md: 'absolute' }}
+                        position={isWalkthrough ? 'relative' : { base: 'relative', md: 'absolute' }}
                         alignItems="center"
                         justify="center"
                         spacing="0"
