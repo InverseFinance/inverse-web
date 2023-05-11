@@ -10,10 +10,11 @@ import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
 import { OracleType, OracleTypeTooltipContent } from "./Infos/OracleType";
-import { SkeletonList } from "../common/Skeleton";
+import { SkeletonList } from "@app/components/common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
-import Link from "../common/Link";
+import Link from "@app/components/common/Link";
+import { DailyLimitCountdown } from "@app/components/common/Countdown";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -61,7 +62,7 @@ const columns = [
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ supplyApy, supplyApyLow, price, underlying, hasClaimableRewards }) => {
-            return <Cell direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
+            return <Cell spacing="0" direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
                     value={supplyApy}
@@ -148,11 +149,17 @@ const columns = [
     {
         field: 'leftToBorrow',
         label: "Available to borrow",
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="130px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow, totalDebt }) => {
-            return <Cell minWidth="120px" justify="center" alignItems="center" direction="column" spacing="0" >
+        value: ({ leftToBorrow, totalDebt, dailyLimit }) => {
+            return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
+                {
+                    leftToBorrow < dailyLimit && totalDebt > 0
+                    && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign="left" fontSize="12px" color="mainTextColorLight2">
+                        <DailyLimitCountdown prefix="Limit resets in " />                                
+                    </CellText>
+                }
             </Cell>
         },
     },

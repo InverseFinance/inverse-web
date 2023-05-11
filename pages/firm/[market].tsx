@@ -21,6 +21,7 @@ import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
 import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
+import { DailyLimitCountdown } from '@app/components/common/Countdown'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -30,6 +31,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
+
+    const needCountdown = f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0;
 
     useEffect(() => {
         if (inited) { return }
@@ -55,6 +58,26 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             </Head>
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary description="Error in the market page, please try reloading">
+                {
+                    needCountdown && <VStack                        
+                        borderBottomRightRadius="md"
+                        borderBottomLeftRadius="md"
+                        bgColor="secondaryTextColor"
+                        transform="translateY(-2px)"
+                        position={{ base: 'relative', md: 'absolute' }}
+                        alignItems="center"
+                        justify="center"
+                        spacing="0"
+                        px="4"                    
+                    >
+                        <Text fontSize="16px" fontWeight="bold" color="white"  fontFamily="monospace">
+                            Daily borrow limit resets in
+                        </Text>
+                        <Text fontSize="16px" fontWeight="bold" color="white" fontFamily="monospace">
+                            <DailyLimitCountdown />
+                        </Text>
+                    </VStack>
+                }
                 {
                     !f2market || !market ? <Text mt="8">
                         {!f2market ? 'Loading...' : 'Market not found!'}
