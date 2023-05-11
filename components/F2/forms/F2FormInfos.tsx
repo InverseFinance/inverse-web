@@ -86,13 +86,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         dbrCoverDebt,
         dbrCover,
         dbrPrice,
-        newDailyDBRBurn,
+        newDailyDBRBurnInMarket,
         newDBRExpiryDate,
         isDeposit,
         deposits,
         debt,
         newDeposits,
         newTotalDebt,
+        newTotalDebtInMarket,
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
@@ -231,8 +232,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         [
             {
                 tooltip: 'The total number of DBRs that will be spent every day',
-                title: 'Total daily DBR spend',
-                value: `-${newDailyDBRBurn ? `${shortenNumber(newDailyDBRBurn, 4)} (${shortenNumber(newDailyDBRBurn * dbrPrice, 2, true)})` : ''}`,
+                title: 'Daily DBR spend',
+                value: `-${newDailyDBRBurnInMarket ? `${shortenNumber(newDailyDBRBurnInMarket, 4)} (${shortenNumber(newDailyDBRBurnInMarket * dbrPrice, 2, true)})` : ''}`,
             },
             {
                 tooltip: "Date where you will run out of DBRs, it is recommended that you always have DBRs in your wallet as when you run out of DBRs someone can force top-up your balance and this will cost your additional debt",
@@ -249,13 +250,13 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 tooltip: 'Percentage of the borrow capacity used, should not reach 100%',
                 title: 'Borrow Limit',
                 value: !!deposits || !!newDeposits ? `${shortenNumber(newBorrowLimit, 2)}%` : '-',
-                color: newDeposits > 0 || newTotalDebt > 0 ? riskColor : undefined,
+                color: newDeposits > 0 || newTotalDebtInMarket > 0 ? riskColor : undefined,
             },
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
                 value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
-                color: newDeposits > 0 || newTotalDebt > 0 ? riskColor : undefined,
+                color: newDeposits > 0 || newTotalDebtInMarket > 0 ? riskColor : undefined,
             },
         ],
         [
@@ -279,7 +280,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'The total amount of debt after you borrow/repay',
                 title: 'Total Debt',
-                value: `${newTotalDebt ? `${preciseCommify(newTotalDebt, 2)} DOLA` : '-'}`,
+                value: `${newTotalDebtInMarket ? `${preciseCommify(newTotalDebtInMarket, 2)} DOLA` : '-'}`,
             },
         ],
         [

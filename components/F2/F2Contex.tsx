@@ -108,7 +108,7 @@ export const F2Context = ({
     );
 
     const {
-        newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newDebt: newTotalDebt,
+        newPerc, newDeposits, newLiquidationPrice, newCreditLimit, newCreditLeft, newDebt: newTotalDebtInMarket,
     } = f2CalcNewHealth(
         market,
         deposits,
@@ -129,7 +129,10 @@ export const F2Context = ({
         perc,
     );
 
-    const { signedBalance: dbrBalance, bnBalance: bnDbrBalance, dbrExpiryDate } = useAccountDBR(account);
+    const { signedBalance: dbrBalance, bnBalance: bnDbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
+    const newTotalDebt = currentTotalDebt + (isDeposit && isAutoDBR && hasDebtChange ? dbrCoverDebt : 0) + deltaDebt;
+    // burn rate and fictional "depletion date" in the market
+    const { dbrExpiryDate: newDBRExpiryDateInMarket, dailyDebtAccrual: newDailyDBRBurnInMarket } = useAccountDBR(account, newTotalDebtInMarket, isAutoDBR ? isDeposit ? dbrCover : -parseFloat(dbrSellAmount||'0') : 0);
     const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt, isAutoDBR ? isDeposit ? dbrCover : -parseFloat(dbrSellAmount||'0') : 0);
 
     useEffect(() => {
@@ -246,12 +249,14 @@ export const F2Context = ({
             dbrCover,
             newLiquidationPrice,
             newTotalDebt,
+            newTotalDebtInMarket,
             newCreditLeft,
             // 100% max
             maxBorrow,
             // 99% max
             maxBorrowable,
             newDBRExpiryDate,
+            newDBRExpiryDateInMarket,
             dbrExpiryDate,
             isAutoDBR,
             isUseNativeCoin,
@@ -259,6 +264,7 @@ export const F2Context = ({
             bnDbrBalance,
             mode,
             newDailyDBRBurn,
+            newDailyDBRBurnInMarket,
             isWalkthrough,
             infoTab,
             liquidationPrice,
