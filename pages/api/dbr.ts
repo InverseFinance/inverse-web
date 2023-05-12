@@ -45,9 +45,9 @@ export default async function handler(req, res) {
       timestamp: +(new Date()),
       priceOnBalancer,
       price: priceOnCurve,
-      totalSupply: withExtra ? getBnToNumber(results[1]) : undefined,      
-      totalDueTokensAccrued: withExtra ? getBnToNumber(results[2]) : undefined,
-      operator: withExtra ? results[3] : undefined,
+      totalSupply: withExtra ? getBnToNumber(results[2]) : undefined,      
+      totalDueTokensAccrued: withExtra ? getBnToNumber(results[3]) : undefined,
+      operator: withExtra ? results[4] : undefined,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
@@ -61,6 +61,8 @@ export default async function handler(req, res) {
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
+      } else {
+        res.status(500).json({ status: 'ko' });
       }
     } catch (e) {
       console.error(e);
