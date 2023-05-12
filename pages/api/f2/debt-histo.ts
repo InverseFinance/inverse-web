@@ -50,8 +50,7 @@ export default async function handler(req, res) {
       blocksFromStartUntilCurrent.push(currentBlock);
     }
 
-    if (!blocksFromStartUntilCurrent.length) {
-      console.log('Skipping debt histo update 2, last block is less than 5 blocks ago')
+    if (!blocksFromStartUntilCurrent.length) {      
       res.status(200).json(archived);
       return;
     }
