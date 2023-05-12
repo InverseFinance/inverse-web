@@ -14,7 +14,7 @@ import { FIRM_DEBT_HISTORY_INIT } from '@app/fixtures/firm-debt-history-init';
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const cacheKey = 'firm-debt-histo-v1.0.4';
+  const cacheKey = 'firm-debt-histo-v1.0.5';
   const { cacheFirst } = req.query;
   try {
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800);
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     const lastBlock = archived.blocks[archived.blocks.length - 1];
     // skip if last block is less than 5 blocks ago
     if(currentBlock - lastBlock < 5) {
+      console.log('Skipping debt histo update, last block is less than 5 blocks ago')
       res.status(200).json(archived);
       return;
     }
@@ -50,6 +51,7 @@ export default async function handler(req, res) {
     }
 
     if (!blocksFromStartUntilCurrent.length) {
+      console.log('Skipping debt histo update 2, last block is less than 5 blocks ago')
       res.status(200).json(archived);
       return;
     }

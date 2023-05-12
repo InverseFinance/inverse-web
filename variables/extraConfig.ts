@@ -94,6 +94,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,
             zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
+            startingBlock: 17228187,
         },
     ],
     feds: FEDS_PARAMS,
