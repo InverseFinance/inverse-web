@@ -190,13 +190,8 @@ export const f2depositAndBorrowHelper = async (
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         if (isNativeCoin) {
             if (!durationDays) {
-                return callWithHigherGL(
-                    helperContract,
-                    'depositNativeEthAndBorrowOnBehalf',
-                    [market, borrow, deadline.toString(), v.toString(), r, s],
-                    15000,
-                    { value: deposit },
-                );         
+                return helperContract
+                    .depositNativeEthAndBorrowOnBehalf(market, borrow, deadline.toString(), v.toString(), r, s, { value: deposit });
             }
             return callWithHigherGL(
                 helperContract,
@@ -204,7 +199,7 @@ export const f2depositAndBorrowHelper = async (
                 [market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s],
                 15000,
                 { value: deposit },
-            )            
+            )
         }
         if (isBorrowOnly) {
             return callWithHigherGL(
@@ -218,7 +213,7 @@ export const f2depositAndBorrowHelper = async (
             helperContract,
             'depositBuyDbrAndBorrowOnBehalf',
             [market, deposit, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s],
-        );        
+        );
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
