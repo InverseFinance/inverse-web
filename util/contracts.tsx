@@ -551,13 +551,13 @@ export const callWithHigherGL = async (
   contract: Contract,
   method: string,
   args: any[],
-  increaseGL = 15000,
+  increaseGL = 50000,
   options: { value?: BigNumberish } = {},
 ) => {
   let gasLimit = undefined;
   try {
     const originalEstimate =  await contract.estimateGas[method](...args);
-    const gasLimit = originalEstimate.add(increaseGL);  
+    gasLimit = originalEstimate.add(increaseGL);  
     console.log('gas estimate', originalEstimate.toString());
     console.log('gl increased to', gasLimit.toString());
   } catch (e) {    
