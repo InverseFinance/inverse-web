@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   const cacheKey = 'firm-debt-histo-v1.0.4';
   const { cacheFirst } = req.query;
   try {
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 3600);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800);
     if (validCache) {
       res.status(200).json(validCache);
       return
