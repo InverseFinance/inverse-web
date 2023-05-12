@@ -437,14 +437,14 @@ const DelegatesTable = () => {
 
   if (isLoading) {
     return (
-      <Container label="Delegate Top 100 - Updated every 15 min" description="Top delegates by voting weight">
+      <Container label="Delegate Top 100" description="Top delegates by voting weight - Updated every 15 min">
         <SkeletonBlob skeletonHeight={6} noOfLines={4} />
       </Container>
     )
   }
 
   return (
-    <Container label="Delegate Top 100 - Updated every 15 min" description="Top delegates by voting weight">
+    <Container label="Delegate Top 100" description="Top delegates by voting weight - Updated every 15 min">
       <Table
         columns={columns}
         items={delegates.slice(0, 100)}
