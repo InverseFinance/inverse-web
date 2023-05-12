@@ -7,6 +7,7 @@ import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
 import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
+import { callWithHigherGL } from "./contracts";
 
 const { F2_HELPER } = getNetworkConfigConstants();
 
@@ -187,18 +188,35 @@ export const f2depositAndBorrowHelper = async (
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         if (isNativeCoin) {
             if (!durationDays) {
-                return helperContract
-                    .depositNativeEthAndBorrowOnBehalf(market, borrow, deadline.toString(), v.toString(), r, s, { value: deposit });
+                return callWithHigherGL(
+                    helperContract,
+                    'depositNativeEthAndBorrowOnBehalf',
+                    [market, borrow, deadline.toString(), v.toString(), r, s],
+                    15000,
+                    { value: deposit },
+                );         
             }
-            return helperContract
-                .depositNativeEthBuyDbrAndBorrowOnBehalf(market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s, { value: deposit });
+            return callWithHigherGL(
+                helperContract,
+                'depositNativeEthBuyDbrAndBorrowOnBehalf',
+                [market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s],
+                15000,
+                { value: deposit },
+            )            
         }
         if (isBorrowOnly) {
-            return helperContract
-                .buyDbrAndBorrowOnBehalf(market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s);
+            return callWithHigherGL(
+                helperContract,
+                'buyDbrAndBorrowOnBehalf',
+                [market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s]
+            );           
         }
-        return helperContract
-            .depositBuyDbrAndBorrowOnBehalf(market, deposit, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s);
+
+        return callWithHigherGL(
+            helperContract,
+            'depositBuyDbrAndBorrowOnBehalf',
+            [market, deposit, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s],
+        );        
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
@@ -365,4 +383,8 @@ export const zapperRefresh = (account: string) => {
             method: 'POST',
         }
     );
+}
+
+const increaseHelperGasLimit = (estimatedGasLimit: BigNumber) => {
+    return estimatedGasLimit.add(20);
 }

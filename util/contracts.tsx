@@ -28,7 +28,7 @@ import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
-import { BigNumber } from 'ethers'
+import { BigNumber, BigNumberish } from 'ethers'
 import { PROTOCOL_IMAGES } from '@app/variables/images'
 
 const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
@@ -552,6 +552,7 @@ export const callWithHigherGL = async (
   method: string,
   args: any[],
   increaseGL = 15000,
+  options: { value?: BigNumberish } = {},
 ) => {
   let gasLimit = undefined;
   try {
@@ -563,5 +564,5 @@ export const callWithHigherGL = async (
     console.log('could not estimate gas, using default');
     console.log(e);
   }
-  return contract[method](...args, { gasLimit });
+  return contract[method](...args, { gasLimit, ...options });
 }
