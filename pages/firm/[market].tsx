@@ -68,12 +68,13 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         alignItems="center"
                         justify="center"
                         spacing="0"
+                        py="1"
                         px="4"                    
                     >
-                        <Text fontSize="16px" fontWeight="bold" color="white"  fontFamily="monospace">
+                        <Text fontSize="16px" fontWeight="bold" color="white">
                             Daily borrow limit resets in
                         </Text>
-                        <Text fontSize="16px" fontWeight="bold" color="white" fontFamily="monospace">
+                        <Text fontSize="16px" fontWeight="bold" color="white">
                             <DailyLimitCountdown />
                         </Text>
                     </VStack>
