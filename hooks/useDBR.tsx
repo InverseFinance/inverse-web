@@ -278,10 +278,10 @@ export const useDBRBalancePrice = (): { price: number | undefined } => {
 export const useDBRPriceLive = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
-      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_oracle'],
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_scale'],
     ],
     abi: [
-      'function price_oracle() public view returns(uint)',
+      'function price_scale() public view returns(uint)',
     ],
   });
   
