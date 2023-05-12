@@ -52,7 +52,7 @@ const useCvxCrvRewards = (escrow: string) => {
 }
 
 export const CvxCrvPreferences = () => {
-    const { escrow, signer } = useContext(F2MarketContext);
+    const { escrow, signer, market } = useContext(F2MarketContext);
     const [perc, setPerc] = useState<number | null>(null);
     const [defaultPerc, setDefaultPerc] = useState<number | null>(null);
     const { userRewardWeight } = useCvxCrvRewards(escrow);
@@ -81,7 +81,7 @@ export const CvxCrvPreferences = () => {
                     description={<VStack w='full' alignItems="flex-start" lineHeight="1.5">
                         {
                             (!escrow || escrow === BURN_ADDRESS) && <Text fontWeight="bold">
-    Note: You can choose the reward preferences after making a deposit.
+                                Note: You can choose the reward preferences after making a deposit.
                             </Text>
                         }
                         <Text>
@@ -96,21 +96,35 @@ export const CvxCrvPreferences = () => {
                     </VStack>}
                 />
                 {
-                    (!!escrow && escrow !== BURN_ADDRESS) && 
+                    (!!escrow && escrow !== BURN_ADDRESS) &&
                     <VStack w='full' spacing="4" maxW='900px' alignItems="center">
                         <HStack fontSize="17px" fontWeight="bold" w='full' justify="space-between">
-                            <Stack direction={{ base: 'column-reverse', sm: 'row' }} alignItems='center'>                                
-                                <Text><b>Gov</b> token rewards</Text>
-                                <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
-                            </Stack>                           
-                            <Stack direction={{ base: 'column', sm: 'row' }} alignItems='center' justify="flex-end">
-                                <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
-                                <Text align='right'><b>Stablecoin</b> rewards</Text>
-                            </Stack>
+                            <VStack alignItems="flex-start" spacing="0">
+                                <Stack direction={{ base: 'column-reverse', sm: 'row' }} alignItems='center'>
+                                    <Text><b>Gov</b> token rewards</Text>
+                                    <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
+                                </Stack>
+                                <Text fontSize="14px" color="mainTextColorLight">
+                                    Max vAPR: {shortenNumber(market.cvxCrvData.group1, 2)}%
+                                </Text>
+                            </VStack>
+                            <VStack alignItems="flex-end" spacing="0">
+                                <Stack direction={{ base: 'column', sm: 'row' }} alignItems='center' justify="flex-end">
+                                    <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
+                                    <Text align='right'><b>Stablecoin</b> rewards</Text>
+                                </Stack>
+                                <Text fontSize="14px" color="mainTextColorLight">
+                                    Max vAPR: {shortenNumber(market.cvxCrvData.group2, 2)}%
+                                </Text>
+                            </VStack>
+                        </HStack>
+                        <HStack spacing="1">
+                            <Text fontWeight="bold">Resulting max vAPR:</Text>
+                            <Text fontWeight="extrabold">{shortenNumber((100 - perc) / 100 * market.cvxCrvData.group1 + (perc) / 100 * market.cvxCrvData.group2, 2)}%</Text>
                         </HStack>
                         <CvxCrvWeightBar perc={perc} onChange={setPerc} />
                         <PercentagesBar
-                            leftLabel={isLargerThan ? '100% Crv & Cvx': ''}
+                            leftLabel={isLargerThan ? '100% Crv & Cvx' : ''}
                             rightLabel={isLargerThan ? '100% 3crv' : ''}
                             ticks={[0, 50, 100]}
                             showAsRepartition={false}
@@ -127,7 +141,7 @@ export const CvxCrvPreferences = () => {
                             outline="none"
                             border="none"
                             disabled={!hasChanged}
-                            maxW="300px"                            
+                            maxW="300px"
                             onClick={handleRewardsRepartitionUpdate}
                         >
                             Update Rewards Allocation
