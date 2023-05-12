@@ -1,11 +1,11 @@
-import { F2_HELPER_ABI, F2_MARKET_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
+import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { parseUnits, splitSignature } from "ethers/lib/utils";
+import { splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 
@@ -71,8 +71,11 @@ export const f2sellAndRepayHelper = async (
     dbrAmountToSell: string | BigNumber,
 ) => {
     const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
-    return helperContract
-        .sellDbrAndRepayOnBehalf(market, repay, minDolaOut, dbrAmountToSell);
+    return callWithHigherGL(
+        helperContract,
+        'sellDbrAndRepayOnBehalf',
+        [market, repay, minDolaOut, dbrAmountToSell],
+    );
 }
 
 export const f2repayAndWithdrawNative = async (
@@ -104,12 +107,11 @@ export const f2sellAndWithdrawHelper = async (
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
-        if (isNativeCoin) {
-            return helperContract
-                .sellDbrRepayAndWithdrawNativeEthOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
-        }
-        return helperContract
-            .sellDbrRepayAndWithdrawOnBehalf(market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s);
+        return callWithHigherGL(
+            helperContract,
+            isNativeCoin ? 'sellDbrRepayAndWithdrawNativeEthOnBehalf' : 'sellDbrRepayAndWithdrawOnBehalf',
+            [market, repay, minDolaOut, dbrAmountToSell, withdraw, deadline.toString(), v.toString(), r, s],
+        );
     }
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
@@ -209,7 +211,7 @@ export const f2depositAndBorrowHelper = async (
                 helperContract,
                 'buyDbrAndBorrowOnBehalf',
                 [market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s]
-            );           
+            );
         }
 
         return callWithHigherGL(
@@ -383,8 +385,4 @@ export const zapperRefresh = (account: string) => {
             method: 'POST',
         }
     );
-}
-
-const increaseHelperGasLimit = (estimatedGasLimit: BigNumber) => {
-    return estimatedGasLimit.add(20);
 }
