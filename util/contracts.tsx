@@ -546,3 +546,22 @@ export const getUniV3PositionsOf = async (signer: Provider | JsonRpcSigner, liqP
   );
   return positions;
 }
+
+export const callWithHigherGL = async (
+  contract: Contract,
+  method: string,
+  args: any[],
+  increaseGL = 15000,
+) => {
+  let gasLimit = undefined;
+  try {
+    const originalEstimate =  await contract.estimateGas[method](...args);
+    const gasLimit = originalEstimate.add(increaseGL);  
+    console.log('gas estimate', originalEstimate.toString());
+    console.log('gl increased to', gasLimit.toString());
+  } catch (e) {    
+    console.log('could not estimate gas, using default');
+    console.log(e);
+  }
+  return contract[method](...args, { gasLimit });
+}
