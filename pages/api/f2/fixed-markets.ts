@@ -14,7 +14,7 @@ export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.1`;
 export default async function handler(req, res) {
 
   try {
-    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 6009990);
+    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 30);
     if (validCache) {
       res.status(200).json(validCache);
       return
