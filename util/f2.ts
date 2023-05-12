@@ -197,7 +197,7 @@ export const f2depositAndBorrowHelper = async (
                 helperContract,
                 'depositNativeEthBuyDbrAndBorrowOnBehalf',
                 [market, borrow, dolaParam, dbrParam, deadline.toString(), v.toString(), r, s],
-                15000,
+                50000,
                 { value: deposit },
             )
         }
