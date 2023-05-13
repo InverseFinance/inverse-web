@@ -23,7 +23,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     </FaqStack>
                 },
                 {
-                    title: 'How safe is FiRM?',
+                    title: 'How safe is FiRM and is it audited?',
                     body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
                         <FaqText>
                             <b>FiRM</b> has a <b>high score of 87% on DefiSafety</b> and has <b>several unique safety features</b>.
@@ -35,7 +35,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                             Other safety features: <b>flash loan protection</b>, <b>daily borrowing limits</b> and <b>Pessimistic Price Oracles</b>.
                         </FaqText>
                         <FaqText>
-                            <b>Audited by Code4arena.</b>
+                            <b>Audited by Code4arena and Nomoi.</b>
                         </FaqText>
                         <FaqLink href="https://www.inverse.finance/blog/posts/en-US/an-in-depth-analysis-of-the-security-design-of-firm">
                             Blog Post on safety features

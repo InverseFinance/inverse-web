@@ -124,6 +124,10 @@ export const MENUS = {
           label: 'Docs',
         },
         {
+          label: 'Audits',
+          href: '/audits',
+        },
+        {
           label: 'About FiRM',
           href: '/about-firm',
         },
@@ -311,6 +315,10 @@ export const MENUS = {
         {
           label: 'Docs',
           href: 'https://docs.inverse.finance/',
+        },
+        {
+          label: 'Audits',
+          href: 'https://docs.inverse.finance/inverse-finance/technical/audits',
         },
         {
           label: 'Risk Gitbook',
