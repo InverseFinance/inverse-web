@@ -11,9 +11,13 @@ export const AboutFirm = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - Audits</title>
                 <meta name="og:title" content="Inverse Finance - Audits" />
-                <meta name="description" content="Inverse Finance, audits, code4rena, nomoi" />
-                <meta name="og:description" content="Inverse Finance, audits, code4rena, nomoi" />
+                <meta name="description" content="Inverse Finance audits" />
+                <meta name="og:description" content="Inverse Finance audits" />
                 <meta name="keywords" content="Inverse Finance, audits, code4rena, nomoi" />
+                <meta name="twitter:image:alt" content="" />
+                <meta name="twitter:site" content="" />
+                <meta name="twitter:image:alt" content="" />
+                <meta property="twitter:card" content="" />
             </Head>
             <AppNav active="Learn" activeSubmenu="Audits" />
             <VStack alignItems="flex-start" w='full'>
