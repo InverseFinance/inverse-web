@@ -32,7 +32,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
 
-    const needCountdown = f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0;
+    const needCountdown = f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity;
 
     useEffect(() => {
         if (inited) { return }
