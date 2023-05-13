@@ -151,11 +151,11 @@ const columns = [
         label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow, totalDebt, dailyLimit }) => {
+        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity }) => {
             return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                 {
-                    leftToBorrow < dailyLimit && totalDebt > 0
+                    leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
                     && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign="left" fontSize="12px" color="mainTextColorLight2">
                         <DailyLimitCountdown prefix="Limit resets in " />                                
                     </CellText>
