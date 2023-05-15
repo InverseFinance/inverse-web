@@ -1,5 +1,5 @@
 import { shortenNumber } from '@app/util/markets';
-import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
+import { VictoryChart, VictoryLine, VictoryBar, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
 import moment from 'moment'
 import { Box, VStack, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
@@ -89,6 +89,8 @@ export const AreaChart = ({
         }
     };
 
+    const events = data.filter(d => !!d.eventPointLabel);
+
     return (
         <VStack width={width} spacing="0" position="relative">
             <Box
@@ -140,6 +142,13 @@ export const AreaChart = ({
                         }}
                         interpolation={interpolation}
                     />
+                    <VictoryBar
+                        barWidth={1}
+                        labels={events.map(e => e.eventPointLabel.replace(' Exploit',''))}
+                        labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', fill: themeStyles.colors.mainTextColor }} dy={-5} />}
+                        style={{ data: { fill: "#c43a31", stroke: "#c43a31", strokeWidth: 1 } }}
+                        data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 10) }))}
+                    />
                 </VictoryChart>
             </Box>
             {
@@ -168,12 +177,18 @@ export const AreaChart = ({
                         <VictoryAxis style={_axisStyle} />
                         <VictoryArea
                             domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
-                            groupComponent={<VictoryClipContainer clipId="area-chart" />}
+                            groupComponent={<VictoryClipContainer clipId={`${id}-mini`} />}
                             data={data}
                             style={{
                                 data: { fillOpacity: 0.2, fill: `url(#${mainColor}-gradient)`, stroke: strokeColors[mainColor], strokeWidth: 1 },
                             }}
                             interpolation={interpolation}
+                        />
+                        <VictoryBar
+                            barWidth={1}                            
+                            labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', fill: themeStyles.colors.mainTextColor }} dy={-5} />}
+                            style={{ data: { fill: "#c43a31", stroke: "#c43a31", strokeWidth: 1 } }}
+                            data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 10) }))}
                         />
                     </VictoryChart>
                 </Box>
