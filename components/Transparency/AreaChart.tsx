@@ -32,6 +32,7 @@ export type AreaChartProps = {
     allowZoom?: boolean,
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
+    id?: string,
 };
 
 export const AreaChart = ({
@@ -51,6 +52,7 @@ export const AreaChart = ({
     autoMinY = false,
     titleProps,
     allowZoom = false,
+    id = 'area-chart',
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
@@ -116,7 +118,7 @@ export const AreaChart = ({
                     <VictoryAxis style={_axisStyle} />
                     <VictoryArea
                         domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
-                        groupComponent={<VictoryClipContainer clipId="area-chart" />}
+                        groupComponent={<VictoryClipContainer clipId={id} />}
                         data={data}
                         labelComponent={
                             <VictoryLabel
