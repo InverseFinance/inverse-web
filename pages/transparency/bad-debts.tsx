@@ -154,15 +154,15 @@ export const BadDebtPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Bad Debt</title>
-        <meta name="og:title" content="Inverse Finance - Bad Debt" />
-        <meta name="og:description" content="Bad Debt" />
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Bad Debts</title>
+        <meta name="og:title" content="Inverse Finance - Bad Debts" />
+        <meta name="og:description" content="Bad Debts" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
-        <meta name="description" content="Inverse Finance Bad Debt Details" />
-        <meta name="keywords" content="Inverse Finance, transparency, frontier, Bad Debt" />
+        <meta name="description" content="Inverse Finance Bad Debts Details" />
+        <meta name="keywords" content="Inverse Finance, transparency, frontier, Bad Debts" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
-      {/* <TransparencyFrontierTabs active="frontier-shortfalls" /> */}
+      <AppNav active="Transparency" activeSubmenu="Bad debts" hideAnnouncement={true} />      
+      <TransparencyTabs active="bad-debts" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>

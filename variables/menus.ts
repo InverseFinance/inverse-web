@@ -230,6 +230,10 @@ export const MENUS = {
           label: 'Multisig Wallets',
         },
         {
+          href: '/transparency/bad-debts',
+          label: 'Bad Debts',
+        },
+        {
           href: '/transparency/frontier/overview',
           label: 'Frontier (deprecated)',
         },
