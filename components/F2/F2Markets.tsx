@@ -75,7 +75,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {hasClaimableRewards ? 'Claimable rewards APR' : 'Rebase APY'}
+                        {hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
                     </Text>
                 }
             </Cell>
