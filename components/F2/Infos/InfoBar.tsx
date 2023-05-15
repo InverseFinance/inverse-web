@@ -1,6 +1,6 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import Link from "@app/components/common/Link"
-import { useAccountDBR, useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR"
+import { useAccountDBR, useDBRMarkets, useDBRPrice, useDBRReplenishmentPrice } from "@app/hooks/useDBR"
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
@@ -18,9 +18,21 @@ import { useFirmTVL } from "@app/hooks/useTVL"
 import 'add-to-calendar-button';
 import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
+import { WarningMessage } from "@app/components/common/Messages"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
+
+const DbrRepMsg = ({ replenishmentDailyRate, ...props }: { replenishmentDailyRate: number }) => <WarningMessage
+    description={
+        <HStack spacing='1' {...props}>
+            <Text><b>You are out of DBR,</b></Text>
+            <Link style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} href={BUY_LINKS.DBR} isExternal target='_blank'>
+                please top-up your balance,
+            </Link>
+            <Text>the daily cost is <b>{replenishmentDailyRate}% of your debt</b></Text>
+        </HStack>
+    } />;
 
 export const MarketBar = ({
     ...props
@@ -30,6 +42,7 @@ export const MarketBar = ({
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const [effectEnded, setEffectEnded] = useState(true);
+    const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
     const {
         market,
@@ -196,6 +209,9 @@ export const MarketBar = ({
             {
                 debt > 0 && !isLargerThan1000 && <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
             } */}
+            {
+                needTopUp && <DbrRepMsg replenishmentDailyRate={replenishmentDailyRate} />
+            }
         </VStack>
     </Container>
 }
@@ -206,6 +222,7 @@ export const DbrBar = ({
 }: {
 } & Partial<StackProps>) => {
     const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);
+    const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
     const hasDebt = dailyDebtAccrual !== 0;
 
@@ -290,6 +307,11 @@ export const DbrBar = ({
                 </VStack>
             </HStack>
         </Stack>
+        {
+            needTopUp && <VStack pt="8">
+                <DbrRepMsg replenishmentDailyRate={replenishmentDailyRate} />
+            </VStack>
+        }
     </VStack>
 }
 
@@ -338,7 +360,7 @@ export const FirmBar = ({
     const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
-    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;    
+    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
     const totalDebtUsd = totalDebt * dolaPrice;
 
     return <VStack w='full' {...props}>
@@ -351,7 +373,7 @@ export const FirmBar = ({
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
-                <VStack w={{ base: '33%', md: 'auto' }}  spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
+                <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
                     <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
                         {isLargerThan ? 'Total ' : ''}DOLA Supply
                     </Link>
@@ -359,7 +381,7 @@ export const FirmBar = ({
                         {shortenNumber(totalSupply, 2)}
                     </SubTitle>
                 </VStack>
-                <VStack w={{ base: '33%', md: 'auto' }}  spacing="1" alignItems='center'>
+                <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='center'>
                     <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM TVL
                     </Link>
@@ -367,7 +389,7 @@ export const FirmBar = ({
                         {shortenNumber(firmTotalTvl, 2, true)}
                     </SubTitle>
                 </VStack>
-                <VStack w={{ base: '33%', md: 'auto' }}  spacing="1" alignItems='flex-end'>
+                <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='flex-end'>
                     <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM Borrows
                     </Link>
