@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, Image, VStack, Select } from '@chakra-ui/react'
+import { Flex, Stack, Text, Image, VStack, Select, HStack } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -134,10 +134,8 @@ export const ShortfallsPage = () => {
   const { prices } = usePrices();
   const [selected, setSelected] = useState('dola');
   const { chartData } = useEventsAsChartData(data[`${selected}RepayedByDAO`] || [], '_acc_', 'amount', false, false);
-  const { chartData: _dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
-  const dolaBadDebtEvo = _dolaBadDebtEvo.filter(d => d.x > 1672531200000);
-  // console.log(_dolaBadDebtEvo)
-  // console.log(dolaBadDebtEvo)
+  const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
+
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
     return {
@@ -168,16 +166,25 @@ export const ShortfallsPage = () => {
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
-          <Container
-              noPadding>
+            <Container
+              label="DOLA bad debt Evolution"
+              noPadding
+            >
               <DefaultCharts
                 barProps={{ eventName: 'Repayment' }}
-                direction={'row'}
+                // direction={'row'}
                 showMonthlyBarChart={false}
-                maxChartWidth={1200}
+                maxChartWidth={1000}
                 chartData={dolaBadDebtEvo}
                 isDollars={false}
-                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, interpolation: 'stepAfter', mainColor: 'info' }}
+                smoothLineByDefault={false}
+                showCustomizationBar={true}
+                custombarChildren={
+                  <HStack>
+                    <Text color="mainTextColorLight" fontSize="14px">To change the zoom level, point an area and use the mouse scroll or change the boundaries in the mini-chart</Text>
+                  </HStack>
+                }
+                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
@@ -206,7 +213,7 @@ export const ShortfallsPage = () => {
                 isDollars={false}
                 areaProps={{ showMaxY: false, showTooltips: true }}
               />
-            </Container>          
+            </Container>
           </Stack>
           <Container
             noPadding
