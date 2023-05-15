@@ -419,11 +419,20 @@ export const F2_ORACLE_ABI = [
   "function feeds(address collateral) public view returns (address, uint)",
 ];
 
-export const F2_SIMPLE_ESCROW_ABI = [
+export const F2_ESCROW_ABI = [
   "function balance() public view returns (uint)",
   "function beneficiary() public view returns (address)",
+  // gov escrow like gOHM
   "function delegatingTo() public view returns (address)",
   "function delegate(address) public",
+  // escrows with claimable rewards
+  "function rewardPool() public view returns(address)",
+  "function claim() public",
+  "function claimTo(address) public",
+  "function allowClaimOnBehalf(address) public",
+  "function disallowClaimOnBehalf(address) public",
+  // only cvxCRV
+  "function setRewardWeight(uint) public",
 ];
 
 export const F2_CONTROLLER_ABI = [

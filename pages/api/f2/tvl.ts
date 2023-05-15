@@ -8,7 +8,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { Contract } from 'ethers';
 import { getBnToNumber } from '@app/util/markets';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
-import { F2_SIMPLE_ESCROW_ABI } from '@app/config/abis';
+import { F2_ESCROW_ABI } from '@app/config/abis';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             firmMarketUsers.map((f, i) => {
                 const marketAd = F2_MARKETS[f.marketIndex].address;
                 const users = marketUsersAndEscrows[marketAd].users;
-                const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_SIMPLE_ESCROW_ABI, provider);
+                const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
                 return escrow.balance();
             })
         );

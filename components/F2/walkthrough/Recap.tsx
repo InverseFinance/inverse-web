@@ -90,27 +90,19 @@ export const F2WalkthroughRecap = ({
             }
         }
         if (market.helper) {
-            let maxDolaIn;   
-            const approx = await f2approxDbrAndDolaNeeded(signer, parseUnits(debtAmount), duration);
-            const totalDolaNeeded = approx[0];
-            const dolaNeededForDbr = getBnToNumber(totalDolaNeeded) - debtAmountNum;
-            const slippage = parseFloat(dbrBuySlippage)+100;
-            const dolaNeededForDbrWithSlippage = dolaNeededForDbr * slippage/100;
-            const maxDolaInNum = dolaNeededForDbrWithSlippage+debtAmountNum;
-            maxDolaIn = getNumberToBn(maxDolaInNum);
-            if(maxDolaInNum > maxBorrow) {
-                return showToast({
-                    title: "Borrow amount / slippage combination too high",
-                    status: 'warning',
-                    description: "Please reduce borrow amount and/or max. slippage",
-                });
-            }
+            // if(maxDolaInNum > maxBorrow) {
+            //     return showToast({
+            //         title: "Borrow amount / slippage combination too high",
+            //         status: 'warning',
+            //         description: "Please reduce borrow amount and/or max. slippage",
+            //     });
+            // }
             return f2depositAndBorrowHelper(
                 signer,
                 market.address,
                 parseUnits(collateralAmount, market.underlying.decimals),
                 parseUnits(debtAmount),
-                maxDolaIn,
+                dbrBuySlippage,
                 duration,
                 isUseNativeCoin,
                 false,

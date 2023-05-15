@@ -1,7 +1,7 @@
 import { TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, TokenList } from '@app/types';
-import { BigNumber } from 'ethers';
-import { formatUnits, commify, isAddress, parseUnits } from 'ethers/lib/utils';
+import { BigNumber, Contract } from 'ethers';
+import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
 import sushiData from '@sushiswap/sushi-data'
 import { toFixed } from './misc';
@@ -182,8 +182,62 @@ export const getStethData = async () => {
     return [];
 }
 
+export const getCvxCrvData = async () => {
+    try {
+        return getPoolYield('ef32dd3b-a03b-4f79-9b65-8420d7e04ad0');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
+export const getCvxCrvAPRs = async (provider) => {
+    try {
+        const utilContract = new Contract(
+            '0xadd2F542f9FF06405Fabf8CaE4A74bD0FE29c673',
+            [{ "inputs": [{ "internalType": "address", "name": "_stkcvxcrv", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [{ "internalType": "address", "name": "_account", "type": "address" }], "name": "accountExtraRewardRates", "outputs": [{ "internalType": "address[]", "name": "tokens", "type": "address[]" }, { "internalType": "uint256[]", "name": "rates", "type": "uint256[]" }, { "internalType": "uint256[]", "name": "groups", "type": "uint256[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_account", "type": "address" }], "name": "accountRewardRates", "outputs": [{ "internalType": "address[]", "name": "tokens", "type": "address[]" }, { "internalType": "uint256[]", "name": "rates", "type": "uint256[]" }, { "internalType": "uint256[]", "name": "groups", "type": "uint256[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_rate", "type": "uint256" }, { "internalType": "uint256", "name": "_priceOfReward", "type": "uint256" }, { "internalType": "uint256", "name": "_priceOfDeposit", "type": "uint256" }], "name": "apr", "outputs": [{ "internalType": "uint256", "name": "_apr", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "convexProxy", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "crv", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "cvx", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "cvxCrvStaking", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "cvxMining", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "externalRewardContracts", "outputs": [{ "internalType": "address[]", "name": "rewardContracts", "type": "address[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "extraRewardRates", "outputs": [{ "internalType": "address[]", "name": "tokens", "type": "address[]" }, { "internalType": "uint256[]", "name": "rates", "type": "uint256[]" }, { "internalType": "uint256[]", "name": "groups", "type": "uint256[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "mainRewardRates", "outputs": [{ "internalType": "address[]", "name": "tokens", "type": "address[]" }, { "internalType": "uint256[]", "name": "rates", "type": "uint256[]" }, { "internalType": "uint256[]", "name": "groups", "type": "uint256[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_rewardContract", "type": "address" }], "name": "singleRewardRate", "outputs": [{ "internalType": "address", "name": "token", "type": "address" }, { "internalType": "uint256", "name": "rate", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "stkcvxcrv", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }],
+            provider);
+
+        const [mainRewardRates, extraRewardRates, pricesRes] = await Promise.all([
+            utilContract.mainRewardRates(),
+            utilContract.extraRewardRates(),
+            fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=curve-dao-token,convex-finance,convex-crv,lp-3pool-curve`)
+        ]);
+
+        const prices = await pricesRes.json();
+        const mainTokens = mainRewardRates[0];
+
+        const adCgId = {
+            '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490': 'lp-3pool-curve',
+            '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b': 'convex-finance',
+            '0xd533a949740bb3306d119cc777fa900ba034cd52': 'curve-dao-token',
+        }
+
+        const aprs = await Promise.all(
+            mainTokens.map((tokenAd, i) => {                
+                const extraRewardIndex = extraRewardRates[0].findIndex(a => a.toLowerCase() === tokenAd.toLowerCase());                
+                let rate = mainRewardRates[1][i];
+                if (extraRewardIndex !== -1) {                    
+                    rate = rate.add(extraRewardRates[1][extraRewardIndex]);
+                };
+                return utilContract.apr(
+                    rate,
+                    parseEther(prices[adCgId[tokenAd.toLowerCase()]]?.usd.toString()),
+                    parseEther(prices['convex-crv']?.usd.toString()),
+                );
+            })
+        );
+        return {
+            crv: getBnToNumber(aprs[0]) * 100,
+            cvx: getBnToNumber(aprs[1]) * 100,
+            '3crv': getBnToNumber(aprs[2]) * 100,
+            group1: (getBnToNumber(aprs[0]) * 100)+(getBnToNumber(aprs[1]) * 100),
+            group2: getBnToNumber(aprs[2]) * 100,
+        };
+    } catch (e) { console.log(e) }
+    return {};
+}
+
 export const getGOhmData = async () => {
-    try {        
+    try {
         const results = await fetch("https://api.thegraph.com/subgraphs/name/olympusdao/olympus-protocol-metrics", {
             "referrer": "https://app.olympusdao.finance/",
             "referrerPolicy": "strict-origin-when-cross-origin",
@@ -191,9 +245,9 @@ export const getGOhmData = async () => {
             "method": "POST",
             "mode": "cors",
             "credentials": "omit"
-          });
-          const data = await results.json();          
-          return data?.data?.protocolMetrics?.length > 0 ? { apy: parseFloat(data.data.protocolMetrics[0].currentAPY) } : { apy: 0 };
+        });
+        const data = await results.json();
+        return data?.data?.protocolMetrics?.length > 0 ? { apy: parseFloat(data.data.protocolMetrics[0].currentAPY) } : { apy: 0 };
     } catch (e) {
         console.log(e)
         return { apy: 0 }
@@ -212,7 +266,7 @@ export const getXSushiData = async (nbDays = 7) => {
         const infos = await Promise.all([
             ...days.map(v => {
                 const d = new Date();
-                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() -v, 0, 0, 0);
+                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - v, 0, 0, 0);
                 return sushiData.bar.info({ timestamp: utc });
             }),
         ]);
@@ -220,7 +274,7 @@ export const getXSushiData = async (nbDays = 7) => {
         const prices = (await Promise.all([
             ...days.map(v => {
                 const d = new Date();
-                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() -v, 0, 0, 0);
+                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - v, 0, 0, 0);
                 return sushiData.exchange.token({ timestamp: utc, token_address: '0x8798249c2e607446efb7ad49ec89dd1865ff4272' });
             }),
         ])).map(d => d.derivedETH);
@@ -231,7 +285,7 @@ export const getXSushiData = async (nbDays = 7) => {
             return apy;
         });
 
-        apy = apys.reduce((prev, curr) => prev + curr, 0)/apys.length;
+        apy = apys.reduce((prev, curr) => prev + curr, 0) / apys.length;
     } catch (e) { console.log(e) }
     return { apy: apy * 100 };
 }
@@ -251,23 +305,23 @@ export const getYieldOppys = async () => {
     try {
         const results = await fetch(url);
         const data = await results.json();
-        const pools =  data.status === 'success' ? data.data : [];
+        const pools = data.status === 'success' ? data.data : [];
         return pools
             .filter(p => /^(inv-|dola-|dbr-)/i.test(p.symbol) || /(-inv|-dola|-dbr)$/i.test(p.symbol) || /(-inv-|-dola-|-dbr-)/i.test(p.symbol))
             .map(p => {
-            return {
-              ...p,
-              // clean pool names & make them more homogen
-              symbol: p.symbol
-                .replace(/-3CRV$/i, '-3POOL')
-                .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
-                .replace(/ \([0-9.]+%\)$/i, '')
-                .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
-                .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
-                .toUpperCase()
-              ,
-            }
-          });
+                return {
+                    ...p,
+                    // clean pool names & make them more homogen
+                    symbol: p.symbol
+                        .replace(/-3CRV$/i, '-3POOL')
+                        .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
+                        .replace(/ \([0-9.]+%\)$/i, '')
+                        .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
+                        .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
+                        .toUpperCase()
+                    ,
+                }
+            });
     } catch (e) { console.log(e) }
     return {};
 }

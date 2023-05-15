@@ -19,11 +19,13 @@ export const OracleType = ({
     showImage = true,
     showText = true,
     showTooltip = false,
+    simplify = false,
     subText = '',
 }: {
     oracleType: string,
     showImage?: boolean,
     showText?: boolean,
+    simplify?: boolean,
     subText?: string
     showTooltip?: boolean
 }) => {//
@@ -31,7 +33,7 @@ export const OracleType = ({
         <Stack alignItems="center" spacing="1" direction="row">
             {
                 showTooltip && <InfoTooltip
-                    iconProps={{ boxSize: 3 }}
+                    iconProps={{ boxSize: 2.5 }}
                     tooltipProps={{
                         className: 'blurred-container info-bg',
                         borderColor: 'info',
@@ -40,9 +42,15 @@ export const OracleType = ({
                     message={<OracleTypeTooltipContent subText={subText} />}
                 />
             }
-            {showImage && <Image src={`/assets/projects/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
-            {showText && <Text>{capitalize(oracleType)}+PPO</Text>}
+            {showImage && <Image src={`/assets/oracles/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
+            {showText && <Text>
+                {capitalize(oracleType)}
+                {simplify ? '+PPO' : ''}
+                {simplify && !!subText ? `+${subText}` : '' }
+            </Text>}
         </Stack>
-        {!!subText && <Text>+{capitalize(subText)}</Text>}
+        {
+            !simplify ? <Text>{!!subText ? `+${capitalize(subText)}` : ''}+PPO</Text> : null
+        }
     </Stack>
 }

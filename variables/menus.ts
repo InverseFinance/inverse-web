@@ -8,6 +8,10 @@ export const MENUS = {
           label: 'FiRM',
           href: '/firm',
         },
+        {
+          label: 'FiRM rewards',
+          href: '/firm/rewards',
+        },
         // {
         //   label: 'WETH Market',
         //   href: '/firm/WETH',
@@ -45,6 +49,10 @@ export const MENUS = {
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
+        },
+        {
+          label: 'FiRM rewards',
+          href: '/firm/rewards',
         },
         {
           label: 'Liquidate Loans',
@@ -114,6 +122,10 @@ export const MENUS = {
         {
           href: 'https://docs.inverse.finance',
           label: 'Docs',
+        },
+        {
+          label: 'Audits',
+          href: '/audits',
         },
         {
           label: 'About FiRM',
@@ -303,6 +315,10 @@ export const MENUS = {
         {
           label: 'Docs',
           href: 'https://docs.inverse.finance/',
+        },
+        {
+          label: 'Audits',
+          href: 'https://docs.inverse.finance/inverse-finance/technical/audits',
         },
         {
           label: 'Risk Gitbook',

@@ -38,6 +38,7 @@ const ApyTooltipContent = ({
 
 export const AnchorPoolInfo = ({
     value,
+    valueLow,
     monthlyValue,
     symbol,
     type,
@@ -47,14 +48,17 @@ export const AnchorPoolInfo = ({
     underlyingSymbol = '',
     textProps,
     protocolImage,
+    hasClaimableRewards,
 }: {
     type: 'supply' | 'borrow',
     symbol: string,
     value?: number,
+    valueLow?: number,
     monthlyValue?: number,
     priceUsd?: number,
     isReward?: boolean,
     isBalance?: boolean,
+    hasClaimableRewards?: boolean,
     underlyingSymbol?: string,
     textProps?: TextProps,
     protocolImage?: string,
@@ -75,12 +79,13 @@ export const AnchorPoolInfo = ({
 
     return (
         <Text {...textProps} opacity={(value && value > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
+            {valueLow ? `${shortenNumber(valueLow, 2)}% - ` : null}
             {label}
             {
                 !!protocolImage
                 && <AnimatedInfoTooltip message={
                     isYieldBearingApyKnown ?
-                        'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
+                        hasClaimableRewards ? 'Claimable rewards APR' : 'Yield Bearing Asset APY' : 'Yield Bearing Asset, no info on APY'}
                 >
                     <Image borderRadius="20px" zIndex="2" position="absolute" bottom="0" right="-15px" src={protocolImage} width="12px" />
                 </AnimatedInfoTooltip>

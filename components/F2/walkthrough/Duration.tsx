@@ -27,11 +27,8 @@ export const F2WalkthroughDuration = ({
         durationType,
         durationTypedValue,
         duration,
-        newCreditLeft,
         maxBorrowable,
         dbrCover,
-        dbrCoverDebt,
-        dbrPrice,
         dbrBalance,
     } = useContext(F2MarketContext);
 

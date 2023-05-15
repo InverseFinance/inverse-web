@@ -1,4 +1,4 @@
-import { BALANCER_VAULT_ABI, F2_SIMPLE_ESCROW_ABI } from "@app/config/abis";
+import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
@@ -72,7 +72,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
-  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v8`, fetcher);
+  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v12`, fetcher);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
@@ -199,7 +199,7 @@ export const useAccountDBRMarket = (
 
   const { data: escrowData } = useEtherSWR({
     args: [[escrow, 'balance']],
-    abi: F2_SIMPLE_ESCROW_ABI,
+    abi: F2_ESCROW_ABI,
   });
   const bnDeposits = (escrowData && escrow ? escrowData[0] : zero);
 
@@ -253,7 +253,7 @@ export const useAccountF2Markets = (
   });
 }
 
-export const useDBRPriceLive = (): { price: number | undefined } => {
+export const useDBRBalancePrice = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
       [
@@ -275,12 +275,44 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
   }
 }
 
+export const useDBRPriceLive = (): { price: number | undefined } => {
+  const { data } = useEtherSWR({
+    args: [
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_scale'],
+    ],
+    abi: [
+      'function price_scale() public view returns(uint)',
+    ],
+  });
+  
+  const priceInDbr = data && data[0] ? getBnToNumber(data[0]) : undefined;
+
+  return {
+    price: priceInDbr ? (1 / priceInDbr) : undefined,
+  }
+}
+
+export const useDBRSwapPrice = (ask = '1000'): { price: number | undefined } => {
+  const { data } = useEtherSWR({
+    args: [
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 0, 1, parseUnits(ask)],
+    ],
+    abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
+  });
+  
+  const price = data && data[0] ? getBnToNumber(data[0].div(ask)) : undefined;
+
+  return {
+    price,
+  }
+}
+
 export const useDBRPrice = (): { price: number } => {
   const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
   const { price: livePrice } = useDBRPriceLive();
 
   return {
-    price: livePrice ?? (apiData?.price || 0.04),
+    price: livePrice ?? (apiData?.price || 0.05),
   }
 }
 
@@ -293,6 +325,7 @@ export const useDBR = (): {
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
   const { price: livePrice } = useDBRPriceLive();
+
   const { data: extraData } = useEtherSWR([
     [DBR, 'totalSupply'],
     [DBR, 'totalDueTokensAccrued'],

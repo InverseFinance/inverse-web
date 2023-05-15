@@ -13,6 +13,8 @@ const namedAddresses: { [key: string]: string } = {
     '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'DAI',
     '0x7e2a6e9395df9f01c00bc3af095068b454fd896e': 'InvPriceFeed',
     '0x40A2aCCbd92BCA938b02010E17A5b8929b49130D': 'SafeMultiSend',
+    '0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F': 'c2tp',
+    '0x7a16fF8270133F063aAb6C9977183D9e72835428': 'Mich',
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'Fed FiRM',
@@ -85,7 +87,8 @@ const namedAddresses: { [key: string]: string } = {
     '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow', 
     '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A': 'FiRMgOHMEscrow', 
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController',
-    '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMHelper',
+    '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMBalancerHelper',
+    '0xae8165f37FC453408Fb1cd1064973df3E6499a76': 'FiRMCurveHelper',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }

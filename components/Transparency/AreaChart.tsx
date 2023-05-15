@@ -33,6 +33,7 @@ export type AreaChartProps = {
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
     id?: string,
+    yTickPrecision?: number
 };
 
 export const AreaChart = ({
@@ -53,6 +54,7 @@ export const AreaChart = ({
     titleProps,
     allowZoom = false,
     id = 'area-chart',
+    yTickPrecision,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
@@ -116,7 +118,7 @@ export const AreaChart = ({
                     {
                         !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                     }
-                    <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, 0, isDollars)}${isPerc ? '%' : ''}`} />
+                    <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, yTickPrecision ?? (t >= 1000000 && t < 10000000 ? 2 : 0), isDollars)}${isPerc ? '%' : ''}`} />
                     <VictoryAxis style={_axisStyle} />
                     <VictoryArea
                         domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}

@@ -9,6 +9,7 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { F2MarketContext } from "../F2Contex";
 import { setRewardWeight } from "@app/util/firm-extra";
 import useEtherSWR from "@app/hooks/useEtherSWR";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 export const CvxCrvWeightBar = ({
     perc,
@@ -51,7 +52,7 @@ const useCvxCrvRewards = (escrow: string) => {
 }
 
 export const CvxCrvPreferences = () => {
-    const { escrow, signer } = useContext(F2MarketContext);
+    const { escrow, signer, market } = useContext(F2MarketContext);
     const [perc, setPerc] = useState<number | null>(null);
     const [defaultPerc, setDefaultPerc] = useState<number | null>(null);
     const { userRewardWeight } = useCvxCrvRewards(escrow);
@@ -68,18 +69,18 @@ export const CvxCrvPreferences = () => {
     const hasChanged = perc !== defaultPerc;
 
     const handleRewardsRepartitionUpdate = async () => {
-        if (!escrow || !hasChanged || !signer) { return }
+        if (!escrow || escrow === BURN_ADDRESS || !hasChanged || !signer) { return }
         return setRewardWeight(escrow, perc * 100, signer);
     }
 
     return <Stack w='full' direction={{ base: 'column', md: 'row' }}>
-        <Container label='Rewards Preferences' collapsable={true} defaultCollapse={true} noPadding p='0'>
+        <Container label='Rewards Preferences' collapsable={true} defaultCollapse={false} noPadding p='0'>
             <Stack direction={{ base: 'column', md: 'row' }} spacing="8" w='full' alignItems="center" p="2">
                 <InfoMessage
                     alertProps={{ w: 'full', fontSize: '16px' }}
                     description={<VStack w='full' alignItems="flex-start" lineHeight="1.5">
                         {
-                            !escrow && <Text fontWeight="bold">
+                            (!escrow || escrow === BURN_ADDRESS) && <Text fontWeight="bold">
                                 Note: You can choose the reward preferences after making a deposit.
                             </Text>
                         }
@@ -95,26 +96,41 @@ export const CvxCrvPreferences = () => {
                     </VStack>}
                 />
                 {
+                    (!!escrow && escrow !== BURN_ADDRESS) &&
                     <VStack w='full' spacing="4" maxW='900px' alignItems="center">
                         <HStack fontSize="17px" fontWeight="bold" w='full' justify="space-between">
-                            <Stack direction={{ base: 'column-reverse', sm: 'row' }} alignItems='center'>                                
-                                <Text><b>Gov</b> token rewards</Text>
-                                <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
-                            </Stack>                           
-                            <Stack direction={{ base: 'column', sm: 'row' }} alignItems='center' justify="flex-end">
-                                <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
-                                <Text align='right'><b>Stablecoin</b> rewards</Text>
-                            </Stack>
+                            <VStack alignItems="flex-start" spacing="0">
+                                <Stack direction={{ base: 'column-reverse', sm: 'row' }} alignItems='center'>
+                                    <Text><b>Gov</b> token rewards</Text>
+                                    <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(100 - perc, 0)}%</Text>
+                                </Stack>
+                                <Text fontSize="14px" color="mainTextColorLight">
+                                    Max vAPR: {shortenNumber(market.cvxCrvData.group1, 2)}%
+                                </Text>
+                            </VStack>
+                            <VStack alignItems="flex-end" spacing="0">
+                                <Stack direction={{ base: 'column', sm: 'row' }} alignItems='center' justify="flex-end">
+                                    <Text color="accentTextColor" fontSize="18px" fontWeight="1000">{shortenNumber(perc, 0)}%</Text>
+                                    <Text align='right'><b>Stablecoin</b> rewards</Text>
+                                </Stack>
+                                <Text fontSize="14px" color="mainTextColorLight">
+                                    Max vAPR: {shortenNumber(market.cvxCrvData.group2, 2)}%
+                                </Text>
+                            </VStack>
+                        </HStack>
+                        <HStack spacing="1">
+                            <Text fontWeight="bold">Resulting max vAPR:</Text>
+                            <Text fontWeight="extrabold">{shortenNumber((100 - perc) / 100 * market.cvxCrvData.group1 + (perc) / 100 * market.cvxCrvData.group2, 2)}%</Text>
                         </HStack>
                         <CvxCrvWeightBar perc={perc} onChange={setPerc} />
                         <PercentagesBar
-                            leftLabel={isLargerThan ? '100% Crv & Cvx': ''}
+                            leftLabel={isLargerThan ? '100% Crv & Cvx' : ''}
                             rightLabel={isLargerThan ? '100% 3crv' : ''}
                             ticks={[0, 50, 100]}
                             showAsRepartition={false}
                             onChange={setPerc}
                             tickProps={{
-                                fontSize: '18px',
+                                fontSize: '16px',
                                 fontWeight: 'bold',
                                 textDecoration: 'underline',
                                 style: { 'text-decoration-skip-ink': 'none' }
@@ -125,7 +141,7 @@ export const CvxCrvPreferences = () => {
                             outline="none"
                             border="none"
                             disabled={!hasChanged}
-                            maxW="300px"                            
+                            maxW="300px"
                             onClick={handleRewardsRepartitionUpdate}
                         >
                             Update Rewards Allocation

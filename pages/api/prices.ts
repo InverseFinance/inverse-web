@@ -10,7 +10,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
 
-export const pricesCacheKey = `prices-v1.0.6`;
+export const pricesCacheKey = `prices-v1.0.7`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
@@ -113,7 +113,7 @@ export default async function handler(req, res) {
       if (lpData[i]) {
         prices[lpToken.token.symbol] = lpData[i];
       }
-    })
+    });
 
     prices['_timestamp'] = +(new Date());
 

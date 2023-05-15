@@ -28,7 +28,7 @@ import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
-import { BigNumber } from 'ethers'
+import { BigNumber, BigNumberish } from 'ethers'
 import { PROTOCOL_IMAGES } from '@app/variables/images'
 
 const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
@@ -545,4 +545,24 @@ export const getUniV3PositionsOf = async (signer: Provider | JsonRpcSigner, liqP
     nftIds.map(id => uniV3NFTContract.positions(id))
   );
   return positions;
+}
+
+export const callWithHigherGL = async (
+  contract: Contract,
+  method: string,
+  args: any[],
+  increaseGL = 50000,
+  options: { value?: BigNumberish } = {},
+) => {
+  let gasLimit = undefined;
+  try {
+    const originalEstimate =  await contract.estimateGas[method](...args);
+    gasLimit = originalEstimate.add(increaseGL);  
+    console.log('gas estimate', originalEstimate.toString());
+    console.log('gl increased to', gasLimit.toString());
+  } catch (e) {    
+    console.log('could not estimate gas, using default');
+    console.log(e);
+  }
+  return contract[method](...args, { gasLimit, ...options });
 }

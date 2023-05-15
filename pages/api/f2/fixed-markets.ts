@@ -5,11 +5,11 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getGOhmData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.0.97`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.1`;
 
 export default async function handler(req, res) {
 
@@ -132,6 +132,16 @@ export default async function handler(req, res) {
       }),
     ));
 
+    let cvxCrvData = {};
+    const cvxCrvAprsCache = await getCacheFromRedis('cvxCrv-aprs', true, 300);
+    if(!cvxCrvAprsCache) {
+      cvxCrvData = await getCvxCrvAPRs(provider);
+      if(!!cvxCrvData?.group1) {
+        redisSetWithTimestamp('cvx-crv-aprs', cvxCrvData);
+      }
+    } else {
+      cvxCrvData = cvxCrvAprsCache;
+    }
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
@@ -145,13 +155,14 @@ export default async function handler(req, res) {
     const externalApys = {
       'stETH': stethData?.apy||0,
       'gOHM': gohmData?.apy||0,
+      'cvxCRV': Math.max(cvxCrvData?.group1||0, cvxCrvData?.group2||0),
     }
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
+      const isCvxCrv = underlying.symbol === 'cvxCRV';
       return {
-        ...m,
-        bnTotalDebts,
+        ...m,        
         oracle: oracles[i],
         oracleFeed: oracleFeeds[i][0],
         underlying: TOKENS[m.collateral],
@@ -169,6 +180,8 @@ export default async function handler(req, res) {
         dailyBorrows: getBnToNumber(dailyBorrows[i]),
         leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
         supplyApy: externalApys[underlying.symbol] || 0,
+        supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1||0, cvxCrvData?.group2||0) : 0,
+        cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
       }
     });
 
