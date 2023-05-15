@@ -184,35 +184,41 @@ export const ShortfallsPage = () => {
                     <Text color="mainTextColorLight" fontSize="14px">To change the zoom level, point an area and use the mouse scroll or change the boundaries in the mini-chart</Text>
                   </HStack>
                 }
-                areaProps={{ showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
               noPadding
               label={
-                <Select onChange={(e) => setSelected(e.target.value)}>
+                <Select w={{ base: 'auto', sm: '350px' }} onChange={(e) => setSelected(e.target.value)}>
                   <option value="dola">DOLA Frontier Repayments by the DAO</option>
                   <option value="eth">ETH Frontier Repayments by the DAO</option>
                   <option value="wbtc">WBTC Frontier Repayments by the DAO</option>
                   <option value="yfi">YFI Frontier Repayments by the DAO</option>
                 </Select>
               }
+              headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+              }}
               right={
-                <VStack spacing="0" alignItems="flex-end">
+                <Stack pt={{ base: '2', sm:'0'}} justify="space-between" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
                   <Text fontWeight="bold">{preciseCommify(totalBadDebtReducedUsd, 0, true)}</Text>
                   <Text>{preciseCommify(totalBadDebtReduced, selected === 'dola' ? 0 : 2)} {selected.toUpperCase()}</Text>
-                </VStack>
+                </Stack>
               }
             >
-              <DefaultCharts
-                barProps={{ eventName: 'Repayment' }}
-                direction={'row'}
-                showMonthlyBarChart={true}
-                maxChartWidth={700}
-                chartData={chartData}
-                isDollars={false}
-                areaProps={{ showMaxY: false, showTooltips: true }}
-              />
+              <VStack w='full' alignItems="center" justify="center">
+                <DefaultCharts
+                  barProps={{ eventName: 'Repayment' }}
+                  direction={'column-reverse'}
+                  showMonthlyBarChart={true}
+                  maxChartWidth={1000}
+                  chartData={chartData}
+                  isDollars={false}
+                  areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: true }}
+                />
+              </VStack>
             </Container>
           </Stack>
           <Container
@@ -224,6 +230,7 @@ export const ShortfallsPage = () => {
             <Table
               items={items}
               columns={columns}
+              enableMobileRender={false}
               key="symbol"
               defaultSort="badDebtUsd"
               defaultSortDir="desc"

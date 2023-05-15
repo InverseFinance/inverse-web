@@ -42,9 +42,9 @@ export const DefaultCharts = ({
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    return <Stack w='full' direction={direction} justify="space-between">
+    return <Stack w='full' direction={direction} justify="space-between" alignItems="center">
         {
-            showCustomizationBar && <HStack w='full' justify="space-between">
+            showCustomizationBar && <Stack w='full' direction={{ base: 'column', md: 'row' }} justify="space-between">
                 <HStack>
                     <Text fontSize="16px">
                         Smooth line
@@ -52,7 +52,7 @@ export const DefaultCharts = ({
                     <Switch value="true" isChecked={useSmoothLine} onChange={() => setUseSmoothLine(!useSmoothLine)} />
                 </HStack>
                 {custombarChildren}
-            </HStack>
+            </Stack>
         }
         {
             showAreaChart && <AreaChart
