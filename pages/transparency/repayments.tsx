@@ -129,7 +129,7 @@ const columns = [
   },
 ];
 
-export const ShortfallsPage = () => {
+export const BadDebtPage = () => {
   const { data } = useRepayments();
   const { prices } = usePrices();
   const [selected, setSelected] = useState('dola');
@@ -154,12 +154,12 @@ export const ShortfallsPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Shortfalls</title>
-        <meta name="og:title" content="Inverse Finance - Shortfalls" />
-        <meta name="og:description" content="Frontier's shortfalls" />
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Bad Debt</title>
+        <meta name="og:title" content="Inverse Finance - Bad Debt" />
+        <meta name="og:description" content="Bad Debt" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
-        <meta name="description" content="Inverse Finance Shortfalls Details" />
-        <meta name="keywords" content="Inverse Finance, transparency, frontier, shortfalls" />
+        <meta name="description" content="Inverse Finance Bad Debt Details" />
+        <meta name="keywords" content="Inverse Finance, transparency, frontier, Bad Debt" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
       {/* <TransparencyFrontierTabs active="frontier-shortfalls" /> */}
@@ -242,4 +242,4 @@ export const ShortfallsPage = () => {
   )
 }
 
-export default ShortfallsPage
+export default BadDebtPage

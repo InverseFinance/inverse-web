@@ -23,7 +23,7 @@ const { DEBT_CONVERTER, DEBT_REPAYER, TREASURY } = getNetworkConfigConstants();
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     // defaults to mainnet data if unsupported network
-    const cacheKey = `repayments-v1.0.1`;
+    const cacheKey = `repayments-v1.0.7`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
 
     try {
@@ -163,22 +163,43 @@ export default async function handler(req, res) {
 
         const badDebtEvents = [
             {
+                timestamp: 1646092800000, // march 1st 2022
+                nonFrontierDelta: 0,                
+                frontierDelta: 0,        
+                frontierBadDebt: 0,
+                badDebt: 0,        
+            },
+            {
+                timestamp: 1648912863001, // april 2th
+                nonFrontierDelta: 0,
+                // already naturally accounted for
+                frontierDelta: 0,
+                eventPointLabel: 'Frontier',
+            },
+            {
                 timestamp: 1651276800000, // april 30th
                 nonFrontierDelta: 522830,
                 frontierDelta: 0,
-                eventPointLabel: 'Fuse Exploit',
+                eventPointLabel: 'Fuse',
             },
             {
-                timestamp: 1663632000000, // 20 sep
-                nonFrontierDelta: -354830,
+                timestamp: 1655381899001, // June 16th
+                nonFrontierDelta: 0,
+                // already naturally accounted for
                 frontierDelta: 0,
-                eventPointLabel: 'Sep. Fuse Repayment',
+                eventPointLabel: 'Frontier',
             },
+            // {
+            //     timestamp: 1663632000000, // 20 sep
+            //     nonFrontierDelta: -354830,
+            //     frontierDelta: 0,
+            //     eventPointLabel: 'Sep. Fuse Repayment',
+            // },
             {
                 timestamp: 1678665600000,// 13 mars 2023
                 nonFrontierDelta: 863157,
                 frontierDelta: 0,
-                eventPointLabel: 'Euler Exploit',
+                eventPointLabel: 'Euler',
             },
         ];
 
@@ -187,7 +208,7 @@ export default async function handler(req, res) {
             return {
                 timestamp: timestamps["1"][dolaFrontierDebts.blocks[i]] * 1000,
                 frontierBadDebt: badDebt,
-                frontierDelta: delta,
+                frontierDelta: delta || 0,
                 nonFrontierDelta: 0,
             };
         });
@@ -196,7 +217,7 @@ export default async function handler(req, res) {
         dolaBadDebtEvolution.forEach((ev, i) => {
             if (i > 0) {
                 const last = dolaBadDebtEvolution[i - 1];
-                dolaBadDebtEvolution[i].badDebt = last.badDebt + (ev.frontierDelta || ev.nonFrontierDelta);
+                dolaBadDebtEvolution[i].badDebt = last.badDebt + (ev.frontierDelta || ev.nonFrontierDelta || 0);
             } else {
                 dolaBadDebtEvolution[i].badDebt = dolaBadDebtEvolution[i].frontierBadDebt;
             }
