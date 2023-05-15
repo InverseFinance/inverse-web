@@ -19,8 +19,8 @@ import 'add-to-calendar-button';
 import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
 
-const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
-const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
+const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
+const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
 
 export const MarketBar = ({
     ...props
@@ -217,24 +217,24 @@ export const DbrBar = ({
 
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
 
-    const dbrBalanceInfos = <VStack spacing="1" alignItems="flex-start">
+    const dbrBalanceInfos = <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems="flex-start">
         <Title>
             DBR Balance
         </Title>
 
         <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
             {
-                dbrBalance > 0 && <SubTitle color="inherit">
+                dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
                     {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true, true)})`}
                 </SubTitle>
             }
             {
-                dbrBalance === 0 && !debt && <SubTitle color="inherit">
+                dbrBalance === 0 && !debt && <SubTitle textAlign="left" color="inherit">
                     Buy now
                 </SubTitle>
             }
             {
-                needTopUp && <SubTitle style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
+                needTopUp && <SubTitle textAlign="left" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
                     {shortenNumber(dbrBalance, 2)} Top-up now
                 </SubTitle>
             }
@@ -251,7 +251,7 @@ export const DbrBar = ({
                     {
                         dbrBalanceInfos
                     }
-                    <VStack spacing="1" alignItems="center">
+                    <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems="center">
                         <Title>
                             Total Debt
                         </Title>
@@ -259,7 +259,7 @@ export const DbrBar = ({
                             {preciseCommify(debt, 2, true)}
                         </SubTitle>
                     </VStack>
-                    <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
+                    <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
                         <Title>
                             Daily Spend
                         </Title>
@@ -271,10 +271,10 @@ export const DbrBar = ({
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
-                    <Title>
+                    <Title textAlign="right">
                         DBR Depletion Time
                     </Title>
-                    <SubTitle display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
+                    <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
                         {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
                         {/* {isLargerThan1000 && ` - ${moment(dbrExpiryDate).fromNow()}`} */}
                     </SubTitle>
@@ -343,35 +343,35 @@ export const FirmBar = ({
 
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
-            <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
+            <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
                     <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
-            <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
-                <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
+            <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
+                <VStack w={{ base: '33%', md: 'auto' }}  spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
                         {isLargerThan ? 'Total ' : ''}DOLA Supply
                     </Link>
                     <SubTitle>
                         {shortenNumber(totalSupply, 2)}
                     </SubTitle>
                 </VStack>
-                <VStack spacing="1" alignItems='center'>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                <VStack w={{ base: '33%', md: 'auto' }}  spacing="1" alignItems='center'>
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM TVL
                     </Link>
                     <SubTitle>
                         {shortenNumber(firmTotalTvl, 2, true)}
                     </SubTitle>
                 </VStack>
-                <VStack spacing="1" alignItems='flex-end'>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                <VStack w={{ base: '33%', md: 'auto' }}  spacing="1" alignItems='flex-end'>
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM Borrows
                     </Link>
-                    <SubTitle>
+                    <SubTitle textAlign="center">
                         {shortenNumber(totalDebt, 2, false)} ({shortenNumber(totalDebtUsd, 2, true)})
                     </SubTitle>
                 </VStack>
