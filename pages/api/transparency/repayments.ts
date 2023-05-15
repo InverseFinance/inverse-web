@@ -14,16 +14,17 @@ import { throttledPromises } from "@app/util/misc";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
+const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 
 const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.2';
 
-const { DEBT_CONVERTER, DEBT_REPAYER, TREASURY } = getNetworkConfigConstants();
+const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     // defaults to mainnet data if unsupported network
-    const cacheKey = `repayments-v1.0.7`;
+    const cacheKey = `repayments-v1.0.8`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
 
     try {
@@ -189,12 +190,12 @@ export default async function handler(req, res) {
                 frontierDelta: 0,
                 eventPointLabel: 'Frontier',
             },
-            // {
-            //     timestamp: 1663632000000, // 20 sep
-            //     nonFrontierDelta: -354830,
-            //     frontierDelta: 0,
-            //     eventPointLabel: 'Sep. Fuse Repayment',
-            // },
+            {
+                // sep repayment
+                timestamp: 1663632000000, // 20 sep
+                nonFrontierDelta: -354830,
+                frontierDelta: 0,                
+            },
             {
                 timestamp: 1678665600000,// 13 mars 2023
                 nonFrontierDelta: 863157,
