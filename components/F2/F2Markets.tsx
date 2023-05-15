@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text, Image, VStack } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -75,7 +75,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {hasClaimableRewards ? 'Claimable rewards APR' : 'Rebase APY'}
+                        {hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
                     </Text>
                 }
             </Cell>
@@ -156,8 +156,8 @@ const columns = [
                 <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                 {
                     leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
-                    && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign="left" fontSize="12px" color="mainTextColorLight2">
-                        <DailyLimitCountdown prefix="Limit resets in " />                                
+                    && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
+                        <DailyLimitCountdown prefix="Limit resets in " />
                     </CellText>
                 }
             </Cell>
@@ -225,6 +225,8 @@ const firmImages = {
     'light': 'firm-final-logo.png',
 }
 
+const responsiveThreshold = 1260;
+
 export const F2Markets = ({
 
 }: {
@@ -238,6 +240,7 @@ export const F2Markets = ({
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
     const { themeStyles, themeName } = useAppTheme();
+    const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
 
     const isLoading = tvlLoading || !markets?.length;
 
@@ -257,7 +260,14 @@ export const F2Markets = ({
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
         image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/${firmImages[themeName]}')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
-        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+        contentProps={{
+            maxW: { base: '90vw', sm: '100%' },
+            overflowX: 'auto',
+            p: isSmallerThan ? '0' : '4',
+            shadow: isSmallerThan ? '0' : '0 0 0px 1px rgba(0, 0, 0, 0.25)',
+            borderRadius: isSmallerThan ? '0' : '8px',
+        }}
+        contentBgColor={isSmallerThan ? 'transparent' : undefined}
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
@@ -285,7 +295,7 @@ export const F2Markets = ({
                     defaultSortDir="desc"
                     enableMobileRender={true}
                     mobileClickBtnLabel={'View Market'}
-                    mobileThreshold={1260}
+                    mobileThreshold={responsiveThreshold}
                     showRowBorder={true}
                     spacing="0"
                 />

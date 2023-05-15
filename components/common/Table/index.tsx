@@ -61,20 +61,19 @@ export const MobileTable = ({
   onClick: TableProps["onClick"],
 }) => {
   const length = filteredItems?.length;
-  return <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 0 }} w='full'>
+  return <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 4 }} w='full'>
     {
       filteredItems?.map((item, i) => {
-        const isNotFirst = i > 0;
-        const isEvenNum = i % 2 === 0;
         return <VStack
           key={item[keyName] ?? i}
           w='full'
           spacing="4"
-          borderTop={{ base: (isNotFirst ? '1px solid #cccccc' : undefined), md: 'none' }}
-          borderLeft={{ md: (isNotFirst ? '1px solid #cccccc' : undefined) }}
-          pl={{ base: 1, md: (length > 1 ? !isEvenNum ? 8 : 4 : undefined) }}
-          pr={{ base: 1, md: (length > 1 ? isEvenNum ? 8 : 4 : undefined) }}
-          pt={{ base: (isNotFirst ? '4' : undefined), md: '0' }}
+          border="1px solid #cccccc"
+          borderRadius="5"
+          bgColor="containerContentBackground"
+          justify="space-between"
+          px={{ base: '4', md: '8' }}
+          py='4'
         >
           <VStack w='full' spacing="2">
             {
@@ -90,7 +89,7 @@ export const MobileTable = ({
                   onClick: (isNotFirstCol || !onClick) ? undefined : (e) => onClick(item, e),
                 }, <>{Value.props.children}</>);
 
-                return <HStack spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
+                return <HStack alignItems="flex-start" spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
                   <HStack display={isNotFirstCol ? 'inline-flex' : 'none'}>
                     {
                       col.tooltip ?

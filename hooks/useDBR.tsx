@@ -40,7 +40,7 @@ export const useAccountDBR = (
     // [DBR, 'lastUpdated', account],
   ]);
 
-  const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero, zero])
+  const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero])
     .map(v => getBnToNumber(v));
   // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];
 
@@ -372,13 +372,17 @@ export const useBorrowLimits = (market: F2Market) => {
 
 export const useDBRReplenishmentPrice = (): SWR & {
   replenishmentPrice: number,
+  replenishmentDailyRate: number,
 } => {
   const { data, error } = useEtherSWR([
     DBR, 'replenishmentPriceBps',
   ]);
 
+  const replenishmentPrice = data ? getBnToNumber(data, 4) : 0;
+
   return {
-    replenishmentPrice: data ? getBnToNumber(data, 4) : 0,
+    replenishmentPrice,
+    replenishmentDailyRate: replenishmentPrice * 100 / 365,
     isLoading: !error && !data,
     isError: error,
   }
