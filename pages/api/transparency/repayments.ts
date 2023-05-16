@@ -72,6 +72,10 @@ export default async function handler(req, res) {
         const anEth = new Contract('0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8', CTOKEN_ABI, provider);
         const anYfi = new Contract('0xde2af899040536884e062D3a334F2dD36F34b4a4', CTOKEN_ABI, provider);
         const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);
+        // non-frontier bad debt
+        const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
+        const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
+        const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);
 
         const [
             debtConverterRepaymentsEvents,
@@ -81,7 +85,10 @@ export default async function handler(req, res) {
             wbtcRepayEvents,
             ethRepayEvents,
             yfiRepayEvents,
-            dolaRepayEvents,
+            dolaFrontierRepayEvents,
+            dolaB1RepayEvents,
+            dolaFuse6RepayEvents,
+            dolaBadgerRepayEvents,
             fedsOverviewData,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
@@ -92,8 +99,17 @@ export default async function handler(req, res) {
             anEth.queryFilter(anEth.filters.RepayBorrow(), 14886483),
             anYfi.queryFilter(anYfi.filters.RepayBorrow(), 14886483),
             anDola.queryFilter(anDola.filters.RepayBorrow(), 14886483),
+            anDolaB1.queryFilter(anDola.filters.RepayBorrow(), 14886483),
+            anDolaFuse6.queryFilter(anDola.filters.RepayBorrow(), 14886483),
+            anDolaBadger.queryFilter(anDola.filters.RepayBorrow(), 14886483),
             getCacheFromRedis(fedOverviewCacheKey, false),
         ]);
+        // res.json({
+        //     dolaB1RepayEvents: dolaB1RepayEvents.filter(event => [TREASURY, TWG, RWG].includes(event.args.payer)),
+        //     dolaFuse6RepayEvents: dolaFuse6RepayEvents.filter(event => [TREASURY, TWG, RWG].includes(event.args.payer)),
+        //     dolaBadgerRepayEvents: dolaBadgerRepayEvents.filter(event => [TREASURY, TWG, RWG].includes(event.args.payer)),
+        // });
+        // return
 
         const fedOverviews = fedsOverviewData?.fedOverviews || [];
         const nonFrontierDolaBadDebt = fedOverviews
@@ -103,11 +119,11 @@ export default async function handler(req, res) {
         badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
         badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
 
-        const dolaRepaymentsBlocks = dolaRepayEvents.map(e => e.blockNumber); 
+        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber); 
         const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
 
         const blocksNeedingTs =
-            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
+            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => event.blockNumber);
@@ -118,8 +134,8 @@ export default async function handler(req, res) {
         await addBlockTimestamps(blocksNeedingTs, '1');
         const timestamps = await getCachedBlockTimestamps();
 
-        const [wbtcRepayedByDAO, ethRepayedByDAO, yfiRepayedByDAO, dolaRepayedByDAO] =
-            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaRepayEvents].map((arr, i) => {
+        const [wbtcRepayedByDAO, ethRepayedByDAO, yfiRepayedByDAO, dolaFrontierRepayedByDAO, dolaB1RepayedByDAO, dolaFuse6RepayedByDAO, dolaBadgerRepayedByDAO] =
+            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => {
@@ -131,6 +147,9 @@ export default async function handler(req, res) {
                     }
                 });
             });
+
+        const nonFrontierDolaRepayedByDAO = dolaB1RepayedByDAO.concat(dolaFuse6RepayedByDAO).concat(dolaBadgerRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const totalDolaRepayedByDAO = dolaFrontierRepayedByDAO.concat(nonFrontierDolaRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
 
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
@@ -146,7 +165,7 @@ export default async function handler(req, res) {
             const convertedFor = getBnToNumber(event.args.dolaAmount);
             badDebts[symbol].converted += converted;
             badDebts[symbol].convertedFor += convertedFor;
-            return { ...event, symbol, converted, convertedFor }
+            return { symbol, converted, convertedFor }
         });
 
         const debtConverterRepayments = debtRepayerRepaymentsEvents.map(event => {
@@ -157,7 +176,7 @@ export default async function handler(req, res) {
             const soldFor = getBnToNumber(event.args.receiveAmount, underlying.decimals);
             badDebts[symbol].sold += sold;
             badDebts[symbol].soldFor += soldFor;
-            return { event, sold, soldFor, symbol };
+            return { sold, soldFor, symbol };
         });
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
@@ -191,9 +210,9 @@ export default async function handler(req, res) {
                 eventPointLabel: 'Frontier',
             },
             {
-                // sep repayment
+                // sep repayment by mev bot (not by dao), dao repaid 303k
                 timestamp: 1663632000000, // 20 sep
-                nonFrontierDelta: -354830,
+                nonFrontierDelta: -50850,
                 frontierDelta: 0,                
             },
             {
@@ -202,7 +221,11 @@ export default async function handler(req, res) {
                 frontierDelta: 0,
                 eventPointLabel: 'Euler',
             },
+            ...nonFrontierDolaRepayedByDAO.map(({ blocknumber, timestamp, amount }, i) => {
+                return { timestamp, nonFrontierDelta: -amount, frontierDelta: 0 }
+            })
         ];
+        badDebtEvents.sort((a, b) => a.timestamp - b.timestamp);
 
         const frontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
             const delta = badDebt - dolaFrontierDebts.totals[i - 1];
@@ -213,6 +236,7 @@ export default async function handler(req, res) {
                 nonFrontierDelta: 0,
             };
         });
+
         const dolaBadDebtEvolution = frontierDolaEvolution.concat(badDebtEvents).sort((a, b) => a.timestamp - b.timestamp);
 
         dolaBadDebtEvolution.forEach((ev, i) => {
@@ -229,7 +253,12 @@ export default async function handler(req, res) {
             wbtcRepayedByDAO,
             ethRepayedByDAO,
             yfiRepayedByDAO,
-            dolaRepayedByDAO,
+            dolaFrontierRepayedByDAO,
+            nonFrontierDolaRepayedByDAO,
+            dolaB1RepayedByDAO,
+            dolaFuse6RepayedByDAO,
+            dolaBadgerRepayedByDAO,
+            totalDolaRepayedByDAO,
             badDebts,
             repayments,
             debtConverterConversions,

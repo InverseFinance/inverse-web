@@ -132,7 +132,7 @@ const columns = [
 export const BadDebtPage = () => {
   const { data } = useRepayments();
   const { prices } = usePrices();
-  const [selected, setSelected] = useState('dola');
+  const [selected, setSelected] = useState('totalDola');
   const { chartData } = useEventsAsChartData(data[`${selected}RepayedByDAO`] || [], '_acc_', 'amount', false, false);
   const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
 
@@ -148,7 +148,8 @@ export const BadDebtPage = () => {
   }).filter(item => item.badDebtBalance > 0.1);
 
   const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
-  const item = items.find(item => item.symbol.toLowerCase() === selected);
+  const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };
+  const isDolaCase = item?.coingeckoId === 'dola-usd';
   const totalBadDebtReducedUsd = totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1;
 
   return (
@@ -191,7 +192,9 @@ export const BadDebtPage = () => {
               noPadding
               label={
                 <Select w={{ base: 'auto', sm: '350px' }} onChange={(e) => setSelected(e.target.value)}>
-                  <option value="dola">DOLA Frontier Repayments by the DAO</option>
+                  <option value="totalDola">Total DOLA Repayments by the DAO</option>
+                  <option value="dolaFrontier">DOLA Frontier Repayments by the DAO</option>
+                  <option value="nonFrontierDola">DOLA Non-Frontier Repayments by the DAO</option>
                   <option value="eth">ETH Frontier Repayments by the DAO</option>
                   <option value="wbtc">WBTC Frontier Repayments by the DAO</option>
                   <option value="yfi">YFI Frontier Repayments by the DAO</option>
@@ -204,7 +207,7 @@ export const BadDebtPage = () => {
               right={
                 <Stack pt={{ base: '2', sm:'0'}} justify="space-between" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
                   <Text fontWeight="bold">{preciseCommify(totalBadDebtReducedUsd, 0, true)}</Text>
-                  <Text>{preciseCommify(totalBadDebtReduced, selected === 'dola' ? 0 : 2)} {selected.toUpperCase()}</Text>
+                  <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                 </Stack>
               }
             >
