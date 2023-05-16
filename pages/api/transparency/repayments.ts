@@ -11,6 +11,8 @@ import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestam
 import { fedOverviewCacheKey } from "./fed-overview";
 import { dolaFrontierDebts } from "@app/fixtures/frontier-dola";
 import { throttledPromises } from "@app/util/misc";
+import { getTokenHolders } from "@app/util/covalent";
+import { parseUnits } from "@ethersproject/units";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
@@ -80,6 +82,7 @@ export default async function handler(req, res) {
         const [
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
+            iousExRateMantissa,
             debtRepayerRepaymentsEvents,
             dwfOtcBuy,
             wbtcRepayEvents,
@@ -90,9 +93,11 @@ export default async function handler(req, res) {
             dolaFuse6RepayEvents,
             dolaBadgerRepayEvents,
             fedsOverviewData,
+            iouHoldersData,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
             debtConverter.queryFilter(debtConverter.filters.Conversion()),
+            debtConverter.exchangeRateMantissa(),
             debtRepayer.queryFilter(debtRepayer.filters.debtRepayment()),
             dwfOtc.lifetimeBuy(),
             anWbtc.queryFilter(anWbtc.filters.RepayBorrow(), 14886483),
@@ -103,13 +108,9 @@ export default async function handler(req, res) {
             anDolaFuse6.queryFilter(anDola.filters.RepayBorrow(), 14886483),
             anDolaBadger.queryFilter(anDola.filters.RepayBorrow(), 14886483),
             getCacheFromRedis(fedOverviewCacheKey, false),
+            // iou holders
+            getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
         ]);
-        // res.json({
-        //     dolaB1RepayEvents: dolaB1RepayEvents.filter(event => [TREASURY, TWG, RWG].includes(event.args.payer)),
-        //     dolaFuse6RepayEvents: dolaFuse6RepayEvents.filter(event => [TREASURY, TWG, RWG].includes(event.args.payer)),
-        //     dolaBadgerRepayEvents: dolaBadgerRepayEvents.filter(event => [TREASURY, TWG, RWG].includes(event.args.payer)),
-        // });
-        // return
 
         const fedOverviews = fedsOverviewData?.fedOverviews || [];
         const nonFrontierDolaBadDebt = fedOverviews
@@ -129,6 +130,7 @@ export default async function handler(req, res) {
                 }).map(event => event.blockNumber);
             })
                 .flat()
+                .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
                 .concat(dolaFrontierDebts.blocks);
 
         await addBlockTimestamps(blocksNeedingTs, '1');
@@ -154,8 +156,10 @@ export default async function handler(req, res) {
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
 
-        debtConverterRepaymentsEvents.forEach(event => {
-            repayments.iou += getBnToNumber(event.args.dolaAmount);
+        const dolaForIOUsRepayedByDAO = debtConverterRepaymentsEvents.map(event => {
+            const amount = getBnToNumber(event.args.dolaAmount);
+            repayments.iou += amount;
+            return { blocknumber: event.blockNumber, amount, timestamp: timestamps['1'][event.blockNumber] * 1000, txHash: event.transactionHash }
         });
 
         const debtConverterConversions = debtConverterConversionsEvents.map(event => {
@@ -248,7 +252,13 @@ export default async function handler(req, res) {
             }
         });
 
+        const iousHeld = iouHoldersData?.data?.items?.map(d => d.balance)
+            .reduce((prev, curr) => prev + getBnToNumber(parseUnits(curr, 0)), 0) || 0;
+        const iousDolaAmount = iousHeld * getBnToNumber(iousExRateMantissa);
+
         const resultData = {
+            iousHeld,
+            iousDolaAmount,
             dolaBadDebtEvolution,
             wbtcRepayedByDAO,
             ethRepayedByDAO,
@@ -259,6 +269,7 @@ export default async function handler(req, res) {
             dolaFuse6RepayedByDAO,
             dolaBadgerRepayedByDAO,
             totalDolaRepayedByDAO,
+            dolaForIOUsRepayedByDAO,
             badDebts,
             repayments,
             debtConverterConversions,

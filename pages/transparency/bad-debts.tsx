@@ -5,7 +5,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { TransparencyFrontierTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useRepayments } from '@app/hooks/useRepayments'
 import Table from '@app/components/common/Table'
 import { preciseCommify } from '@app/util/misc'
@@ -108,7 +108,7 @@ const columns = [
   // },  
   {
     field: 'totalBadDebtRepaidByDao',
-    label: 'Repaid by the DAO',
+    label: 'Repaid',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -162,7 +162,7 @@ export const BadDebtPage = () => {
         <meta name="description" content="Inverse Finance Bad Debts Details" />
         <meta name="keywords" content="Inverse Finance, transparency, frontier, Bad Debts" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Bad debts" hideAnnouncement={true} />      
+      <AppNav active="Transparency" activeSubmenu="Bad debts" hideAnnouncement={true} />
       <TransparencyTabs active="bad-debts" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
@@ -191,13 +191,14 @@ export const BadDebtPage = () => {
             <Container
               noPadding
               label={
-                <Select w={{ base: 'auto', sm: '350px' }} onChange={(e) => setSelected(e.target.value)}>
-                  <option value="totalDola">Total DOLA Repayments by the DAO</option>
-                  <option value="dolaFrontier">DOLA Frontier Repayments by the DAO</option>
-                  <option value="nonFrontierDola">DOLA Non-Frontier Repayments by the DAO</option>
-                  <option value="eth">ETH Frontier Repayments by the DAO</option>
-                  <option value="wbtc">WBTC Frontier Repayments by the DAO</option>
-                  <option value="yfi">YFI Frontier Repayments by the DAO</option>
+                <Select w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
+                  <option value="totalDola">Total DOLA Repayments</option>
+                  <option value="dolaFrontier">DOLA Frontier Repayments</option>
+                  <option value="nonFrontierDola">DOLA Fuse Repayments</option>
+                  <option value="dolaForIOUs">DOLA IOUs Repayments</option>
+                  <option value="eth">ETH Frontier Repayments</option>
+                  <option value="wbtc">WBTC Frontier Repayments</option>
+                  <option value="yfi">YFI Frontier Repayments</option>                  
                 </Select>
               }
               headerProps={{
@@ -205,7 +206,7 @@ export const BadDebtPage = () => {
                 align: { base: 'flex-start', md: 'flex-end' },
               }}
               right={
-                <Stack pt={{ base: '2', sm:'0'}} justify="space-between" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
+                <Stack pt={{ base: '2', sm: '0' }} justify="space-between" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
                   <Text fontWeight="bold">{preciseCommify(totalBadDebtReducedUsd, 0, true)}</Text>
                   <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                 </Stack>
@@ -229,6 +230,16 @@ export const BadDebtPage = () => {
             label={`Bad Debt Converter and Repayer`}
             description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
             href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
+            headerProps={{
+              direction: { base: 'column', md: 'row' },
+              align: { base: 'flex-start', md: 'flex-end' },
+            }}
+            right={
+              <VStack fontSize="14px" spacing="0" alignItems="flex-end">
+                <Text>IOUs held: <b>{preciseCommify(data?.iousHeld, 0)}</b></Text>
+                <Text>IOUs in DOLA: <b>{preciseCommify(data?.iousDolaAmount, 0)}</b></Text>
+              </VStack>
+            }
           >
             <Table
               items={items}
