@@ -210,7 +210,7 @@ export const BadDebtPage = () => {
                     <option value="totalDola">Total DOLA Repayments</option>
                     <option value="dolaFrontier">DOLA Frontier Repayments</option>
                     <option value="nonFrontierDola">DOLA Fuse Repayments</option>
-                    <option value="dolaForIOUs">DOLA IOUs Repayments</option>
+                    <option value="dolaForIOUs">IOU Repayments (in DOLA)</option>
                     <option value="eth">ETH Frontier Repayments</option>
                     <option value="wbtc">WBTC Frontier Repayments</option>
                     <option value="yfi">YFI Frontier Repayments</option>
