@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     // defaults to mainnet data if unsupported network
     const cacheKey = `repayments-v1.0.8`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
-    const histoPrices = `historic-prices-v1.0.1`;
+    const histoPricesCacheKey = `historic-prices-v1.0.3`;
 
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800);
@@ -144,10 +144,12 @@ export default async function handler(req, res) {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG].includes(event.args.payer);
                 }).map(event => {
+                    const timestamp = timestamps['1'][event.blockNumber] * 1000;
                     return {
                         blocknumber: event.blockNumber,
                         amount: getBnToNumber(event.args.repayAmount, i === 0 ? 8 : 18),
-                        timestamp: timestamps['1'][event.blockNumber] * 1000,
+                        timestamp,
+                        date: timestampToUTC(timestamp),
                         txHash: event.transactionHash,
                     }
                 });
@@ -189,24 +191,24 @@ export default async function handler(req, res) {
         });
 
         // get and save histo prices
-        const pastHistoPricesData = await getCacheFromRedis(histoPrices, false) || HISTO_PRICES;
+        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
 
         const [wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
-            getHistoPrices('wrapped-bitcoin', wbtcRepayedByDAO.map(d => d.timestamp), pastHistoPricesData),
-            getHistoPrices('ethereum', ethRepayedByDAO.map(d => d.timestamp), pastHistoPricesData),
-            getHistoPrices('yearn-finance', yfiRepayedByDAO.map(d => d.timestamp), pastHistoPricesData),
+            getHistoPrices('wrapped-bitcoin', wbtcRepayedByDAO.map(d => d.timestamp), histoPrices),
+            getHistoPrices('ethereum', ethRepayedByDAO.map(d => d.timestamp), histoPrices),
+            getHistoPrices('yearn-finance', yfiRepayedByDAO.map(d => d.timestamp), histoPrices),
         ]);
 
-        pastHistoPricesData['wrapped-bitcoin'] = { ...pastHistoPricesData['wrapped-bitcoin'], ...wbtcPrices };
-        pastHistoPricesData['ethereum'] = { ...pastHistoPricesData['ethereum'], ...ethPrices };
-        pastHistoPricesData['yearn-finance'] = { ...pastHistoPricesData['yearn-finance'], ...yfiPrices };
+        histoPrices['wrapped-bitcoin'] = { ...histoPrices['wrapped-bitcoin'], ...wbtcPrices };
+        histoPrices['ethereum'] = { ...histoPrices['ethereum'], ...ethPrices };
+        histoPrices['yearn-finance'] = { ...histoPrices['yearn-finance'], ...yfiPrices };
 
         if (Object.keys(wbtcPrices)?.length > 0 || Object.keys(ethPrices)?.length > 0 || Object.keys(yfiPrices)?.length > 0) {            
-            await redisSetWithTimestamp(histoPrices, pastHistoPricesData);
+            await redisSetWithTimestamp(histoPricesCacheKey, histoPrices);
         }
 
         debtRepayerRepayments.forEach(d => {
-            d.price = pastHistoPricesData[d.cgId][d.date];
+            d.price = histoPrices[d.cgId][d.date];
         });
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
@@ -280,9 +282,12 @@ export default async function handler(req, res) {
 
         const iousHeld = iouHoldersData?.data?.items?.map(d => d.balance)
             .reduce((prev, curr) => prev + getBnToNumber(parseUnits(curr, 0)), 0) || 0;
-        const iousDolaAmount = iousHeld * getBnToNumber(iousExRateMantissa);
+        const iouExRate = getBnToNumber(iousExRateMantissa);
+        const iousDolaAmount = iousHeld * iouExRate;
 
         const resultData = {
+            iouExRate,
+            histoPrices,
             iousHeld,
             iousDolaAmount,
             dolaBadDebtEvolution,
@@ -411,14 +416,14 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     return resultData;
 }
 
-const getHistoPrices = async (cgId: string, timestamps: number[], pastHistoPricesData: any) => {
-    const dates = timestamps.map(ts => utcDateToDDMMYYYY(timestampToUTC(ts)));
+const getHistoPrices = async (cgId: string, timestamps: number[], histoPrices: any) => {
+    const dates = timestamps.map(ts => timestampToUTC(ts));
     const uniqueDates = [...new Set(dates)]
-        .filter(d => !pastHistoPricesData[cgId][d]);
+        .filter(d => !histoPrices[cgId][d]);
 
     const pricesRes = await Promise.allSettled(
         uniqueDates.map(date => {
-            const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${date}&localization=false`;
+            const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${utcDateToDDMMYYYY(date)}&localization=false`;
             return fetch(histoPriceUrl);
         })
     );

@@ -53,6 +53,7 @@ export const BarChart12Months = ({
     return (
         <BarChart
             width={chartWidth}
+            isDollars={isDollars}
             {...props}
             groupedData={barChartData}
         />
