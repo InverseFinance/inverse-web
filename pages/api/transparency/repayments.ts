@@ -155,17 +155,18 @@ export default async function handler(req, res) {
                 });
             });
 
+        const dolaForIOUsRepayedByDAO = debtConverterRepaymentsEvents.map(event => {
+            const amount = getBnToNumber(event.args.dolaAmount);
+            repayments.iou += amount;
+            const timestamp = timestamps['1'][event.blockNumber] * 1000
+            return { blocknumber: event.blockNumber, amount, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
+        });
+
         const nonFrontierDolaRepayedByDAO = dolaB1RepayedByDAO.concat(dolaFuse6RepayedByDAO).concat(dolaBadgerRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
         const totalDolaRepayedByDAO = dolaFrontierRepayedByDAO.concat(nonFrontierDolaRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
 
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
-
-        const dolaForIOUsRepayedByDAO = debtConverterRepaymentsEvents.map(event => {
-            const amount = getBnToNumber(event.args.dolaAmount);
-            repayments.iou += amount;
-            return { blocknumber: event.blockNumber, amount, timestamp: timestamps['1'][event.blockNumber] * 1000, txHash: event.transactionHash }
-        });
 
         const debtConverterConversions = debtConverterConversionsEvents.map(event => {
             const underlying = UNDERLYING[event.args.anToken];
@@ -194,7 +195,7 @@ export default async function handler(req, res) {
         const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
 
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
-            getHistoPrices('dola-usd', totalDolaRepayedByDAO.map(d => d.timestamp), histoPrices),
+            getHistoPrices('dola-usd', totalDolaRepayedByDAO.concat(dolaForIOUsRepayedByDAO).map(d => d.timestamp), histoPrices),
             getHistoPrices('wrapped-bitcoin', wbtcRepayedByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('ethereum', ethRepayedByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('yearn-finance', yfiRepayedByDAO.map(d => d.timestamp), histoPrices),
@@ -433,7 +434,7 @@ const getHistoPrices = async (cgId: string, timestamps: number[], histoPrices: a
         100,
         'allSettled',
     );
-    
+
     const prices = await Promise.all(pricesRes.map(p => p.status === 'fulfilled' ? p.value.json() : new Promise((res) => res(undefined))));
 
     const pricesObj = prices
