@@ -8,7 +8,7 @@ import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useRepayments } from '@app/hooks/useRepayments'
 import Table from '@app/components/common/Table'
-import { preciseCommify } from '@app/util/misc'
+import { getMonthDiff, preciseCommify } from '@app/util/misc'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
@@ -164,6 +164,8 @@ export const BadDebtPage = () => {
   const totalBadDebtReducedUsd = isDolaCase ? totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1 :
     chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0;
 
+  const barChartNbMonths = getMonthDiff(new Date('2022-06-01'), new Date());
+
   return (
     <Layout>
       <Head>
@@ -245,6 +247,7 @@ export const BadDebtPage = () => {
                   chartData={barChartData}
                   isDollars={isDolaCase ? false : useUsd}
                   areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: true }}
+                  barProps={{ months: [...Array(barChartNbMonths).keys()] }}
                 />
               </VStack>
             </Container>

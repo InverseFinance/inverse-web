@@ -5,7 +5,7 @@ import moment from 'moment'
 import { shortenNumber } from '@app/util/markets';
 import { CoordinatesArray } from '@app/types';
 
-const months = [...Array(12).keys()];
+const DEFAULT_MONTHS = [...Array(12).keys()];
 
 export type BarChart12MonthsProps = {
     chartData: CoordinatesArray,
@@ -14,6 +14,7 @@ export type BarChart12MonthsProps = {
     yAttribute: string,
     isDollars?: boolean,
     xDateFormat?: string,
+    months?: number[],
 }
 
 export const BarChart12Months = ({
@@ -23,6 +24,7 @@ export const BarChart12Months = ({
     yAttribute,
     isDollars,
     xDateFormat = '',
+    months = DEFAULT_MONTHS,
     ...props
 }: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);

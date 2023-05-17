@@ -155,6 +155,14 @@ export const utcDateToDDMMYYYY = (d: string) => {
     return `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
 }
 
+export const getMonthDiff = (d1: Date, d2: Date) => {
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth();
+    months += d2.getMonth();
+    return months <= 0 ? 0 : months;
+}
+
 export const getRandomFromStringList = (commaSeparatedList: string) => {
     const keys = commaSeparatedList.replace(/\s+/g, '').split(',');
     return keys[Math.floor(Math.random() * keys.length)];
