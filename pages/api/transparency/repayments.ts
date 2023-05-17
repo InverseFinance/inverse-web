@@ -6,7 +6,7 @@ import { Contract } from "ethers";
 import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getHistoricValue, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
-import { DWF_PURCHASER } from "@app/config/constants";
+import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
 import { dolaFrontierDebts } from "@app/fixtures/frontier-dola";
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const histoPricesCacheKey = `historic-prices-v1.0.3`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800);
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS);
         if (validCache) {
             res.status(200).json(validCache);
             return
