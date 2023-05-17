@@ -271,7 +271,7 @@ export const BadDebtPage = () => {
                   maxChartWidth={1000}
                   chartData={barChartData}
                   isDollars={isAllCase ? true : useUsd}
-                  areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: true }}
+                  areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
                   barProps={{ months: [...Array(barChartNbMonths).keys()] }}
                 />
               </VStack>
