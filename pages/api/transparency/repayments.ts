@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     // defaults to mainnet data if unsupported network
     const cacheKey = `repayments-v1.0.8`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
-    const histoPricesCacheKey = `historic-prices-v1.0.3`;
+    const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS);
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
         frontierShortfalls.positions
             .filter(({ usdShortfall, usdBorrowed }) => usdShortfall > 0 && usdBorrowed > 0)
-            .forEach(position => {                
+            .forEach(position => {
                 position.borrowed.forEach(({ marketIndex, balance }) => {
                     const marketAddress = frontierShortfalls.markets[marketIndex];
                     const underlying = UNDERLYING[marketAddress];
@@ -193,17 +193,19 @@ export default async function handler(req, res) {
         // get and save histo prices
         const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
 
-        const [wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
+        const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
+            getHistoPrices('dola-usd', totalDolaRepayedByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('wrapped-bitcoin', wbtcRepayedByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('ethereum', ethRepayedByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('yearn-finance', yfiRepayedByDAO.map(d => d.timestamp), histoPrices),
         ]);
 
+        histoPrices['dola-usd'] = { ...histoPrices['dola-usd'], ...dolaPrices };
         histoPrices['wrapped-bitcoin'] = { ...histoPrices['wrapped-bitcoin'], ...wbtcPrices };
         histoPrices['ethereum'] = { ...histoPrices['ethereum'], ...ethPrices };
         histoPrices['yearn-finance'] = { ...histoPrices['yearn-finance'], ...yfiPrices };
 
-        if (Object.keys(wbtcPrices)?.length > 0 || Object.keys(ethPrices)?.length > 0 || Object.keys(yfiPrices)?.length > 0) {            
+        if (Object.keys(dolaPrices)?.length > 0 || Object.keys(wbtcPrices)?.length > 0 || Object.keys(ethPrices)?.length > 0 || Object.keys(yfiPrices)?.length > 0) {
             await redisSetWithTimestamp(histoPricesCacheKey, histoPrices);
         }
 
@@ -421,22 +423,28 @@ const getHistoPrices = async (cgId: string, timestamps: number[], histoPrices: a
     const uniqueDates = [...new Set(dates)]
         .filter(d => !histoPrices[cgId][d]);
 
-    const pricesRes = await Promise.allSettled(
-        uniqueDates.map(date => {
+    const pricesRes = await throttledPromises(
+        (date: string) => {
             const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${utcDateToDDMMYYYY(date)}&localization=false`;
             return fetch(histoPriceUrl);
-        })
+        },
+        uniqueDates,
+        5,
+        100,
+        'allSettled',
     );
-
+    
     const prices = await Promise.all(pricesRes.map(p => p.status === 'fulfilled' ? p.value.json() : new Promise((res) => res(undefined))));
 
-    return (
-        prices
-            .reduce((prev, curr, i) => {
-                return {
-                    ...prev,
-                    [uniqueDates[i]]: curr.market_data ? curr.market_data.current_price.usd : undefined,
-                };
-            }, {})
-    )
+    const pricesObj = prices
+        .reduce((prev, curr, i) => {
+            return {
+                ...prev,
+                [uniqueDates[i]]: curr?.market_data ? curr.market_data.current_price.usd : undefined,
+            };
+        }, {});
+
+    // const missedDates = pricesRes.map((p, i) => p.status === 'rejected' ? uniqueDates[i] : undefined).filter(d => !!d);
+
+    return pricesObj;
 }
