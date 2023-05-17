@@ -140,9 +140,6 @@ const formatToBarData = (data: any, item: any, key: string, isDolaCase: boolean,
   const histoData = data ?
     data.histoPrices[cgId]
     : {};
-  console.log('histoData', histoData);
-  console.log('cgId', cgId);
-  console.log('key', key);
   return {
     ...item,
     worth: item.amount * (histoData && histoData[item.date] ?
@@ -261,7 +258,7 @@ export const BadDebtPage = () => {
                     !isAllCase && <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                   }
                   <Text fontWeight="bold">
-                    {preciseCommify(totalBadDebtReducedUsd, 0, true)} (historical)
+                    {preciseCommify(totalBadDebtReducedUsd, 0, true)}{!isAllCase ? ' (historical)' : ''}
                   </Text>
                 </Stack>
               }
