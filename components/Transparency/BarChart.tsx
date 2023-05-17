@@ -52,7 +52,7 @@ export const BarChart = ({
     const lightMode = width <= 400;
 
     const defaultAxisStyle: VictoryAxisProps["style"] = {
-        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 13 },
         grid: {
             stroke: '#66666633',
             strokeDasharray: '4 4',

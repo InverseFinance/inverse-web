@@ -14,6 +14,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
+import moment from 'moment'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -26,16 +27,6 @@ const Cell = ({ ...props }) => {
 const CellText = ({ ...props }) => {
   return <Text fontSize="14px" {...props} />
 }
-
-const ClickableCellText = ({ ...props }) => {
-  return <CellText
-    textDecoration="underline"
-    cursor="pointer"
-    style={{ 'text-decoration-skip-ink': 'none' }}
-    {...props}
-  />
-}
-
 
 const columns = [
   {
@@ -144,28 +135,41 @@ const getClosestPreviousHistoPrice = (histoPrices: { [key: string]: number }, da
   return histoPrices[closestDate] || defaultPrice;
 }
 
+const formatToBarData = (data: any, item: any, key: string, isDolaCase: boolean, prices: any, isAllCase = false) => {
+  const cgId = isDolaCase ? 'dola-usd' : keyPrices[key];
+  const histoData = data ?
+    data.histoPrices[cgId]
+    : {};
+  console.log('histoData', histoData);
+  console.log('cgId', cgId);
+  console.log('key', key);
+  return {
+    ...item,
+    worth: item.amount * (histoData && histoData[item.date] ?
+      histoData[item.date] : isDolaCase ?
+        1 : getClosestPreviousHistoPrice(histoData, item.date, prices[cgId]?.usd || 1)
+    )
+  };
+}
+
+const totalRepaymentKeys = ['wbtcRepayedByDAO', 'ethRepayedByDAO', 'yfiRepayedByDAO', 'totalDolaRepayedByDAO', 'dolaForIOUsRepayedByDAO'];
+
 export const BadDebtPage = () => {
   const { data } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
   const { prices } = usePrices();
-  const [selected, setSelected] = useState('totalDola');
+  const [selected, setSelected] = useState('all');
+  const isAllCase = selected === 'all';
   const isDolaCase = selected.toLowerCase().includes('dola');
 
-  const chartSourceData = (data[`${selected}RepayedByDAO`] || []).map((d, i) => {    
-    const cgId = isDolaCase ? 'dola-usd' : keyPrices[`${selected}RepayedByDAO`];
-    const histoData = data ?
-      data.histoPrices[cgId]
-      : {};
-    return {
-      ...d,
-      worth: d.amount * (histoData && histoData[d.date] ?
-        histoData[d.date] : isDolaCase ?
-          1 : getClosestPreviousHistoPrice(histoData, d.date, prices[cgId]?.usd || 1)
-      )
-    };
-  });
+  const chartSourceData = isAllCase ?
+    totalRepaymentKeys.map(key => {
+      return (data[key] || []).map((d, i) => formatToBarData(data, d, key, key.toLowerCase().includes('dola'), prices));
+    }).flat() :
+    (data[`${selected}RepayedByDAO`] || [])
+      .map((d, i) => formatToBarData(data, d, `${selected}RepayedByDAO`, isDolaCase, prices, isAllCase));
 
-  const { chartData: barChartData } = useEventsAsChartData(chartSourceData, '_acc_', useUsd ? 'worth' : 'amount', false, false);
+  const { chartData: barChartData } = useEventsAsChartData(chartSourceData, '_acc_', useUsd || isAllCase ? 'worth' : 'amount', false, false);
   const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
 
   const items = Object.values(data?.badDebts || {}).map(item => {
@@ -180,7 +184,7 @@ export const BadDebtPage = () => {
   }).filter(item => item.badDebtBalance > 0.1);
 
   const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
-  const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };  
+  const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };
   const totalBadDebtReducedUsd = isDolaCase ? totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1 :
     chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0;
 
@@ -203,6 +207,7 @@ export const BadDebtPage = () => {
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
             <Container
               label="DOLA bad debt Evolution"
+              description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
               noPadding
             >
               <DefaultCharts
@@ -227,6 +232,7 @@ export const BadDebtPage = () => {
               label={
                 <Stack direction={{ base: 'column', md: 'row' }}>
                   <Select w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
+                    <option value="all">Total Repayments in USD</option>
                     <option value="totalDola">Total DOLA Repayments</option>
                     <option value="dolaFrontier">DOLA Frontier Repayments</option>
                     <option value="nonFrontierDola">DOLA Fuse Repayments</option>
@@ -235,12 +241,14 @@ export const BadDebtPage = () => {
                     <option value="wbtc">WBTC Frontier Repayments</option>
                     <option value="yfi">YFI Frontier Repayments</option>
                   </Select>
-                  <HStack w="100px">
+                  {
+                    !isAllCase && <HStack w="100px">
                       <Text fontSize="16px">
                         In USD
                       </Text>
                       <Switch value="true" isChecked={useUsd} onChange={() => setUseUsd(!useUsd)} />
                     </HStack>
+                  }
                 </Stack>
               }
               headerProps={{
@@ -248,11 +256,13 @@ export const BadDebtPage = () => {
                 align: { base: 'flex-start', md: 'flex-end' },
               }}
               right={
-                <Stack pt={{ base: '2', sm: '0' }} justify="space-between" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
+                <Stack pt={{ base: '2', sm: '0' }} justify="center" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
+                  {
+                    !isAllCase && <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
+                  }
                   <Text fontWeight="bold">
                     {preciseCommify(totalBadDebtReducedUsd, 0, true)} (historical)
                   </Text>
-                  <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                 </Stack>
               }
             >
@@ -263,7 +273,7 @@ export const BadDebtPage = () => {
                   showMonthlyBarChart={true}
                   maxChartWidth={1000}
                   chartData={barChartData}
-                  isDollars={useUsd}
+                  isDollars={isAllCase ? true : useUsd}
                   areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: true }}
                   barProps={{ months: [...Array(barChartNbMonths).keys()] }}
                 />
