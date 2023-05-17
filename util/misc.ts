@@ -150,6 +150,11 @@ export const timestampToUTC = (timestamp: number) => {
     return `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${(date.getUTCDate()).toString().padStart(2, '0')}`
 }
 
+export const utcDateToDDMMYYYY = (d: string) => {
+    const dateSplit = d.substring(0, 10).split('-');
+    return `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
+}
+
 export const getRandomFromStringList = (commaSeparatedList: string) => {
     const keys = commaSeparatedList.replace(/\s+/g, '').split(',');
     return keys[Math.floor(Math.random() * keys.length)];

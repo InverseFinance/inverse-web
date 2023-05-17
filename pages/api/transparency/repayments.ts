@@ -10,9 +10,10 @@ import { DWF_PURCHASER } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
 import { dolaFrontierDebts } from "@app/fixtures/frontier-dola";
-import { throttledPromises } from "@app/util/misc";
+import { throttledPromises, timestampToUTC, utcDateToDDMMYYYY } from "@app/util/misc";
 import { getTokenHolders } from "@app/util/covalent";
 import { parseUnits } from "@ethersproject/units";
+import { HISTO_PRICES } from "@app/fixtures/histo-prices";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
@@ -28,13 +29,15 @@ export default async function handler(req, res) {
     // defaults to mainnet data if unsupported network
     const cacheKey = `repayments-v1.0.8`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
+    const histoPrices = `historic-prices-v1.0.1`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800);        
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 1800);
         if (validCache) {
             res.status(200).json(validCache);
             return
         }
+
         const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);
 
         const badDebts = {};
@@ -44,8 +47,7 @@ export default async function handler(req, res) {
 
         frontierShortfalls.positions
             .filter(({ usdShortfall, usdBorrowed }) => usdShortfall > 0 && usdBorrowed > 0)
-            .forEach(position => {
-                // console.log(position.borrowed)
+            .forEach(position => {                
                 position.borrowed.forEach(({ marketIndex, balance }) => {
                     const marketAddress = frontierShortfalls.markets[marketIndex];
                     const underlying = UNDERLYING[marketAddress];
@@ -120,7 +122,7 @@ export default async function handler(req, res) {
         badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
         badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
 
-        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber); 
+        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
         const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
 
         const blocksNeedingTs =
@@ -131,6 +133,7 @@ export default async function handler(req, res) {
             })
                 .flat()
                 .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
+                .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))
                 .concat(dolaFrontierDebts.blocks);
 
         await addBlockTimestamps(blocksNeedingTs, '1');
@@ -172,7 +175,7 @@ export default async function handler(req, res) {
             return { symbol, converted, convertedFor }
         });
 
-        const debtConverterRepayments = debtRepayerRepaymentsEvents.map(event => {
+        const debtRepayerRepayments = debtRepayerRepaymentsEvents.map(event => {
             const underlying = getToken(TOKENS, event.args.underlying);
             const symbol = underlying.symbol.replace('WETH', 'ETH').replace('-v1', '');
             const marketIndex = frontierShortfalls.markets.map(m => UNDERLYING[m]?.address || WETH).indexOf(event.args.underlying);
@@ -180,7 +183,30 @@ export default async function handler(req, res) {
             const soldFor = getBnToNumber(event.args.receiveAmount, underlying.decimals);
             badDebts[symbol].sold += sold;
             badDebts[symbol].soldFor += soldFor;
-            return { sold, soldFor, symbol };
+            const timestamp = timestamps['1'][event.blockNumber] * 1000;
+            const date = timestampToUTC(timestamp);
+            return { sold, soldFor, symbol, cgId: underlying.coingeckoId?.replace('weth', 'ethereum'), timestamp, date };
+        });
+
+        // get and save histo prices
+        const pastHistoPricesData = await getCacheFromRedis(histoPrices, false) || HISTO_PRICES;
+
+        const [wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
+            getHistoPrices('wrapped-bitcoin', wbtcRepayedByDAO.map(d => d.timestamp), pastHistoPricesData),
+            getHistoPrices('ethereum', ethRepayedByDAO.map(d => d.timestamp), pastHistoPricesData),
+            getHistoPrices('yearn-finance', yfiRepayedByDAO.map(d => d.timestamp), pastHistoPricesData),
+        ]);
+
+        pastHistoPricesData['wrapped-bitcoin'] = { ...pastHistoPricesData['wrapped-bitcoin'], ...wbtcPrices };
+        pastHistoPricesData['ethereum'] = { ...pastHistoPricesData['ethereum'], ...ethPrices };
+        pastHistoPricesData['yearn-finance'] = { ...pastHistoPricesData['yearn-finance'], ...yfiPrices };
+
+        if (Object.keys(wbtcPrices)?.length > 0 || Object.keys(ethPrices)?.length > 0 || Object.keys(yfiPrices)?.length > 0) {            
+            await redisSetWithTimestamp(histoPrices, pastHistoPricesData);
+        }
+
+        debtRepayerRepayments.forEach(d => {
+            d.price = pastHistoPricesData[d.cgId][d.date];
         });
 
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
@@ -188,10 +214,10 @@ export default async function handler(req, res) {
         const badDebtEvents = [
             {
                 timestamp: 1646092800000, // march 1st 2022
-                nonFrontierDelta: 0,                
-                frontierDelta: 0,        
+                nonFrontierDelta: 0,
+                frontierDelta: 0,
                 frontierBadDebt: 0,
-                badDebt: 0,        
+                badDebt: 0,
             },
             {
                 timestamp: 1648912863001, // april 2th
@@ -217,7 +243,7 @@ export default async function handler(req, res) {
                 // sep repayment by mev bot (not by dao), dao repaid 303k
                 timestamp: 1663632000000, // 20 sep
                 nonFrontierDelta: -50850,
-                frontierDelta: 0,                
+                frontierDelta: 0,
             },
             {
                 timestamp: 1678665600000,// 13 mars 2023
@@ -273,11 +299,10 @@ export default async function handler(req, res) {
             badDebts,
             repayments,
             debtConverterConversions,
-            debtConverterRepayments,
+            debtRepayerRepayments,
         };
 
         await redisSetWithTimestamp(cacheKey, resultData);
-
         res.status(200).json(resultData);
     } catch (err) {
         console.error(err);
@@ -288,7 +313,7 @@ export default async function handler(req, res) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);
             } else {
-                res.status(200).json({ error: true });
+                res.status(500).json({ error: true });
             }
         } catch (e) {
             console.error(e);
@@ -305,14 +330,14 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     const comptroller = new Contract('0x4dCf7407AE5C07f8681e1659f626E114A7667339', COMPTROLLER_ABI, provider);
 
     const mainBadDebtAddresses = [
-      '0xeA0c959BBb7476DDD6cD4204bDee82b790AA1562',
-      '0xf508c58ce37ce40a40997C715075172691F92e2D',
-      '0xe2e4f2a725e42d0f0ef6291f46c430f963482001',
-      '0x86426c098e1ad3d96a62cc267d55c5258ddf686a',
-      '0x1991059f78026D50739100d5Eeda2723f8d9DD52',
-      '0xE69A81190F3A3a388E2b9e1C1075664252A8Ea7C',
-      '0x0e81F7af4698Cfe49cF5099A7D1e3E4421D5d1AF',
-      '0x6B92686c40747C85809a6772D0eda8e22a77C60c',
+        '0xeA0c959BBb7476DDD6cD4204bDee82b790AA1562',
+        '0xf508c58ce37ce40a40997C715075172691F92e2D',
+        '0xe2e4f2a725e42d0f0ef6291f46c430f963482001',
+        '0x86426c098e1ad3d96a62cc267d55c5258ddf686a',
+        '0x1991059f78026D50739100d5Eeda2723f8d9DD52',
+        '0xE69A81190F3A3a388E2b9e1C1075664252A8Ea7C',
+        '0x0e81F7af4698Cfe49cF5099A7D1e3E4421D5d1AF',
+        '0x6B92686c40747C85809a6772D0eda8e22a77C60c',
     ];
 
     const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || dolaFrontierDebts;
@@ -320,68 +345,93 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
 
-    if(!blocks.length) {
+    if (!blocks.length) {
         return pastData;
     };
 
     const newDebtsBn =
-      await throttledPromises(
-        (address: string) => {
-          return Promise.all(
-            blocks.map(block => {
-              return getHistoricValue(anDola, block, 'borrowBalanceStored', [address]);
-            })
-          )
-        },
-        mainBadDebtAddresses,
-        5,
-        100,
-      );
+        await throttledPromises(
+            (address: string) => {
+                return Promise.all(
+                    blocks.map(block => {
+                        return getHistoricValue(anDola, block, 'borrowBalanceStored', [address]);
+                    })
+                )
+            },
+            mainBadDebtAddresses,
+            5,
+            100,
+        );
 
     const dolaDebts = newDebtsBn.map((userDebts, i) => {
-      return userDebts.map((d, i) => {
-        return getBnToNumber(anDola.interface.decodeFunctionResult('borrowBalanceStored', d)[0]);
-      })
+        return userDebts.map((d, i) => {
+            return getBnToNumber(anDola.interface.decodeFunctionResult('borrowBalanceStored', d)[0]);
+        })
     });
 
     const accountLiqs =
-      await throttledPromises(
-        (address: string) => {
-          return Promise.all(
-            blocks.map(block => {
-              return getHistoricValue(comptroller, block, 'getAccountLiquidity', [address]);
-            })
-          )
-        },
-        mainBadDebtAddresses,
-        5,
-        100,
-      );
+        await throttledPromises(
+            (address: string) => {
+                return Promise.all(
+                    blocks.map(block => {
+                        return getHistoricValue(comptroller, block, 'getAccountLiquidity', [address]);
+                    })
+                )
+            },
+            mainBadDebtAddresses,
+            5,
+            100,
+        );
 
     const shortfalls = accountLiqs.map((accountLiq, i) => {
-      return accountLiq.map((d, i) => {
-        return getBnToNumber(comptroller.interface.decodeFunctionResult('getAccountLiquidity', d)[2]);
-      })
+        return accountLiq.map((d, i) => {
+            return getBnToNumber(comptroller.interface.decodeFunctionResult('getAccountLiquidity', d)[2]);
+        })
     });
 
     const userBadDebts = dolaDebts.map((userDebts, i) => {
-      return userDebts.map((debt, j) => {
-        return shortfalls[i][j] > 0 ? debt : 0;
-      });
+        return userDebts.map((debt, j) => {
+            return shortfalls[i][j] > 0 ? debt : 0;
+        });
     });
 
     const newTotals = blocks.map((a, i) => mainBadDebtAddresses.reduce((prev, curr) => prev + userBadDebts[mainBadDebtAddresses.indexOf(curr)][i], 0));
 
     const resultData = {
-      totals: pastData?.totals.concat(newTotals),
-      old: pastData?.shortfalls,
-      new: shortfalls,
-      shortfalls: pastData?.shortfalls.map((d,i) => d.concat(shortfalls[i])),
-      dolaDebts: pastData?.dolaDebts.map((d,i) => d.concat(dolaDebts[i])),
-      userBadDebts: pastData?.userBadDebts.map((d,i) => d.concat(userBadDebts[i])),
-      blocks: pastData?.blocks.concat(blocks),
-      timestamp: +(new Date()),
+        totals: pastData?.totals.concat(newTotals),
+        old: pastData?.shortfalls,
+        new: shortfalls,
+        shortfalls: pastData?.shortfalls.map((d, i) => d.concat(shortfalls[i])),
+        dolaDebts: pastData?.dolaDebts.map((d, i) => d.concat(dolaDebts[i])),
+        userBadDebts: pastData?.userBadDebts.map((d, i) => d.concat(userBadDebts[i])),
+        blocks: pastData?.blocks.concat(blocks),
+        timestamp: +(new Date()),
     }
     await redisSetWithTimestamp(frontierBadDebtEvoCacheKey, resultData);
     return resultData;
+}
+
+const getHistoPrices = async (cgId: string, timestamps: number[], pastHistoPricesData: any) => {
+    const dates = timestamps.map(ts => utcDateToDDMMYYYY(timestampToUTC(ts)));
+    const uniqueDates = [...new Set(dates)]
+        .filter(d => !pastHistoPricesData[cgId][d]);
+
+    const pricesRes = await Promise.allSettled(
+        uniqueDates.map(date => {
+            const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${date}&localization=false`;
+            return fetch(histoPriceUrl);
+        })
+    );
+
+    const prices = await Promise.all(pricesRes.map(p => p.status === 'fulfilled' ? p.value.json() : new Promise((res) => res(undefined))));
+
+    return (
+        prices
+            .reduce((prev, curr, i) => {
+                return {
+                    ...prev,
+                    [uniqueDates[i]]: curr.market_data ? curr.market_data.current_price.usd : undefined,
+                };
+            }, {})
+    )
 }
