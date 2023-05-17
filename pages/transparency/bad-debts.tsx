@@ -253,7 +253,7 @@ export const BadDebtPage = () => {
                 align: { base: 'flex-start', md: 'flex-end' },
               }}
               right={
-                <Stack pt={{ base: '2', sm: '0' }} justify="center" w='full' spacing="0" alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
+                <Stack pt={{ base: '2', sm: '0' }} justify="center" w='full' spacing={{ base: '1', sm: '0' }} alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
                   {
                     !isAllCase && <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                   }
@@ -287,7 +287,7 @@ export const BadDebtPage = () => {
               align: { base: 'flex-start', md: 'flex-end' },
             }}
             right={
-              <VStack fontSize="14px" spacing="0" alignItems="flex-end">
+              <VStack fontSize="14px" spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                 <Text>IOUs held: <b>{preciseCommify(data?.iousHeld, 0)}</b></Text>
                 <Text>IOUs in DOLA: <b>{preciseCommify(data?.iousDolaAmount, 0)}</b></Text>
               </VStack>
