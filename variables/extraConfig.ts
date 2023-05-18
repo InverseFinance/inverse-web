@@ -6,6 +6,7 @@ export enum FIRM_ESCROWS {
     'simple' = '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f',
     'gOHM' = '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',
     'cvxCRV' = '0x2F32a5E5E000d1a7257090DF260fC08F0Bab2125',
+    'INV' = '0x502a7759809bD673cd39A0055beed44b40EAac98',
 }
 
 const mainConfig = {
@@ -95,6 +96,20 @@ const mainConfig = {
             hasClaimableRewards: true,
             zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
             startingBlock: 17228187,
+        },
+        {
+            name: 'INV',
+            collateral: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
+            address: '0xb516247596Ca36bf32876199FBdCaD6B3322330B',
+            escrowImplementation: FIRM_ESCROWS.INV,            
+            helper: true,
+            oracleType: "twap",
+            badgeInfo: 'DBR Real yield',
+            badgeProps: { bgColor: 'info', color: 'contrastMainTextColor' },
+            hasClaimableRewards: false,
+            hasDbrRewards: true,
+            isStaking: true,
+            startingBlock: 17272807,
         },
     ],
     feds: FEDS_PARAMS,

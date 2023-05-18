@@ -7,6 +7,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getCvxCrvAPRs, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
+import { frontierMarketsCacheKey } from '../markets';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.1`;
@@ -14,7 +15,7 @@ export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.1`;
 export default async function handler(req, res) {
 
   try {
-    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 60);
+    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 60);    
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -22,6 +23,9 @@ export default async function handler(req, res) {
 
     const provider = getProvider(CHAIN_ID);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
+
+    // trigger
+    fetch('https://inverse.finance/api/markets');
 
     const [
       bnCollateralFactors,
@@ -33,6 +37,7 @@ export default async function handler(req, res) {
       borrowControllers,
       borrowPaused,
       liquidationFactors,
+      frontierMarkets, 
     ] = await Promise.all([
       Promise.all(
         F2_MARKETS.map(m => {
@@ -87,6 +92,7 @@ export default async function handler(req, res) {
           return market.liquidationFactorBps();
         })
       ),
+      getCacheFromRedis(frontierMarketsCacheKey, false),
     ]);
 
     const dailyLimits = await Promise.all(
@@ -152,11 +158,13 @@ export default async function handler(req, res) {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
+    const invFrontierMarket = frontierMarkets.markets.find(m => m.token === '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B')!;
     const externalApys = {
       'stETH': stethData?.apy||0,
       'gOHM': gohmData?.apy||0,
       'cvxCRV': Math.max(cvxCrvData?.group1||0, cvxCrvData?.group2||0),
-    }
+      'INV': invFrontierMarket.supplyApy||0,
+    };
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
