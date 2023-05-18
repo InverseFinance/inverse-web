@@ -9,7 +9,7 @@ import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { fedOverviewCacheKey } from "./fed-overview";
-import { dolaFrontierDebts } from "@app/fixtures/frontier-dola";
+import { DOLA_FRONTIER_DEBTS } from "@app/fixtures/frontier-dola";
 import { throttledPromises, timestampToUTC, utcDateToDDMMYYYY } from "@app/util/misc";
 import { getTokenHolders } from "@app/util/covalent";
 import { parseUnits } from "@ethersproject/units";
@@ -20,7 +20,7 @@ const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
 const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 
-const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.2';
+const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.x';
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -349,7 +349,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         '0x6B92686c40747C85809a6772D0eda8e22a77C60c',
     ];
 
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || dolaFrontierDebts;
+    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBTS;
     // return pastData;
     const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);

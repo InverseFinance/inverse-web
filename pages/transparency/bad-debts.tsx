@@ -171,12 +171,20 @@ export const BadDebtPage = () => {
 
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
+    const currentBadDebtUsd = item.badDebtBalance * priceUsd;
+    const key = item.symbol === 'DOLA' ? 'totalDolaRepayedByDAO' : `${item.symbol.toLowerCase()}RepayedByDAO`;
+    const totalBadDebtRepaidByDao = data[key]?.reduce((prev, curr) => prev + curr.amount, 0) || 0
+    const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
+    const totalBadDebtUsd = currentBadDebtUsd + totalBadDebtRepaidByDaoUsd;    
     return {
       ...item,
-      badDebtUsd: item.badDebtBalance * priceUsd,
+      badDebtUsd: currentBadDebtUsd,
       priceUsd,
       totalBadDebtReduced: item.repaidViaDwf || 0 + item.sold + item.converted,
-      totalBadDebtRepaidByDao: data[`${item.symbol.toLowerCase()}RepayedByDAO`]?.reduce((prev, curr) => prev + curr.amount, 0) || 0,
+      totalBadDebtRepaidByDao,
+      totalBadDebtRepaidByDaoUsd,
+      totalBadDebtUsd,
+      percRepaid: totalBadDebtRepaidByDaoUsd / totalBadDebtUsd * 100,
     };
   }).filter(item => item.badDebtBalance > 0.1);
 
@@ -279,7 +287,7 @@ export const BadDebtPage = () => {
           </Stack>
           <Container
             noPadding
-            label={`Bad Debt Converter and Repayer`}
+            label={`Indirect repayments: Bad Debt Converter and Repayer`}
             description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
             href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
             headerProps={{
