@@ -22,6 +22,7 @@ export const F2MarketContext = React.createContext<{
     market: F2Market,
     colDecimals: number,
     account: string,
+    escrow: string,
     signer: JsonRpcSigner,
     step: number,
     duration: number,

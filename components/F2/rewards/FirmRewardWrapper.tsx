@@ -1,5 +1,4 @@
 import { F2Market } from "@app/types"
-import { CvxCrvRewards } from "./CvxCrvRewards";
 import { useContext, useEffect } from "react";
 import { useEscrowRewards, useINVEscrowRewards } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
@@ -12,13 +11,16 @@ export const FirmRewardWrapper = ({
     market,
     label,
     showMarketBtn = false,
+    escrow,
 }: {
     market: F2Market
     label?: string
+    escrow?: string
     showMarketBtn?: boolean
 }) => {
-    const { escrow } = useContext(F2MarketContext);
-    if (!escrow || escrow === BURN_ADDRESS) return <></>;
+    const { escrow: escrowFromContext } = useContext(F2MarketContext);
+    const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
+    if (!_escrow) return <></>;
 
     if (market.isInv) {
         return <FirmINVRewardWrapperContent
@@ -86,6 +88,7 @@ export const FirmINVRewardWrapperContent = ({
         label={label}
         showMarketBtn={showMarketBtn}
         isLoading={isLoading}
+        escrow={escrow}
         extra={
             <InfoMessage
                 title='What about INV?'
@@ -101,16 +104,19 @@ export const FirmRewards = ({
     label,
     showMarketBtn = false,
     isLoading,
+    escrow,
     extra,
 }: {
     market: F2Market
     rewardsInfos: any[]
     label?: string
+    escrow?: string
     showMarketBtn?: boolean
     isLoading?: boolean
     extra?: any
 }) => {
-    const { escrow, signer, account } = useContext(F2MarketContext);
+    const { escrow: escrowFromContext } = useContext(F2MarketContext);
+    const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
     const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
@@ -121,11 +127,9 @@ export const FirmRewards = ({
     }
     return <RewardsContainer
         label={label || `${market?.name} Market Rewards`}
-        escrow={escrow}
-        account={account}
+        escrow={_escrow}
         claimables={claimables}
         totalRewardsUSD={totalRewardsUSD}
-        signer={signer}
         market={market}
         showMarketBtn={showMarketBtn}
         defaultCollapse={false}

@@ -1,18 +1,16 @@
 import Container from "@app/components/common/Container";
 import { ZapperTokens } from "./ZapperTokens"
 import { claim } from "@app/util/firm-extra";
-import { JsonRpcSigner } from "@ethersproject/providers";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { F2Market } from "@app/types";
 import Link from "@app/components/common/Link";
 import { useState } from "react";
 import { zapperRefresh } from "@app/util/f2";
 import { Stack } from "@chakra-ui/react";
+import { useWeb3React } from "@web3-react/core";
 
 export const RewardsContainer = ({
     escrow,
-    account,
-    signer,
     claimables,
     totalRewardsUSD,
     label = 'Rewards',
@@ -22,24 +20,25 @@ export const RewardsContainer = ({
     extra,
 }: {
     escrow: string,
-    account: string,
     claimables: any,
     totalRewardsUSD: number,
-    signer: JsonRpcSigner,
     label?: string
     showMarketBtn?: boolean
     defaultCollapse?: boolean
     market: F2Market
     extra?: any
 }) => {
+    const { account, library } = useWeb3React();    
     const [hasJustClaimed, setHasJustClaimed] = useState(false);
 
     const handleClaim = async () => {
-        return claim(escrow, signer, market.claimMethod);
+        if (!account) return;
+        return claim(escrow, library?.getSigner(), market.claimMethod);
     }
 
     const handleClaimSuccess = () => {
         setHasJustClaimed(true);
+        if (!account) return;
         if (!!market.zapperAppGroup) {
             zapperRefresh(account);
         }
@@ -71,7 +70,7 @@ export const RewardsContainer = ({
                         />
                         :
                         <InfoMessage
-                            description="This market has rewards but you don't have any at the moment, it will show when when you have at least $0.1 worth of rewards."
+                            description="This market has rewards but you don't have any at the moment, it will show if you have at least $0.1 worth of rewards."
                         />
             }
             {extra}
