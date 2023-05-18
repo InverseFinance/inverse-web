@@ -20,12 +20,12 @@ import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
 import { WarningMessage } from "@app/components/common/Messages"
 
-const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
-const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
+const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
+const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
 
 const DbrRepMsg = ({ replenishmentDailyRate, ...props }: { replenishmentDailyRate: number }) => <WarningMessage
     description={
-        <HStack spacing='1' {...props}>
+        <HStack spacing='1' display={{ base: 'inline-block', sm: 'inline-flex' }} {...props}>
             <Text><b>You are out of DBR,</b></Text>
             <Link style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} href={BUY_LINKS.DBR} isExternal target='_blank'>
                 please top-up your balance,
@@ -39,6 +39,7 @@ export const MarketBar = ({
 }: {
 } & Partial<StackProps>) => {
     const { price: dbrPrice } = useDBRPrice();
+    const [isLargerThan400] = useMediaQuery('(min-width: 400px)');
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const [effectEnded, setEffectEnded] = useState(true);
@@ -54,7 +55,7 @@ export const MarketBar = ({
         dbrExpiryDate,
     } = useContext(F2MarketContext);
 
-    const [liquidity, setLiquidity] = useState(market.dolaLiquidity);
+    const [available, setAvailable] = useState(market.dolaLiquidity);
 
     useEffect(() => {
         setEffectEnded(false);
@@ -65,7 +66,7 @@ export const MarketBar = ({
     }, [isWalkthrough], !isWalkthrough, 200, 50);
 
     useDebouncedEffect(() => {
-        setLiquidity(market.leftToBorrow);
+        setAvailable(market.leftToBorrow);
     }, [market.dolaLiquidity, market.leftToBorrow], 500);
 
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
@@ -120,7 +121,7 @@ export const MarketBar = ({
     const otherInfos = <>
         <VStack spacing={{ base: '0', sm: '1' }} alignItems="flex-start">
             <Title>
-                Collateral Factor
+                C.F
             </Title>
             <SubTitle color="secondaryTextColor">
                 {preciseCommify(market.collateralFactor * 100, 2)}%
@@ -147,26 +148,44 @@ export const MarketBar = ({
 
     return <Container noPadding p="0">
         <VStack w='full' {...props}>
-            <HStack w='full' justify="space-between">
+            {
+                !isLargerThan400 && <HStack>
+                    <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
+                    <Title>
+                        {market.name} Market
+                    </Title>
+                </HStack>
+            }
+            <HStack w='full' alignItems="flex-start" justify="space-between">
                 <HStack w='full' spacing={{ base: '2', md: '8' }} justify="space-between">
                     <HStack spacing={{ base: '1', md: '2' }}>
-                        <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
-                        <VStack spacing={{ base: '0', sm: '1' }} alignItems="flex-start">
-                            <Title as='h2'>
-                                {market.name} Market
+                        {
+                            isLargerThan400 && <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
+                        }
+                        <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ md: 'flex-start' }}>
+                            <Title textAlign="left">
+                                Liquidity
                             </Title>
-                            {
-                                market.borrowPaused ?
-                                    <SubTitle fontWeight="bold" color={'warning'}>
-                                        Paused
-                                    </SubTitle>
-                                    :
-                                    <SubTitle fontWeight={liquidity === 0 ? 'bold' : undefined} color={liquidity === 0 ? 'warning' : 'secondaryTextColor'}>
-                                        {liquidity ? shortenNumber(liquidity, liquidity < 100 ? 2 : 0, false, true) : 'No'} DOLA liquidity
-                                    </SubTitle>
-                            }
+                            <SubTitle>
+                                {preciseCommify(market.dolaLiquidity, available < 100 ? 2 : 0, false)} DOLA
+                            </SubTitle>
                         </VStack>
                     </HStack>
+                    <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ base: 'flex-start' }}>
+                        <Title textAlign="left">
+                            Available to borrow
+                        </Title>
+                        {
+                            market.borrowPaused ?
+                                <SubTitle fontWeight="bold" color={'warning'}>
+                                    Paused
+                                </SubTitle>
+                                :
+                                <SubTitle fontWeight={available === 0 ? 'bold' : undefined} color={available === 0 ? 'warning' : 'secondaryTextColor'}>
+                                    {available ? `${preciseCommify(available, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA liquidity'}
+                                </SubTitle>
+                        }
+                    </VStack>
                     <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ base: 'flex-end', md: 'flex-start' }}>
                         <Title>
                             Oracle Price
@@ -175,7 +194,6 @@ export const MarketBar = ({
                             {preciseCommify(market.price, 2, true)}
                         </SubTitle>
                     </VStack>
-
                     {
                         !isWalkthrough && effectEnded && isLargerThan1000 && otherInfos
                     }
