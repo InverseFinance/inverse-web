@@ -1,15 +1,16 @@
 
-import { F2Market, FirmAction, SWR } from "@app/types"
+import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
 import { fetcher } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
-import { useDBRMarkets } from "./useDBR";
+import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
-import { DBR_ABI, F2_MARKET_ABI } from "@app/config/abis";
+import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { uniqueBy } from "@app/util/misc";
 import { ONE_DAY_MS } from "@app/config/constants";
+import useEtherSWR from "./useEtherSWR";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -226,12 +227,44 @@ export const useDBRDebtHisto = (): SWR & {
   }
 }
 
+export const useINVEscrowRewards = (escrow: string): SWR & {
+  rewards: number,
+  rewardsInfos: { tokens: ZapperToken[] },
+} => {  
+  const { data, error } = useEtherSWR({
+    args: [[escrow, 'claimable']],
+    abi: F2_ESCROW_ABI,
+  });
+  console.log('useINVEscrowRewards', data, error);
+  const { price: dbrPrice } = useDBRPrice();
+
+  const rewards = 50//data && data[0] ? getBnToNumber(data[0]) : 0;
+
+  const rewardsInfos = {
+    tokens: [
+      {
+        metaType: 'claimable',
+        balanceUSD: rewards * dbrPrice,
+        price: dbrPrice,
+        balance: rewards,
+        address: DBR,
+      }
+    ]
+  };
+
+  return {
+    rewards,
+    rewardsInfos,
+    isLoading: !error && !data,
+    isError: error,
+  }
+};
 
 export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow||''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`, fetcher);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -245,7 +278,7 @@ export const useUserRewards = (user: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user||''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`, fetcher);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],

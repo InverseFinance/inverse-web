@@ -13,12 +13,12 @@ export const setRewardWeight = (escrow: string, newValueBps: string | number, si
 }
 
 // Generic claim function for an escrow with rewards
-export const claim = (escrow: string, signer: JsonRpcSigner) => {
+export const claim = (escrow: string, signer: JsonRpcSigner, methodName = 'claim') => {
     const contract = new Contract(escrow, F2_ESCROW_ABI, signer);
-    return contract.claim();
+    return contract[methodName]();
 }
 
-export const claimTo = (escrow: string, to: string, signer: JsonRpcSigner) => {
+export const claimTo = (escrow: string, to: string, signer: JsonRpcSigner, methodName = 'claim') => {
     const contract = new Contract(escrow, F2_ESCROW_ABI, signer);
-    return contract.claimTo(to);
+    return contract[methodName](to);
 }

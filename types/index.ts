@@ -87,7 +87,7 @@ export type Market = {
   claimableTime?: number
   rewardsPerMonth: number
   interestRateModel?: string
-  repayAllAddress? : string
+  repayAllAddress?: string
 }
 
 export enum GovEra {
@@ -117,7 +117,7 @@ export type Proposal = {
   era: GovEra
   createdAt?: number
   updatedAt?: number
-  executionTimestamp? :number
+  executionTimestamp?: number
 }
 
 export enum ProposalStatus {
@@ -532,28 +532,28 @@ export type Bond = {
 }
 
 export type BondV2 = {
-  id:              string;
-  bondContract:    string;
-  output:          string;
-  bondPrice:       number;
-  inputUsdPrice:   number;
-  underlying:      Token;
-  howToGetLink:    string;
-  input:           string;
-  owner:           string;
-  teller:          string;
+  id: string;
+  bondContract: string;
+  output: string;
+  bondPrice: number;
+  inputUsdPrice: number;
+  underlying: Token;
+  howToGetLink: string;
+  input: string;
+  owner: string;
+  teller: string;
   capacityInQuote: boolean;
-  capacity:        number;
-  totalDebt:       number;
-  minPrice:        number;
-  maxPayout:       number;
-  sold:            number;
-  purchased:       number;
-  scale:           number;
-  controlVar:      string;
-  maxDebt:         number;
-  vestingDays:     number;
-  conclusion:      number;
+  capacity: number;
+  totalDebt: number;
+  minPrice: number;
+  maxPayout: number;
+  sold: number;
+  purchased: number;
+  scale: number;
+  controlVar: string;
+  maxDebt: number;
+  vestingDays: number;
+  conclusion: number;
   isNotConcluded: boolean
   isPurchasable: boolean
 }
@@ -637,7 +637,7 @@ export type RefundableTransaction = {
 export type Vester = {
   address: string
   recipient: string
-  amount: number 
+  amount: number
 }
 
 export type Payroll = { recipient: string, amount: number, unclaimed: number }
@@ -712,6 +712,7 @@ export type F2Market = {
   borrowPaused: boolean
   borrowController: string
   icon?: string
+  zapperAppGroup?: string
   isGovTokenCollateral?: boolean
   hasClaimableRewards?: boolean
   isStaking?: boolean
@@ -725,6 +726,7 @@ export type F2Market = {
   badgeInfo: string
   badgeProps?: BadgeProps
   startingBlock: number
+  claimMethod?: string
 }
 
 export type FirmAction = {
@@ -761,4 +763,12 @@ export type LiquidityPoolAggregatedData = {
   pol: number
   rewardDay: number
   avgApy: number
+}
+
+export type ZapperToken = {
+  metaType: 'claimable',
+  balanceUSD: number,
+  price: number,
+  balance: number,
+  address: string,
 }
