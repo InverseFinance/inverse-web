@@ -4,7 +4,7 @@ import { F2MarketContext } from "../F2Contex";
 import { useContext, useEffect, useState } from "react";
 import ScannerLink from "@app/components/common/ScannerLink";
 import useEtherSWR from "@app/hooks/useEtherSWR";
-import { F2_ESCROW_ABI } from "@app/config/abis";
+import { F2_ESCROW_ABI, INV_ABI } from "@app/config/abis";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
 import { Input } from "@app/components/common/Input";
@@ -15,6 +15,10 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import Link from "@app/components/common/Link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { getNetworkConfigConstants } from "@app/util/networks";
+import { NetworkIds } from "@app/types";
+
+const { INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FirmGovToken = () => {
     const { library, account } = useWeb3React<Web3Provider>();
@@ -22,11 +26,22 @@ export const FirmGovToken = () => {
     const [newDelegate, setNewDelegate] = useState('');
     const [hasError, setHasError] = useState(false);
     const { market, escrow } = useContext(F2MarketContext);
-    const { data } = useEtherSWR({
+    console.log(escrow)
+
+    // standard case
+    const { data: standardDelegateData } = useEtherSWR({
         args: [[escrow, 'delegatingTo']],
         abi: F2_ESCROW_ABI,
     });
-    const delegatingTo = data ? data[0] : '';
+    // inv escrow case
+    const { data: invDelegateData } = useEtherSWR({
+        args: [[INV, 'delegates', escrow]],
+        abi: INV_ABI,
+    });
+    
+    const standardDelegate = standardDelegateData ? standardDelegateData[0] : '';
+    const invDelegate = invDelegateData ? invDelegateData[0] : '';
+    const delegatingTo = standardDelegate || invDelegate;
 
     useEffect(() => {
         setHasError(
