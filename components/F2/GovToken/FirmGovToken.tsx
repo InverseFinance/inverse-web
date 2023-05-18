@@ -17,6 +17,7 @@ import Link from "@app/components/common/Link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { NetworkIds } from "@app/types";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 const { INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -26,7 +27,6 @@ export const FirmGovToken = () => {
     const [newDelegate, setNewDelegate] = useState('');
     const [hasError, setHasError] = useState(false);
     const { market, escrow } = useContext(F2MarketContext);
-    console.log(escrow)
 
     // standard case
     const { data: standardDelegateData } = useEtherSWR({
@@ -39,8 +39,8 @@ export const FirmGovToken = () => {
         abi: INV_ABI,
     });
     
-    const standardDelegate = standardDelegateData ? standardDelegateData[0] : '';
-    const invDelegate = invDelegateData ? invDelegateData[0] : '';
+    const standardDelegate = standardDelegateData ? standardDelegateData[0]?.replace(BURN_ADDRESS, '') : '';
+    const invDelegate = invDelegateData ? invDelegateData[0]?.replace(BURN_ADDRESS, '') : '';
     const delegatingTo = standardDelegate || invDelegate;
 
     useEffect(() => {
